@@ -64,6 +64,7 @@ struct ScopedEnv
     }
 
     operator JNIEnv *() const { return env; }
+    JNIEnv* operator->() const { return env; }
 
     static std::pair<JNIEnv*,bool> GetJniEnv(JavaVM *vm)
     {

@@ -73,7 +73,7 @@ SceneRenderer *SceneManager::getSceneRenderer()
 }
 
 Scene::Scene(CoordSystemDisplayAdapter *adapter)
-    : fontTextureManager(NULL), setupInfo(NULL), currentTime(0.0)
+    : fontTextureManager(nullptr), setupInfo(nullptr), currentTime(0.0)
 {
     SetupDrawableStrings();
     
@@ -137,7 +137,7 @@ Scene::~Scene()
 
     programs.clear();
     
-    fontTextureManager = NULL;
+    fontTextureManager = nullptr;
 }
     
 CoordSystemDisplayAdapter *Scene::getCoordAdapter()

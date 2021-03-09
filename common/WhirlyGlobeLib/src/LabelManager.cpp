@@ -189,7 +189,7 @@ void LabelManager::enableLabels(const SimpleIDSet &labelIDs,bool enable,ChangeSe
 }
 
 
-void LabelManager::removeLabels(PlatformThreadInfo *,const SimpleIDSet &labelIDs,ChangeSet &changes)
+void LabelManager::removeLabels(PlatformThreadInfo *inst,const SimpleIDSet &labelIDs,ChangeSet &changes)
 {
     auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
@@ -232,7 +232,7 @@ void LabelManager::removeLabels(PlatformThreadInfo *,const SimpleIDSet &labelIDs
                     TimeInterval fontRemoveTime = removeTime;
                     if (layoutManager && !labelRep->layoutIDs.empty())
                         fontRemoveTime = curTime + 2.0;
-                    fontTexManager->removeString(id, changes, fontRemoveTime);
+                    fontTexManager->removeString(inst, id, changes, fontRemoveTime);
                 }
             }
             

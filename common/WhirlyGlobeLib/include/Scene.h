@@ -361,7 +361,7 @@ public:
     void dumpStats();
     
     /// Tear down renderer related assets
-    virtual void teardown() = 0;
+    virtual void teardown(PlatformThreadInfo*) = 0;
     
     /// Mark any changed programs as acknowledged (used in Metal)
     void markProgramsUnchanged();

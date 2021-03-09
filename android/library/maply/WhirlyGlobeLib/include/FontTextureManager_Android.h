@@ -42,10 +42,15 @@ public:
     	FontManager_Android();
         virtual ~FontManager_Android();
 
-        virtual void deinit(PlatformThreadInfo*) override;
+        virtual bool operator <(const FontManager &that) const override
+        {
+            return false;   // todo: this isn't really ok
+        }
 
         // Clear out global refs to Java objects we may be sitting on
         void clearRefs(JNIEnv *env);
+
+        virtual void teardown(PlatformThreadInfo*) override;
 
         JavaVM* jvm;
         jobject typefaceObj;
@@ -54,7 +59,9 @@ public:
 
     /// Add the given string.  Caller is responsible for deleting the DrawableString
     DrawableString *addString(PlatformThreadInfo *threadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *,ChangeSet &changes);
-    
+
+    virtual void teardown(PlatformThreadInfo*) override;
+
 protected:
     // Find the appropriate font manager
     FontManager_AndroidRef findFontManagerForFont(PlatformInfo_Android *threadInfo,jobject typefaceObj,const LabelInfo &labelInfo);

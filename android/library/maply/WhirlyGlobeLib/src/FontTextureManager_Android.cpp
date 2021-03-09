@@ -40,35 +40,34 @@ FontTextureManager_Android::FontManager_Android::FontManager_Android() :
 {
 }
 
+FontTextureManager_Android::FontManager_Android::~FontManager_Android()
+{
+	// should have been cleaned up by now through teardown, but we'll try it the hard way...
+	if (typefaceObj != nullptr)
+	{
+		clearRefs(nullptr);
+	}
+}
+
 void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv* env)
 {
-	if (env && typefaceObj)
+	if (typefaceObj)
 	{
-		env->DeleteGlobalRef(typefaceObj);
+		if (env)
+		{
+			env->DeleteGlobalRef(typefaceObj);
+		}
+		else if (auto jvmEnv = ScopedEnv(jvm))
+		{
+			jvmEnv->DeleteGlobalRef(typefaceObj);
+		}
 		typefaceObj = nullptr;
 	}
 }
 
-FontTextureManager_Android::FontManager_Android::~FontManager_Android()
+void FontTextureManager_Android::FontManager_Android::teardown(PlatformThreadInfo* inst)
 {
-	// should have been cleaned up by now
-	assert(typefaceObj == nullptr);
-	clearRefs(nullptr);
-}
-
-void FontTextureManager_Android::FontManager_Android::deinit(PlatformThreadInfo* platformInfo)
-{
-	if (typefaceObj)
-	{
-		if (auto pi = (PlatformInfo_Android*)platformInfo)
-		{
-			clearRefs(pi->env);
-		}
-		else if (auto env = ScopedEnv(jvm))
-		{
-			clearRefs(env);
-		}
-	}
+	clearRefs(((PlatformInfo_Android*)inst)->env);
 }
 
 FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject inCharRenderObj) :
@@ -104,6 +103,28 @@ FontTextureManager_Android::~FontTextureManager_Android()
 	{
 		env->DeleteGlobalRef(charRenderObj);
 	}
+}
+
+void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)
+{
+	const auto env = threadInfo ? ((PlatformInfo_Android*)threadInfo)->env : nullptr;
+	if (!env)
+	{
+		wkLogLevel(Error, "Missing platform info");
+		return;
+	}
+
+	for (const auto &kv : fontManagers)
+	{
+		if (const auto afm = dynamic_cast<FontManager_Android*>(kv.second.get()))
+		{
+			afm->clearRefs(env);
+		}
+#if DEBUG
+		else wkLogLevel(Warn,"Unexpected type skipped in teardown");
+#endif
+	}
+	fontManagers.clear();
 }
 
 DrawableString *FontTextureManager_Android::addString(

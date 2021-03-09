@@ -1,9 +1,8 @@
-/*
- *  ComponentManager.cpp
+/*  ComponentManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ComponentManager.h"
@@ -112,7 +110,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
     removeComponentObjects(threadInfo,compIDs, changes);
 }
 
-void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *inst,const SimpleIDSet &compIDs,ChangeSet &changes)
 {
     if (compIDs.empty())
         return;
@@ -142,12 +140,12 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
         }
     }
     
-    for (ComponentObjectRef compObj : compRefs) {
+    for (const ComponentObjectRef &compObj : compRefs) {
         // Get rid of the various layer objects
         if (!compObj->markerIDs.empty())
             markerManager->removeMarkers(compObj->markerIDs, changes);
         if (!compObj->labelIDs.empty())
-            labelManager->removeLabels(threadInfo,compObj->labelIDs, changes);
+            labelManager->removeLabels(inst,compObj->labelIDs, changes);
         if (!compObj->vectorIDs.empty())
             vectorManager->removeVectors(compObj->vectorIDs, changes);
         if (!compObj->wideVectorIDs.empty())
@@ -167,14 +165,15 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
             // Giving the fonts 2s to stick around
             //       This avoids problems with texture being paged out.
             //       Without this we lose the textures before we're done with them
-            TimeInterval when = scene->getCurrentTime() + 2.0;
+            const TimeInterval when = scene->getCurrentTime() + 2.0;
             for (SimpleIdentity dStrID : compObj->drawStringIDs)
-                fontTexManager->removeString(dStrID, changes, when);
+            {
+                fontTexManager->removeString(inst, dStrID, changes, when);
+            }
         }
-        if (!compObj->partSysIDs.empty())
+        for (const auto partSysID : compObj->partSysIDs)
         {
-            for (SimpleIdentity partSysID : compObj->partSysIDs)
-                partSysManager->removeParticleSystem(partSysID, changes);
+            partSysManager->removeParticleSystem(partSysID, changes);
         }
     }
 }
@@ -183,7 +182,6 @@ void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable,
 {
     SimpleIDSet compIDs;
     compIDs.insert(compID);
-    
     enableComponentObjects(compIDs, enable, changes);
 }
 

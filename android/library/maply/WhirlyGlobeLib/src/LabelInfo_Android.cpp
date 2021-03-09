@@ -42,6 +42,7 @@ LabelInfoAndroid::LabelInfoAndroid(LabelInfoAndroid &&that) noexcept :
 
 LabelInfoAndroid::~LabelInfoAndroid()
 {
+	// should have been cleaned up through clearRefs()
 	assert(labelInfoObj == nullptr);
 }
 
