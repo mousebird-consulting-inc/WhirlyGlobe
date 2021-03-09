@@ -77,7 +77,7 @@ float LinearWalker::getTotalLength()
     return totalLength;
 }
 
-bool LinearWalker::nextPoint(double dist,Point2f *retPt,bool savePos)
+bool LinearWalker::nextPoint(double dist,Point2f *retPt,Point2f *norm,bool savePos)
 {
     if (ptSoFar >= pts.size()-1)
         return false;
@@ -92,6 +92,8 @@ bool LinearWalker::nextPoint(double dist,Point2f *retPt,bool savePos)
             float newOffsetDist = offsetDist + (dist-travelSoFar);
             if (retPt)
                 *retPt = pts[newPtSoFar] + newOffsetDist/segLen * dir;
+            if (norm)
+                *norm = Point2f(-dir.y(),dir.x()).normalized();
             if (savePos) {
                 offsetDist = newOffsetDist;
                 ptSoFar = newPtSoFar;

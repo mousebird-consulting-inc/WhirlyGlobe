@@ -658,14 +658,14 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                         // Make sure we can lay it out at least once
                         if (textLen + 2.0*layoutObj->obj.layoutSpacing < walk.getTotalLength()) {
                             // Start with an initial offset
-                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr))
+                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr))
                                 continue;
 
                             std::vector<Eigen::Matrix3d> layoutMats;
 
                             // Center around the world point on the screen
                             Point2f midRun;
-                            if (!walk.nextPoint(layoutMbr.span().x()/2.0, &midRun, false))
+                            if (!walk.nextPoint(layoutMbr.span().x()/2.0, &midRun, nullptr, false))
                                 continue;
                             Point2f worldScreenPt = midRun;
                             Point3d worldPt(0.0,0.0,0.0);
@@ -684,17 +684,24 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
-                                if (!walk.nextPoint(span.x(),&centerPt)) {
+                                Point2f norm;
+                                if (!walk.nextPoint(span.x(),&centerPt,&norm)) {
                                     failed = true;
                                     break;
                                 }
-                                walk.nextPoint(span.x(), nullptr);
+                                walk.nextPoint(span.x(), nullptr, nullptr);
                                 soFarX = glyphMbr.ll().x()+span.x();
 
                                 // Translate the glyph into that position
                                 Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
                                                                   -(centerPt.y()-worldScreenPt.y())/2.0));
-                                layoutMats.push_back(transOrigin.matrix() * transPlace.matrix());
+                                double ang = -1.0 * (atan2(norm.y(),norm.x()) - M_PI/2.0);
+                                Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
+                                Matrix3d screenRotMat = Matrix3d::Identity();
+                                for (unsigned ix=0;ix<2;ix++)
+                                    for (unsigned iy=0;iy<2;iy++)
+                                        screenRotMat(ix, iy) = screenRot(ix, iy);
+                                layoutMats.push_back(transPlace.matrix() * screenRotMat * transOrigin.matrix());
                             }
                             
                             if (!failed) {
