@@ -23,13 +23,18 @@ package com.mousebird.maply;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TreeSet;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Simple Tile Fetcher is meant for sub classing.
@@ -45,13 +50,15 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     protected boolean valid = false;
     protected String name;
     public int minZoom = -1,maxZoom = -1;
+    WeakReference<BaseController> control = new WeakReference<BaseController>(null);
 
     /**
      * Construct with the name, min and max zoom levels.
      */
-    public SimpleTileFetcher(String inName)
+    public SimpleTileFetcher(BaseController inControl,String inName)
     {
         super(inName);
+        control = new WeakReference<BaseController>(inControl);
 
         name = inName;
     }
@@ -219,7 +226,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     // The ThreadPoolExecutor gets testy beyond a certain number
     private static final int MaxParsing = 8;
     private int numParsing = 0;
-    protected Queue<AsyncTask<Void, Void, Void> > tasks = new LinkedList<>();
+    protected Queue<Runnable> tasks = new LinkedList<>();
     // If set by the subclass, we'll just treat null data as valid
     // This is helpful when you have sparse data sets
     protected boolean neverFail = false;
@@ -241,16 +248,19 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         // Load the data tile
         final byte[] data = dataForTile(tileInfo.fetchInfo,tileInfo.fetchInfo.tileID);
 
+        final Looper looper = getLooper();
+
         // We assume they'll be parsing things which will take time
-        tasks.add(new AsyncTask<Void, Void, Void>() {
-            protected Void doInBackground(Void... unused) {
+        tasks.add(new Runnable() {
+            @Override
+            public void run() {
                 if (data != null || neverFail)
                     tileInfo.request.callback.success(tileInfo.request, data);
                 else
                     tileInfo.request.callback.failure(tileInfo.request,"Failed to read MBTiles File");
 
                 // Add more tasks, if there are any
-                Handler handler = new Handler(getLooper());
+                Handler handler = new Handler(looper);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -258,8 +268,6 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
                         updateTasks();
                     }
                 });
-
-                return null;
             }
         });
 
@@ -271,9 +279,13 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
 
     // Keep a certain number of tasks running for parsing, but no more
     protected void updateTasks() {
+        BaseController theControl = control.get();
+        if (theControl == null)
+            return;
+
         if (numParsing < MaxParsing && !tasks.isEmpty()) {
-            AsyncTask<Void, Void, Void> task = tasks.remove();
-            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+            Runnable task = tasks.remove();
+            theControl.getWorkingThread().addTask(task);
             numParsing++;
         }
     }
@@ -340,6 +352,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     {
         valid = false;
         quitSafely();
+        control = null;
     }
 
     /**

@@ -133,7 +133,7 @@ public class GeographyClass extends MaplyTestCase {
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
         // The fetcher fetches tile from the MBTiles file
-        MBTileFetcher mbTileFetcher = new MBTileFetcher(mbTiles);
+        MBTileFetcher mbTileFetcher = new MBTileFetcher(baseController, mbTiles);
         if (mbTileFetcher == null)
             return;
 
