@@ -158,7 +158,7 @@ public:
         Point2d size = clusterGenerator.layoutSize;
         
         // Geometry for the new cluster object
-        ScreenSpaceObject::ConvexGeometry smGeom;
+        ScreenSpaceConvexGeometry smGeom;
         smGeom.progID = progID;
         smGeom.coords.push_back(Point2d(- size.x()/2.0,-size.y()/2.0));
         smGeom.texCoords.push_back(TexCoord(0,1));
