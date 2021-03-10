@@ -75,10 +75,11 @@ public:
     /// If set, this is clustering group to sort into
     int clusterGroup;
 
-    /// Layout along line or polygon:  offset left or right, spacing between instances, how many instances
-    int layoutRepeat;
-    float layoutOffset;
-    float layoutSpacing;
+    int layoutRepeat;      // How many instances
+    float layoutOffset;   // Offset left/right
+    float layoutSpacing;  // Start/end spacing along line
+    float layoutWidth;   // Used in generalization
+    bool layoutDebug;    // Turn this on for layout debugging
     Point3dVector layoutShape;
     /// If we're placing glyphs individually we'll do it with matrices
     std::vector<std::vector<Eigen::Matrix3d> > layoutPlaces;

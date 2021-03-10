@@ -111,8 +111,9 @@ bool LinearWalker::nextPoint(double dist,Point2f *retPt,Point2f *norm,bool saveP
 LinearTextBuilder::LinearTextBuilder(ViewStateRef viewState,
                                     unsigned int offi,
                                     const Point2f &frameBufferSize,
+                                    float generalEps,
                                     LayoutObject *layoutObj)
-: viewState(viewState), offi(offi), frameBufferSize(frameBufferSize),
+: viewState(viewState), offi(offi), frameBufferSize(frameBufferSize), generalEps(generalEps),
 layoutObj(layoutObj)
 {
     screenMbr.addPoint(Point2f(0.0,0.0));
@@ -128,6 +129,31 @@ void LinearTextBuilder::setPoints(const Point3dVector &inPts)
 {
     pts = inPts;
     isClosed = pts.front() == pts.back();
+}
+
+void LinearTextBuilder::sortRuns(double minLen)
+{
+    std::vector<std::pair<VectorRing,double> > newRuns;
+    
+    // Build up the runs with length
+    for (const auto &run: runs) {
+        double len = 0.0;
+        for (unsigned int ii=0;ii<run.size()-1;ii++) {
+            len += (run[ii+1] - run[ii]).norm();
+        }
+        if (len > minLen)
+            newRuns.push_back(std::pair<VectorRing,double>(run,len));
+    }
+    
+    std::sort(newRuns.begin(), newRuns.end(),
+              [](const std::pair<VectorRing,double>& a, const std::pair<VectorRing,double>& b) -> bool
+    {
+        return a.second < b.second;
+    });
+    
+    runs.clear();
+    for (auto const &run: newRuns)
+        runs.push_back(run.first);
 }
 
 void LinearTextBuilder::process()
@@ -151,7 +177,7 @@ void LinearTextBuilder::process()
 
     // Generalize the source line
     // TODO: Make this a parameter rather than 10px
-    screenPts = LineGeneralization(screenPts,10.0,0,screenPts.size());
+    screenPts = LineGeneralization(screenPts,generalEps,0,screenPts.size());
 
     if (screenPts.empty())
         return;
@@ -277,5 +303,20 @@ ShapeSet LinearTextBuilder::getVisualVecs()
     
     return retShapes;
 }
+
+double LinearTextBuilder::getViewStateRotation()
+{
+//    if (globeViewState) {
+//        Point3d up = globeViewState->currentUp();
+//        double ang = atan2(up.)
+//    }
+    
+//    if (globeViewState)
+//        return globeViewState->currentUp();
+//    else if (mapViewState)
+//        return mapViewState->
+    return 0.0;
+}
+
 
 }

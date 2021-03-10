@@ -90,6 +90,7 @@ public:
     float layoutOffset;
     float layoutSpacing;
     int layoutRepeat;
+    bool layoutDebug;
 
     FloatExpressionInfoRef opacityExp;
 //    ColorExpressionInfoRef colorExp;

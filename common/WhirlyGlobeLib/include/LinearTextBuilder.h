@@ -60,11 +60,15 @@ public:
     LinearTextBuilder(ViewStateRef viewState,
                       unsigned int offi,
                       const Point2f &frameBufferSize,
+                      float generalEps,
                       LayoutObject *layoutObj);
     
     // Set the starting point, er points
     void setPoints(const Point3dVector &pts);
     
+    // Sort the runs by length, toss the ones below the minimum length
+    void sortRuns(double minLen);
+
     // Run our crazy stuff
     void process();
     
@@ -77,6 +81,9 @@ public:
     // Convert point from screen coordinates back to world coordinates
     bool screenToWorld(const Point2f &pt,Point3d &outPt);
     Point2f worldToScreen(const Point3d &worldPt);
+    
+    // Return the current rotation of the view state
+    double getViewStateRotation();
 
 protected:
     CoordSystemDisplayAdapter *coordAdapt;
@@ -85,6 +92,7 @@ protected:
     WhirlyGlobe::GlobeViewState *globeViewState;
     Maply::MapViewState *mapViewState;
 
+    float generalEps;
     unsigned int offi;
     Mbr screenMbr;
     Point2f frameBufferSize;
