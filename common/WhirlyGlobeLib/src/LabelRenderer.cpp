@@ -40,7 +40,7 @@ LabelInfo::LabelInfo(bool screenObject)
     shadowColor(0,0,0,0), shadowSize(-1.0),
     outlineColor(0,0,0,0), outlineSize(-1.0),
     lineHeight(0.0), fontPointSize(16.0),
-    layoutOffset(0.0), layoutSpacing(20.0), layoutRepeat(0)
+    layoutOffset(0.0), layoutSpacing(20.0), layoutRepeat(0), layoutDebug(false)
 {
     if (screenObject) {
         width = 16.0;
@@ -99,7 +99,8 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject)
     }
     layoutOffset = dict.getDouble(MaplyTextLayoutOffset,layoutOffset);
     layoutSpacing = dict.getDouble(MaplyTextLayoutSpacing,layoutSpacing);
-    layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,layoutRepeat);
+    layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
+    layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
     lineHeight = dict.getDouble(MaplyTextLineHeight,0.0);
 }
 
@@ -310,6 +311,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                     layoutObject->layoutRepeat = labelInfo->layoutRepeat;
                     layoutObject->layoutOffset = labelInfo->layoutOffset;
                     layoutObject->layoutSpacing = labelInfo->layoutSpacing;
+                    layoutObject->layoutWidth = height;
+                    layoutObject->layoutDebug = labelInfo->layoutDebug;
                 }
                 
                 // The shape starts out disabled

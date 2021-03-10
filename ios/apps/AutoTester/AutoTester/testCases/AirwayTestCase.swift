@@ -146,7 +146,7 @@ class AirwayTestCase: MaplyTestCase {
             guard let name = vec.attributes?["NAME"] as? String else {
                 continue
             }
-//            include = name == "PACIFIC HIGH"
+            include = name == "PACIFIC HIGH"
             
             if include {
                 // Put a label in the middle
@@ -172,7 +172,8 @@ class AirwayTestCase: MaplyTestCase {
                                                  kMaplyTextColor: UIColor.purple,
                                                  kMaplyTextLayoutOffset: -40.0,
                                                  kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
-                                                 kMaplyTextLayoutRepeat: -1,  // As many as fit
+//                                                 kMaplyTextLayoutRepeat: 4,  // As many as fit
+                                                 kMaplyTextLayoutDebug: true
                                                  ],
                                   mode: .any)
         }
@@ -181,6 +182,7 @@ class AirwayTestCase: MaplyTestCase {
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         baseCase.setUpWithGlobe(globeVC)
 
+//        globeVC.keepNorthUp = false
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
 
 //        setupAirways(globeVC)

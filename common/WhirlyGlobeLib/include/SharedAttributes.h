@@ -170,6 +170,8 @@
 #define MaplyTextLayoutSpacing WKString("layoutspacing")
 /// How many times to repeat laid out text (-1 infinite, 0 not, or a number)
 #define MaplyTextLayoutRepeat WKString("layoutrepeat")
+/// Turn on or off layout debugging lines
+#define MaplyTextLayoutDebug WKString("layoutdebug")
 
 /// If set, we'll draw a shadow behind each label with this as the stroke size
 #define MaplyShadowSize WKString("shadowSize")

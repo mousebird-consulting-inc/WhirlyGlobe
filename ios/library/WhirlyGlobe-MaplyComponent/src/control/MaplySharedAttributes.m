@@ -140,6 +140,7 @@ NSString* const kMaplyTextJustifyCenter = MaplyTextJustifyCenter;
 NSString* const kMaplyTextLayoutOffset = MaplyTextLayoutOffset;
 NSString* const kMaplyTextLayoutSpacing = MaplyTextLayoutSpacing;
 NSString* const kMaplyTextLayoutRepeat = MaplyTextLayoutRepeat;
+NSString* const kMaplyTextLayoutDebug = MaplyTextLayoutDebug;
 
 /// These are used for screen and regular markers.
 NSString* const kMaplyClusterGroup = MaplyClusterGroupID;

@@ -168,6 +168,8 @@ extern NSString* const kMaplyTextLayoutOffset;
 extern NSString* const kMaplyTextLayoutSpacing;
 /// Layout as many labels as possible along a line (or polygon).  Set a number (0 for no repeat, -1 for as many as possible, or a number of instances)
 extern NSString* const kMaplyTextLayoutRepeat;
+/// Turn on debugging lines for the layout engine
+extern NSString* const kMaplyTextLayoutDebug;
 
 /// These are used for screen and regular markers.
 extern NSString* const kMaplyClusterGroup;

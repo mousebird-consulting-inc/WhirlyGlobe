@@ -32,13 +32,13 @@ namespace WhirlyKit
 
 // Default constructor for layout object
 LayoutObject::LayoutObject()
-    : ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0),
+    : ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0), layoutDebug(false),
     importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
 LayoutObject::LayoutObject(SimpleIdentity theId) : ScreenSpaceObject(theId),
-    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0),
+    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0), layoutDebug(false),
      importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
@@ -636,12 +636,17 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
         for (auto layoutObj : container.objs) {
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty()) {
+                // Sometimes there are just a few instances
+                int numInstances = 0;
+                
                 for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
                     // Set up the text builder to get a set of individual runs to follow
-                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,&layoutObj->obj);
+                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth,&layoutObj->obj);
                     textBuilder.setPoints(layoutObj->obj.layoutShape);
                     textBuilder.process();
-                    
+                    // Sort the runs by length and get rid of the ones too short
+                    textBuilder.sortRuns(2.0*layoutObj->obj.layoutSpacing);
+
                     // Follow the individual runs
                     std::vector<std::vector<Eigen::Matrix3d> > layoutInstances;
                     std::vector<Point3d> layoutModelInstances;
@@ -655,8 +660,11 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 
                         LinearWalker walk(run);
 
-                        // Make sure we can lay it out at least once
-                        if (textLen + 2.0*layoutObj->obj.layoutSpacing < walk.getTotalLength()) {
+                        // Figure out how many times we could lay this out
+                        float textRoom = walk.getTotalLength() - 2.0*layoutObj->obj.layoutSpacing;
+                        float textInstance = textRoom / textLen;
+                        
+                        for (unsigned int ini=0;ini<textInstance;ini++) {
                             // Start with an initial offset
                             if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr))
                                 continue;
@@ -673,7 +681,6 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 continue;
 
                             // Walk through the individual glyphs
-                            float soFarX = 0.0;
                             bool failed = false;
                             for (unsigned int ig=0;ig<layoutObj->obj.geometry.size();ig++) {
                                 const auto &geom = layoutObj->obj.geometry[ig];
@@ -681,7 +688,6 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 Point2f span = glyphMbr.span();
                                 Point2f midGlyph = glyphMbr.mid();
                                 Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
-//                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midGlyph.y()));
 
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
@@ -691,7 +697,6 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                     break;
                                 }
                                 walk.nextPoint(span.x(), nullptr, nullptr);
-                                soFarX = glyphMbr.ll().x()+span.x();
                                 
                                 // Don't forget the space between glyphs
                                 if (ig < layoutObj->obj.geometry.size()-1) {
@@ -716,10 +721,18 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             }
                             
                             if (!failed) {
+                                layoutObj->obj.setRotation(textBuilder.getViewStateRotation());
                                 layoutModelInstances.push_back(worldPt);
                                 layoutInstances.push_back(layoutMats);
+                                numInstances++;
                             }
+                            
+                            if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
+                                break;
                         }
+                        
+                        if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
+                            break;
                     }
                     
                     if (!layoutInstances.empty()) {
@@ -744,7 +757,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 
                     // Debugging visual output
                     ShapeSet dispShapes = textBuilder.getVisualVecs();
-                    if (!dispShapes.empty()) {
+                    if (!dispShapes.empty() && layoutObj->obj.layoutDebug) {
                         // Turn them back into vectors to debug
                         VectorInfo vecInfo;
                         vecInfo.color = RGBAColor::red();
