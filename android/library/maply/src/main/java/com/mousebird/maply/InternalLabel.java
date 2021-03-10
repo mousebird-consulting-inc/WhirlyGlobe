@@ -66,6 +66,7 @@ class InternalLabel
 		if (label.layoutPlacement != -1)
 			setLayoutPlacement(label.layoutPlacement);
 
+		setLayoutImportance(Float.MAX_VALUE);
 		if (labelInfo.layoutImportance != Float.MAX_VALUE)
 			setLayoutImportance(labelInfo.layoutImportance);
 		if (label.layoutImportance != Float.MAX_VALUE)

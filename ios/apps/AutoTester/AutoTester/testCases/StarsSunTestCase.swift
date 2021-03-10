@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 3/11/15.
-//  Copyright © 2015-2017 mousebird consulting.
+//  Copyright © 2015-2021 mousebird consulting.
 //
 
 import UIKit
@@ -17,7 +17,7 @@ class StarsSunTestCase: MaplyTestCase {
 
 		super.init()
 
-		self.name = "Stars/Sun"
+		self.name = "Stars/Sun (broken)"
 		self.implementations = [.globe]
 	}
 	

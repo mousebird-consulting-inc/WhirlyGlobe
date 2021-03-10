@@ -1,9 +1,9 @@
 /*
- *  MaplyRenderController.h
+ *  MaplyRenderController.mm
  *  WhirlyGlobeMaplyComponent
  *
  *  Created by Stephen Gifford on 1/19/18.
- *  Copyright 2012-2018 Saildrone Inc.
+ *  Copyright 2012-2021 Saildrone Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -683,6 +683,27 @@ using namespace Eigen;
 {
     if (auto wr = WorkRegion(interactLayer)) {
         [interactLayer enableObjects:theObjs mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString * _Nullable)repName
+                  ofUUIDs:(NSArray<NSString *> * _Nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (auto wr = WorkRegion(interactLayer))
+    {
+        [interactLayer setRepresentation:repName fallbackRepName:nil ofUUIDs:uuids mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString * _Nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> * _Nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (auto wr = WorkRegion(interactLayer))
+    {
+        [interactLayer setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:uuids mode:threadMode];
     }
 }
 

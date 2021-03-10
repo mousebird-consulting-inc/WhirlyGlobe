@@ -43,7 +43,9 @@ class GlobeSamplerTestCase: MaplyTestCase {
         }
         let interp = MaplyOvlDebugImageLoaderInterpreter(viewC: baseVC)
         imageLoader.setInterpreter(interp)
+#if !targetEnvironment(simulator)
         imageLoader.imageFormat = .imageUShort565;
+#endif
 //        imageLoader.debugMode = true
 
         return imageLoader

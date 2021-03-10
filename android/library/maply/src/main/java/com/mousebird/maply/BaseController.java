@@ -2059,11 +2059,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				if (particleSystemID != RenderController.EmptyIdentity) {
 					compObj.addParticleSystemID(particleSystemID);
 				}
+				renderControl.componentManager.addComponentObject(compObj, changes);
 				if (scene != null) {
 					changes.process(renderControl, scene);
 					changes.dispose();
 				}
-				renderControl.componentManager.addComponentObject(compObj);
 			}
 		};
 

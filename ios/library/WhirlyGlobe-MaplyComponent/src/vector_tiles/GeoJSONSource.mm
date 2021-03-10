@@ -158,7 +158,7 @@ using namespace WhirlyKit;
             for(id key in symbolizerKeys) {
                 NSObject<MaplyVectorStyle> *symbolizer = [self->_styleSet styleForUUID:[key longValue] viewC:baseVC];
                 NSArray *features = featureStyles[key];
-                [symbolizer buildObjects:features forTile:tileInfo viewC:baseVC];
+                [symbolizer buildObjects:features forTile:tileInfo viewC:baseVC desc:nil];
             }
 
             self->_compObjs = [tileInfo componentObjects];

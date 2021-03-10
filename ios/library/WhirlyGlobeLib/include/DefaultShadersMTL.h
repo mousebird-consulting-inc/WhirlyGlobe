@@ -224,7 +224,6 @@ struct UniformWideVec {
     float offset;   // Offset from center in screen space
     float edge;     // Edge falloff control
     float texRepeat;  // Texture scaling specific to wide vectors
-    simd::float4 color;  // Color override.  TODO: Use the standard one.  Seriously.
     bool hasExp;      // Look for a UniformWideVecExp structure for color, opacity, and width
 };
 
@@ -345,6 +344,7 @@ struct ProjVertexTriB {
 struct VertexTriWideVec
 {
     float3 position [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
     float3 normal [[attribute(WhirlyKitShader::WKSVertexNormalAttribute)]];
     float4 texInfo [[attribute(WhirlyKitShader::WKSVertexWideVecTexInfoAttribute)]];
     float3 p1 [[attribute(WhirlyKitShader::WKSVertexWideVecP1Attribute)]];

@@ -52,22 +52,27 @@ LabelManager::LabelManager()
     : textureAtlasSize(LabelTextureAtlasSizeDefault)
 {
 }
-
-SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,const std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
+    
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabelRef> &labels,
+                                       const LabelInfo &desc,ChangeSet &changes)
 {
-    std::vector<SingleLabel *> unwrapLabels;    // todo: avoid this copy allocation
+    std::vector<SingleLabel *> unwrapLabels;
     unwrapLabels.reserve(labels.size());
-    for (const auto &label: labels)
+    for (auto label: labels)
     {
         unwrapLabels.push_back(label.get());
     }
     
     return addLabels(threadInfo,unwrapLabels, desc, changes);
 }
-
-SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
+    
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabel *> &labels,
+                                       const LabelInfo &labelInfo,ChangeSet &changes)
 {
     const auto fontTexManager = scene->getFontTextureManager();
+    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
     // Set up the representation (but then hand it off)
     auto labelRep = new LabelSceneRep();

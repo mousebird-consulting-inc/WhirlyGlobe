@@ -129,9 +129,9 @@ typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
-    TimeInterval curTime = scene->getCurrentTime();
+    auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
+    auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
+    const TimeInterval curTime = scene->getCurrentTime();
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     MarkerSceneRep *markerRep = new MarkerSceneRep();

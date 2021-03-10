@@ -38,22 +38,25 @@ bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
 }
 
 bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
-                                        DictionaryRef styleEntry,
-                                        MapboxVectorStyleLayerRef refLayer,
+                                        const DictionaryRef &styleEntry,
+                                        const MapboxVectorStyleLayerRef &refLayer,
                                         int inDrawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority)) {
+    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
+    {
         return false;
     }
     
 //    styleSet->unsupportedCheck("layout","background",styleEntry);
     
-    if (!paint.parse(inst,styleSet,styleEntry->getDict("paint"))) {
+    if (!paint.parse(inst,styleSet,styleEntry->getDict("paint")))
+    {
         return false;
     }
     
     // Mess directly with the opacity because we're using it for other purposes
-    if (styleEntry->hasField("alphaoverride")) {
+    if (styleEntry->hasField("alphaoverride"))
+    {
         paint.color->setAlphaOverride(styleEntry->getDouble("alphaoverride"));
     }
     
@@ -64,18 +67,19 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
 
 void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                std::vector<VectorObjectRef> &vecObjs,
-                                               VectorTileDataRef tileInfo)
+                                               const VectorTileDataRef &tileInfo,
+                                               const Dictionary *desc)
 {
     const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
     
     std::vector<VectorRing> loops { VectorRing() };
-    Mbr bbox = tileInfo->geoBBox;
+    const Mbr &bbox = tileInfo->geoBBox;
     bbox.asPoints(loops.back());
-    
-    VectorTrianglesRef trisRef = VectorTriangles::createTriangles();
+
+    const auto trisRef = VectorTriangles::createTriangles();
     TesselateLoops(loops, trisRef);
     //trisRef->setAttrDict(ar->getAttrDict());
-    auto d = MutableDictionaryMake();
+    const auto d = MutableDictionaryMake();
     d->setString("layer_name", "background");
     d->setInt("layer_order", 1);
     d->setInt("geometry_type", 3);
@@ -100,16 +104,22 @@ void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
     
 //    wkLogLevel(Debug, "background: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
 
-    if (minzoom != 0 || maxzoom < 1000) {
+    if (minzoom != 0 || maxzoom < 1000)
+    {
         vecInfo.minZoomVis = minzoom;
         vecInfo.maxZoomVis = maxzoom;
     }
 
-    if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes)) {
-        const auto compObj = styleSet->makeComponentObject(inst);
+    if (const auto vecID = styleSet->vecManage->addVectors(&tessShapes, vecInfo, tileInfo->changes))
+    {
+        const auto compObj = styleSet->makeComponentObject(inst, desc);
+
+        // not currently supported
+        //compObj->representation = representation;
+
         compObj->vectorIDs.insert(vecID);
-        
-        styleSet->compManage->addComponentObject(compObj);
+
+        styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
         tileInfo->compObjs.push_back(compObj);
     }
 }

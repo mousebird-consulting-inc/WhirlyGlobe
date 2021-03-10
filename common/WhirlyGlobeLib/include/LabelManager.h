@@ -105,14 +105,23 @@ public:
     virtual ~LabelManager() = default;
 
     /// Add the given set of labels, returning an ID that represents the whole thing
-    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,const LabelInfo &desc,ChangeSet &changes);
-    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,const std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes);
+    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,
+                             const std::vector<SingleLabel *> &labels,
+                             const LabelInfo &desc,ChangeSet &changes);
+    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,
+                             const std::vector<SingleLabelRef> &labels,
+                             const LabelInfo &desc,ChangeSet &changes);
 
     /// Change visual attributes (just the visibility range)
-    void changeLabel(PlatformThreadInfo *threadInfo,SimpleIdentity labelID,const LabelInfo &desc,ChangeSet &changes);
+    void changeLabel(PlatformThreadInfo *threadInfo,
+                     SimpleIdentity labelID,
+                     const LabelInfo &desc,
+                     ChangeSet &changes);
     
     /// Remove the given label(s)
-    void removeLabels(PlatformThreadInfo *threadInfo,const SimpleIDSet &labelID,ChangeSet &changes);
+    void removeLabels(PlatformThreadInfo *threadInfo,
+                      const SimpleIDSet &labelID,
+                      ChangeSet &changes);
     
     /// Enable/disable labels
     void enableLabels(const SimpleIDSet &labelID,bool enable,ChangeSet &changes);

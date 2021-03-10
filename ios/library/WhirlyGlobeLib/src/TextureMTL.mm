@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -155,6 +155,21 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     
     MTLPixelFormat pixFormat = MTLPixelFormatR32Uint;
     int bytesPerRow = 0;
+    
+    // "Don't use the following pixel formats: r8Unorm_srgb, b5g6r5Unorm, a1bgr5Unorm, abgr4Unorm, bgr5A1Unorm, or any XR10 or YUV formats."
+    // https://developer.apple.com/documentation/metal/developing_metal_apps_that_run_in_simulator
+#if TARGET_OS_SIMULATOR
+    switch (format)
+    {
+        //case TexTypeUnsignedByte:   // is this r8Unorm_srgb?
+        case TexTypeShort565:   // b5g6r5Unorm
+        case TexTypeShort4444: // abgr4Unorm
+        case TexTypeShort5551:  // bgr5A1Unorm
+            wkLogLevel(Warn, "Texture not loaded: pixel format %d not supported", format);
+            return false;
+        default: break;
+    }
+#endif
     
     // TODO: Missing all the compressed formats
     switch (format)

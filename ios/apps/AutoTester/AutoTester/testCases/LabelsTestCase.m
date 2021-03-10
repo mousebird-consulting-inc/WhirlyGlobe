@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 2/11/15.
-//  Copyright © 2015-2017 mousebird consulting.
+//  Copyright © 2015-2021 mousebird consulting.
 //
 
 #import "LabelsTestCase.h"
@@ -19,7 +19,7 @@
 - (instancetype)init
 {
 	if (self = [super init]) {
-		self.name = @"Labels";
+		self.name = @"Labels (broken)";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
 	}
 	return self;

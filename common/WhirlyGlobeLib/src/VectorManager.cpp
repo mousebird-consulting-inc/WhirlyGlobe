@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2020 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
-    
+
 VectorInfo::VectorInfo()
 : filled(false), sample(false), texId(EmptyIdentity), texScale(1.0,1.0),
 subdivEps(0.0), gridSubdiv(false), texProj(TextureProjectionNone),
@@ -742,7 +742,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
     bool doColors = false;
     for (auto it = shapes->begin();it != shapes->end(); ++it)
     {
-        if ((*it)->getAttrDict()->hasField("color"))
+        if ((*it)->getAttrDict()->hasField(colorStr))
         {
             doColors = true;
             break;
@@ -950,7 +950,10 @@ void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo
             changes.push_back(new ColorChangeRequest(*idIt, vecInfo.color));
             
             // Changed visibility
-            changes.push_back(new VisibilityChangeRequest(*idIt, vecInfo.minVis, vecInfo.maxVis));
+            if (vecInfo.minVis != DrawVisibleInvalid || vecInfo.maxVis != DrawVisibleInvalid)
+            {
+                changes.push_back(new VisibilityChangeRequest(*idIt, vecInfo.minVis, vecInfo.maxVis));
+            }
             
             // Changed line width
             changes.push_back(new LineWidthChangeRequest(*idIt, vecInfo.lineWidth));

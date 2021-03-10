@@ -692,15 +692,16 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
 SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeInfo &shapeInfo, ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 
-    ShapeSceneRep *sceneRep = new ShapeSceneRep();
+    auto sceneRep = std::make_unique<ShapeSceneRep>();
     sceneRep->fade = shapeInfo.fade;
 
     // Figure out a good center
     Point3d center(0,0,0);
     int numObjects = 0;
-    for (auto shape : shapes) {
+    for (auto shape : shapes)
+    {
         center += shape->displayCenter(getScene()->getCoordAdapter(), shapeInfo);
         numObjects++;
     }
@@ -711,12 +712,13 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeIn
     ShapeDrawableBuilder drawBuildReg(getScene()->getCoordAdapter(),renderer,shapeInfo,true,center);
 
     // Work through the shapes
-    for (auto shape : shapes) {
+    for (auto shape : shapes)
+    {
         if (shape->clipCoords)
             drawBuildTri.setClipCoords(true);
         else
             drawBuildTri.setClipCoords(false);
-        shape->makeGeometryWithBuilder(&drawBuildReg, &drawBuildTri, getScene(), selectManager, sceneRep);
+        shape->makeGeometryWithBuilder(&drawBuildReg, &drawBuildTri, getScene(), selectManager, sceneRep.get());
     }
 
 	// Flush out remaining geometry
@@ -728,7 +730,7 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeIn
     SimpleIdentity shapeID = sceneRep->getId();
     {
         std::lock_guard<std::mutex> guardLock(lock);
-        shapeReps.insert(sceneRep);
+        shapeReps.insert(sceneRep.release());   // transfer ownership
     }
 
     return shapeID;

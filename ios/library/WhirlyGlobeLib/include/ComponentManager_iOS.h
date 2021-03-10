@@ -28,20 +28,25 @@ class ComponentObject_iOS : public ComponentObject
 {
 public:
     ComponentObject_iOS();
-    
+
+    // Create the component object with the specified defaults and
+    // apply the properties from the descriptor dictionary, if present.
+    // (i.e., `kMaplyEnabled` in `desc` overrides `enable`)
+    ComponentObject_iOS(bool enable, bool isSelectable, const NSDictionary *_Nullable desc);
+
     // Textures we're holding on to
     // If we let them release, they go away
     std::set<MaplyTexture *> texs;
 };
-    
+
 typedef std::shared_ptr<ComponentObject_iOS> ComponentObject_iOSRef;
 
 // Used to map IDs to individual user objects (e.g. markers, labels)
 class SelectObject
 {
 public:
-    SelectObject(WhirlyKit::SimpleIdentity selID) : selID(selID) { }
-    SelectObject(WhirlyKit::SimpleIdentity selID,NSObject *obj) : selID(selID), obj(obj) { }
+    SelectObject(WhirlyKit::SimpleIdentity selID) : selID(selID), obj(nullptr) { }
+    SelectObject(WhirlyKit::SimpleIdentity selID,NSObject *__nullable obj) : selID(selID), obj(obj) { }
     
     // Comparison operator sorts on select ID
     bool operator < (const SelectObject &that) const
@@ -50,7 +55,7 @@ public:
     }
     
     WhirlyKit::SimpleIdentity selID;
-    NSObject * __strong obj;
+    NSObject *__nullable __strong obj;
 };
 
 typedef std::set<SelectObject> SelectObjectSet;
@@ -65,13 +70,15 @@ public:
     virtual ~ComponentManager_iOS();
     
     /// Associate the given object with the selection ID
-    void addSelectObject(SimpleIdentity selectID,NSObject *obj);
+    void addSelectObject(SimpleIdentity selectID,NSObject *_Nonnull obj);
     
     /// Return the NSObject (marker, label) corresponding to a selection
-    NSObject *getSelectObject(SimpleIdentity selID);
+    NSObject *_Nonnull getSelectObject(SimpleIdentity selID);
 
     /// Need to remove select IDs before we let the superclass clean up
-    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes) override;
+    virtual void removeComponentObjects(PlatformThreadInfo *_Nullable threadInfo,
+                                        const SimpleIDSet &compIDs,
+                                        ChangeSet &changes) override;
     
     /// Clear out anything we're holding
     void clear();
@@ -80,7 +87,7 @@ public:
     void dumpStats();
     
 protected:
-    virtual ComponentObjectRef makeComponentObject() override;
+    virtual ComponentObjectRef makeComponentObject(const Dictionary *_Nullable desc) override;
     
     /// Remove the given selectable object
     void removeSelectObjects(SimpleIDSet selID);

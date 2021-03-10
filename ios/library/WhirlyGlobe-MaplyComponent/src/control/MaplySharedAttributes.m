@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Ranen Ghosh on 2/24/16.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -72,7 +72,10 @@ NSString* const kMaplyZBufferRead = MaplyZBufferRead;
 NSString* const kMaplyZBufferWrite = MaplyZBufferWrite;
 /// Set the render target if the given geometry type supports it
 NSString* const kMaplyRenderTarget = MaplyRenderTargetDesc;
-
+/// The the UUID of the object
+NSString* const kMaplyUUID = MaplyUUIDDesc;
+/// The representation of the UUID which this object embodies
+NSString* const kMaplyRepresentation = MaplyRepresentationDesc;
 /// Assign a shader program to a particular feature.  Use the shader program's name
 NSString* const kMaplyShader = MaplyShaderString;
 /// An NSDictionary containing uniforms to apply to a shader before drawing
@@ -150,6 +153,8 @@ NSString* const kMaplyFilled = MaplyFilled;
 
 /// If set, the texture to apply to the feature
 NSString* const kMaplyVecTexture = MaplyVecTexture;
+/// The format of the image given by kMaplyVecTexture, default MaplyImage4Layer8Bit
+NSString* const kMaplyVecTextureFormat = MaplyVecTextureFormat;
 /// X scale for textures applied to vectors
 NSString* const kMaplyVecTexScaleX = MaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
@@ -161,6 +166,8 @@ NSString* const kMaplyVecTextureProjection = MaplyVecTextureProjection;
 NSString* const kMaplyProjectionTangentPlane = MaplyVecProjectionTangentPlane;
 /// Screen space "projection" for texture coordinates
 NSString* const kMaplyProjectionScreen = MaplyVecProjectionScreen;
+/// No projection for texture coordinates
+NSString* const kMaplyProjectionNone = MaplyVecProjectionNone;
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close

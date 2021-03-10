@@ -35,6 +35,8 @@
     WhirlyKit::ComponentObject_iOSRef contents;
 }
 
-- (id)initWithRef:(WhirlyKit::ComponentObject_iOSRef)compObj;
+- (id __nullable)initWithRef:(WhirlyKit::ComponentObject_iOSRef)compObj;
+
+- (NSString *__nullable)getUUID;
 
 @end

@@ -3,7 +3,7 @@
  *  WhirlyGlobeMaplyComponent
  *
  *  Created by Stephen Gifford on 1/19/18.
- *  Copyright 2012-2018 Saildrone Inc.
+ *  Copyright 2012-2021 Saildrone Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -74,11 +74,11 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 };
 
 /**
-    Render Controler Protocol defines the methods required of a render controller.
+    Render Controller Protocol defines the methods required of a render controller.
  
-    The view controllers and offscreen rendere implement this protocol.
+    The view controllers and offscreen renderers implement this protocol.
   */
-@protocol MaplyRenderControllerProtocol
+@protocol MaplyRenderControllerProtocol <NSObject>
 
 /**
  Set the offset for the screen space objects.
@@ -167,6 +167,8 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
  |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
  |kMaplyClusterGroup|NSNumber|If set, the screen markers will be clustered together according to the given group ID.  Off by default, but 0 is the default cluster.|
  
  
@@ -204,7 +206,8 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
  
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -247,7 +250,8 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
  |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
  
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -287,8 +291,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -329,8 +334,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -364,8 +370,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -399,8 +406,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -420,8 +428,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |:--|:---|:----------|
  |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -441,8 +450,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |:--|:---|:----------|
  |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -477,8 +487,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that the geometry can be occluded by things drawn first.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -513,8 +524,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the sticker(s).|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -648,8 +660,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
@@ -681,8 +694,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
@@ -821,6 +835,30 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
  */
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for one or more UUIDs
+ 
+    @param uuids Array of NSString UUIDs to update
+    @param repName The representation name to apply, nil to return to the default
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+ */
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for one or more UUIDs
+ 
+    @param uuids Array of NSString UUIDs to update
+    @param repName The representation name to apply, nil to return to the default
+    @param fallbackRepName The representation to use of no item with `repName` exists.
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+ */
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
 
 /**
  Pass a uniform block through to a shader.  Only for Metal.

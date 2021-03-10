@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -201,6 +201,7 @@
 
 /// If set, the texture to apply to the feature
 #define MaplyVecTexture WKString("texture")
+#define MaplyVecTextureFormat WKString("textureFormat")
 #define MaplyVecTexScaleX WKString("texscalex")
 #define MaplyVecTexScaleY WKString("texscaley")
 
@@ -210,6 +211,8 @@
 #define MaplyVecProjectionTangentPlane WKString("texprojectiontanplane")
 /// Screen projection for texture coordinates
 #define MaplyVecProjectionScreen WKString("texprojectionscreen")
+/// No projection for texture coordinates
+#define MaplyVecProjectionNone WKString("texprojectionnone")
 
 /// Center of the feature, to use for texture calculations
 #define MaplyVecCenterX WKString("veccenterx")
@@ -333,3 +336,8 @@
 
 /// Used to designate a non-default render target by ID
 #define MaplyRenderTargetDesc WKString("rendertarget")
+
+/// Used to refer to component objects by unique ID for, e.g., representation selection
+#define MaplyUUIDDesc WKString("uuid")
+/// Used to distinguish the particular representation of a unique ID
+#define MaplyRepresentationDesc WKString("representation")

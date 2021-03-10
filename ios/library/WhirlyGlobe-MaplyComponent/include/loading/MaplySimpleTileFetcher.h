@@ -68,3 +68,21 @@
 - (void)shutdown;
 
 @end
+
+// Internal object used by the QuadImageLoader to generate tile load info
+@interface MaplySimpleTileInfo : NSObject<MaplyTileInfoNew>
+
+// Initialize with a min/max zoom
+- (instancetype __nonnull)initWithMinZoom:(int)inMinZoom maxZoom:(int)inMaxZoom;
+
+@end
+
+
+// Encapsulates a single tile load request
+@interface MaplySimpleTileFetchInfo : NSObject
+
+@property (nonatomic,assign) int x;
+@property (nonatomic,assign) int y;
+@property (nonatomic,assign) int level;
+
+@end

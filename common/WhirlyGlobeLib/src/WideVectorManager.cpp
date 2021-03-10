@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2020 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
  */
 
 #import "WideVectorManager.h"
+#import "VectorManager.h"
 #import "BasicDrawableInstanceBuilder.h"
 #import "FlatMath.h"
 #import "WhirlyKitLog.h"
@@ -146,6 +147,14 @@ public:
             InterPoint newPt = *this;
             newPt.texYmin = newMinTexY;
             newPt.texYmax = newMaxTexY;
+            
+            return newPt;
+        }
+        
+        // Set the tex offset, but otherwise just copy
+        InterPoint withTexOffset(double newTexOffset) {
+            InterPoint newPt = *this;
+            newPt.texOffset = newTexOffset;
             
             return newPt;
         }
@@ -377,7 +386,7 @@ public:
             WideVectorLineJoinType joinType = vecInfo->joinType;
             // Switch to a bevel join if the angle is too great for a miter
             double miterLimit = vecInfo->miterLimit;
-            if (joinType == WideVecMiterJoin && angleBetween < (M_PI-miterLimit*M_PI/180.0))
+            if (joinType == WideVecMiterJoin && angleBetween > (M_PI-miterLimit*M_PI/180.0))
                 joinType = WideVecBevelJoin;
             // We don't do bevels below 30 degrees
             if (joinType == WideVecBevelJoin && angleBetween > 150.0 / 180.0 * M_PI)
@@ -394,7 +403,7 @@ public:
                     if (rPt0.c > 0.0)
                     {
                         InterPoint triVerts[3];
-                        
+
                         InterPoint r0 = corners[2];
                         InterPoint r1 = next_e1;
                         InterPoint l0 = corners[3];
@@ -424,7 +433,7 @@ public:
                     } else {
                         // Bending left
                         InterPoint triVerts[3];
-                        
+
                         InterPoint l0 = corners[3];
                         InterPoint l1 = next_e0;
                         InterPoint r0 = corners[2];
@@ -460,25 +469,27 @@ public:
 
                     // Bending right
                     if (rPt0.c > 0.0) {
-                        triVerts[0] = next_e0.withTexY(texNext,texNext);
-                        triVerts[1] = corners[3].withTexY(texNext,texNext);
-                        triVerts[2] = corners[2].withTexY(texNext,texNext);
+                        double texYmin = lPt0.texYmin, textYmax = lPt0.texYmax;
+                        triVerts[0] = lPt0.withTexY(texYmin,textYmax);
+                        triVerts[1] = corners[3].withTexY(texYmin,textYmax);
+                        triVerts[2] = corners[2].withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
 
-                        triVerts[0] = next_e1.withTexY(texNext,texNext);
-                        triVerts[1] = next_e0.withTexY(texNext,texNext);
-                        triVerts[2] = corners[2].withTexY(texNext,texNext);
+                        triVerts[0] = next_e1.withTexY(texYmin,textYmax);
+                        triVerts[1] = next_e0.withTexY(texYmin,textYmax);
+                        triVerts[2] = lPt1.withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
                     } else {
                         // Bending left
-                        triVerts[0] = corners[3].withTexY(texNext,texNext);
-                        triVerts[1] = corners[2].withTexY(texNext,texNext);
-                        triVerts[2] = next_e1.withTexY(texNext,texNext);
+                        double texYmin = rPt0.texYmin, textYmax = rPt0.texYmax;
+                        triVerts[0] = corners[3].withTexY(texYmin,textYmax);
+                        triVerts[1] = corners[2].withTexY(texYmin,textYmax);
+                        triVerts[2] = rPt0.withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
-                        
-                        triVerts[0] = corners[3].withTexY(texNext,texNext);
-                        triVerts[1] = next_e1.withTexY(texNext,texNext);
-                        triVerts[2] = next_e0.withTexY(texNext,texNext);
+
+                        triVerts[0] = rPt1.withTexY(texYmin,textYmax);
+                        triVerts[1] = next_e1.withTexY(texYmin,textYmax);
+                        triVerts[2] = next_e0.withTexY(texYmin,textYmax);
                         addWideTri(wideDrawable,triVerts,up);
                     }
                 }
@@ -999,7 +1010,44 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
     
     return newId;
 }
-    
+
+void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo &vecInfo,ChangeSet &changes)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+
+    WideVectorSceneRep dummyRep(vecID);
+    const auto it = sceneReps.find(&dummyRep);
+    if (it != sceneReps.end())
+    {
+        const auto sceneRep = *it;
+
+        // Make sure we change both drawables and instances
+        SimpleIDSet allIDs = sceneRep->drawIDs;
+        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+
+        for (auto id : allIDs)
+        {
+            // Changed color
+            changes.push_back(new ColorChangeRequest(id, vecInfo.color));
+            
+            // Changed visibility
+            if (vecInfo.minVis != DrawVisibleInvalid || vecInfo.maxVis != DrawVisibleInvalid)
+            {
+                changes.push_back(new VisibilityChangeRequest(id, vecInfo.minVis, vecInfo.maxVis));
+            }
+            
+            // Changed line width
+            changes.push_back(new LineWidthChangeRequest(id, vecInfo.width));
+            
+            // Changed draw priority
+            changes.push_back(new DrawPriorityChangeRequest(id, vecInfo.drawPriority));
+            
+            // Changed draw order
+            changes.push_back(new DrawOrderChangeRequest(id, vecInfo.drawOrder));
+        }
+    }
+}
+
 void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);

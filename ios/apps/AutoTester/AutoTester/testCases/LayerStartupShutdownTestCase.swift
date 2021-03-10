@@ -21,14 +21,20 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
 //    var testCase = GeographyClassTestCase()
     var testCase = VectorMBTilesTestCase()
 
+    var run = true
+
     func startGlobeLayer() {
         self.testCase.globeViewController = globeViewController
         self.testCase.baseViewController = globeViewController
         self.testCase.setUpWithGlobe(self.globeViewController!)
 
+        run = true
+
         // Shut it down in a bit
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.stopGlobeLayer()
+            if self.run {
+                self.stopGlobeLayer()
+            }
         }
     }
     
@@ -38,7 +44,9 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.startGlobeLayer()
+            if self.run {
+                self.startGlobeLayer()
+            }
         }
     }
     
@@ -49,7 +57,9 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
 
         // Shut it down in a bit
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.stopMapLayer()
+            if self.run {
+                self.stopMapLayer()
+            }
         }
     }
     
@@ -59,7 +69,9 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         // Start it back up again in a bit
         // Note: Check to see if we're still valid here
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.startMapLayer()
+            if self.run {
+                self.startMapLayer()
+            }
         }
     }
 
@@ -87,4 +99,7 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         startMapLayer()
     }
 
+    override func stop() {
+        run = false
+    }
 }

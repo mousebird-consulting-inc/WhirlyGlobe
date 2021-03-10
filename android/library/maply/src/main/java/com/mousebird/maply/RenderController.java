@@ -522,10 +522,6 @@ public class RenderController implements RenderControllerInterface
 
                         // Add the markers and flush the changes
                         long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         if (markerId != EmptyIdentity)
                         {
@@ -535,7 +531,12 @@ public class RenderController implements RenderControllerInterface
                         for (InternalMarker marker : intMarkers)
                             marker.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -602,10 +603,6 @@ public class RenderController implements RenderControllerInterface
 
                         // Add the markers and flush the changes
                         long markerId = markerManager.addScreenMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         if (markerId != EmptyIdentity)
                         {
@@ -615,7 +612,12 @@ public class RenderController implements RenderControllerInterface
                         for (InternalMarker marker : intMarkers)
                             marker.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -686,10 +688,6 @@ public class RenderController implements RenderControllerInterface
 
                         // Add the markers and flush the changes
                         long markerId = markerManager.addMarkers(intMarkers.toArray(new InternalMarker[0]), markerInfo, changes);
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         if (markerId != EmptyIdentity)
                         {
@@ -699,7 +697,12 @@ public class RenderController implements RenderControllerInterface
                         for (InternalMarker marker : intMarkers)
                             marker.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -757,16 +760,16 @@ public class RenderController implements RenderControllerInterface
                         if (labelId != EmptyIdentity)
                             compObj.addLabelID(labelId);
 
+                        for (InternalLabel label : intLabels)
+                            label.dispose();
+
+                        componentManager.addComponentObject(compObj, changes);
+
                         // Flush the text changes
                         if (scene != null) {
                             changes.process(renderControl, scene);
                             changes.dispose();
                         }
-
-                        for (InternalLabel label : intLabels)
-                            label.dispose();
-
-                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -825,16 +828,16 @@ public class RenderController implements RenderControllerInterface
                         if (labelId != EmptyIdentity)
                             compObj.addLabelID(labelId);
 
+                        for (InternalLabel label : intLabels)
+                            label.dispose();
+
+                        componentManager.addComponentObject(compObj, changes);
+
                         // Flush the text changes
                         if (scene != null) {
                             changes.process(renderControl, scene);
                             changes.dispose();
                         }
-
-                        for (InternalLabel label : intLabels)
-                            label.dispose();
-
-                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -869,10 +872,6 @@ public class RenderController implements RenderControllerInterface
                         // Vectors are simple enough to just add
                         ChangeSet changes = new ChangeSet();
                         long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         // Track the vector ID for later use
                         if (vecId != EmptyIdentity)
@@ -892,7 +891,12 @@ public class RenderController implements RenderControllerInterface
                                 if (!vecObj.getSelectable())
                                     vecObj.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -928,10 +932,6 @@ public class RenderController implements RenderControllerInterface
                         // Vectors are simple enough to just add
                         ChangeSet changes = new ChangeSet();
                         long loftID = loftManager.addPolys(vecs.toArray(new VectorObject[0]), loftInfo, changes);
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         // Track the vector ID for later use
                         if (loftID != EmptyIdentity)
@@ -950,7 +950,12 @@ public class RenderController implements RenderControllerInterface
                                 if (!vecObj.getSelectable())
                                     vecObj.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1023,13 +1028,14 @@ public class RenderController implements RenderControllerInterface
                                 if (newID != EmptyIdentity)
                                     compObj.addVectorID(newID);
                             }
-                            if (scene != null) {
-                                changes.process(renderControl, scene);
-                                changes.dispose();
-                            }
                         }
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
         taskMan.addTask(run, mode);
@@ -1067,10 +1073,6 @@ public class RenderController implements RenderControllerInterface
                         // Vectors are simple enough to just add
                         ChangeSet changes = new ChangeSet();
                         long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         // Track the vector ID for later use
                         if (vecId != EmptyIdentity)
@@ -1089,7 +1091,12 @@ public class RenderController implements RenderControllerInterface
                                 if (!vecObj.getSelectable())
                                     vecObj.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1132,12 +1139,12 @@ public class RenderController implements RenderControllerInterface
                                 compObj.addWideVectorID(instID);
                         }
 
+                        componentManager.addComponentObject(compObj, changes);
+
                         if (scene != null) {
                             changes.process(renderControl, scene);
                             changes.dispose();
                         }
-
-                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -1168,10 +1175,6 @@ public class RenderController implements RenderControllerInterface
                 long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
                 if (shapeId != EmptyIdentity)
                     compObj.addShapeID(shapeId);
-                if (scene != null) {
-                    changes.process(renderControl, scene);
-                    changes.dispose();
-                }
 
                 for (Shape shape : shapes)
                     if (shape.isSelectable())
@@ -1183,7 +1186,12 @@ public class RenderController implements RenderControllerInterface
                     for (Shape shape : shapes)
                         shape.dispose();
 
-                componentManager.addComponentObject(compObj);
+                componentManager.addComponentObject(compObj, changes);
+
+                if (scene != null) {
+                    changes.process(renderControl, scene);
+                    changes.dispose();
+                }
             }
         };
 
@@ -1220,16 +1228,17 @@ public class RenderController implements RenderControllerInterface
                         if (stickerID != EmptyIdentity) {
                             compObj.addStickerID(stickerID);
                         }
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
 
                         if (stickerInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Sticker sticker : stickers)
                                 sticker.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1266,12 +1275,12 @@ public class RenderController implements RenderControllerInterface
                                 stickerManager.changeSticker(stickerID, stickerInfo, changes);
                         }
 
+                        componentManager.addComponentObject(compObj, changes);
+
                         if (scene != null) {
                             changes.process(renderControl, scene);
                             changes.dispose();
                         }
-
-                        componentManager.addComponentObject(compObj);
                     }
                 };
 
@@ -1332,18 +1341,18 @@ public class RenderController implements RenderControllerInterface
                         long billId = billboardManager.addBillboards(bills.toArray(new Billboard[0]), info, changes);
                         compObj.addBillboardID(billId);
 
-                        // Flush the text changes
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
-
                         if (info.disposeAfterUse || disposeAfterRemoval)
                             for (Billboard bill : bills)
                                 if (!bill.getSelectable())
                                     bill.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        // Flush the text changes
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 
@@ -1384,16 +1393,16 @@ public class RenderController implements RenderControllerInterface
                             }
                         }
 
-                        if (scene != null) {
-                            changes.process(renderControl, scene);
-                            changes.dispose();
-                        }
-
                         if (geomInfo.disposeAfterUse || disposeAfterRemoval)
                             for (Points pts: ptList)
                                 pts.rawPoints.dispose();
 
-                        componentManager.addComponentObject(compObj);
+                        componentManager.addComponentObject(compObj, changes);
+
+                        if (scene != null) {
+                            changes.process(renderControl, scene);
+                            changes.dispose();
+                        }
                     }
                 };
 

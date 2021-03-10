@@ -404,7 +404,8 @@ vertex ProjVertexTriA vertexTri_light(
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
     else {
-        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
+                                        uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
         pt /= pt.w;
         outVert.position = pt;
     }
@@ -442,7 +443,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
     else {
-        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
+                                        uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
         pt /= pt.w;
         outVert.position = pt;
     }
@@ -498,7 +500,8 @@ vertex ProjVertexTriB vertexTri_multiTex(
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
     else {
-        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
+        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
+                                        uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
         pt /= pt.w;
         outVert.position = pt;
     }
@@ -606,14 +609,14 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
 //    float centerLine = vert.offset.z * (fmod(uniforms.currentTime,10.0)/10.0 * 200.0 - 100.0);
     float centerLine = vert.offset.z * vertArgs.wideVec.offset;
 
-    outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float realWidth2 = w2 * pixScale;
     float realCenterLine = centerLine * pixScale;
     
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
-    t0 = clamp(t0,0.0,1.0);
+    t0 = clamp(t0,-4.0,5.0);
     float3 dir = normalize(vert.p1 - vert.position);
     float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
@@ -668,14 +671,14 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     }
     centerLine = vert.offset.z * centerLine;
 
-    outVert.color = vertArgs.wideVec.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float realWidth2 = w2 * pixScale;
     float realCenterLine = centerLine * pixScale;
     
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
-    t0 = clamp(t0,0.0,1.0);
+    t0 = clamp(t0,-4.0,5.0);
     float3 dir = normalize(vert.p1 - vert.position);
     float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
@@ -727,7 +730,7 @@ fragment float4 fragmentTri_wideVec(
         alpha = (vert.w2-across)/fragArgs.wideVec.edge;
     
     return vert.dotProd > 0.0 ?
-    float4(fragArgs.wideVec.color.rgb*patternColor.rgb,fragArgs.wideVec.color.a*alpha*patternColor.a)  : float4(0.0);
+    float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a)  : float4(0.0);
 }
 
 struct VertexTriSSArgBufferA {

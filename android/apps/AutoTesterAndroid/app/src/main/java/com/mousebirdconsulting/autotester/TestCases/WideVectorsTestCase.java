@@ -31,7 +31,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
         this.implementation = TestExecutionImplementation.Both;
     }
 
-    void addGeoJSON(BaseController baseController, String name) {
+    void addGeoJSON(BaseController baseController, String name, float width, int drawPriority, int color) {
         // Build a dashed pattern
         LinearTextureBuilder texBuild = new LinearTextureBuilder();
         int[] pattern = new int[2];
@@ -44,8 +44,9 @@ public class WideVectorsTestCase extends MaplyTestCase {
         MaplyTexture tex = baseController.addTexture(patternImage, texSet, RenderController.ThreadMode.ThreadCurrent);
 
         WideVectorInfo wideVecInfo = new WideVectorInfo();
-        wideVecInfo.setColor(Color.BLUE);
-        wideVecInfo.setLineWidth(20.0f);
+        wideVecInfo.setColor(color);
+        wideVecInfo.setLineWidth(width);
+        wideVecInfo.setDrawPriority(drawPriority);
         wideVecInfo.setTexture(tex);
         wideVecInfo.setTextureRepeatLength(8.0);
 
@@ -61,6 +62,7 @@ public class WideVectorsTestCase extends MaplyTestCase {
 
             VectorObject vecObj = new VectorObject();
             vecObj.fromGeoJSON(json);
+            vecObj = vecObj.subdivideToGlobeGreatCircle(0.0001f);
 
             ComponentObject compObj = baseController.addVector(vecObj, vecInfo, RenderController.ThreadMode.ThreadAny);
             compObjs.add(compObj);
@@ -72,12 +74,14 @@ public class WideVectorsTestCase extends MaplyTestCase {
 
     void wideVecTest(BaseController baseController) {
 //        addGeoJSON(baseController, "sawtooth.geojson");
-        addGeoJSON(baseController, "mowing-lawn.geojson");
-        addGeoJSON(baseController, "spiral.geojson");
-        addGeoJSON(baseController, "square.geojson");
-        addGeoJSON(baseController, "track.geojson");
-        addGeoJSON(baseController, "uturn2.geojson");
-        addGeoJSON(baseController, "testJson.geojson");
+        addGeoJSON(baseController, "mowing-lawn.geojson", 20.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
+        addGeoJSON(baseController, "spiral.geojson", 20.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
+        addGeoJSON(baseController, "square.geojson", 20.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
+        addGeoJSON(baseController, "line.geojson", 100.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
+        addGeoJSON(baseController, "line.geojson", 60.0f, VectorInfo.VectorPriorityDefault+10, Color.RED);
+        addGeoJSON(baseController, "track.geojson", 20.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
+        addGeoJSON(baseController, "uturn2.geojson", 20.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
+        addGeoJSON(baseController, "testJson.geojson", 20.0f, VectorInfo.VectorPriorityDefault, Color.BLUE);
     }
 
     @Override

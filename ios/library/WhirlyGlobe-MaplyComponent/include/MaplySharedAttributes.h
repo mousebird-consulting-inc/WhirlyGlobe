@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -77,6 +77,10 @@ extern NSString* const kMaplyZBufferRead;
 extern NSString* const kMaplyZBufferWrite;
 /// Set the render target if the given geometry type supports it
 extern NSString* const kMaplyRenderTarget;
+/// The the UUID of the object
+extern NSString* const kMaplyUUID;
+/// The representation of the UUID this object embodies
+extern NSString* const kMaplyRepresentation;
 
 /// Assign a shader program to a particular feature.  Use the shader program's name
 extern NSString* const kMaplyShader;
@@ -176,6 +180,8 @@ extern NSString* const kMaplyFilled;
 
 /// If set, the texture to apply to the feature
 extern NSString* const kMaplyVecTexture;
+/// The format of the image given by kMaplyVecTexture, default MaplyImage4Layer8Bit
+extern NSString* const kMaplyVecTextureFormat;
 /// X scale for textures applied to vectors
 extern NSString* const kMaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
@@ -187,6 +193,8 @@ extern NSString* const kMaplyVecTextureProjection;
 extern NSString* const kMaplyProjectionTangentPlane;
 /// Screen space "projection" for texture coordinates
 extern NSString* const kMaplyProjectionScreen;
+/// No projection for texture coordinates
+extern NSString* const kMaplyProjectionNone;
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
