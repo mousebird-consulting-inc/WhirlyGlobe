@@ -51,9 +51,9 @@ public class MBTileFetcher extends  SimpleTileFetcher
     /**
      * Construct with the location of an MBTiles file.
      */
-    public MBTileFetcher(File mbTileFile)
+    public MBTileFetcher(BaseController control,File mbTileFile)
     {
-        super("MBTiles Fetcher");
+        super(control,"MBTiles Fetcher");
         neverFail = true;
 
         coordSys = new SphericalMercatorCoordSystem();
