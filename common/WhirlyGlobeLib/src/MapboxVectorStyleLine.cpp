@@ -122,12 +122,12 @@ void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 }
 
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
-                                         std::vector<VectorObjectRef> &inVecObjs,
+                                         const std::vector<VectorObjectRef> &inVecObjs,
                                          const VectorTileDataRef &tileInfo,
                                          const Dictionary *desc)
 {
     // If a representation is set, we produce results for non-visible layers
-    if (!visible && representation.empty())
+    if (!visible && (representation.empty() || repUUIDField.empty()))
     {
         return;
     }
@@ -198,7 +198,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.zoomSlot = styleSet->zoomSlot;
     vecInfo.color = *color;
     vecInfo.width = width;
-    vecInfo.offset = offset;
+    vecInfo.offset = -offset;
     vecInfo.widthExp = paint.width->expression();
     vecInfo.offsetExp = paint.offset->expression();
     vecInfo.colorExp = paint.color->expression();
@@ -223,7 +223,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
     if (vecInfo.offsetExp)
     {
-        vecInfo.offsetExp->scaleBy(lineScale);
+        vecInfo.offsetExp->scaleBy(-lineScale);
     }
 
     using ShapeRefVec = std::vector<VectorShapeRef>;

@@ -76,7 +76,8 @@ public:
     
 public:
     // Don't call this
-    ComponentObject();
+    ComponentObject(bool enable = false, bool selectable = false);
+    ComponentObject(bool enable, bool selectable, const Dictionary &desc);
 };
 
 typedef std::shared_ptr<ComponentObject> ComponentObjectRef;

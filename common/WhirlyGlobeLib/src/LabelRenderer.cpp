@@ -170,6 +170,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 {
                     case WhirlyKitLabelRight:  justifyOff.x() = -width; break;
                     case WhirlyKitLabelMiddle: justifyOff.x() = -width / 2.0; break;
+                    default: break;
                 }
             }
             
@@ -387,6 +388,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                     case WhirlyKitTextRight:
                         lineOff.x() = drawMbr.ur().x()-drawMbr.ll().x() - (drawStr->mbr.ur().x()-drawStr->mbr.ll().x());
                         break;
+                    default: break;
                 }
                 
                 // Turn the glyph polys into simple geometry

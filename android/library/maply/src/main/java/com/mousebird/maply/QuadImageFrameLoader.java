@@ -185,6 +185,13 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
         return tileInfos.length;
     }
 
+    /**
+     * Change the tile sources all at once.  This also forces a reload.
+     */
+    public void changeTileInfo(final TileInfoNew[] newTileInfo) {
+        super.changeTileInfo(newTileInfo);
+    }
+
     @Override
     public void shutdown() {
         valid = false;

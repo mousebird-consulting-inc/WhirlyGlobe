@@ -63,7 +63,10 @@ public:
     
     // Scale the outputs by the given value
     void scaleBy(double scale);
-    
+
+    // Evaluate the expression at the given zoom level
+    float evaluate(float zoom, float defaultValue);
+
     std::vector<float> stopOutputs;
 };
 typedef std::shared_ptr<FloatExpressionInfo> FloatExpressionInfoRef;

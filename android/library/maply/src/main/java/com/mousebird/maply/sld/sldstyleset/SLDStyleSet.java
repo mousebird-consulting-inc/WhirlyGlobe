@@ -190,4 +190,12 @@ public class SLDStyleSet implements VectorStyleInterface {
 
     @Override
     public int backgroundColorForZoom(double zoom) { return Color.BLACK; }
+
+    @Override
+    public int getZoomSlot() { return -1; }
+
+    @Override
+    public void setZoomSlot(int inZoomSlot) {
+        throw new UnsupportedOperationException();
+    }
 }

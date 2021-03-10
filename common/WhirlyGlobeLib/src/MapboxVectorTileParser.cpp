@@ -271,8 +271,8 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
 
 void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
                                            long long styleID,
-                                           std::vector<VectorObjectRef> &vecObjs,
-                                           VectorTileDataRef data)
+                                           const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &data)
 {
     if (auto style = styleDelegate->styleForUUID(styleInst,styleID))
     {

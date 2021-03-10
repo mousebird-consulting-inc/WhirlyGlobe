@@ -34,13 +34,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit(JNIEnv
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
-        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
+        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)//, jobject controller)
 {
     try {
-        QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
-        SamplingParams *params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
+        auto info = QuadImageFrameLoaderClassInfo::getClassInfo();
+        auto params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
+        //auto control = QuadImageFrameLoaderClassInfo
         PlatformInfo_Android platformInfo(env);
-        QuadImageFrameLoader_AndroidRef *loader = new QuadImageFrameLoader_AndroidRef(new QuadImageFrameLoader_Android(&platformInfo,*params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
+        auto loader = new QuadImageFrameLoader_AndroidRef(
+                new QuadImageFrameLoader_Android(&platformInfo,/*control,*/ *params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
         (*loader)->frameLoaderObj = env->NewGlobalRef(obj);
         (*loader)->setFlipY(true);
         info->setHandle(env, obj, loader);
@@ -329,8 +331,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
 }
 
 extern "C"
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
-        (JNIEnv *env, jobject obj)
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration(JNIEnv *env, jobject obj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -345,6 +346,33 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration
     }
 
     return 0;
+}
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getZoomSlot
+ * Signature: ()I
+ */
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getZoomSlot(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        const auto ptr = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (const auto inst = ptr ? *ptr : nullptr)
+        {
+            if (const auto dc = inst->getController())
+            {
+                return dc->getZoomSlot();
+            }
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getGeneration()");
+    }
+
+    return -1;
 }
 
 extern "C"

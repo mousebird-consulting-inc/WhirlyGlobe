@@ -1,9 +1,8 @@
-/*
- *  MaplyVectorTileLineStyle.java
+/*  MaplyVectorTileLineStyle.java
  *  WhirlyGlobeLib
  *
  *  Created by Ranen Ghosh on 3/27/17.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -55,10 +53,12 @@ public class VectorTileLineStyle extends VectorTileStyle {
         ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>(Arrays.asList(objects));
 
         ComponentObject compObj = null;
-        if (useWideVectors)
+        if (useWideVectors) {
             compObj = controller.addWideVectors(vecObjs, wideVectorInfo, RenderController.ThreadMode.ThreadCurrent);
-        else
+        }
+        else {
             compObj = controller.addVectors(vecObjs, vectorInfo, RenderController.ThreadMode.ThreadCurrent);
+        }
         tileData.addComponentObject(compObj);
     }
 

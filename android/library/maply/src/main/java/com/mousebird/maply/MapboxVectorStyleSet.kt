@@ -226,6 +226,18 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return null
     }
 
+    /**
+     * Get the zoom slot, or -1
+     */
+    override fun getZoomSlot(): Int = zoomSlot
+
+    /**
+     * Capture the zoom slot if you're going use it
+     */
+    override fun setZoomSlot(inZoomSlot: Int) {
+        zoomSlot = inZoomSlot
+    }
+
     fun finalize() {
         dispose()
     }
@@ -248,6 +260,8 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     var spriteURL: String? = null
 
     var settings: VectorStyleSettings? = null
+
+    private var zoomSlot: Int = -1
 
     private var displayMetrics: DisplayMetrics? = null
 

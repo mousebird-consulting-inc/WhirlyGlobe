@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawableBuilderGLES.cpp
+/*  WideVectorDrawableBuilderGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,40 +14,58 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WideVectorDrawableBuilderGLES.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
+
 // OpenGL version of the tweaker
 void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
     if (frameInfo->program)
     {
-        float scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
-        float screenSize = frameInfo->screenSizeInDisplayCoords.x();
-        float pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
-        float texScale = scale/(screenSize*texRepeat);
-        
-        ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
+        const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+        const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
+        const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
+        const double texScale = scale / (screenSize * texRepeat);
 
-        if (realWidthSet)
+        auto programGLES = (ProgramGLES *)frameInfo->program;
+
+        if (widthExp)
+        {
+            const auto bd = dynamic_cast<BasicDrawable*>(inDraw);
+            if (bd && bd->zoomSlot >= 0)
+            {
+                auto zoom = frameInfo->scene->getZoomSlotValue(bd->zoomSlot);
+                const float expWidth = widthExp->evaluate(zoom, lineWidth);
+                programGLES->setUniform(u_w2NameID, expWidth);
+                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * expWidth));
+                //wkLog("id=%lld on=%s p=%lld n=%s zoom=%f exp=%f/%f lW=%f/%f", inDraw->getId(), inDraw->isOn(frameInfo)?"T":"F", inDraw->getProgram(), inDraw->getName().c_str(), zoom, expWidth, pixDispSize * expWidth, lineWidth, lineWidth * pixDispSize);
+            }
+            else
+            {
+                programGLES->setUniform(u_w2NameID, lineWidth);
+                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
+            }
+        }
+        else if (realWidthSet)
         {
             programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
-            programGLES->setUniform(u_Realw2NameID, (float)realWidth);
-            programGLES->setUniform(u_EdgeNameID, edgeSize);
-        } else {
-            programGLES->setUniform(u_w2NameID, lineWidth);
-            programGLES->setUniform(u_Realw2NameID, pixDispSize * lineWidth);
-            programGLES->setUniform(u_EdgeNameID, edgeSize);
+            programGLES->setUniform(u_Realw2NameID, realWidth);
         }
-        programGLES->setUniform(u_texScaleNameID, texScale);
-        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0,color.g/255.0,color.b/255.0,color.a/255.0));
+        else
+        {
+            programGLES->setUniform(u_w2NameID, lineWidth);
+            programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
+        }
+        programGLES->setUniform(u_EdgeNameID, edgeSize);
+        programGLES->setUniform(u_texScaleNameID, (float)texScale);
+        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0f,color.g/255.0f,color.b/255.0f,color.a/255.0f));
     }
 }
 

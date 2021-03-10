@@ -102,7 +102,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Return the current coordinate system.
 	 */
-	public CoordSystem getCoordSystem() { return coordAdapter.coordSys; }
+	public CoordSystem getCoordSystem() { return (coordAdapter != null) ? coordAdapter.coordSys : null; }
 
 	public void takeScreenshot(ScreenshotListener listener)
 	{
@@ -563,14 +563,28 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 @details This converts from a coordinate (3d) in the given coordinate system to the view controller's display space.  For the globe, display space is based on a radius of 1.0.
 	 */
 
-	public Point3d displayCoord (Point3d localCoord, CoordSystem fromSystem){
-
+	public Point3d displayCoord (Point3d localCoord, CoordSystem fromSystem)
+	{
 		Point3d loc3d = CoordSystem.CoordSystemConvert3d(fromSystem, coordAdapter.getCoordSystem(), localCoord);
 		Point3d pt = coordAdapter.localToDisplay(loc3d);
 
 		return pt;
 	}
-	
+
+	/**
+	 * Return a point in display space.  Display space is close to what's rendered.
+	 * For the globe it's a model space based on a radius of 1.0.
+	 */
+	public Point3d displayPointFromGeo(Point3d geoPt)
+	{
+		CoordSystemDisplayAdapter coordAdapter = (view != null) ? view.getCoordAdapter() : null;
+		if (coordAdapter == null) {
+			return null;
+		}
+		Point3d localPt = coordAdapter.getCoordSystem().geographicToLocal(geoPt);
+		return (localPt != null) ? coordAdapter.localToDisplay(localPt) : null;
+	}
+
 	/**
 	 * Return the main content view used to represent the Maply Control.
 	 */
@@ -1079,6 +1093,16 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (renderWrapper != null && renderWrapper.maplyRender != null)
 			renderControl.setPerfInterval(perfInterval);
 	}
+
+	/**
+	 * Get the zoom limits for the globe.
+	 */
+	public /*abstract*/ double getZoomLimitMin() { return 0.0; }
+
+	/**
+	 * Get the zoom limits for the globe.
+	 */
+	public /*abstract*/ double getZoomLimitMax() { return 0.0; }
 
 	/** Calculate the height that corresponds to a given Mapnik-style map scale.
 	 * <br>

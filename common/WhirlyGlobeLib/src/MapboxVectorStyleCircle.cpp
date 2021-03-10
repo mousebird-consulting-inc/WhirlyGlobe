@@ -78,12 +78,12 @@ void MapboxVectorLayerCircle::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 }
 
 void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
-                                           std::vector<VectorObjectRef> &vecObjs,
+                                           const std::vector<VectorObjectRef> &vecObjs,
                                            const VectorTileDataRef &tileInfo,
                                            const Dictionary *desc)
 {
     // If a representation is set, we produce results for non-visible layers
-    if (!visible && representation.empty())
+    if (!visible && (representation.empty() || repUUIDField.empty()))
     {
         return;
     }

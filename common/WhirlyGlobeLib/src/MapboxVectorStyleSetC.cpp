@@ -550,7 +550,7 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
     if (thing->getType() == DictTypeArray)
         return thing->getArray();
     
-    wkLogLevel(Warn, "Expected string for %s but got something else",name.c_str());
+    wkLogLevel(Warn, "Expected array for %s but got something else",name.c_str());
     return ret;
 }
 
@@ -859,11 +859,6 @@ MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &
 {
     const auto it = layersByName.find(name);
     return (it == layersByName.end()) ? MapboxVectorStyleLayerRef() : it->second;
-}
-
-void MapboxVectorStyleSetImpl::setZoomSlot(int inZoomSlot)
-{
-    zoomSlot = inZoomSlot;
 }
 
 VectorStyleImplRef MapboxVectorStyleSetImpl::backgroundStyle(PlatformThreadInfo *inst) const

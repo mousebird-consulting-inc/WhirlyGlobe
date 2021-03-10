@@ -366,12 +366,12 @@ static std::tuple<MarkerPtrVec*, VecObjRefVec*, LabelRefVec*> Lookup(const std::
 }
 
 void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
-                                           std::vector<VectorObjectRef> &vecObjs,
+                                           const std::vector<VectorObjectRef> &vecObjs,
                                            const VectorTileDataRef &tileInfo,
                                            const Dictionary *desc)
 {
     // If a representation is set, we produce results for non-visible layers
-    if (!visible && representation.empty())
+    if (!visible && (representation.empty() || repUUIDField.empty()))
     {
         return;
     }

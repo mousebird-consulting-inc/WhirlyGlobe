@@ -117,36 +117,36 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
 
 SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadInfo *inInst,const std::string &text)
 {
-    SingleLabelAndroid *label = new SingleLabelAndroid();
+    auto label = std::make_shared<SingleLabelAndroid>();
 
     // Break up the lines and turn the characters into code points for Java
     std::istringstream ss(text);
     std::string line;
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
     while (std::getline(ss, line, ss.widen('\n'))) {
-        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
-        std::u16string utf16 = utf16conv.from_bytes(line);
-
-        std::vector<int> codePoints;
-        for (auto it = utf16.begin(); it != utf16.end(); ++it)
-            codePoints.push_back(*it);
-        label->codePointsLines.push_back(codePoints);
+        const std::u16string utf16 = utf16conv.from_bytes(line);
+        label->codePointsLines.emplace_back(utf16.begin(), utf16.end());
     }
 
-    return SingleLabelRef(label);
+    return label;
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst)
+ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst, const Dictionary *desc)
 {
-    return std::make_shared<ComponentObject>();
+    return desc ? std::make_shared<ComponentObject>(false, false, *desc)
+                : std::make_shared<ComponentObject>(false, false);
 }
 
 double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef inLabelInfo,const std::string &text)
 {
     PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
-    LabelInfoAndroidRef labelInfo = std::dynamic_pointer_cast<LabelInfoAndroid>(inLabelInfo);
 
     jstring jText = inst->env->NewStringUTF(text.c_str());
-    jdouble width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    jdouble width = 0;
+    if (auto labelInfo = dynamic_cast<LabelInfoAndroid*>(inLabelInfo.get()))
+    {
+        width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    }
     inst->env->DeleteLocalRef(jText);
 
     return width;

@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Vector;
 
@@ -208,7 +210,9 @@ public class VectorObject implements Iterable<VectorObject>
 	/**
 	 Subdivide the edges in this feature to a given tolerance.
 
-	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon.  The epislon is in display coordinates (radius = 1.0). This routine breaks this up along geographic boundaries.
+	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon.
+	 The epsilon is in display coordinates (radius = 1.0).
+	 This routine breaks this up along geographic boundaries.
 	 */
 	public VectorObject subdivideToGlobe(double epsilon)
 	{
@@ -366,7 +370,7 @@ public class VectorObject implements Iterable<VectorObject>
 
 	/**
 	 * Load vector objects from a GeoJSON string.
-	 * @param json The GeoSJON string, presumably read from a file or over the network
+	 * @param json The GeoJSON string, presumably read from a file or over the network
 	 * @return false if we were unable to parse the GeoJSON
 	 */
 	public native boolean fromGeoJSON(String json);
@@ -377,6 +381,24 @@ public class VectorObject implements Iterable<VectorObject>
 	 * @return false if we were unable to parse the Shapefile.
 	 */
 	public native boolean fromShapeFile(String fileName);
+
+	/**
+	 * Indicates whether the object contains multiple elements that can be split up
+	 */
+	public native boolean canSplit();
+
+	/**
+	 * Split this feature into individual features.
+	 *
+	 * A vector object can represent multiple features.
+	 * This method will make one vector object per feature, allowing you to operate on those individually.
+	 *
+	 * If the object does not contain multiple features, null is returned to avoid unnecessarily
+	 * copying the shape contents.
+	 */
+	public VectorIterator splitVectors() {
+		return canSplit() ? new VectorIterator(this) : null;
+	}
 
 	/**
 	 * Make a complete copy of the vector object and return it.

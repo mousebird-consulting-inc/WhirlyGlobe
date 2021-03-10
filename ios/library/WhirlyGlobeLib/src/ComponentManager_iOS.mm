@@ -31,36 +31,11 @@ ComponentObject_iOS::ComponentObject_iOS()
 {
 }
 
-ComponentObject_iOS::ComponentObject_iOS(bool enable, bool isSelectable, const NSDictionary *_Nullable desc)
+ComponentObject_iOS::ComponentObject_iOS(bool enable, bool isSelectable, const NSDictionary *_Nullable desc) :
+    ComponentObject(enable, isSelectable, iosDictionary(desc))
 {
-    this->enable = enable;
-    this->isSelectable = isSelectable;
-    
-    if (desc.count)
-    {
-        if (const id enableValue = desc[kMaplyEnable])
-        {
-            if ([enableValue isKindOfClass:[NSNumber class]])
-            {
-                this->enable = [enableValue boolValue];
-            }
-        }
-        if (const id uuid = desc[kMaplyUUID])
-        {
-            if ([uuid isKindOfClass:[NSString class]])
-            {
-                this->uuid = [((NSString*)uuid) asStdString];
-            }
-        }
-        if (const id rep = desc[kMaplyRepresentation])
-        {
-            if ([rep isKindOfClass:[NSString class]])
-            {
-                this->representation = [((NSString*)rep) asStdString];
-            }
-        }
-    }
 }
+
 // The scene wants a component manager early in the process
 // This gives it an iOS specific one
 ComponentManagerRef MakeComponentManager()

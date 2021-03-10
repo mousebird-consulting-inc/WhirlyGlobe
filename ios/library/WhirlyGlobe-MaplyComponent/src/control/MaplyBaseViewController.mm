@@ -1447,11 +1447,28 @@ static const float PerfOutputDelay = 15.0;
     // Implement in derived class.
 }
 
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse {
+    [self startLocationTrackingWithDelegate:delegate
+                                  simulator:nil
+                                simInterval:0
+                                 useHeading:useHeading
+                                  useCourse:useCourse];
+}
 
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
-    if (_locationTracker)
-        [self stopLocationTracking];
-    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
+                                simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                              simInterval:(NSTimeInterval)simInterval
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse {
+    [self stopLocationTracking];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self
+                                                          delegate:delegate
+                                                         simulator:simulator
+                                                       simInterval:simInterval
+                                                        useHeading:useHeading
+                                                         useCourse:useCourse];
 }
 
 - (MaplyLocationTracker *)getLocationTracker
@@ -1470,8 +1487,6 @@ static const float PerfOutputDelay = 15.0;
 }
 
 - (void)stopLocationTracking {
-    if (!_locationTracker)
-        return;
     [_locationTracker teardown];
     _locationTracker = nil;
 }

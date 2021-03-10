@@ -619,7 +619,7 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
                                              const QuadTreeIdentifier &tileID,
                                              const std::string &layerName)
 {
-    NSDictionary *dict = nil;
+    const NSDictionary *dict = nil;
     if (const auto dictRef = dynamic_cast<const iosDictionary*>(&attrs)) {
         dict = dictRef->dict;
     } else if (const auto dictRef = dynamic_cast<const iosMutableDictionary*>(&attrs)) {
@@ -633,7 +633,10 @@ VectorStyleDelegateWrapper::stylesForFeature(PlatformThreadInfo *inst,
     
     const MaplyTileID theTileID = { tileID.x, tileID.y, tileID.level };
     NSString *layerStr = [NSString stringWithFormat:@"%s",layerName.c_str()];
-    NSArray *styles = [delegate stylesForFeatureWithAttributes:dict onTile:theTileID inLayer:layerStr viewC:viewC];
+    NSArray *styles = [delegate stylesForFeatureWithAttributes:const_cast<NSDictionary*>(dict)
+                                                        onTile:theTileID
+                                                       inLayer:layerStr
+                                                         viewC:viewC];
     
     std::vector<VectorStyleImplRef> retStyles;
     retStyles.reserve([styles count]);
@@ -704,7 +707,7 @@ bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
 }
 
 void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
-                                      std::vector<VectorObjectRef> &vecObjs,
+                                      const std::vector<VectorObjectRef> &vecObjs,
                                       const VectorTileDataRef &tileInfo,
                                       const Dictionary *desc)
 {

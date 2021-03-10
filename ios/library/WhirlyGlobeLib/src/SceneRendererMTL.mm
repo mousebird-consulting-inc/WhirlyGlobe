@@ -835,7 +835,7 @@ void SceneRendererMTL::render(TimeInterval duration,
                         
                         // Work through the drawables
                         for (const auto &draw : targetContainer->drawables) {
-                            auto drawMTL = dynamic_cast<DrawableMTL*>(draw.get());
+                            auto drawMTL = std::dynamic_pointer_cast<DrawableMTL>(draw);
                             if (!drawMTL) {
                                 wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
                                 continue;

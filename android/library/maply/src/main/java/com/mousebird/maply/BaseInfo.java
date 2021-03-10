@@ -64,7 +64,7 @@ public class BaseInfo
     public native void setViewDistRange(double minViewerDist,double maxViewerDist);
 
     /**
-     * @return Minimim distance from the user that an object will be visible.
+     * @return Minimum distance from the user that an object will be visible.
      */
     public native double getViewDistRangeMin();
 
@@ -123,7 +123,7 @@ public class BaseInfo
      * The amount of time (in seconds) it takes for new geometry
      * to fade in and fade out.  By default, fade is off.
      */
-    public native void setFade(float fade);
+    public native void setFade(double fade);
 
     /**
      * Geometry can be made to fade in when it appears and fade out when

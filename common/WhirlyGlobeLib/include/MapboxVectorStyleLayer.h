@@ -34,6 +34,8 @@ typedef std::shared_ptr<MapboxVectorStyleLayer> MapboxVectorStyleLayerRef;
 class MapboxVectorStyleLayer : public VectorStyleImpl
 {
 public:
+    virtual std::string getIdent() const override { return ident; }
+    virtual std::string getType() const override { return type; }
 
     /// @brief Initialize with the style sheet and the entry for this layer
     static MapboxVectorStyleLayerRef VectorStyleLayer(PlatformThreadInfo *inst,
@@ -63,7 +65,7 @@ public:
 
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
+                              const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc) override = 0;
     

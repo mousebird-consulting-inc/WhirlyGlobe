@@ -239,10 +239,10 @@ void main()
            break;
         vec3 adjNorm = light[ii].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;
         float ndotl;
-//        float ndoth;\n
+//        float ndoth;
         ndotl = max(0.0, dot(adjNorm, light[ii].direction));
-//        ndotl = pow(ndotl,0.5);\n
-//        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));\n
+//        ndotl = pow(ndotl,0.5);
+//        ndoth = max(0.0, dot(adjNorm, light[ii].halfplane));
         ambient += light[ii].ambient;
         diffuse += ndotl * light[ii].diffuse;
      }
@@ -251,7 +251,7 @@ void main()
      v_color = inColor * u_fade;
    }
    vec3 center = a_modelDir * u_time + a_modelCenter;
-   vec3 vertPos = (a_singleMatrix *vec4(a_position,1.0)).xyz + center;
+   vec3 vertPos = (a_singleMatrix * vec4(a_position,1.0)).xyz + center;
 
    gl_Position = u_mvpMatrix * vec4(vertPos,1.0);
 }

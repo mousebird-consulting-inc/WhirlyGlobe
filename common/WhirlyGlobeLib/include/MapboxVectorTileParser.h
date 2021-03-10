@@ -127,8 +127,8 @@ public:
     ///  which are then returned in the VectorTileData
     virtual void buildForStyle(PlatformThreadInfo *styleInst,
                                long long styleID,
-                               std::vector<VectorObjectRef> &vecObjs,
-                               VectorTileDataRef data);
+                               const std::vector<VectorObjectRef> &vecObjs,
+                               const VectorTileDataRef &data);
 
     /// Set the name of the uuid field.
     /// When present, the value is set as the kMaplyUUID attribute on generated objects
@@ -144,6 +144,7 @@ public:
     /// If set, we'll put an outline around the tile
     void setDebugOutline(bool b = true) { debugOutline = b; }
 
+    const VectorStyleDelegateImplRef &getStyleDelegate() const { return styleDelegate; }
 protected:
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
     bool localCoords;
