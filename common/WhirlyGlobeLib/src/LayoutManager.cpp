@@ -679,6 +679,8 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                             Point3d worldPt(0.0,0.0,0.0);
                             if (!textBuilder.screenToWorld(midRun, worldPt))
                                 continue;
+                            
+                            std::vector<Point2dVector> overlapPts;
 
                             // Walk through the individual glyphs
                             bool failed = false;
@@ -718,6 +720,21 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                     for (unsigned iy=0;iy<2;iy++)
                                         screenRotMat(ix, iy) = screenRot(ix, iy);
                                 layoutMats.push_back(transPlace.matrix() * screenRotMat * transOrigin.matrix());
+                                
+                                // Check for overlap
+                                Point2dVector objPts;  objPts.reserve(4);
+                                for (unsigned int oi=0;oi<4;oi++) {
+                                    Point3d pt = layoutMats.back() * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
+                                    Point2d objPt(pt.x()+worldScreenPt.x(),pt.y()+worldScreenPt.y());
+                                    objPts.push_back(objPt);
+                                }
+
+                                if (!overlapMan.checkObject(objPts)) {
+                                    failed = true;
+                                    break;
+                                }
+                                
+                                overlapPts.push_back(objPts);
                             }
                             
                             if (!failed) {
@@ -725,6 +742,10 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 layoutModelInstances.push_back(worldPt);
                                 layoutInstances.push_back(layoutMats);
                                 numInstances++;
+                                
+                                // Add the individual glyphs to the overlap manager
+                                for (auto &glyph: overlapPts)
+                                    overlapMan.addObject(glyph);
                             }
                             
                             if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
@@ -865,7 +886,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     //                           wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
                                 
                                 // Now try it.  Objects we've pegged as essential always win
-                                if (overlapMan.addObject(objPts) || container.importance >= MAXFLOAT)
+                                if (overlapMan.addCheckObject(objPts) || container.importance >= MAXFLOAT)
                                 {
                                     validOrient = true;
                                     pickedOne = true;
