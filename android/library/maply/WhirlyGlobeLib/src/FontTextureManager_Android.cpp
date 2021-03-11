@@ -20,6 +20,7 @@
 #import "LabelInfo_Android.h"
 #import "LabelsAndMarkers_jni.h"
 #import "ScopedEnv_Android.h"
+#import "Exceptions_jni.h"
 #import <android/bitmap.h>
 
 namespace WhirlyKit
@@ -28,39 +29,27 @@ namespace WhirlyKit
 static const float BogusFontScale = 1.0f;
 
 FontTextureManager_Android::FontManager_Android::FontManager_Android(JNIEnv *env,jobject inTypefaceObj) :
-	jvm(nullptr),
 	typefaceObj(env->NewGlobalRef(inTypefaceObj))
 {
-	env->GetJavaVM(&jvm);
 }
 
 FontTextureManager_Android::FontManager_Android::FontManager_Android() :
-	jvm(nullptr),
 	typefaceObj(nullptr)
 {
 }
 
 FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 {
-	// should have been cleaned up by now through teardown, but we'll try it the hard way...
-	if (typefaceObj != nullptr)
-	{
-		clearRefs(nullptr);
-	}
+	// should have been cleaned up by now through teardown.
+	// We can't clean it up for lack of a JNIEnv, so it'll leak.
+	assert(typefaceObj == nullptr);
 }
 
 void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv* env)
 {
 	if (typefaceObj)
 	{
-		if (env)
-		{
-			env->DeleteGlobalRef(typefaceObj);
-		}
-		else if (auto jvmEnv = ScopedEnv(jvm))
-		{
-			jvmEnv->DeleteGlobalRef(typefaceObj);
-		}
+		env->DeleteGlobalRef(typefaceObj);
 		typefaceObj = nullptr;
 	}
 }
@@ -134,8 +123,6 @@ DrawableString *FontTextureManager_Android::addString(
 		ChangeSet &changes)
 {
 	auto threadInfo = (PlatformInfo_Android *)inThreadInfo;
-	auto classInfo = LabelInfoClassInfo::getClassInfo();
-	auto intClassInfo = JavaIntegerClassInfo::getClassInfo(threadInfo->env);
 
 	// Could be more granular if this slows things down
     std::lock_guard<std::mutex> guardLock(lock);
@@ -152,7 +139,7 @@ DrawableString *FontTextureManager_Android::addString(
     // Work through the characters
     GlyphSet glyphsUsed;
     float offsetX = 0.0;
-    for (int glyph : codePoints)
+    for (const int glyph : codePoints)
     {
 		// Look for an existing glyph
     	auto glyphInfo = fm->findGlyph(glyph);
@@ -162,16 +149,25 @@ DrawableString *FontTextureManager_Android::addString(
         	const jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfo->labelInfoObj,labelInfo->fontSize);
         	if (!glyphObj)
         	{
-        		wkLogLevel(Warn,"Bad glyph passed into FontTextureManager_Android: %d",glyph);
+        		wkLogLevel(Warn,"Glyph render failed from FontTextureManager_Android: %d",glyph);
+        		logAndClearJVMException(threadInfo->env, "addString");
 				continue;
 			}
+
         	jobject bitmapObj = threadInfo->env->GetObjectField(glyphObj,bitmapID);
+        	if (!bitmapObj)
+			{
+				wkLogLevel(Error, "Glyph render produced no output");
+				logAndClearJVMException(threadInfo->env, "addString");
+				continue;
+			}
 
         	try
         	{
 				// Got a bitmap, so merge that in with our texture atlas
 				AndroidBitmapInfo info;
-				if (bitmapObj && (AndroidBitmap_getInfo(threadInfo->env, bitmapObj, &info) >= 0))
+				const auto getInfoRes = AndroidBitmap_getInfo(threadInfo->env, bitmapObj, &info);
+				if (getInfoRes == ANDROID_BITMAP_RESULT_SUCCESS)
 				{
                     Point2f texSize,glyphSize;
                     Point2f offset,textureOffset;
@@ -187,13 +183,16 @@ DrawableString *FontTextureManager_Android::addString(
                     textureOffset.y() = threadInfo->env->GetFloatField(glyphObj,textureOffsetYID);
 
                     // Create a texture
-					void* bitmapPixels;
-					if (AndroidBitmap_lockPixels(threadInfo->env, bitmapObj, &bitmapPixels) < 0)
+					void* bitmapPixels = nullptr;
+					const auto lockRes = AndroidBitmap_lockPixels(threadInfo->env, bitmapObj, &bitmapPixels);
+					if (lockRes != ANDROID_BITMAP_RESULT_SUCCESS)
 					{
 						throw std::runtime_error("Unable to lock bitmap pixels");
 					}
 					try
 					{
+						assert(info.width * 4 == info.stride);
+
 						MutableRawData *rawData = new MutableRawData(bitmapPixels,
 																	 info.height * info.width * 4);
 						TextureGLES tex("FontTextureManager");
@@ -201,15 +200,20 @@ DrawableString *FontTextureManager_Android::addString(
 
 						// Add it to the texture atlas
 						SubTexture subTex;
-						Point2f realSize(glyphSize.x() + 2 * textureOffset.x(),
-										 glyphSize.y() + 2 * textureOffset.y());
+						const Point2f realSize(glyphSize.x() + 2 * textureOffset.x(),
+						                       glyphSize.y() + 2 * textureOffset.y());
 						std::vector<Texture *> texs{&tex};
-						if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex,
-												 changes, 0, 0, NULL)) {
+						if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, nullptr, subTex,
+												 changes, 0, 0, nullptr))
+						{
 							glyphInfo = fm->addGlyph(glyph, subTex,
 													 Point2f(glyphSize.x(), glyphSize.y()),
 													 Point2f(offset.x(), offset.y()),
 													 Point2f(textureOffset.x(), textureOffset.y()));
+						}
+						else
+						{
+							wkLogLevel(Error, "Failed to add glyph texture for %d/%c in %s", glyph, glyph, fm->fontName.c_str());
 						}
 					}
 					catch (...)
@@ -220,10 +224,15 @@ DrawableString *FontTextureManager_Android::addString(
 					}
                     AndroidBitmap_unlockPixels(threadInfo->env, bitmapObj);
 				}
+				else
+				{
+					wkLogLevel(Error, "Glyph AndroidBitmap_getInfo failed (%d)", getInfoRes);
+				}
         	}
         	catch (...)
         	{
         		// Just don't add the glyph, for now
+				wkLogLevel(Error, "Exception in addString %d/%c/%s", glyph, glyph, fm->fontName.c_str());
         	}
 
             threadInfo->env->DeleteLocalRef(glyphObj);

@@ -52,7 +52,6 @@ public:
 
         virtual void teardown(PlatformThreadInfo*) override;
 
-        JavaVM* jvm;
         jobject typefaceObj;
     };
     typedef std::shared_ptr<FontManager_Android> FontManager_AndroidRef;
