@@ -127,7 +127,7 @@ public class TileFetchRequest implements Comparable<TileFetchRequest>
 
     @Override
     public int hashCode() {
-        return Objects.hash(priority, importance, group, tileSource);
+        return Objects.hash(priority, importance, group, tileSource, fetchInfo);
     }
 
     @NotNull
