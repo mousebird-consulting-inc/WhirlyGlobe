@@ -33,7 +33,7 @@ public:
     // Used to build the drawable string on specific platforms
     virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,
                                                                   const LabelInfo *,
-                                                                  FontTextureManagerRef &fontTexManager,
+                                                                  const FontTextureManagerRef &fontTexManager,
                                                                   float &lineHeight,
                                                                   ChangeSet &changes) override;
     

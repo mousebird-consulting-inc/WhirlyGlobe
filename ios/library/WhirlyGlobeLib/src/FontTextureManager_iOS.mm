@@ -44,12 +44,22 @@ FontManager_iOS::~FontManager_iOS()
 {
     CFRelease(font);
 }
-    
+
+bool FontManager_iOS::operator <(const FontManager &that) const
+{
+    if (auto p = dynamic_cast<const FontManager_iOS*>(&that))
+    {
+        return operator<(*p);
+    }
+    assert(!"Unexpected type passed to comparison");
+    return false;
+}
+
 bool FontManager_iOS::operator < (const FontManager_iOS &that) const
 {
     return font < that.font;
 }
-    
+
 FontTextureManager_iOS::FontTextureManager_iOS(SceneRenderer *sceneRender,Scene *scene)
 : FontTextureManager(sceneRender,scene)
 {
@@ -58,7 +68,15 @@ FontTextureManager_iOS::FontTextureManager_iOS(SceneRenderer *sceneRender,Scene 
 FontTextureManager_iOS::~FontTextureManager_iOS()
 {
 }
-    
+
+void FontTextureManager_iOS::teardown(PlatformThreadInfo* inst)
+{
+    for (const auto& kv : fontManagers) {
+        kv.second->teardown(inst);
+    }
+    fontManagers.clear();
+}
+
 // Look for an existing font that will match the UIFont given
 FontManager_iOSRef FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlineSize)
 {
@@ -86,7 +104,7 @@ FontManager_iOSRef FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont
     CTFontRef font;
     uiFont = [UIFont fontWithDescriptor:uiFont.fontDescriptor size:pointSize];
     font = (__bridge CTFontRef)uiFont;
-    FontManager_iOSRef fm = FontManager_iOSRef(new FontManager_iOS(font));
+    auto fm = std::make_shared<FontManager_iOS>(font);
     fm->fontName = fontName;
     fm->color = color;
     fm->colorUI = colorUI;

@@ -39,7 +39,7 @@ LabelInfo_iOS::LabelInfo_iOS(UIFont *font,bool screenObject)
 
     
 // Used to build the drawable string on specific platforms
-std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,FontTextureManagerRef &inFontTexManager,float &lineHeight,ChangeSet &changes)
+std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,const FontTextureManagerRef &inFontTexManager,float &lineHeight,ChangeSet &changes)
 {
     FontTextureManager_iOSRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(inFontTexManager);
     const LabelInfo_iOS *labelInfo = (LabelInfo_iOS *)inLabelInfo;

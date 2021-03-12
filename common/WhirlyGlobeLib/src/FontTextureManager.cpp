@@ -1,9 +1,8 @@
-/*
- *  FontTextureManager.mm
+/*  FontTextureManager.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/15/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "FontTextureManager.h"
@@ -27,39 +25,30 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-FontManager::FontManager()
-: refCount(0),color(255,255,255,255),outlineColor(0,0,0,0),backColor(0,0,0,0),outlineSize(0.0)
+FontManager::FontManager() :
+    refCount(0),
+    color(255,255,255,255),
+    outlineColor(0,0,0,0),
+    backColor(0,0,0,0),
+    outlineSize(0.0)
 {
 }
 
 FontManager::~FontManager()
 {
-    for (std::set<GlyphInfo *,GlyphInfoSorter>::iterator it = glyphs.begin();
-         it != glyphs.end(); ++it)
+    for (auto glyph : glyphs)
     {
-        delete *it;
+        delete glyph;
     }
     glyphs.clear();
 }
 
-// Comparison operator
-// Subclass fills this in
-bool FontManager::operator < (const FontManager &that) const
-{
-    return false;
-}
-    
 // Look for an existing glyph and return it if it's there
 FontManager::GlyphInfo *FontManager::findGlyph(WKGlyph glyph)
 {
     GlyphInfo dummyGlyph(glyph);
-    GlyphInfoSet::iterator it = glyphs.find(&dummyGlyph);
-    if (it != glyphs.end())
-    {
-        return *it;
-    }
-    
-    return NULL;
+    const auto it = glyphs.find(&dummyGlyph);
+    return (it != glyphs.end()) ? *it : nullptr;
 }
 
 // Add the given glyph info
@@ -79,12 +68,10 @@ FontManager::GlyphInfo *FontManager::addGlyph(WKGlyph glyph,SubTexture subTex,co
 void FontManager::addGlyphRefs(const GlyphSet &usedGlyphs)
 {
     refCount++;
-    for (GlyphSet::iterator it = usedGlyphs.begin();
-         it != usedGlyphs.end(); ++it)
+    for (const auto &theGlyph : usedGlyphs)
     {
-        WKGlyph theGlyph = *it;
         GlyphInfo dummy(theGlyph);
-        GlyphInfoSet::iterator git = glyphs.find(&dummy);
+        const auto git = glyphs.find(&dummy);
         if (git != glyphs.end())
         {
             GlyphInfo *glyphInfo = *git;
@@ -97,18 +84,20 @@ void FontManager::addGlyphRefs(const GlyphSet &usedGlyphs)
 void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubTexture> &toRemove)
 {
     refCount--;
-    for (GlyphSet::iterator it = usedGlyphs.begin();
-         it != usedGlyphs.end(); ++it)
+    for (const auto &theGlyph : usedGlyphs)
     {
-        WKGlyph theGlyph = *it;
         GlyphInfo dummy(theGlyph);
-        GlyphInfoSet::iterator git = glyphs.find(&dummy);
+        const auto git = glyphs.find(&dummy);
         if (git != glyphs.end())
         {
             GlyphInfo *glyphInfo = *git;
             glyphInfo->refCount--;
             if (glyphInfo->refCount <= 0)
             {
+                if (toRemove.empty())
+                {
+                    toRemove.reserve(usedGlyphs.size());
+                }
                 toRemove.push_back(glyphInfo->subTex);
                 glyphs.erase(git);
                 delete glyphInfo;
@@ -119,7 +108,7 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
 
                 
 FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene)
-: sceneRender(sceneRender), scene(scene), texAtlas(NULL)
+: sceneRender(sceneRender), scene(scene), texAtlas(nullptr)
 {
 }
 
@@ -127,12 +116,12 @@ FontTextureManager::~FontTextureManager()
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    if (texAtlas)
-        delete texAtlas;
-    texAtlas = NULL;
-    for (DrawStringRepSet::iterator it = drawStringReps.begin();
-         it != drawStringReps.end(); ++it)
-        delete *it;
+    delete texAtlas;
+    texAtlas = nullptr;
+    for (auto drawStringRep : drawStringReps)
+    {
+        delete drawStringRep;
+    }
     drawStringReps.clear();
     fontManagers.clear();
 }
@@ -156,50 +145,57 @@ void FontTextureManager::clear(ChangeSet &changes)
     {
         texAtlas->teardown(changes);
         delete texAtlas;
-        texAtlas = NULL;
+        texAtlas = nullptr;
     }
-    for (DrawStringRepSet::iterator it = drawStringReps.begin();
-         it != drawStringReps.end(); ++it)
-        delete *it;
+    for (auto drawStringRep : drawStringReps)
+    {
+        delete drawStringRep;
+    }
     fontManagers.clear();
 }
 
-void FontTextureManager::removeString(SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when)
+void FontTextureManager::removeString(PlatformThreadInfo *inst, SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    DrawStringRep dummyRep(drawStringId);
-    DrawStringRepSet::iterator it = drawStringReps.find(&dummyRep);
-    if (it == drawStringReps.end())
+    DrawStringRep *theRep = nullptr;
     {
-        return;
-    }
-    
-    DrawStringRep *theRep = *it;
-    drawStringReps.erase(theRep);
-    
-    // Work through the fonts we're using
-    for (SimpleIDGlyphMap::iterator fit = theRep->fontGlyphs.begin();
-         fit != theRep->fontGlyphs.end(); ++fit)
-    {
-        auto fmIt = fontManagers.find(fit->first);
-        if (fmIt != fontManagers.end())
+        DrawStringRep dummyRep(drawStringId);
+        auto it = drawStringReps.find(&dummyRep);
+        if (it == drawStringReps.end())
         {
-            // Decrement the glyph references
-            FontManagerRef fm = fmIt->second;
-            std::vector<SubTexture> texRemove;
-            fm->removeGlyphRefs(fit->second,texRemove);
+            return;
+        }
 
-            // And possibly remove some sub textures
-            if (!texRemove.empty())
-                for (unsigned int ii=0;ii<texRemove.size();ii++)
-                    texAtlas->removeTexture(texRemove[ii], changes, when);
+        theRep = *it;
+        drawStringReps.erase(it);
+    }
 
-            // Also see if we're done with the font
-            if (fm->refCount <= 0)
-            {
-                fontManagers.erase(fmIt);
-            }
+    // Work through the fonts we're using
+    for (const auto &fontGlyph : theRep->fontGlyphs)
+    {
+        const auto fmIt = fontManagers.find(fontGlyph.first);
+        if (fmIt == fontManagers.end())
+        {
+            continue;
+        }
+
+        // Decrement the glyph references
+        const FontManagerRef &fm = fmIt->second;
+        std::vector<SubTexture> texRemove;
+        fm->removeGlyphRefs(fontGlyph.second,texRemove);
+
+        // And possibly remove some sub textures
+        for (const auto &ii : texRemove)
+        {
+            texAtlas->removeTexture(ii, changes, when);
+        }
+
+        // Also see if we're done with the font
+        if (fm->refCount <= 0)
+        {
+            fm->teardown(inst);
+            fontManagers.erase(fmIt);
         }
     }
     

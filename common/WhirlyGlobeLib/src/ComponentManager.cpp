@@ -1,5 +1,4 @@
-/*
- *  ComponentManager.cpp
+/*  ComponentManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ComponentManager.h"
@@ -231,12 +229,13 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
             //       Without this we lose the textures before we're done with them
             const TimeInterval when = scene->getCurrentTime() + 2.0;
             for (SimpleIdentity dStrID : compObj->drawStringIDs)
-                fontTexManager->removeString(dStrID, changes, when);
+            {
+                fontTexManager->removeString(threadInfo, dStrID, changes, when);
+            }
         }
-        if (!compObj->partSysIDs.empty())
+        for (const auto partSysID : compObj->partSysIDs)
         {
-            for (SimpleIdentity partSysID : compObj->partSysIDs)
-                partSysManager->removeParticleSystem(partSysID, changes);
+            partSysManager->removeParticleSystem(partSysID, changes);
         }
     }
 }

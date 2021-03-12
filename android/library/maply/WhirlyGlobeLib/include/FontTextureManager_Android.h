@@ -1,9 +1,8 @@
-/*
- *  FontTextureManagerAndroid.h
+/*  FontTextureManagerAndroid.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import <jni.h>
 #import "Maply_jni.h"
 #import "WhirlyGlobe.h"
 
@@ -33,28 +30,34 @@ class LabelInfoAndroid;
 class FontTextureManager_Android : public FontTextureManager
 {
 public:
-	FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
+	FontTextureManager_Android(PlatformThreadInfo *,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
     ~FontTextureManager_Android();
 
     // Wrapper for FontManager.
     class FontManager_Android : public FontManager
     {
     public:
-    	FontManager_Android(JNIEnv *env,jobject typefaceObj);
+    	FontManager_Android(PlatformThreadInfo *inst,jobject typefaceObj);
     	FontManager_Android();
-        ~FontManager_Android();
+        virtual ~FontManager_Android();
+
+        virtual bool operator <(const FontManager &that) const override
+        {
+            return false;   // todo: this isn't really ok
+        }
 
         // Clear out global refs to Java objects we may be sitting on
-        void clearRefs(JNIEnv *env);
+        virtual void teardown(PlatformThreadInfo*) override;
 
         jobject typefaceObj;
     };
     typedef std::shared_ptr<FontManager_Android> FontManager_AndroidRef;
 
-    /// Add the given string.  Caller is responsible for deleting
-    ///  the DrawableString
+    /// Add the given string.  Caller is responsible for deleting the DrawableString
     DrawableString *addString(PlatformThreadInfo *threadInfo,const std::vector<int> &codePoints,const LabelInfoAndroid *,ChangeSet &changes);
-    
+
+    virtual void teardown(PlatformThreadInfo*) override;
+
 protected:
     // Find the appropriate font manager
     FontManager_AndroidRef findFontManagerForFont(PlatformInfo_Android *threadInfo,jobject typefaceObj,const LabelInfo &labelInfo);

@@ -1,9 +1,8 @@
-/*
- *  VectorStyleSettings_jni.cpp
+/*  VectorStyleSettings_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Formats_jni.h>
@@ -24,14 +22,16 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
-template<> VectorStyleSettingsClassInfo *VectorStyleSettingsClassInfo::classInfoObj = NULL;
+template<> VectorStyleSettingsClassInfo *VectorStyleSettingsClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_nativeInit
         (JNIEnv *env, jclass cls)
 {
     VectorStyleSettingsClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise
         (JNIEnv *env, jobject obj)
 {
@@ -48,6 +48,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_dispose
         (JNIEnv *env, jobject obj)
 {
@@ -70,6 +71,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_dispose
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLineScale
 (JNIEnv *env, jobject obj)
 {
@@ -87,6 +89,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLineSc
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLineScale
 (JNIEnv *env, jobject obj, jdouble scale)
 {
@@ -102,6 +105,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLineScale
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getTextScale
 (JNIEnv *env, jobject obj)
 {
@@ -119,6 +123,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getTextSc
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setTextScale
 (JNIEnv *env, jobject obj, jdouble scale)
 {
@@ -134,6 +139,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setTextScale
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerScale
 (JNIEnv *env, jobject obj)
 {
@@ -151,6 +157,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarker
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerScale
 (JNIEnv *env, jobject obj, jdouble scale)
 {
@@ -166,6 +173,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSca
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerImportance
 (JNIEnv *env, jobject obj)
 {
@@ -183,6 +191,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarker
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerImportance
 (JNIEnv *env, jobject obj, jdouble import)
 {
@@ -198,6 +207,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerImp
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerSize
 (JNIEnv *env, jobject obj)
 {
@@ -215,6 +225,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarker
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSize
 (JNIEnv *env, jobject obj, jdouble size)
 {
@@ -230,6 +241,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSiz
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLabelImportance
 (JNIEnv *env, jobject obj)
 {
@@ -247,6 +259,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLabelI
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLabelImportance
 (JNIEnv *env, jobject obj, jdouble import)
 {
@@ -262,6 +275,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLabelImpo
     }
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseZoomLevels
 (JNIEnv *env, jobject obj)
 {
@@ -279,7 +293,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseZo
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseZoomLabels
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseZoomLevels
 (JNIEnv *env, jobject obj, jboolean zoomLevels)
 {
     try
@@ -290,44 +305,52 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseZoomLa
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::setUseZoomLabels()");
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::setUseZoomLevels()");
     }
 }
 
+extern "C"
 JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUuidField
 (JNIEnv *env, jobject obj)
 {
     try
     {
-        VectorStyleSettingsImplRef *inst = VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,obj);
-        if (inst)
-            return env->NewStringUTF((*inst)->uuidField.c_str());
+        auto inst = VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,obj);
+        return inst ? env->NewStringUTF((*inst)->uuidField.c_str()) : nullptr;
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::getUuidField()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getUuidField()");
     }
 
     return NULL;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUuidField
 (JNIEnv *env, jobject obj, jstring fieldStr)
 {
     try
     {
-        VectorStyleSettingsImplRef *inst = VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,obj);
-        if (inst) {
-            JavaString jStr(env,fieldStr);
-            (*inst)->uuidField = jStr.cStr;
+        if (auto inst = VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,obj))
+        {
+            if (auto jStr = JavaString(env, fieldStr))
+            {
+                (*inst)->uuidField = jStr.cStr;
+            }
+            else
+            {
+                (*inst)->uuidField.clear();
+            }
         }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in VectorStyleSettings::setUuidField()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setUuidField()");
     }
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getBaseDrawPriority
 (JNIEnv *env, jobject obj)
 {
@@ -345,6 +368,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getBaseDrawP
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setBaseDrawPriority
 (JNIEnv *env, jobject obj, jint drawPriority)
 {
@@ -360,6 +384,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setBaseDrawP
     }
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDrawPriorityPerLevel
 (JNIEnv *env, jobject obj)
 {
@@ -377,6 +402,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDrawPrior
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDrawPriorityPerLevel
 (JNIEnv *env, jobject obj, jint drawPriority)
 {
@@ -392,6 +418,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDrawPrior
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMapScaleScale
 (JNIEnv *env, jobject obj)
 {
@@ -409,6 +436,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMapSca
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMapScaleScale
 (JNIEnv *env, jobject obj, jdouble scale)
 {
@@ -424,6 +452,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMapScaleS
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDashPatternScale
 (JNIEnv *env, jobject obj)
 {
@@ -441,6 +470,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDashPa
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDashPatternScale
 (JNIEnv *env, jobject obj, jdouble scale)
 {
@@ -456,6 +486,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDashPatte
     }
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseWideVectors
 (JNIEnv *env, jobject obj)
 {
@@ -473,6 +504,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseWi
     return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseWideVectors
 (JNIEnv *env, jobject obj, jboolean useWideVectors)
 {
@@ -488,6 +520,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseWideVe
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getOldVecWidthScale
 (JNIEnv *env, jobject obj)
 {
@@ -505,6 +538,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getOldVec
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setOldVecWidthScale
 (JNIEnv *env, jobject obj, jdouble scale)
 {
@@ -520,6 +554,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setOldVecWid
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getWideVecCutoff
 (JNIEnv *env, jobject obj)
 {
@@ -537,6 +572,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getWideVe
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setWideVecCutoff
 (JNIEnv *env, jobject obj, jdouble cutoff)
 {
@@ -552,6 +588,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setWideVecCu
     }
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSelectable
 (JNIEnv *env, jobject obj)
 {
@@ -569,6 +606,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSelec
     return 1.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSelectable
 (JNIEnv *env, jobject obj, jboolean selectable)
 {
@@ -584,6 +622,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSelectabl
     }
 }
 
+extern "C"
 JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getIconDirectory
 (JNIEnv *env, jobject obj)
 {
@@ -601,6 +640,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getIconDi
     return NULL;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setIconDirectory
 (JNIEnv *env, jobject obj, jstring iconDirStr)
 {
@@ -618,6 +658,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setIconDirec
     }
 }
 
+extern "C"
 JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getFontName
 (JNIEnv *env, jobject obj)
 {
@@ -635,6 +676,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getFontNa
     return NULL;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName
 (JNIEnv *env, jobject obj, jstring fontNameStr)
 {
@@ -652,6 +694,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRead
         (JNIEnv *env, jobject obj, jboolean val)
 {
@@ -667,6 +710,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRe
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWrite
         (JNIEnv *env, jobject obj, jboolean val)
 {

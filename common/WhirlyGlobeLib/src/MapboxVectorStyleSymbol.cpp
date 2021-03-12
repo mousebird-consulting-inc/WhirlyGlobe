@@ -396,6 +396,10 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     }
 
     LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize);
+    if (!labelInfo) {
+        return;
+    }
+
     labelInfo->hasExp = true;
     labelInfo->zoomSlot = styleSet->zoomSlot;
     if (minzoom != 0 || maxzoom < 1000)
@@ -462,6 +466,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerInfo.programID = styleSet->screenMarkerProgramID;
         markerInfo.drawPriority = labelInfo->drawPriority;
     }
+
+    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
 
     // Calculate the present value of the offsets in ems.
     // This isn't in setupLabel because it only needs to be done once.

@@ -35,7 +35,8 @@ class LabelInfoAndroid : public LabelInfo
 {
 public:
 	LabelInfoAndroid(bool screenObject);
-	LabelInfoAndroid(const LabelInfoAndroid &that);
+	LabelInfoAndroid(LabelInfoAndroid &&that) noexcept;
+	~LabelInfoAndroid();
 
 	// Clear any global refs we may be holding
 	void clearRefs(PlatformInfo_Android *threadInfo);

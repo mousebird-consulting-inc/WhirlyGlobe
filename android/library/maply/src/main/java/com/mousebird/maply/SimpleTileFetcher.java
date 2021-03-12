@@ -1,9 +1,8 @@
-/*
- *  SimpleTileFetcher.javae
+/*  SimpleTileFetcher.java
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/4/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -199,6 +197,14 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         });
     }
 
+    protected void initWithName(String name, int minZoom, int maxZoom)
+    {
+        this.name = name;
+        this.minZoom = minZoom;
+        this.maxZoom = maxZoom;
+        this.tileInfo = new SimpleTileInfo(minZoom, maxZoom);
+    }
+
     boolean scheduled = false;
 
     // Schedule the next loading update
@@ -206,12 +212,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     {
         if (!scheduled) {
             Handler handler = new Handler(getLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    updateLoading();
-                }
-            });
+            handler.post(() -> updateLoading());
         }
     }
 

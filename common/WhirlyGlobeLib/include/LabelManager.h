@@ -1,9 +1,8 @@
-/*
- *  LabelManager.h
+/*  LabelManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -43,7 +41,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     SingleLabel();
-    virtual ~SingleLabel() { };
+    virtual ~SingleLabel() = default;
 
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set
@@ -86,7 +84,12 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *,FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes) = 0;
+    virtual std::vector<DrawableString *> generateDrawableStrings(
+            PlatformThreadInfo *threadInfo,
+            const LabelInfo *,
+            const FontTextureManagerRef &fontTexManager,
+            float &lineHeight,
+            ChangeSet &changes) = 0;
 };
 typedef std::shared_ptr<SingleLabel> SingleLabelRef;
     
@@ -99,7 +102,7 @@ class LabelManager : public SceneManager
 {
 public:
     LabelManager();
-    virtual ~LabelManager();
+    virtual ~LabelManager() = default;
 
     /// Add the given set of labels, returning an ID that represents the whole thing
     SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,
@@ -117,11 +120,11 @@ public:
     
     /// Remove the given label(s)
     void removeLabels(PlatformThreadInfo *threadInfo,
-                      SimpleIDSet &labelID,
+                      const SimpleIDSet &labelID,
                       ChangeSet &changes);
     
     /// Enable/disable labels
-    void enableLabels(SimpleIDSet labelID,bool enable,ChangeSet &changes);
+    void enableLabels(const SimpleIDSet &labelID,bool enable,ChangeSet &changes);
     
 protected:
     /// Keep track of labels (or groups of labels) by ID for deletion
