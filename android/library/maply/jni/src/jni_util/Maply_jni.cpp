@@ -1,9 +1,8 @@
-/*
- *  Maply_jni.cpp
+/*  Maply_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -186,15 +184,29 @@ void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit
     env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 }
 
-JavaString::JavaString(JNIEnv *env,jstring &str)
-: str(str), env(env)
+JavaString::JavaString(JNIEnv *env,jstring str) :
+    str(str),
+    env(env)
 {
-    cStr = env->GetStringUTFChars(str,0);
+    cStr = str ? env->GetStringUTFChars(str,nullptr) : nullptr;
+}
+
+JavaString::JavaString(JavaString &&other) noexcept :
+    env(other.env),
+    str(other.str),
+    cStr(other.cStr)
+{
+    other.env = nullptr;
+    other.cStr = nullptr;
+    other.str = nullptr;
 }
 
 JavaString::~JavaString()
 {
-    env->ReleaseStringUTFChars(str, cStr);
+    if (cStr)
+    {
+        env->ReleaseStringUTFChars(str, cStr);
+    }
 }
 
 JavaBooleanArray::JavaBooleanArray(JNIEnv *env,jbooleanArray &array)
@@ -332,3 +344,4 @@ jobjectArray BuildStringArray(JNIEnv *env,const std::vector<std::string> &objVec
         env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
     return newArray;
 }
+

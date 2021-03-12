@@ -27,8 +27,7 @@ using namespace WhirlyKit;
 template<> QuadImageFrameLoaderClassInfo *QuadImageFrameLoaderClassInfo::classInfoObj = nullptr;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit
-        (JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit(JNIEnv *env, jclass cls)
 {
     QuadImageFrameLoaderClassInfo::getClassInfo(env, cls);
 }

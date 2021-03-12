@@ -34,7 +34,7 @@ public class TileInfoNew
     {}
 
     // Don't use this constructor, use a subclass
-    TileInfoNew(int minZoom,int maxZoom) {
+    protected TileInfoNew(int minZoom,int maxZoom) {
         this.minZoom = minZoom;
         this.maxZoom = maxZoom;
     }

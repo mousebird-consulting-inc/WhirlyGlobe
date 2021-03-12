@@ -212,7 +212,7 @@ using namespace Eigen;
     sceneRenderer->setScene(scene);
 
     // Set up a Font Texture Manager
-    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(sceneRenderer.get(),scene));
+    fontTexManager = std::make_shared<FontTextureManager_iOS>(sceneRenderer.get(),scene);
     scene->setFontTextureManager(fontTexManager);
     
     layerThreads = [NSMutableArray array];

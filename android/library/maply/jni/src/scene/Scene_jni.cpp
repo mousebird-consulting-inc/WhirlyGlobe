@@ -1,9 +1,8 @@
-/*
- *  Scene_jni.cpp
+/*  Scene_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/17/15.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Scene_jni.h"
@@ -25,14 +23,15 @@
 
 using namespace WhirlyKit;
 
-template<> SceneClassInfo *SceneClassInfo::classInfoObj = NULL;
+template<> SceneClassInfo *SceneClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_nativeInit
-  (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_nativeInit(JNIEnv *env, jclass cls)
 {
 	SceneClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
         (JNIEnv *env, jobject obj, jobject coordAdapterObj, jobject renderControlObj, jobject charRendererObj)
 {
@@ -41,7 +40,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
         CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
         SceneGLES *scene = new SceneGLES(coordAdapter);
         SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
-        scene->setFontTextureManager(FontTextureManagerRef(new FontTextureManager_Android(env,sceneRender,scene,charRendererObj)));
+        PlatformInfo_Android inst(env);
+        scene->setFontTextureManager(std::make_shared<FontTextureManager_Android>(&inst,sceneRender,scene,charRendererObj));
         SceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
     }
     catch (...)
@@ -52,19 +52,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose
-        (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose(JNIEnv *env, jobject obj)
 {
     try
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        if (Scene *inst = classInfo->getObject(env,obj))
         {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Scene *inst = classInfo->getObject(env,obj);
-            if (!inst)
-                return;
             delete inst;
-
             classInfo->clearHandle(env,obj);
         }
     }
@@ -74,17 +71,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose
     }
 }
 
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
-  (JNIEnv *env, jobject obj, jobject changesObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative(JNIEnv *env, jobject obj, jobject changesObj)
 {
 	try
 	{
 		SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-		Scene *scene = classInfo->getObject(env,obj);
-		ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changesObj);
-		scene->addChangeRequests(*(changes->get()));
-        (*changes)->clear();
+        if (auto changes = ChangeSetClassInfo::getClassInfo()->getObject(env, changesObj))
+        {
+            if (Scene *scene = classInfo->getObject(env, obj))
+            {
+                scene->addChangeRequests(*(changes->get()));
+                (*changes)->clear();
+            }
+        }
 	}
 	catch (...)
 	{
@@ -92,8 +92,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
-(JNIEnv *env, jobject obj, jobject shaderObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram(JNIEnv *env, jobject obj, jobject shaderObj)
 {
     try
     {
@@ -102,10 +102,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
         ShaderClassInfo *shaderClassInfo = ShaderClassInfo::getClassInfo();
         Shader_AndroidRef *shader = shaderClassInfo->getObject(env,shaderObj);
         
-        if (!scene || !shader)
-            return;
-        
-        scene->addProgram((*shader)->prog);
+        if (scene && shader)
+        {
+            scene->addProgram((*shader)->prog);
+        }
     }
     catch (...)
     {
@@ -113,18 +113,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram
-        (JNIEnv *env, jobject obj, jlong shaderID)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram(JNIEnv *env, jobject obj, jlong shaderID)
 {
     try
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        Scene *scene = classInfo->getObject(env,obj);
-
-        if (!scene)
-            return;
-
-        scene->removeProgram(shaderID,NULL);
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            scene->removeProgram(shaderID,NULL);
+        }
     }
     catch (...)
     {
@@ -132,17 +130,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL(JNIEnv *env, jobject obj)
 {
     try
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        Scene *scene = classInfo->getObject(env,obj);
-        if (!scene)
-            return;
-        
-        scene->teardown();
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            PlatformInfo_Android platformInfo(env);
+            scene->teardown(&platformInfo);
+        }
     }
     catch (...)
     {
@@ -150,21 +148,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
-  (JNIEnv *env, jobject obj, jlong renderTargetID, jint width, jint height, jlong texID, jboolean clearEveryFrame, jfloat clearVal, jboolean blend, jfloat r, jfloat g, jfloat b, jfloat a)
+  (JNIEnv *env, jobject obj, jlong renderTargetID, jint width, jint height, jlong texID,
+   jboolean clearEveryFrame, jfloat clearVal, jboolean blend, jfloat r, jfloat g, jfloat b, jfloat a)
 {
     try
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        Scene *scene = classInfo->getObject(env,obj);
-        if (!scene)
-            return;
-        
-        ChangeSet changes;
-        RGBAColor color(r*255.0,g*255.0,b*255.0,a*255.0);
-        changes.push_back(new AddRenderTargetReq(renderTargetID,width,height,texID,clearEveryFrame,blend,color,clearVal,RenderTargetMipmapNone,false));
-        
-        scene->addChangeRequests(changes);
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            ChangeSet changes;
+            const RGBAColor color(r * 255.0, g * 255.0, b * 255.0, a * 255.0);
+            changes.push_back(
+                    new AddRenderTargetReq(renderTargetID, width, height, texID, clearEveryFrame,
+                                           blend, color, clearVal, RenderTargetMipmapNone, false));
+
+            scene->addChangeRequests(changes);
+        }
     }
     catch (...)
     {
@@ -172,19 +173,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget
-        (JNIEnv *env, jobject obj, jlong renderTargetID, jlong texID)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget(JNIEnv *env, jobject obj, jlong renderTargetID, jlong texID)
 {
     try
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        Scene *scene = classInfo->getObject(env,obj);
-        if (!scene)
-            return;
-
-        ChangeSet changes;
-        changes.push_back(new ChangeRenderTargetReq(renderTargetID,texID));
-        scene->addChangeRequests(changes);
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            ChangeSet changes;
+            changes.push_back(new ChangeRenderTargetReq(renderTargetID, texID));
+            scene->addChangeRequests(changes);
+        }
     }
     catch (...)
     {
@@ -192,20 +192,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative
-(JNIEnv *env, jobject obj, jlong targetID)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative(JNIEnv *env, jobject obj, jlong targetID)
 {
     try
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        Scene *scene = classInfo->getObject(env,obj);
-        if (!scene)
-            return;
-        
-        ChangeSet changes;
-        changes.push_back(new RemRenderTargetReq(targetID));
-
-        scene->addChangeRequests(changes);
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            ChangeSet changes;
+            changes.push_back(new RemRenderTargetReq(targetID));
+            scene->addChangeRequests(changes);
+        }
     }
     catch (...)
     {

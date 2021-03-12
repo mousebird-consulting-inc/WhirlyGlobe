@@ -1,9 +1,8 @@
-/*
- *  SceneGLES.cpp
+/*  SceneGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneGLES.h"
 #import "TextureGLES.h"
+#import "FontTextureManager.h"
 
 namespace WhirlyKit
 {
@@ -48,10 +47,10 @@ GLuint SceneGLES::getGLTexture(SimpleIdentity texIdent)
     return ret;
 }
 
-void SceneGLES::teardown()
+void SceneGLES::teardown(PlatformThreadInfo* threadInfo)
 {
     for (auto it : drawables)
-        it.second->teardownForRenderer(setupInfo,this, NULL);
+        it.second->teardownForRenderer(setupInfo,this, nullptr);
     drawables.clear();
     for (auto it : textures) {
         it.second->destroyInRenderer(setupInfo,this);
@@ -60,6 +59,11 @@ void SceneGLES::teardown()
     
     memManager.clearBufferIDs();
     memManager.clearTextureIDs();
+
+    if (fontTextureManager)
+    {
+        fontTextureManager->teardown(threadInfo);
+    }
 }
 
 }

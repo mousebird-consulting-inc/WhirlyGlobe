@@ -98,8 +98,6 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
     private SQLiteDatabase mbTileDb;
 
-    private boolean initialized;    // Have we been correctly initialized
-    private boolean oldStyleDB;     // Are we managing an old style database
     private boolean isJpg;          // Are we containing jpg tiles (or png tiles)
 
     private String name = "UNSET";            // Name of the tile dataset
@@ -113,59 +111,58 @@ public class MBTileFetcher extends  SimpleTileFetcher
      */
     private void init(File sqliteDb)
     {
+        name = sqliteDb.getName();
         mbTileDb = SQLiteDatabase.openDatabase(sqliteDb.getAbsolutePath(), null, SQLiteDatabase.OPEN_READONLY);
 
         // We read metadata
         String sql = "SELECT name, value FROM metadata;";
 
         Cursor c = mbTileDb.rawQuery(sql, null);
+        try {
+            if (c.getCount() > 0) {
+                c.moveToFirst();
 
-        if (c.getCount() > 0) {
-            c.moveToFirst();
+                int nameIdx = c.getColumnIndexOrThrow(NAME);
+                int valueIdx = c.getColumnIndexOrThrow(VALUE);
 
-            int nameIdx = c.getColumnIndexOrThrow(NAME);
-            int valueIdx = c.getColumnIndexOrThrow(VALUE);
+                while (!c.isAfterLast()) {
 
-            while (!c.isAfterLast()) {
+                    // What parameter are we reading
+                    String meta = c.getString(nameIdx);
 
-                // What parameter are we reading
-                String meta = c.getString(nameIdx);
-
-                if (MAXZOOM.equals(meta)) {
-                    maxZoom = c.getInt(valueIdx);
-                } else if (MAXZOOMLEVEL.equals(meta)) {
-                    maxZoom = c.getInt(valueIdx);
-                }
-
-                if (MINZOOM.equals(meta)) {
-                    minZoom = c.getInt(valueIdx);
-                } else if (MINZOOMLEVEL.equals(meta)) {
-                    minZoom = c.getInt(valueIdx);
-                }
-
-                if (FORMAT.equals(meta)) {
-                    String format = c.getString(valueIdx);
-                    if (JPG.equals(format)) {
-                        isJpg = true;
-                    } else if (JPEG.equals(format)) {
-                        isJpg = true;
+                    if (MAXZOOM.equals(meta)) {
+                        maxZoom = c.getInt(valueIdx);
+                    } else if (MAXZOOMLEVEL.equals(meta)) {
+                        maxZoom = c.getInt(valueIdx);
                     }
-                }
 
-                if (NAME.equals(meta)) {
-                    name = c.getString(valueIdx);
-                }
+                    if (MINZOOM.equals(meta)) {
+                        minZoom = c.getInt(valueIdx);
+                    } else if (MINZOOMLEVEL.equals(meta)) {
+                        minZoom = c.getInt(valueIdx);
+                    }
 
-                if (DESCRIPTION.equals(meta)) {
-                    description =  c.getString(valueIdx);
-                }
+                    if (FORMAT.equals(meta)) {
+                        String format = c.getString(valueIdx);
+                        if (JPG.equals(format) || JPEG.equals(format)) {
+                            isJpg = true;
+                        }
+                    }
 
-                c.moveToNext();
+                    if (NAME.equals(meta)) {
+                        name = c.getString(valueIdx);
+                    }
+
+                    if (DESCRIPTION.equals(meta)) {
+                        description = c.getString(valueIdx);
+                    }
+
+                    c.moveToNext();
+                }
             }
+        } finally {
+            c.close();
         }
-
-        c.close();
-
 
         // If we did not get a minZoom and maxZoom, we need to get them the hard way
         if (minZoom == -1 || maxZoom == -1) {
@@ -173,18 +170,19 @@ public class MBTileFetcher extends  SimpleTileFetcher
             sql = "SELECT MIN(zoom_level) AS minzoom, MAX(zoom_level) as maxzoom FROM tiles;";
 
             c = mbTileDb.rawQuery(sql, null);
-
-            if (c.getCount() > 0) {
-
-                c.moveToFirst();
-
-                minZoom = c.getInt(c.getColumnIndexOrThrow(MINZOOM));
-                maxZoom = c.getInt(c.getColumnIndexOrThrow(MAXZOOM));
+            try {
+                if (c.getCount() > 0) {
+                    c.moveToFirst();
+                    minZoom = c.getInt(c.getColumnIndexOrThrow(MINZOOM));
+                    maxZoom = c.getInt(c.getColumnIndexOrThrow(MAXZOOM));
+                }
+            } finally {
+                c.close();
             }
-
-            c.close();
             Log.i(TAG, "Got MIN & MAX zoom the hard way...");
         }
+
+        super.initWithName(name, minZoom, maxZoom);
 
         Log.v(TAG, String.format("Initialized MBTilesSource %s (%s)", name, description));
         Log.v(TAG, String.format("  > Zoom %d -> %d", minZoom, maxZoom));
@@ -203,19 +201,20 @@ public class MBTileFetcher extends  SimpleTileFetcher
         params[2] = Integer.toString(tileID.y);
 
         Cursor c = mbTileDb.rawQuery(GET_TILE_SQL, params);
+        try {
 
-        int tileDataIdx = c.getColumnIndex(TILE_DATA);
+            int tileDataIdx = c.getColumnIndex(TILE_DATA);
 
-        if (c.getCount() > 0) {
-            c.moveToFirst();
+            if (c.getCount() > 0) {
+                c.moveToFirst();
 
-            byte[] data = c.getBlob(tileDataIdx);
+                byte[] data = c.getBlob(tileDataIdx);
+                //Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d (%d bytes)", tileID.level, tileID.x, tileID.y, data.length));
+                return data;
+            }
+        } finally {
             c.close();
-            return data;
-//                    Log.v(TAG, String.format("Returned tile for Z=%s, X=%d, Y=%d", tileID.level, tileID.x, tileID.y));
         }
-
-        c.close();
 
         return null;
     }

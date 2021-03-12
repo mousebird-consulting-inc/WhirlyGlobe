@@ -181,12 +181,15 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
                                  ViewStateRef viewState,
                                  const Point2f &frameSize)
 {
+    const auto coordAdapter = scene->getCoordAdapter();
     // World spanning level 0 nodes sometimes have problems evaluating
-    if (params.minImportanceTop == 0.0 && ident.level == 0)
+    if (!coordAdapter || (params.minImportanceTop == 0.0 && ident.level == 0))
+    {
         return MAXFLOAT;
+    }
     
     DisplaySolidRef dispSolid;
-    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, params.coordSys.get(), scene->getCoordAdapter(), mbr, ident, dispSolid);
+    double import = ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1, params.coordSys.get(), coordAdapter, mbr, ident, dispSolid);
     
     return import;
 }
