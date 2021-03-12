@@ -46,7 +46,7 @@ QIFFrameAsset_Android::~QIFFrameAsset_Android()
 
 void QIFFrameAsset_Android::cancelFetchJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps)
 {
-    threadInfo->env->CallVoidMethod(frameAssetObj,loader->cancelFrameFetchMethod,loader->frameLoaderObj,batchOps->batchOpsObj);
+    threadInfo->env->CallVoidMethod(frameAssetObj,loader->cancelFrameFetchMethod,batchOps->batchOpsObj);
 }
 
 void QIFFrameAsset_Android::clearFrameAssetJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps)
@@ -83,10 +83,16 @@ bool QIFFrameAsset_Android::updateFetching(PlatformThreadInfo *inThreadInfo,Quad
 
 void QIFFrameAsset_Android::cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QIFBatchOps *inBatchOps)
 {
-    QuadImageFrameLoader_Android *loader = (QuadImageFrameLoader_Android *)inLoader;
-    QIFBatchOps_Android *batchOps = (QIFBatchOps_Android *)inBatchOps;
+    auto *loader = (QuadImageFrameLoader_Android *)inLoader;
+    auto *batchOps = (QIFBatchOps_Android *)inBatchOps;
 
-    QIFFrameAsset::cancelFetch(threadInfo,loader, batchOps);
+    QIFFrameAsset::cancelFetch(threadInfo,loader,batchOps);
+
+    if (loadReturnRef) {
+        loadReturnRef->cancel = true;
+    }
+
+    cancelFetchJava((PlatformInfo_Android*)threadInfo,loader,batchOps);
 }
 
 void QIFFrameAsset_Android::loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs)
