@@ -1,9 +1,8 @@
-/*
- *  FontTextureManager.h
+/*  FontTextureManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/15/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,8 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
+
 #import <math.h>
 #import <set>
 #import <map>
@@ -50,8 +49,10 @@ public:
     
     // Comparison operator
     // Subclass fills this in
-    virtual bool operator < (const FontManager &that) const;
-    
+    virtual bool operator < (const FontManager &that) const = 0;
+
+    virtual void teardown(PlatformThreadInfo *) { }
+
     // Mapping info from glyph to location in a dynamic texture
     class GlyphInfo
     {
@@ -75,7 +76,7 @@ public:
         bool operator () (const GlyphInfo *a,const GlyphInfo *b) const { return a->glyph < b->glyph; }
     } GlyphInfoSorter;
     
-    bool empty() { return glyphs.empty(); }
+    bool empty() const { return glyphs.empty(); }
     
     // Look for an existing glyph and return it if it's there
     GlyphInfo *findGlyph(WKGlyph glyph);
@@ -167,11 +168,13 @@ public:
     typedef std::set<DrawStringRep *,IdentifiableSorter> DrawStringRepSet;
 
     /// Remove resources associated with the given string
-    void removeString(SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when);
+    virtual void removeString(PlatformThreadInfo *,SimpleIdentity drawStringId,ChangeSet &changes,TimeInterval when);
     
     // Tear down everything we've built
     void clear(ChangeSet &changes);
-    
+
+    virtual void teardown(PlatformThreadInfo*) = 0;
+
 protected:    
     void init();
 

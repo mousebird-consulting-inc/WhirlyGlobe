@@ -181,7 +181,7 @@ public:
 
     // Set up with the function to run
     RunBlockReq(BlockFunc newFunc);
-    virtual ~RunBlockReq();
+    virtual ~RunBlockReq() = default;
 
     // This is probably adding to the change requests and so needs to run first
     bool needPreExecute() { return true; }
@@ -371,7 +371,7 @@ public:
     void dumpStats();
     
     /// Tear down renderer related assets
-    virtual void teardown() = 0;
+    virtual void teardown(PlatformThreadInfo*) = 0;
     
     /// Mark any changed programs as acknowledged (used in Metal)
     void markProgramsUnchanged();

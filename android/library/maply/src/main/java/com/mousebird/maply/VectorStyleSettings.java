@@ -39,7 +39,7 @@ public class VectorStyleSettings {
 
     /// If set we'll use the zoom levels defined in the style
     native public boolean getUseZoomLevels();
-    native public void setUseZoomLabels(boolean useZoomLabels);
+    native public void setUseZoomLevels(boolean useZoomLabels);
 
     /// For symbols we'll try to pull a UUID out of this field to stick in the marker and label uniqueID
     native public String getUuidField();

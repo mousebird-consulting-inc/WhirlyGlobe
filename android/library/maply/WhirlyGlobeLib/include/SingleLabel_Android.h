@@ -1,9 +1,8 @@
-/*
- *  SingleLabelAndroid.h
+/*  SingleLabelAndroid.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyGlobe.h"
@@ -30,7 +28,7 @@ namespace WhirlyKit
 class SingleLabelAndroid : public SingleLabel
 {
 public:
-    std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes);
+    std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,const FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes);
 
     // Sometimes rather than strings, we pass around the code points
     std::vector<std::vector<int>> codePointsLines;

@@ -38,7 +38,7 @@ public:
 
     /// Explicitly tear everything down in OpenGL ES.
     /// We're assuming the context has been set.
-    virtual void teardown();
+    virtual void teardown(PlatformThreadInfo*);
 
     /// Get the renderer's buffer/texture ID manager.
     /// You can use this on any thread.  The calls are protected.

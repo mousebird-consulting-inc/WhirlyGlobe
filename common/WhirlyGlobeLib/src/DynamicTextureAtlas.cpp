@@ -242,7 +242,7 @@ void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
     pixelFudge = pixFudge;
 }
         
-bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &newTextures,int frame,Point2f *realSize,Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
+bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &newTextures,int frame,const Point2f *realSize,const Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
 {
     if (newTextures.size() != imageDepth && frame < 0)
         return false;
@@ -255,7 +255,7 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     TextureRegion texRegion;
     
     // Clear out any released regions
-    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
+    for (auto it = textures.begin();it != textures.end(); ++it)
     {
         DynamicTextureVec *dynTexVec = *it;
         DynamicTextureRef firstDynTex = dynTexVec->at(0);
@@ -274,8 +274,7 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     DynamicTextureVec *dynTexVec = NULL;
     bool found = false;
     int numCellX = ceil((firstTex->getWidth()+bufferPixels) / (float)cellSize), numCellY = ceil((firstTex->getHeight()+bufferPixels) / (float)cellSize);
-    for (DynamicTextureSet::iterator it = textures.begin();
-         it != textures.end(); ++it)
+    for (auto it = textures.begin(); it != textures.end(); ++it)
     {
         DynamicTextureVec *dynTex = *it;
         DynamicTextureRef firstDynTex = dynTex->at(0);

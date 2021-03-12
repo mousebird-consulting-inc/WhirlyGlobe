@@ -40,7 +40,7 @@ public:
             
     /// Explicitly tear everything down in OpenGL ES.
     /// We're assuming the context has been set.
-    virtual void teardown();
+    virtual void teardown(PlatformThreadInfo*) override;
 };
     
 }

@@ -1,9 +1,8 @@
-/*
- *  WideVectorManager.mm
+/*  WideVectorManager.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2020 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WideVectorManager.h"
@@ -630,6 +628,8 @@ public:
                 wideDrawable->setOpacityExpression(vecInfo->opacityExp);
             if (vecInfo->colorExp)
                 wideDrawable->setColorExpression(vecInfo->colorExp);
+            if (vecInfo->offsetExp)
+                wideDrawable->setOffsetExpression(vecInfo->offsetExp);
             maskEntries.resize(numMaskIDs);
             for (unsigned int ii=0;ii<maskEntries.size();ii++)
                 maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);

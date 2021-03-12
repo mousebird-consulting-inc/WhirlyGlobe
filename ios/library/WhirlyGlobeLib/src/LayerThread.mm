@@ -363,7 +363,7 @@ using namespace WhirlyKit;
         }
 
         // Tear the scene down.  It's unsafe to do it elsewhere
-        _scene->teardown();
+        _scene->teardown(nullptr);
     } else {
         // Okay, we're shutting down, so release the existence lock
         existenceLock.unlock();

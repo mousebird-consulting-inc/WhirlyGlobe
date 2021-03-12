@@ -33,10 +33,13 @@ class FontManager_iOS : public FontManager
 {
 public:
     FontManager_iOS(CTFontRef font);
-    ~FontManager_iOS();
+    virtual ~FontManager_iOS();
     
-    virtual bool operator < (const FontManager_iOS &that) const;
-    
+    virtual bool operator <(const FontManager &that) const override;
+    bool operator <(const FontManager_iOS &that) const;
+
+    virtual void teardown(PlatformThreadInfo*) override { }
+
     CTFontRef font;
     UIColor *colorUI;
     UIColor *backColorUI;
@@ -55,7 +58,9 @@ public:
     
     /// Add the given string.  Caller is responsible for deleting the DrawableString
     WhirlyKit::DrawableString *addString(PlatformThreadInfo *threadInfo,NSAttributedString *str,ChangeSet &changes);
-    
+
+    virtual void teardown(PlatformThreadInfo*) override;
+
 protected:
     NSData *renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
     FontManager_iOSRef findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlinesize);

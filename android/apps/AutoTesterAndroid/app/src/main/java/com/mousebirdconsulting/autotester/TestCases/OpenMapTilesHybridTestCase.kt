@@ -69,7 +69,7 @@ class OpenMapTilesHybridTestCase : MaplyTestCase {
         polyStyleGen = VectorStyleSimpleGenerator(control)
         lineStyleGen = VectorStyleSimpleGenerator(control)
 
-        // The interpeter renders some of the data into images and overlays the rest
+        // The interpreter renders some of the data into images and overlays the rest
         interp = MapboxVectorInterpreter(polyStyleGen, tileRenderer, lineStyleGen, control)
 
         // Finally the loader asks for tiles
