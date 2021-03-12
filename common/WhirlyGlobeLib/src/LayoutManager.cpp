@@ -633,6 +633,8 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 
         // Some of these may share unique IDs
         bool pickedOne = false;
+//        wkLog("----");
+        
         for (auto layoutObj : container.objs) {
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty()) {
@@ -641,7 +643,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                 
                 for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
                     // Set up the text builder to get a set of individual runs to follow
-                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth,&layoutObj->obj);
+                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth/2.0,&layoutObj->obj);
                     textBuilder.setPoints(layoutObj->obj.layoutShape);
                     textBuilder.process();
                     // Sort the runs by length and get rid of the ones too short
@@ -652,7 +654,10 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     std::vector<Point3d> layoutModelInstances;
 
                     auto runs = textBuilder.getScreenVecs();
+//                    unsigned int ri=0;
                     for (auto run: runs) {
+//                        wkLog("Run %d",ri++);
+                        
                         // We need the length of the glyphs and their center
                         Mbr layoutMbr(layoutObj->obj.layoutPts);
                         float textLen = layoutMbr.ur().x();
@@ -665,6 +670,8 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                         float textInstance = textRoom / textLen;
                         
                         for (unsigned int ini=0;ini<textInstance;ini++) {
+//                            wkLog(" Text Instance %d",ini);
+                            
                             // Start with an initial offset
                             if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr))
                                 continue;
@@ -719,17 +726,29 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 for (unsigned ix=0;ix<2;ix++)
                                     for (unsigned iy=0;iy<2;iy++)
                                         screenRotMat(ix, iy) = screenRot(ix, iy);
+                                Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
+                                Matrix3d overlapMat = transPlace.matrix() * screenRotMat * scaleMat * transOrigin.matrix();
+//                                Matrix3d overlapMat = transPlace.matrix() * transOrigin.matrix();
                                 layoutMats.push_back(transPlace.matrix() * screenRotMat * transOrigin.matrix());
-                                
+//                                layoutMats.push_back(transPlace.matrix() * transOrigin.matrix());
+
                                 // Check for overlap
                                 Point2dVector objPts;  objPts.reserve(4);
                                 for (unsigned int oi=0;oi<4;oi++) {
-                                    Point3d pt = layoutMats.back() * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
+                                    Point3d pt = overlapMat * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
                                     Point2d objPt(pt.x()+worldScreenPt.x(),pt.y()+worldScreenPt.y());
                                     objPts.push_back(objPt);
                                 }
+                                
+//                                if (!failed) {
+//                                    wkLog("  Geometry %d",ig);
+//                                    for (unsigned int ip=0;ip<objPts.size();ip++) {
+//                                        wkLog("    (%f,%f)",objPts[ip].x(),frameBufferSize.y()-objPts[ip].y());
+//                                    }
+//                                }
 
                                 if (!overlapMan.checkObject(objPts)) {
+//                                    wkLog("   Failed");
                                     failed = true;
                                     break;
                                 }
@@ -937,8 +956,12 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
     if (!vecManage) {
         vecManage = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
         Program *prog = scene->findProgramByName(MaplyDefaultLineShader);
-        if (prog) {
+        if (prog)
             vecProgID = prog->getId();
+        else {
+            Program *prog = scene->findProgramByName(MaplyNoBackfaceLineShader);
+            if (prog)
+                vecProgID = prog->getId();
         }
     }
     

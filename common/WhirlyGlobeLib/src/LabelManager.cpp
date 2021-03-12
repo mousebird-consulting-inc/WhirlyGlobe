@@ -72,7 +72,6 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
                                        const LabelInfo &labelInfo,ChangeSet &changes)
 {
     const auto fontTexManager = scene->getFontTextureManager();
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
     // Set up the representation (but then hand it off)
     auto labelRep = new LabelSceneRep();
@@ -98,7 +97,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
         ScreenSpaceBuilder ssBuild(renderer, coordAdapter, renderer->getScale());
         for (auto & screenObject : labelRenderer.screenObjects)
         {
-            ssBuild.addScreenObject(screenObject);
+            ssBuild.addScreenObject(screenObject,screenObject.getWorldLoc(),screenObject.getGeometry());
         }
         ssBuild.flushChanges(changes, labelRep->drawIDs);
     }
