@@ -28,8 +28,8 @@ namespace WhirlyKit
 
 static const float BogusFontScale = 1.0f;
 
-FontTextureManager_Android::FontManager_Android::FontManager_Android(JNIEnv *env,jobject inTypefaceObj) :
-	typefaceObj(env->NewGlobalRef(inTypefaceObj))
+FontTextureManager_Android::FontManager_Android::FontManager_Android(PlatformThreadInfo *inst,jobject inTypefaceObj) :
+	typefaceObj(((PlatformInfo_Android*)inst)->env->NewGlobalRef(inTypefaceObj))
 {
 }
 
@@ -45,25 +45,22 @@ FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 	assert(typefaceObj == nullptr);
 }
 
-void FontTextureManager_Android::FontManager_Android::clearRefs(JNIEnv* env)
+void FontTextureManager_Android::FontManager_Android::teardown(PlatformThreadInfo* inst)
 {
 	if (typefaceObj)
 	{
-		env->DeleteGlobalRef(typefaceObj);
+		((PlatformInfo_Android*)inst)->env->DeleteGlobalRef(typefaceObj);
 		typefaceObj = nullptr;
 	}
 }
 
-void FontTextureManager_Android::FontManager_Android::teardown(PlatformThreadInfo* inst)
+FontTextureManager_Android::FontTextureManager_Android(PlatformThreadInfo *inst,SceneRenderer *sceneRender,Scene *scene,jobject inCharRenderObj) :
+	FontTextureManager(sceneRender,scene)
 {
-	clearRefs(((PlatformInfo_Android*)inst)->env);
-}
+	const auto env = ((PlatformInfo_Android*)inst)->env;
 
-FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject inCharRenderObj) :
-	FontTextureManager(sceneRender,scene),
-	charRenderObj(env->NewGlobalRef(inCharRenderObj)),
-	env(env)
-{
+	charRenderObj = env->NewGlobalRef(inCharRenderObj);
+
 	if (const jclass charRenderClass = env->GetObjectClass(charRenderObj))
 	{
 		renderMethodID = env->GetMethodID(charRenderClass, "renderChar",
@@ -88,32 +85,30 @@ FontTextureManager_Android::FontTextureManager_Android(JNIEnv *env,SceneRenderer
 
 FontTextureManager_Android::~FontTextureManager_Android()
 {
-	if (charRenderObj)
-	{
-		env->DeleteGlobalRef(charRenderObj);
-	}
+	assert(charRenderObj == nullptr);
 }
 
 void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)
 {
-	const auto env = threadInfo ? ((PlatformInfo_Android*)threadInfo)->env : nullptr;
-	if (!env)
-	{
-		wkLogLevel(Error, "Missing platform info");
-		return;
-	}
+	const auto env = ((PlatformInfo_Android*)threadInfo)->env;
 
 	for (const auto &kv : fontManagers)
 	{
 		if (const auto afm = dynamic_cast<FontManager_Android*>(kv.second.get()))
 		{
-			afm->clearRefs(env);
+			afm->teardown(threadInfo);
 		}
 #if DEBUG
 		else wkLogLevel(Warn,"Unexpected type skipped in teardown");
 #endif
 	}
 	fontManagers.clear();
+
+	if (charRenderObj)
+	{
+		env->DeleteGlobalRef(charRenderObj);
+		charRenderObj = nullptr;
+	}
 }
 
 DrawableString *FontTextureManager_Android::addString(
@@ -300,7 +295,7 @@ FontTextureManager_Android::FontManager_AndroidRef FontTextureManager_Android::f
 	}
 
 	// Didn't find it, so create it
-	const auto fm = std::make_shared<FontManager_Android>(threadInfo->env,typefaceObj);
+	const auto fm = std::make_shared<FontManager_Android>(threadInfo,typefaceObj);
 	fm->color = labelInfo.textColor;
 	fm->pointSize = labelInfo.fontSize;
 	fm->outlineColor = labelInfo.outlineColor;

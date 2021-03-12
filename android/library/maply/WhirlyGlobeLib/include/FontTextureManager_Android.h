@@ -16,7 +16,6 @@
  *  limitations under the License.
  */
 
-#import <jni.h>
 #import "Maply_jni.h"
 #import "WhirlyGlobe.h"
 
@@ -31,14 +30,14 @@ class LabelInfoAndroid;
 class FontTextureManager_Android : public FontTextureManager
 {
 public:
-	FontTextureManager_Android(JNIEnv *env,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
+	FontTextureManager_Android(PlatformThreadInfo *,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
     ~FontTextureManager_Android();
 
     // Wrapper for FontManager.
     class FontManager_Android : public FontManager
     {
     public:
-    	FontManager_Android(JNIEnv *env,jobject typefaceObj);
+    	FontManager_Android(PlatformThreadInfo *inst,jobject typefaceObj);
     	FontManager_Android();
         virtual ~FontManager_Android();
 
@@ -48,8 +47,6 @@ public:
         }
 
         // Clear out global refs to Java objects we may be sitting on
-        void clearRefs(JNIEnv *env);
-
         virtual void teardown(PlatformThreadInfo*) override;
 
         jobject typefaceObj;
@@ -68,7 +65,6 @@ protected:
     // Render the glyph with the given font manager
 //    RawDataRef renderGlyph(WKGlyph glyph,FontManageriOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
 
-    JNIEnv *env;
     // Java object that can do the character rendering for us
     jobject charRenderObj;
     jmethodID renderMethodID;

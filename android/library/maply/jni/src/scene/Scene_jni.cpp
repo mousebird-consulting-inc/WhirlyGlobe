@@ -40,7 +40,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
         CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
         SceneGLES *scene = new SceneGLES(coordAdapter);
         SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
-        scene->setFontTextureManager(std::make_shared<FontTextureManager_Android>(env,sceneRender,scene,charRendererObj));
+        PlatformInfo_Android inst(env);
+        scene->setFontTextureManager(std::make_shared<FontTextureManager_Android>(&inst,sceneRender,scene,charRendererObj));
         SceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
     }
     catch (...)
