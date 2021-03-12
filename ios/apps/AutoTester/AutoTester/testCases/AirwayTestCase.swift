@@ -146,9 +146,10 @@ class AirwayTestCase: MaplyTestCase {
             guard let name = vec.attributes?["NAME"] as? String else {
                 continue
             }
-            include = name == "PACIFIC HIGH"
+//            include = name == "PACIFIC HIGH"
             
             if include {
+//                name = "!!!!!!!!!!"
                 // Put a label in the middle
                 let label = MaplyScreenLabel()
                 label.layoutVec = vec
@@ -168,10 +169,11 @@ class AirwayTestCase: MaplyTestCase {
                                                       kMaplyColor: UIColor.blue], mode: .any)
         }
         if (!labels.isEmpty) {
-            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 18.0),
+            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
                                                  kMaplyTextColor: UIColor.purple,
-                                                 kMaplyTextLayoutOffset: -40.0,
+                                                 kMaplyTextLayoutOffset: -26.0,
                                                  kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
+//                                                 kMaplyTextLayoutSpacing: 0.0, // 100 pixels between
 //                                                 kMaplyTextLayoutRepeat: 4,  // As many as fit
                                                  kMaplyTextLayoutDebug: true
                                                  ],

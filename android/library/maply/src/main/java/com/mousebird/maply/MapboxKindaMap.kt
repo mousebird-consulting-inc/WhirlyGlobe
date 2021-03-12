@@ -314,7 +314,7 @@ open class MapboxKindaMap {
         val tileInfos = ArrayList<TileInfoNew>()
         val localFetchers = ArrayList<MBTileFetcher>()
         localMBTiles?.forEach { item ->
-            val fetcher = MBTileFetcher(item)
+            val fetcher = MBTileFetcher(control.get(), item)
             localFetchers.add(fetcher)
             fetcher.tileInfo?.also {
                 tileInfos.add(it)
