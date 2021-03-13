@@ -450,15 +450,27 @@ public:
  * Used to iterate over the elements of an object array.
  * This cleans up the previous object when you get the next
  * and cleans up the last one on destruction.
+ *
+ * Retains the JNIEnv, and so must not be held across JNI calls.
  */
 class JavaObjectArrayHelper
 {
 public:
 	JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray);
+	JavaObjectArrayHelper() = delete;
+	JavaObjectArrayHelper(const JavaObjectArrayHelper &) = delete;
 	~JavaObjectArrayHelper();
 
+	JavaObjectArrayHelper& operator=(const JavaObjectArrayHelper&) = delete;
+
 	// Total number of objects
-	int numObjects();
+	int numObjects() const { return count; }
+
+	operator bool() const { return count > 0; }
+
+	bool hasNextObject() const { return nextIndex < count; }
+
+	jobject getCurrentObject() const { return curObj; }
 
 	// Return the next object, if there is one.  NULL otherwise.
 	jobject getNextObject();
@@ -467,7 +479,7 @@ protected:
 	JNIEnv *env;
 	jobjectArray objArray;
 	int count;
-	int which;
+	int nextIndex;
 	jobject curObj;
 };
 
