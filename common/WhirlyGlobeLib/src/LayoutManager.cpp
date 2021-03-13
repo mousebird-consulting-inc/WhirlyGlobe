@@ -1,9 +1,8 @@
-/*
- *  LayoutManager.h
+/*  LayoutManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/15/13.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LayoutManager.h"
@@ -29,13 +27,21 @@ namespace WhirlyKit
 {
 
 // Default constructor for layout object
-LayoutObject::LayoutObject()
-    : ScreenSpaceObject(), importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject() :
+    ScreenSpaceObject(),
+    importance(MAXFLOAT),
+    clusterGroup(-1),
+    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
+                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
-LayoutObject::LayoutObject(SimpleIdentity theId) : ScreenSpaceObject(theId),
-     importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(SimpleIdentity theId) :
+    ScreenSpaceObject(theId),
+    importance(MAXFLOAT),
+    clusterGroup(-1),
+    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
+                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
@@ -49,7 +55,7 @@ void LayoutObject::setLayoutSize(const Point2d &layoutSize,const Point2d &offset
     layoutPts.push_back(layoutSize+offset);
     layoutPts.push_back(Point2d(0.0,layoutSize.y())+offset);
 }
-    
+
 void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset)
 {
     if (selectSize.x() == 0.0 && selectSize.y() == 0.0)
@@ -71,7 +77,7 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
 }
     
 LayoutManager::LayoutManager()
-    : maxDisplayObjects(0), hasUpdates(false), clusterGen(NULL)
+    : maxDisplayObjects(0), hasUpdates(false), clusterGen(nullptr)
 {
 }
     
@@ -79,9 +85,10 @@ LayoutManager::~LayoutManager()
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (LayoutEntrySet::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
-        delete *it;
+    for (auto layoutObject : layoutObjects)
+    {
+        delete layoutObject;
+    }
     layoutObjects.clear();
 }
     
@@ -103,11 +110,11 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (unsigned int ii=0;ii<newObjects.size();ii++)
+    for (const auto & newObject : newObjects)
     {
-        const LayoutObject &layoutObj = newObjects[ii];
-        LayoutObjectEntry *entry = new LayoutObjectEntry(layoutObj.getId());
-        entry->obj = newObjects[ii];
+        const LayoutObject &layoutObj = newObject;
+        auto *entry = new LayoutObjectEntry(layoutObj.getId());
+        entry->obj = newObject;
         layoutObjects.insert(entry);
     }
     hasUpdates = true;
@@ -117,11 +124,11 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjec
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (unsigned int ii=0;ii<newObjects.size();ii++)
+    for (auto newObject : newObjects)
     {
-        const LayoutObject *layoutObj = newObjects[ii];
-        LayoutObjectEntry *entry = new LayoutObjectEntry(layoutObj->getId());
-        entry->obj = *(newObjects[ii]);
+        const LayoutObject *layoutObj = newObject;
+        auto *entry = new LayoutObjectEntry(layoutObj->getId());
+        entry->obj = *newObject;
         layoutObjects.insert(entry);
     }
     hasUpdates = true;
@@ -132,11 +139,10 @@ void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enabl
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (SimpleIDSet::const_iterator it = theObjects.begin();
-         it != theObjects.end(); ++it)
+    for (const auto &theObject : theObjects)
     {
-        LayoutObjectEntry entry(*it);
-        LayoutEntrySet::iterator eit = layoutObjects.find(&entry);
+        LayoutObjectEntry key(theObject);
+        const auto eit = layoutObjects.find(&key);
         if (eit != layoutObjects.end())
         {
             LayoutObjectEntry *entry = *eit;
@@ -155,11 +161,10 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (SimpleIDSet::const_iterator it = oldObjects.begin();
-         it != oldObjects.end(); ++it)
+    for (const auto &oldObject : oldObjects)
     {
-        LayoutObjectEntry entry(*it);
-        LayoutEntrySet::iterator eit = layoutObjects.find(&entry);
+        LayoutObjectEntry entry(oldObject);
+        const auto eit = layoutObjects.find(&entry);
         if (eit != layoutObjects.end())
         {
             delete *eit;
@@ -171,13 +176,8 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
     
 bool LayoutManager::hasChanges()
 {
-    bool ret = false;
-    
     std::lock_guard<std::mutex> guardLock(lock);
-
-    ret = hasUpdates;
-    
-    return ret;
+    return hasUpdates;
 }
 
 // Return the screen space objects in a form the selection manager can understand
@@ -186,10 +186,8 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
     std::lock_guard<std::mutex> guardLock(lock);
 
     // First the regular screen space objects
-    for (LayoutEntrySet::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
+    for (const auto &entry : layoutObjects)
     {
-        LayoutObjectEntry *entry = *it;
         if (entry->currentEnable && entry->obj.enable)
         {
             ScreenSpaceObjectLocation ssObj;
@@ -206,7 +204,7 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
     }
     
     // Then the clusters
-    for (auto &cluster : clusters)
+    for (const auto &cluster : clusters)
     {
         ScreenSpaceObjectLocation ssObj;
         ssObj.shapeIDs = cluster.objectIDs;
@@ -219,11 +217,10 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
         screenSpaceObjs.push_back(ssObj);
     }
 }
-    
-void LayoutManager::addClusterGenerator(ClusterGenerator *inClusterGen)
+
+void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGenerator *inClusterGen)
 {
     std::lock_guard<std::mutex> guardLock(lock);
-
     clusterGen = inClusterGen;
 }
 
@@ -231,10 +228,10 @@ void LayoutManager::addClusterGenerator(ClusterGenerator *inClusterGen)
 class ClusteredObjects
 {
 public:
-    ClusteredObjects() { }
-    ClusteredObjects(int clusterID) : clusterID(clusterID) { }
+    ClusteredObjects() = default;
+    explicit ClusteredObjects(int clusterID) : clusterID(clusterID) { }
     
-    int clusterID;
+    int clusterID{};
     
     LayoutSortingSet layoutObjects;
 };
@@ -257,7 +254,7 @@ static const int OverlapSampleY = 60;
 // Now much around the screen we'll take into account
 static const float ScreenBuffer = 0.1;
     
-bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStateRef viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
+bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const ViewStateRef &viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
 {
     // Figure out where this will land
     bool isInside = false;
@@ -275,7 +272,7 @@ bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,ViewStat
     return isInside;
 }
 
-Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -302,14 +299,15 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,ViewStateRef viewState,Wh
     Vector4d projRot = normalMat * Vector4d(rotVec.x(),rotVec.y(),rotVec.z(),0.0);
     
     // Use the resulting x & y
-    screenRot = atan2(projRot.y(),projRot.x())-M_PI/2.0;
+    screenRot = (float)(atan2(projRot.y(),projRot.x())-M_PI/2.0);
     // Keep the labels upright
-    if (ssObj->keepUpright)
-        if (screenRot > M_PI/2 && screenRot < 3*M_PI/2)
-            screenRot = screenRot + M_PI;
+    if (ssObj->keepUpright && screenRot > M_PI/2 && screenRot < 3*M_PI/2)
+    {
+        screenRot = (float)(screenRot + M_PI);
+    }
     Matrix2d screenRotMat;
     screenRotMat = Eigen::Rotation2Dd(screenRot);
-    
+
     return screenRotMat;
 }
 
@@ -318,7 +316,7 @@ class LayoutObjectContainer
 {
 public:
     LayoutObjectContainer() : importance(-1.0) { }
-    LayoutObjectContainer(LayoutObjectEntry *entry) {
+    explicit LayoutObjectContainer(LayoutObjectEntry *entry) {
         objs.push_back(entry);
         importance = objs[0]->obj.importance;
     }
@@ -339,7 +337,11 @@ typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
 typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &clusterParams)
+bool LayoutManager::runLayoutRules(
+        PlatformThreadInfo *threadInfo,
+        const ViewStateRef &viewState,
+        std::vector<ClusterEntry> &clusterEntries,
+        std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams)
 {
     if (layoutObjects.empty())
         return false;
@@ -352,8 +354,8 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     UniqueLayoutObjectMap uniqueLayoutObjs;
     
     // The globe has some special requirements
-    WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
-    Maply::MapViewState *mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
+    auto globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
+    auto mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
 
     // View related matrix stuff
     Matrix4d modelTrans = viewState->fullMatrices[0];
@@ -362,13 +364,12 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     Matrix4d normalMat = viewState->fullMatrices[0].inverse().transpose();
     
     // Turn everything off and sort by importance
-    for (LayoutEntrySet::iterator it = layoutObjects.begin();
-         it != layoutObjects.end(); ++it)
+    for (const auto &layoutObject : layoutObjects)
     {
-        LayoutObjectEntry *layoutObj = *it;
+        LayoutObjectEntry *layoutObj = layoutObject;
         if (layoutObj->obj.enable)
         {
-            LayoutObjectEntry *obj = *it;
+            LayoutObjectEntry *obj = layoutObject;
             bool use = false;
             if (globeViewState)
             {
@@ -395,7 +396,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                     {
                         // Put the entry in the right cluster
                         ClusteredObjects findClusterObj(obj->obj.clusterGroup);
-                        ClusteredObjects *thisClusterObj = NULL;
+                        ClusteredObjects *thisClusterObj = nullptr;
                         auto cit = clusterObjs.find(&findClusterObj);
                         if (cit == clusterObjs.end())
                         {
@@ -454,23 +455,20 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
 
     if (clusterGen)
     {
-        clusterGen->startLayoutObjects();
+        clusterGen->startLayoutObjects(threadInfo);
         
         // Lay out the clusters in order
-        for (ClusteredObjectsSet::iterator it = clusterObjs.begin(); it != clusterObjs.end(); ++it)
+        for (const auto &cluster : clusterObjs)
         {
-            ClusteredObjects *cluster = *it;
-            clusterParams.resize(clusterParams.size()+1);
-            ClusterGenerator::ClusterClassParams &params = clusterParams.back();
-            clusterGen->paramsForClusterClass(cluster->clusterID,params);
+            outClusterParams.resize(outClusterParams.size() + 1);
+            ClusterGenerator::ClusterClassParams &params = outClusterParams.back();
+            clusterGen->paramsForClusterClass(threadInfo,cluster->clusterID,params);
 
             ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,resScale,params.clusterSize);
             
             // Add all the various objects to the cluster and figure out overlaps
-            for (LayoutSortingSet::iterator sit = cluster->layoutObjects.begin(); sit != cluster->layoutObjects.end(); ++sit)
+            for (const auto &entry : cluster->layoutObjects)
             {
-                LayoutObjectEntry *entry = *sit;
-                
                 // Project the point and figure out the rotation
                 bool isActive = true;
                 Point2f objPt;
@@ -511,7 +509,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
             clusterHelper.resolveClusters();
 
             // Toss the unaffected layout objects into the mix
-            for (auto obj : clusterHelper.simpleObjects)
+            for (auto &obj : clusterHelper.simpleObjects)
                 if (obj.parentObject < 0)
                 {
                     layoutObjs.push_back(LayoutObjectContainer(obj.objEntry));
@@ -547,11 +545,11 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                         clusterEntry.layoutObj.worldLoc = dispPt;
                         for (auto thisObj : objsForCluster)
                             clusterEntry.objectIDs.push_back(thisObj->obj.getId());
-                        clusterGen->makeLayoutObject(cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
+                        clusterGen->makeLayoutObject(threadInfo,cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
                         if (!params.selectable)
                             clusterEntry.layoutObj.selectPts.clear();
                     }
-                    clusterEntry.clusterParamID = (int)(clusterParams.size()-1);
+                    clusterEntry.clusterParamID = (int)(outClusterParams.size() - 1);
 
                     // Figure out if all the objects in this new cluster come from the same old cluster
                     //  and assign the new cluster ID
@@ -577,11 +575,13 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
         }
         
         // Tear down the clusters
-        for (ClusteredObjectsSet::iterator it = clusterObjs.begin(); it != clusterObjs.end(); ++it)
-            delete *it;
+        for (auto clusterObj : clusterObjs)
+        {
+            delete clusterObj;
+        }
         clusterObjs.clear();
         
-        clusterGen->endLayoutObjects();
+        clusterGen->endLayoutObjects(threadInfo);
     }
     
 //    NSLog(@"----Starting Layout----");
@@ -590,7 +590,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
     OverlapHelper overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
     
     // Add in the unique objects, cluster entries and then sort them all
-    for (auto it : uniqueLayoutObjs) {
+    for (auto &it : uniqueLayoutObjs) {
         layoutObjs.push_back(it.second);
     }
     std::sort(layoutObjs.begin(),layoutObjs.end());
@@ -655,12 +655,14 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                         for (unsigned int orient=0;orient<6;orient++)
                         {
                             // May only want to be placed certain ways.  Fair enough.
-                            if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
+                            if (!(layoutObj->obj.acceptablePlacement & (1U<<orient)))
                                 continue;
                             const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
                             Mbr layoutMbr;
-                            for (unsigned int li=0;li<layoutPts.size();li++)
-                                layoutMbr.addPoint(layoutPts[li]);
+                            for (const auto & layoutPt : layoutPts)
+                            {
+                                layoutMbr.addPoint(layoutPt);
+                            }
                             Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
                             Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
                             
@@ -691,6 +693,7 @@ bool LayoutManager::runLayoutRules(ViewStateRef viewState,std::vector<ClusterEnt
                                 case 5:
                                     objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
                                     break;
+                                default: break;
                             }
                             
                             // Rotate the rectangle
@@ -763,7 +766,7 @@ static float const NewObjectFadeIn = 0.0;
 //static float const OldObjectFadeOut = 0.0;
 
 // Layout all the objects we're tracking
-void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
+void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
@@ -778,7 +781,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
     
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
-    bool layoutChanges = runLayoutRules(viewState,clusters,clusterParams);
+    bool layoutChanges = runLayoutRules(threadInfo,viewState,clusters,clusterParams);
     
     // Compare old and new clusters
     if (!layoutChanges && clusters.size() != oldClusters.size())
@@ -825,7 +828,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
             } else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
             {
                 // Just moved out of a cluster
-                ClusterEntry *oldCluster = NULL;
+                ClusterEntry *oldCluster = nullptr;
                 if (layoutObj->currentCluster < oldClusters.size())
                     oldCluster = &oldClusters[layoutObj->currentCluster];
                 else {
@@ -846,6 +849,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
                 ssBuild.addScreenObject(animObj);
                 
                 // And hold off on adding it
+                // todo: slicing, is this ok?
                 ScreenSpaceObject shortObj = layoutObj->obj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
@@ -870,7 +874,7 @@ void LayoutManager::updateLayout(ViewStateRef viewState,ChangeSet &changes)
             // Animate from the old cluster if there is one
             if (cluster.childOfCluster > -1)
             {
-                ClusterEntry *oldCluster = NULL;
+                ClusterEntry *oldCluster = nullptr;
                 if (cluster.childOfCluster < oldClusters.size())
                     oldCluster = &oldClusters[cluster.childOfCluster];
                 else {

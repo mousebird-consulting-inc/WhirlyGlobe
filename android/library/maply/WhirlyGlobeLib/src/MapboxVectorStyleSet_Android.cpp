@@ -50,13 +50,18 @@ void MapboxVectorStyleSetImpl_Android::setupMethods(JNIEnv *env)
 
 void MapboxVectorStyleSetImpl_Android::cleanup(JNIEnv *env)
 {
-    for (auto labelInfo : labelInfos)
+    for (auto labelInfo : labelInfos) {
         env->DeleteGlobalRef(labelInfo.second->labelInfoObj);
+        labelInfo.second->labelInfoObj = nullptr;
+    }
     labelInfos.clear();
 }
 
 MapboxVectorStyleSetImpl_Android::~MapboxVectorStyleSetImpl_Android()
 {
+    if (thisObj) {
+        wkLogLevel(Warn, "Failed to clean up MapboxVectorStyleSetImpl_Android Java ref");
+    }
 }
 
 SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(PlatformThreadInfo *inInst,

@@ -1,9 +1,8 @@
-/*
- *  GeometryRawPoints_jni.cpp
+/*  GeometryRawPoints_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 #import "GeometryManager_jni.h"
 #import "com_mousebird_maply_GeometryRawPoints.h"
@@ -23,16 +21,16 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = NULL;
+template<> GeometryRawPointsClassInfo *GeometryRawPointsClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_nativeInit(JNIEnv *env, jclass cls)
 {
     GeometryRawPointsClassInfo::getClassInfo(env, cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_initialise
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_initialise(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -47,12 +45,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_dispose
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_dispose(JNIEnv *env, jobject obj)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
+        const auto classInfo = GeometryRawPointsClassInfo::getClassInfo();
         classInfo->clearHandle(env, obj);
     }
     catch (...)
@@ -61,17 +59,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_dispose
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRawPoints_valid
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRawPoints_valid(JNIEnv *env, jobject obj)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-        if (!rawGeom)
-            return false;
-        
-        return rawGeom->valid();
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            return rawGeom->valid();
+        }
     }
     catch (...)
     {
@@ -81,25 +77,22 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_GeometryRawPoints_valid
     return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues
-(JNIEnv *env, jobject obj, jstring nameStr, jintArray intArray)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues(JNIEnv *env, jobject obj, jstring nameStr, jintArray intArray)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-
-        if (!rawGeom)
-            return;
-        JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
-        if (attrId < 0)
-            return;
-        
-        std::vector<int> intVec;
-        ConvertIntArray(env,intArray,intVec);
-        
-        rawGeom->addValues(attrId,intVec);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            const int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.getCString()));
+            if (attrId >= 0)
+            {
+                std::vector<int> intVec;
+                ConvertIntArray(env, intArray, intVec);
+                rawGeom->addValues(attrId, intVec);
+            }
+        }
     }
     catch (...)
     {
@@ -107,25 +100,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addIntValues
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addFloatValues
-(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addFloatValues(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-
-        if (!rawGeom)
-            return;
-        JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
-        if (attrId < 0)
-            return;
-        
-        std::vector<float> floatVec;
-        ConvertFloatArray(env,floatArray,floatVec);
-        
-        rawGeom->addValues(attrId,floatVec);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            const int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.getCString()));
+            if (attrId >= 0)
+            {
+                std::vector<float> floatVec;
+                ConvertFloatArray(env, floatArray, floatVec);
+                rawGeom->addValues(attrId, floatVec);
+            }
+        }
     }
     catch (...)
     {
@@ -133,25 +123,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addFloatValues
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint2fValues
-(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint2fValues(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-        
-        if (!rawGeom)
-            return;
-        JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
-        if (attrId < 0)
-            return;
-        
-        Point2fVector ptVec;
-        ConvertFloat2fArray(env,floatArray,ptVec);
-        
-        rawGeom->addPoints(attrId,ptVec);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            const int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.getCString()));
+            if (attrId >= 0)
+            {
+                Point2fVector ptVec;
+                ConvertFloat2fArray(env, floatArray, ptVec);
+                rawGeom->addPoints(attrId, ptVec);
+            }
+        }
     }
     catch (...)
     {
@@ -159,25 +146,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint2fValu
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3fValues
-(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3fValues(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-        
-        if (!rawGeom)
-            return;
-        JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
-        if (attrId < 0)
-            return;
-        
-        Point3fVector ptVec;
-        ConvertFloat3fArray(env,floatArray,ptVec);
-        
-        rawGeom->addPoints(attrId,ptVec);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            const int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.getCString()));
+            if (attrId >= 0)
+            {
+                Point3fVector ptVec;
+                ConvertFloat3fArray(env, floatArray, ptVec);
+                rawGeom->addPoints(attrId, ptVec);
+            }
+        }
     }
     catch (...)
     {
@@ -185,25 +169,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3fValu
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3dValues
-(JNIEnv *env, jobject obj, jstring nameStr, jdoubleArray doubleArray)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3dValues(JNIEnv *env, jobject obj, jstring nameStr, jdoubleArray doubleArray)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-        
-        if (!rawGeom)
-            return;
-        JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
-        if (attrId < 0)
-            return;
-        
-        Point3dVector ptVec;
-        ConvertFloat3dArray(env,doubleArray,ptVec);
-        
-        rawGeom->addPoints(attrId,ptVec);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            const int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.getCString()));
+            if (attrId >= 0)
+            {
+                Point3dVector ptVec;
+                ConvertFloat3dArray(env, doubleArray, ptVec);
+                rawGeom->addPoints(attrId, ptVec);
+            }
+        }
     }
     catch (...)
     {
@@ -211,25 +192,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint3dValu
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint4fValues
-(JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
+    (JNIEnv *env, jobject obj, jstring nameStr, jfloatArray floatArray)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-        
-        if (!rawGeom)
-            return;
-        JavaString name(env,nameStr);
-        int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.cStr));
-        if (attrId < 0)
-            return;
-        
-        Vector4fVector ptVec;
-        ConvertFloat4fArray(env,floatArray,ptVec);
-        
-        rawGeom->addPoints(attrId,ptVec);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            const int attrId = rawGeom->findAttribute(StringIndexer::getStringID(name.getCString()));
+            if (attrId >= 0)
+            {
+                Vector4fVector ptVec;
+                ConvertFloat4fArray(env, floatArray, ptVec);
+                rawGeom->addPoints(attrId, ptVec);
+            }
+        }
     }
     catch (...)
     {
@@ -237,24 +216,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryRawPoints_addPoint4fValu
     }
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttributeNative
-(JNIEnv *env, jobject obj, jstring nameStr, int type)
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_GeometryRawPoints_addAttributeNative(JNIEnv *env, jobject obj, jstring nameStr, int type)
 {
     try
     {
-        GeometryRawPointsClassInfo *classInfo = GeometryRawPointsClassInfo::getClassInfo();
-        GeometryRawPoints *rawGeom = classInfo->getObject(env, obj);
-        
-        if (!rawGeom)
-            return -1;
-
-        JavaString name(env,nameStr);
-        return rawGeom->addAttribute(StringIndexer::getStringID(name.cStr),(GeomRawDataType)type);
+        if (auto rawGeom = GeometryRawPointsClassInfo::get(env, obj))
+        {
+            const JavaString name(env, nameStr);
+            return rawGeom->addAttribute(StringIndexer::getStringID(name.getCString()), (GeomRawDataType) type);
+        }
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryRawPoints::addAttribute()");
     }
-    
     return -1;
 }

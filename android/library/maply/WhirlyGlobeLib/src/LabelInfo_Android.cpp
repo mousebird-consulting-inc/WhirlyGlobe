@@ -43,7 +43,9 @@ LabelInfoAndroid::LabelInfoAndroid(LabelInfoAndroid &&that) noexcept :
 LabelInfoAndroid::~LabelInfoAndroid()
 {
 	// should have been cleaned up through clearRefs()
-	assert(labelInfoObj == nullptr);
+	if (labelInfoObj) {
+		wkLogLevel(Warn, "LabelInfoAndroid not cleaned up");
+	}
 }
 
 void LabelInfoAndroid::clearRefs(PlatformInfo_Android *threadInfo)

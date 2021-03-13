@@ -1,5 +1,4 @@
-/*
- * SimpleStyleManager.kt
+/* SimpleStyleManager.kt
  * WhirlyGlobeLib
  *
  * Created by Tim Sylvester on 11/02/2021
