@@ -26,15 +26,26 @@ using namespace WhirlyKit;
 
 template<> QuadImageFrameLoaderClassInfo *QuadImageFrameLoaderClassInfo::classInfoObj = nullptr;
 
+static jclass mbrClass = nullptr;
+static jfieldID llID = nullptr;
+static jfieldID urID = nullptr;
+
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit(JNIEnv *env, jclass cls)
 {
     QuadImageFrameLoaderClassInfo::getClassInfo(env, cls);
+
+    if (!mbrClass)
+    {
+        mbrClass = env->FindClass("com/mousebird/maply/Mbr");
+        llID = env->GetFieldID(mbrClass, "ll", "Lcom/mousebird/maply/Point2d;");
+        urID = env->GetFieldID(mbrClass, "ur", "Lcom/mousebird/maply/Point2d;");
+    }
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
-        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)//, jobject controller)
+        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
 {
     try {
         auto info = QuadImageFrameLoaderClassInfo::getClassInfo();
@@ -379,17 +390,51 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
         (JNIEnv *env, jobject obj, jobject changeSetObj)
 {
-    try {
+    Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative(env, obj, changeSetObj, nullptr);
+}
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    reloadAreaNative
+ * Signature: (Lcom/mousebird/maply/ChangeSet;[Lcom/mousebird/maply/Mbr;)V
+ */
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
+        (JNIEnv *env, jobject obj, jobject changeSetObj, jobjectArray mbrArrayObj)
+{
+    try
+    {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loader || !changeSet)
             return;
 
+        std::vector<Mbr> mbrs;
+        for (JavaObjectArrayHelper mbrObjs(env, mbrArrayObj); mbrObjs.getNextObject(); )
+        {
+            const auto llObj = env->GetObjectField(mbrObjs.getCurrentObject(), llID);
+            const auto urObj = env->GetObjectField(mbrObjs.getCurrentObject(), urID);
+
+            const auto llx = Java_com_mousebird_maply_Point2d_getX(env, llObj);
+            const auto lly = Java_com_mousebird_maply_Point2d_getY(env, llObj);
+            const auto urx = Java_com_mousebird_maply_Point2d_getX(env, urObj);
+            const auto ury = Java_com_mousebird_maply_Point2d_getY(env, urObj);
+
+            env->DeleteLocalRef(llObj);
+            env->DeleteLocalRef(urObj);
+
+            if (mbrs.empty())
+            {
+                mbrs.reserve(mbrObjs.numObjects());
+            }
+            mbrs.emplace_back(Point2f(llx, lly), Point2f(urx, ury));
+        }
+
         PlatformInfo_Android platformInfo(env);
-        (*loader)->reload(&platformInfo,-1, *(changeSet->get()));
+        (*loader)->reload(&platformInfo,-1,mbrs.empty() ? nullptr : &mbrs[0],(int)mbrs.size(), **changeSet);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::reloadAreaNative()");
     }
 }

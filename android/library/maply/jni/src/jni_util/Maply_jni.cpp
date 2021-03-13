@@ -21,10 +21,13 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-JavaObjectArrayHelper::JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray)
-: env(env), objArray(objArray), which(0), curObj(NULL)
+JavaObjectArrayHelper::JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray) :
+    env(env),
+    objArray(objArray),
+    nextIndex(0),
+    curObj(nullptr),
+    count((env && objArray) ? env->GetArrayLength(objArray) : 0)
 {
-    count = env->GetArrayLength(objArray);
 }
 
 JavaObjectArrayHelper::~JavaObjectArrayHelper()
@@ -35,42 +38,32 @@ JavaObjectArrayHelper::~JavaObjectArrayHelper()
     }
 }
 
-int JavaObjectArrayHelper::numObjects()
-{
-    return count;
-}
-
 jobject JavaObjectArrayHelper::getNextObject()
 {
-    if (which >= count)
-        return NULL;
     if (curObj)
+    {
         env->DeleteLocalRef(curObj);
-    curObj = env->GetObjectArrayElement(objArray,which);
-    which++;
-
-    return curObj;
+        curObj = nullptr;
+    }
+    if (nextIndex >= count)
+    {
+        return nullptr;
+    }
+    return curObj = env->GetObjectArrayElement(objArray,nextIndex++);
 }
 
 // Have to instantiate the static members somewhere
 // But just some of the general ones.  The rest are in their own modules.
 
-JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = NULL;
-JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = NULL;
-JavaLongClassInfo *JavaLongClassInfo::classInfoObj = NULL;
-JavaHashMapInfo *JavaHashMapInfo::classInfoObj = NULL;
-JavaListInfo *JavaListInfo::classInfoObj = NULL;
-
-// Note: Move these out
-/*
-template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
-template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
-template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
-*/
+JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = nullptr;
+JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = nullptr;
+JavaLongClassInfo *JavaLongClassInfo::classInfoObj = nullptr;
+JavaHashMapInfo *JavaHashMapInfo::classInfoObj = nullptr;
+JavaListInfo *JavaListInfo::classInfoObj = nullptr;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
-	int *ints = env->GetIntArrayElements(intArray, NULL);
+	int *ints = env->GetIntArrayElements(intArray, nullptr);
 	int len = env->GetArrayLength(intArray);
 	intVec.resize(len);
 	for (int ii=0;ii<len;ii++)
