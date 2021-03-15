@@ -91,24 +91,27 @@ public:
     MaplyBaseInteractionLayer * __weak layer;
     
     // Called right before we start generating layout objects
-    void startLayoutObjects(PlatformThreadInfo *)
+    virtual void startLayoutObjects(PlatformThreadInfo *) override
     {
         [layer startLayoutObjects];
     }
 
     // Figure out
-    void makeLayoutObject(PlatformThreadInfo *,int clusterID,const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &retObj)
+    virtual void makeLayoutObject(PlatformThreadInfo *,int clusterID,
+                                  const std::vector<LayoutObjectEntry *> &layoutObjects,
+                                  LayoutObject &retObj) override
     {
         [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
     }
 
     // Called right after all the layout objects are generated
-    virtual void endLayoutObjects(PlatformThreadInfo *)
+    virtual void endLayoutObjects(PlatformThreadInfo *) override
     {
         [layer endLayoutObjects];
     }
     
-    void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams)
+    virtual void paramsForClusterClass(PlatformThreadInfo *,int clusterID,
+                                       ClusterClassParams &clusterParams) override
     {
         return [layer clusterID:clusterID params:clusterParams];
     }

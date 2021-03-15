@@ -28,8 +28,7 @@ class MapTilerTestCase: MaplyTestCase {
 //         ("Topo", "maptiler_topo")
     ]
     var mapTilerStyle = 2
-    var bgAll = false
-    
+
     var mapboxMap : MapboxKindaMap? = nil
     
     // Start fetching the required pieces for a Mapbox style map
@@ -39,7 +38,7 @@ class MapTilerTestCase: MaplyTestCase {
             return
         }
         
-        print("Starting map with \(style.name) / \(style.sheet), bgAll = \(round)")
+        print("Starting map with \(style.name) / \(style.sheet)")
         
         // Maptiler token
         // Go to maptiler.com, setup an account and get your own.
@@ -114,7 +113,7 @@ class MapTilerTestCase: MaplyTestCase {
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         //mapVC.performanceOutput = true
         
-        startMap(styles[mapTilerStyle], viewC: mapVC, round: bgAll)
+        startMap(styles[mapTilerStyle], viewC: mapVC, round: false)
 
         mapVC.rotateGestureThreshold = 15;
 
@@ -124,7 +123,7 @@ class MapTilerTestCase: MaplyTestCase {
     override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {
         //mapVC.performanceOutput = true
         
-        startMap(styles[mapTilerStyle], viewC: mapVC, round: bgAll)
+        startMap(styles[mapTilerStyle], viewC: mapVC, round: true)
         
         runProgram(mapVC)
     }
@@ -166,10 +165,7 @@ class MapTilerTestCase: MaplyTestCase {
         mapboxMap = nil
 
         mapTilerStyle = (mapTilerStyle + 1) % 3
-        if mapTilerStyle == 0 {
-            bgAll = !bgAll
-        }
-        startMap(styles[mapTilerStyle], viewC: viewC, round: bgAll)
+        startMap(styles[mapTilerStyle], viewC: viewC, round: false)
     }
 }
 
