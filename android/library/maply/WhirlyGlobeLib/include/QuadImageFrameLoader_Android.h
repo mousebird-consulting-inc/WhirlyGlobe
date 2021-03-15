@@ -1,9 +1,8 @@
-/*
- *  QuadImageFrameLoader_Android.h
+/*  QuadImageFrameLoader_Android.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -40,7 +38,7 @@ public:
     jobject batchOpsObj;
 };
 
-// Android verison of the frame asset
+// Android version of the frame asset
 class QIFFrameAsset_Android : public QIFFrameAsset
 {
 public:
@@ -94,13 +92,13 @@ class QuadImageFrameLoader_Android : public QuadImageFrameLoader
 {
 public:
     // Displaying a single frame
-    QuadImageFrameLoader_Android(PlatformInfo_Android *threadInfo,const SamplingParams &params,int numFrames,Mode mode,JNIEnv *env);
-    ~QuadImageFrameLoader_Android();
+    QuadImageFrameLoader_Android(PlatformInfo_Android *threadInfo,const SamplingParams &params,int numFrames,Mode mode);
+    virtual ~QuadImageFrameLoader_Android();
 
     /// Number of frames we're representing
     virtual int getNumFrames() override;
 
-    // Contruct a platform specific BatchOps for passing to tile fetcher
+    // Construct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
     virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) override;
 

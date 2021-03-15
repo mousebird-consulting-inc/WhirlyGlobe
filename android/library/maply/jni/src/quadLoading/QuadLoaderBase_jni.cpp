@@ -50,10 +50,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
     try {
         auto info = QuadImageFrameLoaderClassInfo::getClassInfo();
         auto params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
-        //auto control = QuadImageFrameLoaderClassInfo
         PlatformInfo_Android platformInfo(env);
         auto loader = new QuadImageFrameLoader_AndroidRef(
-                new QuadImageFrameLoader_Android(&platformInfo,/*control,*/ *params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
+                new QuadImageFrameLoader_Android(&platformInfo,*params,numFrames,(QuadImageFrameLoader::Mode)mode));
         (*loader)->frameLoaderObj = env->NewGlobalRef(obj);
         (*loader)->setFlipY(true);
         info->setHandle(env, obj, loader);
@@ -65,8 +64,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
 static std::mutex disposeMutex;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
-        (JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose(JNIEnv *env, jobject obj)
 {
     try {
         QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
@@ -75,8 +73,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
             QuadImageFrameLoader_AndroidRef *loader = info->getObject(env,obj);
             if (!loader)
                 return;
-            if ((*loader)->frameLoaderObj)
+            if ((*loader)->frameLoaderObj) {
                 env->DeleteGlobalRef((*loader)->frameLoaderObj);
+                (*loader)->frameLoaderObj = nullptr;
+            }
             delete loader;
 
             info->clearHandle(env, obj);
@@ -88,8 +88,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
-        (JNIEnv *env, jobject obj, jboolean flipY)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY(JNIEnv *env, jobject obj, jboolean flipY)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -104,8 +103,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
-  (JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY(JNIEnv *env, jobject obj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -122,8 +120,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
-        (JNIEnv *env, jobject obj, jboolean debugMode)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode(JNIEnv *env, jobject obj, jboolean debugMode)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);

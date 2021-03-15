@@ -221,7 +221,7 @@ class SceneManager
 {
 public:
     SceneManager();
-    virtual ~SceneManager() { };
+    virtual ~SceneManager() = default;
     
     /// Set (or reset) the current renderer
     virtual void setRenderer(SceneRenderer *inRenderer);

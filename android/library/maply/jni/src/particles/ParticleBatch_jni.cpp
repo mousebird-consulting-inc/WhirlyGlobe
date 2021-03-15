@@ -1,9 +1,8 @@
-/*
- *  ParticleBatch_jni.cpp
+/*  ParticleBatch_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro on 23/1/16.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,23 +14,22 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 #import "Particles_jni.h"
 #import "com_mousebird_maply_ParticleBatch.h"
 
 using namespace WhirlyKit;
 
-template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = NULL;
+template<> ParticleBatchClassInfo *ParticleBatchClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_nativeInit(JNIEnv *env, jclass cls)
 {
     ParticleBatchClassInfo::getClassInfo(env, cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_initialise
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_initialise(JNIEnv *env, jobject obj)
 {
     try {
         ParticleBatchClassInfo *info = ParticleBatchClassInfo::getClassInfo();
@@ -44,8 +42,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_dispose
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_dispose(JNIEnv *env, jobject obj)
 {
     try {
         ParticleBatchClassInfo *info = ParticleBatchClassInfo::getClassInfo();
@@ -64,8 +62,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_dispose
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setPartSysNative
-  (JNIEnv *env, jobject obj, jobject partSysObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setPartSysNative(JNIEnv *env, jobject obj, jobject partSysObj)
 {
     try {
         ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
@@ -81,8 +79,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setPartSysNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setTime
-  (JNIEnv *env, jobject obj, jdouble baseTime)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setTime(JNIEnv *env, jobject obj, jdouble baseTime)
 {
     try {
         ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
@@ -96,8 +94,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ParticleBatch_setTime
     }
 }
 
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleBatch_getTime
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleBatch_getTime(JNIEnv *env, jobject obj)
 {
     try {
         ParticleBatchClassInfo *classInfo = ParticleBatchClassInfo::getClassInfo();
@@ -113,6 +111,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_ParticleBatch_getTime
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__Ljava_lang_String_2_3F
   (JNIEnv *env, jobject obj, jstring inName, jfloatArray floatArray)
 {
@@ -127,7 +126,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__
         jfloat *body = env->GetFloatArrayElements(floatArray, 0);
         jsize len = env->GetArrayLength(floatArray);
         JavaString name(env,inName);
-        ret = batch->addAttributeDataFloat(name.cStr,body,len);
+        ret = batch->addAttributeDataFloat(name.getCString(),body,len);
         env->ReleaseFloatArrayElements(floatArray, body, 0);
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::addAttribute()");
@@ -136,6 +135,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__
     return ret;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__Ljava_lang_String_2_3C
   (JNIEnv *env, jobject obj, jstring inName, jcharArray charArray)
 {
@@ -150,7 +150,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__
         jchar *body = env->GetCharArrayElements(charArray, 0);
         jsize len = env->GetArrayLength(charArray);
         JavaString name(env,inName);
-        ret = batch->addAttributeDataChar(name.cStr,(const char *)body,len);
+        ret = batch->addAttributeDataChar(name.getCString(),(const char *)body,len);
         env->ReleaseCharArrayElements(charArray, body, 0);
     } catch (...) {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ParticleBatch::addAttribute()");
@@ -159,8 +159,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_addAttribute__
     return ret;
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_isValid
-        (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ParticleBatch_isValid(JNIEnv *env, jobject obj)
 {
     bool ret = false;
 

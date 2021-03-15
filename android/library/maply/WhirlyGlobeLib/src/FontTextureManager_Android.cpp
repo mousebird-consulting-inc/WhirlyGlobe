@@ -42,7 +42,9 @@ FontTextureManager_Android::FontManager_Android::~FontManager_Android()
 {
 	// should have been cleaned up by now through teardown.
 	// We can't clean it up for lack of a JNIEnv, so it'll leak.
-	assert(typefaceObj == nullptr);
+	if (typefaceObj) {
+		wkLogLevel(Warn, "FontManager_Android not cleaned up");
+	}
 }
 
 void FontTextureManager_Android::FontManager_Android::teardown(PlatformThreadInfo* inst)
@@ -85,7 +87,9 @@ FontTextureManager_Android::FontTextureManager_Android(PlatformThreadInfo *inst,
 
 FontTextureManager_Android::~FontTextureManager_Android()
 {
-	assert(charRenderObj == nullptr);
+	if (charRenderObj) {
+		wkLogLevel(Warn, "FontTextureManager_Android not cleaned up");
+	}
 }
 
 void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)

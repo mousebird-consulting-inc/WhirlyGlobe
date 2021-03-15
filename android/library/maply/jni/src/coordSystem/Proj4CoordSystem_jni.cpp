@@ -1,9 +1,8 @@
-/*
- *  Proj4CoordSystem_jni.cpp
+/*  Proj4CoordSystem_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/13/16.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -24,18 +22,18 @@
 
 using namespace WhirlyKit;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_nativeInit(JNIEnv *env, jclass cls)
 {
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_initialise
-(JNIEnv *env, jobject obj, jstring str)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_initialise(JNIEnv *env, jobject obj, jstring str)
 {
     try
     {
         JavaString jstr(env,str);
-        Proj4CoordSystem *coordSystem = new Proj4CoordSystem((std::string)jstr.cStr);
+        Proj4CoordSystem *coordSystem = new Proj4CoordSystem(jstr.getCString());
         CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(coordSystem));
     }
     catch (...)
