@@ -162,7 +162,7 @@ static const float MaxDelay = 1.0;
     if (layoutManager)
     {
         ChangeSet changes;
-        layoutManager->updateLayout(viewState,changes);
+        layoutManager->updateLayout(nullptr,viewState,changes);
         [layerThread addChangeRequests:changes];
     }
 }
