@@ -864,19 +864,19 @@ WideVectorManager::~WideVectorManager()
 SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     // Calculate a center for this geometry
-    int numMaskIDs = 0;
+    bool hasMaskIDs = false;
     GeoMbr geoMbr;
     for (const auto &shape : shapes)
     {
         if (shape->getAttrDict()->hasField("maskID0"))
-            numMaskIDs = WhirlyKitMaxMasks;
+            hasMaskIDs = true;
         geoMbr.expand(shape->calcGeoMbr());
     }
     // No data?
     if (!geoMbr.valid())
         return EmptyIdentity;
 
-    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo,numMaskIDs);
+    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo,hasMaskIDs ? WhirlyKitMaxMasks : 0);
 
     const GeoCoord centerGeo = geoMbr.mid();
 
@@ -892,13 +892,17 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         // Look for mask IDs.
         // Only support 2 for now
         std::vector<SimpleIdentity> maskIDs;
-        if (numMaskIDs > 0) {
-            maskIDs.resize(numMaskIDs,0);
+        if (hasMaskIDs) {
             for (unsigned int ii=0;ii<2;ii++) {
                 std::string attrName = "maskID" + std::to_string(ii);
                 if (shape->getAttrDict()->hasField(attrName))
-                    maskIDs[ii] = shape->getAttrDict()->getInt64(attrName);
+                    maskIDs.push_back(shape->getAttrDict()->getInt64(attrName));
             }
+        }
+        // If there's not enough masks, but there is one, then fill in the rest
+        if (!maskIDs.empty() && maskIDs.size() < WhirlyKitMaxMasks) {
+            while (maskIDs.size() < WhirlyKitMaxMasks)
+                maskIDs.push_back(maskIDs.front());
         }
         
         if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
