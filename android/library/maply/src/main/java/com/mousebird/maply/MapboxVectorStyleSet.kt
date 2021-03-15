@@ -180,7 +180,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         var url: String?
 
         // If the TileJSON spec is inline, it's here
-        var tileSpec: AttrDictionary?
+        var tileSpec: Array<AttrDictionaryEntry>?
 
         init {
             val typeStr = styleEntry.getString("type")
@@ -192,7 +192,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
                 throw IllegalArgumentException("Unexpected type string in Mapbox Source")
             }
             url = styleEntry.getString("url")
-            tileSpec = styleEntry.getDict("tiles")
+            tileSpec = styleEntry.getArray("tiles")
             if (url == null && tileSpec == null) {
                 Log.w("Maply", "Expecting either URL or tileSpec in source $name")
                 throw IllegalArgumentException("Expecting either URL or tileSpec in source $name")
