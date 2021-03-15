@@ -56,7 +56,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
      */
     public MapboxVectorInterpreter(VectorStyleInterface inStyleInter,BaseController inVC) {
         styleGen = inStyleInter;
-        vc = new WeakReference<BaseController>(inVC);
+        vc = new WeakReference<>(inVC);
         parser = new MapboxVectorTileParser(inStyleInter,inVC);
     }
 
@@ -78,7 +78,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         imageStyleGen = inImageStyle;
         styleGen = inVectorStyle;
         tileRender = inTileRender;
-        vc = new WeakReference<BaseController>(inVC);
+        vc = new WeakReference<>(inVC);
         tileRender.clearLights();
 
         parser = new MapboxVectorTileParser(styleGen,inVC);
@@ -99,16 +99,16 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         }
     }
 
-    static double MAX_EXTENT = 20037508.342789244;
+    static final double MAX_EXTENT = 20037508.342789244;
+    static final double WGS84_a    = 6378137.0;  // meters
+    static final double WGS84_a_2  = WGS84_a / 2.0;
 
     // Convert to spherical mercator directly
-    Point2d toMerc(Point2d pt)
+    static Point2d toMerc(Point2d pt)
     {
-        Point2d newPt = new Point2d();
-        newPt.setValue(Math.toDegrees(pt.getX()) * MAX_EXTENT / 180.0,
-                3189068.5 * Math.log((1.0 + Math.sin(pt.getY())) / (1.0 - Math.sin(pt.getY()))));
-
-        return newPt;
+        return new Point2d(
+                Math.toDegrees(pt.getX()) * MAX_EXTENT / 180.0,
+                WGS84_a_2 * Math.log((1.0 + Math.sin(pt.getY())) / (1.0 - Math.sin(pt.getY()))));
     }
 
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
@@ -165,7 +165,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
             parser.parseData(data, tileData);
             BaseController theVC = vc.get();
-            ArrayList<ComponentObject> ovlObjs = new ArrayList<ComponentObject>();
+            ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
             if (theVC != null) {
                 ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
                 if (thisOvjObjs != null)
@@ -205,7 +205,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             ComponentObject[] regObjs = tileData.getComponentObjects();
             if (!ovlObjs.isEmpty()) {
                 // Filter the overlays out of regular objects
-                ArrayList<ComponentObject> minusOvls = new ArrayList<ComponentObject>();
+                ArrayList<ComponentObject> minusOvls = new ArrayList<>();
                 for (ComponentObject compObj : regObjs) {
                     // Look for it in the overlays
                     boolean found = false;
@@ -234,8 +234,32 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 if (!ovlObjs.isEmpty())
                     imgLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
                 imgLoadReturn.addComponentObjects(regObjs);
-                if (tileBitmap != null)
+                if (tileBitmap != null) {
                     imgLoadReturn.addBitmap(tileBitmap);
+                } else if (imgLoadReturn.getImages().length == 0) {
+                    // Make a single color background image
+                    // We have to do this each time because it can change per level
+                    final int bgColor = styleGen.backgroundColorForZoom(tileID.level);
+
+                    // The color will be the same for all the tiles in a level, try to reuse it
+                    Bitmap img;
+                    synchronized (backgroundLock) {
+                        if (lastBackground != null && lastBackgroundColor == bgColor) {
+                            img = lastBackground;
+                        } else {
+                            img = Bitmap.createBitmap(BackImageSize, BackImageSize, Bitmap.Config.ARGB_8888);
+                            img.eraseColor(bgColor);
+                            lastBackground = img;
+                            lastBackgroundColor = bgColor;
+                        }
+                    }
+
+                    ImageTile tile = new ImageTile(img);
+                    // We're on a background thread, so set up the texture now
+                    tile.preprocessTexture();
+
+                    imgLoadReturn.addImageTile(tile);
+                }
             }
         } finally {
             // Let the sampling layer shut down
@@ -243,4 +267,9 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         }
     }
 
+    private Bitmap lastBackground = null;
+    private int lastBackgroundColor = -1;
+    private final Object backgroundLock = new Object();
+
+    private static final int BackImageSize = 16;
 }
