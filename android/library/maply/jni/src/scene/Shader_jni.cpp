@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 8/216/15.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -25,14 +24,15 @@ using namespace WhirlyKit;
 using namespace Maply;
 using namespace Eigen;
 
-template<> ShaderClassInfo *ShaderClassInfo::classInfoObj = NULL;
+template<> ShaderClassInfo *ShaderClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_nativeInit
-  (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_nativeInit(JNIEnv *env, jclass cls)
 {
 	ShaderClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__Ljava_lang_String_2Ljava_lang_String_2Ljava_lang_String_2
   (JNIEnv *env, jobject obj, jstring nameStr, jstring vertStr, jstring fragStr)
 {
@@ -57,8 +57,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__Ljava_lang_St
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -77,6 +77,7 @@ jobject MakeShader(JNIEnv *env,Shader_AndroidRef shader)
 	return classInfo->makeWrapperObject(env,new Shader_AndroidRef(shader));
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_delayedSetupNative
   (JNIEnv *env, jobject obj, jstring nameStr, jstring vertStr, jstring fragStr)
 {
@@ -106,8 +107,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_delayedSetupNative
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_dispose
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_dispose(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -128,8 +129,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_dispose
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -147,8 +148,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid
     return false;
 }
 
-JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -164,8 +165,8 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName
     return NULL;
 }
 
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -183,6 +184,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 (JNIEnv *env, jobject obj, jobject changeSetObj, jstring nameStr, jlong texID)
 {
@@ -196,7 +198,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
         
         JavaString name(env,nameStr);
         // Do this on the rendering thread so we don't get ahead of ourselves
-		(*changes)->push_back(new ShaderAddTextureReq((*inst)->prog->getId(),StringIndexer::getStringID(name.cStr),texID,-1));
+        const auto idx = StringIndexer::getStringID(name.getCString());
+		(*changes)->push_back(new ShaderAddTextureReq((*inst)->prog->getId(),idx,texID,-1));
     }
     catch (...)
     {
@@ -205,6 +208,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 }
 
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2D
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble uni)
 {
@@ -232,6 +236,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNative
 		(JNIEnv *env, jobject obj, jstring nameStr, jdouble uni, jint index)
 {
@@ -260,6 +265,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNati
 }
 
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I
   (JNIEnv *env, jobject obj, jstring nameStr, jint uni)
 {
@@ -287,6 +293,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DD
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble x, jdouble y)
 {
@@ -314,6 +321,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDD
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble x, jdouble y, jdouble z)
 {
@@ -341,6 +349,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2DDDD
   (JNIEnv *env, jobject obj, jstring nameStr, jdouble x, jdouble y, jdouble z, jdouble w)
 {
@@ -368,6 +377,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorByIndexNative
 		(JNIEnv *env, jobject obj, jstring nameStr, jint colorInt, jint index)
 {
@@ -399,6 +409,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorByInde
 	return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorNative
 		(JNIEnv *env, jobject obj, jstring nameStr, jint colorInt)
 {
@@ -430,8 +441,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorNative
 	return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addVarying
-  (JNIEnv *env, jobject obj, jstring nameStr)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addVarying(JNIEnv *env, jobject obj, jstring nameStr)
 {
     try
     {

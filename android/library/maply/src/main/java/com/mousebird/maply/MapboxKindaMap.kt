@@ -276,10 +276,13 @@ open class MapboxKindaMap {
                     }
 
                     override fun onResponse(call: Call, response: Response) {
-                        val jsonStr2 = response.body()?.string()
-                        val resp = AttrDictionary()
-                        resp.parseFromJSON(jsonStr2)
-                        source.tileSpec = resp
+                        response.body()?.string()?.let { jsonStr2 ->
+                            val resp = AttrDictionary()
+                            // todo: find a better way to convert from `AttrDictionary` to `AttrDictionaryEntry`, like an `asEntry` method.
+                            if (resp.parseFromJSON("{\"tileSpec\":[$jsonStr2]}")) {
+                                source.tileSpec = resp.getArray("tileSpec")
+                            }
+                        }
 
                         val newUri = Uri.parse(url.toString())
                         cacheFile(newUri,response.body()!!.bytes())
@@ -304,9 +307,11 @@ open class MapboxKindaMap {
         var maxZoom = -1
         if (fetchSources) {
             styleSheet?.sources?.forEach { source ->
-                source.tileSpec?.let {
-                    minZoom = (it.getInt("minzoom") ?: minZoom).coerceAtMost(minZoom)
-                    maxZoom = (it.getInt("maxzoom") ?: maxZoom).coerceAtLeast(maxZoom)
+                source.tileSpec?.forEach { specItem ->
+                    specItem.dict?.let {
+                        minZoom = (it.getInt("minzoom") ?: minZoom).coerceAtMost(minZoom)
+                        maxZoom = (it.getInt("maxzoom") ?: maxZoom).coerceAtLeast(maxZoom)
+                    }
                 }
             }
         }
@@ -384,20 +389,22 @@ open class MapboxKindaMap {
         val control = control.get() ?: return
         // Put together the tileInfoNew objects
         styleSheet?.sources?.forEach { source ->
-            source.tileSpec?.let { tileSpec ->
-                if (tileSpec.hasField("tiles")) {
-                    val minZoom = tileSpec.getInt("minzoom")
-                    val maxZoom = tileSpec.getInt("maxzoom")
-                    val tiles = tileSpec.getArray("tiles")
-                    val tileSrc = tiles[0].string
-                    val tileSource = RemoteTileInfoNew(tileSrc, minZoom, maxZoom)
-                    if (cacheDir != null) {
-                        val cacheName = cacheNamePattern.replace(tileSrc, "_")
-                        tileSource.cacheDir = File(cacheDir!!, cacheName)
+            source.tileSpec?.forEach { tileSpecEntry ->
+                tileSpecEntry.dict?.let { tileSpec ->
+                    if (tileSpec.hasField("tiles")) {
+                        val minZoom = tileSpec.getInt("minzoom")
+                        val maxZoom = tileSpec.getInt("maxzoom")
+                        val tiles = tileSpec.getArray("tiles")
+                        val tileSrc = tiles[0].string
+                        val tileSource = RemoteTileInfoNew(tileSrc, minZoom, maxZoom)
+                        if (cacheDir != null) {
+                            val cacheName = cacheNamePattern.replace(tileSrc, "_")
+                            tileSource.cacheDir = File(cacheDir!!, cacheName)
+                        }
+                        tileInfos.add(tileSource)
+                    } else {
+                        Log.w("Maply", "TileInfo source missing tiles.  Skipping.")
                     }
-                    tileInfos.add(tileSource)
-                } else {
-                    Log.w("Maply", "TileInfo source missing tiles.  Skipping.")
                 }
             }
         }

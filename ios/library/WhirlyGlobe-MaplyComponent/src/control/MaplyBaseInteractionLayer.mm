@@ -91,24 +91,24 @@ public:
     MaplyBaseInteractionLayer * __weak layer;
     
     // Called right before we start generating layout objects
-    void startLayoutObjects()
+    void startLayoutObjects(PlatformThreadInfo *)
     {
         [layer startLayoutObjects];
     }
 
     // Figure out
-    void makeLayoutObject(int clusterID,const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &retObj)
+    void makeLayoutObject(PlatformThreadInfo *,int clusterID,const std::vector<LayoutObjectEntry *> &layoutObjects,LayoutObject &retObj)
     {
         [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
     }
 
     // Called right after all the layout objects are generated
-    virtual void endLayoutObjects()
+    virtual void endLayoutObjects(PlatformThreadInfo *)
     {
         [layer endLayoutObjects];
     }
     
-    void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams)
+    void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams)
     {
         return [layer clusterID:clusterID params:clusterParams];
     }
@@ -185,7 +185,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     {
         setupInfo = inLayerThread.renderer->getRenderSetupInfo();
         ourClusterGen.layer = self;
-        compManager->layoutManager->addClusterGenerator(&ourClusterGen);
+        compManager->layoutManager->addClusterGenerator(nullptr,&ourClusterGen);
     }
     
     // We locked these in hopes of slowing down anyone trying to race us.  Unlock 'em.

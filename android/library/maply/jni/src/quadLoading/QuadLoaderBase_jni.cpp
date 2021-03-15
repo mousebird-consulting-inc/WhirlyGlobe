@@ -26,23 +26,33 @@ using namespace WhirlyKit;
 
 template<> QuadImageFrameLoaderClassInfo *QuadImageFrameLoaderClassInfo::classInfoObj = nullptr;
 
+static jclass mbrClass = nullptr;
+static jfieldID llID = nullptr;
+static jfieldID urID = nullptr;
+
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_nativeInit(JNIEnv *env, jclass cls)
 {
     QuadImageFrameLoaderClassInfo::getClassInfo(env, cls);
+
+    if (!mbrClass)
+    {
+        mbrClass = env->FindClass("com/mousebird/maply/Mbr");
+        llID = env->GetFieldID(mbrClass, "ll", "Lcom/mousebird/maply/Point2d;");
+        urID = env->GetFieldID(mbrClass, "ur", "Lcom/mousebird/maply/Point2d;");
+    }
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
-        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)//, jobject controller)
+        (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
 {
     try {
         auto info = QuadImageFrameLoaderClassInfo::getClassInfo();
         auto params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
-        //auto control = QuadImageFrameLoaderClassInfo
         PlatformInfo_Android platformInfo(env);
         auto loader = new QuadImageFrameLoader_AndroidRef(
-                new QuadImageFrameLoader_Android(&platformInfo,/*control,*/ *params,numFrames,(QuadImageFrameLoader::Mode)mode,env));
+                new QuadImageFrameLoader_Android(&platformInfo,*params,numFrames,(QuadImageFrameLoader::Mode)mode));
         (*loader)->frameLoaderObj = env->NewGlobalRef(obj);
         (*loader)->setFlipY(true);
         info->setHandle(env, obj, loader);
@@ -54,8 +64,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
 static std::mutex disposeMutex;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
-        (JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose(JNIEnv *env, jobject obj)
 {
     try {
         QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
@@ -64,8 +73,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
             QuadImageFrameLoader_AndroidRef *loader = info->getObject(env,obj);
             if (!loader)
                 return;
-            if ((*loader)->frameLoaderObj)
+            if ((*loader)->frameLoaderObj) {
                 env->DeleteGlobalRef((*loader)->frameLoaderObj);
+                (*loader)->frameLoaderObj = nullptr;
+            }
             delete loader;
 
             info->clearHandle(env, obj);
@@ -77,8 +88,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
-        (JNIEnv *env, jobject obj, jboolean flipY)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY(JNIEnv *env, jobject obj, jboolean flipY)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -93,8 +103,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
-  (JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY(JNIEnv *env, jobject obj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -111,8 +120,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
-        (JNIEnv *env, jobject obj, jboolean debugMode)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode(JNIEnv *env, jobject obj, jboolean debugMode)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -379,17 +387,51 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
         (JNIEnv *env, jobject obj, jobject changeSetObj)
 {
-    try {
+    Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative(env, obj, changeSetObj, nullptr);
+}
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    reloadAreaNative
+ * Signature: (Lcom/mousebird/maply/ChangeSet;[Lcom/mousebird/maply/Mbr;)V
+ */
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
+        (JNIEnv *env, jobject obj, jobject changeSetObj, jobjectArray mbrArrayObj)
+{
+    try
+    {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!loader || !changeSet)
             return;
 
+        std::vector<Mbr> mbrs;
+        for (JavaObjectArrayHelper mbrObjs(env, mbrArrayObj); mbrObjs.getNextObject(); )
+        {
+            const auto llObj = env->GetObjectField(mbrObjs.getCurrentObject(), llID);
+            const auto urObj = env->GetObjectField(mbrObjs.getCurrentObject(), urID);
+
+            const auto llx = Java_com_mousebird_maply_Point2d_getX(env, llObj);
+            const auto lly = Java_com_mousebird_maply_Point2d_getY(env, llObj);
+            const auto urx = Java_com_mousebird_maply_Point2d_getX(env, urObj);
+            const auto ury = Java_com_mousebird_maply_Point2d_getY(env, urObj);
+
+            env->DeleteLocalRef(llObj);
+            env->DeleteLocalRef(urObj);
+
+            if (mbrs.empty())
+            {
+                mbrs.reserve(mbrObjs.numObjects());
+            }
+            mbrs.emplace_back(Point2f(llx, lly), Point2f(urx, ury));
+        }
+
         PlatformInfo_Android platformInfo(env);
-        (*loader)->reload(&platformInfo,-1, *(changeSet->get()));
+        (*loader)->reload(&platformInfo,-1,mbrs.empty() ? nullptr : &mbrs[0],(int)mbrs.size(), **changeSet);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::reloadAreaNative()");
     }
 }
