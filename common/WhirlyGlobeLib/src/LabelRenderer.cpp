@@ -101,14 +101,20 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
 // Don't want to give them their own separate drawable, obviously
 typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
-LabelRenderer::LabelRenderer(Scene *scene,const FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo) :
+LabelRenderer::LabelRenderer(Scene *scene,
+                             SceneRenderer *renderer,
+                             const FontTextureManagerRef &fontTexManager,
+                             const LabelInfo *labelInfo,
+                             SimpleIdentity maskProgID) :
     useAttributedString(true),
     scene(scene),
+    renderer(renderer),
     coordAdapter(scene->getCoordAdapter()),
     fontTexManager(fontTexManager),
     labelInfo(labelInfo),
     textureAtlasSize(2048),
-    labelRep(nullptr)
+    labelRep(nullptr),
+    maskProgID(maskProgID)
 {
 }
 
@@ -230,7 +236,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
             // Throw a rectangle in the background
             RGBAColor backColor = theBackColor;
             double backBorder = 0.0;
-            if (backColor.a != 0.0)
+            ScreenSpaceConvexGeometry backGeom;
+            if (backColor.a != 0.0 || label->maskID != EmptyIdentity)
             {
                 // Note: This is an arbitrary border around the text
                 backBorder = 4.0;
@@ -253,7 +260,17 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 
                 smGeom.drawPriority = labelInfo->drawPriority;
                 smGeom.color = backColor;
+                backGeom = smGeom;
                 screenShape->addGeometry(smGeom);
+            }
+            
+            // Handle the mask rendering if needed
+            if (label->maskID != EmptyIdentity && label->maskRenderTargetID != EmptyIdentity) {
+                // Make a copy of the geometry, but target it to the mask render target
+                backGeom.vertexAttrs.insert(SingleVertexAttribute(a_maskNameID, renderer->getSlotForNameID(a_maskNameID), (int)label->maskID));
+                backGeom.renderTargetID = label->maskRenderTargetID;
+                backGeom.progID = maskProgID;
+                screenShape->addGeometry(backGeom);
             }
 
             // If it's being passed to the layout engine, do that as well
