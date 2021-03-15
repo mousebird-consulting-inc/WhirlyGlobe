@@ -27,7 +27,7 @@ public class Scene
 		addChangesNative(changes);
 	}
 
-	// Overriden by subclass
+	// Overridden by subclass
 	public void shutdown()
 	{
 		dispose();
