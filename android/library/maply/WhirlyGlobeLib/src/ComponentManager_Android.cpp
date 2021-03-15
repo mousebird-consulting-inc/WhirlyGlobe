@@ -55,6 +55,9 @@ void ComponentManager_Android::clearJNI(JNIEnv *env)
 
 ComponentManager_Android::~ComponentManager_Android()
 {
+    if (compManagerObj) {
+        wkLogLevel(Warn, "ComponentManager_Android not cleaned up");
+    }
 }
 
 void ComponentManager_Android::removeComponentObjects(PlatformThreadInfo *inThreadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)

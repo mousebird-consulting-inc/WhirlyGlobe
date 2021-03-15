@@ -191,6 +191,7 @@ MutableDictionary_Android::ValueRef MutableDictionary_Android::parseJSONValue(JS
 {
     switch (nodeIt->type())
     {
+        case JSON_NULL:     return ValueRef();
         case JSON_STRING:   return std::make_shared<StringValue>(nodeIt->as_string());
         case JSON_NUMBER:   return std::make_shared<DoubleValue>(nodeIt->as_float());
         case JSON_BOOL:     return std::make_shared<IntValue>(nodeIt->as_bool());
@@ -476,9 +477,13 @@ DictionaryRef MutableDictionary_Android::getDict(const std::string &name) const
         {
             return dictVal->val;
         }
-        else
+        else if (const auto val = dynamic_cast<Value *>(it->second.get()))
         {
-            wkLogLevel(Warn, "Unsupported entry type");
+            wkLogLevel(Warn, "Unsupported entry type %d for entry '%s'", val->type(), name.c_str());
+        }
+        else if (it->second)
+        {
+            wkLogLevel(Warn, "Unsupported entry type ? for entry '%s'", name.c_str());
         }
     }
     return DictionaryRef();

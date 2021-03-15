@@ -21,10 +21,13 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-JavaObjectArrayHelper::JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray)
-: env(env), objArray(objArray), which(0), curObj(NULL)
+JavaObjectArrayHelper::JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray) :
+    env(env),
+    objArray(objArray),
+    nextIndex(0),
+    curObj(nullptr),
+    count((env && objArray) ? env->GetArrayLength(objArray) : 0)
 {
-    count = env->GetArrayLength(objArray);
 }
 
 JavaObjectArrayHelper::~JavaObjectArrayHelper()
@@ -35,43 +38,33 @@ JavaObjectArrayHelper::~JavaObjectArrayHelper()
     }
 }
 
-int JavaObjectArrayHelper::numObjects()
-{
-    return count;
-}
-
 jobject JavaObjectArrayHelper::getNextObject()
 {
-    if (which >= count)
-        return NULL;
     if (curObj)
+    {
         env->DeleteLocalRef(curObj);
-    curObj = env->GetObjectArrayElement(objArray,which);
-    which++;
-
-    return curObj;
+        curObj = nullptr;
+    }
+    if (nextIndex >= count)
+    {
+        return nullptr;
+    }
+    return curObj = env->GetObjectArrayElement(objArray,nextIndex++);
 }
 
 // Have to instantiate the static members somewhere
 // But just some of the general ones.  The rest are in their own modules.
 
-JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = NULL;
-JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = NULL;
-JavaLongClassInfo *JavaLongClassInfo::classInfoObj = NULL;
-JavaHashMapInfo *JavaHashMapInfo::classInfoObj = NULL;
-JavaListInfo *JavaListInfo::classInfoObj = NULL;
-
-// Note: Move these out
-/*
-template<> MaplySceneRendererInfo *MaplySceneRendererInfo::classInfoObj = NULL;
-template<> MapboxVectorTileParserClassInfo *MapboxVectorTileParserClassInfo::classInfoObj = NULL;
-template<> GeoJSONSourceClassInfo *GeoJSONSourceClassInfo::classInfoObj = NULL;
-*/
+JavaDoubleClassInfo *JavaDoubleClassInfo::classInfoObj = nullptr;
+JavaIntegerClassInfo *JavaIntegerClassInfo::classInfoObj = nullptr;
+JavaLongClassInfo *JavaLongClassInfo::classInfoObj = nullptr;
+JavaHashMapInfo *JavaHashMapInfo::classInfoObj = nullptr;
+JavaListInfo *JavaListInfo::classInfoObj = nullptr;
 
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
-	int *ints = env->GetIntArrayElements(intArray, NULL);
-	int len = env->GetArrayLength(intArray);
+	int *ints = env->GetIntArrayElements(intArray, nullptr);
+	const int len = env->GetArrayLength(intArray);
 	intVec.resize(len);
 	for (int ii=0;ii<len;ii++)
 		intVec[ii] = ints[ii];
@@ -81,7 +74,7 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec)
 {
     jlong *longs = env->GetLongArrayElements(longArray, NULL);
-    int len = env->GetArrayLength(longArray);
+    const int len = env->GetArrayLength(longArray);
     longVec.resize(len);
     for (int ii=0;ii<len;ii++)
         longVec[ii] = longs[ii];
@@ -91,7 +84,7 @@ void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKi
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    int len = env->GetArrayLength(floatArray);
+    const int len = env->GetArrayLength(floatArray);
     floatVec.resize(len);
     for (int ii=0;ii<len;ii++)
         floatVec[ii] = floats[ii];
@@ -101,7 +94,7 @@ void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &f
 void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec)
 {
     double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
-    int len = env->GetArrayLength(doubleArray);
+    const int len = env->GetArrayLength(doubleArray);
     doubleVec.resize(len);
     for (int ii=0;ii<len;ii++)
         doubleVec[ii] = doubles[ii];
@@ -111,7 +104,7 @@ void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double
 void ConvertBoolArray(JNIEnv *env,jbooleanArray &boolArray,std::vector<bool> &boolVec)
 {
     jboolean *bools = env->GetBooleanArrayElements(boolArray, NULL);
-    int len = env->GetArrayLength(boolArray);
+    const int len = env->GetArrayLength(boolArray);
     boolVec.resize(len);
     for (int ii=0;ii<len;ii++)
         boolVec[ii] = bools[ii];
@@ -120,20 +113,18 @@ void ConvertBoolArray(JNIEnv *env,jbooleanArray &boolArray,std::vector<bool> &bo
 
 void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::string> &strVec)
 {
-    jsize count = env->GetArrayLength(objArray);
-    for (unsigned int ii=0;ii<count;ii++) {
-        jstring string = (jstring) env->GetObjectArrayElement(objArray,ii);
-        if (string)
-            strVec.push_back(env->GetStringUTFChars(string, NULL));
-        else
-            strVec.push_back("");
+    const jsize count = env->GetArrayLength(objArray);
+    for (unsigned int ii=0;ii<count;ii++)
+    {
+        const jstring string = (jstring) env->GetObjectArrayElement(objArray,ii);
+        strVec.emplace_back(string ? env->GetStringUTFChars(string, nullptr) : std::string());
     }
 }
 
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    int len = env->GetArrayLength(floatArray)/2;
+    const int len = env->GetArrayLength(floatArray)/2;
     ptVec.resize(len);
     for (int ii=0;ii<len;ii++)
         ptVec[ii] = Eigen::Vector2f(floats[2*ii],floats[2*ii+1]);
@@ -143,7 +134,7 @@ void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVe
 void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,Point3fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    int len = env->GetArrayLength(floatArray)/3;
+    const int len = env->GetArrayLength(floatArray)/3;
     ptVec.resize(len);
     for (int ii=0;ii<len;ii++)
         ptVec[ii] = Eigen::Vector3f(floats[3*ii],floats[3*ii+1],floats[3*ii+2]);
@@ -153,7 +144,7 @@ void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,Point3fVector &ptVe
 void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,Point3dVector &ptVec)
 {
     double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
-    int len = env->GetArrayLength(doubleArray)/34;
+    const int len = env->GetArrayLength(doubleArray)/34;
     ptVec.resize(len);
     for (int ii=0;ii<len;ii++)
         ptVec[ii] = Eigen::Vector3d(doubles[3*ii],doubles[3*ii+1],doubles[3*ii+2]);
@@ -163,7 +154,7 @@ void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,Point3dVector &pt
 void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,Vector4fVector &ptVec)
 {
     float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    int len = env->GetArrayLength(floatArray)/4;
+    const int len = env->GetArrayLength(floatArray)/4;
     ptVec.resize(len);
     for (int ii=0;ii<len;ii++)
         ptVec[ii] = Eigen::Vector4f(floats[4*ii],floats[4*ii+1],floats[4*ii+2],floats[4*ii+3]);
@@ -173,20 +164,17 @@ void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,Vector4fVector &ptV
 
 void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit::SimpleIdentity> &intSet)
 {
-    int idCount = env->GetArrayLength(idArrayObj);
-    jlong *ids = env->GetLongArrayElements(idArrayObj, NULL);
+    const int idCount = env->GetArrayLength(idArrayObj);
     if (idCount == 0)
         return;
-    
+
+    jlong *ids = env->GetLongArrayElements(idArrayObj, NULL);
     for (int ii=0;ii<idCount;ii++)
         intSet.insert((WhirlyKit::SimpleIdentity)ids[ii]);
-
     env->ReleaseLongArrayElements(idArrayObj,ids, 0);
 }
 
-JavaString::JavaString(JNIEnv *env,jstring str) :
-    str(str),
-    env(env)
+JavaString::JavaString(JNIEnv *env,jstring str) : str(str), env(env)
 {
     cStr = str ? env->GetStringUTFChars(str,nullptr) : nullptr;
 }
@@ -274,12 +262,12 @@ jlongArray BuildLongArray(JNIEnv *env,const std::vector<SimpleIdentity> &longVec
     if (longVec.empty())
         return nullptr;
 
-    jlongArray newArray = env->NewLongArray(longVec.size());
-    if (!newArray)
-        return nullptr;
-
-    env->SetLongArrayRegion(newArray, 0, longVec.size(), (jlong *)&longVec[0]);
-    return newArray;
+    if (jlongArray newArray = env->NewLongArray(longVec.size()))
+    {
+        env->SetLongArrayRegion(newArray, 0, longVec.size(), (jlong *)&longVec[0]);
+        return newArray;
+    }
+    return nullptr;
 }
 
 jdoubleArray BuildDoubleArray(JNIEnv *env,const std::vector<double> &doubleVec)
@@ -287,12 +275,12 @@ jdoubleArray BuildDoubleArray(JNIEnv *env,const std::vector<double> &doubleVec)
     if (doubleVec.empty())
         return nullptr;
 
-    jdoubleArray newArray = env->NewDoubleArray(doubleVec.size());
-    if (!newArray)
-        return nullptr;
-
-    env->SetDoubleArrayRegion(newArray, 0, doubleVec.size(), (jdouble *)&doubleVec[0]);
-    return newArray;
+    if (jdoubleArray newArray = env->NewDoubleArray(doubleVec.size()))
+    {
+        env->SetDoubleArrayRegion(newArray, 0, doubleVec.size(), (jdouble *)&doubleVec[0]);
+        return newArray;
+    }
+    return nullptr;
 }
 
 jintArray BuildIntArray(JNIEnv *env,const std::vector<int> &intVec)
@@ -300,12 +288,12 @@ jintArray BuildIntArray(JNIEnv *env,const std::vector<int> &intVec)
     if (intVec.empty())
         return nullptr;
 
-    jintArray newArray = env->NewIntArray(intVec.size());
-    if (!newArray)
-        return nullptr;
-
-    env->SetIntArrayRegion(newArray, 0, intVec.size(), (jint *)&intVec[0]);
-    return newArray;
+    if (jintArray newArray = env->NewIntArray(intVec.size()))
+    {
+        env->SetIntArrayRegion(newArray, 0, intVec.size(), (jint *)&intVec[0]);
+        return newArray;
+    }
+    return nullptr;
 }
 
 jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,jobject singleObj)
@@ -322,13 +310,13 @@ jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,const std::vector<jobject> 
     if (objVec.empty())
         return nullptr;
 
-    jobjectArray newArray = env->NewObjectArray(objVec.size(),cls,nullptr);
-    if (!newArray)
-        return nullptr;
-
-    for (unsigned int ii=0;ii<objVec.size();ii++)
-        env->SetObjectArrayElement(newArray,ii,objVec[ii]);
-    return newArray;
+    if (jobjectArray newArray = env->NewObjectArray(objVec.size(),cls,nullptr))
+    {
+        for (unsigned int ii=0;ii<objVec.size();ii++)
+            env->SetObjectArrayElement(newArray,ii,objVec[ii]);
+        return newArray;
+    }
+    return nullptr;
 }
 
 jobjectArray BuildStringArray(JNIEnv *env,const std::vector<std::string> &objVec)
@@ -336,12 +324,12 @@ jobjectArray BuildStringArray(JNIEnv *env,const std::vector<std::string> &objVec
     if (objVec.empty())
         return nullptr;
 
-    jobjectArray newArray = env->NewObjectArray(objVec.size(),env->FindClass("java/lang/String"),nullptr);
-    if (!newArray)
-        return nullptr;
-
-    for (unsigned int ii=0;ii<objVec.size();ii++)
-        env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
-    return newArray;
+    if (jobjectArray newArray = env->NewObjectArray(objVec.size(),env->FindClass("java/lang/String"),nullptr))
+    {
+        for (unsigned int ii=0;ii<objVec.size();ii++)
+            env->SetObjectArrayElement(newArray,ii,env->NewStringUTF(objVec[ii].c_str()));
+        return newArray;
+    }
+    return nullptr;
 }
 

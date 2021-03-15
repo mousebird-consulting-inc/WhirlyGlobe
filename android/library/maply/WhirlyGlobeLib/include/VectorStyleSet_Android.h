@@ -66,7 +66,7 @@ public:
                                 const std::vector<SimpleIdentity> &uuids,
                                 const std::vector<std::string> &categories,
                                 const std::vector<bool> &geomAdditive);
-    virtual ~VectorStyleSetWrapper_Android() { }
+    virtual ~VectorStyleSetWrapper_Android();
 
     /// Return the styles that apply to the given feature (attributes).
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,

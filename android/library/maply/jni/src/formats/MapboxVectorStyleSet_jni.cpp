@@ -27,8 +27,7 @@ using namespace WhirlyKit;
 template<> MapboxVectorStyleSetClassInfo *MapboxVectorStyleSetClassInfo::classInfoObj = nullptr;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_nativeInit
-(JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_nativeInit(JNIEnv *env, jclass cls)
 {
     MapboxVectorStyleSetClassInfo::getClassInfo(env,cls);
 }
@@ -87,6 +86,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
                 return;
             (*inst)->cleanup(env);
             env->DeleteGlobalRef((*inst)->thisObj);
+            (*inst)->thisObj = nullptr;
             delete inst;
         }
 
