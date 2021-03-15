@@ -1366,6 +1366,12 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgLabel->isSelectable = true;
             wgLabel->selectID = Identifiable::genId();
         }
+        
+        if (label.maskID) {
+            wgLabel->maskID = compManager->retainMaskByName([label.maskID cStringUsingEncoding:NSUTF8StringEncoding]);
+            compObj->contents->maskIDs.insert(wgLabel->maskID);
+            wgLabel->maskRenderTargetID = maskRenderTargetID;
+        }
 
         // Now for the motion related fields
         if ([label isKindOfClass:[MaplyMovingScreenLabel class]])

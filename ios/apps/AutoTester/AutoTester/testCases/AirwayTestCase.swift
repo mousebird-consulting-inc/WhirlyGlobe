@@ -48,6 +48,10 @@ class AirwayTestCase: MaplyTestCase {
     
     let baseCase = StamenWatercolorRemote()
     
+    let buildPointMarkers = true
+    let buildPointLabels = false
+    let buildAirspaces = false
+    
     func setupAirways(_ viewC: MaplyBaseViewController) {
         DispatchQueue.global(qos: .default).async {
             guard let vecObj = MaplyVectorObject(fromShapeFile: "ATS_Route") else {
@@ -81,17 +85,34 @@ class AirwayTestCase: MaplyTestCase {
             }
             
             // One marker for each node
-            var markers: [MaplyScreenMarker] = []
-            for pt in graphBuilder.points {
-                let marker = MaplyScreenMarker()
-                marker.loc = MaplyCoordinateMakeWithDegrees(Float(pt.value.loc.longitude), Float(pt.value.loc.latitude))
-                marker.image = markerTextures[min(pt.value.count,markerTextures.count-1)]
-//                marker.layoutImportance = MAXFLOAT
-                marker.size = CGSize(width: 24.0, height: 24.0)
-                marker.maskID = pt.value.uuid
-                markers.append(marker)
+            if (self.buildPointMarkers) {
+                var markers: [MaplyScreenMarker] = []
+                for pt in graphBuilder.points {
+                    let marker = MaplyScreenMarker()
+                    marker.loc = MaplyCoordinateMakeWithDegrees(Float(pt.value.loc.longitude), Float(pt.value.loc.latitude))
+                    marker.image = markerTextures[min(pt.value.count,markerTextures.count-1)]
+    //                marker.layoutImportance = MAXFLOAT
+                    marker.size = CGSize(width: 24.0, height: 24.0)
+                    marker.maskID = pt.value.uuid
+                    markers.append(marker)
+                }
+                viewC.addScreenMarkers(markers, desc: nil)
             }
-            viewC.addScreenMarkers(markers, desc: nil)
+            
+            // One label for each node
+            if (self.buildPointLabels) {
+                var labels: [MaplyScreenLabel] = []
+                for pt in graphBuilder.points {
+                    let label = MaplyScreenLabel()
+                    label.loc = MaplyCoordinateMakeWithDegrees(Float(pt.value.loc.longitude), Float(pt.value.loc.latitude))
+                    label.text = "foo"
+                    label.maskID = pt.value.uuid
+                    label.offset = CGPoint(x: 0.0, y: -18.0)
+                    label.layoutPlacement = 0
+                    labels.append(label)
+                }
+                viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.systemFont(ofSize: 36.0)])
+            }
             
             // For each segment, we want to add the two endpoints as masks
             var labels: [MaplyScreenLabel] = []
@@ -118,10 +139,10 @@ class AirwayTestCase: MaplyTestCase {
             viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 2.0,
                                                   kMaplyColor: UIColor.blue],
                                  mode: .any)
-            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
-                                                 kMaplyTextColor: UIColor.purple,
-                                                 kMaplyJustify: kMaplyTextJustifyCenter],
-                                  mode: .any)
+//            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+//                                                 kMaplyTextColor: UIColor.purple,
+//                                                 kMaplyJustify: kMaplyTextJustifyCenter],
+//                                  mode: .any)
         }
     }
     
@@ -187,8 +208,10 @@ class AirwayTestCase: MaplyTestCase {
 //        globeVC.keepNorthUp = false
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
 
-//        setupAirways(globeVC)
-        setupAirspaces(globeVC)
+        setupAirways(globeVC)
+        if buildAirspaces {
+            setupAirspaces(globeVC)
+        }
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -196,7 +219,10 @@ class AirwayTestCase: MaplyTestCase {
         
         mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
         
-//        setupAirways(mapVC)
-        setupAirspaces(mapVC)
+        setupAirways(mapVC)
+
+        if buildAirspaces {
+            setupAirspaces(mapVC)
+        }
     }
 }
