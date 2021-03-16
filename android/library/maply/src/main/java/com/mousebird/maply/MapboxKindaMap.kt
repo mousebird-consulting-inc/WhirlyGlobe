@@ -24,26 +24,23 @@ import java.net.URL
  */
 open class MapboxKindaMap {
 
-    constructor(styleURL: Uri, control: BaseController) {
-        this.control = WeakReference<BaseController>(control)
+    private constructor(inControl: BaseController) {
+        control = WeakReference<BaseController>(inControl)
+        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
+        styleSettings.drawPriorityPerLevel = 100
+    }
+
+    constructor(styleURL: Uri, control: BaseController) : this(control)  {
         this.styleURL = styleURL
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
     }
 
-    constructor(styleJSON: String, control: BaseController) {
-        this.control = WeakReference<BaseController>(control)
+    constructor(styleJSON: String, control: BaseController) : this(control) {
         this.styleSheetJSON = styleJSON
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
     }
 
-    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController) {
-        this.control = WeakReference<BaseController>(control)
+    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController) : this(control) {
         this.styleSheetJSON = styleJSON
         this.localMBTiles = sequenceOf(localMBTilesFile)
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
     }
 
     var styleURL : Uri? = null
