@@ -50,7 +50,6 @@ OutCode ComputeOutCode(double x, double y, const Mbr &mbr)
     
     return code;
 }
-
     
 // Clip the given loop to the given MBR
 bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets,double polyScale)

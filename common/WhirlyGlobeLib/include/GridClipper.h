@@ -33,5 +33,5 @@ bool ClipLoopToGrid(const VectorRing &ring,Point2f org,Point2f spacing,std::vect
 bool ClipLoopsToGrid(const std::vector<VectorRing> &rings,Point2f org,Point2f spacing,std::vector<VectorRing> &rets);
 bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets,double polyScale = 0.0);
 bool ClipLoopsToMbr(const std::vector<VectorRing> &rings,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets,double polyScale = 0.0);
-    
+
 }

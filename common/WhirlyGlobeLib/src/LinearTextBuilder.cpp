@@ -176,7 +176,6 @@ void LinearTextBuilder::process()
     }
 
     // Generalize the source line
-    // TODO: Make this a parameter rather than 10px
     screenPts = LineGeneralization(screenPts,generalEps,0,screenPts.size());
 
     if (screenPts.empty())
@@ -190,12 +189,16 @@ void LinearTextBuilder::process()
         ClipLoopToMbr(screenPts, largeScreenMbr, true, newRuns,1e6);
         runs = newRuns;
     }
-
+    
     // Run the offsetting
     if (layoutObj->layoutOffset != 0.0) {
         std::vector<VectorRing> newRuns;
         for (const auto &run: runs) {
-            std::vector<VectorRing> theseRuns = BufferPolygon(run, layoutObj->layoutOffset);
+            std::vector<VectorRing> theseRuns;
+            if (isClosed)
+                theseRuns = BufferPolygon(run, layoutObj->layoutOffset);
+            else
+                theseRuns = BufferLinear(run, layoutObj->layoutOffset);
             newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
         }
         runs = newRuns;
