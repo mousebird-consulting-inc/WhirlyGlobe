@@ -319,7 +319,7 @@ open class MapboxKindaMap {
         val tileInfos = ArrayList<TileInfoNew>()
         val localFetchers = ArrayList<MBTileFetcher>()
         localMBTiles?.forEach { item ->
-            val fetcher = MBTileFetcher(item)
+            val fetcher = MBTileFetcher(theControl,item)
             localFetchers.add(fetcher)
             fetcher.tileInfo?.also {
                 tileInfos.add(it)
@@ -390,7 +390,7 @@ open class MapboxKindaMap {
         // Put together the tileInfoNew objects
         styleSheet?.sources?.forEach { source ->
             source.tileSpec?.forEach { tileSpecEntry ->
-                tileSpecEntry.dict?.let { tileSpec ->
+                tileSpecEntry.dict?.also { tileSpec ->
                     if (tileSpec.hasField("tiles")) {
                         val minZoom = tileSpec.getInt("minzoom")
                         val maxZoom = tileSpec.getInt("maxzoom")
@@ -494,7 +494,7 @@ open class MapboxKindaMap {
     // Stop trying to load data if we're doing that
     //  or shutdown the loader if we've gotten to that point
     fun stop() {
-        val theControl = control?.get() ?: return
+        val theControl = control.get() ?: return
     
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
