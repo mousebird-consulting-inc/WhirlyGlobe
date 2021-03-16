@@ -427,7 +427,7 @@ open class MapboxKindaMap {
             val imageStyleDict = AttrDictionary()
             imageStyleDict.parseFromJSON(styleSheetJSON)
             val imageLayers =  imageStyleDict.getArray("layers")
-            var newImageLayers = ArrayList<AttrDictionaryEntry>()
+            val newImageLayers = ArrayList<AttrDictionaryEntry>()
             for (layer in imageLayers) {
                 if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
                     val layerDict = layer.dict
@@ -447,7 +447,7 @@ open class MapboxKindaMap {
         // The polygons only go into the background in this case
         if (backgroundAllPolys) {
             val vectorLayers = vectorStyleDict.getArray("layers")
-            var newVectorLayers = ArrayList<AttrDictionaryEntry>()
+            val newVectorLayers = ArrayList<AttrDictionaryEntry>()
             for (layer in vectorLayers) {
                 if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
                     val layerDict = layer.dict
@@ -481,14 +481,9 @@ open class MapboxKindaMap {
         }
 
         // TODO: Handle more than one source
-        if (backgroundAllPolys) {
-            val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], control)
-            imageLoader.setLoaderInterpreter(mapboxInterp)
-            loader = imageLoader
-        } else {
-            val vecLoader = QuadPagingLoader(sampleParams, tileInfos[0], mapboxInterp, control)
-            loader = vecLoader
-        }
+        val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], control)
+        imageLoader.setLoaderInterpreter(mapboxInterp)
+        loader = imageLoader
     }
 
     // Stop trying to load data if we're doing that
