@@ -92,8 +92,8 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     textJustify = parseTextJustify(dict.getString(MaplyTextJustify), WhirlyKitTextLeft);
     layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
     layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
-    layoutSpacing = dict.getDouble(MaplyTextLayoutSpacing,layoutSpacing);
-    layoutOffset = dict.getDouble(MaplyTextLayoutOffset,layoutOffset);
+    layoutSpacing = dict.getDouble(MaplyTextLayoutSpacing,24.0);
+    layoutOffset = dict.getDouble(MaplyTextLayoutOffset,0.0);
 }
 
 

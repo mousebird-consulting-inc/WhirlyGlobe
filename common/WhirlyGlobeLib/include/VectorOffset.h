@@ -25,6 +25,9 @@
 namespace WhirlyKit
 {
 
+/// Offset/buffer the given linear feature
+std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset);
+
 /// Offset/buffer a polygon into one or more loops
 std::vector<VectorRing> BufferPolygon(const VectorRing &ring, float offset);
 

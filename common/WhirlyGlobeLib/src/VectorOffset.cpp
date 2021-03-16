@@ -28,8 +28,15 @@ namespace WhirlyKit
 
 static float PolyScale = 1e6;
 
-std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset)
+std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
 {
+    // If the offset is negative, just flip the geometry
+    VectorRing theRing = ring;
+    if (offset < 0) {
+        offset *= -1.0;
+        std::reverse(theRing.begin(), theRing.end());
+    }
+    
     Mbr mbr(ring);
     Point2f org = mbr.ll();
 
@@ -39,7 +46,7 @@ std::vector<VectorRing> BufferLoop(const VectorRing &ring, float offset)
 
     ClipperOffset co;
     Paths soln;
-    co.AddPath(path, jtSquare, etOpenButt);
+    co.AddPath(path, jtMiter, etOpenButt);
     co.Execute(soln, offset * PolyScale);
     
     std::vector<VectorRing> rets;
