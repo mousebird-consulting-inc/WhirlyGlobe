@@ -40,7 +40,7 @@ public class MovingScreenMarkersTestCase : MaplyTestCase {
         if (!baseCase.setUpWithGlobe(globeVC)) {
             return false
         }
-        setUp(globeVC)
+        setUp()
         globeVC?.animatePositionGeo(0.1, 0.1, 0.5, 0.0, 0.5)
         return true
     }
@@ -49,12 +49,12 @@ public class MovingScreenMarkersTestCase : MaplyTestCase {
         if (!baseCase.setUpWithMap(mapVC)) {
             return false
         }
-        setUp(mapVC)
+        setUp()
         mapVC?.animatePositionGeo(0.0, 0.1, 0.5, 0.0, 0.5)
         return true
     }
 
-    private fun setUp(vc: BaseController?) {
+    private fun setUp() {
         val icon0 = BitmapFactory.decodeResource(getActivity().resources, R.drawable.teardrop)
         val icon1 = BitmapFactory.decodeResource(getActivity().resources, R.drawable.teardrop_stroked)
         textures = arrayOf(

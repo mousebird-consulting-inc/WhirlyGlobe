@@ -34,6 +34,7 @@ public class ResultActivity extends AppCompatActivity {
 
 		try {
 			Bundle bundle = getIntent().getExtras();
+			@SuppressWarnings("unchecked")	// we'll catch the cast exception if there's a problem
 			ArrayList<MaplyTestResult> listResults = (ArrayList<MaplyTestResult>) bundle.getSerializable("arraylist");
 			ResultsTestsAdapter adapter = new ResultsTestsAdapter(listResults, this);
 			resultsList.setAdapter(adapter);

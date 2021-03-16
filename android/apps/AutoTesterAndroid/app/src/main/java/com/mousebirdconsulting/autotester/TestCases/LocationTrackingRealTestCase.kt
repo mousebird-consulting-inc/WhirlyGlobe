@@ -97,6 +97,7 @@ open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate
     }
 
     // results of `ActivityCompat.requestPermissions`
+    @Suppress("UNUSED_PARAMETER")
     @SuppressLint("MissingPermission")
     fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: Array<Int>) {
         if (grantResults.contains(PackageManager.PERMISSION_GRANTED)) {
