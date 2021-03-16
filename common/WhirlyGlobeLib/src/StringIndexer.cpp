@@ -102,6 +102,8 @@ StringIdentity u_uprightNameID;
 StringIdentity u_activerotNameID;
 StringIdentity a_rotNameID;
 StringIdentity a_dirNameID;
+StringIdentity a_maskNameID;
+StringIdentity a_maskNameIDs[WhirlyKitMaxMasks];
 StringIdentity a_texCoordNameID;
 StringIdentity u_w2NameID;
 StringIdentity u_Realw2NameID;
@@ -175,6 +177,11 @@ static void SetupDrawableStringsOnce()
     u_activerotNameID = StringIndexer::getStringID("u_activerot");
     a_rotNameID = StringIndexer::getStringID("a_rot");
     a_dirNameID = StringIndexer::getStringID("a_dir");
+    a_maskNameID = StringIndexer::getStringID("a_maskID");
+    for (unsigned int index=0;index<WhirlyKitMaxTextures;index++) {
+        sprintf(name,"a_maskID%d",index);
+        a_maskNameIDs[index] = StringIndexer::getStringID(name);
+    }
     a_texCoordNameID = StringIndexer::getStringID("a_texCoord");
     u_w2NameID = StringIndexer::getStringID("u_w2");
     u_Realw2NameID = StringIndexer::getStringID("u_real_w2");

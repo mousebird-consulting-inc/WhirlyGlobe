@@ -93,6 +93,10 @@
     
     /// Shared tile fetcher used by default for loaders
     std::vector<MaplyRemoteTileFetcher *> tileFetchers;
+    
+    // Used for masking features against each other
+    MaplyTexture *maskTex;
+    MaplyRenderTarget *maskRenderTarget;
 
     /// Number of simultaneous tile fetcher connections (per tile fetcher)
     int tileFetcherConnections;

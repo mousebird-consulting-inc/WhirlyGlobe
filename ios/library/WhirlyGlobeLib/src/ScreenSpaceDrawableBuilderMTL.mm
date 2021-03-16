@@ -35,6 +35,7 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool bu
 {
     basicDraw = std::make_shared<BasicDrawableMTL>("Screen Space");
     // Need the entries even if we don't bother to fill them in
+    // TODO: Just add in the ones we need.  This is a waste.
     ScreenSpaceDrawableBuilder::Init(hasMotion,hasRotation,true);
     
     // Wire up the buffers

@@ -46,7 +46,7 @@ public:
 
     // Construct with or without motion support
     ScreenSpaceDrawableBuilder();
-    virtual void Init(bool hasMotion,bool hasRotation, bool buildAnyway = false);
+    virtual void Init(bool hasMotion,bool hasRotation,bool buildAnyway = false);
     
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.

@@ -21,6 +21,7 @@
 #import "GlobeMath.h"
 #import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
+#import "SharedAttributes.h"
 
 #import "LabelManager.h"
 
@@ -33,7 +34,12 @@ SingleLabel::SingleLabel() :
     isSelectable(true),
     selectID(EmptyIdentity),
     loc(0,0),
+    hasMotion(false),
+    endLoc(0,0),
+    startTime(0),
+    endTime(0),
     rotation(0),
+    keepUpright(false),
     iconTexture(EmptyIdentity),
     iconSize(0,0),
     screenOffset(0,0),
@@ -41,15 +47,13 @@ SingleLabel::SingleLabel() :
     layoutEngine(false),
     layoutImportance(MAXFLOAT),
     layoutPlacement(0),
-    hasMotion(false),
-    startTime(0),
-    endTime(0),
-    keepUpright(false)
+    maskID(EmptyIdentity),
+    maskRenderTargetID(EmptyIdentity)
 {
 }
 
 LabelManager::LabelManager()
-    : textureAtlasSize(LabelTextureAtlasSizeDefault)
+    : textureAtlasSize(LabelTextureAtlasSizeDefault), maskProgID(EmptyIdentity)
 {
 }
     
@@ -72,14 +76,19 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
                                        const LabelInfo &labelInfo,ChangeSet &changes)
 {
     const auto fontTexManager = scene->getFontTextureManager();
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
     // Set up the representation (but then hand it off)
     auto labelRep = new LabelSceneRep();
     labelRep->fadeOut = (float)((labelInfo.fadeOut > 0 && labelInfo.fadeOutTime != 0) ? labelInfo.fadeOut : 0);
+    
+    if (maskProgID == EmptyIdentity) {
+        Program *prog = scene->findProgramByName(MaplyScreenSpaceMaskShader);
+        if (prog)
+            maskProgID = prog->getId();
+    }
 
     // Set up the label renderer
-    LabelRenderer labelRenderer(scene,fontTexManager,&labelInfo);
+    LabelRenderer labelRenderer(scene,renderer,fontTexManager,&labelInfo,maskProgID);
     labelRenderer.textureAtlasSize = (int)textureAtlasSize;
     labelRenderer.coordAdapter = scene->getCoordAdapter();
     labelRenderer.labelRep = labelRep;
@@ -98,7 +107,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
         ScreenSpaceBuilder ssBuild(renderer, coordAdapter, renderer->getScale());
         for (auto & screenObject : labelRenderer.screenObjects)
         {
-            ssBuild.addScreenObject(screenObject);
+            ssBuild.addScreenObject(screenObject,screenObject.getWorldLoc(),screenObject.getGeometry());
         }
         ssBuild.flushChanges(changes, labelRep->drawIDs);
     }

@@ -137,6 +137,10 @@ NSString* const kMaplyTextJustify = MaplyTextJustify;
 NSString* const kMaplyTextJustifyRight = MaplyTextJustifyRight;
 NSString* const kMaplyTextJustifyLeft = MaplyTextJustifyLeft;
 NSString* const kMaplyTextJustifyCenter = MaplyTextJustifyCenter;
+NSString* const kMaplyTextLayoutOffset = MaplyTextLayoutOffset;
+NSString* const kMaplyTextLayoutSpacing = MaplyTextLayoutSpacing;
+NSString* const kMaplyTextLayoutRepeat = MaplyTextLayoutRepeat;
+NSString* const kMaplyTextLayoutDebug = MaplyTextLayoutDebug;
 
 /// These are used for screen and regular markers.
 NSString* const kMaplyClusterGroup = MaplyClusterGroupID;
@@ -348,6 +352,7 @@ NSString* const kMaplyShaderWideVectorExp = @"Default Wide Vector with expressio
 
 NSString* const kMaplyScreenSpaceDefaultMotionProgram = @"Default Screenspace Motion";
 NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
+NSString* const kMaplyScreenSpaceMaskProgram = @"Screenspace mask";
 NSString* const kMaplyScreenSpaceExpProgram = @"Screenspace with expressions";
 
 NSString* const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";

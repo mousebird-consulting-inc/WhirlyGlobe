@@ -32,6 +32,7 @@ namespace WhirlyKit
 {
     
 class ScreenSpaceObject;
+class ScreenSpaceConvexGeometry;
 class ScreenSpaceObjectLocation;
     
 /** Screen space objects are used for both labels and markers.  This builder
@@ -65,12 +66,14 @@ public:
         TimeInterval startEnable,endEnable;
         int64_t drawOrder;
         int drawPriority;
+        SimpleIdentity renderTargetID;
         float minVis,maxVis;
         int zoomSlot;
         double minZoomVis,maxZoomVis;
         bool motion;
         bool rotation;
         bool keepUpright;
+        bool hasMask;
         FloatExpressionInfoRef opacityExp;
         ColorExpressionInfoRef colorExp;
         FloatExpressionInfoRef scaleExp;
@@ -92,6 +95,8 @@ public:
     void setDrawOrder(int64_t drawOrder);
     /// Set the draw priority
     void setDrawPriority(int drawPriority);
+    /// Set the render target
+    void setRenderTarget(SimpleIdentity renderTargetID);
     /// Set the visibility range
     void setVisibility(float minVis,float maxVis);
     /// Set enable based on zoom
@@ -118,7 +123,10 @@ public:
     void addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects);
     
     /// Add a single screen space object
-    void addScreenObject(const ScreenSpaceObject &screenObject);
+    void addScreenObject(const ScreenSpaceObject &screenObject,
+                         const Point3d &worldLoc,
+                         const std::vector<ScreenSpaceConvexGeometry> &geoms,
+                         const std::vector<Eigen::Matrix3d> *places = nullptr);
     
     /// Return the drawables constructed.  Caller responsible for deletion.
     void buildDrawables(std::vector<BasicDrawableRef> &draws);
@@ -165,6 +173,31 @@ protected:
     DrawableWrapMap drawables;
     std::vector<DrawableWrapRef> fullDrawables;
 };
+
+/// Represents a simple set of convex geometry
+class ScreenSpaceConvexGeometry
+{
+public:
+    ScreenSpaceConvexGeometry();
+    
+    /// Texture ID used for just this object
+    std::vector<SimpleIdentity> texIDs;
+    /// Program ID used to render this geometry
+    SimpleIdentity progID;
+    /// Color for the geometry
+    RGBAColor color;
+    /// Draw order
+    int64_t drawOrder;
+    /// Draw priority
+    int drawPriority;
+    /// Render target
+    SimpleIdentity renderTargetID;
+    /// Vertex attributes applied to this piece of geometry
+    SingleVertexAttributeSet vertexAttrs;
+    
+    Point2dVector coords;
+    std::vector<TexCoord> texCoords;
+};
     
 /** Keeps track of the basic information about a screen space object.
  */
@@ -180,30 +213,7 @@ public:
     ScreenSpaceObject();
     ScreenSpaceObject(SimpleIdentity theId);
     virtual ~ScreenSpaceObject();
-    
-    /// Represents a simple set of convex geometry
-    class ConvexGeometry
-    {
-    public:
-        ConvexGeometry();
         
-        /// Texture ID used for just this object
-        std::vector<SimpleIdentity> texIDs;
-        /// Program ID used to render this geometry
-        SimpleIdentity progID;
-        /// Color for the geometry
-        RGBAColor color;
-        /// Draw order
-        int64_t drawOrder;
-        /// Draw priority
-        int drawPriority;
-        /// Vertex attributes applied to this piece of geometry
-        SingleVertexAttributeSet vertexAttrs;
-        
-        Point2dVector coords;
-        std::vector<TexCoord> texCoords;
-    };
-    
     /// Center of the object in world coordinates
     void setWorldLoc(const Point3d &worldLoc);
     Point3d getWorldLoc();
@@ -225,6 +235,7 @@ public:
     int64_t getDrawOrder() const;
     void setDrawPriority(int drawPriority);
     int getDrawPriority() const;
+    void setRenderTarget(SimpleIdentity renderTargetID);
     void setKeepUpright(bool keepUpright);
     void setRotation(double rotation);
     double getRotation() const { return rotation; }
@@ -234,8 +245,9 @@ public:
     void setPeriod(TimeInterval period);
     void setOrderBy(long orderBy);
     
-    void addGeometry(const ConvexGeometry &geom);
-    std::vector<ConvexGeometry> getGeometry() const { return geometry; }
+    void addGeometry(const ScreenSpaceConvexGeometry &geom);
+    void addGeometry(const std::vector<ScreenSpaceConvexGeometry> &geom);
+    std::vector<ScreenSpaceConvexGeometry> getGeometry() const { return geometry; }
     
     // Get a program ID either from the drawable state or geometry
     SimpleIdentity getTypicalProgramID();
@@ -250,7 +262,7 @@ protected:
     long orderBy;
     bool keepUpright;
     ScreenSpaceBuilder::DrawableState state;
-    std::vector<ConvexGeometry> geometry;
+    std::vector<ScreenSpaceConvexGeometry> geometry;
 };
     
 /** We use the screen space object location to communicate where

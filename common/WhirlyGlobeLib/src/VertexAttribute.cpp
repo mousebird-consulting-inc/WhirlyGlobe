@@ -147,6 +147,17 @@ void VertexAttribute::addInt(int val)
     (*ints).push_back(val);
 }
 
+void VertexAttribute::addInt64(int64_t val)
+{
+    if (dataType != BDInt64Type)
+        return;
+    
+    if (!data)
+        data = new std::vector<int64_t>();
+    std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
+    (*ints).push_back(val);
+}
+
 /// Reserve size in the data array
 void VertexAttribute::reserve(int size)
 {
@@ -200,6 +211,14 @@ void VertexAttribute::reserve(int size)
             ints->reserve(size);
         }
             break;
+        case BDInt64Type:
+        {
+            if (!data)
+                data = new std::vector<int64_t>();
+            std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
+            ints->reserve(size);
+        }
+            break;
         case BDDataTypeMax:
             break;
     }
@@ -248,6 +267,12 @@ int VertexAttribute::numElements() const
             std::vector<int> *ints = (std::vector<int> *)data;
             return (int)ints->size();
         }
+            break;
+        case BDInt64Type:
+        {
+            std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
+            return (int)ints->size();
+        }
         case BDDataTypeMax:
             return 0;
             break;
@@ -276,6 +301,9 @@ int VertexAttribute::size() const
             break;
         case BDIntType:
             return 4;
+            break;
+        case BDInt64Type:
+            return 8;
             break;
         case BDDataTypeMax:
             return 0;
@@ -315,6 +343,9 @@ int SingleVertexAttributeInfo::size() const
         case BDIntType:
             return 4;
             break;
+        case BDInt64Type:
+            return 8;
+            break;
         case BDDataTypeMax:
             return 0;
             break;
@@ -335,6 +366,12 @@ SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,int 
 : SingleVertexAttributeInfo(nameID,slot,BDIntType)
 {
     data.intVal = intVal;
+}
+
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,int64_t intVal)
+: SingleVertexAttributeInfo(nameID,slot,BDInt64Type)
+{
+    data.int64Val = intVal;
 }
 
 SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,unsigned char colorVal[4])
@@ -411,6 +448,12 @@ void VertexAttribute::clear()
                 delete ints;
             }
                 break;
+            case BDInt64Type:
+            {
+                std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
+                delete ints;
+            }
+                break;
             case BDDataTypeMax:
                 break;
         }
@@ -456,6 +499,12 @@ void *VertexAttribute::addressForElement(int which)
         case BDIntType:
         {
             std::vector<int> *ints = (std::vector<int> *)data;
+            return &(*ints)[which];
+        }
+            break;
+        case BDInt64Type:
+        {
+            std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
             return &(*ints)[which];
         }
             break;

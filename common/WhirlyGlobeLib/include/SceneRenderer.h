@@ -324,6 +324,9 @@ public:
     
     /// Construct a renderer-specific dynamic texture
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const = 0;
+    
+    /// Maps name IDs to slots (slots are just used by Metal)
+    virtual int getSlotForNameID(SimpleIdentity nameID);
 
     /// The pixel width of the CAEAGLLayer.
     int framebufferWidth;
@@ -409,6 +412,9 @@ public:
 
     // Everything torn down until the next frame
     RenderTeardownInfoRef teardownInfo;
+    
+    // Map Name IDs to slots (when using Metal)
+    std::map<SimpleIdentity,int> slotMap;
 };
 
 typedef std::shared_ptr<SceneRenderer> SceneRendererRef;

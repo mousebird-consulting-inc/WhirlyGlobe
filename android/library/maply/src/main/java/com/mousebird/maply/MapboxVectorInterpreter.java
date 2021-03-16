@@ -25,6 +25,7 @@ import android.graphics.Color;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,13 +120,14 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         if (data == null)
             return;
 
+        GZIPInputStream in = null;
+        ByteArrayOutputStream bout = null;
         try {
             // Unzip if it's compressed
             ByteArrayInputStream bin = new ByteArrayInputStream(data);
-            GZIPInputStream in = new GZIPInputStream(bin);
-            ByteArrayOutputStream bout = new ByteArrayOutputStream(data.length * 2);
+            in = new GZIPInputStream(bin);
+            bout = new ByteArrayOutputStream(data.length * 2);
 
-            ZipEntry ze;
             byte[] buffer = new byte[1024];
             int count;
             while ((count = in.read(buffer)) != -1)
@@ -134,6 +136,18 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             data = bout.toByteArray();
         } catch (Exception ex) {
             // We'll try the raw data if we can't decompress it
+        }
+        finally
+        {
+            if (in != null) try
+            {
+                in.close ();
+            } catch (IOException ignore){}
+
+            if (bout != null) try
+            {
+                bout.close ();
+            } catch (IOException ignore){}
         }
 
         // Don't let the sampling layer shut down while we're working

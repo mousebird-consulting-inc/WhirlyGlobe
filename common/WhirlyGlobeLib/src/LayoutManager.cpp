@@ -19,6 +19,8 @@
 #import "LayoutManager.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "SharedAttributes.h"
+#import "LinearTextBuilder.h"
 #import "WhirlyKitLog.h"
 
 using namespace Eigen;
@@ -27,21 +29,15 @@ namespace WhirlyKit
 {
 
 // Default constructor for layout object
-LayoutObject::LayoutObject() :
-    ScreenSpaceObject(),
-    importance(MAXFLOAT),
-    clusterGroup(-1),
-    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
-                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject()
+    : ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0), layoutDebug(false),
+    importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
-LayoutObject::LayoutObject(SimpleIdentity theId) :
-    ScreenSpaceObject(theId),
-    importance(MAXFLOAT),
-    clusterGroup(-1),
-    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
-                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(SimpleIdentity theId) : ScreenSpaceObject(theId),
+    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0), layoutDebug(false),
+     importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
@@ -77,7 +73,7 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
 }
     
 LayoutManager::LayoutManager()
-    : maxDisplayObjects(0), hasUpdates(false), clusterGen(nullptr)
+    : maxDisplayObjects(0), hasUpdates(false), clusterGen(nullptr), vecProgID(EmptyIdentity)
 {
 }
     
@@ -337,17 +333,17 @@ typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
 typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
-bool LayoutManager::runLayoutRules(
-        PlatformThreadInfo *threadInfo,
-        const ViewStateRef &viewState,
-        std::vector<ClusterEntry> &clusterEntries,
-        std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams)
+bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
+                                   const ViewStateRef &viewState,
+                                   std::vector<ClusterEntry> &clusterEntries,
+                                   std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
+                                   ChangeSet &changes)
 {
     if (layoutObjects.empty())
         return false;
     
     bool hadChanges = false;
-    
+        
     ClusteredObjectsSet clusterObjs;
     LayoutContainerVec layoutObjs;
     // Special snowflake layout objects (with unique names)
@@ -359,8 +355,8 @@ bool LayoutManager::runLayoutRules(
 
     // View related matrix stuff
     Matrix4d modelTrans = viewState->fullMatrices[0];
-    Matrix4f fullMatrix4f = Matrix4dToMatrix4f(viewState->fullMatrices[0]);
-    Matrix4f fullNormalMatrix4f = Matrix4dToMatrix4f(viewState->fullNormalMatrices[0]);
+    Matrix4d fullMatrix = viewState->fullMatrices[0];
+    Matrix4d fullNormalMatrix = viewState->fullNormalMatrices[0];
     Matrix4d normalMat = viewState->fullMatrices[0].inverse().transpose();
     
     // Turn everything off and sort by importance
@@ -385,8 +381,11 @@ bool LayoutManager::runLayoutRules(
                 // Make sure this one isn't behind the globe
                 if (globeViewState)
                 {
-                    // Make sure this one is facing toward the viewer
-                    use = CheckPointAndNormFacing(Vector3dToVector3f(layoutObj->obj.worldLoc),Vector3dToVector3f(layoutObj->obj.worldLoc.normalized()),fullMatrix4f,fullNormalMatrix4f) > 0.0;
+                    // Layout shape following doesn't work with this check
+                    if (obj->obj.layoutShape.empty()) {
+                        // Make sure this one is facing toward the viewer
+                        use = CheckPointAndNormFacing(layoutObj->obj.worldLoc,layoutObj->obj.worldLoc.normalized(),fullMatrix,fullNormalMatrix) > 0.0;
+                    }
                 }
 
                 if (use)
@@ -500,7 +499,6 @@ bool LayoutManager::runLayoutRules(
                         }
                     }
 
-                    
                     clusterHelper.addObject(entry,objPts);
                 }
             }
@@ -627,118 +625,295 @@ bool LayoutManager::runLayoutRules(
 
         // Some of these may share unique IDs
         bool pickedOne = false;
+//        wkLog("----");
+        
         for (auto layoutObj : container.objs) {
-            // Figure out the rotation situation
-            float screenRot = 0.0;
-            Matrix2d screenRotMat;
-            if (pickedOne)
-                isActive = false;
-            
-            if (isActive)
-            {
-                Point2f objPt;
-                bool isInside = calcScreenPt(objPt,&layoutObj->obj,viewState,screenMbr,frameBufferSize);
+            // Layout along a shape
+            if (!layoutObj->obj.layoutShape.empty()) {
+                // Sometimes there are just a few instances
+                int numInstances = 0;
                 
-                isActive &= isInside;
+                for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
+                    // Set up the text builder to get a set of individual runs to follow
+                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth/2.0,&layoutObj->obj);
+                    textBuilder.setPoints(layoutObj->obj.layoutShape);
+                    textBuilder.process();
+                    // Sort the runs by length and get rid of the ones too short
+                    textBuilder.sortRuns(2.0*layoutObj->obj.layoutSpacing);
+
+                    // Follow the individual runs
+                    std::vector<std::vector<Eigen::Matrix3d> > layoutInstances;
+                    std::vector<Point3d> layoutModelInstances;
+
+                    auto runs = textBuilder.getScreenVecs();
+//                    unsigned int ri=0;
+                    for (auto run: runs) {
+//                        wkLog("Run %d",ri++);
+                        
+                        // We need the length of the glyphs and their center
+                        Mbr layoutMbr(layoutObj->obj.layoutPts);
+                        float textLen = layoutMbr.ur().x();
+                        float midY = layoutMbr.mid().y();
+
+                        LinearWalker walk(run);
+
+                        // Figure out how many times we could lay this out
+                        float textRoom = walk.getTotalLength() - 2.0*layoutObj->obj.layoutSpacing;
+                        float textInstance = textRoom / textLen;
+                        
+                        for (unsigned int ini=0;ini<textInstance;ini++) {
+//                            wkLog(" Text Instance %d",ini);
+                            
+                            // Start with an initial offset
+                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr))
+                                continue;
+
+                            std::vector<Eigen::Matrix3d> layoutMats;
+
+                            // Center around the world point on the screen
+                            Point2f midRun;
+                            if (!walk.nextPoint(layoutMbr.span().x()/2.0, &midRun, nullptr, false))
+                                continue;
+                            Point2f worldScreenPt = midRun;
+                            Point3d worldPt(0.0,0.0,0.0);
+                            if (!textBuilder.screenToWorld(midRun, worldPt))
+                                continue;
+                            
+                            std::vector<Point2dVector> overlapPts;
+
+                            // Walk through the individual glyphs
+                            bool failed = false;
+                            for (unsigned int ig=0;ig<layoutObj->obj.geometry.size();ig++) {
+                                const auto &geom = layoutObj->obj.geometry[ig];
+                                Mbr glyphMbr(geom.coords);
+                                Point2f span = glyphMbr.span();
+                                Point2f midGlyph = glyphMbr.mid();
+                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
+
+                                // Walk along the line to get a good center
+                                Point2f centerPt;
+                                Point2f norm;
+                                if (!walk.nextPoint(span.x(),&centerPt,&norm)) {
+                                    failed = true;
+                                    break;
+                                }
+                                walk.nextPoint(span.x(), nullptr, nullptr);
+                                
+                                // Don't forget the space between glyphs
+                                if (ig < layoutObj->obj.geometry.size()-1) {
+                                    Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
+                                    float padX = glyphNextMbr.ll().x() - glyphMbr.ur().x();
+                                    if (!walk.nextPoint(padX, nullptr, nullptr)) {
+                                        failed = true;
+                                        break;
+                                    }
+                                }
+                                
+                                // Translate the glyph into that position
+                                Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
+                                                                  -(centerPt.y()-worldScreenPt.y())/2.0));
+                                double ang = -1.0 * (atan2(norm.y(),norm.x()) - M_PI/2.0);
+                                Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
+                                Matrix3d screenRotMat = Matrix3d::Identity();
+                                for (unsigned ix=0;ix<2;ix++)
+                                    for (unsigned iy=0;iy<2;iy++)
+                                        screenRotMat(ix, iy) = screenRot(ix, iy);
+                                Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
+                                Matrix3d overlapMat = transPlace.matrix() * screenRotMat * scaleMat * transOrigin.matrix();
+//                                Matrix3d overlapMat = transPlace.matrix() * transOrigin.matrix();
+                                layoutMats.push_back(transPlace.matrix() * screenRotMat * transOrigin.matrix());
+//                                layoutMats.push_back(transPlace.matrix() * transOrigin.matrix());
+
+                                // Check for overlap
+                                Point2dVector objPts;  objPts.reserve(4);
+                                for (unsigned int oi=0;oi<4;oi++) {
+                                    Point3d pt = overlapMat * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
+                                    Point2d objPt(pt.x()+worldScreenPt.x(),pt.y()+worldScreenPt.y());
+                                    objPts.push_back(objPt);
+                                }
+                                
+//                                if (!failed) {
+//                                    wkLog("  Geometry %d",ig);
+//                                    for (unsigned int ip=0;ip<objPts.size();ip++) {
+//                                        wkLog("    (%f,%f)",objPts[ip].x(),frameBufferSize.y()-objPts[ip].y());
+//                                    }
+//                                }
+
+                                if (!overlapMan.checkObject(objPts)) {
+//                                    wkLog("   Failed");
+                                    failed = true;
+                                    break;
+                                }
+                                
+                                overlapPts.push_back(objPts);
+                            }
+                            
+                            if (!failed) {
+                                layoutObj->obj.setRotation(textBuilder.getViewStateRotation());
+                                layoutModelInstances.push_back(worldPt);
+                                layoutInstances.push_back(layoutMats);
+                                numInstances++;
+                                
+                                // Add the individual glyphs to the overlap manager
+                                for (auto &glyph: overlapPts)
+                                    overlapMan.addObject(glyph);
+                            }
+                            
+                            if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
+                                break;
+                        }
+                        
+                        if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
+                            break;
+                    }
+                    
+                    if (!layoutInstances.empty()) {
+                        isActive = true;
+                        layoutObj->newEnable = true;
+                        layoutObj->changed = true;
+                        layoutObj->obj.layoutPlaces = layoutInstances;
+                        layoutObj->obj.layoutModelPlaces = layoutModelInstances;
+                        hadChanges |= layoutObj->changed;
+                        layoutObj->newCluster = -1;
+                        layoutObj->offset = Point2d(0.0,0.0);
+                    } else {
+                        isActive = false;
+                        layoutObj->newEnable = false;
+                        layoutObj->obj.layoutPlaces.clear();
+                        layoutObj->obj.layoutModelPlaces.clear();
+                    }
+                    
+                    if (layoutObj->currentEnable != isActive) {
+                        layoutObj->changed = true;
+                    }
+
+                    // Debugging visual output
+                    ShapeSet dispShapes = textBuilder.getVisualVecs();
+                    if (!dispShapes.empty() && layoutObj->obj.layoutDebug) {
+                        // Turn them back into vectors to debug
+                        VectorInfo vecInfo;
+                        vecInfo.color = RGBAColor::red();
+                        vecInfo.lineWidth = 1.0;
+                        vecInfo.drawPriority = 10000000;
+                        vecInfo.programID = vecProgID;
+                        
+                        SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
+                        if (vecId != EmptyIdentity)
+                            debugVecIDs.insert(vecId);
+                    }
+                }
+            } else {
+                // Layout at a point
+
+                // Figure out the rotation situation
+                float screenRot = 0.0;
+                Matrix2d screenRotMat;
+                if (pickedOne)
+                    isActive = false;
                 
-                // Deal with the rotation
-                if (layoutObj->obj.rotation != 0.0)
-                    screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,normalMat,frameBufferSize);
-                
-                // Now for the overlap checks
                 if (isActive)
                 {
-                    // Try the four different orientations
-                    if (!layoutObj->obj.layoutPts.empty())
+                    Point2f objPt;
+                    bool isInside = calcScreenPt(objPt,&layoutObj->obj,viewState,screenMbr,frameBufferSize);
+                    
+                    isActive &= isInside;
+                    
+                    // Deal with the rotation
+                    if (layoutObj->obj.rotation != 0.0)
+                        screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,normalMat,frameBufferSize);
+                    
+                    // Now for the overlap checks
+                    if (isActive)
                     {
-                        bool validOrient = false;
-                        for (unsigned int orient=0;orient<6;orient++)
+                        // Try the four different orientations
+                        if (!layoutObj->obj.layoutPts.empty())
                         {
-                            // May only want to be placed certain ways.  Fair enough.
-                            if (!(layoutObj->obj.acceptablePlacement & (1U<<orient)))
-                                continue;
-                            const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
-                            Mbr layoutMbr;
-                            for (const auto & layoutPt : layoutPts)
+                            bool validOrient = false;
+                            for (unsigned int orient=0;orient<6;orient++)
                             {
-                                layoutMbr.addPoint(layoutPt);
-                            }
-                            Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
-                            Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
-                            
-                            // Set up the offset for this orientation
-                            switch (orient)
-                            {
-                                // Don't move at all
-                                case 0:
-                                    objOffset = Point2d(0,0);
-                                    break;
-                                // Center
-                                case 1:
-                                    objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
-                                    break;
-                                // Right
-                                case 2:
-                                    objOffset = Point2d(0.0,layoutSpan.y()/2.0);
-                                    break;
-                                // Left
-                                case 3:
-                                    objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
-                                    break;
-                                // Above
-                                case 4:
-                                    objOffset = Point2d(-layoutSpan.x()/2.0,0.0);
-                                    break;
-                                // Below
-                                case 5:
-                                    objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
-                                    break;
-                                default: break;
-                            }
-                            
-                            // Rotate the rectangle
-                            if (screenRot == 0.0)
-                            {
-                                objPts[0] = Point2d(objPt.x(),objPt.y()) + (objOffset + layoutOrg)*resScale;
-                                objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
-                                objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,-layoutSpan.y()*resScale);
-                                objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y()*resScale);
-                            } else {
-                                Point2d center(objPt.x(),objPt.y());
-                                objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
-                                objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                                objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),-layoutSpan.y());
-                                objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,-layoutSpan.y());
-                                for (unsigned int oi=0;oi<4;oi++)
+                                // May only want to be placed certain ways.  Fair enough.
+                                if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
+                                    continue;
+                                const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
+                                Mbr layoutMbr;
+                                for (unsigned int li=0;li<layoutPts.size();li++)
+                                    layoutMbr.addPoint(layoutPts[li]);
+                                Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
+                                Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
+                                
+                                // Set up the offset for this orientation
+                                switch (orient)
                                 {
-                                    Point2d &thisObjPt = objPts[oi];
-                                    Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
-                                    thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
+                                    // Don't move at all
+                                    case 0:
+                                        objOffset = Point2d(0,0);
+                                        break;
+                                    // Center
+                                    case 1:
+                                        objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
+                                        break;
+                                    // Right
+                                    case 2:
+                                        objOffset = Point2d(0.0,layoutSpan.y()/2.0);
+                                        break;
+                                    // Left
+                                    case 3:
+                                        objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
+                                        break;
+                                    // Above
+                                    case 4:
+                                        objOffset = Point2d(-layoutSpan.x()/2.0,0.0);
+                                        break;
+                                    // Below
+                                    case 5:
+                                        objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
+                                        break;
+                                }
+                                
+                                // Rotate the rectangle
+                                if (screenRot == 0.0)
+                                {
+                                    objPts[0] = Point2d(objPt.x(),objPt.y()) + (objOffset + layoutOrg)*resScale;
+                                    objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
+                                    objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,-layoutSpan.y()*resScale);
+                                    objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y()*resScale);
+                                } else {
+                                    Point2d center(objPt.x(),objPt.y());
+                                    objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
+                                    objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
+                                    objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),-layoutSpan.y());
+                                    objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,-layoutSpan.y());
+                                    for (unsigned int oi=0;oi<4;oi++)
+                                    {
+                                        Point2d &thisObjPt = objPts[oi];
+                                        Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                                        thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
+                                    }
+                                }
+                                
+    //                        wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
+    //                        wkLogLevel(Debug, "Layout Pts");
+    //                        for (unsigned int xx=0;xx<objPts.size();xx++)
+    //                           wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
+                                
+                                // Now try it.  Objects we've pegged as essential always win
+                                if (overlapMan.addCheckObject(objPts) || container.importance >= MAXFLOAT)
+                                {
+                                    validOrient = true;
+                                    pickedOne = true;
+                                    break;
                                 }
                             }
                             
-//                        wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
-//                        wkLogLevel(Debug, "Layout Pts");
-//                        for (unsigned int xx=0;xx<objPts.size();xx++)
-//                           wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
-                            
-                            // Now try it.  Objects we've pegged as essential always win
-                            if (overlapMan.addObject(objPts) || container.importance >= MAXFLOAT)
-                            {
-                                validOrient = true;
-                                pickedOne = true;
-                                break;
-                            }
+                            isActive = validOrient;
                         }
-                        
-                        isActive = validOrient;
                     }
-                }
 
-//            wkLogLevel(Debug, " Valid (%s): %s, pos = (%f,%f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint.c_str(),objPt.x(),objPt.y(),
-//                  layoutObj->offset.x(),layoutObj->offset.y());
+    //            wkLogLevel(Debug, " Valid (%s): %s, pos = (%f,%f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint.c_str(),objPt.x(),objPt.y(),
+    //                  layoutObj->offset.x(),layoutObj->offset.y());
+                }
             }
-            
+                
             if (isActive)
                 numSoFar++;
             
@@ -770,6 +945,23 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
+    if (!vecManage) {
+        vecManage = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
+        Program *prog = scene->findProgramByName(MaplyDefaultLineShader);
+        if (prog)
+            vecProgID = prog->getId();
+        else {
+            Program *prog = scene->findProgramByName(MaplyNoBackfaceLineShader);
+            if (prog)
+                vecProgID = prog->getId();
+        }
+    }
+    
+    if (!debugVecIDs.empty()) {
+        vecManage->removeVectors(debugVecIDs, changes);
+        debugVecIDs.clear();
+    }
+
     std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
@@ -781,7 +973,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
-    bool layoutChanges = runLayoutRules(threadInfo,viewState,clusters,clusterParams);
+    bool layoutChanges = runLayoutRules(threadInfo,viewState,clusters,clusterParams,changes);
     
     // Compare old and new clusters
     if (!layoutChanges && clusters.size() != oldClusters.size())
@@ -846,18 +1038,26 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj);
+                ssBuild.addScreenObject(animObj,animObj.worldLoc,animObj.geometry);
                 
                 // And hold off on adding it
                 // todo: slicing, is this ok?
                 ScreenSpaceObject shortObj = layoutObj->obj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj);
+                ssBuild.addScreenObject(shortObj,shortObj.worldLoc,shortObj.geometry);
             } else {
                 // It's boring, just add it
-                if (layoutObj->newEnable)
-                    ssBuild.addScreenObject(layoutObj->obj);
+                if (layoutObj->newEnable) {
+                    // It's a single point placement
+                    if (layoutObj->obj.layoutShape.empty())
+                        ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,layoutObj->obj.geometry);
+                    else {
+                        // One or more placements along a path
+                        for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
+                            ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
+                    }
+                }
             }
 
             layoutObj->currentEnable = layoutObj->newEnable;
@@ -892,16 +1092,16 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj);
+                ssBuild.addScreenObject(animObj, animObj.worldLoc, animObj.geometry);
 
                 // Hold off on adding the new one
                 ScreenSpaceObject shortObj = cluster.layoutObj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj);
+                ssBuild.addScreenObject(shortObj, shortObj.worldLoc, shortObj.geometry);
                 
             } else
-                ssBuild.addScreenObject(cluster.layoutObj);
+                ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, cluster.layoutObj.geometry);
         }
         
         ssBuild.flushChanges(changes, drawIDs);

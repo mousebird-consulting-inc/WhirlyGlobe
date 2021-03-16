@@ -79,6 +79,12 @@ public:
     float layoutImportance;
     /// Layout placement
     int layoutPlacement;
+    /// Shape for label to follow
+    VectorRing layoutShape;
+
+    // If set, we'll draw an outline to the mask target
+    WhirlyKit::SimpleIdentity maskID;
+    WhirlyKit::SimpleIdentity maskRenderTargetID;
 
     /// Some attributes can be overridden per label
     LabelInfoRef infoOverride;
@@ -130,6 +136,7 @@ protected:
     /// Keep track of labels (or groups of labels) by ID for deletion
     WhirlyKit::LabelSceneRepSet labelReps;
     unsigned int textureAtlasSize;
+    SimpleIdentity maskProgID;
 };
 typedef std::shared_ptr<LabelManager> LabelManagerRef;
 

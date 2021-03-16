@@ -61,7 +61,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
         // The fetcher fetches tile from the MBTiles file
         // The fetcher fetches tile from the MBTiles file
-        val mbTileFetcher = MBTileFetcher(mbTiles)
+        val mbTileFetcher = MBTileFetcher(control, mbTiles)
 
         // Set up the parameters to match the MBTile file
         // Set up the parameters to match the MBTile file
@@ -93,7 +93,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
         }
 
         // The fetcher fetches tile from the MBTiles file
-        val mbTileFetcher = MBTileFetcher(mbTiles)
+        val mbTileFetcher = MBTileFetcher(control, mbTiles)
 
         // Set up the parameters to match the MBTile file
         val params = SamplingParams()
@@ -121,7 +121,7 @@ class VectorMBTilesTestCase : MaplyTestCase {
 
     fun setupFranceVector(control: BaseController) {
         val mbTileFile = getFile("mbtiles", "mbtiles/France.mbtiles", "France.mbtiles")
-        val fetcher = MBTileFetcher(mbTileFile)
+        val fetcher = MBTileFetcher(control, mbTileFile)
 
         // Sampling params define how the globe is broken up, including the depth
         var params = SamplingParams()

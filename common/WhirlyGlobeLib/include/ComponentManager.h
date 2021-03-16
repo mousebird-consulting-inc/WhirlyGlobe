@@ -66,6 +66,9 @@ public:
     
     std::string uuid;
     std::string representation;
+    
+    // If the object uses masks, these are the masks in use
+    SimpleIDSet maskIDs;
 
     bool isSelectable;
     bool enable;
@@ -140,6 +143,12 @@ public:
     /// Set a uniform block on the geometry for the given component objects
     virtual void setUniformBlock(const SimpleIDSet &compIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
     
+    /// Pass in a mask name, get an ID to render into the mask target
+    virtual SimpleIdentity retainMaskByName(const std::string &maskName);
+
+    /// We're done with the given mask target
+    virtual void releaseMaskIDs(const SimpleIDSet &maskIDs);
+    
     /// Find all the vectors that fall within or near the given point
     std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool muti);
     
@@ -176,6 +185,20 @@ protected:
     std::unordered_multimap<std::string, ComponentObjectRef> compObjsByUUID;
 
     std::unordered_map<std::string, std::string> representations;
+    
+    // Single entry for a mask ID
+    class MaskEntry {
+    public:
+        std::string name;
+        SimpleIdentity maskID;
+        unsigned long long refCount;
+    };
+    typedef std::shared_ptr<MaskEntry> MaskEntryRef;
+    std::unordered_map<std::string,MaskEntryRef> maskEntriesByName;
+    std::unordered_map<SimpleIdentity,MaskEntryRef> maskEntriesByID;
+    // We have 32 bits of range in the mask ID on iOS
+    unsigned int lastMaskID;
+    std::mutex maskLock;
 };
 typedef std::shared_ptr<ComponentManager> ComponentManagerRef;
 

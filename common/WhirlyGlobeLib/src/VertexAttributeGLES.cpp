@@ -58,6 +58,9 @@ GLuint VertexAttributeGLES::glEntryComponents() const
         case BDIntType:
             return 1;
             break;
+        case BDInt64Type:
+            return 1;
+            break;
         case BDDataTypeMax:
             return 0;
             break;
@@ -94,6 +97,9 @@ GLuint SingleVertexAttributeInfoGLES::glEntryComponents() const
         case BDIntType:
             return 1;
             break;
+        case BDInt64Type:
+            return 1;
+            break;
         case BDDataTypeMax:
             break;
     }
@@ -116,6 +122,7 @@ GLenum VertexAttributeGLES::glType() const
             return GL_UNSIGNED_BYTE;
             break;
         case BDIntType:
+        case BDInt64Type:
             return GL_INT;
             break;
         case BDDataTypeMax:
@@ -140,6 +147,7 @@ GLenum SingleVertexAttributeInfoGLES::glType() const
             return GL_UNSIGNED_BYTE;
             break;
         case BDIntType:
+        case BDInt64Type:
             return GL_INT;
             break;
         case BDDataTypeMax:
@@ -159,6 +167,7 @@ GLboolean VertexAttributeGLES::glNormalize() const
         case BDFloat2Type:
         case BDFloatType:
         case BDIntType:
+        case BDInt64Type:
             return GL_FALSE;
             break;
         case BDChar4Type:
@@ -180,6 +189,7 @@ GLboolean SingleVertexAttributeInfoGLES::glNormalize() const
         case BDFloat2Type:
         case BDFloatType:
         case BDIntType:
+        case BDInt64Type:
             return GL_FALSE;
             break;
         case BDChar4Type:
@@ -211,6 +221,7 @@ void VertexAttributeGLES::glSetDefault(int index) const
             glVertexAttrib4f(index, defaultData.color[0] / 255.0, defaultData.color[1] / 255.0, defaultData.color[2] / 255.0, defaultData.color[3] / 255.0);
             break;
         case BDIntType:
+        case BDInt64Type:
             glVertexAttrib1f(index, defaultData.intVal);
             break;
         case BDDataTypeMax:
