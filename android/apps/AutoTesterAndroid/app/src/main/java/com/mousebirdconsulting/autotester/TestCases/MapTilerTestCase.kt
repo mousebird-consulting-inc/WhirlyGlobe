@@ -13,9 +13,11 @@ class MapTilerTestCase : MaplyTestCase {
         setTestName("MapTiler")
         implementation = TestExecutionImplementation.Both
     }
-
-    var map: MapboxKindaMap? = null
-
+    
+    // Maptiler token
+    // Go to maptiler.com, setup an account and get your own
+    private val token = "GetYerOwnToken"
+    
     // Set up the loader (and all the stuff it needs) for the map tiles
     private fun setupLoader(control: BaseController, whichMap: Int, backgroundAll: Boolean) {
         // Third map is no map
@@ -28,35 +30,30 @@ class MapTilerTestCase : MaplyTestCase {
         
         val assetMgr = getActivity().assets
         val stream = assetMgr.open(mapName)
-        var polyStyle: MapboxVectorStyleSet?
-
-        // Maptiler token
-        // Go to maptiler.com, setup an account and get your own
-        val token = "GetYerOwnToken"
 
         try {
             val json = Okio.buffer(Okio.source(stream)).readUtf8()
-            map = MapboxKindaMap(json, control)
-            //map?.styleSettings?.setZBufferRead(false)
-            //map?.styleSettings?.setZBufferWrite(false)
-            map?.mapboxURLFor = { url: Uri ->
-                val urlStr = url.toString()
-                var newStr = urlStr
-                if (urlStr.contains("MapTilerKey"))
-                    newStr = urlStr.replace("MapTilerKey", token)
-                Uri.parse(newStr)
+            map = MapboxKindaMap(json, control).apply {
+                mapboxURLFor = this@MapTilerTestCase::urlMap
+                // backgroundAll is only needed for globes
+                backgroundAllPolys = (control is GlobeController)
+                imageVectorHybrid = true
+                start()
             }
-            if (map == null)
-                return
-            // backgroundAll is only needed for globes
-            map?.backgroundAllPolys = backgroundAll && (control is GlobeController)
-            map?.start()
         }
         catch (e: IOException) {
             return
         }
     }
 
+    private fun urlMap(url: Uri): Uri {
+        val urlStr = url.toString()
+        var newStr = urlStr
+        if (urlStr.contains("MapTilerKey"))
+            newStr = urlStr.replace("MapTilerKey", token)
+        return Uri.parse(newStr)
+    }
+    
     // Switch maps on long press
     override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
         switchMaps()
@@ -93,5 +90,6 @@ class MapTilerTestCase : MaplyTestCase {
 
         return true
     }
-
+    
+    private var map: MapboxKindaMap? = null
 }
