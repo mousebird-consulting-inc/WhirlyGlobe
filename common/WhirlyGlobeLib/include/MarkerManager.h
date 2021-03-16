@@ -138,6 +138,11 @@ public:
     long orderBy;
     /// Passed through the system as a unique identifier
     std::string uniqueID;
+    
+    // If set, we'll draw an outline to the mask target
+    WhirlyKit::SimpleIdentity maskID;
+    WhirlyKit::SimpleIdentity maskRenderTargetID;
+
     /// A list of vertex attributes to apply to the marker
     SingleVertexAttributeSet vertexAttrs;
 
@@ -171,6 +176,8 @@ public:
 protected:
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
+    /// We route the mask polygons to this program, if there are any
+    SimpleIdentity maskProgID;
 };
 typedef std::shared_ptr<MarkerManager> MarkerManagerRef;
 

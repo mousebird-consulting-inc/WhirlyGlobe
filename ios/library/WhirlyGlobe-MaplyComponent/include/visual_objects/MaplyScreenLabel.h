@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "math/MaplyCoordinate.h"
 
+@class MaplyVectorObject;
+
 /// Don't move the label at all
 #define kMaplyLayoutNone (1<<0)
 /// Okay to place centered on point
@@ -135,6 +137,18 @@
  If layoutImportance is not set to MAXFLOAT, the screen label will get throw into the mix when doing screen layout.  With this, you can set the size of the label when considering layout.  If you set this to (0,0) the maker will take up no space, but still be considered in the layout.
  */
 @property (nonatomic,assign) CGSize layoutSize;
+
+/**
+    If this is present, we'll render an ID into the mask layer to be used by other features to mask against.
+ */
+@property (nonatomic,retain,nullable) NSString *maskID;
+
+/**
+    If set, we'll lay out the the text along the given linear or areal feature.
+    Takes the first feature in the vector, if there are multiple.
+ */
+@property (nonatomic,retain,nullable) MaplyVectorObject *layoutVec;
+
 
 /**
     Used to resolve to resolve labels that show the same thing.

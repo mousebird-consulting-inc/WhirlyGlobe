@@ -328,6 +328,7 @@ vertex ProjVertexTriA vertexTri_noLight(
                 constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    outVert.maskIDs = uint2(0,0);
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     
@@ -355,6 +356,7 @@ vertex ProjVertexTriA vertexTri_noLightExp(
                 constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    outVert.maskIDs = uint2(0,0);
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     
@@ -399,6 +401,7 @@ vertex ProjVertexTriA vertexTri_light(
                 constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
+    outVert.maskIDs = uint2(0,0);
     
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState.clipCoords)
@@ -438,7 +441,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
                 constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.uniDrawState.clipCoords)
         outVert.position = float4(vertPos,1.0);
@@ -479,11 +483,21 @@ fragment float4 fragmentTri_basic(
                 constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
                 constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-    if (TexturesBase(texArgs.texPresent) > 0) {
+    int numTextures = TexturesBase(texArgs.texPresent);
+    if (numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
         return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord);
     }
     return vert.color;
+}
+
+// Fragment shader that pulls the mask ID out only
+fragment unsigned int fragmentTri_mask(ProjVertexTriA vert [[stage_in]],
+                              constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+                              constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                              constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    return vert.maskIDs[0];
 }
 
 // Vertex shader that handles up to two textures
@@ -596,7 +610,9 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
-    
+    outVert.maskIDs[0] = vert.mask0;
+    outVert.maskIDs[1] = vert.mask1;
+
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position.xyz,1.0)).xyz;
 
     // Pull out the width and possibly calculate one
@@ -710,12 +726,23 @@ fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-            constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
 
     // Dot/dash pattern
     float4 patternColor(1.0,1.0,1.0,1.0);
+    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
+            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
+    }
+
     if (numTextures > 0) {
         constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
         // Just pulling the alpha at the moment
@@ -747,7 +774,8 @@ vertex ProjVertexTriA vertexTri_screenSpace(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     if (vertArgs.ss.hasMotion)
         pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
@@ -780,6 +808,8 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     } else
         screenOffset = vert.offset;
     
+    outVert.maskIDs[0] = vert.maskID;
+
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
@@ -801,7 +831,8 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
             constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float zoomScale = 1.0;
     if (vertArgs.ss.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
@@ -840,6 +871,8 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     } else
         screenOffset = vert.offset;
     
+    outVert.maskIDs[0] = vert.maskID;
+
     float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y) * zoomScale;
     outVert.position = (dotProd > 0.0 && pt.z <= 0.0) ? float4(screenPt.xy + float2(screenOffset.x*scale.x,screenOffset.y*scale.y),0.0,1.0) : float4(0.0,0.0,0.0,0.0);
     
@@ -899,7 +932,8 @@ vertex ProjVertexTriA vertexTri_billboard(
             constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
 {
     ProjVertexTriA outVert;
-    
+    outVert.maskIDs = uint2(0,0);
+
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
 
     float3 newPos;

@@ -162,6 +162,15 @@ extern NSString* const kMaplyTextJustifyLeft;
 /// Justify text to the center
 extern NSString* const kMaplyTextJustifyCenter;
 
+/// Controls how text is laid out along a line or polygon.  Set a number (- for left or inside, + for right or outside)
+extern NSString* const kMaplyTextLayoutOffset;
+/// If laying out along a line (or polygon), the amount of screen space to leave between labels
+extern NSString* const kMaplyTextLayoutSpacing;
+/// Layout as many labels as possible along a line (or polygon).  Set a number (0 for no repeat, -1 for as many as possible, or a number of instances)
+extern NSString* const kMaplyTextLayoutRepeat;
+/// Turn on debugging lines for the layout engine
+extern NSString* const kMaplyTextLayoutDebug;
+
 /// These are used for screen and regular markers.
 extern NSString* const kMaplyClusterGroup;
 
@@ -376,6 +385,7 @@ extern NSString* const kMaplyShaderWideVectorExp;
 
 extern NSString* const kMaplyScreenSpaceDefaultMotionProgram;
 extern NSString* const kMaplyScreenSpaceDefaultProgram;
+extern NSString* const kMaplyScreenSpaceMaskProgram;
 extern NSString* const kMaplyScreenSpaceExpProgram;
 
 extern NSString* const kMaplyShaderParticleSystemPointDefault;

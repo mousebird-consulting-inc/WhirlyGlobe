@@ -237,7 +237,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		 * at startup.  These are fully capable of adding geometry to the
 		 * system on their own (via ThreadCurrent).
 		 */
-		public int numWorkingThreads = 8;
+		public int numWorkingThreads = 16;
 		/**
 		 * If set we'll override the width of the rendering surface.
 		 *

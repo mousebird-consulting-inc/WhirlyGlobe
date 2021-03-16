@@ -37,6 +37,7 @@ typedef enum {
     BDFloat2Type = 3,
     BDFloatType  = 4,
     BDIntType    = 5,
+    BDInt64Type = 6,
     BDDataTypeMax
 } BDAttributeDataType;
 
@@ -75,6 +76,8 @@ public:
     void addFloat(float val);
     /// Convenience routine to add an int (if the type matches)
     void addInt(int val);
+    /// Convenience routine to add an int64 (if the type matches)
+    void addInt64(int64_t val);
     
     /// Reserve size in the data array
     void reserve(int size);
@@ -161,6 +164,7 @@ public:
     SingleVertexAttribute();
     SingleVertexAttribute(StringIdentity nameID,int slot,float floatVal);
     SingleVertexAttribute(StringIdentity nameID,int slot,int intVal);
+    SingleVertexAttribute(StringIdentity nameID,int slot,int64_t intVal);
     SingleVertexAttribute(StringIdentity nameID,int slot,unsigned char colorVal[4]);
     SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1);
     SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2);
@@ -174,6 +178,7 @@ public:
         float floatVal;
         unsigned char color[4];
         int intVal;
+        int64_t int64Val;
     } data;
 };
 

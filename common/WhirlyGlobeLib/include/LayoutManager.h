@@ -28,6 +28,7 @@
 #import "ScreenSpaceBuilder.h"
 #import "SelectionManager.h"
 #import "OverlapHelper.h"
+#import "VectorManager.h"
 
 namespace WhirlyKit
 {
@@ -68,11 +69,21 @@ public:
     Point2dVector selectPts;
 
     std::string uniqueID;
-    
+        
     /// This is used to sort objects for layout.  Bigger is more important.
     float importance;
     /// If set, this is clustering group to sort into
     int clusterGroup;
+
+    int layoutRepeat;      // How many instances
+    float layoutOffset;   // Offset left/right
+    float layoutSpacing;  // Start/end spacing along line
+    float layoutWidth;   // Used in generalization
+    bool layoutDebug;    // Turn this on for layout debugging
+    Point3dVector layoutShape;
+    /// If we're placing glyphs individually we'll do it with matrices
+    std::vector<std::vector<Eigen::Matrix3d> > layoutPlaces;
+    std::vector<Point3d> layoutModelPlaces;
 
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
@@ -217,7 +228,13 @@ protected:
     static bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const ViewStateRef &viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
     static Eigen::Matrix2d calcScreenRot(float &screenRot,const ViewStateRef &viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
 
-    bool runLayoutRules(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,std::vector<ClusterEntry> &clusterEntries,std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams);
+    bool runLayoutRules(PlatformThreadInfo *threadInfo,
+                        const ViewStateRef &viewState,
+                        std::vector<ClusterEntry> &clusterEntries,
+                        std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
+                        ChangeSet &changes);
+    
+    VectorManagerRef vecManage;
     
     /// If non-zero the maximum number of objects we'll display at once
     int maxDisplayObjects;
@@ -235,6 +252,9 @@ protected:
     ClusterGenerator *clusterGen;
     /// Features we'll force to always display
     std::set<std::string> overrideUUIDs;
+    
+    SimpleIDSet debugVecIDs;  // Used to display debug lines for text layout
+    SimpleIdentity vecProgID;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 

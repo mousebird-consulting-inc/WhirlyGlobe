@@ -86,7 +86,11 @@ public:
     float outlineSize;
     float lineHeight;
     float fontPointSize;
-    
+    float layoutOffset;
+    float layoutSpacing;
+    int layoutRepeat;
+    bool layoutDebug;
+
     FloatExpressionInfoRef opacityExp;
 //    ColorExpressionInfoRef colorExp;
     FloatExpressionInfoRef scaleExp;
@@ -101,7 +105,11 @@ typedef std::shared_ptr<LabelInfo> LabelInfoRef;
 class LabelRenderer
 {
 public:
-    LabelRenderer(Scene *scene,const FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo);
+    LabelRenderer(Scene *scene,
+                  SceneRenderer *renderer,
+                  const FontTextureManagerRef &fontTexManager,
+                  const LabelInfo *labelInfo,
+                  SimpleIdentity maskProgID);
     
     /// Description of the labels
     const LabelInfo *labelInfo;
@@ -113,6 +121,7 @@ public:
     LabelSceneRep *labelRep;
     /// Scene we're building in
     Scene *scene;
+    SceneRenderer *renderer;
     /// Screen space objects
     std::vector<WhirlyKit::ScreenSpaceObject> screenObjects;
     /// Layout objects (pass these to the layout engine if you want that)
@@ -132,6 +141,11 @@ public:
     bool useAttributedString;
     /// Scale, if we're using that
     float scale;
+    // Program used to render masks to their target
+    SimpleIdentity maskProgID;
+    
+    /// Convenience routine to convert the points to model space
+    Point3dVector convertGeoPtsToModelSpace(const VectorRing &inPts);
 
     /// Renders the labels into a big texture and stores the resulting info
     void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);

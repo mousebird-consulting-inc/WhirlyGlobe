@@ -57,7 +57,8 @@ LabelInfo::LabelInfo(bool screenObject) :
     textJustify(WhirlyKitTextCenter),
     shadowColor(0,0,0,0), shadowSize(-1.0),
     outlineColor(0,0,0,0), outlineSize(-1.0),
-    lineHeight(0.0), fontPointSize(16.0)
+    lineHeight(0.0), fontPointSize(16.0),
+    layoutOffset(0.0), layoutSpacing(20.0), layoutRepeat(0), layoutDebug(false)
 {
 }
 
@@ -67,7 +68,8 @@ screenObject(that.screenObject), width(that.width), height(that.height),
 labelJustify(that.labelJustify), textJustify(that.textJustify),
 shadowColor(that.shadowColor), shadowSize(that.shadowSize),
 outlineColor(that.outlineColor), outlineSize(that.outlineSize),
-lineHeight(that.lineHeight), fontPointSize(that.fontPointSize)
+lineHeight(that.lineHeight), fontPointSize(that.fontPointSize),
+layoutOffset(that.layoutOffset), layoutSpacing(that.layoutSpacing), layoutRepeat(that.layoutRepeat)
 {
 }
 
@@ -88,6 +90,10 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     lineHeight = (float)dict.getDouble(MaplyTextLineHeight,0.0);
     labelJustify = parseLabelJustify(dict.getString(MaplyLabelJustifyName), WhirlyKitLabelMiddle);
     textJustify = parseTextJustify(dict.getString(MaplyTextJustify), WhirlyKitTextLeft);
+    layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
+    layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
+    layoutSpacing = dict.getDouble(MaplyTextLayoutSpacing,layoutSpacing);
+    layoutOffset = dict.getDouble(MaplyTextLayoutOffset,layoutOffset);
 }
 
 
@@ -95,18 +101,41 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
 // Don't want to give them their own separate drawable, obviously
 typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
-LabelRenderer::LabelRenderer(Scene *scene,const FontTextureManagerRef &fontTexManager,const LabelInfo *labelInfo) :
+LabelRenderer::LabelRenderer(Scene *scene,
+                             SceneRenderer *renderer,
+                             const FontTextureManagerRef &fontTexManager,
+                             const LabelInfo *labelInfo,
+                             SimpleIdentity maskProgID) :
     useAttributedString(true),
     scene(scene),
+    renderer(renderer),
     coordAdapter(scene->getCoordAdapter()),
     fontTexManager(fontTexManager),
     labelInfo(labelInfo),
     textureAtlasSize(2048),
-    labelRep(nullptr)
+    labelRep(nullptr),
+    maskProgID(maskProgID)
 {
 }
 
 typedef std::map<SimpleIdentity,BasicDrawable *> DrawableIDMap;
+
+Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts)
+{
+    CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapt->getCoordSystem();
+
+    Point3dVector outPts;
+    outPts.reserve(inPts.size());
+    
+    for (auto pt: inPts) {
+        auto localPt = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+        Point3d pt3d = coordAdapt->localToDisplay(localPt);
+        outPts.push_back(pt3d);
+    }
+    
+    return outPts;
+}
 
 void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
@@ -207,12 +236,13 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
             // Throw a rectangle in the background
             RGBAColor backColor = theBackColor;
             double backBorder = 0.0;
-            if (backColor.a != 0.0)
+            ScreenSpaceConvexGeometry backGeom;
+            if (backColor.a != 0.0 || label->maskID != EmptyIdentity)
             {
                 // Note: This is an arbitrary border around the text
                 backBorder = 4.0;
                 justifyOff.x() += backBorder;
-                ScreenSpaceObject::ConvexGeometry smGeom;
+                ScreenSpaceConvexGeometry smGeom;
                 smGeom.progID = labelInfo->programID;
                 const Point2d ll = Point2d(drawMbr.ll().x(),drawMbr.ll().y())+iconOff+Point2d(-backBorder,-backBorder);
                 const Point2d ur = Point2d(drawMbr.ur().x(),drawMbr.ur().y())+iconOff+Point2d(backBorder,backBorder);
@@ -230,7 +260,17 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 
                 smGeom.drawPriority = labelInfo->drawPriority;
                 smGeom.color = backColor;
+                backGeom = smGeom;
                 screenShape->addGeometry(smGeom);
+            }
+            
+            // Handle the mask rendering if needed
+            if (label->maskID != EmptyIdentity && label->maskRenderTargetID != EmptyIdentity) {
+                // Make a copy of the geometry, but target it to the mask render target
+                backGeom.vertexAttrs.insert(SingleVertexAttribute(a_maskNameID, renderer->getSlotForNameID(a_maskNameID), (int)label->maskID));
+                backGeom.renderTargetID = label->maskRenderTargetID;
+                backGeom.progID = maskProgID;
+                screenShape->addGeometry(backGeom);
             }
 
             // If it's being passed to the layout engine, do that as well
@@ -253,6 +293,16 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 layoutObject->acceptablePlacement = layoutPlacement;
                 layoutObject->setEnable(labelInfo->enable);
                 
+                // Setup layout points if we have them
+                if (!label->layoutShape.empty()) {
+                    layoutObject->layoutShape = convertGeoPtsToModelSpace(label->layoutShape);
+                    layoutObject->layoutRepeat = labelInfo->layoutRepeat;
+                    layoutObject->layoutOffset = labelInfo->layoutOffset;
+                    layoutObject->layoutSpacing = labelInfo->layoutSpacing;
+                    layoutObject->layoutWidth = height;
+                    layoutObject->layoutDebug = labelInfo->layoutDebug;
+                }
+                
                 // The shape starts out disabled
                 screenShape->setEnable(labelInfo->enable);
                 if (labelInfo->startEnable != labelInfo->endEnable)
@@ -270,8 +320,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                 }
             }
             
-            // Deal with the icon here because we need its geometry
-            ScreenSpaceObject::ConvexGeometry iconGeom;
+            // Deal with the icon here becaue we need its geometry
+            ScreenSpaceConvexGeometry iconGeom;
             if (label->iconTexture != EmptyIdentity && screenShape)
             {
                 const SubTexture subTex = scene->getSubTexture(label->iconTexture);
@@ -400,7 +450,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
                     for (const auto &poly : drawStr->glyphPolys)
                     {
                         // Note: Ignoring the desired size in favor of the font size
-                        ScreenSpaceObject::ConvexGeometry smGeom;
+                        ScreenSpaceConvexGeometry smGeom;
                         smGeom.progID = labelInfo->programID;
                         smGeom.coords.push_back(Point2d(poly.pts[1].x()+label->screenOffset.x(),poly.pts[0].y()+label->screenOffset.y() + offsetY) + soff + iconOff + justifyOff + lineOff);
                         smGeom.texCoords.emplace_back(poly.texCoords[1].u(),poly.texCoords[0].v());

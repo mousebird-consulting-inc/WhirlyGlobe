@@ -33,6 +33,9 @@ typedef unsigned long StringIdentity;
 // Speeds things up on the main thread immensely.
 extern void SetupDrawableStrings();
 
+// Number of entries for masks used in the mask target
+#define WhirlyKitMaxMasks 2
+
 // Names used for indexing into shaders
 extern StringIdentity baseMapNameIDs[];
 extern StringIdentity hasBaseMapNameIDs[];
@@ -72,6 +75,8 @@ extern StringIdentity u_uprightNameID;
 extern StringIdentity u_activerotNameID;
 extern StringIdentity a_rotNameID;
 extern StringIdentity a_dirNameID;
+extern StringIdentity a_maskNameID;
+extern StringIdentity a_maskNameIDs[];
 extern StringIdentity a_texCoordNameID;
 extern StringIdentity u_w2NameID;
 extern StringIdentity u_Realw2NameID;

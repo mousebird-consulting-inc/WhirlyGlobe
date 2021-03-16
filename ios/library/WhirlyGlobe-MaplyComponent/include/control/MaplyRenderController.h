@@ -790,6 +790,16 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (void)removeRenderTarget:(MaplyRenderTarget * _Nonnull)renderTarget;
 
 /**
+    Set up the the mask render target.  We use it to keep one set of features from render on top of another set.
+ */
+- (void)startMaskTarget:(NSNumber * __nullable)scale;
+
+/**
+    Turn off the render target for masks.
+ */
+- (void)stopMaskTarget;
+
+/**
     Normally the layout layer runs periodically if you change something or when you move around.
     You can ask it to run ASAP right here.  Layout runs on its own thread, so there may still be a delay.
  */
