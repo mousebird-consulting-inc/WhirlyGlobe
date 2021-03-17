@@ -24,7 +24,7 @@ package com.mousebird.maply;
 /**
  *  This version of the loader return is used by the ImageLoaderInterpreter.
  *
- *  When image tiles load, the interpeter fills in these contents, which can
+ *  When image tiles load, the interpreter fills in these contents, which can
  *  include any sort of ComponentObject and, of course, images.
  */
 public class ObjectLoaderReturn extends LoaderReturn

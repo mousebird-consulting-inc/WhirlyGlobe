@@ -256,6 +256,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
         (JNIEnv *env, jobject obj, jobject loadRetObj, jobject changeObj)
 {
     try {
+        if (!loadRetObj) {
+            // Load failed, add any changes appropriate for a failure.
+            // For now, that's ... nothing.
+            return;
+        }
+
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadRetObj);
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
