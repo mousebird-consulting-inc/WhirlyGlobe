@@ -39,6 +39,14 @@ public:
         {
         }
 
+        // Move only
+        ClusterInfo(const ClusterInfo &) = delete;
+        ClusterInfo(ClusterInfo &&other) noexcept
+        {
+            copy(other);
+            other.clusterObj = nullptr;
+        }
+
         ~ClusterInfo()
         {
             if (clusterObj) {
@@ -47,7 +55,21 @@ public:
         }
 
         bool operator < (const ClusterInfo &that) const { return clusterID < that.clusterID; }
-        
+
+        // Move only
+        ClusterInfo& operator =(const ClusterInfo &) = delete;
+        ClusterInfo& operator =(ClusterInfo &&other) noexcept {
+            if (this != &other) {
+                if (clusterObj) {
+                    // Replacing this one leaks it
+                    wkLogLevel(Warn, "ClusterInfo not cleaned up");
+                }
+                copy(other);
+                other.clusterObj = nullptr;
+            }
+            return *this;
+        }
+
         void init(JNIEnv *env,int inClusterID,const Point2d &inLayoutSize,jobject inClusterObj)
         {
             clusterID = inClusterID;
@@ -55,6 +77,7 @@ public:
             clusterObj = env->NewGlobalRef(inClusterObj);
             
             // Methods can be saved without consequence
+            // (as long as the class isn't unloaded and reloaded)
             jclass theClass = env->GetObjectClass(clusterObj);
             startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
             makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I)J");
@@ -77,6 +100,18 @@ public:
         jmethodID startClusterGroupJava;
         jmethodID makeClusterGroupJNIJava;
         jmethodID endClusterGroupJava;
+
+    private:
+        void copy(const ClusterInfo &other) {
+            clusterID = other.clusterID;
+            layoutSize = other.layoutSize;
+            clusterObj = other.clusterObj;
+            selectable = other.selectable;
+            startClusterGroupJava = other.startClusterGroupJava;
+            makeClusterGroupJNIJava = other.makeClusterGroupJNIJava;
+            endClusterGroupJava = other.endClusterGroupJava;
+        }
+        friend class LayoutManagerWrapper;
     };
     typedef std::set<ClusterInfo> ClusterInfoSet;
 
@@ -107,7 +142,7 @@ public:
         clusterInfo.init(env,clusterID,Point2d(sizeX,sizeY),clusterObj);
         clusterInfo.selectable = selectable;
         
-        clusterGens.insert(clusterInfo);
+        clusterGens.insert(std::move(clusterInfo));
     }
     
     void clearClusterGenerators(JNIEnv* env)
