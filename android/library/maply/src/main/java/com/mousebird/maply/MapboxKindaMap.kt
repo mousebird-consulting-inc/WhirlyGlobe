@@ -24,26 +24,23 @@ import java.net.URL
  */
 open class MapboxKindaMap {
 
-    constructor(styleURL: Uri, control: BaseController) {
-        this.control = WeakReference<BaseController>(control)
+    private constructor(inControl: BaseController) {
+        control = WeakReference<BaseController>(inControl)
+        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
+        styleSettings.drawPriorityPerLevel = 100
+    }
+
+    constructor(styleURL: Uri, control: BaseController) : this(control)  {
         this.styleURL = styleURL
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
     }
 
-    constructor(styleJSON: String, control: BaseController) {
-        this.control = WeakReference<BaseController>(control)
+    constructor(styleJSON: String, control: BaseController) : this(control) {
         this.styleSheetJSON = styleJSON
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
     }
 
-    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController) {
-        this.control = WeakReference<BaseController>(control)
+    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController) : this(control) {
         this.styleSheetJSON = styleJSON
         this.localMBTiles = sequenceOf(localMBTilesFile)
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 1
     }
 
     var styleURL : Uri? = null
@@ -59,6 +56,8 @@ open class MapboxKindaMap {
     var mapboxInterp: MapboxVectorInterpreter? = null
     var loader: QuadLoaderBase? = null
     var offlineRender: RenderController? = null
+    var lineScale = 0.0
+    var textScale = 0.0
 
     /* If set, we build an image/vector hybrid where the polygons go into
      *  the image layer and the linears and points are represented as vectors
@@ -334,6 +333,12 @@ open class MapboxKindaMap {
             return
         }
 
+        // Adjustment for loading (512 vs 1024 or so)
+        styleSettings.lineScale = if (lineScale > 0) lineScale else minImportance / (512.0 * 512.0) / 2
+
+        // Similar adjustment for text
+        styleSettings.textScale = if (textScale > 0) textScale else minImportance / (512.0 * 512.0) / 2
+
         // Parameters describing how we want a globe broken down
         val sampleParams = SamplingParams()
         sampleParams.coordSystem = SphericalMercatorCoordSystem()
@@ -427,7 +432,7 @@ open class MapboxKindaMap {
             val imageStyleDict = AttrDictionary()
             imageStyleDict.parseFromJSON(styleSheetJSON)
             val imageLayers =  imageStyleDict.getArray("layers")
-            var newImageLayers = ArrayList<AttrDictionaryEntry>()
+            val newImageLayers = ArrayList<AttrDictionaryEntry>()
             for (layer in imageLayers) {
                 if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
                     val layerDict = layer.dict
@@ -447,7 +452,7 @@ open class MapboxKindaMap {
         // The polygons only go into the background in this case
         if (backgroundAllPolys) {
             val vectorLayers = vectorStyleDict.getArray("layers")
-            var newVectorLayers = ArrayList<AttrDictionaryEntry>()
+            val newVectorLayers = ArrayList<AttrDictionaryEntry>()
             for (layer in vectorLayers) {
                 if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
                     val layerDict = layer.dict
@@ -481,14 +486,9 @@ open class MapboxKindaMap {
         }
 
         // TODO: Handle more than one source
-        if (backgroundAllPolys) {
-            val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], control)
-            imageLoader.setLoaderInterpreter(mapboxInterp)
-            loader = imageLoader
-        } else {
-            val vecLoader = QuadPagingLoader(sampleParams, tileInfos[0], mapboxInterp, control)
-            loader = vecLoader
-        }
+        val imageLoader = QuadImageLoader(sampleParams, tileInfos[0], control)
+        imageLoader.setLoaderInterpreter(mapboxInterp)
+        loader = imageLoader
     }
 
     // Stop trying to load data if we're doing that

@@ -21,13 +21,10 @@
 package com.mousebird.maply;
 
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 
 /**
@@ -124,6 +121,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *
      *  @return The lower left and upper right corner of the tile in local coordinates.
      */
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public Mbr boundsForTile(TileID tileID)
     {
         Mbr mbr = new Mbr();
@@ -142,6 +140,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *
      *  @return Return the center in display space for the given tile.
      */
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public Point3d displayCenterForTile(TileID tileID)
     {
         Point3d pt = new Point3d();
@@ -174,6 +173,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      * Change the interpreter for the data coming back.  This will force a reload.
      * @param newInterpreter the new instance
      */
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public void changeLoaderInterpreter(final LoaderInterpreter newInterpreter) {
         QuadSamplingLayer layer = getSamplingLayer();
         if (layer == null)
@@ -286,6 +286,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     /* --- Callback from C++ side --- */
 
     // Process the cancels and starts we get from the C++ side
+    @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
     public void processBatchOps(QIFBatchOps batchOps)
     {
         batchOps.process(tileFetcher);
@@ -303,7 +304,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     // Start off fetches for all the frames within a given tile
     // Return an array of corresponding frame assets
-    public void startTileFetch(QIFBatchOps batchOps,QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
+    @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
+    public void startTileFetch(QIFBatchOps batchOps, QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
     {
         if (tileInfos.length == 0 || tileInfos.length != inFrameAssets.length)
             return;
@@ -366,10 +368,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                     final QuadSamplingLayer layer = getSamplingLayer();
                     if (layer != null) {
                         layer.layerThread.addTask(() -> {
-                            ChangeSet changes = new ChangeSet();
-                            mergeLoaderReturn(null, changes);
                             QuadSamplingLayer layerInner = getSamplingLayer();
                             if (layerInner != null) {
+                                // Give the C++ code a chance to add changes in this case
+                                ChangeSet changes = new ChangeSet();
+                                mergeLoaderReturn(null, changes);
                                 layerInner.layerThread.addChanges(changes);
                             }
                         });
@@ -474,5 +477,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     private static native void nativeInit();
     native void initialise(SamplingParams params,int numFrames,int mode);
     native void dispose();
+    @SuppressWarnings({"unused", "RedundantSuppression"})   // Used from C++
     private long nativeHandle;
 }
