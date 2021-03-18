@@ -24,16 +24,7 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-WideVectorDrawableBuilder::WideVectorDrawableBuilder()
-    : texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(true), color(255,255,255,255)
-{
-}
-    
-WideVectorDrawableBuilder::~WideVectorDrawableBuilder()
-{
-}
-    
+
 void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bool inGlobeMode)
 {
     globeMode = inGlobeMode;
@@ -45,15 +36,15 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bo
     tris.reserve(numTri);
     
     lineWidth = 10.0/1024.0;
-    lineOffset = 0.0;
+    //lineOffset = 0.0;
     if (globeMode)
-        basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,numVert);
+        basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,(int)numVert);
     basicDraw->colorEntry = addAttribute(BDChar4Type, a_colorNameID);
-    p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
-    tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
-    n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
-    offset_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"),numVert);
-    c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
+    p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),(int)numVert);
+    tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),(int)numVert);
+    n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),(int)numVert);
+    offset_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"),(int)numVert);
+    c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),(int)numVert);
 }
     
 void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
@@ -69,6 +60,7 @@ void WideVectorDrawableBuilder::setLineWidth(float inWidth)
 void WideVectorDrawableBuilder::setLineOffset(float inOffset)
 {
     lineOffset = inOffset;
+    lineOffsetSet = true;
 }
  
 void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)
@@ -77,10 +69,6 @@ void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)
 void WideVectorDrawableBuilder::setEdgeSize(float inEdgeSize)
     { edgeSize = inEdgeSize; }
 
-void WideVectorDrawableBuilder::setRealWorldWidth(double width)
-    { realWidthSet = true;  realWidth = width; }
-
-    
 unsigned int WideVectorDrawableBuilder::addPoint(const Point3f &pt)
 {
 #ifdef WIDEVECDEBUG
@@ -141,12 +129,12 @@ void WideVectorDrawableBuilder::add_c0(float val)
 #endif
 }
 
-void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidthExp)
+void WideVectorDrawableBuilder::setWidthExpression(const FloatExpressionInfoRef &inWidthExp)
 {
     widthExp = inWidthExp;
 }
 
-void WideVectorDrawableBuilder::setOffsetExpression(FloatExpressionInfoRef inOffsetExp)
+void WideVectorDrawableBuilder::setOffsetExpression(const FloatExpressionInfoRef &inOffsetExp)
 {
     offsetExp = inOffsetExp;
 }
@@ -154,13 +142,16 @@ void WideVectorDrawableBuilder::setOffsetExpression(FloatExpressionInfoRef inOff
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
     WideVectorTweaker *tweak = makeTweaker();
-    tweak->realWidthSet = false;
-    tweak->realWidth = realWidth;
     tweak->edgeSize = edgeSize;
     tweak->lineWidth = lineWidth;
     tweak->widthExp = widthExp;
     tweak->texRepeat = texRepeat;
     tweak->color = color;
+    tweak->colorExp = colorExp;
+    tweak->opacityExp = opacityExp;
+    tweak->offset = lineOffset;
+    tweak->offsetSet = lineOffsetSet;
+    tweak->offsetExp = offsetExp;
     theDraw->addTweaker(DrawableTweakerRef(tweak));
 }    
     
