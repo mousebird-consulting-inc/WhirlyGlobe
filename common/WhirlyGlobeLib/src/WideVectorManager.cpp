@@ -620,8 +620,9 @@ public:
 //            drawMbr.reset();
             drawable->setType(Triangles);
             vecInfo->setupBasicDrawable(drawable);
-            if (vecInfo->coordType == WideVecCoordReal)
-                wideDrawable->setRealWorldWidth(vecInfo->width);
+            if (vecInfo->coordType == WideVecCoordReal) {
+                wkLogLevel(Warn, "WideVecCoordReal is no longer supported");
+            }
             if (vecInfo->widthExp)
                 wideDrawable->setWidthExpression(vecInfo->widthExp);
             if (vecInfo->opacityExp)

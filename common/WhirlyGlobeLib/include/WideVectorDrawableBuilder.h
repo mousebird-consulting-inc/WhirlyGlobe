@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawable.h
+/*  WideVectorDrawable.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/29/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableBuilder.h"
@@ -27,22 +25,24 @@ namespace WhirlyKit
     
 // Modifies the uniform values of a given shader right
 //  before the wide vector drawables are rendered
-class WideVectorTweaker : public DrawableTweaker
+struct WideVectorTweaker : public DrawableTweaker
 {
-public:
     // Called right before the drawable is drawn
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
-    
-    bool realWidthSet;
-    float realWidth;
-    float edgeSize;
-    float lineWidth;
-    float texRepeat;
-    RGBAColor color;
+
+    float edgeSize = 0.0f;
+    float lineWidth = 0.0f;
+    float texRepeat = 0.0f;
+    float offset = 0.0f;
+    bool offsetSet = false;
+    RGBAColor color = RGBAColor::white();
 
     FloatExpressionInfoRef widthExp;
+    ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef opacityExp;
+    FloatExpressionInfoRef offsetExp;
 };
-    
+
 // Used to debug the wide vectors
 //#define WIDEVECDEBUG 1
 
@@ -53,12 +53,12 @@ class WideVectorDrawableBuilder : virtual public BasicDrawableBuilder
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawableBuilder();
-    virtual ~WideVectorDrawableBuilder();
+    WideVectorDrawableBuilder() = default;
+    virtual ~WideVectorDrawableBuilder() = default;
 
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
     
-    virtual unsigned int addPoint(const Point3f &pt);
+    virtual unsigned int addPoint(const Point3f &pt) override;
     // Next point, for calculating p1 - p0
     void add_p1(const Point3f &vec);
     // Texture calculation parameters
@@ -70,14 +70,14 @@ public:
     // Complex constant we multiply by width for t
     void add_c0(float c);
     // Optional normal
-    void addNormal(const Point3f &norm);
-    void addNormal(const Point3d &norm);
+    virtual void addNormal(const Point3f &norm) override;
+    virtual void addNormal(const Point3d &norm) override;
     
     // We set color globally
-    void setColor(RGBAColor inColor);
+    virtual void setColor(RGBAColor inColor) override;
     
     // Line width for vectors is a bit different
-    void setLineWidth(float inWidth);
+    virtual void setLineWidth(float inWidth) override;
     
     // Line offset for vectors
     void setLineOffset(float inOffset);
@@ -87,15 +87,12 @@ public:
     
     /// Number of pixels to interpolate at the edges
     void setEdgeSize(float inEdgeSize);
-    
-    /// Fix the width to a real world value, rather than letting it change
-    void setRealWorldWidth(double width);
-    
+
     // Apply a width expression
-    void setWidthExpression(FloatExpressionInfoRef widthExp);
+    void setWidthExpression(const FloatExpressionInfoRef &widthExp);
     
     // Apply an offset expression
-    void setOffsetExpression(FloatExpressionInfoRef offsetExp);
+    void setOffsetExpression(const FloatExpressionInfoRef &offsetExp);
     
     // The tweaker sets up uniforms before a given drawable draws
     void setupTweaker(BasicDrawable *theDraw);
@@ -104,20 +101,18 @@ public:
     virtual WideVectorTweaker *makeTweaker() = 0;
 
 protected:
-    float lineWidth;
-    float lineOffset;
-    RGBAColor color;
-    bool globeMode;
-    bool realWidthSet;
-    double realWidth;
-    bool snapTex;
-    float texRepeat;
-    float edgeSize;
-    int p1_index;
-    int n0_index;
-    int offset_index;
-    int c0_index;
-    int tex_index;
+    RGBAColor color = RGBAColor::white();
+    float lineWidth = 1.0f;
+    float lineOffset = 0.0f;
+    bool lineOffsetSet = false;
+    bool globeMode = true;
+    float texRepeat = 1.0f;
+    float edgeSize = 1.0f;
+    int p1_index = -1;
+    int n0_index = -1;
+    int offset_index = -1;
+    int c0_index = -1;
+    int tex_index = -1;
     
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
