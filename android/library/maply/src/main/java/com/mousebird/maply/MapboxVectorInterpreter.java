@@ -122,31 +122,36 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
         GZIPInputStream in = null;
         ByteArrayOutputStream bout = null;
+        ByteArrayInputStream bin = null;
         try {
             // Unzip if it's compressed
-            ByteArrayInputStream bin = new ByteArrayInputStream(data);
-            in = new GZIPInputStream(bin);
-            bout = new ByteArrayOutputStream(data.length * 2);
+            bin = new ByteArrayInputStream(data);
+            in = new GZIPInputStream(bin, data.length);
+            // Bail as soon as possible if there's a problem
+            if (in.available() != 0) {
+                bout = new ByteArrayOutputStream(data.length * 2);
 
-            byte[] buffer = new byte[1024];
-            int count;
-            while ((count = in.read(buffer)) != -1)
-                bout.write(buffer, 0, count);
+                byte[] buffer = new byte[1024];
+                for (int count; (count = in.read(buffer)) != -1; ) {
+                    bout.write(buffer, 0, count);
+                }
 
-            data = bout.toByteArray();
+                data = bout.toByteArray();
+            }
         } catch (Exception ex) {
             // We'll try the raw data if we can't decompress it
-        }
-        finally
-        {
-            if (in != null) try
-            {
+        }  finally  {
+            // Clean everything up in the opposite order they were created.
+            if (bout != null) try {
+                bout.close ();
+            } catch (IOException ignore){}
+
+            if (in != null) try {
                 in.close ();
             } catch (IOException ignore){}
 
-            if (bout != null) try
-            {
-                bout.close ();
+            if (bin != null) try {
+                bin.close ();
             } catch (IOException ignore){}
         }
 
