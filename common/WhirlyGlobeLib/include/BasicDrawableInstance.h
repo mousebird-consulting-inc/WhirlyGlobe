@@ -109,7 +109,7 @@ public:
     void setDrawPriority(int newPriority);
     
     /// Set the line width
-    void setLineWidth(int newLineWidth);
+    void setLineWidth(float newLineWidth);
     
     // Time we start counting from for motion
     void setStartTime(TimeInterval inStartTime);

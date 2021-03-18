@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableBuilderGLES.cpp
+/*  BasicDrawableBuilderGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/10/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableBuilderGLES.h"
@@ -31,23 +29,24 @@ BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name,Scene
     basicDraw = std::make_shared<BasicDrawableGLES>(name);
     BasicDrawableBuilder::Init();
     if (setupStandard)
-        setupStandardAttributes();
+        setupStandardAttributes();  // NOLINT: derived virtual not called here
 }
-    
+
 BasicDrawableBuilderGLES::~BasicDrawableBuilderGLES()
 {
     if (!drawableGotten)
         basicDraw.reset();
 }
 
+// NOLINTNEXTLINE(google-default-arguments)
 int BasicDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
     VertexAttribute *attr = new VertexAttributeGLES(dataType,nameID);
     if (numThings > 0)
         attr->reserve(numThings);
     basicDraw->vertexAttributes.push_back(attr);
-    
-    return (unsigned int)(basicDraw->vertexAttributes.size()-1);
+
+    return (int)(basicDraw->vertexAttributes.size()-1);
 }
 
 BasicDrawableRef BasicDrawableBuilderGLES::getDrawable()
@@ -57,12 +56,12 @@ BasicDrawableRef BasicDrawableBuilderGLES::getDrawable()
     if (draw && !drawableGotten) {
         draw->points = points;
         draw->tris = tris;
-        draw->vertexSize = draw->singleVertexSize();
+        draw->vertexSize = (int)draw->singleVertexSize();
         
         drawableGotten = true;
     }
-    
+
     return draw;
 }
-    
+
 }

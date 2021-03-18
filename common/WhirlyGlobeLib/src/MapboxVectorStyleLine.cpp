@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleLine.mm
+/*  MapboxVectorStyleLine.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleLine.h"
@@ -24,10 +22,10 @@
 namespace WhirlyKit
 {
 
-static const char * const lineCapVals[] = {"butt","round","square",NULL};
-static const char * const joinVals[] = {"bevel","round","miter",NULL};
+static const char * const lineCapVals[] = {"butt","round","square",nullptr};
+static const char * const joinVals[] = {"bevel","round","miter",nullptr};
 
-bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLineLayout::parse(PlatformThreadInfo *,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry)
 {
     cap = styleEntry ? (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt) : MBLineCapButt;
     join = styleEntry ? (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter) : MBLineJoinMiter;
@@ -37,7 +35,7 @@ bool MapboxVectorLineLayout::parse(PlatformThreadInfo *inst,MapboxVectorStyleSet
     return true;
 }
 
-bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry)
+bool MapboxVectorLinePaint::parse(PlatformThreadInfo *,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry)
 {
     styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
     styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
@@ -53,7 +51,7 @@ bool MapboxVectorLinePaint::parse(PlatformThreadInfo *inst,MapboxVectorStyleSetI
     
     if (styleEntry && styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
-        for (auto entry : vecArray) {
+        for (const auto &entry : vecArray) {
             if (entry->getType() == DictTypeDouble || entry->getType() == DictTypeInt) {
                 lineDashArray.push_back(entry->getDouble());
             } else {
@@ -92,13 +90,14 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
         for (double val : paint.lineDashArray)
             totLen += val;
 
-        int totLenRounded = NextPowOf2(totLen);
+        unsigned totLenRounded = NextPowOf2((unsigned)totLen);
         if (totLenRounded < 64)
             totLenRounded = 64;
         std::vector<double> dashComponents;
+        dashComponents.reserve(paint.lineDashArray.size());
         for (double val : paint.lineDashArray)
         {
-            double len = val * totLenRounded / totLen;
+            const double len = val * totLenRounded / totLen;
             dashComponents.push_back(len);
         }
         totLen *= maxWidth;
@@ -166,19 +165,19 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     {
         std::vector<VectorObjectRef> newVecObjs;
         newVecObjs.reserve(3 * vecObjs.size());
-        for (auto vecObj : vecObjs)
+        for (const auto &vecObj : vecObjs)
         {
-            vecObj->subdivideToGlobe(subdivToGlobe);
+            vecObj->subdivideToGlobe((float)subdivToGlobe);
             newVecObjs.push_back(vecObj);
         }
         vecObjs = newVecObjs;
     }
     
     // If we have a filled texture, we'll use that
-    const float repeatLen = totLen;
+    const auto repeatLen = (float)totLen;
     
     // TODO: We can also have a symbol, where we might do the same thing
-    // Problem is, we'll need to pass the subtexture logic through to the renderer
+    // Problem is, we'll need to pass the sub-texture logic through to the renderer
     //  because right now it's expecting a single texture that can be strung along the line
     
     const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
@@ -197,8 +196,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.fade = fade;
     vecInfo.zoomSlot = styleSet->zoomSlot;
     vecInfo.color = *color;
-    vecInfo.width = width;
-    vecInfo.offset = -offset;
+    vecInfo.width = (float)width;
+    vecInfo.offset = (float)-offset;
     vecInfo.widthExp = paint.width->expression();
     vecInfo.offsetExp = paint.offset->expression();
     vecInfo.colorExp = paint.color->expression();
@@ -231,7 +230,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     std::unordered_map<std::string,ShapeRefVec> shapesByUUID(capacity);
 
     // Gather all the linear features
-    for (auto vecObj : vecObjs)
+    for (const auto &vecObj : vecObjs)
     {
         if (vecObj->getVectorType() != VectorLinearType)
         {
