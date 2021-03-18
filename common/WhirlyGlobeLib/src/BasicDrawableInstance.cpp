@@ -253,14 +253,15 @@ void BasicDrawableInstance::setDrawPriority(int newPriority)
 }
 
 /// Set the line width
-void BasicDrawableInstance::setLineWidth(int newLineWidth)
+void BasicDrawableInstance::setLineWidth(float newLineWidth)
 {
     if (hasLineWidth && lineWidth == newLineWidth)
         return;
     
     setValuesChanged();
 
-    hasLineWidth = true;  lineWidth = newLineWidth;
+    hasLineWidth = true;
+    lineWidth = newLineWidth;
 }
     
 void BasicDrawableInstance::setStartTime(TimeInterval inStartTime)

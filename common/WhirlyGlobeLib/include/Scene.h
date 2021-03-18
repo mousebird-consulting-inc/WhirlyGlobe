@@ -36,8 +36,6 @@ namespace WhirlyKit
 class SceneRenderer;
 class Scene;
 class SubTexture;
-class ScreenSpaceGenerator;
-class ViewPlacementGenerator;
 class FontTextureManager;
 typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
 class RenderSetupInfo;
@@ -52,7 +50,7 @@ public:
     AddTextureReq(TextureBase *tex) { texRef = TextureBaseRef(tex); }
     AddTextureReq(const TextureBaseRef &texRef) : texRef(texRef) { }
     /// If the texture hasn't been added to the renderer, clean it up.
-    ~AddTextureReq();
+    virtual ~AddTextureReq();
 
     /// Texture creation generally wants a flush
     virtual bool needsFlush() { return true; }
@@ -64,7 +62,7 @@ public:
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
     /// Only use this if you've thought it out
-    TextureBase *getTex();
+    TextureBase *getTex() const;
 
 protected:
     TextureBaseRef texRef;
@@ -95,7 +93,7 @@ public:
     /// Passing by ref means don't worry about it
     AddDrawableReq(const DrawableRef &drawRef) : drawRef(drawRef) { }
     /// If the drawable wasn't used, delete it
-    ~AddDrawableReq();
+    virtual ~AddDrawableReq();
     
     /// Drawable creation generally wants a flush
     virtual bool needsFlush() { return true; }
@@ -132,7 +130,7 @@ class AddProgramReq : public ChangeRequest
 public:
     // Construct with the program to add
     AddProgramReq(const std::string &sceneName,ProgramRef prog) : sceneName(sceneName), program(prog) { }
-    ~AddProgramReq() { }
+    virtual ~AddProgramReq() = default;
     
     /// Remove from the renderer.  Never call this.
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -157,6 +155,7 @@ protected:
 };
 
 // Set a program value, but go through the scene to do it
+#if 0   // not implemented
 class SetProgramValueReq : public ChangeRequest
 {
 public:
@@ -171,7 +170,8 @@ protected:
     std::string u_name;
     float u_val;
 };
-    
+#endif
+
 /// Run a block of code when this change request is executed
 /// We use this to merge data on the main thread after other requests have been executed.
 class RunBlockReq : public ChangeRequest
@@ -230,10 +230,10 @@ public:
     virtual void setScene(Scene *inScene);
     
     /// Return the scene this is part of
-    Scene *getScene();
+    Scene *getScene() const;
 
     /// Return the renderer
-    SceneRenderer *getSceneRenderer();
+    SceneRenderer *getSceneRenderer() const;
     
 protected:
     std::mutex lock;
@@ -258,7 +258,7 @@ public:
     
     /// Return the coordinate system adapter we're using.
     /// You can get the coordinate system we're using from that.
-    CoordSystemDisplayAdapter *getCoordAdapter();
+    CoordSystemDisplayAdapter *getCoordAdapter() const;
     
     /// Add a single change request.  You can call this from any thread, it locks.
     /// If you have more than one, don't iterate, use the other version.
@@ -275,7 +275,7 @@ public:
     int preProcessChanges(View *view,SceneRenderer *renderer,TimeInterval now);
     
     /// True if there are pending updates
-    bool hasChanges(TimeInterval now);
+    bool hasChanges(TimeInterval now) const;
     
     /// Add sub texture mappings.
     /// These are mappings from images to parts of texture atlases.
@@ -292,7 +292,7 @@ public:
 
     /// Return a sub texture by ID.  The idea being we can use these
     ///  the same way we use full texture IDs.
-    SubTexture getSubTexture(SimpleIdentity subTexId);
+    SubTexture getSubTexture(SimpleIdentity subTexId) const;
     
     /// Add a drawable to the scene.
     /// A subclass can override this to control how this interacts with cullabes.
@@ -300,7 +300,7 @@ public:
     virtual void addDrawable(DrawableRef drawable);
     
     /// Look for a Drawable by ID
-    DrawableRef getDrawable(SimpleIdentity drawId);
+    DrawableRef getDrawable(SimpleIdentity drawId) const;
 
     /// Remove a drawable from the scene
     virtual void remDrawable(DrawableRef drawable);
@@ -309,7 +309,7 @@ public:
     virtual void addTexture(TextureBaseRef texRef);
     
     /// Look for a Texture by ID
-    TextureBaseRef getTexture(SimpleIdentity texId);
+    TextureBaseRef getTexture(SimpleIdentity texId) const;
     
     /// Remove a texture by ID.  Return true if it was there
     virtual bool removeTexture(SimpleIdentity texID);
@@ -344,31 +344,31 @@ public:
     void addActiveModel(ActiveModelRef);
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
-    void removeActiveModel(ActiveModelRef);
+    void removeActiveModel(const ActiveModelRef &);
     
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.
 //    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
     
     // Return all the drawables in a list.  Only call this on the main thread.
-    const std::vector<Drawable *> getDrawables();
+    const std::vector<Drawable *> getDrawables() const;
     
     // Used for offline frame by frame rendering
     void setCurrentTime(TimeInterval newTime);
     
     // In general, this is just the system time.
     // But in offline render mode, we control this carefully
-    TimeInterval getCurrentTime();
+    TimeInterval getCurrentTime() const;
     
     // Base time at system initialization
-    TimeInterval getBaseTime();
+    TimeInterval getBaseTime() const;
     
     // Used to track overlaps at the edges of a viewable area
     void addLocalMbr(const Mbr &localMbr);
 	
     /// Dump out stats on what is currently in the scene.
     /// Use this sparingly, as it writes to the log.
-    void dumpStats();
+    void dumpStats() const;
     
     /// Tear down renderer related assets
     virtual void teardown(PlatformThreadInfo*) = 0;
@@ -386,7 +386,7 @@ public:
     void setZoomSlotValue(int zoomSlot,float zoom);
     
     /// Return the given zoom slot value
-    float getZoomSlotValue(int zoomSlot);
+    float getZoomSlotValue(int zoomSlot) const;
     
     /// Copy all the zoom slots into a destination array
     void copyZoomSlots(float *dest);
@@ -399,7 +399,7 @@ public:
     Program *getProgram(SimpleIdentity programId);
 
     /// Remove the given program by ID (ours, not OpenGL's)
-    void removeProgram(SimpleIdentity progId,RenderTeardownInfoRef teardown);
+    void removeProgram(SimpleIdentity progId,const RenderTeardownInfoRef &teardown);
 
     /// Look for a program by its name (last to first)
     Program *findProgramByName(const std::string &name);
@@ -409,15 +409,16 @@ public:
     
     /// Return the active models (main thread only)
     std::vector<ActiveModelRef> &getActiveModels() { return activeModels; }
-    
+    const std::vector<ActiveModelRef> &getActiveModels() const { return activeModels; }
+
     /// Return the number of change requests
-    int getNumChangeRequests();
+    int getNumChangeRequests() const;
 
     /// Set up the font texture manager.  Don't call this yourself.
     void setFontTextureManager(const FontTextureManagerRef &newManager);
 
     /// Returns the font texture manager, which is thread safe
-    FontTextureManagerRef getFontTextureManager() { return fontTextureManager; }
+    FontTextureManagerRef getFontTextureManager() const { return fontTextureManager; }
 
 protected:
     /// Don't be calling this
@@ -425,8 +426,8 @@ protected:
     
     /// Passed around to setup and teardown renderer assets
     const RenderSetupInfo *setupInfo;
-    
-    std::mutex coordAdapterLock;
+
+    mutable std::mutex coordAdapterLock;
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
     CoordSystemDisplayAdapter *coordAdapter;
@@ -435,7 +436,7 @@ protected:
     std::vector<ActiveModelRef> activeModels;
     
     /// All the drawables we've been handed, sorted by ID
-    std::mutex drawablesLock;
+    mutable std::mutex drawablesLock;
     DrawableRefSet drawables;
     
     typedef std::unordered_map<SimpleIdentity,TextureBaseRef> TextureRefSet;
@@ -443,30 +444,30 @@ protected:
     TextureRefSet textures;
     
     /// Mutex for accessing textures
-    std::mutex textureLock;
-    
-    std::mutex changeRequestLock;
+    mutable std::mutex textureLock;
+
+    mutable std::mutex changeRequestLock;
     /// We keep a list of change requests to execute
     /// This can be accessed in multiple threads, so we lock it
     ChangeSet changeRequests;
     SortedChangeSet timedChangeRequests;
-    
-    std::mutex subTexLock;
+
+        mutable std::mutex subTexLock;
     typedef std::set<SubTexture> SubTextureSet;
     /// Mappings from images to parts of texture atlases
     SubTextureSet subTextureMap;
     
     /// Lock for accessing managers
-    std::mutex managerLock;
+    mutable std::mutex managerLock;
     
     /// Managers for various functionality
     std::map<std::string,SceneManagerRef> managers;
                 
     /// Lock for accessing programs
-    std::mutex programLock;
+    mutable std::mutex programLock;
                     
     // Sampling layers will set these to talk to shaders
-    std::mutex zoomSlotLock;
+    mutable std::mutex zoomSlotLock;
     float zoomSlots[MaplyMaxZoomSlots];
     
 protected:

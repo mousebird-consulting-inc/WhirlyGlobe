@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableBuilder.cpp
+/*  BasicDrawableBuilder.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableBuilder.h"
@@ -26,19 +24,20 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-BasicDrawableBuilder::BasicDrawableBuilder()
-    : basicDraw(NULL), scene(NULL)
+BasicDrawableBuilder::BasicDrawableBuilder() :
+    scene(nullptr)
 {
 }
     
-BasicDrawableBuilder::BasicDrawableBuilder(const std::string &name,Scene *scene)
-    : name(name), basicDraw(NULL), scene(scene)
+BasicDrawableBuilder::BasicDrawableBuilder(std::string name,Scene *scene) :
+    name(std::move(name)),
+    scene(scene)
 {
 }
     
-void BasicDrawableBuilder::setName(const std::string &name)
+void BasicDrawableBuilder::setName(std::string name)
 {
-    basicDraw->name = name;
+    basicDraw->name = std::move(name);
 }
     
 void BasicDrawableBuilder::reserve(int numVert,int numTri)
@@ -105,18 +104,14 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
     basicDraw->vertexAttributes[basicDraw->normalEntry]->reserve(numReserve);
 }
     
-SimpleIdentity BasicDrawableBuilder::getDrawableID()
+SimpleIdentity BasicDrawableBuilder::getDrawableID() const
 {
-    if (basicDraw)
-        return basicDraw->getId();
-    return EmptyIdentity;
+    return basicDraw ? basicDraw->getId() : EmptyIdentity;
 }
     
-int BasicDrawableBuilder::getDrawablePriority()
+int BasicDrawableBuilder::getDrawablePriority() const
 {
-   if (basicDraw)
-       return basicDraw->getDrawPriority();
-    return 0;
+   return basicDraw ? basicDraw->getDrawPriority() : 0;
 }
     
 void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
@@ -136,10 +131,6 @@ void BasicDrawableBuilder::setupTexCoordEntry(int which,int numReserve)
     }
 }
     
-BasicDrawableBuilder::~BasicDrawableBuilder()
-{
-}
-
 void BasicDrawableBuilder::setOnOff(bool onOff)
 {
     basicDraw->on = onOff;
@@ -235,7 +226,7 @@ void BasicDrawableBuilder::setLineWidth(float inWidth)
     basicDraw->lineWidth = inWidth;
 }
     
-float BasicDrawableBuilder::getLineWidth()
+float BasicDrawableBuilder::getLineWidth() const
 {
     return basicDraw->lineWidth;
 }
@@ -246,7 +237,7 @@ void BasicDrawableBuilder::setTexId(unsigned int which,SimpleIdentity inId)
     basicDraw->texInfo[which].texId = inId;
 }
 
-SimpleIdentity BasicDrawableBuilder::getTexId(unsigned int which)
+SimpleIdentity BasicDrawableBuilder::getTexId(unsigned int which) const
 {
     if (!basicDraw)
         return EmptyIdentity;
@@ -275,7 +266,7 @@ void BasicDrawableBuilder::setProgram(SimpleIdentity progId)
     basicDraw->setProgram(progId);
 }
 
-void BasicDrawableBuilder::addTweaker(DrawableTweakerRef tweakRef)
+void BasicDrawableBuilder::addTweaker(const DrawableTweakerRef &tweakRef)
 {
     basicDraw->tweakers.insert(tweakRef);
 }
@@ -301,12 +292,12 @@ void BasicDrawableBuilder::setColor(unsigned char color[])
     setColor(RGBAColor(color[0],color[1],color[2],color[3]));
 }
 
-void BasicDrawableBuilder::setColorExpression(ColorExpressionInfoRef inColorExp)
+void BasicDrawableBuilder::setColorExpression(const ColorExpressionInfoRef &inColorExp)
 {
     colorExp = inColorExp;
 }
 
-void BasicDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef inOpacityExp)
+void BasicDrawableBuilder::setOpacityExpression(const FloatExpressionInfoRef &inOpacityExp)
 {
     opacityExp = inOpacityExp;
 }
@@ -359,17 +350,17 @@ unsigned int BasicDrawableBuilder::addPoint(const Point3d &pt)
     return (unsigned int)(points.size()-1);
 }
     
-unsigned int BasicDrawableBuilder::getNumPoints()
+unsigned int BasicDrawableBuilder::getNumPoints() const
 {
     return points.size();
 }
 
-unsigned int BasicDrawableBuilder::getNumTris()
+unsigned int BasicDrawableBuilder::getNumTris() const
 {
     return tris.size();
 }
 
-Point3d BasicDrawableBuilder::getPoint(int which)
+Point3d BasicDrawableBuilder::getPoint(int which) const
 {
     if (which >= points.size())
         return Point3d(0,0,0);
@@ -416,22 +407,23 @@ void BasicDrawableBuilder::addNormal(const Point3d &norm)
     basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z()));
 }
 
-bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSet &attrs)
+bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSet &attrs) const
 {
-    for (SingleVertexAttributeSet::iterator it = attrs.begin();
-         it != attrs.end(); ++it)
+    for (const auto &attr : attrs)
     {
-        int attrId = -1;
+        unsigned attrId = -1;
         for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
-            if (basicDraw->vertexAttributes[ii]->nameID == it->nameID)
+        {
+            if (basicDraw->vertexAttributes[ii]->nameID == attr.nameID)
             {
                 attrId = ii;
                 break;
             }
-        if (attrId == -1)
+        }
+        if (attrId == -1 || basicDraw->vertexAttributes[attrId]->getDataType() != attr.type)
+        {
             return false;
-        if (basicDraw->vertexAttributes[attrId]->getDataType() != it->type)
-            return false;
+        }
     }
     
     return true;
@@ -444,19 +436,19 @@ void BasicDrawableBuilder::setVertexAttribute(const SingleVertexAttributeInfo &a
 
 void BasicDrawableBuilder::setVertexAttributes(const SingleVertexAttributeInfoSet &attrs)
 {
-    for (auto it = attrs.begin();
-         it != attrs.end(); ++it)
-        addAttribute(it->type,it->nameID,it->slot);
+    for (auto attr : attrs)
+    {
+        addAttribute(attr.type,attr.nameID,attr.slot);
+    }
 }
 
 void BasicDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &attrs)
 {
-    for (SingleVertexAttributeSet::iterator it = attrs.begin();
-         it != attrs.end(); ++it)
+    for (const auto &attr : attrs)
     {
         int attrId = -1;
         for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
-            if (basicDraw->vertexAttributes[ii]->nameID == it->nameID)
+            if (basicDraw->vertexAttributes[ii]->nameID == attr.nameID)
             {
                 attrId = ii;
                 break;
@@ -465,53 +457,50 @@ void BasicDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &a
         if (attrId == -1)
             continue;
         
-        switch (it->type)
+        switch (attr.type)
         {
             case BDFloatType:
-                addAttributeValue(attrId, it->data.floatVal);
+                addAttributeValue(attrId, attr.data.floatVal);
                 break;
             case BDFloat2Type:
             {
-                Vector2f vec;
-                vec.x() = it->data.vec2[0];
-                vec.y() = it->data.vec2[1];
-                addAttributeValue(attrId, vec);
+                addAttributeValue(attrId, Vector2f{attr.data.vec2[0], attr.data.vec2[1]});
             }
                 break;
             case BDFloat3Type:
             {
-                Vector3f vec;
-                vec.x() = it->data.vec3[0];
-                vec.y() = it->data.vec3[1];
-                vec.z() = it->data.vec3[2];
-                addAttributeValue(attrId, vec);
+                addAttributeValue(attrId, Vector3f{
+                        attr.data.vec3[0],
+                        attr.data.vec3[1],
+                        attr.data.vec3[2]
+                });
             }
                 break;
             case BDFloat4Type:
             {
-                Vector4f vec;
-                vec.x() = it->data.vec4[0];
-                vec.y() = it->data.vec4[1];
-                vec.z() = it->data.vec4[2];
-                vec.w() = it->data.vec4[3];
-                addAttributeValue(attrId, vec);
+                addAttributeValue(attrId, Vector4f{
+                        attr.data.vec4[0],
+                        attr.data.vec4[1],
+                        attr.data.vec4[2],
+                        attr.data.vec4[3]
+                });
             }
                 break;
             case BDChar4Type:
             {
-                RGBAColor color;
-                color.r = it->data.color[0];
-                color.g = it->data.color[1];
-                color.b = it->data.color[2];
-                color.a = it->data.color[3];
-                addAttributeValue(attrId, color);
+                addAttributeValue(attrId, RGBAColor{
+                        attr.data.color[0],
+                        attr.data.color[1],
+                        attr.data.color[2],
+                        attr.data.color[3]
+                });
             }
                 break;
             case BDIntType:
-                addAttributeValue(attrId, it->data.intVal);
+                addAttributeValue(attrId, attr.data.intVal);
                 break;
             case BDInt64Type:
-                addAttributeValue(attrId, it->data.int64Val);
+                addAttributeValue(attrId, attr.data.int64Val);
                 break;
             case BDDataTypeMax:
                 break;
@@ -550,19 +539,23 @@ void BasicDrawableBuilder::setUniforms(const SingleVertexAttributeSet &uniforms)
     basicDraw->uniforms = uniforms;
 }
 
-void BasicDrawableBuilder::applySubTexture(int which,SubTexture subTex,int startingAt)
+void BasicDrawableBuilder::applySubTexture(int which,const SubTexture &subTex,int startingAt)
 {
     if (which == -1)
     {
         // Apply the mapping everywhere
         for (unsigned int ii=0;ii<basicDraw->texInfo.size();ii++)
+        {
             applySubTexture(ii, subTex, startingAt);
-    } else {
+        }
+    }
+    else
+    {
         setupTexCoordEntry(which, 0);
         
         BasicDrawable::TexInfo &thisTexInfo = basicDraw->texInfo[which];
         thisTexInfo.texId = subTex.texId;
-        std::vector<TexCoord> *texCoords = (std::vector<TexCoord> *)basicDraw->vertexAttributes[thisTexInfo.texCoordEntry]->data;
+        auto *texCoords = (std::vector<TexCoord> *)basicDraw->vertexAttributes[thisTexInfo.texCoordEntry]->data;
         
         for (unsigned int ii=startingAt;ii<texCoords->size();ii++)
         {
@@ -573,3 +566,5 @@ void BasicDrawableBuilder::applySubTexture(int which,SubTexture subTex,int start
 }
     
 }
+
+#include <utility>
