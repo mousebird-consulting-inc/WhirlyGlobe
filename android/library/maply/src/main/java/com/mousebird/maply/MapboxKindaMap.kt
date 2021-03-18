@@ -56,6 +56,8 @@ open class MapboxKindaMap {
     var mapboxInterp: MapboxVectorInterpreter? = null
     var loader: QuadLoaderBase? = null
     var offlineRender: RenderController? = null
+    var lineScale = 0.0
+    var textScale = 0.0
 
     /* If set, we build an image/vector hybrid where the polygons go into
      *  the image layer and the linears and points are represented as vectors
@@ -330,6 +332,12 @@ open class MapboxKindaMap {
             Log.w("Maply", "Sources missing.  Bad zoom min/max.")
             return
         }
+
+        // Adjustment for loading (512 vs 1024 or so)
+        styleSettings.lineScale = if (lineScale > 0) lineScale else minImportance / (512.0 * 512.0) / 2
+
+        // Similar adjustment for text
+        styleSettings.textScale = if (textScale > 0) textScale else minImportance / (512.0 * 512.0) / 2
 
         // Parameters describing how we want a globe broken down
         val sampleParams = SamplingParams()
