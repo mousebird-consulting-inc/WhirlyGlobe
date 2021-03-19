@@ -44,10 +44,6 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
             c.w() = opacityExp->evaluate(zoom, 1.0f);
         }
 
-        //if (auto draw = dynamic_cast<BasicDrawable*>(inDraw))
-        //{
-        //    draw->setOverrideColor(RGBAColor(c.x()*255,c.y()*255,c.z()*255,c.w()*255));
-        //}
         programGLES->setUniform(u_colorNameID, c);
 
         const float width = widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth;

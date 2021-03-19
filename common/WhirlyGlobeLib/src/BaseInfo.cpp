@@ -115,7 +115,8 @@ static inline RGBAColor lerpRGB(RGBAColor a, RGBAColor b, double t)
 
 static inline Vector4f lerpVec(RGBAColor a, RGBAColor b, double t)
 {
-    return Vector4f{flerp(a.r,b.r,t),flerp(a.g,b.g,t),flerp(a.b,b.b,t),flerp(a.a,b.a,t)};
+    return Vector4f{flerp(a.r,b.r,t)/255.f,flerp(a.g,b.g,t)/255.f,
+                    flerp(a.b,b.b,t)/255.f,flerp(a.a,b.a,t)/255.f};
 }
 
 float FloatExpressionInfo::evaluate(float zoom, float defaultValue)
