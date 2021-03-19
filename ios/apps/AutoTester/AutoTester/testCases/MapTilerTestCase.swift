@@ -25,7 +25,8 @@ class MapTilerTestCase: MaplyTestCase {
         [("Basic", "maptiler_basic"),
          ("Hybrid Satellite", "maptiler_hybrid_satellite"),
          ("Streets", "maptiler_streets"),
-//         ("Topo", "maptiler_topo")
+//         ("Topo", "maptiler_topo"),   // ?
+         ("Custom", "maptiler_expr_test")
     ]
     var mapTilerStyle = 2
 
@@ -164,7 +165,7 @@ class MapTilerTestCase: MaplyTestCase {
         mapboxMap?.stop()
         mapboxMap = nil
 
-        mapTilerStyle = (mapTilerStyle + 1) % 3
+        mapTilerStyle = (mapTilerStyle + 1) % styles.count
         startMap(styles[mapTilerStyle], viewC: viewC, round: false)
     }
 }
