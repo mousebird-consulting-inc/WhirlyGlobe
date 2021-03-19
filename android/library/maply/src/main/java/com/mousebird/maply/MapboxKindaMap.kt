@@ -337,7 +337,7 @@ open class MapboxKindaMap {
         styleSettings.lineScale = if (lineScale > 0) lineScale else minImportance / (512.0 * 512.0) / 2
 
         // Similar adjustment for text
-        styleSettings.textScale = if (textScale > 0) textScale else minImportance / (512.0 * 512.0) / 2
+        styleSettings.textScale = if (textScale > 0) textScale else minImportance / (768.0 * 768.0) / 2
 
         // Parameters describing how we want a globe broken down
         val sampleParams = SamplingParams()
