@@ -245,7 +245,7 @@ void Scene::addManager(const std::string &name,const SceneManagerRef &manager)
 void Scene::addActiveModel(ActiveModelRef activeModel)
 {
     activeModels.emplace_back(std::move(activeModel));
-    activeModel->startWithScene(this);
+    activeModels.back()->startWithScene(this);
 }
 
 void Scene::removeActiveModel(const ActiveModelRef &activeModel)

@@ -244,7 +244,7 @@ public:
     virtual void setupTexCoordEntry(int which,int numReserve);
 
     /// We need slightly different tweakers for the rendering variants
-    virtual DrawableTweakerRef makeTweaker() const = 0;
+    virtual DrawableTweakerRef makeTweaker() const { return {}; }
 
     /// Create and attach a tweaker, if necessary
     virtual void setupTweaker(BasicDrawable &theDraw) const;
