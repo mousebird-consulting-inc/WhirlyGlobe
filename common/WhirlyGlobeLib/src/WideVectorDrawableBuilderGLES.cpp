@@ -49,7 +49,6 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         const float width = widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth;
         programGLES->setUniform(u_w2NameID, width);
         programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
-        wkLog("WideVectorTweakerGLES %lld width %f", getId(), width);
 
         programGLES->setUniform(u_EdgeNameID, edgeSize);
         programGLES->setUniform(u_texScaleNameID, (float)texScale);

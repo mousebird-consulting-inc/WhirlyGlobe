@@ -24,7 +24,6 @@ namespace WhirlyKit
     
 void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
-    wkLog("ScreenSpaceTweaker");
     if (!frameInfo->program)
         return;
     

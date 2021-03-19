@@ -414,8 +414,6 @@ BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentit
 
 void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frame)
 {
-    wkLog("BasicDrawableTexTweaker");
-
     BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(draw);
     
     double t = fmod(frame->currentTime-startTime,period)/period;
@@ -443,8 +441,6 @@ BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &cent
     
 void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *frameInfo)
 {
-    wkLog("BasicDrawableScreenTexTweaker");
-
     BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(draw);
 
     if (basicDraw && frameInfo->program)

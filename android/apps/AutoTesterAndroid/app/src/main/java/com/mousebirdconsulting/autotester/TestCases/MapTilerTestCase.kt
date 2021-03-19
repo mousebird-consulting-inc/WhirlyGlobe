@@ -74,7 +74,7 @@ class MapTilerTestCase(activity: Activity) :
         return true
     }
 
-    private var currentMap = 2
+    private var currentMap = 0
     private var map: MapboxKindaMap? = null
     private var baseViewC : BaseController? = null
     private val customStyle = """
