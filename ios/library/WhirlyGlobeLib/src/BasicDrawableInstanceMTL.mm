@@ -58,38 +58,44 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     
     if (instanceStyle == LocalStyle) {
         bzero(&uniMI,sizeof(uniMI));
-        
-        // Set up the instances in their own array
-        std::vector<WhirlyKitShader::VertexTriModelInstance> insts(instances.size());
-        for (int which = 0;which < instances.size();which++) {
-            auto &inst = instances[which];
-            auto &outInst = insts[which];
-            
-            // Color override
-            if (inst.colorOverride) {
-                uniMI.useInstanceColor = true;
-                float colors[4];
-                inst.color.asUnitFloats(colors);
-                CopyIntoMtlFloat4(outInst.color, colors);
-            } else {
-                outInst.color[0] = 1.0;  outInst.color[1] = 1.0;  outInst.color[2] = 1.0;  outInst.color[3] = 1.0;
-            }
-            
-            // Center
-            CopyIntoMtlFloat3(outInst.center, inst.center);
-            
-            // Rotation/translation/scale
-            CopyIntoMtlFloat4x4(outInst.mat, inst.mat);
-            
-            // EndCenter/direction
-            Point3d dir = moving ? (inst.endCenter - inst.center)/inst.duration : Point3d(0.0,0.0,0.0);
-            CopyIntoMtlFloat3(outInst.dir, dir);
-            uniMI.hasMotion |= moving;
-        }
 
-        int bufferSize = sizeof(WhirlyKitShader::VertexTriModelInstance) * insts.size();
-        buffBuild.addData(&insts[0], bufferSize, &instBuffer);
-        numInst = insts.size();
+        // In this version we just have the raw data
+        if (instData && numInstances > 0) {
+            buffBuild.addData(instData->getRawData(), instData->getLen(), &instBuffer);
+            numInst = numInstances;
+        } else {
+            // Set up the instances in their own array
+            std::vector<WhirlyKitShader::VertexTriModelInstance> insts(instances.size());
+            for (int which = 0;which < instances.size();which++) {
+                auto &inst = instances[which];
+                auto &outInst = insts[which];
+                
+                // Color override
+                if (inst.colorOverride) {
+                    uniMI.useInstanceColor = true;
+                    float colors[4];
+                    inst.color.asUnitFloats(colors);
+                    CopyIntoMtlFloat4(outInst.color, colors);
+                } else {
+                    outInst.color[0] = 1.0;  outInst.color[1] = 1.0;  outInst.color[2] = 1.0;  outInst.color[3] = 1.0;
+                }
+                
+                // Center
+                CopyIntoMtlFloat3(outInst.center, inst.center);
+                
+                // Rotation/translation/scale
+                CopyIntoMtlFloat4x4(outInst.mat, inst.mat);
+                
+                // EndCenter/direction
+                Point3d dir = moving ? (inst.endCenter - inst.center)/inst.duration : Point3d(0.0,0.0,0.0);
+                CopyIntoMtlFloat3(outInst.dir, dir);
+                uniMI.hasMotion |= moving;
+            }
+
+            int bufferSize = sizeof(WhirlyKitShader::VertexTriModelInstance) * insts.size();
+            buffBuild.addData(&insts[0], bufferSize, &instBuffer);
+            numInst = insts.size();
+        }
     } else if (instanceStyle == GPUStyle) {
         // Basic values for the uniforms
         bzero(&uniMI,sizeof(uniMI));

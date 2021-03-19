@@ -245,7 +245,7 @@ public:
 
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
-
+    
 public:
     Scene *scene;
     std::string name;

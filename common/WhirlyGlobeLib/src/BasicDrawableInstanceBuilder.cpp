@@ -218,4 +218,9 @@ SimpleIdentity BasicDrawableInstanceBuilder::getDrawableID()
     return EmptyIdentity;
 }
 
+void BasicDrawableInstanceBuilder::setInstanceData(int numInstance,RawDataRef data)
+{
+    drawInst->setInstanceData(numInstance, data);
+}
+
 }

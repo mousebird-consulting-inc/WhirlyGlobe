@@ -224,6 +224,9 @@ NSString* const kMaplyWideVecMiterLimit = MaplyWideVecMiterLimit;
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 NSString* const kMaplyWideVecTexRepeatLen = MaplyWideVecTexRepeatLen;
 
+NSString* const kMaplyWideVecImpl = MaplyWideVecImpl;
+NSString* const kMaplyWideVecImplPerf = MaplyWideVecImplPerf;
+
 /// Offset to left (negative) or right (positive) of the centerline
 NSString* const kMaplyWideVecOffset = MaplyWideVecOffset;
 

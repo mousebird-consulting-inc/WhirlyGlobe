@@ -571,5 +571,5 @@ void BasicDrawableBuilder::applySubTexture(int which,SubTexture subTex,int start
         }
     }
 }
-    
+
 }

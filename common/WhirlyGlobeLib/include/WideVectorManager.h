@@ -43,6 +43,9 @@ typedef enum {WideVecMiterJoin,WideVecRoundJoin,WideVecBevelJoin} WideVectorLine
     
 /// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
 typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
+
+/// Performance vs basic wide vector implementation
+typedef enum {WideVecImplBasic,WideVecImplPerf} WideVecImplType;
     
 /** Used to pass parameters for the wide vectors around.
   */
@@ -52,6 +55,7 @@ public:
     WideVectorInfo();
     WideVectorInfo(const Dictionary &dict);
 
+    WideVecImplType implType;
     RGBAColor color;
     float width;
     float offset;
