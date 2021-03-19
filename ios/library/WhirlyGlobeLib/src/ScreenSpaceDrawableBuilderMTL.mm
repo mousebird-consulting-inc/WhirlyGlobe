@@ -45,9 +45,9 @@ void ScreenSpaceDrawableBuilderMTL::Init(bool hasMotion,bool hasRotation,bool bu
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[dirIndex])->slot = WhirlyKitShader::WKSVertexScreenSpaceDirAttribute;
 }
 
-ScreenSpaceTweaker *ScreenSpaceDrawableBuilderMTL::makeTweaker()
+DrawableTweakerRef ScreenSpaceDrawableBuilderMTL::makeTweaker() const
 {
-    return NULL;
+    return {};
 }
 
 BasicDrawableRef ScreenSpaceDrawableBuilderMTL::getDrawable()

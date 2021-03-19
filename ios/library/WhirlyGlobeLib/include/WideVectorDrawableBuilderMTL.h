@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawableBuilderMTL.h
+/*  WideVectorDrawableBuilderMTL.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WideVectorDrawableBuilder.h"
@@ -26,9 +24,9 @@ namespace WhirlyKit
 {
     
 /// Metal version sets up one Uniform structure
-class WideVectorTweakerMTL : public WideVectorTweaker
+struct WideVectorTweakerMTL : public WideVectorTweaker
 {
-    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
 };
 
 /// Metal version of the WideVectorDrawable Builder
@@ -39,8 +37,8 @@ public:
     
     // Initialize with an estimate on the number of vertices and triangles
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode) override;
-        
-    WideVectorTweaker *makeTweaker() override;
+
+    virtual DrawableTweakerRef makeTweaker() const override;
 
     virtual BasicDrawableRef getDrawable() override;
     

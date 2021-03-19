@@ -1,9 +1,8 @@
-/*
- *  BillboardDrawableBuilderMTL.h
+/*  BillboardDrawableBuilderMTL.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BillboardDrawableBuilder.h"
@@ -25,12 +23,11 @@ namespace WhirlyKit
 {
 
 // Passes in the uniform values the shader is expecting
-class BillboardTweakerMTL : public DrawableTweaker
+struct BillboardTweakerMTL : public BasicDrawableTweaker
 {
-public:
     BillboardTweakerMTL();
     
-    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
     
     bool groundMode;
 };

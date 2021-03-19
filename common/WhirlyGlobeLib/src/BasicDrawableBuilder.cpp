@@ -24,6 +24,12 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+float BasicDrawableTweaker::getZoom(const Drawable &inDraw,const Scene &scene,float def) const
+{
+    const auto bd = dynamic_cast<const BasicDrawable*>(&inDraw);
+    return (bd && bd->zoomSlot >= 0) ? scene.getZoomSlotValue(bd->zoomSlot) : def;
+}
+
 BasicDrawableBuilder::BasicDrawableBuilder() :
     scene(nullptr)
 {
@@ -266,6 +272,25 @@ void BasicDrawableBuilder::setProgram(SimpleIdentity progId)
     basicDraw->setProgram(progId);
 }
 
+void BasicDrawableBuilder::setupTweaker(BasicDrawable &theDraw) const
+{
+    if (auto tweaker = makeTweaker())
+    {
+        setupTweaker(tweaker);
+        theDraw.addTweaker(tweaker);
+    }
+}
+
+void BasicDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
+{
+    if (auto tweak = std::dynamic_pointer_cast<BasicDrawableTweaker>(inTweaker))
+    {
+        tweak->color = color;
+        tweak->colorExp = colorExp;
+        tweak->opacityExp = opacityExp;
+    }
+}
+
 void BasicDrawableBuilder::addTweaker(const DrawableTweakerRef &tweakRef)
 {
     basicDraw->tweakers.insert(tweakRef);
@@ -281,13 +306,16 @@ void BasicDrawableBuilder::setIncludeExp(bool newVal)
     includeExp = newVal;
 }
 
-void BasicDrawableBuilder::setColor(RGBAColor color)
+void BasicDrawableBuilder::setColor(RGBAColor inColor)
 {
+    color = inColor;
     if (basicDraw->colorEntry >= 0)
+    {
         basicDraw->vertexAttributes[basicDraw->colorEntry]->setDefaultColor(color);
+    }
 }
 
-void BasicDrawableBuilder::setColor(unsigned char color[])
+void BasicDrawableBuilder::setColor(const unsigned char color[])
 {
     setColor(RGBAColor(color[0],color[1],color[2],color[3]));
 }

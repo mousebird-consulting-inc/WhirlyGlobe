@@ -34,18 +34,8 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
         const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
         const double texScale = scale / (screenSize * texRepeat);
-
-        auto programGLES = (ProgramGLES *)frameInfo->program;
-
-        float zoom = 0.0f;
-        if (opacityExp || colorExp || widthExp)
-        {
-            const auto bd = dynamic_cast<const BasicDrawableGLES*>(inDraw);
-            if (bd && bd->zoomSlot >= 0)
-            {
-                zoom = frameInfo->scene->getZoomSlotValue(bd->zoomSlot);
-            }
-        }
+        const auto programGLES = (ProgramGLES *)frameInfo->program;
+        const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
 
         Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
 
@@ -59,7 +49,7 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         const float width = widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth;
         programGLES->setUniform(u_w2NameID, width);
         programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
-        //wkLog("WideVectorDrawableBuilderGLES %lld width %f", getId(), width);
+        wkLog("WideVectorTweakerGLES %lld width %f", getId(), width);
 
         programGLES->setUniform(u_EdgeNameID, edgeSize);
         programGLES->setUniform(u_texScaleNameID, (float)texScale);
@@ -83,9 +73,9 @@ int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,Str
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
 
-WideVectorTweaker *WideVectorDrawableBuilderGLES::makeTweaker()
+DrawableTweakerRef WideVectorDrawableBuilderGLES::makeTweaker() const
 {
-    return new WideVectorTweakerGLES();
+    return std::make_shared<WideVectorTweakerGLES>();
 }
 
 BasicDrawableRef WideVectorDrawableBuilderGLES::getDrawable()
@@ -98,7 +88,7 @@ BasicDrawableRef WideVectorDrawableBuilderGLES::getDrawable()
     // non-const to allow copy elision on return
     auto theDraw = BasicDrawableBuilderGLES::getDrawable();
 
-    setupTweaker(theDraw.get());
+    setupTweaker(*theDraw);
 
     return theDraw;
 }

@@ -17,11 +17,30 @@
  */
 
 #import "BasicDrawableBuilderGLES.h"
+#import <WhirlyKitLog.h>
 
 using namespace Eigen;
 
 namespace WhirlyKit
 {
+
+void BasicDrawableTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
+{
+    if (auto program = (ProgramGLES*)frameInfo->program)
+    if (auto draw = dynamic_cast<BasicDrawable*>(inDraw))
+    {
+        const float zoom = (colorExp || opacityExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
+        auto c = colorExp ? colorExp->evaluate(zoom, color) : color;
+        if (opacityExp)
+        {
+            const auto a = (uint8_t)(255.0f * opacityExp->evaluate(zoom, 1.0f));
+            c = RGBAColor::FromInt(c.asInt() & 0xFF000000 | ((uint32_t)a << 24));
+        }
+        //program->setUniform(draw->colorEntry,c);
+        //wkLog("%d - %f - %.2f %.2f %.2f %.2f", draw->colorEntry, zoom, c.x(), c.y(), c.z(), c.w());
+        draw->setOverrideColor(c);
+    }
+}
 
 BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name,Scene *scene,bool setupStandard)
     : BasicDrawableBuilder(name,scene), drawableGotten(false)
@@ -57,11 +76,31 @@ BasicDrawableRef BasicDrawableBuilderGLES::getDrawable()
         draw->points = points;
         draw->tris = tris;
         draw->vertexSize = (int)draw->singleVertexSize();
-        
+
+        ((BasicDrawableBuilder*)this)->setupTweaker(*draw);
+
         drawableGotten = true;
     }
 
     return draw;
+}
+
+DrawableTweakerRef BasicDrawableBuilderGLES::makeTweaker() const
+{
+    if (colorExp || opacityExp)
+    {
+        return std::make_shared<BasicDrawableTweakerGLES>();
+    }
+    return {};
+}
+
+void BasicDrawableBuilderGLES::setupTweaker(const DrawableTweakerRef &inTweaker) const
+{
+    if (auto tweaker = std::dynamic_pointer_cast<BasicDrawableTweaker>(inTweaker))
+    {
+        tweaker->colorExp = colorExp;
+        tweaker->opacityExp = opacityExp;
+    }
 }
 
 }

@@ -23,23 +23,9 @@ namespace WhirlyKit
 {
  
 /// GLES version modifies uniforms
-class WideVectorTweakerGLES : public WideVectorTweaker
+struct WideVectorTweakerGLES : public WideVectorTweaker
 {
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
-
-protected:
-    float getZoom(const Drawable *inDraw,const Scene &scene,float def = 0.0f) const
-    {
-        if (opacityExp || colorExp || widthExp)
-        {
-            const auto bd = dynamic_cast<const BasicDrawable*>(inDraw);
-            if (bd && bd->zoomSlot >= 0)
-            {
-                return scene.getZoomSlotValue(bd->zoomSlot);
-            }
-        }
-        return def;
-    }
 };
 
 // Shader name
@@ -62,9 +48,12 @@ public:
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1) override;
 
-    virtual WideVectorTweaker *makeTweaker() override;
-
     virtual BasicDrawableRef getDrawable() override;
+
+    virtual DrawableTweakerRef makeTweaker() const override;
+
+    virtual void setupTweaker(BasicDrawable &draw) const override { BasicDrawableBuilder::setupTweaker(draw); }
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override { WideVectorDrawableBuilder::setupTweaker(inTweaker); }
 };
 
 }

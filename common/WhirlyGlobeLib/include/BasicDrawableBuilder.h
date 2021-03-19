@@ -28,7 +28,7 @@
 
 namespace WhirlyKit
 {
-    
+
 /** Used to construct a BasicDrawable.
     This is abstracted away from the BasicDrawable itself so we can
     build drawables for the different renderers.
@@ -125,7 +125,7 @@ public:
     virtual void setColor(RGBAColor inColor);
     
     /// Set the color as an array.
-    virtual void setColor(unsigned char inColor[]);
+    virtual void setColor(const unsigned char inColor[]);
     
     // Set if we're requiring the expression block for the shaders
     void setIncludeExp(bool newVal);
@@ -243,6 +243,15 @@ public:
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
 
+    /// We need slightly different tweakers for the rendering variants
+    virtual DrawableTweakerRef makeTweaker() const = 0;
+
+    /// Create and attach a tweaker, if necessary
+    virtual void setupTweaker(BasicDrawable &theDraw) const;
+
+    /// Set up a tweaker created by a derived class
+    virtual void setupTweaker(const DrawableTweakerRef &tweaker) const;
+
     // Unprocessed data arrays
     std::vector<Eigen::Vector3f> points;
     std::vector<BasicDrawable::Triangle> tris;
@@ -265,6 +274,7 @@ protected:
 
     bool includeExp = false;
 
+    RGBAColor color = RGBAColor::white();
     ColorExpressionInfoRef colorExp;
     FloatExpressionInfoRef opacityExp;
 };

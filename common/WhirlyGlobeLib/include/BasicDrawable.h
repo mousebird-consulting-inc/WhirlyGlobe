@@ -1,9 +1,8 @@
-/*
- *  BasicDrawable.h
+/*  BasicDrawable.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,13 +14,13 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
 #import <set>
 #import <map>
 #import "Identifiable.h"
+#import "BaseInfo.h"
 #import "WhirlyVector.h"
 #import "GlobeView.h"
 #import "Drawable.h"
@@ -184,7 +183,7 @@ public:
     virtual void setUniBlock(const UniformBlock &uniBlock);
     
     /// Add a tweaker to be run before each frame
-    virtual void addTweaker(DrawableTweakerRef tweak);
+    virtual void addTweaker(const DrawableTweakerRef &tweak);
 
     /// Update anything associated with the renderer.  Probably renderUntil.
     virtual void updateRenderer(SceneRenderer *renderer);
@@ -256,16 +255,27 @@ public:
     bool texturesChanged;
 };
 
+struct BasicDrawableTweaker : DrawableTweaker
+{
+    RGBAColor color = RGBAColor::white();
+    ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef opacityExp;
+
+protected:
+    virtual float getZoom(const Drawable &inDraw,const Scene &scene,float def) const override;
+};
+
 /** Drawable Tweaker that cycles through textures.
  Looks at the current time and decides which two textures to use.
  */
-class BasicDrawableTexTweaker : public DrawableTweaker
+struct BasicDrawableTexTweaker : public BasicDrawableTweaker
 {
-public:
+    BasicDrawableTexTweaker(std::vector<SimpleIdentity> &&texIDs,TimeInterval startTime,double period);
     BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period);
     
     /// Modify the active texture IDs
-    void tweakForFrame(Drawable *draw,RendererFrameInfo *frame);
+    virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) override;
+
 protected:
     std::vector<SimpleIdentity> texIDs;
     TimeInterval startTime;
@@ -275,15 +285,15 @@ protected:
 /** Calculates important values for the screen space texture application and
     sets the results in the shader.
   */
-class BasicDrawableScreenTexTweaker : public DrawableTweaker
+struct BasicDrawableScreenTexTweaker : public BasicDrawableTweaker
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale);
     
     /// Modify the active shader
-    void tweakForFrame(Drawable *draw,RendererFrameInfo *frame);
+    virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) override;
+
 protected:
     Point3d centerPt;
     Point2d texScale;
