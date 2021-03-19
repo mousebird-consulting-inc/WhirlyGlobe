@@ -528,6 +528,8 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
             const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID);
             if (thisAttr)
             {
+                if (hasOverrideColor && thisAttr->nameID == a_colorNameID)
+                    continue;
                 if (attr->buffer != 0 || attr->numElements() != 0)
                 {
                     if (attr->buffer)
