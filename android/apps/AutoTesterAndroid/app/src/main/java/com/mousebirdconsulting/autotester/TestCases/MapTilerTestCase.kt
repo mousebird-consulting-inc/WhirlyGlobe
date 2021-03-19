@@ -28,11 +28,7 @@ class MapTilerTestCase(activity: Activity) :
     }
 
     private fun getStyleJson(whichMap: Int): String? {
-        return when(whichMap) {
-            0 -> "maptiler_basic.json"
-            1 -> "maptiler_streets.json"
-            else -> null
-        }?.let {
+        return maps[whichMap]?.let {
             Log.i(javaClass.name, "Loading $it")
             try {
                 Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
@@ -54,7 +50,7 @@ class MapTilerTestCase(activity: Activity) :
     private fun switchMaps() {
         map?.stop()
         map = null
-        currentMap = (currentMap + 1) % 3
+        currentMap = (currentMap + 1) % maps.size
         baseViewC?.let { setupLoader(it, currentMap) }
     }
     
@@ -74,20 +70,25 @@ class MapTilerTestCase(activity: Activity) :
         return true
     }
 
+    private val maps = arrayOf(
+        "maptiler_basic.json",
+        "maptiler_streets.json",
+        "maptiler_topo.json",
+        "maptiler_hybrid_satellite.json",
+        "maptiler_expr_test.json",
+        null        // placeholder for custom stylesheet below
+    )
     private var currentMap = 0
     private var map: MapboxKindaMap? = null
     private var baseViewC : BaseController? = null
+    
+    // Use this to test out a single or small number of elements alone.
+    // This can be helpful when you want to set a breakpoint on something that's normally used by many styles.
     private val customStyle = """
         {  "name":"test","version":8,"layers":[
               {  "id":"background","type":"background",
                  "#comment": "bg is currently dynamic per-level, not per-frame",
                  "paint":{"background-color":{"stops":[[0,"rgba(255,255,255,1)"],[16,"rgba(255,0,0,1)"]]}}
-              },{"id":"landcover_cropland","type":"fill","source":"openmaptiles","source-layer":"globallandcover",
-                 "filter":["all", ["==", "class", "crop"] ],
-                 "paint":{
-                   "fill-color":{"base":1,"stops":[[4,"#00f"],[5,"#0f0"]]},
-                   "fill-opacity":{"base":1, "stops":[[5,1],[6,0]]}
-                 }
               },{"id":"road_motorway","type":"line","source":"openmaptiles","source-layer":"transportation",
                  "filter":["all",["==","class","motorway"]],
                  "paint":{
