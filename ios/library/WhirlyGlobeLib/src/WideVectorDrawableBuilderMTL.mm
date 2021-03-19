@@ -48,7 +48,7 @@ void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTr
     ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->slot = WhirlyKitShader::WKSVertexWideVecC0Attribute;
 }
 
-DrawableTweaker RefWideVectorDrawableBuilderMTL::makeTweaker() const
+DrawableTweakerRef WideVectorDrawableBuilderMTL::makeTweaker() const
 {
     return {};
 }

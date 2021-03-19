@@ -54,7 +54,7 @@ void BasicDrawableBuilderMTL::setupStandardAttributes(int numReserve)
 BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
 {
     if (!drawableGotten && basicDraw)
-        basicDraw = NULL;
+        basicDraw.reset();
 }
     
 int BasicDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
@@ -90,7 +90,7 @@ void BasicDrawableBuilderMTL::setupTexCoordEntry(int which,int numReserve)
 BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
 {
     if (!basicDraw)
-        return NULL;
+        return nullptr;
     
     BasicDrawableMTLRef draw = std::dynamic_pointer_cast<BasicDrawableMTL>(basicDraw);
     
@@ -123,5 +123,10 @@ BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
     
     return draw;
 }
-    
+
+DrawableTweakerRef BasicDrawableBuilderMTL::makeTweaker() const
+{
+    return {};  // todo: BasicDrawableTweakerMTL
+}
+
 }
