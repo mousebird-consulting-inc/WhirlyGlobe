@@ -26,18 +26,29 @@ namespace WhirlyKit
 
 void BasicDrawableTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
+    if (colorExp || opacityExp)
     if (auto program = dynamic_cast<const ProgramGLES*>(frameInfo->program))
     if (auto draw = dynamic_cast<BasicDrawable*>(inDraw))
     {
-        const float zoom = (colorExp || opacityExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
-        auto c = colorExp ? colorExp->evaluate(zoom, color) : color;
-        if (opacityExp)
+        const float zoom = getZoom(*inDraw,*frameInfo->scene,-1.0f);
+        if (zoom >= 0)
         {
-            const auto a = (uint8_t)(255.0f * opacityExp->evaluate(zoom, 1.0f));
-            c = RGBAColor::FromInt(c.asInt() & 0xFF000000 | ((uint32_t)a << 24));
+            auto c = colorExp ? colorExp->evaluate(zoom, color) : color;
+            if (opacityExp)
+            {
+                const auto a = (uint8_t) (255.0f * opacityExp->evaluate(zoom, 1.0f));
+                c = RGBAColor::FromInt(c.asInt() & 0x00FFFFFF | ((uint32_t) a << 24));
+            }
+            draw->setOverrideColor(c);
+            return;
         }
-        draw->setOverrideColor(c);
+        else
+        {
+            wkLogLevel(Warn, "Failed to get zoom level for tweaker");
+        }
     }
+    // No tweaker should be set up if there's no work to do (no expressions)
+    wkLogLevel(Warn, "Unexpected state for tweaker");
 }
 
 BasicDrawableBuilderGLES::BasicDrawableBuilderGLES(const std::string &name,Scene *scene,bool setupStandard)
