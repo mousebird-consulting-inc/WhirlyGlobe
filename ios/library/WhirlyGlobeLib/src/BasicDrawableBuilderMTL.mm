@@ -124,9 +124,4 @@ BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
     return draw;
 }
 
-DrawableTweakerRef BasicDrawableBuilderMTL::makeTweaker() const
-{
-    return {};  // todo: BasicDrawableTweakerMTL
-}
-
 }

@@ -42,8 +42,6 @@ public:
     virtual BasicDrawableRef getDrawable() override;
     
     virtual void setupStandardAttributes(int numReserve=0) override;
-    
-    virtual DrawableTweakerRef makeTweaker() const override;
 
 protected:
     bool drawableGotten;

@@ -23,12 +23,6 @@
 namespace WhirlyKit
 {
     
-/// Metal version sets up one Uniform structure
-struct WideVectorTweakerMTL : public WideVectorTweaker
-{
-    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
-};
-
 /// Metal version of the WideVectorDrawable Builder
 class WideVectorDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public WideVectorDrawableBuilder
 {
@@ -37,8 +31,6 @@ public:
     
     // Initialize with an estimate on the number of vertices and triangles
     virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode) override;
-
-    virtual DrawableTweakerRef makeTweaker() const override;
 
     virtual BasicDrawableRef getDrawable() override;
     
