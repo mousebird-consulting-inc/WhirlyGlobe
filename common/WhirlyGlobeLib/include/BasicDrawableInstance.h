@@ -171,6 +171,9 @@ public:
     /// We use these to look up parts of a texture at a higher level
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
     
+    /// For Metal, we can set instance data in one big chunk
+    virtual void setInstanceData(int numInstances,RawDataRef data);
+    
 protected:
     /// Update rendering for this drawable
     virtual void setValuesChanged();
@@ -211,6 +214,10 @@ protected:
 
     // If set, we'll instance this one multiple times
     std::vector<SingleInstance> instances;
+    
+    // For Metal, we may do instances this way instead
+    RawDataRef instData;
+    
     // Or we might get the number of instances from a texture (possibly a reduce)
     SimpleIdentity instanceTexSource;
     SimpleIdentity instanceTexProg;

@@ -21,6 +21,7 @@
 #import "BasicDrawableBuilder.h"
 #import "Program.h"
 #import "BaseInfo.h"
+#import "WideVectorManager.h"
 
 namespace WhirlyKit
 {
@@ -48,15 +49,15 @@ public:
 
 /** This drawable adds convenience functions for wide vectors.
   */
-class WideVectorDrawableBuilder : virtual public BasicDrawableBuilder
+class WideVectorDrawableBuilder
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawableBuilder();
+    WideVectorDrawableBuilder(const std::string &name,Scene *scene);
     virtual ~WideVectorDrawableBuilder();
 
-    virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
+    virtual void Init(unsigned int numVert,unsigned int numTri,WideVecImplType implType,bool globeMode);
     
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -100,10 +101,19 @@ public:
     // The tweaker sets up uniforms before a given drawable draws
     void setupTweaker(BasicDrawable *theDraw);
     
+    // For performance mode wide vectors (Metal for now), the center line instances
+    void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,std::vector<SimpleIdentity> &maskIDs,int prev,int next);
+    
+    // Number of centerlines defined so far
+    int getCenterLineCount();
+    
     // We need slightly different tweakers for the rendering variants
     virtual WideVectorTweaker *makeTweaker() = 0;
 
 protected:
+    std::string name;
+    Scene *scene;
+
     float lineWidth;
     float lineOffset;
     RGBAColor color;
@@ -121,6 +131,17 @@ protected:
     
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
+    
+    // Centerline structure (for Metal)
+    typedef struct {
+        Point3f center;
+        Point3f up;
+        float len;
+        Point3f color;
+        int prev,next;
+        int maskIDs[2];
+    } CenterPoint;
+    std::vector<CenterPoint> centerline;
     
 #ifdef WIDEVECDEBUG
     Point3fVector locPts;

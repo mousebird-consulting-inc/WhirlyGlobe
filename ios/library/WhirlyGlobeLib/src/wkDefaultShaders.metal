@@ -760,6 +760,59 @@ fragment float4 fragmentTri_wideVec(
     float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a)  : float4(0.0);
 }
 
+struct TriWideArgBufferC {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
+    UniformWideVecExp wideVecExp        [[ id(WKSUniformWideVecEntryExp) ]];
+    bool hasTextures;
+};
+
+vertex ProjVertexTriWideVecB vertexTri_wideVecNewExp(
+          uint vertID [[vertex_id]],
+          VertexTriWideVecB vert [[stage_in]],
+          constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+          constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
+          constant TriWideArgBufferC &vertArgs [[buffer(WKSVertexArgBuffer)]],
+          uint instanceID [[instance_id]],
+          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]])
+{
+    ProjVertexTriWideVecB outVert;
+    
+    VertexTriWideVecInstance inst = wideVecInsts[instanceID];
+        
+    // Resolve the real world location of the center
+    float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst.center,1.0)).xyz;
+
+    float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+    // Pull out the width and possibly calculate one
+    float w2 = vertArgs.wideVec.w2;
+    if (vertArgs.wideVec.hasExp)
+        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
+    if (w2 > 0.0) {
+        w2 = w2 + vertArgs.wideVec.edge;
+    }
+    
+    // Pull out the center line offset, or calculate one
+    float centerLine = vertArgs.wideVec.offset;
+    if (vertArgs.wideVec.hasExp) {
+        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
+    }
+    centerLine = vert.screenPos.x * centerLine;
+
+    outVert.color = inst.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    
+    // Project point all the way to the screen
+    float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
+    screenPt /= screenPt.w;
+
+    float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    // TODO: Backface culling check
+    outVert.position = float4(screenPt.xy,0.0,1.0);
+
+    return outVert;
+}
+
+
 struct VertexTriSSArgBufferA {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformScreenSpace ss      [[ id(WKSUniformScreenSpaceEntry) ]];

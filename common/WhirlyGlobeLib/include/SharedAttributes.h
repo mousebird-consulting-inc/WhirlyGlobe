@@ -231,6 +231,12 @@
 /// For wide vectors, we can widen them in screen space or display space
 #define MaplyWideVecCoordType WKString("wideveccoordtype")
 
+/// Basic or performance mode for wide vectors
+#define MaplyWideVecImpl WKString("widevecimplementation")
+
+/// Performance mode for wide vectors
+#define MaplyWideVecImplPerf WKString("widevecperformance")
+
 /// Widened vectors are widened in real space.  The width is in meters.
 #define MaplyWideVecCoordTypeReal WKString("real")
 /// Widened vectors are widened in screen space.  The width is in pixels.

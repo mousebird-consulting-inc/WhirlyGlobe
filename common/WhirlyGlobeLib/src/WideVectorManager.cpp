@@ -30,7 +30,7 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 WideVectorInfo::WideVectorInfo()
-: color(255,255,255,255), width(2.0),
+: implType(WideVecImplBasic), color(255,255,255,255), width(2.0),
 repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
 coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
 texID(EmptyIdentity), miterLimit(2.0)
@@ -40,6 +40,9 @@ texID(EmptyIdentity), miterLimit(2.0)
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
+    std::string implTypeStr = dict.getString(MaplyWideVecImpl);
+    if (!implTypeStr.compare(MaplyWideVecImplPerf))
+        implType = WideVecImplPerf;
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     width = dict.getDouble(MaplyVecWidth,2.0);
     offset = -dict.getDouble(MaplyWideVecOffset,0.0);
@@ -598,51 +601,104 @@ public:
     // Build or return a suitable drawable (depending on the mode)
     WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate)
     {
-        int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
-        int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
+        if (vecInfo->implType == WideVecImplPerf) {
+            // Basic mode builds up a lot more geometry
+            int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
+            int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
 
-        if (!drawable ||
-            (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
-            (drawable->getNumTris()+triGuess > MaxDrawableTriangles))
-        {
-            flush();
-            
-//            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
-            int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
-            int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
-            WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
-            wideDrawable->Init(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat());
-            drawable = wideDrawable;
-            wideDrawable->setTexRepeat(vecInfo->repeatSize);
-            wideDrawable->setEdgeSize(vecInfo->edgeSize);
-            wideDrawable->setLineWidth(vecInfo->width);
-            wideDrawable->setLineOffset(vecInfo->offset);
-//            drawMbr.reset();
-            drawable->setType(Triangles);
-            vecInfo->setupBasicDrawable(drawable);
-            if (vecInfo->coordType == WideVecCoordReal)
-                wideDrawable->setRealWorldWidth(vecInfo->width);
-            if (vecInfo->widthExp)
-                wideDrawable->setWidthExpression(vecInfo->widthExp);
-            if (vecInfo->opacityExp)
-                wideDrawable->setOpacityExpression(vecInfo->opacityExp);
-            if (vecInfo->colorExp)
-                wideDrawable->setColorExpression(vecInfo->colorExp);
-            if (vecInfo->offsetExp)
-                wideDrawable->setOffsetExpression(vecInfo->offsetExp);
-            maskEntries.resize(numMaskIDs);
-            for (unsigned int ii=0;ii<maskEntries.size();ii++)
-                maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
-
-            drawable->setColor(vecInfo->color);
-            int baseTexId = 0;
-            if (vecInfo->texID != EmptyIdentity)
-                drawable->setTexId(baseTexId++, vecInfo->texID);
-            if (centerValid)
+            // Performance mode uses instancing and makes the renderer do the work
+            if (!drawable ||
+                (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
+                (drawable->getNumTris()+triGuess > MaxDrawableTriangles))
             {
-                Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));
-                Matrix4d transMat = trans.matrix();
-                drawable->setMatrix(&transMat);
+                flush();
+
+                int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
+                int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
+                
+                WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
+                wideDrawable->Init(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat(),vecInfo->implType);
+                drawable = wideDrawable;
+                wideDrawable->setTexRepeat(vecInfo->repeatSize);
+                wideDrawable->setEdgeSize(vecInfo->edgeSize);
+                wideDrawable->setLineWidth(vecInfo->width);
+                wideDrawable->setLineOffset(vecInfo->offset);
+                drawable->setType(Triangles);
+                vecInfo->setupBasicDrawable(drawable);
+                if (vecInfo->coordType == WideVecCoordReal)
+                    wideDrawable->setRealWorldWidth(vecInfo->width);
+                if (vecInfo->widthExp)
+                    wideDrawable->setWidthExpression(vecInfo->widthExp);
+                if (vecInfo->opacityExp)
+                    wideDrawable->setOpacityExpression(vecInfo->opacityExp);
+                if (vecInfo->colorExp)
+                    wideDrawable->setColorExpression(vecInfo->colorExp);
+                if (vecInfo->offsetExp)
+                    wideDrawable->setOffsetExpression(vecInfo->offsetExp);
+                maskEntries.resize(numMaskIDs);
+                for (unsigned int ii=0;ii<maskEntries.size();ii++)
+                    maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
+
+                drawable->setColor(vecInfo->color);
+
+                int baseTexId = 0;
+                if (vecInfo->texID != EmptyIdentity)
+                    drawable->setTexId(baseTexId++, vecInfo->texID);
+                if (centerValid)
+                {
+                    Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));
+                    Matrix4d transMat = trans.matrix();
+                    drawable->setMatrix(&transMat);
+                }
+            }
+        } else {
+            // Basic mode builds up a lot more geometry
+            int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
+            int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
+
+            if (!drawable ||
+                (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
+                (drawable->getNumTris()+triGuess > MaxDrawableTriangles))
+            {
+                flush();
+                
+    //            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
+                int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
+                int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
+                WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
+                wideDrawable->Init(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat(),vecInfo->implType);
+                drawable = wideDrawable;
+                wideDrawable->setTexRepeat(vecInfo->repeatSize);
+                wideDrawable->setEdgeSize(vecInfo->edgeSize);
+                wideDrawable->setLineWidth(vecInfo->width);
+                wideDrawable->setLineOffset(vecInfo->offset);
+    //            drawMbr.reset();
+                drawable->setType(Triangles);
+                vecInfo->setupBasicDrawable(drawable);
+                if (vecInfo->coordType == WideVecCoordReal)
+                    wideDrawable->setRealWorldWidth(vecInfo->width);
+                if (vecInfo->widthExp)
+                    wideDrawable->setWidthExpression(vecInfo->widthExp);
+                if (vecInfo->opacityExp)
+                    wideDrawable->setOpacityExpression(vecInfo->opacityExp);
+                if (vecInfo->colorExp)
+                    wideDrawable->setColorExpression(vecInfo->colorExp);
+                if (vecInfo->offsetExp)
+                    wideDrawable->setOffsetExpression(vecInfo->offsetExp);
+                maskEntries.resize(numMaskIDs);
+                for (unsigned int ii=0;ii<maskEntries.size();ii++)
+                    maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
+
+                drawable->setColor(vecInfo->color);
+                int baseTexId = 0;
+                if (vecInfo->texID != EmptyIdentity)
+                    drawable->setTexId(baseTexId++, vecInfo->texID);
+                if (centerValid)
+                {
+                    Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));
+                    Matrix4d transMat = trans.matrix();
+                    drawable->setMatrix(&transMat);
+                }
             }
         }
         
@@ -655,79 +711,110 @@ public:
                    const std::vector<SimpleIdentity> maskIDs,
                    bool closed)
     {
-        // We'll add one on the beginning and two on the end
-        //  if we're doing a closed loop.  This gets us
-        //  valid junctions that match up.
-        int startPoint = 0;
-        bool makeDistinctTurns = true;
-        if (closed)
-        {
-            // Note: We need this so we don't lose one turn
-            //       This could be optimized
-            makeDistinctTurns = true;
-            if (pts.size() > 2)
+        if (vecInfo->implType == WideVecImplPerf) {
+            // Performance mode makes the renderer do the work
+
+            // 8 points for the stretchable segment with a junction on either end
+            drawable->addPoint(Point3d(-1.0,-2.0,0.0));  drawable->addPoint(Point3d(1.0,-2.0,0.0));
+            drawable->addPoint(Point3d(-1.0,-1.0,0.0));  drawable->addPoint(Point3d(1.0,-1.0,0.0));
+            drawable->addPoint(Point3d(-1.0,1.0,0.0));  drawable->addPoint(Point3d(1.0,1.0,0.0));
+            drawable->addPoint(Point3d(-1.0,2.0,0.0));  drawable->addPoint(Point3d(1.0,2.0,0.0));
+
+            // 6 triangles for the stretchable segment
+            std::vector<BasicDrawable::Triangle> tris(6);
+            drawable->addTriangle(BasicDrawable::Triangle(0,1,3));
+            drawable->addTriangle(BasicDrawable::Triangle(0,3,2));
+            drawable->addTriangle(BasicDrawable::Triangle(2,3,5));
+            drawable->addTriangle(BasicDrawable::Triangle(2,5,4));
+            drawable->addTriangle(BasicDrawable::Triangle(4,5,7));
+            drawable->addTriangle(BasicDrawable::Triangle(4,7,6));
+
+            // Run through the points, adding centerline instances
+            double len = 0.0;
+            int startPt = drawable->getCenterLineCount();
+            for (unsigned int ii=0;ii<pts.size();ii++) {
+                const auto &pt = pts[ii];
+                int prev = closed ? pts.size()-1 + startPt : -1;
+                int next = (ii==pts.size()-1) ? (closed ? startPt : -1) : startPt + ii + 1;
+                drawable->addCenterLine(Point3d(pt.x(),pt.y(),0.0),up,len,vecInfo->color,maskIDs,prev,next);
+                if (ii<pts.size()-1)
+                    len += (pts[ii+1] - pts[ii]).norm();
+            }
+        } else {
+            // We'll add one on the beginning and two on the end
+            //  if we're doing a closed loop.  This gets us
+            //  valid junctions that match up.
+            int startPoint = 0;
+            bool makeDistinctTurns = true;
+            if (closed)
             {
-                if (pts.front() == pts.back())
+                // Note: We need this so we don't lose one turn
+                //       This could be optimized
+                makeDistinctTurns = true;
+                if (pts.size() > 2)
                 {
-                    startPoint = -3;
-                } else {
-                    startPoint = -2;
+                    if (pts.front() == pts.back())
+                    {
+                        startPoint = -3;
+                    } else {
+                        startPoint = -2;
+                    }
                 }
             }
+     
+            RGBAColor color = vecInfo->color;
+            WideVectorBuilder vecBuilder(vecInfo,
+                                         localCenter,
+                                         dispCenter,
+                                         color,
+                                         maskIDs,
+                                         makeDistinctTurns,
+                                         coordAdapter);
+
+            // Guess at how many points and triangles we'll need
+            int totalTriCount = (int)(5*pts.size());
+            int totalPtCount = totalTriCount * 3;
+            if (totalTriCount < 0)  totalTriCount = 0;
+            if (totalPtCount < 0)  totalPtCount = 0;
+            
+            // Work through the segments
+            Point2f lastPt;
+            bool validLastPt = false;
+            for (int ii=startPoint;ii<(int)pts.size();ii++)
+            {
+                // Get the points in display space
+                Point2f geoA = pts[(ii+pts.size())%pts.size()];
+                
+                if (validLastPt && geoA == lastPt)
+                    continue;
+
+                Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
+                Point3d dispPa = coordAdapter->localToDisplay(localPa);
+                Point3d thisUp = up;
+                if (!coordAdapter->isFlat())
+                    thisUp = coordAdapter->normalForLocal(localPa);
+                
+                // Get a drawable ready
+                int triCount = 2+3;
+                int ptCount = triCount*3;
+                WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
+                vecBuilder.maskEntries = maskEntries;
+                totalTriCount -= triCount;
+                totalPtCount -= ptCount;
+                drawMbr.addPoint(geoA);
+                
+                bool doSegment = !closed || (ii > 0);
+                bool doJunction = !closed || (ii >= 0);
+                vecBuilder.addPoint(dispPa,thisUp,thisDrawable,closed,doSegment,doJunction);
+                
+    //            NSLog(@"Pt = (%f,%f), doSegment = %d, doJunction = %d",geoA.x(),geoA.y(),(int)doSegment,(int)doJunction);
+                
+                lastPt = geoA;
+                validLastPt = true;
+            }
+
+            vecBuilder.flush(drawable,!closed,true);
         }
- 
-        RGBAColor color = vecInfo->color;
-        WideVectorBuilder vecBuilder(vecInfo,
-                                     localCenter,
-                                     dispCenter,
-                                     color,
-                                     maskIDs,
-                                     makeDistinctTurns,
-                                     coordAdapter);
-
-        // Guess at how many points and triangles we'll need
-        int totalTriCount = (int)(5*pts.size());
-        int totalPtCount = totalTriCount * 3;
-        if (totalTriCount < 0)  totalTriCount = 0;
-        if (totalPtCount < 0)  totalPtCount = 0;
-        
-        // Work through the segments
-        Point2f lastPt;
-        bool validLastPt = false;
-        for (int ii=startPoint;ii<(int)pts.size();ii++)
-        {
-            // Get the points in display space
-            Point2f geoA = pts[(ii+pts.size())%pts.size()];
-            
-            if (validLastPt && geoA == lastPt)
-                continue;
-
-            Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
-            Point3d dispPa = coordAdapter->localToDisplay(localPa);
-            Point3d thisUp = up;
-            if (!coordAdapter->isFlat())
-                thisUp = coordAdapter->normalForLocal(localPa);
-            
-            // Get a drawable ready
-            int triCount = 2+3;
-            int ptCount = triCount*3;
-            WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
-            vecBuilder.maskEntries = maskEntries;
-            totalTriCount -= triCount;
-            totalPtCount -= ptCount;
-            drawMbr.addPoint(geoA);
-            
-            bool doSegment = !closed || (ii > 0);
-            bool doJunction = !closed || (ii >= 0);
-            vecBuilder.addPoint(dispPa,thisUp,thisDrawable,closed,doSegment,doJunction);
-            
-//            NSLog(@"Pt = (%f,%f), doSegment = %d, doJunction = %d",geoA.x(),geoA.y(),(int)doSegment,(int)doJunction);
-            
-            lastPt = geoA;
-            validLastPt = true;
-        }
-
-        vecBuilder.flush(drawable,!closed,true);
     }
     
     // Debug version of add linear

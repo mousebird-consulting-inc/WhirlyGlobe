@@ -29,7 +29,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
-: Drawable(name), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
+: Drawable(name), numInstances(0), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
 {
 }
     
@@ -370,6 +370,12 @@ void BasicDrawableInstance::setTexturesChanged()
     texturesChanged = true;
     if (renderTargetCon)
         renderTargetCon->modified = true;
+}
+
+void BasicDrawableInstance::setInstanceData(int numInstances,RawDataRef data)
+{
+    this->numInstances = numInstances;
+    this->instData = data;
 }
 
 }

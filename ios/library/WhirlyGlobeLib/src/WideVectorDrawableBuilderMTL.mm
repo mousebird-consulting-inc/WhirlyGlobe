@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
 
 WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name,Scene *scene)
-: BasicDrawableBuilderMTL(name,scene)
+: name(name), scene(scene)
 {
 }
     
@@ -53,7 +53,7 @@ WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()
     return NULL;
 }
 
-BasicDrawableRef WideVectorDrawableBuilderMTL::getDrawable()
+DrawableRef WideVectorDrawableBuilderMTL::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderMTL::getDrawable();

@@ -370,6 +370,37 @@ struct ProjVertexTriWideVec {
     uint2 maskIDs;
 };
 
+// Vertex definition for wide vector (new version)
+struct VertexTriWideVecB
+{
+    // x, y offset around the center
+    float3 screenPos [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+};
+
+// Wide vector vertex passed to fragment shader (new version)
+struct ProjVertexTriWideVecB {
+    float4 position [[invariant]] [[position]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    uint2 maskIDs;
+};
+
+// Instance info for the wide vector (new) vertex shader
+struct VertexTriWideVecInstance
+{
+    // Center of the point on the line
+    float3 center;
+    // Upward direction (for 3D lines)
+    float3 up;
+    // Length of the line up to this point
+    float len;
+    // Color for the whole line
+    float4 color;
+    // Used to track loops and such
+    int prev,next;
+    // Mask IDs for comparison
+    int mask0,mask1;
+};
+
 // Input vertex data for Screen Space shaders
 struct VertexTriScreenSpace
 {

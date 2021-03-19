@@ -19,20 +19,13 @@
  */
 
 #import "WideVectorDrawableBuilder.h"
-#import "BasicDrawableBuilderMTL.h"
 #import "BaseInfo.h"
 
 namespace WhirlyKit
 {
     
-/// Metal version sets up one Uniform structure
-class WideVectorTweakerMTL : public WideVectorTweaker
-{
-    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
-};
-
 /// Metal version of the WideVectorDrawable Builder
-class WideVectorDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public WideVectorDrawableBuilder
+class WideVectorDrawableBuilderMTL : virtual public WideVectorDrawableBuilder
 {
 public:
     WideVectorDrawableBuilderMTL(const std::string &name,Scene *scene);
@@ -42,7 +35,7 @@ public:
         
     WideVectorTweaker *makeTweaker() override;
 
-    virtual BasicDrawableRef getDrawable() override;
+    virtual DrawableRef getDrawable();
     
 protected:
 };

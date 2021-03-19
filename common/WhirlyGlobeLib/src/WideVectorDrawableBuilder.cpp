@@ -162,6 +162,28 @@ void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
     tweak->texRepeat = texRepeat;
     tweak->color = color;
     theDraw->addTweaker(DrawableTweakerRef(tweak));
-}    
-    
+}
+
+void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,const Point3d &up,double len,
+                                              const RGBAColor &color,
+                                              std::vector<SimpleIdentity> &maskIDs,
+                                              int prev,int next)
+{
+    CenterPoint pt;
+    pt.center = Point3f(centerPt.x(),centerPt.y(),centerPt.z());
+    pt.up = Point3f(up.x(),up.y(),up.z());
+    pt.len = len;
+    color.asUnitFloats(&pt.color[0]);
+    pt.maskIDs[0] = maskIDs.empty() ? 0 : maskIDs[0];
+    pt.maskIDs[1] = maskIDs.size() > 1 ? maskIDs[1] : 0;
+    pt.prev = prev;
+    pt.next = next;
+    centerline.push_back(pt);
+}
+
+int WideVectorDrawableBuilder::getCenterLineCount()
+{
+    return centerline.size();
+}
+
 }

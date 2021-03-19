@@ -125,6 +125,9 @@ public:
     /// Set the shader program
     void setProgram(SimpleIdentity progID);
     
+    /// For Metal, we can set instance data in one big chunk
+    virtual void setInstanceData(int numInstance,RawDataRef data);
+    
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
     virtual BasicDrawableInstanceRef getDrawable() = 0;

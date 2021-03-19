@@ -221,6 +221,12 @@ extern NSString* const kMaplyWideVecCoordTypeReal;
 /// Widened vectors are widened in screen space.  The width is in pixels.
 extern NSString* const kMaplyWideVecCoordTypeScreen;
 
+/// Controls the wide vector implementation.  Basic implementation by default.
+extern NSString* const kMaplyWideVecImpl;
+
+/// Performance implementation of the wide vectors
+extern NSString* const kMaplyWideVecImplPerf;
+
 /// For wide vectors we can control the line joins
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
 extern NSString* const kMaplyWideVecJoinType;
