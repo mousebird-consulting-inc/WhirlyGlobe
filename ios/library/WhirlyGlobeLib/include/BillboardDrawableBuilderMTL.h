@@ -22,16 +22,6 @@
 namespace WhirlyKit
 {
 
-// Passes in the uniform values the shader is expecting
-struct BillboardTweakerMTL : public BasicDrawableTweaker
-{
-    BillboardTweakerMTL();
-    
-    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
-    
-    bool groundMode;
-};
-    
 /** Metal version of BillboardDrawable Builder
  */
 class BillboardDrawableBuilderMTL : virtual public BasicDrawableBuilderMTL, virtual public BillboardDrawableBuilder
