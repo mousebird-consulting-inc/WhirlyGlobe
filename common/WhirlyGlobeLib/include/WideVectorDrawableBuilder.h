@@ -22,10 +22,10 @@
 
 namespace WhirlyKit
 {
-    
+
 // Modifies the uniform values of a given shader right
 //  before the wide vector drawables are rendered
-struct WideVectorTweaker : public DrawableTweaker
+struct WideVectorTweaker : public BasicDrawableTweaker
 {
     // Called right before the drawable is drawn
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
@@ -35,11 +35,8 @@ struct WideVectorTweaker : public DrawableTweaker
     float texRepeat = 0.0f;
     float offset = 0.0f;
     bool offsetSet = false;
-    RGBAColor color = RGBAColor::white();
 
     FloatExpressionInfoRef widthExp;
-    ColorExpressionInfoRef colorExp;
-    FloatExpressionInfoRef opacityExp;
     FloatExpressionInfoRef offsetExp;
 };
 
@@ -72,10 +69,7 @@ public:
     // Optional normal
     virtual void addNormal(const Point3f &norm) override;
     virtual void addNormal(const Point3d &norm) override;
-    
-    // We set color globally
-    virtual void setColor(RGBAColor inColor) override;
-    
+
     // Line width for vectors is a bit different
     virtual void setLineWidth(float inWidth) override;
     
@@ -95,13 +89,9 @@ public:
     void setOffsetExpression(const FloatExpressionInfoRef &offsetExp);
     
     // The tweaker sets up uniforms before a given drawable draws
-    void setupTweaker(BasicDrawable *theDraw);
-    
-    // We need slightly different tweakers for the rendering variants
-    virtual WideVectorTweaker *makeTweaker() = 0;
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
 
 protected:
-    RGBAColor color = RGBAColor::white();
     float lineWidth = 1.0f;
     float lineOffset = 0.0f;
     bool lineOffsetSet = false;
