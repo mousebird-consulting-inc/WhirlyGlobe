@@ -26,7 +26,7 @@ namespace WhirlyKit
 
 void BasicDrawableTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
-    if (auto program = (ProgramGLES*)frameInfo->program)
+    if (auto program = dynamic_cast<const ProgramGLES*>(frameInfo->program))
     if (auto draw = dynamic_cast<BasicDrawable*>(inDraw))
     {
         const float zoom = (colorExp || opacityExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
@@ -36,8 +36,6 @@ void BasicDrawableTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo 
             const auto a = (uint8_t)(255.0f * opacityExp->evaluate(zoom, 1.0f));
             c = RGBAColor::FromInt(c.asInt() & 0xFF000000 | ((uint32_t)a << 24));
         }
-        //program->setUniform(draw->colorEntry,c);
-        //wkLog("%d - %f - %.2f %.2f %.2f %.2f", draw->colorEntry, zoom, c.x(), c.y(), c.z(), c.w());
         draw->setOverrideColor(c);
     }
 }
