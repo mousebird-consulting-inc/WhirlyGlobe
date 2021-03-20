@@ -208,7 +208,7 @@ protected:
         Point3f center;
         Point3f up;
         float len;
-        Point3f color;
+        RGBAColor color;
         int prev,next;
         int maskIDs[2];
     } CenterPoint;

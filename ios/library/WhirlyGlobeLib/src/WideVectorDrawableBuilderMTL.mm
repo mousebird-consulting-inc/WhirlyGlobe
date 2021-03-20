@@ -99,9 +99,6 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
     uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
     instDrawable->drawInst->setUniBlock(uniBlock);
     
-    // Instances also go into their own buffer
-    
-    
     // Expression uniforms, if we're using those
     if (uniWV.hasExp) {
         WhirlyKitShader::UniformWideVecExp wideVecExp;
@@ -120,6 +117,23 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
         uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));
         uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
         instDrawable->drawInst->setUniBlock(uniBlock);
+    }
+    
+    // Instances also go into their own buffer
+    std::vector<WhirlyKitShader::VertexTriWideVecInstance> vecInsts(centerline.size());
+    for (unsigned int ii=0;ii<centerline.size();ii++) {
+        auto *outPtr = &vecInsts[ii];
+        auto *inPtr = &centerline[ii];
+        CopyIntoMtlFloat3(outPtr->center,inPtr->center);
+        CopyIntoMtlFloat3(outPtr->up, inPtr->up);
+        outPtr->len = inPtr->len;
+        float color[4];
+        inPtr->color.asUnitFloats(color);
+        CopyIntoMtlFloat4(outPtr->color,color);
+        outPtr->prev = inPtr->prev;
+        outPtr->next = inPtr->next;
+        outPtr->mask0 = inPtr->maskIDs[0];
+        outPtr->mask1 = inPtr->maskIDs[1];
     }
 
     return instDrawable->drawInst;
