@@ -23,6 +23,7 @@
 #import "WhirlyKitLog.h"
 #import "StringIndexer.h"
 #import "SharedAttributes.h"
+#import "WideVectorDrawableBuilder.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -617,16 +618,14 @@ public:
                 int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
                 
                 WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
-                wideDrawable->Init(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat(),vecInfo->implType);
+                wideDrawable->Init(ptAlloc,triAlloc,0,
+                                   vecInfo->implType,
+                                   !scene->getCoordAdapter()->isFlat());
                 drawable = wideDrawable;
                 wideDrawable->setTexRepeat(vecInfo->repeatSize);
                 wideDrawable->setEdgeSize(vecInfo->edgeSize);
                 wideDrawable->setLineWidth(vecInfo->width);
                 wideDrawable->setLineOffset(vecInfo->offset);
-                drawable->setType(Triangles);
-                vecInfo->setupBasicDrawable(drawable);
-                if (vecInfo->coordType == WideVecCoordReal)
-                    wideDrawable->setRealWorldWidth(vecInfo->width);
                 if (vecInfo->widthExp)
                     wideDrawable->setWidthExpression(vecInfo->widthExp);
                 if (vecInfo->opacityExp)
@@ -666,17 +665,15 @@ public:
                 int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
                 int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
                 WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
-                wideDrawable->Init(ptAlloc,triAlloc,!scene->getCoordAdapter()->isFlat(),vecInfo->implType);
+                wideDrawable->Init(ptAlloc,triAlloc,0,
+                                   vecInfo->implType,
+                                   !scene->getCoordAdapter()->isFlat());
                 drawable = wideDrawable;
                 wideDrawable->setTexRepeat(vecInfo->repeatSize);
                 wideDrawable->setEdgeSize(vecInfo->edgeSize);
                 wideDrawable->setLineWidth(vecInfo->width);
                 wideDrawable->setLineOffset(vecInfo->offset);
     //            drawMbr.reset();
-                drawable->setType(Triangles);
-                vecInfo->setupBasicDrawable(drawable);
-                if (vecInfo->coordType == WideVecCoordReal)
-                    wideDrawable->setRealWorldWidth(vecInfo->width);
                 if (vecInfo->widthExp)
                     wideDrawable->setWidthExpression(vecInfo->widthExp);
                 if (vecInfo->opacityExp)
@@ -715,10 +712,11 @@ public:
             // Performance mode makes the renderer do the work
 
             // 8 points for the stretchable segment with a junction on either end
-            drawable->addPoint(Point3d(-1.0,-2.0,0.0));  drawable->addPoint(Point3d(1.0,-2.0,0.0));
-            drawable->addPoint(Point3d(-1.0,-1.0,0.0));  drawable->addPoint(Point3d(1.0,-1.0,0.0));
-            drawable->addPoint(Point3d(-1.0,1.0,0.0));  drawable->addPoint(Point3d(1.0,1.0,0.0));
-            drawable->addPoint(Point3d(-1.0,2.0,0.0));  drawable->addPoint(Point3d(1.0,2.0,0.0));
+            // TODO: Shouldn't share the vertices for the start and end
+            drawable->addPoint(Point3f(-1.0,-2.0,0.0));  drawable->addPoint(Point3f(1.0,-2.0,0.0));
+            drawable->addPoint(Point3f(-1.0,-1.0,0.0));  drawable->addPoint(Point3f(1.0,-1.0,0.0));
+            drawable->addPoint(Point3f(-1.0,1.0,0.0));  drawable->addPoint(Point3f(1.0,1.0,0.0));
+            drawable->addPoint(Point3f(-1.0,2.0,0.0));  drawable->addPoint(Point3f(1.0,2.0,0.0));
 
             // 6 triangles for the stretchable segment
             std::vector<BasicDrawable::Triangle> tris(6);
@@ -868,10 +866,16 @@ public:
         sceneRep->fade = vecInfo->fade;
         for (const auto &drawable : drawables)
         {
-            sceneRep->drawIDs.insert(drawable->getDrawableID());
+            if (auto drawID = drawable->getBasicDrawableID())
+                sceneRep->drawIDs.insert(drawID);
+            if (auto drawID = drawable->getInstanceDrawableID())
+                sceneRep->drawIDs.insert(drawID);
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
-            changes.push_back(new AddDrawableReq(drawable->getDrawable()));
+            if (auto draw = drawable->getBasicDrawable())
+                changes.push_back(new AddDrawableReq(draw));
+            if (auto draw = drawable->getBasicDrawable())
+                changes.push_back(new AddDrawableReq(draw));
         }
         
         drawables.clear();

@@ -18,7 +18,10 @@
  *
  */
 
+#import <MetalKit/MetalKit.h>
 #import "WideVectorDrawableBuilderMTL.h"
+#import "BasicDrawableMTL.h"
+#import "BasicDrawableInstanceBuilderMTL.h"
 #import "DefaultShadersMTL.h"
 #import "ProgramMTL.h"
 #import "RawData_NSData.h"
@@ -26,43 +29,62 @@
 namespace WhirlyKit
 {
 
-WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name,Scene *scene)
-: name(name), scene(scene)
+WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene)
+: WideVectorDrawableBuilder(name, sceneRenderer, scene),
+    drawableGotten(false), instanceGotten(false)
 {
 }
     
-void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTri, bool globeMode)
+void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTri, unsigned int numCenterLine,
+                                        WideVecImplType implType, bool globeMode)
 {
-    basicDraw = std::make_shared<BasicDrawableMTL>("Wide Vector");
-    WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
     
-    // Wire up the buffers
-    // TODO: Merge these into a single data structure
-    if (globeMode)
-        ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry])->slot = WhirlyKitShader::WKSVertexNormalAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry])->slot = WhirlyKitShader::WKSVertexColorAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[p1_index])->slot = WhirlyKitShader::WKSVertexWideVecP1Attribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[tex_index])->slot = WhirlyKitShader::WKSVertexWideVecTexInfoAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[n0_index])->slot = WhirlyKitShader::WKSVertexWideVecN0Attribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[offset_index])->slot = WhirlyKitShader::WKSVertexWideVecOffsetAttribute;
-    ((VertexAttributeMTL *)basicDraw->vertexAttributes[c0_index])->slot = WhirlyKitShader::WKSVertexWideVecC0Attribute;
+    WideVectorDrawableBuilder::Init(numVert,numTri,numCenterLine,implType,globeMode);
+    
+    if (implType == WideVecImplBasic) {
+        // Wire up the buffers
+        // TODO: Merge these into a single data structure
+        if (globeMode)
+            ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[basicDrawable->basicDraw->normalEntry])->slot = WhirlyKitShader::WKSVertexNormalAttribute;
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[basicDrawable->basicDraw->colorEntry])->slot = WhirlyKitShader::WKSVertexColorAttribute;
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[p1_index])->slot = WhirlyKitShader::WKSVertexWideVecP1Attribute;
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[tex_index])->slot = WhirlyKitShader::WKSVertexWideVecTexInfoAttribute;
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[n0_index])->slot = WhirlyKitShader::WKSVertexWideVecN0Attribute;
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[offset_index])->slot = WhirlyKitShader::WKSVertexWideVecOffsetAttribute;
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[c0_index])->slot = WhirlyKitShader::WKSVertexWideVecC0Attribute;
+    }
 }
+
+int WideVectorDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
+{
+    return basicDrawable->addAttribute(dataType, nameID, slot, numThings);
+}
+
 
 WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()
 {
-    return NULL;
+    return nullptr;
 }
 
-DrawableRef WideVectorDrawableBuilderMTL::getDrawable()
+BasicDrawableRef WideVectorDrawableBuilderMTL::getBasicDrawable()
 {
     if (drawableGotten)
-        return BasicDrawableBuilderMTL::getDrawable();
+        return basicDrawable->basicDraw;
     
-    BasicDrawableRef theDraw = BasicDrawableBuilderMTL::getDrawable();
-
-    VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry];
+    drawableGotten = true;
+    VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[basicDrawable->basicDraw->colorEntry];
     colorAttr->setDefaultColor(color);
 
+    return basicDrawable->basicDraw;
+}
+
+BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
+{
+    if (instanceGotten)
+        return instDrawable->drawInst;
+
+    instanceGotten = true;
+    
     // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
@@ -70,12 +92,15 @@ DrawableRef WideVectorDrawableBuilderMTL::getDrawable()
     uniWV.offset = lineOffset;
     uniWV.edge = edgeSize;
     uniWV.texRepeat = texRepeat;
-    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp || includeExp;
+    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp;
 
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
     uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
-    basicDraw->setUniBlock(uniBlock);
+    instDrawable->drawInst->setUniBlock(uniBlock);
+    
+    // Instances also go into their own buffer
+    
     
     // Expression uniforms, if we're using those
     if (uniWV.hasExp) {
@@ -85,6 +110,7 @@ DrawableRef WideVectorDrawableBuilderMTL::getDrawable()
             FloatExpressionToMtl(widthExp,wideVecExp.widthExp);
         if (offsetExp)
             FloatExpressionToMtl(offsetExp,wideVecExp.offsetExp);
+        
         if (opacityExp)
             FloatExpressionToMtl(opacityExp,wideVecExp.opacityExp);
         if (colorExp)
@@ -93,10 +119,11 @@ DrawableRef WideVectorDrawableBuilderMTL::getDrawable()
         BasicDrawable::UniformBlock uniBlock;
         uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));
         uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
-        basicDraw->setUniBlock(uniBlock);
+        instDrawable->drawInst->setUniBlock(uniBlock);
     }
 
-    return theDraw;
+    return instDrawable->drawInst;
 }
+
 
 }

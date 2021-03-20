@@ -77,6 +77,12 @@ void BasicDrawableInstanceBuilder::setEnableTimeRange(TimeInterval inStartEnable
     drawInst->endEnable = inEndEnable;
 }
 
+void BasicDrawableInstanceBuilder::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
+{
+    // TODO: Add fade to instances
+//    drawInst->setFade(inFadeDown,inFadeUp);
+}
+
 void BasicDrawableInstanceBuilder::setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter)
 {
     drawInst->minViewerDist = minViewerDist;
