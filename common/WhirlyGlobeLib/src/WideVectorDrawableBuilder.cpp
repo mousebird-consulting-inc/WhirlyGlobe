@@ -17,6 +17,7 @@
  */
 
 #import "WideVectorDrawableBuilder.h"
+#import "BasicDrawableInstanceBuilder.h"
 #import "SceneRenderer.h"
 #import "FlatMath.h"
 
@@ -25,8 +26,14 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawableBuilder::WideVectorDrawableBuilder()
-    : texRepeat(1.0), edgeSize(1.0), realWidthSet(false), globeMode(true), color(255,255,255,255)
+WideVectorDrawableBuilder::WideVectorDrawableBuilder(const std::string &name,
+                                                     const SceneRenderer *sceneRenderer,
+                                                     Scene *scene)
+    : name(name), renderer(sceneRenderer), scene(scene),
+      implType(WideVecImplBasic), basicDrawable(nullptr), instDrawable(nullptr),
+      lineWidth(1.0), lineOffset(0.0), color(255,255,255,255), globeMode(false),
+      snapTex(false), texRepeat(1.0), edgeSize(1.0),
+      p1_index(-1), n0_index(-1), offset_index(-1), c0_index(-1), tex_index(-1)
 {
 }
     
@@ -34,26 +41,37 @@ WideVectorDrawableBuilder::~WideVectorDrawableBuilder()
 {
 }
     
-void WideVectorDrawableBuilder::Init(unsigned int numVert,unsigned int numTri,bool inGlobeMode)
+void WideVectorDrawableBuilder::Init(unsigned int numVert,
+                                     unsigned int numTri,
+                                     unsigned int numCenterline,
+                                     WideVecImplType implType,
+                                     bool inGlobeMode)
 {
     globeMode = inGlobeMode;
+    this->implType = implType;
     
-    BasicDrawableBuilder::Init();
-    // Don't want standard attributes
-    
-    points.reserve(numVert);
-    tris.reserve(numTri);
-    
+    basicDrawable = renderer->makeBasicDrawableBuilder(name);
+    basicDrawable->Init();
+    basicDrawable->points.resize(numVert);
+    basicDrawable->tris.reserve(numTri);
+
+    if (implType == WideVecImplPerf) {
+        instDrawable = renderer->makeBasicDrawableInstanceBuilder(name);
+        // TODO: Reserve size for the instances
+    }
+          
     lineWidth = 10.0/1024.0;
     lineOffset = 0.0;
-    if (globeMode)
-        basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,numVert);
-    basicDraw->colorEntry = addAttribute(BDChar4Type, a_colorNameID);
-    p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
-    tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
-    n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
-    offset_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"),numVert);
-    c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
+    if (implType == WideVecImplBasic) {
+        basicDrawable->basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,numVert);
+        basicDrawable->basicDraw->colorEntry = addAttribute(BDChar4Type, a_colorNameID);
+    
+        p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
+        tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
+        n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
+        offset_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_offset"),numVert);
+        c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
+    }
 }
     
 void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
@@ -77,32 +95,24 @@ void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)
 void WideVectorDrawableBuilder::setEdgeSize(float inEdgeSize)
     { edgeSize = inEdgeSize; }
 
-void WideVectorDrawableBuilder::setRealWorldWidth(double width)
-    { realWidthSet = true;  realWidth = width; }
-
-    
 unsigned int WideVectorDrawableBuilder::addPoint(const Point3f &pt)
 {
 #ifdef WIDEVECDEBUG
     locPts.push_back(pt);
 #endif
-    return BasicDrawableBuilder::addPoint(pt);
+    basicDrawable->addPoint(pt);
+    
+    return basicDrawable->getNumPoints()-1;
 }
     
 void WideVectorDrawableBuilder::addNormal(const Point3f &norm)
 {
-    if (globeMode)
-    {
-        BasicDrawableBuilder::addNormal(norm);
-    }
+    basicDrawable->addNormal(norm);
 }
 
 void WideVectorDrawableBuilder::addNormal(const Point3d &norm)
 {
-    if (globeMode)
-    {
-        BasicDrawableBuilder::addNormal(norm);
-    }
+    basicDrawable->addNormal(norm);
 }
 
 void WideVectorDrawableBuilder::add_p1(const Point3f &pt)
@@ -141,6 +151,16 @@ void WideVectorDrawableBuilder::add_c0(float val)
 #endif
 }
 
+void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef colorExp)
+{
+    this->colorExp = colorExp;
+}
+
+void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef opacityExp)
+{
+    this->opacityExp = opacityExp;
+}
+
 void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidthExp)
 {
     widthExp = inWidthExp;
@@ -154,8 +174,6 @@ void WideVectorDrawableBuilder::setOffsetExpression(FloatExpressionInfoRef inOff
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
 {
     WideVectorTweaker *tweak = makeTweaker();
-    tweak->realWidthSet = false;
-    tweak->realWidth = realWidth;
     tweak->edgeSize = edgeSize;
     tweak->lineWidth = lineWidth;
     tweak->widthExp = widthExp;
@@ -164,9 +182,11 @@ void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
     theDraw->addTweaker(DrawableTweakerRef(tweak));
 }
 
-void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,const Point3d &up,double len,
+void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,
+                                              const Point3d &up,
+                                              double len,
                                               const RGBAColor &color,
-                                              std::vector<SimpleIdentity> &maskIDs,
+                                              const std::vector<SimpleIdentity> &maskIDs,
                                               int prev,int next)
 {
     CenterPoint pt;
@@ -181,9 +201,124 @@ void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,const Poin
     centerline.push_back(pt);
 }
 
+/// Number of points added so far
+unsigned int WideVectorDrawableBuilder::getNumPoints()
+{
+    return basicDrawable->getNumPoints();
+}
+
+/// Numer of triangles added so far
+unsigned int WideVectorDrawableBuilder::getNumTris()
+{
+    return basicDrawable->getNumTris();
+}
+
 int WideVectorDrawableBuilder::getCenterLineCount()
 {
     return centerline.size();
+}
+
+SimpleIdentity WideVectorDrawableBuilder::getBasicDrawableID()
+{
+    return basicDrawable->getDrawableID();
+}
+
+BasicDrawableRef WideVectorDrawableBuilder::getBasicDrawable()
+{
+    return basicDrawable->getDrawable();
+}
+
+SimpleIdentity WideVectorDrawableBuilder::getInstanceDrawableID()
+{
+    return instDrawable->getDrawableID();
+}
+
+BasicDrawableInstanceRef WideVectorDrawableBuilder::getInstanceDrawable()
+{
+    return instDrawable->getDrawable();
+}
+
+void WideVectorDrawableBuilder::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
+{
+    if (instDrawable)
+        instDrawable->setFade(inFadeDown, inFadeUp);
+    else
+        basicDrawable->setFade(inFadeDown, inFadeUp);
+}
+
+void WideVectorDrawableBuilder::setLocalMbr(Mbr mbr)
+{
+//    instDrawable->setLocalMbr(mbr);
+}
+
+void WideVectorDrawableBuilder::setMatrix(const Eigen::Matrix4d *inMat)
+{
+    if (instDrawable) {
+        // TODO: Add matrix offset to instance
+//        instDrawable->setMatrix(inMat);
+    } else
+        basicDrawable->setMatrix(inMat);
+}
+
+void WideVectorDrawableBuilder::addVertexAttributes(const SingleVertexAttributeSet &attrs)
+{
+    basicDrawable->addVertexAttributes(attrs);
+}
+
+/// Add a 2D vector to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector2f &vec)
+{
+    basicDrawable->addAttributeValue(attrId,vec);
+}
+
+/// Add a 3D vector to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector3f &vec)
+{
+    basicDrawable->addAttributeValue(attrId,vec);
+}
+
+/// Add a 4D vector to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector4f &vec)
+{
+    basicDrawable->addAttributeValue(attrId,vec);
+}
+
+/// Add a 4 component char array to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,const RGBAColor &color)
+{
+    basicDrawable->addAttributeValue(attrId,color);
+}
+
+/// Add a float to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,float color)
+{
+    basicDrawable->addAttributeValue(attrId,color);
+}
+
+/// Add an integer value to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,int val)
+{
+    basicDrawable->addAttributeValue(attrId,val);
+}
+
+/// Add an identity-type value to the given attribute array
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,int64_t val)
+{
+    basicDrawable->addAttributeValue(attrId,val);
+}
+
+/// Add a triangle.  Should point to the vertex IDs.
+void WideVectorDrawableBuilder::addTriangle(BasicDrawable::Triangle tri)
+{
+    basicDrawable->addTriangle(tri);
+}
+
+void WideVectorDrawableBuilder::setTexId(unsigned int which,SimpleIdentity inId)
+{
+    if (instDrawable)
+        instDrawable->setTexId(which, inId);
+    else
+        basicDrawable->setTexId(which, inId);
 }
 
 }

@@ -23,21 +23,31 @@
 
 namespace WhirlyKit
 {
-    
+
 /// Metal version of the WideVectorDrawable Builder
 class WideVectorDrawableBuilderMTL : virtual public WideVectorDrawableBuilder
 {
 public:
-    WideVectorDrawableBuilderMTL(const std::string &name,Scene *scene);
+    WideVectorDrawableBuilderMTL(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene);
     
     // Initialize with an estimate on the number of vertices and triangles
-    virtual void Init(unsigned int numVert,unsigned int numTri,bool globeMode) override;
+    virtual void Init(unsigned int numVert,unsigned int numTri,unsigned int numCenterLine,
+                      WideVecImplType implType,
+                      bool globeMode) override;
+    
+    // Add the given attribute
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot=-1,int numThings = -1) override;
         
     WideVectorTweaker *makeTweaker() override;
 
-    virtual DrawableRef getDrawable();
+    // Return the basic drawable for the simple and complex cases
+    virtual BasicDrawableRef getBasicDrawable() override;
     
+    // Return the drawable instance for the complec case
+    virtual BasicDrawableInstanceRef getInstanceDrawable() override;
 protected:
+    bool drawableGotten;
+    bool instanceGotten;
 };
 
 }

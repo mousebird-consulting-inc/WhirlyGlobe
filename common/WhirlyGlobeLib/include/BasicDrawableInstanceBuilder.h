@@ -136,7 +136,7 @@ public:
     /// This doesn't flush out the drawable in any way
     virtual SimpleIdentity getDrawableID();
 
-protected:
+public:
     // Called by subclasses
     void Init();
     

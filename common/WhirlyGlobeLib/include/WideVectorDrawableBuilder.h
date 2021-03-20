@@ -34,8 +34,6 @@ public:
     // Called right before the drawable is drawn
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
     
-    bool realWidthSet;
-    float realWidth;
     float edgeSize;
     float lineWidth;
     float texRepeat;
@@ -54,11 +52,21 @@ class WideVectorDrawableBuilder
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawableBuilder(const std::string &name,Scene *scene);
+    WideVectorDrawableBuilder(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene);
     virtual ~WideVectorDrawableBuilder();
 
-    virtual void Init(unsigned int numVert,unsigned int numTri,WideVecImplType implType,bool globeMode);
+    virtual void Init(unsigned int numVert,
+                      unsigned int numTri,
+                      unsigned int numCenterline,
+                      WideVecImplType implType,
+                      bool globeMode);
     
+    /// Set the fade in and out
+    void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
+    
+    /// Set the bounding box for the data
+    void setLocalMbr(Mbr mbr);
+
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
     void add_p1(const Point3f &vec);
@@ -73,6 +81,33 @@ public:
     // Optional normal
     void addNormal(const Point3f &norm);
     void addNormal(const Point3d &norm);
+
+    /// Add the given vertex attributes for the given vertex
+    void addVertexAttributes(const SingleVertexAttributeSet &attrs);
+    
+    /// Add a 2D vector to the given attribute array
+    virtual void addAttributeValue(int attrId,const Eigen::Vector2f &vec);
+    
+    /// Add a 3D vector to the given attribute array
+    virtual void addAttributeValue(int attrId,const Eigen::Vector3f &vec);
+    
+    /// Add a 4D vector to the given attribute array
+    virtual void addAttributeValue(int attrId,const Eigen::Vector4f &vec);
+    
+    /// Add a 4 component char array to the given attribute array
+    virtual void addAttributeValue(int attrId,const RGBAColor &color);
+    
+    /// Add a float to the given attribute array
+    virtual void addAttributeValue(int attrId,float val);
+    
+    /// Add an integer value to the given attribute array
+    virtual void addAttributeValue(int attrId,int val);
+    
+    /// Add an identity-type value to the given attribute array
+    virtual void addAttributeValue(int attrId,int64_t val);
+    
+    /// Add a triangle.  Should point to the vertex IDs.
+    virtual void addTriangle(BasicDrawable::Triangle tri);
     
     // We set color globally
     void setColor(RGBAColor inColor);
@@ -89,9 +124,12 @@ public:
     /// Number of pixels to interpolate at the edges
     void setEdgeSize(float inEdgeSize);
     
-    /// Fix the width to a real world value, rather than letting it change
-    void setRealWorldWidth(double width);
+    // Apply a dynamic color expression
+    void setColorExpression(ColorExpressionInfoRef colorExp);
     
+    // Apply a dynamic opacity expression
+    void setOpacityExpression(FloatExpressionInfoRef opacityExp);
+
     // Apply a width expression
     void setWidthExpression(FloatExpressionInfoRef widthExp);
     
@@ -102,7 +140,7 @@ public:
     void setupTweaker(BasicDrawable *theDraw);
     
     // For performance mode wide vectors (Metal for now), the center line instances
-    void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,std::vector<SimpleIdentity> &maskIDs,int prev,int next);
+    void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,const std::vector<SimpleIdentity> &maskIDs,int prev,int next);
     
     // Number of centerlines defined so far
     int getCenterLineCount();
@@ -110,16 +148,47 @@ public:
     // We need slightly different tweakers for the rendering variants
     virtual WideVectorTweaker *makeTweaker() = 0;
 
+    /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
+    ///  it by.  The index returned is how you will access it.
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot=-1,int numThings = -1) = 0;
+
+    /// Set the texture ID for a specific slot.  You get this from the Texture object.
+    virtual void setTexId(unsigned int which,SimpleIdentity inId);
+
+    /// Set the active transform matrix
+    virtual void setMatrix(const Eigen::Matrix4d *inMat);
+
+    /// Number of points added so far
+    unsigned int getNumPoints();
+    
+    /// Numer of triangles added so far
+    unsigned int getNumTris();
+    
+    // Return the basic drawable for the simple and complex cases
+    virtual BasicDrawableRef getBasicDrawable();
+    
+    virtual SimpleIdentity getBasicDrawableID();
+    
+    // Return the drawable instance for the complec case
+    virtual BasicDrawableInstanceRef getInstanceDrawable();
+    
+    virtual SimpleIdentity getInstanceDrawableID();
+
 protected:
     std::string name;
     Scene *scene;
+    const SceneRenderer *renderer;
+    
+    // Controls whether we're building basic drawables or instances
+    // We do instances on Metal
+    WideVecImplType implType;
+    BasicDrawableBuilderRef basicDrawable;
+    BasicDrawableInstanceBuilderRef instDrawable;
 
     float lineWidth;
     float lineOffset;
     RGBAColor color;
     bool globeMode;
-    bool realWidthSet;
-    double realWidth;
     bool snapTex;
     float texRepeat;
     float edgeSize;
@@ -131,7 +200,9 @@ protected:
     
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
-    
+    FloatExpressionInfoRef opacityExp;
+    ColorExpressionInfoRef colorExp;
+
     // Centerline structure (for Metal)
     typedef struct {
         Point3f center;
