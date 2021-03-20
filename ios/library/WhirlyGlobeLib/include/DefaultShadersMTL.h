@@ -238,6 +238,23 @@ struct UniformWideVecExp {
     FloatExp opacityExp;
     ColorExp colorExp;
 };
+
+// Instance info for the wide vector (new) vertex shader
+typedef struct
+{
+    // Center of the point on the line
+    simd::float3 center;
+    // Upward direction (for 3D lines)
+    simd::float3 up;
+    // Length of the line up to this point
+    float len;
+    // Color for the whole line
+    simd::float4 color;
+    // Used to track loops and such
+    int prev,next;
+    // Mask IDs for comparison
+    int mask0,mask1;
+} VertexTriWideVecInstance;
     
 // Instructions to the screen space shaders, usually per-drawable
 struct UniformScreenSpace {
@@ -382,23 +399,6 @@ struct ProjVertexTriWideVecB {
     float4 position [[invariant]] [[position]];
     float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
     uint2 maskIDs;
-};
-
-// Instance info for the wide vector (new) vertex shader
-struct VertexTriWideVecInstance
-{
-    // Center of the point on the line
-    float3 center;
-    // Upward direction (for 3D lines)
-    float3 up;
-    // Length of the line up to this point
-    float len;
-    // Color for the whole line
-    float4 color;
-    // Used to track loops and such
-    int prev,next;
-    // Mask IDs for comparison
-    int mask0,mask1;
 };
 
 // Input vertex data for Screen Space shaders

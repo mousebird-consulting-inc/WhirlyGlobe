@@ -193,7 +193,7 @@ void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,
     pt.center = Point3f(centerPt.x(),centerPt.y(),centerPt.z());
     pt.up = Point3f(up.x(),up.y(),up.z());
     pt.len = len;
-    color.asUnitFloats(&pt.color[0]);
+    pt.color = color;
     pt.maskIDs[0] = maskIDs.empty() ? 0 : maskIDs[0];
     pt.maskIDs[1] = maskIDs.size() > 1 ? maskIDs[1] : 0;
     pt.prev = prev;
