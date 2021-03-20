@@ -22,11 +22,26 @@ class MapTilerTestCase(activity: Activity) :
                 mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
                 backgroundAllPolys = (control is GlobeController)
                 imageVectorHybrid = true
+                minImportance = 768.0 * 768.0
                 start()
             }
         }
-    }
 
+        // Set up an overlay with the same importance showing the
+        // tile boundaries, for debugging/troubleshooting purposes
+        map?.let {
+            // Describes how to break down the space
+            val params = SamplingParams().apply {
+                minZoom = 1
+                maxZoom = 20
+                singleLevel = true
+                minImportance = it.minImportance
+                coordSystem = SphericalMercatorCoordSystem()
+            }
+            loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
+        }
+    }
+    
     private fun getStyleJson(whichMap: Int): String? {
         return maps[whichMap]?.let {
             Log.i(javaClass.name, "Loading $it")
@@ -38,7 +53,7 @@ class MapTilerTestCase(activity: Activity) :
             }
         } ?: customStyle
     }
-
+    
     // Switch maps on long press
     override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
         switchMaps()
@@ -48,6 +63,7 @@ class MapTilerTestCase(activity: Activity) :
     }
 
     private fun switchMaps() {
+        loader = null
         map?.stop()
         map = null
         currentMap = (currentMap + 1) % maps.size
@@ -81,16 +97,15 @@ class MapTilerTestCase(activity: Activity) :
     private var currentMap = 0
     private var map: MapboxKindaMap? = null
     private var baseViewC : BaseController? = null
+    private var loader : QuadPagingLoader? = null
     
     // Use this to test out a single or small number of elements alone.
     // This can be helpful when you want to set a breakpoint on something that's normally used by many styles.
     private val customStyle = """
         {  "name":"test","version":8,"layers":[
-              {  "id":"background","type":"background",
-                 "#comment": "bg is currently dynamic per-level, not per-frame",
-                 "paint":{"background-color":{"stops":[[0,"rgba(255,255,255,1)"],[16,"rgba(255,0,0,1)"]]}}
-              },{"id":"road_motorway","type":"line","source":"openmaptiles","source-layer":"transportation",
-                 "filter":["all",["==","class","motorway"]],
+              {  "id":"background","type":"background","paint":{"background-color":"#aaa"}
+              },{"id":"road_motorway","type":"line","source":"openmaptiles",
+                 "source-layer":"transportation","filter":["all",["==","class","motorway"]],
                  "paint":{
                    "line-color":{"base":1,"stops":[[5,"hsl(26,87%,62%)"],[16,"#0f0"]]},
                    "line-width":{"base":1.2,"stops":[[5,0],[16,60]]}
