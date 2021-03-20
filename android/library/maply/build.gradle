@@ -35,16 +35,36 @@ android {
 
         buildTypes {
             debug {
+                debuggable true
+                jniDebuggable true
                 ndk {
-                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
+                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+                    debuggable true
+                }
+                externalNativeBuild {
+                    cmake {
+                        cppFlags "-O0", "-g", "-DDEBUG=1", "-DCMAKE_BUILD_TYPE=Debug"
+                    }
+                }
+            }
+            release {
+                debuggable false
+                jniDebuggable false
+                ndk {
+                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
                     debuggable false
+                }
+                externalNativeBuild {
+                    cmake {
+                        cppFlags "-O2", "-DNDEBUG=1", "-DCMAKE_BUILD_TYPE=Release"
+                    }
                 }
             }
         }
 
         externalNativeBuild {
             cmake {
-                cppFlags "-frtti -fexceptions"
+                cppFlags "-frtti", "-fexceptions", "-std=gnu++14"
             }
         }
 
