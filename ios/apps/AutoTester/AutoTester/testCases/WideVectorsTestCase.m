@@ -96,7 +96,7 @@
                                          kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
                                          kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
                                          kMaplyWideVecOffset: @(10.0),
-                                         kMaplyWideVecImpl: kMaplyWideVecImplPerf,
+//                                         kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                          // More than 10 degrees need a bevel join
                                          kMaplyWideVecMiterLimit: @(10.0),
                                          kMaplyVecWidth: @(width)}
@@ -120,7 +120,7 @@
 
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
-    return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
+    return [self addGeoJson:name dashPattern:@[@8, @8] width:100 viewC:viewC];
 //    return [self addGeoJson:name dashPattern:@[@8, @8] width:100 viewC:viewC];
 }
 
