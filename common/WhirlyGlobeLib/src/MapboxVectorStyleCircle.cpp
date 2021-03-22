@@ -24,7 +24,7 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *inst,
+bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     DictionaryRef styleEntry)
 {
@@ -52,10 +52,17 @@ bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
         return false;
     }
 
-    const RGBAColor theFillColor = *paint.fillColor;
-    const RGBAColor theStrokeColor = *paint.strokeColor;
     const double maxRadius = paint.radius->maxVal();
     const double maxStrokeWidth = paint.strokeWidth->maxVal();
+
+    // todo: have to evaluate these dynamically to support expressions
+    const auto theFillColor = paint.opacity ?
+            paint.fillColor->withAlpha((float)paint.opacity->valForZoom(0)) :
+            *paint.fillColor;
+    const auto theStrokeColor = paint.strokeOpacity ?
+            paint.strokeColor->withAlpha((float)paint.strokeOpacity->valForZoom(0)) :
+            *paint.strokeColor;
+
     circleTexID = styleSet->makeCircleTexture(inst,maxRadius,theFillColor,theStrokeColor,maxStrokeWidth,&circleSize);
 
     // Larger circles are slightly more important
@@ -83,7 +90,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            const Dictionary *desc)
 {
     // If a representation is set, we produce results for non-visible layers
-    if (!visible && (representation.empty() || repUUIDField.empty()) || circleTexID == EmptyIdentity)
+    if ((!visible  && (representation.empty() || repUUIDField.empty())) || circleTexID == EmptyIdentity)
     {
         return;
     }
@@ -100,7 +107,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     MarkerInfo markerInfo(/*screenObject=*/true);
     markerInfo.zoomSlot = styleSet->zoomSlot;
     markerInfo.color = RGBAColor(255,255,255,opacity*255);
-    markerInfo.drawPriority = drawPriority;
+    markerInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
     markerInfo.programID = styleSet->screenMarkerProgramID;
     
     if (minzoom != 0 || maxzoom < 1000)
@@ -148,15 +155,15 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                 const auto result = markersByUUID.insert(std::make_pair(repUUID, emptyVal));
 
                 auto &markers = result.first->second.first;
-                auto &vecObjs = result.first->second.second;
+                auto &markerObjs = result.first->second.second;
 
                 if (markers.empty())
                 {
                     markers.reserve(pts->pts.size());
-                    vecObjs.reserve(pts->pts.size());
+                    markerObjs.reserve(pts->pts.size());
                 }
                 markers.push_back(marker);
-                vecObjs.push_back(vecObj);
+                markerObjs.push_back(vecObj);
             }
         }
     }
