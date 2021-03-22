@@ -18,9 +18,7 @@
 
 package com.mousebird.maply
 
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.Typeface
+import android.graphics.*
 import android.util.DisplayMetrics
 import android.util.Log
 import com.mousebird.maply.RenderController.EmptyIdentity
@@ -29,6 +27,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.regex.Pattern
+import kotlin.math.ceil
 
 /**
  * Mapbox Vector Style Set.
@@ -170,48 +169,45 @@ class MapboxVectorStyleSet : VectorStyleInterface {
                           fillColor: Int,
                           strokeColor: Int,
                           inStrokeWidth: Float,
-                          /* out */ circleSize: Point2d): Long /*Identity*/ {
-//        // We want the texture a bit bigger than specified
-//        const float scale = tileStyleSettings->markerScale * 2;
-//
-//        // Build an image for the circle
-//        const float buffer = 1.0;
-//        const float radius = inRadius*scale;
-//        const float strokeWidth = inStrokeWidth*scale;
-//        const float size = ceil(buffer + radius + strokeWidth)*2;
-//        if (circleSize)
-//            {
-//                circleSize->x() = size / 2;
-//                circleSize->y() = size / 2;
-//            }
-//        UIGraphicsBeginImageContext(CGSizeMake(size, size));
-//        // TODO: Use the opacity
-//        [[UIColor clearColor] setFill];
-//        CGContextRef ctx = UIGraphicsGetCurrentContext();
-//        CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
-//
-//        // Outer stroke
-//        if (strokeWidth > 0.0) {
-//            CGContextBeginPath(ctx);
-//            CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
-//            [[UIColor colorFromRGBA:strokeColor] setFill];
-//            CGContextDrawPath(ctx, kCGPathFill);
-//        }
-//
-//        // Inner circle
-//        CGContextBeginPath(ctx);
-//        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
-//        [[UIColor colorFromRGBA:fillColor] setFill];
-//        CGContextDrawPath(ctx, kCGPathFill);
-//
-//        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-//        UIGraphicsEndImageContext();
-//
-//        MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
-//        textures.push_back(tex);
-//
-//        return tex.texID;
-        return EmptyIdentity
+                          /* out */ circleSize: Point2d?): Long /*Identity*/ {
+        val control = control?.get() ?: return EmptyIdentity
+
+        // We want the texture a bit bigger than specified
+        val scale = (settings?.markerScale ?: 1.0) * 2.0
+
+        // Build an image for the circle
+        val buffer = 1.0
+        val radius = inRadius * scale
+        val strokeWidth = inStrokeWidth * scale
+        val size = ceil((buffer + radius + strokeWidth) * 2.0).toInt()
+    
+        circleSize?.setValue(size / 2.0, size / 2.0)
+
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        bitmap.eraseColor(Color.TRANSPARENT)
+        
+        val canvas = Canvas(bitmap)
+    
+        val paint = Paint(Paint.FILTER_BITMAP_FLAG.or(Paint.ANTI_ALIAS_FLAG))
+
+        // Outer stroke
+        if (strokeWidth > 0) {
+            paint.style = Paint.Style.FILL
+            paint.color = strokeColor
+            canvas.drawCircle(size/2.0f,size/2.0f,(radius+strokeWidth).toFloat(),paint)
+        }
+        
+        // Inner circle
+        paint.style = Paint.Style.FILL
+        paint.color = fillColor
+        canvas.drawCircle(size/2.0f,size/2.0f, radius.toFloat(),paint)
+
+        val texSettings = RenderControllerInterface.TextureSettings().apply {
+            filterType = RenderControllerInterface.TextureSettings.FilterType.FilterLinear
+            imageFormat = RenderController.ImageFormat.MaplyImage4Layer8Bit
+        }
+        val tex = control.addTexture(bitmap, texSettings, ThreadMode.ThreadCurrent)
+        return tex?.texID ?: EmptyIdentity
     }
 
     fun makeLineTexture(comp: DoubleArray): Long /*Identity*/ {

@@ -30,6 +30,7 @@ open class MapTilerTestCase : MaplyTestCase
                 backgroundAllPolys = (control is GlobeController)
                 imageVectorHybrid = true
                 minImportance = 768.0 * 768.0
+                setup(this)
                 start()
             }
         }
@@ -48,7 +49,11 @@ open class MapTilerTestCase : MaplyTestCase
             loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
         }
     }
-    
+
+    protected open fun setup(map: MapboxKindaMap) {
+        map.styleSettings.drawPriorityPerLevel = 100
+    }
+
     protected open fun getStyleJson(whichMap: Int): String? {
         return getMaps().elementAt(whichMap)?.let {
             Log.i(javaClass.name, "Loading $it")
