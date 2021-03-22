@@ -31,8 +31,8 @@ WideVectorDrawableBuilder::WideVectorDrawableBuilder(const std::string &name,
                                                      Scene *scene)
     : name(name), renderer(sceneRenderer), scene(scene),
       implType(WideVecImplBasic), basicDrawable(nullptr), instDrawable(nullptr),
-      lineWidth(1.0), lineOffset(0.0), color(255,255,255,255), globeMode(false),
-      snapTex(false), texRepeat(1.0), edgeSize(1.0),
+      lineWidth(1.0), lineOffset(0.0), globeMode(false),
+      texRepeat(1.0), edgeSize(1.0),
       p1_index(-1), n0_index(-1), offset_index(-1), c0_index(-1), tex_index(-1)
 {
 }
@@ -160,7 +160,7 @@ void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef opac
     this->opacityExp = opacityExp;
 }
 
-void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidthExp)
+void WideVectorDrawableBuilder::setWidthExpression(const FloatExpressionInfoRef &inWidthExp)
 {
     widthExp = inWidthExp;
 }
@@ -172,7 +172,7 @@ void WideVectorDrawableBuilder::setOffsetExpression(const FloatExpressionInfoRef
 
 void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
-    BasicDrawableBuilder::setupTweaker(inTweaker);
+    basicDrawable->setupTweaker(inTweaker);
     if (auto tweak = std::dynamic_pointer_cast<WideVectorTweaker>(inTweaker))
     {
         tweak->edgeSize = edgeSize;
@@ -256,6 +256,15 @@ void WideVectorDrawableBuilder::setFade(TimeInterval inFadeDown,TimeInterval inF
     else
         basicDrawable->setFade(inFadeDown, inFadeUp);
 }
+
+void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
+{
+    if (instDrawable)
+        instDrawable->setColor(inColor);
+    else
+        basicDrawable->setColor(inColor);
+}
+
 
 void WideVectorDrawableBuilder::setLocalMbr(Mbr mbr)
 {
