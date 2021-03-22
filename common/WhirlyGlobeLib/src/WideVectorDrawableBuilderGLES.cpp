@@ -16,8 +16,9 @@
  *  limitations under the License.
  */
 
-#import "WideVectorDrawableBuilderGLES.h"
-#import "WhirlyKitLog.h"
+#import <WhirlyGlobe.h>
+#import <WideVectorDrawableBuilderGLES.h>
+#import <WhirlyKitLog.h>
 
 using namespace Eigen;
 
@@ -33,39 +34,24 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
         const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
         const double texScale = scale / (screenSize * texRepeat);
+        const auto programGLES = (ProgramGLES *)frameInfo->program;
+        const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
 
-        auto programGLES = (ProgramGLES *)frameInfo->program;
+        Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
 
-        if (widthExp)
+        if (opacityExp)
         {
-            const auto bd = dynamic_cast<BasicDrawable*>(inDraw);
-            if (bd && bd->zoomSlot >= 0)
-            {
-                auto zoom = frameInfo->scene->getZoomSlotValue(bd->zoomSlot);
-                const float expWidth = widthExp->evaluate(zoom, lineWidth);
-                programGLES->setUniform(u_w2NameID, expWidth);
-                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * expWidth));
-                //wkLog("id=%lld on=%s p=%lld n=%s zoom=%f exp=%f/%f lW=%f/%f", inDraw->getId(), inDraw->isOn(frameInfo)?"T":"F", inDraw->getProgram(), inDraw->getName().c_str(), zoom, expWidth, pixDispSize * expWidth, lineWidth, lineWidth * pixDispSize);
-            }
-            else
-            {
-                programGLES->setUniform(u_w2NameID, lineWidth);
-                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
-            }
+            c.w() = opacityExp->evaluate(zoom, 1.0f);
         }
-        else if (realWidthSet)
-        {
-            programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
-            programGLES->setUniform(u_Realw2NameID, realWidth);
-        }
-        else
-        {
-            programGLES->setUniform(u_w2NameID, lineWidth);
-            programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
-        }
+
+        programGLES->setUniform(u_colorNameID, c);
+
+        const float width = widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth;
+        programGLES->setUniform(u_w2NameID, width);
+        programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
+
         programGLES->setUniform(u_EdgeNameID, edgeSize);
         programGLES->setUniform(u_texScaleNameID, (float)texScale);
-        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0f,color.g/255.0f,color.b/255.0f,color.a/255.0f));
     }
 }
 
@@ -79,25 +65,30 @@ void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTr
     basicDraw = std::make_shared<BasicDrawableGLES>("Wide Vector");
     WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
 }
-    
+
+// NOLINTNEXTLINE(google-default-arguments)
 int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
-    
-WideVectorTweaker *WideVectorDrawableBuilderGLES::makeTweaker()
+
+DrawableTweakerRef WideVectorDrawableBuilderGLES::makeTweaker() const
 {
-    return new WideVectorTweakerGLES();
+    return std::make_shared<WideVectorTweakerGLES>();
 }
-    
+
 BasicDrawableRef WideVectorDrawableBuilderGLES::getDrawable()
 {
     if (drawableGotten)
+    {
         return BasicDrawableBuilderGLES::getDrawable();
-    
-    const auto theDraw = BasicDrawableBuilderGLES::getDrawable();
-    setupTweaker(theDraw.get());
-        
+    }
+
+    // non-const to allow copy elision on return
+    auto theDraw = BasicDrawableBuilderGLES::getDrawable();
+
+    setupTweaker(*theDraw);
+
     return theDraw;
 }
     
@@ -243,13 +234,13 @@ void main()
 }
 )";
 
-ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildWideVectorProgramGLES(const std::string &name, SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTriAlias);
+    auto shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     // Set some reasonable defaults
@@ -265,13 +256,13 @@ ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *r
     return shader;
 }
 
-ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name, SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
+    auto shader = new ProgramGLES(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     // Set some reasonable defaults
@@ -282,8 +273,7 @@ ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRender
         shader->setUniform(u_lengthNameID, 10.f/1024);
         shader->setUniform(u_texScaleNameID, 1.f);
     }
-    
-    
+
     return shader;
 }
     

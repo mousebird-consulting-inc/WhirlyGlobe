@@ -363,8 +363,8 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     TimeInterval now = scene->getCurrentTime();
                     std::vector<SimpleIdentity> texIDVec;
                     std::copy(texIDs.begin(), texIDs.end(), std::back_inserter(texIDVec));
-                    BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(texIDVec,now,marker->period);
-                    draw->addTweaker(DrawableTweakerRef(tweak));
+                    auto tweak = std::make_shared<BasicDrawableTexTweaker>(texIDVec,now,marker->period);
+                    draw->addTweaker(tweak);
                 }
             }
             

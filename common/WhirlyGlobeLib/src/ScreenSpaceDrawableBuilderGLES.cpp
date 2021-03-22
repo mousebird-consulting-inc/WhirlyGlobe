@@ -1,9 +1,8 @@
-/*
- *  ScreenSpaceDrawableBuilderGLES.cpp
+/*  ScreenSpaceDrawableBuilderGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ScreenSpaceDrawableBuilderGLES.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -48,9 +47,9 @@ int ScreenSpaceDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,St
     return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
 }
     
-ScreenSpaceTweaker *ScreenSpaceDrawableBuilderGLES::makeTweaker()
+DrawableTweakerRef ScreenSpaceDrawableBuilderGLES::makeTweaker() const
 {
-    return new ScreenSpaceTweakerGLES();
+    return std::make_shared<ScreenSpaceTweakerGLES>();
 }
 
 BasicDrawableRef ScreenSpaceDrawableBuilderGLES::getDrawable()
@@ -59,7 +58,7 @@ BasicDrawableRef ScreenSpaceDrawableBuilderGLES::getDrawable()
         return BasicDrawableBuilderGLES::getDrawable();
     
     auto theDraw = BasicDrawableBuilderGLES::getDrawable();
-    setupTweaker(theDraw.get());
+    setupTweaker(*theDraw);
     
     return theDraw;
 }

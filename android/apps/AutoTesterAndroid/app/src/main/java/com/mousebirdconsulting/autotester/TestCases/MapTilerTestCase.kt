@@ -8,50 +8,50 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
 import java.io.IOException
 
-class MapTilerTestCase : MaplyTestCase {
-    constructor(activity: Activity) : super(activity) {
-        setTestName("MapTiler")
-        implementation = TestExecutionImplementation.Both
-    }
-    
+class MapTilerTestCase(activity: Activity) :
+        MaplyTestCase(activity, "MapTiler", TestExecutionImplementation.Both)
+{
     // Maptiler token
     // Go to maptiler.com, setup an account and get your own
     private val token = "GetYerOwnToken"
     
     // Set up the loader (and all the stuff it needs) for the map tiles
-    private fun setupLoader(control: BaseController, whichMap: Int, backgroundAll: Boolean) {
-        // Third map is no map
-        if (whichMap > 1)
-            return;
-
-        val mapName = if (whichMap == 0) "maptiler_basic.json" else "maptiler_streets.json"
-
-        Log.i(javaClass.name, String.format("Loading %s bg=%s", mapName, backgroundAll.toString()));
-        
-        val assetMgr = getActivity().assets
-        val stream = assetMgr.open(mapName)
-
-        try {
-            val json = Okio.buffer(Okio.source(stream)).readUtf8()
+    private fun setupLoader(control: BaseController, whichMap: Int) {
+        getStyleJson(whichMap)?.let { json ->
             map = MapboxKindaMap(json, control).apply {
-                mapboxURLFor = this@MapTilerTestCase::urlMap
-                // backgroundAll is only needed for globes
+                mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
                 backgroundAllPolys = (control is GlobeController)
                 imageVectorHybrid = true
+                minImportance = 768.0 * 768.0
                 start()
             }
         }
-        catch (e: IOException) {
-            return
+
+        // Set up an overlay with the same importance showing the
+        // tile boundaries, for debugging/troubleshooting purposes
+        map?.let {
+            // Describes how to break down the space
+            val params = SamplingParams().apply {
+                minZoom = 1
+                maxZoom = 20
+                singleLevel = true
+                minImportance = it.minImportance
+                coordSystem = SphericalMercatorCoordSystem()
+            }
+            loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
         }
     }
-
-    private fun urlMap(url: Uri): Uri {
-        val urlStr = url.toString()
-        var newStr = urlStr
-        if (urlStr.contains("MapTilerKey"))
-            newStr = urlStr.replace("MapTilerKey", token)
-        return Uri.parse(newStr)
+    
+    private fun getStyleJson(whichMap: Int): String? {
+        return maps[whichMap]?.let {
+            Log.i(javaClass.name, "Loading $it")
+            try {
+                Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
+            } catch (e: IOException) {
+                Log.w(javaClass.simpleName, "Failed to load style $it", e)
+                return null
+            }
+        } ?: customStyle
     }
     
     // Switch maps on long press
@@ -63,33 +63,55 @@ class MapTilerTestCase : MaplyTestCase {
     }
 
     private fun switchMaps() {
+        loader = null
         map?.stop()
-    
-        currentMap = (currentMap + 1) % 2
-        if (currentMap == 0) {
-            bgAll = !bgAll
-        }
-        setupLoader(baseViewC!!, currentMap, bgAll)
+        map = null
+        currentMap = (currentMap + 1) % maps.size
+        baseViewC?.let { setupLoader(it, currentMap) }
     }
     
-    var currentMap = 0
-    var bgAll = false
-    var baseViewC : BaseController? = null
-
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        baseViewC = globeVC
-        setupLoader(baseViewC!!, currentMap, bgAll)
-
-        globeVC?.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
+        baseViewC = globeVC?.also {
+            setupLoader(it, currentMap)
+            it.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
+        }
         return true
     }
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
-        baseViewC = mapVC
-        setupLoader(baseViewC!!, currentMap, bgAll)
-
+        baseViewC = mapVC?.also {
+            setupLoader(it, currentMap)
+            it.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
+        }
         return true
     }
-    
+
+    private val maps = arrayOf(
+        "maptiler_basic.json",
+        "maptiler_streets.json",
+        "maptiler_topo.json",
+        "maptiler_hybrid_satellite.json",
+        "maptiler_expr_test.json",
+        null        // placeholder for custom stylesheet below
+    )
+    private var currentMap = 0
     private var map: MapboxKindaMap? = null
+    private var baseViewC : BaseController? = null
+    private var loader : QuadPagingLoader? = null
+    
+    // Use this to test out a single or small number of elements alone.
+    // This can be helpful when you want to set a breakpoint on something that's normally used by many styles.
+    private val customStyle = """
+        {  "name":"test","version":8,"layers":[
+              {  "id":"background","type":"background","paint":{"background-color":"#aaa"}
+              },{"id":"road_motorway","type":"line","source":"openmaptiles",
+                 "source-layer":"transportation","filter":["all",["==","class","motorway"]],
+                 "paint":{
+                   "line-color":{"base":1,"stops":[[5,"hsl(26,87%,62%)"],[16,"#0f0"]]},
+                   "line-width":{"base":1.2,"stops":[[5,0],[16,60]]}
+                 }
+              }
+           ],"sources":{"openmaptiles":{"type":"vector",
+                 "url":"https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}}}
+    """.trimIndent()
 }

@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawableBuilderGLES.h
+/*  WideVectorDrawableBuilderGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WideVectorDrawableBuilder.h"
@@ -25,9 +23,9 @@ namespace WhirlyKit
 {
  
 /// GLES version modifies uniforms
-class WideVectorTweakerGLES : public WideVectorTweaker
+struct WideVectorTweakerGLES : public WideVectorTweaker
 {
-    void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo);
+    virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
 };
 
 // Shader name
@@ -46,13 +44,16 @@ public:
     // Initialize with an estimate on the number of vertices and triangles
     WideVectorDrawableBuilderGLES(const std::string &name,Scene *scene);
     
-    void Init(unsigned int numVert,unsigned int numTri,bool globeMode);
+    virtual void Init(unsigned int numVertex,unsigned int numTri,bool globeMode) override;
     
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1);
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1) override;
 
-    virtual WideVectorTweaker *makeTweaker();
+    virtual BasicDrawableRef getDrawable() override;
 
-    virtual BasicDrawableRef getDrawable();
+    virtual DrawableTweakerRef makeTweaker() const override;
+
+    virtual void setupTweaker(BasicDrawable &draw) const override { BasicDrawableBuilder::setupTweaker(draw); }
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override { WideVectorDrawableBuilder::setupTweaker(inTweaker); }
 };
-    
+
 }

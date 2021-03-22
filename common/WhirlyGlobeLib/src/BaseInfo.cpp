@@ -28,86 +28,110 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-ExpressionInfo::ExpressionInfo()
-: type(ExpressionNone), base(1.0)
+ExpressionInfo::ExpressionInfo() :
+    type(ExpressionNone),
+    base(1.0)
 {
 }
 
-ExpressionInfo::ExpressionInfo(const ExpressionInfo &that)
-: type(that.type), base(that.base), stopInputs(that.stopInputs)
-{
-}
-
-FloatExpressionInfo::FloatExpressionInfo()
-{
-}
-
-FloatExpressionInfo::FloatExpressionInfo(const FloatExpressionInfo &that)
-: ExpressionInfo(that), stopOutputs(that.stopOutputs)
+ExpressionInfo::ExpressionInfo(const ExpressionInfo &that) : // NOLINT(bugprone-copy-constructor-init)
+    Identifiable(),  // Generate a new ID, don't copy
+    type(that.type),
+    base(that.base),
+    stopInputs(that.stopInputs)
 {
 }
 
 void FloatExpressionInfo::scaleBy(double scale)
 {
-    for (float & stopOutput : stopOutputs)
-        stopOutput *= scale;
+    for (float &stopOutput : stopOutputs)
+    {
+        stopOutput = (float)(stopOutput * scale);
+    }
 }
 
-float FloatExpressionInfo::evaluate(float zoom, float defaultValue)
+template <typename TFrom,typename TTo>
+static TTo evalExpr(float zoom, float base,TFrom defaultValue,
+                    const std::vector<float> &inputs,const std::vector<TFrom> &outputs,
+                    std::function<TTo(TFrom)> convert,
+                    std::function<TTo(TFrom,TFrom,double)> interp)
 {
-    if (stopInputs.empty() || stopOutputs.empty())
+    if (inputs.empty() || outputs.empty())
     {
-        return defaultValue;
+        return convert(defaultValue);
+    }
+    if (zoom <= inputs.front())
+    {
+        return convert(outputs.front());
+    }
+    if (zoom > inputs.back())
+    {
+        return convert(outputs.back());
     }
 
-    if (zoom <= stopInputs.front())
-    {
-        return stopOutputs.front();
-    }
-    if (zoom > stopInputs.back())
-    {
-        return stopOutputs.back();
-    }
-
-    const auto numStops = std::min(stopInputs.size(), stopOutputs.size());
-
+    const auto numStops = std::min(inputs.size(), outputs.size());
     for (int i = 0; i < numStops - 1; ++i)
     {
-        if (stopInputs[i] <= zoom && zoom < stopInputs[i + 1])
+        if (inputs[i] <= zoom && zoom < inputs[i + 1])
         {
-            const auto zoomA = stopInputs[i];
-            const auto zoomB = stopInputs[i + 1];
-            const auto valA = stopOutputs[i];
-            const auto valB = stopOutputs[i + 1];
+            const auto zoomA = inputs[i];
+            const auto zoomB = inputs[i + 1];
+            const auto valA = outputs[i];
+            const auto valB = outputs[i + 1];
             const auto t = (zoom - zoomA) / (zoomB - zoomA);
             if (base > 0)
             {
                 // exponential
                 if (base == 1.0f)
                 {
-                    return (float)(t * (valB - valA) + valA);
+                    return interp(valA, valB, t);
                 }
                 const auto a = std::pow(base, zoom - zoomA) - 1.0;
                 const auto b = std::pow(base, zoomB - zoomA) - 1.0;
-                return (float)(a / b * (valB - valA) + valA);
+                return interp(valA, valB, a/b);
             }
             else
             {
                 // linear
-                return (float)(t * (valB - valA) + valA);
+                return interp(valA, valB, t);
             }
         }
     }
-    return stopOutputs.back();
+    return convert(outputs.back());
 }
 
-ColorExpressionInfo::ColorExpressionInfo()
+// std::lerp is C++20
+template <typename T> T static lerp(T a, T b, double t) { return (T)(t * (b - a) + a); }
+static const auto flerp = lerp<float>;
+
+template <typename T> T static inline ident(T t) { return t; }
+
+static inline Vector4f toVec(RGBAColor c) { return c.asRGBAVecF(); }
+
+static inline RGBAColor lerpRGB(RGBAColor a, RGBAColor b, double t)
 {
+    return RGBAColor{lerp(a.r,b.r,t),lerp(a.g,b.g,t),lerp(a.b,b.b,t),lerp(a.a,b.a,t)};
 }
 
-ColorExpressionInfo::ColorExpressionInfo(const ColorExpressionInfo &that)
-: ExpressionInfo(that), stopOutputs(that.stopOutputs)
+static inline Vector4f lerpVec(RGBAColor a, RGBAColor b, double t)
 {
+    return Vector4f{flerp(a.r,b.r,t)/255.f,flerp(a.g,b.g,t)/255.f,
+                    flerp(a.b,b.b,t)/255.f,flerp(a.a,b.a,t)/255.f};
+}
+
+float FloatExpressionInfo::evaluate(float zoom, float defaultValue)
+{
+    return evalExpr<float,float>(zoom,base,defaultValue,stopInputs,stopOutputs,ident<float>,flerp);
+}
+
+RGBAColor ColorExpressionInfo::evaluate(float zoom, RGBAColor def)
+{
+    return evalExpr<RGBAColor,RGBAColor>(zoom,base,def,stopInputs,stopOutputs,ident<RGBAColor>,lerpRGB);
+}
+
+Vector4f ColorExpressionInfo::evaluateF(float zoom, RGBAColor def)
+{
+    return evalExpr<RGBAColor,Vector4f>(zoom,base,def,stopInputs,stopOutputs,toVec,lerpVec);
 }
 
 BaseInfo::BaseInfo()
@@ -219,9 +243,9 @@ BaseInfo::BaseInfo(const Dictionary &dict)
 template <typename T>
 std::string to_string(T value)
 {
-    std::ostringstream os ;
-    os << value ;
-    return os.str() ;
+    std::ostringstream os;
+    os << value;
+    return os.str();
 }
 
 std::string BaseInfo::toString()
@@ -251,7 +275,7 @@ std::string BaseInfo::toString()
     return outStr;
 }
     
-void BaseInfo::setupBasicDrawable(BasicDrawableBuilderRef drawBuild) const
+void BaseInfo::setupBasicDrawable(const BasicDrawableBuilderRef &drawBuild) const
 {
     setupBasicDrawable(drawBuild.get());
 }
@@ -263,7 +287,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
         drawBuild->setEnableTimeRange(startEnable, endEnable);
     drawBuild->setDrawOrder(drawOrder);
     drawBuild->setDrawPriority(drawPriority);
-    drawBuild->setVisibleRange(minVis,maxVis);
+    drawBuild->setVisibleRange((float)minVis,(float)maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
     drawBuild->setZoomInfo(zoomSlot,minZoomVis,maxZoomVis);
     drawBuild->setProgram(programID);
@@ -277,7 +301,7 @@ void BaseInfo::setupBasicDrawable(BasicDrawableBuilder *drawBuild) const
         drawBuild->setIncludeExp(true);
 }
 
-void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilderRef drawBuild) const
+void BaseInfo::setupBasicDrawableInstance(const BasicDrawableInstanceBuilderRef &drawBuild) const
 {
     setupBasicDrawableInstance(drawBuild.get());
 }
@@ -288,7 +312,7 @@ void BaseInfo::setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuil
     drawBuild->setEnableTimeRange(startEnable, endEnable);
     drawBuild->setDrawOrder(drawOrder);
     drawBuild->setDrawPriority(drawPriority);
-    drawBuild->setVisibleRange(minVis,maxVis);
+    drawBuild->setVisibleRange((float)minVis,(float)maxVis);
     drawBuild->setViewerVisibility(minViewerDist,maxViewerDist,viewerCenter);
     drawBuild->setZoomInfo(zoomSlot,minZoomVis,maxZoomVis);
     drawBuild->setUniforms(uniforms);

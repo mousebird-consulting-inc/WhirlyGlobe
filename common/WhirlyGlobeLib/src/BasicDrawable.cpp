@@ -1,9 +1,8 @@
-/*
- *  BasicDrawable.mm
+/*  BasicDrawable.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Program.h"
@@ -383,7 +381,7 @@ void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
     uniBlocks.push_back(uniBlock);
 }
     
-void BasicDrawable::addTweaker(DrawableTweakerRef tweak)
+void BasicDrawable::addTweaker(const DrawableTweakerRef &tweak)
 {
     setValuesChanged();
 
@@ -403,9 +401,14 @@ void BasicDrawable::setTexturesChanged()
     if (renderTargetCon)
         renderTargetCon->modified = true;
 }
-    
+
+BasicDrawableTexTweaker::BasicDrawableTexTweaker(std::vector<SimpleIdentity> &&texIDs,TimeInterval startTime,double period)
+    : texIDs(std::move(texIDs)), startTime(startTime), period(period)
+{
+}
+
 BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period)
-: texIDs(texIDs), startTime(startTime), period(period)
+    : texIDs(texIDs), startTime(startTime), period(period)
 {
 }
 
@@ -428,7 +431,7 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
 
     // This forces a redraw every frame
     // Note: There has to be a better way
-    frame->scene->addChangeRequest(NULL);
+    frame->scene->addChangeRequest(nullptr);
 }
     
 BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale)
