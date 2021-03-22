@@ -168,7 +168,7 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
         return true;
     }
 
-    // if we dont have any styles for a layer, dont bother parsing the features
+    // if we don't have any styles for a layer, don't bother parsing the features
     bool found = false;
     if (_styleDelegate->layerShouldDisplay(_styleInst, layerName, _tileData->ident))
         found = true;

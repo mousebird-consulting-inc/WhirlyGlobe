@@ -23,6 +23,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.util.DisplayMetrics
 import android.util.Log
+import com.mousebird.maply.RenderController.EmptyIdentity
 import java.lang.ref.WeakReference
 import java.util.*
 import java.util.concurrent.ConcurrentMap
@@ -165,6 +166,73 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return (bounds.right - bounds.left).toDouble()
     }
 
+    fun makeCircleTexture(inRadius: Double,
+                          fillColor: Int,
+                          strokeColor: Int,
+                          inStrokeWidth: Float,
+                          /* out */ circleSize: Point2d): Long /*Identity*/ {
+//        // We want the texture a bit bigger than specified
+//        const float scale = tileStyleSettings->markerScale * 2;
+//
+//        // Build an image for the circle
+//        const float buffer = 1.0;
+//        const float radius = inRadius*scale;
+//        const float strokeWidth = inStrokeWidth*scale;
+//        const float size = ceil(buffer + radius + strokeWidth)*2;
+//        if (circleSize)
+//            {
+//                circleSize->x() = size / 2;
+//                circleSize->y() = size / 2;
+//            }
+//        UIGraphicsBeginImageContext(CGSizeMake(size, size));
+//        // TODO: Use the opacity
+//        [[UIColor clearColor] setFill];
+//        CGContextRef ctx = UIGraphicsGetCurrentContext();
+//        CGContextFillRect(ctx, CGRectMake(0.0, 0.0, size, size));
+//
+//        // Outer stroke
+//        if (strokeWidth > 0.0) {
+//            CGContextBeginPath(ctx);
+//            CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius-strokeWidth, size/2.0-radius-strokeWidth, 2*(radius+strokeWidth), 2*(radius+strokeWidth)));
+//            [[UIColor colorFromRGBA:strokeColor] setFill];
+//            CGContextDrawPath(ctx, kCGPathFill);
+//        }
+//
+//        // Inner circle
+//        CGContextBeginPath(ctx);
+//        CGContextAddEllipseInRect(ctx, CGRectMake(size/2.0-radius, size/2.0-radius, 2*radius, 2*radius));
+//        [[UIColor colorFromRGBA:fillColor] setFill];
+//        CGContextDrawPath(ctx, kCGPathFill);
+//
+//        UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+//        UIGraphicsEndImageContext();
+//
+//        MaplyTexture *tex = [viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
+//        textures.push_back(tex);
+//
+//        return tex.texID;
+        return EmptyIdentity
+    }
+
+    fun makeLineTexture(comp: DoubleArray): Long /*Identity*/ {
+//        NSMutableArray *dashComp = [NSMutableArray array];
+//        for (double comp: inComp)
+//        [dashComp addObject:[NSNumber numberWithDouble:comp]];
+//
+//        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+//        [lineTexBuilder setPattern:dashComp];
+//        UIImage *lineImage = [lineTexBuilder makeImage];
+//        MaplyTexture *tex = [viewC addTexture:lineImage
+//                desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
+//                       kMaplyTexWrapY: @(MaplyImageWrapY)
+//        }
+//        mode:MaplyThreadCurrent];
+//        textures.push_back(tex);
+//
+//        return tex.texID;
+        return EmptyIdentity
+    }
+    
     enum class SourceType {
         Vector, Raster
     }

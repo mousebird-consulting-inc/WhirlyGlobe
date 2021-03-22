@@ -8,9 +8,16 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
 import java.io.IOException
 
-class MapTilerTestCase(activity: Activity) :
-        MaplyTestCase(activity, "MapTiler", TestExecutionImplementation.Both)
+open class MapTilerTestCase : MaplyTestCase
 {
+    constructor(activity: Activity) :
+            this(activity, "MapTiler", TestExecutionImplementation.Both) {
+    }
+    
+    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation) :
+            super(activity, name, impl) {
+    }
+    
     // Maptiler token
     // Go to maptiler.com, setup an account and get your own
     private val token = "GetYerOwnToken"
@@ -42,8 +49,8 @@ class MapTilerTestCase(activity: Activity) :
         }
     }
     
-    private fun getStyleJson(whichMap: Int): String? {
-        return maps[whichMap]?.let {
+    protected open fun getStyleJson(whichMap: Int): String? {
+        return getMaps().elementAt(whichMap)?.let {
             Log.i(javaClass.name, "Loading $it")
             try {
                 Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
@@ -66,7 +73,7 @@ class MapTilerTestCase(activity: Activity) :
         loader = null
         map?.stop()
         map = null
-        currentMap = (currentMap + 1) % maps.size
+        currentMap = (currentMap + 1) % getMaps().size
         baseViewC?.let { setupLoader(it, currentMap) }
     }
     
@@ -85,8 +92,8 @@ class MapTilerTestCase(activity: Activity) :
         }
         return true
     }
-
-    private val maps = arrayOf(
+    
+    protected open fun getMaps(): Collection<String?> = listOf(
         "maptiler_basic.json",
         "maptiler_streets.json",
         "maptiler_topo.json",
@@ -94,6 +101,7 @@ class MapTilerTestCase(activity: Activity) :
         "maptiler_expr_test.json",
         null        // placeholder for custom stylesheet below
     )
+
     private var currentMap = 0
     private var map: MapboxKindaMap? = null
     private var baseViewC : BaseController? = null
