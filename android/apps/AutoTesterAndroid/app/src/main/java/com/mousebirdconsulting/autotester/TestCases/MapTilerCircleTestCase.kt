@@ -13,26 +13,50 @@ class MapTilerCircleTestCase(activity: Activity) :
 {
     override fun getMaps() = listOf<String?>(null)
     
-    override fun getStyleJson(whichMap: Int) = """
-     {  "name":"test","version":8,"layers":[
-       { "id":"background","type":"background","paint":{"background-color":"#eee"}},{
-         "id":"point-label","type":"symbol","source":"openmaptiles","source-layer":"place",
-         "filter":["all",["==","${'$'}type","Point"]],
-         "layout":{
-            "text-field":"{name:latin}",
-            "text-font":["Roboto Regular"],
-            "text-max-width":5,
-            "text-size":12,
-            "text-offset":[1,1]
-         },
+    override fun setup(map: MapboxKindaMap) {
+        super.setup(map)
+        //map.styleSettings.markerImportance = 200000.0 //Float.MAX_VALUE.toDouble()
+        //map.styleSettings.drawPriorityPerLevel = 100
+        //map.styleSettings.baseDrawPriority = 10000
+    }
+    
+    private val placeLayer = """
+        "source":"openmaptiles","source-layer":"place"
+    """.trimIndent()
+    private fun rankFilter(rank: Int): String = """
+        "filter":["all",["==","${'$'}type","Point"],["==","rank",$rank]]
+    """.trimIndent()
+    private fun label(s: String): String = """
+         "layout":{"text-field":"$s","text-font":["Roboto Regular"],"text-size":12,"text-offset":[1,1]},
          "paint":{"text-color":"rgba(76, 125, 173, 1)"}
-      },{"id":"point-circle","type":"circle","source":"openmaptiles","source-layer":"place",
-         "paint":{
-            "circle-color": "rgba(255, 219, 133, 1)",
-            "circle-stroke-color": "rgba(0, 0, 0, 1)",
-            "circle-stroke-width": 1,
-            "circle-stroke-opacity": 0.8
-         }
-      }],"sources":{"openmaptiles":{"type":"vector","url":"https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}}}
+    """.trimIndent()
+
+    override fun getStyleJson(whichMap: Int) = """
+     { "name":"test","version":8,"layers":[
+      {"id":"background","type":"background","paint":{"background-color":"#eee"}},
+      {"id":"landcover","type":"fill","source":"openmaptiles","source-layer":"globallandcover",
+         "filter": ["all",["==","class","crop"]],"paint": {"fill-color": "#aaa"}},
+
+      {"id":"l1","type":"symbol",$placeLayer,${rankFilter(1)},${label("1:no-rad")}},
+      {"id":"p1","type":"circle",$placeLayer,${rankFilter(1)},
+         "paint":{ "circle-color": "#f00" }
+      },
+
+      {"id":"l2","type":"symbol",$placeLayer,${rankFilter(2)},${label("2:no-rad-stroke")}},
+      {"id":"p2","type":"circle",$placeLayer,${rankFilter(2)},
+         "paint":{ "circle-color": "#ff0","circle-stroke-color": "#f00","circle-stroke-width":1 }
+      },
+
+      {"id":"l3","type":"symbol",$placeLayer,${rankFilter(3)},${label("3:no-stroke")}},
+      {"id":"p3","type":"circle",$placeLayer,${rankFilter(3)},
+         "paint":{ "circle-radius":15,"circle-color":"#0a0","circle-stroke-width":0 }
+      },
+
+      {"id":"l4","type":"symbol",$placeLayer,${rankFilter(4)},${label("4:wide-stroke")}},
+      {"id":"p4","type":"circle",$placeLayer,${rankFilter(4)},
+         "paint":{ "circle-radius":20,"circle-color":"#0e0","circle-stroke-color":"#707","circle-stroke-width":10 }
+      }
+
+      ],"sources":{"openmaptiles":{"type":"vector","url":"https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}}}
     """.trimIndent()
 }

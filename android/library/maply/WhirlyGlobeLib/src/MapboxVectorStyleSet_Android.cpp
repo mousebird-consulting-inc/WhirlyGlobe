@@ -82,32 +82,30 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(PlatformThrea
     try
     {
         setupMethods(env);
-        if (auto pointObj = MakePoint2d(env))
+        jobject pointObj = nullptr;
+        if (circleSize)
         {
-            try
+            pointObj = MakePoint2d(env);
+            if (!pointObj)
             {
-                const auto id = env->CallLongMethod(thisObj, makeCircleTextureMethod,
-                                                    radius, fillColor.asInt(), strokeColor.asInt(), strokeWidth, pointObj);
-
-                if (circleSize)
-                {
-                    auto point = Point2dClassInfo::getClassInfo()->getObject(env,pointObj);
-                    circleSize->x() = (float)point->x();
-                    circleSize->y() = (float)point->y();
-                }
-
-                // local ref, no need for `finally` style cleanup
-                env->DeleteLocalRef(pointObj);
-
-                return id;
-            }
-            catch (...)
-            {
-                // finally...
-                try { env->DeleteLocalRef(pointObj); } catch (...) { /* ignore secondary */ }
-                throw;  // re-throw original
+                return EmptyIdentity;
             }
         }
+
+        const auto id = env->CallLongMethod(thisObj, makeCircleTextureMethod,
+                                            radius, fillColor.asInt(), strokeColor.asInt(), strokeWidth, pointObj);
+
+        if (circleSize)
+        {
+            auto point = Point2dClassInfo::getClassInfo()->getObject(env,pointObj);
+            circleSize->x() = (float)point->x();
+            circleSize->y() = (float)point->y();
+
+            // local ref, no need for `finally` style cleanup
+            env->DeleteLocalRef(pointObj);
+        }
+
+        return id;
     }
     catch (...)
     {
@@ -125,18 +123,9 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(PlatformThreadI
         setupMethods(env);
         if (auto arrayObj = BuildDoubleArray(env, dashComponents))
         {
-            try
-            {
-                const auto id = env->CallLongMethod(thisObj, makeLineTextureMethod, arrayObj);
-                env->DeleteLocalRef(arrayObj);
-                return id;
-            }
-            catch (...)
-            {
-                // finally...
-                try { env->DeleteGlobalRef(arrayObj); } catch (...) { /* ignore secondary */ }
-                throw;  // re-throw original
-            }
+            const auto id = env->CallLongMethod(thisObj, makeLineTextureMethod, arrayObj);
+            env->DeleteLocalRef(arrayObj);
+            return id;
         }
     }
     catch (...)
