@@ -106,6 +106,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new PagingLayerTestCase(a));
 			testCases.add(new VectorMBTilesTestCase(a));
 			testCases.add(new MapTilerTestCase(a));
+			testCases.add(new MapTilerCircleTestCase(a));
 			testCases.add(new OpenMapTilesHybridTestCase(a));
 			testCases.add(new CartoTestCase(a));
 			testCases.add(new ShapesTestCase(a));
