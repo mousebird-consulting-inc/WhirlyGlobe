@@ -685,7 +685,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, con
         auto color = std::make_shared<RGBAColor>(RGBAColor::FromHSL(hue, newSat, newLight));
         color->a = (uint8_t)(alpha * 255.0);
 
-        return std::move(color);
+        return color;
     }
 
     wkLogLevel(Warn, "Didn't recognize format of color (%s)", inName.c_str());
