@@ -1,4 +1,4 @@
-/*  LabelRenderer.mm
+/*  LabelRenderer.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/11/13.

@@ -33,7 +33,7 @@ public:
     ~BasicDrawableInstanceBuilderMTL();
     
     /// Fill out and return the drawable
-    virtual BasicDrawableInstanceRef getDrawable();
+    virtual BasicDrawableInstanceRef getDrawable() override;
     
 protected:
 };

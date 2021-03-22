@@ -41,7 +41,7 @@ QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,Qu
 QIFFrameAsset_Android::~QIFFrameAsset_Android()
 {
     if (frameAssetObj) {
-        wkLog("Failed to clean up QIFFrameAsset on Java side");
+        wkLogLevel(Warn,"Failed to clean up QIFFrameAsset on Java side");
     }
 }
 

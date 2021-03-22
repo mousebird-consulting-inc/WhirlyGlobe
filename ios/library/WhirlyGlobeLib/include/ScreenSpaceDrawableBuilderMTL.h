@@ -32,8 +32,8 @@ public:
     ScreenSpaceDrawableBuilderMTL(const std::string &name,Scene *scene);
     
     virtual void Init(bool hasMotion,bool hasRotation, bool buildAnyway = false) override;
-    
-    ScreenSpaceTweaker *makeTweaker() override;
+
+    virtual DrawableTweakerRef makeTweaker() const override;
     
     /// Fill out and return the drawable
     virtual BasicDrawableRef getDrawable() override;

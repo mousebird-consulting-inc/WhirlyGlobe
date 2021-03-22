@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawable.h
+/*  WideVectorDrawable.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/29/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableBuilder.h"
@@ -25,23 +23,24 @@
 
 namespace WhirlyKit
 {
-    
+
 // Modifies the uniform values of a given shader right
 //  before the wide vector drawables are rendered
-class WideVectorTweaker : public DrawableTweaker
+struct WideVectorTweaker : public BasicDrawableTweaker
 {
-public:
     // Called right before the drawable is drawn
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
-    
-    float edgeSize;
-    float lineWidth;
-    float texRepeat;
-    RGBAColor color;
+
+    float edgeSize = 0.0f;
+    float lineWidth = 0.0f;
+    float texRepeat = 0.0f;
+    float offset = 0.0f;
+    bool offsetSet = false;
 
     FloatExpressionInfoRef widthExp;
+    FloatExpressionInfoRef offsetExp;
 };
-    
+
 // Used to debug the wide vectors
 //#define WIDEVECDEBUG 1
 
@@ -114,7 +113,7 @@ public:
     void setColor(RGBAColor inColor);
     
     // Line width for vectors is a bit different
-    void setLineWidth(float inWidth);
+    virtual void setLineWidth(float inWidth) override;
     
     // Line offset for vectors
     void setLineOffset(float inOffset);
@@ -132,17 +131,17 @@ public:
     void setOpacityExpression(FloatExpressionInfoRef opacityExp);
 
     // Apply a width expression
-    void setWidthExpression(FloatExpressionInfoRef widthExp);
+    void setWidthExpression(const FloatExpressionInfoRef &widthExp);
     
     // Apply an offset expression
-    void setOffsetExpression(FloatExpressionInfoRef offsetExp);
+    void setOffsetExpression(const FloatExpressionInfoRef &offsetExp);
     
     // The tweaker sets up uniforms before a given drawable draws
-    void setupTweaker(BasicDrawable *theDraw);
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
     
     // For performance mode wide vectors (Metal for now), the center line instances
-    void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,const std::vector<SimpleIdentity> &maskIDs,int prev,int next);
     
+    void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,const std::vector<SimpleIdentity> &maskIDs,int prev,int next);
     // Number of centerlines defined so far
     int getCenterLineCount();
     
@@ -179,28 +178,27 @@ public:
     virtual SimpleIdentity getInstanceDrawableID();
 
 protected:
+    float lineWidth = 1.0f;
+    float lineOffset = 0.0f;
+    bool lineOffsetSet = false;
+    bool globeMode = true;
+    float texRepeat = 1.0f;
+    float edgeSize = 1.0f;
+    int p1_index = -1;
+    int n0_index = -1;
+    int offset_index = -1;
+    int c0_index = -1;
+    int tex_index = -1;
     std::string name;
     Scene *scene;
     const SceneRenderer *renderer;
     
     // Controls whether we're building basic drawables or instances
     // We do instances on Metal
-    WideVecImplType implType;
     BasicDrawableBuilderRef basicDrawable;
+    WideVecImplType implType;
     BasicDrawableInstanceBuilderRef instDrawable;
 
-    float lineWidth;
-    float lineOffset;
-    RGBAColor color;
-    bool globeMode;
-    bool snapTex;
-    float texRepeat;
-    float edgeSize;
-    int p1_index;
-    int n0_index;
-    int offset_index;
-    int c0_index;
-    int tex_index;
     
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;

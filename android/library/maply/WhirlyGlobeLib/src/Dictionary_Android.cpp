@@ -513,9 +513,9 @@ std::vector<DictionaryEntryRef> MutableDictionary_Android::getArray(const std::s
                 }
                 return ret;
             }
-            wkLog("Unsupported conversion to array");
+            wkLogLevel(Warn,"Unsupported conversion to array");
         }
-        wkLog("Unsupported conversion from type %d to array", gval->type());
+        wkLogLevel(Warn,"Unsupported conversion from type %d to array", gval->type());
     }
     return std::vector<DictionaryEntryRef>();
 }

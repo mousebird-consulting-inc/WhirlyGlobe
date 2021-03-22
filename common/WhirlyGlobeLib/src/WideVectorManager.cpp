@@ -1,4 +1,4 @@
-/*  WideVectorManager.mm
+/*  WideVectorManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.

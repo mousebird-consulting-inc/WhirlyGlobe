@@ -77,11 +77,6 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
     }
 }
     
-void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
-{
-    color = inColor;
-}
-    
 void WideVectorDrawableBuilder::setLineWidth(float inWidth)
 {
     lineWidth = inWidth;
@@ -90,6 +85,7 @@ void WideVectorDrawableBuilder::setLineWidth(float inWidth)
 void WideVectorDrawableBuilder::setLineOffset(float inOffset)
 {
     lineOffset = inOffset;
+    lineOffsetSet = true;
 }
  
 void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)
@@ -169,20 +165,24 @@ void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidt
     widthExp = inWidthExp;
 }
 
-void WideVectorDrawableBuilder::setOffsetExpression(FloatExpressionInfoRef inOffsetExp)
+void WideVectorDrawableBuilder::setOffsetExpression(const FloatExpressionInfoRef &inOffsetExp)
 {
     offsetExp = inOffsetExp;
 }
 
-void WideVectorDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
+void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
-    WideVectorTweaker *tweak = makeTweaker();
-    tweak->edgeSize = edgeSize;
-    tweak->lineWidth = lineWidth;
-    tweak->widthExp = widthExp;
-    tweak->texRepeat = texRepeat;
-    tweak->color = color;
-    theDraw->addTweaker(DrawableTweakerRef(tweak));
+    BasicDrawableBuilder::setupTweaker(inTweaker);
+    if (auto tweak = std::dynamic_pointer_cast<WideVectorTweaker>(inTweaker))
+    {
+        tweak->edgeSize = edgeSize;
+        tweak->lineWidth = lineWidth;
+        tweak->widthExp = widthExp;
+        tweak->texRepeat = texRepeat;
+        tweak->offset = lineOffset;
+        tweak->offsetSet = lineOffsetSet;
+        tweak->offsetExp = offsetExp;
+    }
 }
 
 void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,
