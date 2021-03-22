@@ -221,6 +221,9 @@ public:
     /// Add an identity-type value to the given attribute array
     virtual void addAttributeValue(int attrId,int64_t val);
     
+    /// Find the index of a given attribute
+    virtual int findAttribute(int nameID);
+    
     /// Add a triangle.  Should point to the vertex IDs.
     virtual void addTriangle(BasicDrawable::Triangle tri);
     

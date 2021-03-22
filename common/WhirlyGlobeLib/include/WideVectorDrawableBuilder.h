@@ -59,7 +59,8 @@ public:
                       unsigned int numTri,
                       unsigned int numCenterline,
                       WideVecImplType implType,
-                      bool globeMode);
+                      bool globeMode,
+                      const WideVectorInfo *vecInfo);
     
     /// Set the fade in and out
     void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
@@ -154,6 +155,9 @@ public:
 
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
     virtual void setTexId(unsigned int which,SimpleIdentity inId);
+    
+    /// Set the program used by the drawable
+    void setProgram(SimpleIdentity progId);
 
     /// Set the active transform matrix
     virtual void setMatrix(const Eigen::Matrix4d *inMat);

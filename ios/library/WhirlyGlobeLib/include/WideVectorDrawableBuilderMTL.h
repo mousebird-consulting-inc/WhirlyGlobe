@@ -33,7 +33,8 @@ public:
     // Initialize with an estimate on the number of vertices and triangles
     virtual void Init(unsigned int numVert,unsigned int numTri,unsigned int numCenterLine,
                       WideVecImplType implType,
-                      bool globeMode) override;
+                      bool globeMode,
+                      const WideVectorInfo *vecInfo) override;
     
     // Add the given attribute
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot=-1,int numThings = -1) override;
@@ -46,6 +47,12 @@ public:
     // Return the drawable instance for the complec case
     virtual BasicDrawableInstanceRef getInstanceDrawable() override;
 protected:
+    // Uniform block used for basic wide vector implementation
+    BasicDrawable::UniformBlock wideVecUniBlock();
+    
+    // Uniform block used when we're doing expressions
+    BasicDrawable::UniformBlock wideVecExpUniBlock();
+    
     bool drawableGotten;
     bool instanceGotten;
 };

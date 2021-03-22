@@ -96,11 +96,15 @@ void BasicDrawableBuilder::setupStandardAttributes(int numReserve)
 {
     //    setupTexCoordEntry(0,numReserve);
     
-    basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
+    basicDraw->colorEntry = findAttribute(a_colorNameID);
+    if (basicDraw->colorEntry < 0)
+        basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
     basicDraw->vertexAttributes[basicDraw->colorEntry]->setDefaultColor(RGBAColor(255,255,255,255));
     basicDraw->vertexAttributes[basicDraw->colorEntry]->reserve(numReserve);
     
-    basicDraw->normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
+    basicDraw->normalEntry = findAttribute(a_normalNameID);
+    if (basicDraw->normalEntry < 0)
+        basicDraw->normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
     basicDraw->vertexAttributes[basicDraw->normalEntry]->setDefaultVector3f(Vector3f(1.0,1.0,1.0));
     basicDraw->vertexAttributes[basicDraw->normalEntry]->reserve(numReserve);
 }
@@ -541,6 +545,16 @@ void BasicDrawableBuilder::addAttributeValue(int attrId,int val)
 
 void BasicDrawableBuilder::addAttributeValue(int attrId,int64_t val)
 { basicDraw->vertexAttributes[attrId]->addFloat(val); }
+
+int BasicDrawableBuilder::findAttribute(int nameID)
+{
+    for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
+        if (basicDraw->vertexAttributes[ii]->nameID == nameID)
+            return ii;
+    
+    return -1;
+}
+
 
 void BasicDrawableBuilder::addTriangle(BasicDrawable::Triangle tri)
 { tris.push_back(tri); }

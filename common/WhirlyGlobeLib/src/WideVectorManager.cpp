@@ -41,6 +41,7 @@ texID(EmptyIdentity), miterLimit(2.0)
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
+    implType = WideVecImplBasic;
     std::string implTypeStr = dict.getString(MaplyWideVecImpl);
     if (!implTypeStr.compare(MaplyWideVecImplPerf))
         implType = WideVecImplPerf;
@@ -620,7 +621,8 @@ public:
                 WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
                 wideDrawable->Init(ptAlloc,triAlloc,0,
                                    vecInfo->implType,
-                                   !scene->getCoordAdapter()->isFlat());
+                                   !scene->getCoordAdapter()->isFlat(),
+                                   vecInfo);
                 drawable = wideDrawable;
                 wideDrawable->setTexRepeat(vecInfo->repeatSize);
                 wideDrawable->setEdgeSize(vecInfo->edgeSize);
@@ -667,7 +669,8 @@ public:
                 WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
                 wideDrawable->Init(ptAlloc,triAlloc,0,
                                    vecInfo->implType,
-                                   !scene->getCoordAdapter()->isFlat());
+                                   !scene->getCoordAdapter()->isFlat(),
+                                   vecInfo);
                 drawable = wideDrawable;
                 wideDrawable->setTexRepeat(vecInfo->repeatSize);
                 wideDrawable->setEdgeSize(vecInfo->edgeSize);

@@ -36,10 +36,9 @@ WideVectorDrawableBuilderMTL::WideVectorDrawableBuilderMTL(const std::string &na
 }
     
 void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTri, unsigned int numCenterLine,
-                                        WideVecImplType implType, bool globeMode)
+                                        WideVecImplType implType, bool globeMode, const WideVectorInfo *vecInfo)
 {
-    
-    WideVectorDrawableBuilder::Init(numVert,numTri,numCenterLine,implType,globeMode);
+    WideVectorDrawableBuilder::Init(numVert,numTri,numCenterLine,implType,globeMode,vecInfo);
     
     if (implType == WideVecImplBasic) {
         // Wire up the buffers
@@ -66,14 +65,63 @@ WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()
     return nullptr;
 }
 
+BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecUniBlock()
+{
+    // Uniforms for regular wide vectors
+    WhirlyKitShader::UniformWideVec uniWV;
+    memset(&uniWV,0,sizeof(uniWV));
+    uniWV.w2 = lineWidth/2.0;
+    uniWV.offset = lineOffset;
+    uniWV.edge = edgeSize;
+    uniWV.texRepeat = texRepeat;
+    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp;
+    
+    BasicDrawable::UniformBlock uniBlock;
+    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
+    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
+
+    return uniBlock;
+}
+
+BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecExpUniBlock()
+{
+    // Expression uniforms, if we're using those
+    WhirlyKitShader::UniformWideVecExp wideVecExp;
+    memset(&wideVecExp, 0, sizeof(wideVecExp));
+    if (widthExp)
+        FloatExpressionToMtl(widthExp,wideVecExp.widthExp);
+    if (offsetExp)
+        FloatExpressionToMtl(offsetExp,wideVecExp.offsetExp);
+    
+    if (opacityExp)
+        FloatExpressionToMtl(opacityExp,wideVecExp.opacityExp);
+    if (colorExp)
+        ColorExpressionToMtl(colorExp,wideVecExp.colorExp);
+    
+    BasicDrawable::UniformBlock uniBlock;
+    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));
+    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
+    
+    return uniBlock;
+}
+
 BasicDrawableRef WideVectorDrawableBuilderMTL::getBasicDrawable()
 {
     if (drawableGotten)
         return basicDrawable->basicDraw;
     
+    basicDrawable->getDrawable();
+    
     drawableGotten = true;
     VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[basicDrawable->basicDraw->colorEntry];
     colorAttr->setDefaultColor(color);
+    
+    // Apply uniform blocks that control general function
+    if (implType == WideVecImplBasic) {
+        basicDrawable->basicDraw->setUniBlock(wideVecUniBlock());
+        if (widthExp || offsetExp || colorExp || opacityExp)
+            basicDrawable->basicDraw->setUniBlock(wideVecExpUniBlock());
+    }
 
     return basicDrawable->basicDraw;
 }
@@ -85,39 +133,12 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
 
     instanceGotten = true;
     
-    // Uniforms for regular wide vectors
-    WhirlyKitShader::UniformWideVec uniWV;
-    memset(&uniWV,0,sizeof(uniWV));
-    uniWV.w2 = lineWidth/2.0;
-    uniWV.offset = lineOffset;
-    uniWV.edge = edgeSize;
-    uniWV.texRepeat = texRepeat;
-    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp;
+    instDrawable->getDrawable();
 
-    BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
-    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
-    instDrawable->drawInst->setUniBlock(uniBlock);
-    
-    // Expression uniforms, if we're using those
-    if (uniWV.hasExp) {
-        WhirlyKitShader::UniformWideVecExp wideVecExp;
-        memset(&wideVecExp, 0, sizeof(wideVecExp));
-        if (widthExp)
-            FloatExpressionToMtl(widthExp,wideVecExp.widthExp);
-        if (offsetExp)
-            FloatExpressionToMtl(offsetExp,wideVecExp.offsetExp);
-        
-        if (opacityExp)
-            FloatExpressionToMtl(opacityExp,wideVecExp.opacityExp);
-        if (colorExp)
-            ColorExpressionToMtl(colorExp,wideVecExp.colorExp);
-        
-        BasicDrawable::UniformBlock uniBlock;
-        uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));
-        uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
-        instDrawable->drawInst->setUniBlock(uniBlock);
-    }
+    // Apply uniform blocks to control general function
+    instDrawable->drawInst->setUniBlock(wideVecUniBlock());
+    if (widthExp || offsetExp || colorExp || opacityExp)
+        instDrawable->drawInst->setUniBlock(wideVecExpUniBlock());
     
     // Instances also go into their own buffer
     std::vector<WhirlyKitShader::VertexTriWideVecInstance> vecInsts(centerline.size());

@@ -45,27 +45,30 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
                                      unsigned int numTri,
                                      unsigned int numCenterline,
                                      WideVecImplType implType,
-                                     bool inGlobeMode)
+                                     bool inGlobeMode,
+                                     const WideVectorInfo *vecInfo)
 {
     globeMode = inGlobeMode;
     this->implType = implType;
     
     basicDrawable = renderer->makeBasicDrawableBuilder(name);
     basicDrawable->Init();
-    basicDrawable->points.resize(numVert);
+    basicDrawable->setupStandardAttributes();
+    basicDrawable->setType(Triangles);
+    basicDrawable->points.reserve(numVert);
     basicDrawable->tris.reserve(numTri);
-
+    
     if (implType == WideVecImplPerf) {
         instDrawable = renderer->makeBasicDrawableInstanceBuilder(name);
         // TODO: Reserve size for the instances
+        vecInfo->setupBasicDrawableInstance(instDrawable);
+    } else {
+        vecInfo->setupBasicDrawable(basicDrawable);
     }
           
     lineWidth = 10.0/1024.0;
     lineOffset = 0.0;
     if (implType == WideVecImplBasic) {
-        basicDrawable->basicDraw->normalEntry = addAttribute(BDFloat3Type, a_normalNameID,numVert);
-        basicDrawable->basicDraw->colorEntry = addAttribute(BDChar4Type, a_colorNameID);
-    
         p1_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_p1"),numVert);
         tex_index = addAttribute(BDFloat4Type, StringIndexer::getStringID("a_texinfo"),numVert);
         n0_index = addAttribute(BDFloat3Type, StringIndexer::getStringID("a_n0"),numVert);
@@ -220,21 +223,29 @@ int WideVectorDrawableBuilder::getCenterLineCount()
 
 SimpleIdentity WideVectorDrawableBuilder::getBasicDrawableID()
 {
+    if (!basicDrawable)
+        return EmptyIdentity;
     return basicDrawable->getDrawableID();
 }
 
 BasicDrawableRef WideVectorDrawableBuilder::getBasicDrawable()
 {
+    if (!basicDrawable)
+        return nullptr;
     return basicDrawable->getDrawable();
 }
 
 SimpleIdentity WideVectorDrawableBuilder::getInstanceDrawableID()
 {
+    if (!instDrawable)
+        return EmptyIdentity;
     return instDrawable->getDrawableID();
 }
 
 BasicDrawableInstanceRef WideVectorDrawableBuilder::getInstanceDrawable()
 {
+    if (!instDrawable)
+        return nullptr;
     return instDrawable->getDrawable();
 }
 
@@ -319,6 +330,14 @@ void WideVectorDrawableBuilder::setTexId(unsigned int which,SimpleIdentity inId)
         instDrawable->setTexId(which, inId);
     else
         basicDrawable->setTexId(which, inId);
+}
+
+void WideVectorDrawableBuilder::setProgram(SimpleIdentity progId)
+{
+    if (instDrawable)
+        instDrawable->setProgram(progId);
+    else
+        basicDrawable->setProgram(progId);
 }
 
 }
