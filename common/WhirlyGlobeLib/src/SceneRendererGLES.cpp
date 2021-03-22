@@ -739,7 +739,7 @@ ParticleSystemDrawableBuilderRef  SceneRendererGLES::makeParticleSystemDrawableB
 
 WideVectorDrawableBuilderRef SceneRendererGLES::makeWideVectorDrawableBuilder(const std::string &name) const
 {
-    return std::make_shared<WideVectorDrawableBuilderGLES>(name,scene);
+    return std::make_shared<WideVectorDrawableBuilderGLES>(name,this,scene);
 }
 
 RenderTargetRef SceneRendererGLES::makeRenderTarget() const

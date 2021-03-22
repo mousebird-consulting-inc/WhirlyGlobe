@@ -276,6 +276,15 @@ void BasicDrawableBuilder::setProgram(SimpleIdentity progId)
     basicDraw->setProgram(progId);
 }
 
+void BasicDrawableBuilder::setupTweaker(BasicDrawable &theDraw) const
+{
+    if (auto tweaker = makeTweaker())
+    {
+        setupTweaker(tweaker);
+        theDraw.addTweaker(tweaker);
+    }
+}
+
 void BasicDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
     if (auto tweak = std::dynamic_pointer_cast<BasicDrawableTweaker>(inTweaker))

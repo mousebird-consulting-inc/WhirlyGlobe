@@ -249,6 +249,9 @@ public:
     /// We need slightly different tweakers for the rendering variants
     virtual DrawableTweakerRef makeTweaker() const { return {}; }
 
+    /// Create and attach a tweaker, if necessary
+    virtual void setupTweaker(BasicDrawable &theDraw) const;
+
     /// Set up a tweaker created by a derived class
     virtual void setupTweaker(const DrawableTweakerRef &tweaker) const;
 
