@@ -55,21 +55,23 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
     }
 }
 
-WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,Scene *scene)
-: BasicDrawableBuilderGLES(name,scene,false)
+WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene)
+: WideVectorDrawableBuilder(name,sceneRenderer,scene)
 {
 }
     
-void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTri,bool globeMode)
+void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTri,unsigned int numCenterline,
+                                         WideVecImplType implType,
+                                         bool globeMode,
+                                         const WideVectorInfo *vecInfo)
 {
-    basicDraw = std::make_shared<BasicDrawableGLES>("Wide Vector");
-    WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
+    WideVectorDrawableBuilder::Init(numVert,numTri,0,implType,globeMode,vecInfo);
 }
 
 // NOLINTNEXTLINE(google-default-arguments)
 int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
-    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
+    return basicDrawable->addAttribute(dataType, nameID, slot, numThings);
 }
 
 DrawableTweakerRef WideVectorDrawableBuilderGLES::makeTweaker() const
@@ -77,19 +79,25 @@ DrawableTweakerRef WideVectorDrawableBuilderGLES::makeTweaker() const
     return std::make_shared<WideVectorTweakerGLES>();
 }
 
-BasicDrawableRef WideVectorDrawableBuilderGLES::getDrawable()
+BasicDrawableRef WideVectorDrawableBuilderGLES::getBasicDrawable()
 {
     if (drawableGotten)
     {
-        return BasicDrawableBuilderGLES::getDrawable();
+        return basicDrawable->getDrawable();
     }
 
+    drawableGotten = true;
     // non-const to allow copy elision on return
-    auto theDraw = BasicDrawableBuilderGLES::getDrawable();
+    auto theDraw = basicDrawable->getDrawable();
 
     setupTweaker(*theDraw);
 
     return theDraw;
+}
+
+BasicDrawableInstanceRef  WideVectorDrawableBuilderGLES::getInstanceDrawable()
+{
+    return nullptr;
 }
     
 static const char *vertexShaderTri = R"(

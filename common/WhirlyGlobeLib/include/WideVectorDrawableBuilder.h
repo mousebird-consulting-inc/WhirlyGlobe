@@ -138,7 +138,10 @@ public:
     
     // The tweaker sets up uniforms before a given drawable draws
     virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const;
-    
+
+    // The tweaker sets up uniforms before a given drawable draws
+    virtual void setupTweaker(BasicDrawable &theDraw) const;
+
     // For performance mode wide vectors (Metal for now), the center line instances
     
     void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,const std::vector<SimpleIdentity> &maskIDs,int prev,int next);
@@ -146,7 +149,7 @@ public:
     int getCenterLineCount();
     
     // We need slightly different tweakers for the rendering variants
-    virtual WideVectorTweaker *makeTweaker() = 0;
+    virtual DrawableTweakerRef makeTweaker() const = 0;
 
     /// Add a new vertex related attribute.  Need a data type and the name the shader refers to
     ///  it by.  The index returned is how you will access it.

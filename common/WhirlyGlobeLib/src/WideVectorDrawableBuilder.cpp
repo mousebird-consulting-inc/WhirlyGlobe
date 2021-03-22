@@ -170,6 +170,15 @@ void WideVectorDrawableBuilder::setOffsetExpression(const FloatExpressionInfoRef
     offsetExp = inOffsetExp;
 }
 
+void WideVectorDrawableBuilder::setupTweaker(BasicDrawable &theDraw) const
+{
+    if (auto tweaker = makeTweaker())
+    {
+        setupTweaker(tweaker);
+        theDraw.addTweaker(tweaker);
+    }
+}
+
 void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
     basicDrawable->setupTweaker(inTweaker);
