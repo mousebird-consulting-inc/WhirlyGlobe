@@ -114,7 +114,7 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getBasicDrawable()
     
     drawableGotten = true;
     VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[basicDrawable->basicDraw->colorEntry];
-    colorAttr->setDefaultColor(color);
+    colorAttr->setDefaultColor(basicDrawable->color);
     
     // Apply uniform blocks that control general function
     if (implType == WideVecImplBasic) {

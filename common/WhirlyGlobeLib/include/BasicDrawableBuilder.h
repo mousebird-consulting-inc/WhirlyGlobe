@@ -249,9 +249,6 @@ public:
     /// We need slightly different tweakers for the rendering variants
     virtual DrawableTweakerRef makeTweaker() const { return {}; }
 
-    /// Create and attach a tweaker, if necessary
-    virtual void setupTweaker(BasicDrawable &theDraw) const;
-
     /// Set up a tweaker created by a derived class
     virtual void setupTweaker(const DrawableTweakerRef &tweaker) const;
 
@@ -262,6 +259,12 @@ public:
     // The basic drawable we're building up
     BasicDrawableRef basicDraw;
 
+    // Used by subclasses to do the standard init
+    virtual void Init();
+    // Set up the standard vertex attributes we use
+    virtual void setupStandardAttributes(int numReserve=0);
+
+    RGBAColor color = RGBAColor::white();
 protected:
     Scene *scene;
     std::string name;
@@ -270,14 +273,9 @@ protected:
     BasicDrawableBuilder();
 
     void setName(std::string name);
-    // Used by subclasses to do the standard init
-    virtual void Init();
-    // Set up the standard vertex attributes we use
-    virtual void setupStandardAttributes(int numReserve=0);
 
     bool includeExp = false;
 
-    RGBAColor color = RGBAColor::white();
     ColorExpressionInfoRef colorExp;
     FloatExpressionInfoRef opacityExp;
 };

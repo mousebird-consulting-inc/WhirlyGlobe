@@ -52,7 +52,7 @@ public:
     
     /// Set the fade in and out
     // Not supported for instances
-    //void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
+    void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
         
     /// Set the viewer based visibility
     virtual void setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter);

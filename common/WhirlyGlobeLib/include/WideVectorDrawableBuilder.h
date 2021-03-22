@@ -113,7 +113,7 @@ public:
     void setColor(RGBAColor inColor);
     
     // Line width for vectors is a bit different
-    virtual void setLineWidth(float inWidth) override;
+    virtual void setLineWidth(float inWidth);
     
     // Line offset for vectors
     void setLineOffset(float inOffset);
@@ -137,7 +137,7 @@ public:
     void setOffsetExpression(const FloatExpressionInfoRef &offsetExp);
     
     // The tweaker sets up uniforms before a given drawable draws
-    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const;
     
     // For performance mode wide vectors (Metal for now), the center line instances
     
