@@ -25,19 +25,19 @@ import androidx.annotation.ColorInt
 import androidx.collection.LruCache
 import androidx.core.graphics.withSave
 import androidx.core.graphics.withScale
-import com.mousebird.maply.SimpleStyleManager.Shared.imageCache
 import java.io.*
 import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.math.ceil
 
-class SimpleStyleManager {
+class SimpleStyleManager(private val context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
     
     var smallSize = Point2d(16.0, 16.0)
     var medSize = Point2d(32.0, 32.0)
     var largeSize = Point2d(64.0, 64.0)
     
-    @ColorInt var defaultColor = 0xFF555555.toInt()
+    @ColorInt
+    var defaultColor = 0xFF555555.toInt()
     var filterAlpha = 127
     var filterMode = PorterDuff.Mode.MULTIPLY
     
@@ -55,38 +55,39 @@ class SimpleStyleManager {
             return listOf(name, "$name.png")
         }
     }
-    
-    constructor(context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
-        this.vc = WeakReference(vc)
-        this.context = context
-        this.assets = assetManager ?: context.assets
-    }
+
+    // Callbacks give the caller a chance to intervene after the ScreenMarker, etc.,
+    // is created but before it's added to the map.  Return false to skip the item.
+    var onAddMarker: ((VectorObject,ScreenMarker,MarkerInfo,SimpleStyle) -> Boolean)? = null
+    var onAddLabel: ((VectorObject,ScreenLabel,LabelInfo,SimpleStyle) -> Boolean)? = null
+    var onAddLine: ((VectorObject,WideVectorInfo,SimpleStyle) -> Boolean)? = null
+    var onAddArea: ((VectorObject,VectorInfo,SimpleStyle) -> Boolean)? = null
     
     /**
      * Add a styled object, splitting it up if necessary.
      */
-    fun addFeatures(obj: VectorObject, mode: RenderControllerInterface.ThreadMode): Sequence<ComponentObject>? {
+    fun addFeatures(obj: VectorObject, mode: ThreadMode = threadCurrent): Sequence<ComponentObject>? {
         return addFeatures(listOf(obj), null, mode)
     }
     
     /**
      * Add a collection of styled objects, splitting each if necessary.
      */
-    fun addFeatures(objs: Collection<VectorObject>, mode: RenderControllerInterface.ThreadMode): Sequence<ComponentObject> {
+    fun addFeatures(objs: Collection<VectorObject>, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
         return addFeatures(objs, null, mode)
     }
     
     /**
      * Add an object with a specific style, ignoring its attributes, splitting it if necessary
      */
-    fun addFeatures(obj: VectorObject, style: SimpleStyle, mode: ThreadMode): Sequence<ComponentObject> {
+    fun addFeatures(obj: VectorObject, style: SimpleStyle, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
         return addFeatures(listOf(obj), style, mode)
     }
     
     /**
      * Add objects with a specific style, ignoring its attributes, splitting it if necessary
      */
-    fun addFeatures(objs: Collection<VectorObject>, style: SimpleStyle?, mode: ThreadMode): Sequence<ComponentObject> {
+    fun addFeatures(objs: Collection<VectorObject>, style: SimpleStyle? = null, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
         return sequence {
             for (obj in objs) {
                 val split = obj.splitVectors()
@@ -100,7 +101,51 @@ class SimpleStyleManager {
             }
         }
     }
-
+    
+    fun addFeatures(markers: Sequence<ScreenMarker>, attrs: AttrDictionary, info: MarkerInfo? = null, mode: ThreadMode = threadCurrent): ComponentObject? =
+            addFeatures(markers, makeStyle(attrs), info, mode)
+    
+    fun addFeatures(markers: Sequence<ScreenMarker>, style: SimpleStyle, inInfo: MarkerInfo? = null, mode: ThreadMode = threadCurrent): ComponentObject? {
+        val vc = this.vc.get() ?: return null
+        val tex = style.markerTexture ?: return null
+        markers.forEach { marker ->
+            marker.tex = tex
+            marker.size = style.markerSize
+            style.markerOffset?.let {
+                marker.offset = it
+            }
+        }
+        val info = inInfo ?: MarkerInfo().apply {
+            enable = true
+        }
+        return vc.addScreenMarkers(markers.toList(), info, mode)
+    }
+    
+    fun addFeatures(labels: Sequence<ScreenLabel>, attrs: AttrDictionary, info: LabelInfo? = null, mode: ThreadMode = threadCurrent): ComponentObject? =
+            addFeatures(labels, makeStyle(attrs), info, mode)
+    
+    fun addFeatures(labels: Sequence<ScreenLabel>, style: SimpleStyle, inInfo: LabelInfo? = null, mode: ThreadMode = threadCurrent): ComponentObject? {
+        val vc = this.vc.get() ?: return null
+        if (style.labelColor != null && style.labelSize != null && (style.title ?: "").isNotEmpty()) {
+            labels.forEach { label ->
+                label.text = style.title
+                style.labelOffset?.let {
+                    label.offset = it
+                }
+                label.layoutImportance = Float.MAX_VALUE
+            }
+            val info = inInfo ?: LabelInfo()
+            style.labelSize?.let {
+                info.fontSize = it
+            }
+            style.labelColor?.let {
+                info.textColor = it
+            }
+            return vc.addScreenLabels(labels.toList(), info, mode)
+        }
+        return null
+    }
+    
     fun makeStyle(dict: AttrDictionary): SimpleStyle {
         val style = SimpleStyle()
         
@@ -178,7 +223,7 @@ class SimpleStyleManager {
         }
     }
     
-    private fun addFeaturesInternal(obj: VectorObject, optStyle: SimpleStyle?, mode: RenderControllerInterface.ThreadMode): Sequence<ComponentObject> {
+    private fun addFeaturesInternal(obj: VectorObject, optStyle: SimpleStyle? = null, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
         val vc = this.vc.get() ?: return sequenceOf()
         val style = optStyle ?: makeStyle(obj.attributes)
         when (obj.vectorType) {
@@ -186,27 +231,33 @@ class SimpleStyleManager {
                 var markerObj: ComponentObject? = null
                 var labelObj: ComponentObject? = null
                 if (style.markerTexture != null) {
-                    val marker = ScreenMarker()
-                    marker.loc = obj.center()
-                    marker.tex = style.markerTexture
-                    marker.size = style.markerSize
-                    marker.offset = style.markerOffset ?: Point2d(0.0, 0.0)
-                    val info = MarkerInfo()
-                    //info.setLayoutImportance(Float.MAX_VALUE)
-                    info.enable = true
-                    markerObj = vc.addScreenMarkers(listOf(marker), info, mode)
+                    val marker = ScreenMarker().apply {
+                        loc = obj.center()
+                        tex = style.markerTexture
+                        size = style.markerSize
+                        offset = style.markerOffset ?: Point2d(0.0, 0.0)
+                    }
+                    val info = MarkerInfo().apply {
+                        enable = true
+                    }
+                    if (onAddMarker?.invoke(obj,marker,info,style) != false) {
+                        markerObj = vc.addScreenMarkers(listOf(marker), info, mode)
+                    }
                 }
                 if (style.labelColor != null && style.labelSize != null && (style.title ?: "").isNotEmpty()) {
-                    val label = ScreenLabel()
-                    label.text = style.title
-                    label.loc = obj.center()
-                    label.offset = style.labelOffset ?: Point2d(0.0, 0.0)
-                    label.layoutImportance = Float.MAX_VALUE
-                    val info = LabelInfo()
-                    info.fontSize = style.labelSize ?: 10f
-                    info.textColor = style.labelColor ?: defaultColor
-                    //info.layoutImportance = Float.MAX_VALUE
-                    labelObj = vc.addScreenLabels(listOf(label), info, mode)
+                    val label = ScreenLabel().apply {
+                        text = style.title
+                        loc = obj.center()
+                        offset = style.labelOffset ?: Point2d(0.0, 0.0)
+                        layoutImportance = Float.MAX_VALUE
+                    }
+                    val info = LabelInfo().apply {
+                        fontSize = style.labelSize ?: 10f
+                        textColor = style.labelColor ?: defaultColor
+                    }
+                    if (onAddLabel?.invoke(obj,label,info,style) != false) {
+                        labelObj = vc.addScreenLabels(listOf(label), info, mode)
+                    }
                 }
                 return sequenceOf(markerObj, labelObj).filterNotNull()
             }
@@ -214,13 +265,17 @@ class SimpleStyleManager {
                 val info = WideVectorInfo()
                 info.setLineWidth(style.strokeWidth ?: 2f)
                 info.setColor(resolveColor(style.strokeColor, style.strokeOpacity))
-                return sequenceOf(vc.addWideVectors(listOf(obj), info, threadCurrent))
+                if (onAddLine?.invoke(obj,info,style) != false) {
+                    return sequenceOf(vc.addWideVectors(listOf(obj), info, threadCurrent))
+                }
             }
             VectorObject.MaplyVectorObjectType.MaplyVectorArealType -> {
                 val info = VectorInfo()
                 info.setColor(resolveColor(style.fillColor, style.fillOpacity))
                 info.setFilled(true)
-                return sequenceOf(vc.addVectors(listOf(obj), info, mode))
+                if (onAddArea?.invoke(obj,info,style) != false) {
+                    return sequenceOf(vc.addVectors(listOf(obj), info, mode))
+                }
             }
             else -> return sequenceOf()
         }
@@ -232,8 +287,7 @@ class SimpleStyleManager {
     }
     
     private fun tryLoadAssetImage(name: String): Bitmap {
-        return context.assets.open(name).use { tryLoadImage(it) }
-        //return assets.open(name).use { tryLoadImage(it) }
+        return assets.open(name).use { tryLoadImage(it) }
     }
 
     private fun tryLoadFileImage(name: String): Bitmap? {
@@ -257,8 +311,8 @@ class SimpleStyleManager {
             return null
         }
     
-        synchronized(imageCache) {
-            imageCache[name]?.let { return it }
+        synchronized(Shared.imageCache) {
+            Shared.imageCache[name]?.let { return it }
         }
 
         return try {
@@ -267,8 +321,8 @@ class SimpleStyleManager {
             Log.w(javaClass.name, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
             null
         }?.also {
-            synchronized(imageCache) {
-                imageCache.put(name, it)
+            synchronized(Shared.imageCache) {
+                Shared.imageCache.put(name, it)
             }
         }
     }
@@ -279,8 +333,8 @@ class SimpleStyleManager {
         val cacheKey = "${name}_${size.width}_${size.height}_" +
                         "${circleColor}_${strokeWidth}_${strokeColor}"
         
-        synchronized(imageCache) {
-            imageCache[cacheKey]?.let { return it }
+        synchronized(Shared.imageCache) {
+            Shared.imageCache[cacheKey]?.let { return it }
         }
 
         var image = loadImageCached(name) ?: return null
@@ -293,8 +347,8 @@ class SimpleStyleManager {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.FILTER_BITMAP_FLAG))
         canvas.drawBitmap(image, 0f, 0f, paint)
     
-        synchronized(imageCache) {
-            imageCache.put(cacheKey, bitmap)
+        synchronized(Shared.imageCache) {
+            Shared.imageCache.put(cacheKey, bitmap)
         }
         
         return bitmap
@@ -441,11 +495,9 @@ class SimpleStyleManager {
         }
     }
     
-    private var vc = WeakReference<RenderControllerInterface>(null)
-    private val context: Context
-    private val assets: AssetManager
+    private val vc = WeakReference(vc)
+    private val assets = assetManager ?: context.assets
     private val textureCache = Hashtable<String, MaplyTexture>()
-    
     private val threadCurrent = ThreadMode.ThreadCurrent
 
     private object Shared {
