@@ -61,7 +61,9 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
     if (implType == WideVecImplPerf) {
         instDrawable = renderer->makeBasicDrawableInstanceBuilder(name);
         // TODO: Reserve size for the instances
+        basicDrawable->setOnOff(false);
         vecInfo->setupBasicDrawableInstance(instDrawable);
+        instDrawable->setMasterID(basicDrawable->basicDraw->getId(), BasicDrawableInstance::LocalStyle);
     } else {
         vecInfo->setupBasicDrawable(basicDrawable);
     }

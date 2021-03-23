@@ -1742,7 +1742,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     
     iosDictionary dictWrap(inDesc);
     WideVectorInfo vectorInfo(dictWrap);
-    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:kMaplyShaderDefaultWideVector];
+    [self resolveInfoDefaults:inDesc info:&vectorInfo defaultShader:(vectorInfo.implType == WideVecImplBasic ? kMaplyShaderDefaultWideVector : kMaplyShaderWideVectorPerformance )];
     [self resolveDrawPriority:inDesc info:&vectorInfo drawPriority:kMaplyVectorDrawPriorityDefault offset:0];
     
     // Look for a texture and add it

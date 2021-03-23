@@ -60,7 +60,7 @@ int WideVectorDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,Stri
 }
 
 
-WideVectorTweaker *WideVectorDrawableBuilderMTL::makeTweaker()
+DrawableTweakerRef WideVectorDrawableBuilderMTL::makeTweaker() const
 {
     return nullptr;
 }
@@ -156,9 +156,17 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
         outPtr->mask0 = inPtr->maskIDs[0];
         outPtr->mask1 = inPtr->maskIDs[1];
     }
+    NSData *data = [[NSData alloc] initWithBytes:(void *)&vecInsts[0] length:centerline.size()*sizeof(WhirlyKitShader::VertexTriWideVecInstance)];
+    instDrawable->setInstanceData(centerline.size(), std::make_shared<RawNSDataReader>(data));
 
     return instDrawable->drawInst;
 }
 
+int WideVectorDrawableBuilderMTL::maxInstances() const
+{
+    // Just figure out big a buffer we'll have.  32MB seems plenty
+    int instSize = std::min(256,(int)sizeof(WhirlyKitShader::VertexTriWideVecInstance));
+    return 32*1024*1024 / instSize;
+}
 
 }

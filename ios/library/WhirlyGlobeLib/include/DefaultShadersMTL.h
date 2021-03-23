@@ -395,9 +395,11 @@ struct VertexTriWideVecB
 };
 
 // Wide vector vertex passed to fragment shader (new version)
-struct ProjVertexTriWideVecB {
+struct ProjVertexTriWideVecPerf {
     float4 position [[invariant]] [[position]];
-    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
+    float4 color;
+    float2 texCoord;
+    float w2;
     uint2 maskIDs;
 };
 
