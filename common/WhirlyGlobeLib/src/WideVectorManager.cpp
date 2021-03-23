@@ -719,12 +719,12 @@ public:
                 drawable->addPoint(Point3f(-1.0,2.0,0.0));  drawable->addPoint(Point3f(1.0,2.0,0.0));
 
                 // 6 triangles for the stretchable segment
-                drawable->addTriangle(BasicDrawable::Triangle(0,1,3));
-                drawable->addTriangle(BasicDrawable::Triangle(0,3,2));
-                drawable->addTriangle(BasicDrawable::Triangle(2,3,5));
-                drawable->addTriangle(BasicDrawable::Triangle(2,5,4));
-                drawable->addTriangle(BasicDrawable::Triangle(4,5,7));
-                drawable->addTriangle(BasicDrawable::Triangle(4,7,6));
+                drawable->addTriangle(BasicDrawable::Triangle(0,3,1));
+                drawable->addTriangle(BasicDrawable::Triangle(0,2,3));
+                drawable->addTriangle(BasicDrawable::Triangle(2,5,3));
+                drawable->addTriangle(BasicDrawable::Triangle(2,4,5));
+                drawable->addTriangle(BasicDrawable::Triangle(4,7,5));
+                drawable->addTriangle(BasicDrawable::Triangle(4,6,7));
             }
 
             // Run through the points, adding centerline instances
@@ -732,7 +732,7 @@ public:
             int startPt = drawable->getCenterLineCount();
             for (unsigned int ii=0;ii<pts.size();ii++) {
                 const auto &pt = pts[ii];
-                int prev = closed ? pts.size()-1 + startPt : -1;
+                int prev = closed ? pts.size()-1 + startPt : ii-1;
                 int next = (ii==pts.size()-1) ? (closed ? startPt : -1) : startPt + ii + 1;
 
                 Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
