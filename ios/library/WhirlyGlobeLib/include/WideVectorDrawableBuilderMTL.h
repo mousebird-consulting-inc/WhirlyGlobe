@@ -37,13 +37,17 @@ public:
     // Add the given attribute
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot=-1,int numThings = -1) override;
         
-    WideVectorTweaker *makeTweaker() override;
+    DrawableTweakerRef makeTweaker() const override;
 
     // Return the basic drawable for the simple and complex cases
     virtual BasicDrawableRef getBasicDrawable() override;
     
     // Return the drawable instance for the complec case
     virtual BasicDrawableInstanceRef getInstanceDrawable() override;
+    
+    // A guess at how many instances we can support (max line length, basically)
+    virtual int maxInstances() const override;
+
 protected:
     // Uniform block used for basic wide vector implementation
     BasicDrawable::UniformBlock wideVecUniBlock();

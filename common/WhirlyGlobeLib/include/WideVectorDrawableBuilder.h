@@ -179,6 +179,9 @@ public:
     virtual BasicDrawableInstanceRef getInstanceDrawable();
     
     virtual SimpleIdentity getInstanceDrawableID();
+    
+    // A guess at how many instances we can support (max line length, basically)
+    virtual int maxInstances() const { return 0; }
 
 protected:
     float lineWidth = 1.0f;

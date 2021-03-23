@@ -601,25 +601,17 @@ public:
     }
     
     // Build or return a suitable drawable (depending on the mode)
-    WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate)
+    WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate,int clineCount)
     {
         if (vecInfo->implType == WideVecImplPerf) {
-            // Basic mode builds up a lot more geometry
-            int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
-            int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
-
             // Performance mode uses instancing and makes the renderer do the work
             if (!drawable ||
-                (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
-                (drawable->getNumTris()+triGuess > MaxDrawableTriangles))
+                drawable->getCenterLineCount()+clineCount > drawable->maxInstances())
             {
                 flush();
 
-                int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
-                int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
-                
                 WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
-                wideDrawable->Init(ptAlloc,triAlloc,0,
+                wideDrawable->Init(ptCountAllocate,triCountAllocate,clineCount,
                                    vecInfo->implType,
                                    !scene->getCoordAdapter()->isFlat(),
                                    vecInfo);
@@ -638,7 +630,7 @@ public:
                     wideDrawable->setOffsetExpression(vecInfo->offsetExp);
                 maskEntries.resize(numMaskIDs);
                 for (unsigned int ii=0;ii<maskEntries.size();ii++)
-                    maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
+                    maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptCount);
 
                 drawable->setColor(vecInfo->color);
 
@@ -714,21 +706,26 @@ public:
         if (vecInfo->implType == WideVecImplPerf) {
             // Performance mode makes the renderer do the work
 
-            // 8 points for the stretchable segment with a junction on either end
-            // TODO: Shouldn't share the vertices for the start and end
-            drawable->addPoint(Point3f(-1.0,-2.0,0.0));  drawable->addPoint(Point3f(1.0,-2.0,0.0));
-            drawable->addPoint(Point3f(-1.0,-1.0,0.0));  drawable->addPoint(Point3f(1.0,-1.0,0.0));
-            drawable->addPoint(Point3f(-1.0,1.0,0.0));  drawable->addPoint(Point3f(1.0,1.0,0.0));
-            drawable->addPoint(Point3f(-1.0,2.0,0.0));  drawable->addPoint(Point3f(1.0,2.0,0.0));
+            // We're instancing, so we only need a few points and triangles
+            WideVectorDrawableBuilderRef thisDrawable = getDrawable(8,6,8,6,pts.size()+1);
+            drawable = thisDrawable;
 
-            // 6 triangles for the stretchable segment
-            std::vector<BasicDrawable::Triangle> tris(6);
-            drawable->addTriangle(BasicDrawable::Triangle(0,1,3));
-            drawable->addTriangle(BasicDrawable::Triangle(0,3,2));
-            drawable->addTriangle(BasicDrawable::Triangle(2,3,5));
-            drawable->addTriangle(BasicDrawable::Triangle(2,5,4));
-            drawable->addTriangle(BasicDrawable::Triangle(4,5,7));
-            drawable->addTriangle(BasicDrawable::Triangle(4,7,6));
+            if (drawable->getNumTris() == 0) {
+                // 8 points for the stretchable segment with a junction on either end
+                // TODO: Shouldn't share the vertices for the start and end
+                drawable->addPoint(Point3f(-1.0,-2.0,0.0));  drawable->addPoint(Point3f(1.0,-2.0,0.0));
+                drawable->addPoint(Point3f(-1.0,-1.0,0.0));  drawable->addPoint(Point3f(1.0,-1.0,0.0));
+                drawable->addPoint(Point3f(-1.0,1.0,0.0));  drawable->addPoint(Point3f(1.0,1.0,0.0));
+                drawable->addPoint(Point3f(-1.0,2.0,0.0));  drawable->addPoint(Point3f(1.0,2.0,0.0));
+
+                // 6 triangles for the stretchable segment
+                drawable->addTriangle(BasicDrawable::Triangle(0,1,3));
+                drawable->addTriangle(BasicDrawable::Triangle(0,3,2));
+                drawable->addTriangle(BasicDrawable::Triangle(2,3,5));
+                drawable->addTriangle(BasicDrawable::Triangle(2,5,4));
+                drawable->addTriangle(BasicDrawable::Triangle(4,5,7));
+                drawable->addTriangle(BasicDrawable::Triangle(4,7,6));
+            }
 
             // Run through the points, adding centerline instances
             double len = 0.0;
@@ -737,7 +734,11 @@ public:
                 const auto &pt = pts[ii];
                 int prev = closed ? pts.size()-1 + startPt : -1;
                 int next = (ii==pts.size()-1) ? (closed ? startPt : -1) : startPt + ii + 1;
-                drawable->addCenterLine(Point3d(pt.x(),pt.y(),0.0),up,len,vecInfo->color,maskIDs,prev,next);
+
+                Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+                Point3d dispPa = coordAdapter->localToDisplay(localPa);
+
+                drawable->addCenterLine(dispPa,up,len,vecInfo->color,maskIDs,prev,next);
                 if (ii<pts.size()-1)
                     len += (pts[ii+1] - pts[ii]).norm();
             }
@@ -798,7 +799,7 @@ public:
                 // Get a drawable ready
                 int triCount = 2+3;
                 int ptCount = triCount*3;
-                WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount);
+                WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount,0);
                 vecBuilder.maskEntries = maskEntries;
                 totalTriCount -= triCount;
                 totalPtCount -= ptCount;
@@ -845,7 +846,7 @@ public:
             // Get a drawable ready
             const int ptCount = 5;
             const int triCount = 4;
-            WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount);
+            WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,ptCount,triCount,0);
             vecBuilder.maskEntries = maskEntries;
             drawMbr.addPoint(geoA);
 
@@ -877,7 +878,7 @@ public:
                 drawable->setFade(curTime,curTime+vecInfo->fade);
             if (auto draw = drawable->getBasicDrawable())
                 changes.push_back(new AddDrawableReq(draw));
-            if (auto draw = drawable->getBasicDrawable())
+            if (auto draw = drawable->getInstanceDrawable())
                 changes.push_back(new AddDrawableReq(draw));
         }
         

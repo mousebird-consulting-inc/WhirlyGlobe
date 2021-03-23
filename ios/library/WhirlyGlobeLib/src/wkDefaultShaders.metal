@@ -725,6 +725,7 @@ struct TriWideArgBufferFrag {
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+            constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
@@ -767,16 +768,18 @@ struct TriWideArgBufferC {
     bool hasTextures;
 };
 
-vertex ProjVertexTriWideVecB vertexTri_wideVecNewExp(
+// Performance version of wide vector shader
+vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           uint vertID [[vertex_id]],
           VertexTriWideVecB vert [[stage_in]],
           constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
           constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
           constant TriWideArgBufferC &vertArgs [[buffer(WKSVertexArgBuffer)]],
           uint instanceID [[instance_id]],
-          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]])
+          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
+          constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
-    ProjVertexTriWideVecB outVert;
+    ProjVertexTriWideVecPerf outVert;
     
     VertexTriWideVecInstance inst = wideVecInsts[instanceID];
         
@@ -800,6 +803,7 @@ vertex ProjVertexTriWideVecB vertexTri_wideVecNewExp(
     centerLine = vert.screenPos.x * centerLine;
 
     outVert.color = inst.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.w2 = vertArgs.wideVec.w2;
     
     // Project point all the way to the screen
     float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
@@ -810,6 +814,45 @@ vertex ProjVertexTriWideVecB vertexTri_wideVecNewExp(
     outVert.position = float4(screenPt.xy,0.0,1.0);
 
     return outVert;
+}
+
+// Fragment share that takes the back of the globe into account
+fragment float4 fragmentTri_wideVecPerf(
+            ProjVertexTriWideVecPerf vert [[stage_in]],
+            constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    int numTextures = TexturesBase(texArgs.texPresent);
+
+    // Dot/dash pattern
+    float4 patternColor(1.0,1.0,1.0,1.0);
+    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
+            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
+    }
+
+    if (numTextures > 0) {
+        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
+        // Just pulling the alpha at the moment
+        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+        patternColor.a = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
+    }
+    float alpha = 1.0;
+    float across = vert.w2 * vert.texCoord.x;
+    if (across < fragArgs.wideVec.edge)
+        alpha = across/fragArgs.wideVec.edge;
+    if (across > vert.w2-fragArgs.wideVec.edge)
+        alpha = (vert.w2-across)/fragArgs.wideVec.edge;
+    
+    // TODO: Put the backface chasing back
+    return float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a);
 }
 
 

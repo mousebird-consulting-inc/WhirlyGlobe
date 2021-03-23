@@ -112,6 +112,7 @@
 
 #define MaplyDefaultWideVectorShader WKString("Default Wide Vector")
 #define MaplyWideVectorExpShader WKString("Default Wide Vector with expressions")
+#define MaplyWideVectorPerformanceShader WKString("Wide Vector performance")
 #define MaplyDefaultWideVectorGlobeShader WKString("Default Wide Vector Globe")
 
 #define MaplyScreenSpaceDefaultMotionShader WKString("Default Screenspace Motion")

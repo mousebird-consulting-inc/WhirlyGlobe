@@ -660,6 +660,7 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
         }
         else
         {
+            wkLogLevel(Error,"Found BasicDrawableInstance without masterID.  Dropping.");
             return;
         }
     }
