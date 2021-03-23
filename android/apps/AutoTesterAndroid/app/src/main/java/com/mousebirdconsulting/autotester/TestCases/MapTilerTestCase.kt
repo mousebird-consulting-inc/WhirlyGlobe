@@ -14,7 +14,7 @@ open class MapTilerTestCase : MaplyTestCase
             this(activity, "MapTiler", TestExecutionImplementation.Both) {
     }
     
-    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation) :
+    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
             super(activity, name, impl) {
     }
     
@@ -54,8 +54,8 @@ open class MapTilerTestCase : MaplyTestCase
         map.styleSettings.drawPriorityPerLevel = 100
     }
 
-    protected open fun getStyleJson(whichMap: Int): String? {
-        return getMaps().elementAt(whichMap)?.let {
+    protected open fun getStyleJson(whichMap: Int): String? =
+        getMaps().elementAt(whichMap)?.let {
             Log.i(javaClass.name, "Loading $it")
             try {
                 Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
@@ -64,7 +64,6 @@ open class MapTilerTestCase : MaplyTestCase
                 return null
             }
         } ?: customStyle
-    }
     
     // Switch maps on long press
     override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
