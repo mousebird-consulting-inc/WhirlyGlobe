@@ -132,6 +132,9 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
         return instDrawable->drawInst;
 
     instanceGotten = true;
+
+    if (!instDrawable)
+        return nullptr;
     
     instDrawable->getDrawable();
 

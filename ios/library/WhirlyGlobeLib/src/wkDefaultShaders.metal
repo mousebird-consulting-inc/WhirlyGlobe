@@ -768,6 +768,13 @@ struct TriWideArgBufferC {
     bool hasTextures;
 };
 
+// Used to track what info we have about a center point
+struct CenterInfo {
+    float2 screenPos;
+    float2 dir;
+    float2 norm;
+};
+
 // Performance version of wide vector shader
 vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           uint vertID [[vertex_id]],
@@ -780,39 +787,77 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert;
+
+    // Find the various instances representing center points
+    bool instValid[3];
+    VertexTriWideVecInstance inst[3];
+    inst[1] = wideVecInsts[instanceID];
+    instValid[1] = true;
+    if (inst[1].prev != -1) {
+        inst[0] = wideVecInsts[inst[1].prev];
+        instValid[0] = true;
+    } else
+        instValid[0] = false;
+    if (inst[1].next != -1) {
+        inst[2] = wideVecInsts[inst[2].next];
+        instValid[2] = true;
+    } else
+        instValid[2] = false;
     
-    VertexTriWideVecInstance inst = wideVecInsts[instanceID];
+    // Figure out position on the screen for every center point
+    CenterInfo centers[3];
+    for (unsigned int ii=0;ii<3;ii++)
+        if (instValid[ii]) {
+            float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst[ii].center,1.0)).xyz;
+            float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
+            screenPt /= screenPt.w;
+            centers[ii].screenPos = screenPt.xy;
+        }
+    
+    // Size of pixels
+    float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+
+    bool isValid = false;
+    if (instValid[0]) {
+        isValid = true;
+        centers[1].dir = centers[1].screenPos - centers[0].screenPos;
+        centers[1].norm = normalize(float2(-centers[1].dir.y,centers[1].dir.x) * screenScale);
+    }
+    // Turn off the outer points for now
+    if (vert.screenPos.y < -1 || vert.screenPos.y > 1)
+        isValid = false;
+    
+    // We're filtering out the
+
+    if (isValid) {
+        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+
+        // Pull out the width and possibly calculate one
+        float w2 = vertArgs.wideVec.w2;
+        if (vertArgs.wideVec.hasExp)
+            w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
+        if (w2 > 0.0) {
+            w2 = w2 + vertArgs.wideVec.edge;
+        }
         
-    // Resolve the real world location of the center
-    float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst.center,1.0)).xyz;
+    //    // Pull out the center line offset, or calculate one
+    //    float centerLine = vertArgs.wideVec.offset;
+    //    if (vertArgs.wideVec.hasExp) {
+    //        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
+    //    }
+    //    centerLine = vert.screenPos.x * centerLine;
 
-    float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-    // Pull out the width and possibly calculate one
-    float w2 = vertArgs.wideVec.w2;
-    if (vertArgs.wideVec.hasExp)
-        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
-    if (w2 > 0.0) {
-        w2 = w2 + vertArgs.wideVec.edge;
+        outVert.color = inst[2].color * calculateFade(uniforms,vertArgs.uniDrawState);
+        outVert.w2 = vertArgs.wideVec.w2;
+        
+        float2 offset = (centers[1].norm * vert.screenPos.x) *
+                         screenScale * (vertArgs.wideVec.w2 + vertArgs.wideVec.edge) +
+                         centers[1].dir * (vert.screenPos.y+1.0)/2.0;
+        outVert.position = float4(centers[0].screenPos + offset, 0.0, 1.0);
+    } else {
+        outVert.position = float4(0.0,0.0,-1000.0,1.0);
     }
     
-    // Pull out the center line offset, or calculate one
-    float centerLine = vertArgs.wideVec.offset;
-    if (vertArgs.wideVec.hasExp) {
-        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
-    }
-    centerLine = vert.screenPos.x * centerLine;
-
-    outVert.color = inst.color * calculateFade(uniforms,vertArgs.uniDrawState);
-    outVert.w2 = vertArgs.wideVec.w2;
-    
-    // Project point all the way to the screen
-    float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
-    screenPt /= screenPt.w;
-
-    float2 scale = float2(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
-    // TODO: Backface culling check
-    outVert.position = float4(screenPt.xy,0.0,1.0);
-
     return outVert;
 }
 
@@ -823,36 +868,8 @@ fragment float4 fragmentTri_wideVecPerf(
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-    int numTextures = TexturesBase(texArgs.texPresent);
 
-    // Dot/dash pattern
-    float4 patternColor(1.0,1.0,1.0,1.0);
-    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
-        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
-            // Pull the maskID from the input texture
-            constexpr sampler sampler2d(coord::normalized, filter::linear);
-            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
-            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
-            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
-                discard_fragment();
-        }
-    }
-
-    if (numTextures > 0) {
-        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-        // Just pulling the alpha at the moment
-        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
-        patternColor.a = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
-    }
-    float alpha = 1.0;
-    float across = vert.w2 * vert.texCoord.x;
-    if (across < fragArgs.wideVec.edge)
-        alpha = across/fragArgs.wideVec.edge;
-    if (across > vert.w2-fragArgs.wideVec.edge)
-        alpha = (vert.w2-across)/fragArgs.wideVec.edge;
-    
-    // TODO: Put the backface chasing back
-    return float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a);
+    return float4(1.0,0.0,0.0,0.5);
 }
 
 
