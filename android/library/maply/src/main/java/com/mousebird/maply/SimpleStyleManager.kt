@@ -23,12 +23,12 @@ import android.util.Log
 import android.util.Size
 import androidx.annotation.ColorInt
 import androidx.collection.LruCache
-import androidx.core.graphics.withSave
-import androidx.core.graphics.withScale
+import androidx.core.graphics.*
 import java.io.*
 import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.math.ceil
+import kotlin.math.min
 
 class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
     
@@ -169,8 +169,9 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
                 style.markerSymbol = null
             }
         }
-        
-        style.markerColor = parseColor(dict.getString("marker-color"))
+
+        val markerAlpha = ((dict.getDouble("marker-opacity") ?: 1.0) * 255).toInt()
+        style.markerColor = parseColor(dict.getString("marker-color"), markerAlpha)
         
         style.strokeColor = parseColor(dict.getString("stroke"))
         style.strokeWidth = dict.getString("stroke-width")?.toFloatOrNull()
@@ -402,13 +403,24 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
         if (backImage != null) {
             val imageSize = Point2d(backImage.getScaledWidth(canvas).toDouble(),
                                     backImage.getScaledHeight(canvas).toDouble())
-            val scale = renderSize.x / imageSize.x
-            canvas.withScale(scale.toFloat(), scale.toFloat()) {//, (imageSize.x / 2).toFloat(), (imageSize.y / 2).toFloat())
-                val markerColor = style.markerColor ?: defaultColor
-                val filterColor = Color.argb(filterAlpha, Color.red(markerColor), Color.green(markerColor), Color.blue(markerColor))
-                paint.colorFilter = PorterDuffColorFilter(filterColor, filterMode)
-                canvas.drawBitmap(backImage, 0f, 0f, paint)
-                paint.colorFilter = null
+
+            // Scale the larger dimension down into the image
+            val scaleX = renderSize.x / imageSize.x
+            val scaleY = renderSize.y / imageSize.y
+            val scale = min(scaleX, scaleY)
+    
+            // offset the other dimension to match
+            val scaleAdjustX = if (scaleX > scaleY) renderSize.x / 2 - imageSize.x * scale / 2 else 0.0
+            val scaleAdjustY = if (scaleY > scaleX) renderSize.y / 2 - imageSize.y * scale / 2 else 0.0
+            
+            canvas.withTranslation(scaleAdjustX.toFloat(), scaleAdjustY.toFloat()) {
+                canvas.withScale(scale.toFloat(), scale.toFloat()) {
+                    val markerColor = style.markerColor ?: defaultColor
+                    val filterColor = Color.argb(filterAlpha, Color.red(markerColor), Color.green(markerColor), Color.blue(markerColor))
+                    paint.colorFilter = PorterDuffColorFilter(filterColor, filterMode)
+                    canvas.drawBitmap(backImage, 0f, 0f, paint)
+                    paint.colorFilter = null
+                }
             }
         } else {
             if (style.clearBackground == false) {
@@ -437,14 +449,20 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
         if (mainImage != null) {
             val imageSize = Point2d(mainImage.getScaledWidth(canvas).toDouble(),
                                     mainImage.getScaledHeight(canvas).toDouble())
-            val scale = renderSize.x / (imageSize.x + 2f * strokeWidth)
-            canvas.withSave() {
+
+            // Scale the larger dimension down into the image
+            val scaleX = renderSize.x / (imageSize.x + 2f * strokeWidth)
+            val scaleY = renderSize.y / (imageSize.y + 2f * strokeWidth)
+            val scale = min(scaleX, scaleY)
+
+            // offset the other dimension to match
+            val scaleAdjustX = if (scaleX > scaleY) renderSize.x / 2 - imageSize.x * scale / 2 else 0.0
+            val scaleAdjustY = if (scaleY > scaleX) renderSize.y / 2 - imageSize.y * scale / 2 else 0.0
+
+            canvas.withSave {
+                canvas.translate(scaleAdjustX.toFloat(), scaleAdjustY.toFloat())
                 canvas.scale(scale.toFloat(), scale.toFloat())
                 canvas.translate(strokeWidth, strokeWidth)
-                style.markerOffset?.let {
-                    // Fractional offset values are already pre-multiplied by marker size
-                    canvas.translate(it.x.toFloat(),  it.y.toFloat())
-                }
                 canvas.drawBitmap(mainImage, 0f, 0f, paint)
             }
         }
