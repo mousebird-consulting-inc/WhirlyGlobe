@@ -40,9 +40,12 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
     var defaultColor = 0xFF555555.toInt()
     var filterAlpha = 127
     var filterMode = PorterDuff.Mode.MULTIPLY
-    
+
     var defaultMarkerStrokeWidth = 2.0f
-    
+
+    var markerScale = 1.0
+    var markerBackgroundScale = 1.0
+
     var sharedCacheSize: Int
         get() { return Shared.cacheSize }
         set(value) { Shared.cacheSize = value }
@@ -180,12 +183,18 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
         style.fillColor = parseColor(dict["fill"]?.toString())
         style.fillOpacity = dict.getString("fill-opacity")?.toFloatOrNull()
     
-        val cx = dict.getString("marker-background-center-x")?.toDoubleOrNull()
-        val cy = dict.getString("marker-background-center-y")?.toDoubleOrNull()
+        val cx = dict.getString("marker-center-x")?.toDoubleOrNull()
+        val cy = dict.getString("marker-center-y")?.toDoubleOrNull()
         if (cx != null || cy != null) {
             style.markerCenter = Point2d(cx ?: 0.0, cy ?: 0.0)
         }
     
+        val bcx = dict.getString("marker-background-center-x")?.toDoubleOrNull()
+        val bcy = dict.getString("marker-background-center-y")?.toDoubleOrNull()
+        if (bcx != null || bcy != null) {
+            style.backgroundCenter = Point2d(bcx ?: 0.0, bcy ?: 0.0)
+        }
+        
         val ox = dict.getString("marker-offset-x")?.toDoubleOrNull()
         val oy = dict.getString("marker-offset-y")?.toDoubleOrNull()
         if ((ox != null || oy != null) && style.markerSize != null) {
@@ -195,6 +204,9 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
             }
         }
     
+        style.markerScale = dict.getString("marker-scale")?.toDoubleOrNull()
+        style.backgroundScale = dict.getString("marker-background-scale")?.toDoubleOrNull()
+
         style.labelColor = parseColor(dict.getString("label"))
         style.labelSize = dict.getString("label-size")?.toFloatOrNull()
         
@@ -361,20 +373,25 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
     
     // Make a cache key from anything that can affect the way the texture looks
     private fun styleCacheKey(style: SimpleStyle): String {
-        return arrayOf(style.markerSymbol,
-                       style.backgroundSymbol,
-                       style.markerString,
-                       style.markerCenter?.x,
-                       style.markerCenter?.y,
-                       style.markerSize?.x,
-                       style.markerSize?.y,
-                       style.markerColor,
-                       style.clearBackground,
-                       style.fillOpacity,
-                       style.fillColor,
-                       style.strokeWidth,
-                       style.strokeOpacity,
-                       style.strokeColor)
+        return sequenceOf(
+                style.markerSymbol,
+                style.backgroundSymbol,
+                style.markerString,
+                style.markerCenter?.x,
+                style.markerCenter?.y,
+                style.backgroundCenter?.x,
+                style.backgroundCenter?.y,
+                style.markerSize?.x,
+                style.markerSize?.y,
+                style.markerScale,
+                style.backgroundScale,
+                style.markerColor,
+                style.clearBackground,
+                style.fillOpacity,
+                style.fillColor,
+                style.strokeWidth,
+                style.strokeOpacity,
+                style.strokeColor)
             .joinToString("_") { it?.toString() ?: "" }
     }
     private fun textureForStyle(style: SimpleStyle): MaplyTexture? {
@@ -407,11 +424,11 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
             // Scale the larger dimension down into the image
             val scaleX = renderSize.x / imageSize.x
             val scaleY = renderSize.y / imageSize.y
-            val scale = min(scaleX, scaleY)
+            val scale = min(scaleX, scaleY) * markerScale * (style.markerScale ?: 1.0)
     
-            // offset the other dimension to match
-            val scaleAdjustX = if (scaleX > scaleY) renderSize.x / 2 - imageSize.x * scale / 2 else 0.0
-            val scaleAdjustY = if (scaleY > scaleX) renderSize.y / 2 - imageSize.y * scale / 2 else 0.0
+            // center
+            val scaleAdjustX = renderSize.x / 2 - (style.backgroundCenter?.x ?: (imageSize.x / 2)) * scale
+            val scaleAdjustY = renderSize.y / 2 - (style.backgroundCenter?.y ?: (imageSize.y / 2)) * scale
             
             canvas.withTranslation(scaleAdjustX.toFloat(), scaleAdjustY.toFloat()) {
                 canvas.withScale(scale.toFloat(), scale.toFloat()) {
@@ -453,11 +470,11 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
             // Scale the larger dimension down into the image
             val scaleX = renderSize.x / (imageSize.x + 2f * strokeWidth)
             val scaleY = renderSize.y / (imageSize.y + 2f * strokeWidth)
-            val scale = min(scaleX, scaleY)
+            val scale = min(scaleX, scaleY) * markerBackgroundScale * (style.backgroundScale ?: 1.0)
 
             // offset the other dimension to match
-            val scaleAdjustX = if (scaleX > scaleY) renderSize.x / 2 - imageSize.x * scale / 2 else 0.0
-            val scaleAdjustY = if (scaleY > scaleX) renderSize.y / 2 - imageSize.y * scale / 2 else 0.0
+            val scaleAdjustX = renderSize.x / 2 - (style.markerCenter?.x ?: (imageSize.x / 2)) * scale
+            val scaleAdjustY = renderSize.y / 2 - (style.markerCenter?.y ?: (imageSize.y / 2)) * scale
 
             canvas.withSave {
                 canvas.translate(scaleAdjustX.toFloat(), scaleAdjustY.toFloat())

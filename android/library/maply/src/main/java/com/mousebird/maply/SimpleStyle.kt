@@ -28,9 +28,12 @@ class SimpleStyle {
     var markerString: String? = null
     var markerSize: Point2d? = null
     var markerCenter: Point2d? = null
+    var backgroundCenter: Point2d? = null
     var markerOffset: Point2d? = null
     @ColorInt
     var markerColor: Int? = null
+    var markerScale: Double? = null
+    var backgroundScale: Double? = null
 
     var clearBackground: Boolean? = null
     
