@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference
 import java.util.*
 import kotlin.math.ceil
 
-class SimpleStyleManager(private val context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
+class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
     
     var smallSize = Point2d(16.0, 16.0)
     var medSize = Point2d(32.0, 32.0)
@@ -47,7 +47,7 @@ class SimpleStyleManager(private val context: Context, vc: RenderControllerInter
         get() { return Shared.cacheSize }
         set(value) { Shared.cacheSize = value }
     
-    public interface StyleObjectLocator {
+    interface StyleObjectLocator {
         fun locate(name: String): Collection<String>
     }
     var objectLocator: StyleObjectLocator = object : StyleObjectLocator {
@@ -66,7 +66,7 @@ class SimpleStyleManager(private val context: Context, vc: RenderControllerInter
     /**
      * Add a styled object, splitting it up if necessary.
      */
-    fun addFeatures(obj: VectorObject, mode: ThreadMode = threadCurrent): Sequence<ComponentObject>? {
+    fun addFeatures(obj: VectorObject, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
         return addFeatures(listOf(obj), null, mode)
     }
     
@@ -290,18 +290,22 @@ class SimpleStyleManager(private val context: Context, vc: RenderControllerInter
         return assets.open(name).use { tryLoadImage(it) }
     }
 
-    private fun tryLoadFileImage(name: String): Bitmap? {
+    private fun tryLoadFileImage(name: String): Bitmap {
         return File(name).inputStream().use { tryLoadImage(it) }
     }
     
     private fun loadImage(name: String): Bitmap? {
         try {
             for (location in objectLocator.locate(name)) {
-                try { return tryLoadFileImage(location) } catch (e: FileNotFoundException) { }
-                try { return tryLoadAssetImage(location) } catch (e2: FileNotFoundException) { }
+                try { return tryLoadFileImage(location) } catch (e: FileNotFoundException) {
+                    Log.d(logTag, "Failed to load file $location: ${e.message}")
+                }
+                try { return tryLoadAssetImage(location) } catch (e: FileNotFoundException) {
+                    Log.d(logTag, "Failed to load asset $location: ${e.message}")
+                }
             }
         } catch (e: Exception) {
-            Log.w(javaClass.name, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
+            Log.w(logTag, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
         }
         return null
     }
@@ -318,7 +322,7 @@ class SimpleStyleManager(private val context: Context, vc: RenderControllerInter
         return try {
             loadImage(name)
         } catch (e: Exception) {
-            Log.w(javaClass.name, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
+            Log.w(logTag, String.format("Failed to load '%s': '%s'", name, e.localizedMessage))
             null
         }?.also {
             synchronized(Shared.imageCache) {
@@ -431,16 +435,15 @@ class SimpleStyleManager(private val context: Context, vc: RenderControllerInter
         }
         
         if (mainImage != null) {
-            val imageSize = Point2d(mainImage.getScaledWidth(canvas).toDouble(),//mainImage.width.toDouble(),
-                                    mainImage.getScaledHeight(canvas).toDouble())//mainImage.height.toDouble()
+            val imageSize = Point2d(mainImage.getScaledWidth(canvas).toDouble(),
+                                    mainImage.getScaledHeight(canvas).toDouble())
             val scale = renderSize.x / (imageSize.x + 2f * strokeWidth)
             canvas.withSave() {
                 canvas.scale(scale.toFloat(), scale.toFloat())
                 canvas.translate(strokeWidth, strokeWidth)
                 style.markerOffset?.let {
-                    // todo: before or after translate?  positive or negative?
-                    canvas.translate((it.x * renderSize.x).toFloat(),
-                                     (it.y * renderSize.y).toFloat())
+                    // Fractional offset values are already pre-multiplied by marker size
+                    canvas.translate(it.x.toFloat(),  it.y.toFloat())
                 }
                 canvas.drawBitmap(mainImage, 0f, 0f, paint)
             }
@@ -499,6 +502,7 @@ class SimpleStyleManager(private val context: Context, vc: RenderControllerInter
     private val assets = assetManager ?: context.assets
     private val textureCache = Hashtable<String, MaplyTexture>()
     private val threadCurrent = ThreadMode.ThreadCurrent
+    private val logTag = javaClass.name
 
     private object Shared {
         var cacheSize = 4 * 1024 * 1024
