@@ -59,13 +59,18 @@ class SimpleStyleTestCase : MaplyTestCase {
     
     private fun runExamples(vc: BaseController) {
         cleanup()
-        styleManager = SimpleStyleManager(activity.applicationContext, vc).also { styleMan ->
-            styleMan.medSize = Point2d(42.0, 36.0)
-            styleMan.objectLocator = object : SimpleStyleManager.StyleObjectLocator {
+        styleManager = SimpleStyleManager(activity.applicationContext, vc).apply {
+            medSize = Point2d(42.0, 36.0)
+            objectLocator = object : SimpleStyleManager.StyleObjectLocator {
                 override fun locate(name: String): Collection<String> {
                     return listOf("maki icons/$name-24@2x.png")
                 }
             }
+            onAddMarker = { obj, marker, info, style ->
+                marker.userObject = obj
+                true
+            }
+        }.also { styleMan ->
             componentObjects = arrayOf(vectorGeoJson1, vectorGeoJson2).flatMap { json ->
                 VectorObject().let { obj ->
                     if (obj.fromGeoJSON(json)) {
