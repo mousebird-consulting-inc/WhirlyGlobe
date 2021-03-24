@@ -7,6 +7,7 @@ import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
 import java.io.IOException
+import kotlin.math.min
 
 open class MapTilerTestCase : MaplyTestCase
 {
@@ -24,8 +25,16 @@ open class MapTilerTestCase : MaplyTestCase
     
     // Set up the loader (and all the stuff it needs) for the map tiles
     private fun setupLoader(control: BaseController, whichMap: Int) {
+        // Approximate the effect of `UIScreen.scale` on iOS
+        val dpi = displayDensity ?: Point2d(200.0,200.0)
+        val scale = min(dpi.x,dpi.y) / 225
+        
         getStyleJson(whichMap)?.let { json ->
-            map = MapboxKindaMap(json, control).apply {
+            val settings = VectorStyleSettings(scale).apply {
+                baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault + 1000
+                drawPriorityPerLevel = 100
+            }
+            map = MapboxKindaMap(json, control, settings).apply {
                 mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
                 backgroundAllPolys = (control is GlobeController)
                 imageVectorHybrid = true

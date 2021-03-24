@@ -31,11 +31,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_nativeInit(J
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise(JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
-        auto inst = new VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(1.0));
+        auto inst = new VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(scale));
         VectorStyleSettingsClassInfo::getClassInfo()->setHandle(env,obj,inst);
     }
     catch (...)

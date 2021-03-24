@@ -93,11 +93,11 @@ public class SLDTestCase extends MaplyTestCase {
                     "belfast_ireland_roads.geojson",
                     "belfast_ireland_amenities.geojson"};
 
-            AssetWrapper assetWrap = new AssetWrapper(activity.getAssets());
+            AssetWrapper assetWrap = new AssetWrapper(getActivity().getAssets());
 
             for (int i=0; i<slds.length; i++) {
 
-                SLDStyleSet styleSet = new SLDStyleSet(controller, assetWrap, slds[i], activity.getResources().getDisplayMetrics(), false, i*100000);
+                SLDStyleSet styleSet = new SLDStyleSet(controller, assetWrap, slds[i], getActivity().getResources().getDisplayMetrics(), false, i*100000);
                 styleSet.loadSldInputStream();
 
                 GeoJSONSource gjs = new GeoJSONSource();
