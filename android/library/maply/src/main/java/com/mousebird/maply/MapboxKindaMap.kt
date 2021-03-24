@@ -15,6 +15,7 @@ import java.io.IOException
 import java.io.OutputStream
 import java.lang.ref.WeakReference
 import java.net.URL
+import kotlin.collections.ArrayList
 
 /**
  * Convenience class for loading a Mapbox-style vector tiles-probably kinda map.
@@ -22,35 +23,32 @@ import java.net.URL
  * Set the various settings before it gets going to modify how it works.
  * Callbacks control various pieces that might need to be intercepted.
  */
-open class MapboxKindaMap {
+open class MapboxKindaMap(
+        var styleSheetJSON: String?,
+        var styleURL: Uri?,
+        var localMBTiles: Sequence<File>? = null,
+        inControl: BaseController,
+        var styleSettings: VectorStyleSettings = defaultStyle()) {
 
-    private constructor(inControl: BaseController) {
-        control = WeakReference<BaseController>(inControl)
-        styleSettings.baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault+1000
-        styleSettings.drawPriorityPerLevel = 100
+    companion object {
+        fun defaultStyle() = VectorStyleSettings().apply {
+            baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault + 1000
+            drawPriorityPerLevel = 100
+        }
     }
+    
+    constructor(styleURL: Uri, control: BaseController, styleSettings: VectorStyleSettings = defaultStyle()) :
+            this(null, styleURL, null, control, styleSettings)
+    constructor(styleJSON: String, control: BaseController, styleSettings: VectorStyleSettings = defaultStyle()) :
+            this(styleJSON, null, null, control, styleSettings)
+    constructor(styleURL: Uri, localMBTilesFile: File, control: BaseController, styleSettings: VectorStyleSettings = defaultStyle()) :
+            this(null, styleURL, sequenceOf(localMBTilesFile), control, styleSettings)
+    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController, styleSettings: VectorStyleSettings = defaultStyle()) :
+            this(styleJSON, null, sequenceOf(localMBTilesFile), control, styleSettings)
 
-    constructor(styleURL: Uri, control: BaseController) : this(control)  {
-        this.styleURL = styleURL
-    }
-
-    constructor(styleJSON: String, control: BaseController) : this(control) {
-        this.styleSheetJSON = styleJSON
-    }
-
-    constructor(styleJSON: String, localMBTilesFile: File, control: BaseController) : this(control) {
-        this.styleSheetJSON = styleJSON
-        this.localMBTiles = sequenceOf(localMBTilesFile)
-    }
-
-    var styleURL : Uri? = null
-    var control : WeakReference<BaseController> = WeakReference<BaseController>(null)
-    var localMBTiles: Sequence<File>? = null
-    var styleSettings = VectorStyleSettings()
     var styleSheet: MapboxVectorStyleSet? = null
     var styleSheetImage: MapboxVectorStyleSet? = null
     var styleSheetVector: MapboxVectorStyleSet? = null
-    var styleSheetJSON: String? = null
     var spriteJSON: ByteArray? = null
     var spritePNG: Bitmap? = null
     var mapboxInterp: MapboxVectorInterpreter? = null
@@ -65,8 +63,8 @@ open class MapboxKindaMap {
      */
     var imageVectorHybrid = true
 
-    /* If set, we'll sort all polygons into the background
-     * Works well zoomed out, less enticing zoomed in
+    /* If set, we'll sort all polygons into the background.
+     * Works well zoomed out, less enticing zoomed in.
      */
     var backgroundAllPolys = true
 
@@ -513,9 +511,9 @@ open class MapboxKindaMap {
         mapboxInterp = null
         control.clear()
     }
-
-    protected var outstandingFetches = ArrayList<Call?>()
-
+    
+    private val control : WeakReference<BaseController> = WeakReference<BaseController>(inControl)
+    private val outstandingFetches = ArrayList<Call?>()
     private val cacheNamePattern = Regex("[/:?.{}]")
     private var finished = false
 }
