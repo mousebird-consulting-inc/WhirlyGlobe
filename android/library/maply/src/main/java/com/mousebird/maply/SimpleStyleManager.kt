@@ -426,9 +426,9 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
             val scaleY = renderSize.y / imageSize.y
             val scale = min(scaleX, scaleY) * markerScale * (style.markerScale ?: 1.0)
     
-            // center
-            val scaleAdjustX = renderSize.x / 2 - (style.backgroundCenter?.x ?: (imageSize.x / 2)) * scale
-            val scaleAdjustY = renderSize.y / 2 - (style.backgroundCenter?.y ?: (imageSize.y / 2)) * scale
+            // Center the scaled rectangle and apply offset
+            val scaleAdjustX = renderSize.x / 2 + ((style.backgroundCenter?.x ?: 0.0) - (imageSize.x / 2)) * scale
+            val scaleAdjustY = renderSize.y / 2 + ((style.backgroundCenter?.y ?: 0.0) - (imageSize.y / 2)) * scale
             
             canvas.withTranslation(scaleAdjustX.toFloat(), scaleAdjustY.toFloat()) {
                 canvas.withScale(scale.toFloat(), scale.toFloat()) {
@@ -472,10 +472,10 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
             val scaleY = renderSize.y / (imageSize.y + 2f * strokeWidth)
             val scale = min(scaleX, scaleY) * markerBackgroundScale * (style.backgroundScale ?: 1.0)
 
-            // offset the other dimension to match
-            val scaleAdjustX = renderSize.x / 2 - (style.markerCenter?.x ?: (imageSize.x / 2)) * scale
-            val scaleAdjustY = renderSize.y / 2 - (style.markerCenter?.y ?: (imageSize.y / 2)) * scale
-
+            // Center the scaled rectangle and apply offset
+            val scaleAdjustX = renderSize.x / 2 + ((style.markerCenter?.x ?: 0.0) - (imageSize.x / 2)) * scale
+            val scaleAdjustY = renderSize.y / 2 + ((style.markerCenter?.y ?: 0.0) - (imageSize.y / 2)) * scale
+            
             canvas.withSave {
                 canvas.translate(scaleAdjustX.toFloat(), scaleAdjustY.toFloat())
                 canvas.scale(scale.toFloat(), scale.toFloat())
