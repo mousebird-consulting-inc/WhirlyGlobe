@@ -777,7 +777,6 @@ struct CenterInfo {
 
 // Performance version of wide vector shader
 vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
-          uint vertID [[vertex_id]],
           VertexTriWideVecB vert [[stage_in]],
           constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
           constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
@@ -787,10 +786,14 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert;
+    
+    int whichVert = (vert.index >> 16) & 0xffff;
+    int whichPoly = vert.index & 0xffff;
 
     // Find the various instances representing center points
-    bool instValid[3];
-    VertexTriWideVecInstance inst[3];
+    // We need one behind and two ahead of us
+    bool instValid[4];
+    VertexTriWideVecInstance inst[4];
     inst[1] = wideVecInsts[instanceID];
     instValid[1] = true;
     if (inst[1].prev != -1) {
@@ -799,14 +802,19 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     } else
         instValid[0] = false;
     if (inst[1].next != -1) {
-        inst[2] = wideVecInsts[inst[2].next];
+        inst[2] = wideVecInsts[inst[1].next];
         instValid[2] = true;
     } else
         instValid[2] = false;
+    if (instValid[2] && inst[2].next != -1) {
+        inst[3] = wideVecInsts[inst[2].next];
+        instValid[3] = true;
+    } else
+        instValid[3] = false;
     
     // Figure out position on the screen for every center point
-    CenterInfo centers[3];
-    for (unsigned int ii=0;ii<3;ii++)
+    CenterInfo centers[4];
+    for (unsigned int ii=0;ii<4;ii++)
         if (instValid[ii]) {
             float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst[ii].center,1.0)).xyz;
             float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
@@ -817,18 +825,28 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     // Size of pixels
     float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
 
-    bool isValid = false;
-    if (instValid[0]) {
-        isValid = true;
-        centers[1].dir = centers[1].screenPos - centers[0].screenPos;
-        centers[1].norm = normalize(float2(-centers[1].dir.y,centers[1].dir.x) * screenScale);
+    // Direction and normal info for three segments we may look at
+    bool isValid = instValid[1];
+    for (unsigned int ii=1;ii<4;ii++) {
+        if (instValid[ii-1]) {
+            centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
+            centers[ii].norm = normalize(float2(-centers[ii].dir.y,centers[ii].dir.x) * screenScale);
+        }
     }
-    // Turn off the outer points for now
-    if (vert.screenPos.y < -1 || vert.screenPos.y > 1)
-        isValid = false;
     
-    // We're filtering out the
-
+    // Turn off the end caps for the moment
+    switch (whichPoly) {
+        case 0:
+            isValid = false;
+            break;
+        case 1:
+            isValid = true;
+            break;
+        case 2:
+            isValid = false;
+            break;
+    }
+    
     if (isValid) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
 
@@ -847,7 +865,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     //    }
     //    centerLine = vert.screenPos.x * centerLine;
 
-        outVert.color = inst[2].color * calculateFade(uniforms,vertArgs.uniDrawState);
+        outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
         outVert.w2 = vertArgs.wideVec.w2;
         
         float2 offset = (centers[1].norm * vert.screenPos.x) *

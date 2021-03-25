@@ -64,6 +64,7 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
         basicDrawable->setOnOff(false);
         vecInfo->setupBasicDrawableInstance(instDrawable);
         instDrawable->setMasterID(basicDrawable->basicDraw->getId(), BasicDrawableInstance::LocalStyle);
+        inst_index = addAttribute(BDIntType, StringIndexer::getStringID("a_instIndex"),numVert);
     } else {
         vecInfo->setupBasicDrawable(basicDrawable);
     }
@@ -104,6 +105,12 @@ unsigned int WideVectorDrawableBuilder::addPoint(const Point3f &pt)
     basicDrawable->addPoint(pt);
     
     return basicDrawable->getNumPoints()-1;
+}
+
+void WideVectorDrawableBuilder::addInstancePoint(const Point3f &pt,int vertIndex,int polyIndex)
+{
+    basicDrawable->addPoint(pt);
+    basicDrawable->addAttributeValue(inst_index, polyIndex | (vertIndex << 16));
 }
     
 void WideVectorDrawableBuilder::addNormal(const Point3f &norm)

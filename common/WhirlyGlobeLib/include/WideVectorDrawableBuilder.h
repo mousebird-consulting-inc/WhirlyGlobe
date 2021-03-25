@@ -109,6 +109,9 @@ public:
     /// Add a triangle.  Should point to the vertex IDs.
     virtual void addTriangle(BasicDrawable::Triangle tri);
     
+    /// Adds a point for instanced geometry and an ID for tracking it in the shader
+    virtual void addInstancePoint(const Point3f &pt,int vertIndex,int polyIndex);
+    
     // We set color globally
     void setColor(RGBAColor inColor);
     
@@ -195,6 +198,7 @@ protected:
     int offset_index = -1;
     int c0_index = -1;
     int tex_index = -1;
+    int inst_index = -1;
     std::string name;
     Scene *scene;
     const SceneRenderer *renderer;

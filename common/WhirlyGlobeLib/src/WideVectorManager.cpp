@@ -711,20 +711,33 @@ public:
             drawable = thisDrawable;
 
             if (drawable->getNumTris() == 0) {
-                // 8 points for the stretchable segment with a junction on either end
-                // TODO: Shouldn't share the vertices for the start and end
-                drawable->addPoint(Point3f(-1.0,-2.0,0.0));  drawable->addPoint(Point3f(1.0,-2.0,0.0));
-                drawable->addPoint(Point3f(-1.0,-1.0,0.0));  drawable->addPoint(Point3f(1.0,-1.0,0.0));
-                drawable->addPoint(Point3f(-1.0,1.0,0.0));  drawable->addPoint(Point3f(1.0,1.0,0.0));
-                drawable->addPoint(Point3f(-1.0,2.0,0.0));  drawable->addPoint(Point3f(1.0,2.0,0.0));
-
-                // 6 triangles for the stretchable segment
+                // 8 points and 6 triangles.
+                // Many of the points can't be shared because the end caps
+                //  will be handled differently by the fragment shader
+                
+                // End cap: vertices [0,3], polygon 0
+                drawable->addInstancePoint(Point3f(-1.0,-2.0,0.0),0,0);
+                drawable->addInstancePoint(Point3f(1.0,-2.0,0.0),1,0);
+                drawable->addInstancePoint(Point3f(-1.0,-1.0,0.0),2,0);
+                drawable->addInstancePoint(Point3f(1.0,-1.0,0.0),3,0);
                 drawable->addTriangle(BasicDrawable::Triangle(0,3,1));
                 drawable->addTriangle(BasicDrawable::Triangle(0,2,3));
-                drawable->addTriangle(BasicDrawable::Triangle(2,5,3));
-                drawable->addTriangle(BasicDrawable::Triangle(2,4,5));
+
+                // Middle segment: vertices [4,7], polygon 1
+                drawable->addInstancePoint(Point3f(-1.0,-1.0,0.0),4,1);
+                drawable->addInstancePoint(Point3f(1.0,-1.0,0.0),5,1);
+                drawable->addInstancePoint(Point3f(-1.0,1.0,0.0),6,1);
+                drawable->addInstancePoint(Point3f(1.0,1.0,0.0),7,1);
                 drawable->addTriangle(BasicDrawable::Triangle(4,7,5));
                 drawable->addTriangle(BasicDrawable::Triangle(4,6,7));
+
+                // End cap: vertices [8,11], polygon 2
+                drawable->addInstancePoint(Point3f(-1.0,1.0,0.0),8,2);
+                drawable->addInstancePoint(Point3f(1.0,1.0,0.0),9,2);
+                drawable->addInstancePoint(Point3f(-1.0,2.0,0.0),10,2);
+                drawable->addInstancePoint(Point3f(1.0,2.0,0.0),11,2);
+                drawable->addTriangle(BasicDrawable::Triangle(8,11,9));
+                drawable->addTriangle(BasicDrawable::Triangle(8,10,11));
             }
 
             // Run through the points, adding centerline instances
@@ -732,8 +745,14 @@ public:
             int startPt = drawable->getCenterLineCount();
             for (unsigned int ii=0;ii<pts.size();ii++) {
                 const auto &pt = pts[ii];
-                int prev = closed ? pts.size()-1 + startPt : ii-1;
-                int next = (ii==pts.size()-1) ? (closed ? startPt : -1) : startPt + ii + 1;
+                int prev = startPt + ii - 1;
+                if (ii == 0) {
+                    prev = closed ? startPt + pts.size() - 1 : -1;
+                }
+                int next = startPt + ii + 1;
+                if (ii == pts.size()-1) {
+                    next = closed ? startPt : -1;
+                }
 
                 Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
                 Point3d dispPa = coordAdapter->localToDisplay(localPa);
