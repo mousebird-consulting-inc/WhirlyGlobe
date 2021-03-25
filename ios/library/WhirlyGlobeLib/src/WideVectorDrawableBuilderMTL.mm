@@ -51,6 +51,8 @@ void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTr
         ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[n0_index])->slot = WhirlyKitShader::WKSVertexWideVecN0Attribute;
         ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[offset_index])->slot = WhirlyKitShader::WKSVertexWideVecOffsetAttribute;
         ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[c0_index])->slot = WhirlyKitShader::WKSVertexWideVecC0Attribute;
+    } else {
+        ((VertexAttributeMTL *)basicDrawable->basicDraw->vertexAttributes[inst_index])->slot = WhirlyKitShader::WKSVertexWideVecInstIndexAttribute;
     }
 }
 

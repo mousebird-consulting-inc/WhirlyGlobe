@@ -64,6 +64,8 @@ typedef enum {
 // Wide Vector vertex attribute positions
 typedef enum {
     WKSVertexWideVecTexInfoAttribute = 7,
+    // We don't use these at the same time
+    WKSVertexWideVecInstIndexAttribute = 7,
     WKSVertexWideVecP1Attribute,
     WKSVertexWideVecN0Attribute,
     WKSVertexWideVecC0Attribute,
@@ -392,6 +394,7 @@ struct VertexTriWideVecB
 {
     // x, y offset around the center
     float3 screenPos [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    int index [[attribute(WhirlyKitShader::WKSVertexWideVecInstIndexAttribute)]];
 };
 
 // Wide vector vertex passed to fragment shader (new version)
