@@ -113,6 +113,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setVertexAttribut
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setLayoutImportance
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutImportance
+        (JNIEnv *env, jobject obj, jfloat importance);
+/*
+ * Class:     com_mousebird_maply_InternalMarker
  * Method:    nativeInit
  * Signature: ()V
  */
