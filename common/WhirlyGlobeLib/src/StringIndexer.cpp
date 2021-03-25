@@ -21,41 +21,38 @@
 #import "Identifiable.h"
 
 namespace WhirlyKit {
-    
-StringIndexer &StringIndexer::getInstance()
+
+StringIndexer StringIndexer::instance;
+
+StringIndexer::StringIndexer() : stringToIdent(500)
 {
-    static StringIndexer instance;
-    
-    return instance;
+    identToString.reserve(500);
 }
 
 StringIdentity StringIndexer::getStringID(const std::string &str)
 {
     StringIndexer &index = getInstance();
-    
+
+    // todo: upgradeable shared mutex would be perfect here
     std::lock_guard<std::mutex> lock(index.mutex);
-    
-    auto it = index.stringToIdent.find(str);
+
+    const auto it = index.stringToIdent.find(str);
     if (it != index.stringToIdent.end())
         return it->second;
-    
-    int strID = index.identToString.size();
+
+    const int strID = index.identToString.size();
     index.identToString.push_back(str);
     index.stringToIdent[str] = strID;
-    
     return strID;
 }
 
 std::string StringIndexer::getString(StringIdentity strID)
 {
-    StringIndexer &index = getInstance();
-    
+    const StringIndexer &index = getInstance();
+
     std::lock_guard<std::mutex> lock(index.mutex);
-    
-    if (strID >= index.identToString.size())
-        return "";
-    
-    return index.identToString[strID];
+
+    return (strID < index.identToString.size()) ? index.identToString[strID] : std::string();
 }
  
 // Note: This is from OpenGL.  Doesn't hold anymore on iOS
