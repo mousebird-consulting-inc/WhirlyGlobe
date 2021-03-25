@@ -761,6 +761,14 @@ fragment float4 fragmentTri_wideVec(
     float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a)  : float4(0.0);
 }
 
+// Intersect two offset lines
+bool intersectWideLines(float2 p0,float2 p1,float2 p2,
+                        float2 n0,float2 n1,
+                        float offset,float w2)
+{
+    return false;
+}
+
 struct TriWideArgBufferC {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
     UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
@@ -772,6 +780,7 @@ struct TriWideArgBufferC {
 struct CenterInfo {
     float2 screenPos;
     float2 dir;
+    float2 nDir;
     float2 norm;
 };
 
@@ -830,10 +839,30 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     for (unsigned int ii=1;ii<4;ii++) {
         if (instValid[ii-1]) {
             centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
+            centers[ii].nDir = normalize(centers[ii].dir);
             centers[ii].norm = normalize(float2(-centers[ii].dir.y,centers[ii].dir.x) * screenScale);
         }
     }
     
+    float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+
+    // Pull out the width and possibly calculate one
+    float w2 = vertArgs.wideVec.w2;
+    if (vertArgs.wideVec.hasExp)
+        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
+    if (w2 > 0.0) {
+        w2 = w2 + vertArgs.wideVec.edge;
+    }
+    
+    // Pull out the center line offset, or calculate one
+//    float centerLine = vertArgs.wideVec.offset;
+    float centerLine = 0.0;
+//    if (vertArgs.wideVec.hasExp)
+//        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
+    
+    // Intersect on the left or right depending
+    float interDir = whichVert & 0x1 ? 1.0 : -1.0;
+
     // Turn off the end caps for the moment
     switch (whichPoly) {
         case 0:
@@ -846,32 +875,43 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             isValid = false;
             break;
     }
-    
+
+    // Do the offset intersection
+    float angleBetween = 0.0;
+    bool iPtsValid = false;
     if (isValid) {
-        float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-
-        // Pull out the width and possibly calculate one
-        float w2 = vertArgs.wideVec.w2;
-        if (vertArgs.wideVec.hasExp)
-            w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
-        if (w2 > 0.0) {
-            w2 = w2 + vertArgs.wideVec.edge;
+        float dotProd = dot(centers[1].nDir, centers[2].nDir);
+        if (dotProd > -0.99999998476 && dotProd < 0.99999998476) {
+            if (intersectWideLines(centers[0].screenPos,centers[1].screenPos,centers[2].screenPos,
+                                   interDir * centers[1].norm,interDir * centers[2].norm,
+                                   0.0, w2)) {
+                iPtsValid = true;
+                angleBetween = acos(dotProd);
+            }
         }
-        
-    //    // Pull out the center line offset, or calculate one
-    //    float centerLine = vertArgs.wideVec.offset;
-    //    if (vertArgs.wideVec.hasExp) {
-    //        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
-    //    }
-    //    centerLine = vert.screenPos.x * centerLine;
+    }
+    
+    // Acute angles tend to break things
+    if (angleBetween < 4.0 / 180.0 * M_PI_F) {
+        iPtsValid = false;
+    }
 
-        outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
-        outVert.w2 = vertArgs.wideVec.w2;
-        
-        float2 offset = (centers[1].norm * vert.screenPos.x) *
-                         screenScale * (vertArgs.wideVec.w2 + vertArgs.wideVec.edge) +
-                         centers[1].dir * (vert.screenPos.y+1.0)/2.0;
-        outVert.position = float4(centers[0].screenPos + offset, 0.0, 1.0);
+    outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.w2 = vertArgs.wideVec.w2;
+    
+    // TODO: Debugging
+    iPtsValid = false;
+
+    if (isValid) {
+        if (iPtsValid) {
+            
+        } else {
+            // Return a vertex offset from the base
+            int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
+            float2 offset = (centers[2].norm * interDir) * screenScale * (vertArgs.wideVec.w2 + centerLine + vertArgs.wideVec.edge);
+
+            outVert.position = float4(centers[basePt].screenPos + offset, 0.0, 1.0);
+        }
     } else {
         outVert.position = float4(0.0,0.0,-1000.0,1.0);
     }
