@@ -761,12 +761,39 @@ fragment float4 fragmentTri_wideVec(
     float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a)  : float4(0.0);
 }
 
+struct IntersectInfo {
+    bool valid;
+    float2 interPt;
+    float ta,tb;
+};
+
 // Intersect two offset lines
-bool intersectWideLines(float2 p0,float2 p1,float2 p2,
-                        float2 n0,float2 n1,
-                        float offset,float w2)
+IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
+                        float2 n0,float2 n1)
 {
-    return false;
+    IntersectInfo iInfo;
+    iInfo.valid = false;
+    
+    float2 lineA[2];
+    lineA[0] = p0 + n0;
+    lineA[1] = p1 + n0;
+    float2 lineB[2];
+    lineB[0] = p1 + n1;
+    lineB[1] = p2 + n1;
+    
+    float denom = (lineA[0].x-lineA[1].x)*(lineB[0].y-lineB[1].y) - (lineA[0].y - lineA[1].y)*(lineB[0].x - lineB[1].x);
+    if (denom == 0.0)
+        return iInfo;
+    
+    float termA = (lineA[0].x * lineA[1].y - lineA[0].y * lineA[1].x);
+    float termB = (lineB[0].x * lineB[1].y - lineB[0].y * lineB[1].x);
+    iInfo.interPt.x = ( termA * (lineB[0].x - lineB[1].x) - (lineA[0].x - lineA[1].x) * termB)/denom;
+    iInfo.interPt.y = ( termA * (lineB[0].y - lineB[1].y) - (lineA[0].y - lineA[1].y) * termB)/denom;
+
+    iInfo.ta = 0.0;  iInfo.tb = 0.0;
+    iInfo.valid = true;
+    
+    return iInfo;
 }
 
 struct TriWideArgBufferC {
@@ -835,7 +862,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
 
     // Direction and normal info for three segments we may look at
-    bool isValid = instValid[1];
+    bool isValid = instValid[2];
     for (unsigned int ii=1;ii<4;ii++) {
         if (instValid[ii-1]) {
             centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
@@ -866,45 +893,57 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     // Turn off the end caps for the moment
     switch (whichPoly) {
         case 0:
-            isValid = false;
+            isValid &= false;
             break;
         case 1:
-            isValid = true;
+            isValid &= true;
             break;
         case 2:
-            isValid = false;
+            isValid &= false;
             break;
     }
 
     // Do the offset intersection
-    float angleBetween = 0.0;
+//    float angleBetween = 0.0;
     bool iPtsValid = false;
+    float2 iPts;
     if (isValid) {
-        float dotProd = dot(centers[1].nDir, centers[2].nDir);
-        if (dotProd > -0.99999998476 && dotProd < 0.99999998476) {
-            if (intersectWideLines(centers[0].screenPos,centers[1].screenPos,centers[2].screenPos,
-                                   interDir * centers[1].norm,interDir * centers[2].norm,
-                                   0.0, w2)) {
-                iPtsValid = true;
-                angleBetween = acos(dotProd);
+        // We'll reject
+        float nearDist = 1.42 * w2 * max(screenScale.x,screenScale.y);
+        
+        // We only need one intersection depending
+        int interPt = (whichVert == 6 || whichVert == 7) ? 1 : 0;
+        if (instValid[interPt] && instValid[interPt+1] && instValid[interPt+2]) {
+            float dotProd = dot(centers[1].nDir, centers[2].nDir);
+            if (dotProd > -0.99999998476 && dotProd < 0.99999998476) {
+                // Acute angles tend to break things
+//                angleBetween = acos(dotProd);
+//                if (angleBetween < 4.0 / 180.0 * M_PI_F) {
+////                    iPtsValid = false;
+//                }
+
+                float2 nudge = w2 * interDir * screenScale;
+                IntersectInfo interInfo = intersectWideLines(centers[interPt].screenPos,centers[interPt+1].screenPos,centers[interPt+2].screenPos,
+                                                             nudge * centers[interPt+1].norm, nudge * centers[interPt+2].norm);
+                if (interInfo.valid) {
+                    // If the intersection is too far away, we'll drop it
+                    if (distance_squared(centers[interPt+1].screenPos,interInfo.interPt) > nearDist*nearDist) {
+                        iPtsValid = false;
+                    } else {
+                        iPtsValid = true;
+                        iPts = interInfo.interPt;
+                    }
+                }
             }
         }
     }
     
-    // Acute angles tend to break things
-    if (angleBetween < 4.0 / 180.0 * M_PI_F) {
-        iPtsValid = false;
-    }
-
     outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.w2 = vertArgs.wideVec.w2;
     
-    // TODO: Debugging
-    iPtsValid = false;
-
     if (isValid) {
         if (iPtsValid) {
-            
+            outVert.position = float4(iPts, 0.0, 1.0);
         } else {
             // Return a vertex offset from the base
             int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
