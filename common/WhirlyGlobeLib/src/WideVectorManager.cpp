@@ -705,6 +705,23 @@ public:
     {
         if (vecInfo->implType == WideVecImplPerf) {
             // Performance mode makes the renderer do the work
+            
+            // Clean up the points first
+            VectorRing newPts;
+            newPts.reserve(pts.size());
+            for (unsigned int ii=0;ii<pts.size();ii++) {
+                // Don't allow duplicate points
+                if (ii > 0 && pts[ii] == pts[ii-1])
+                    continue;
+                
+                // If it's a closed shape, no duplicates there either
+                if (closed && (ii == pts.size()-1) && (pts.front() == pts.back()))
+                    continue;
+
+                newPts.push_back(pts[ii]);
+            }
+            if (newPts.size() < 2)
+                return;
 
             // We're instancing, so we only need a few points and triangles
             WideVectorDrawableBuilderRef thisDrawable = getDrawable(8,6,8,6,pts.size()+1);
@@ -739,27 +756,29 @@ public:
                 drawable->addTriangle(BasicDrawable::Triangle(8,11,9));
                 drawable->addTriangle(BasicDrawable::Triangle(8,10,11));
             }
-
+            
             // Run through the points, adding centerline instances
             double len = 0.0;
             int startPt = drawable->getCenterLineCount();
-            for (unsigned int ii=0;ii<pts.size();ii++) {
-                const auto &pt = pts[ii];
-                int prev = startPt + ii - 1;
-                if (ii == 0) {
-                    prev = closed ? startPt + pts.size() - 1 : -1;
-                }
-                int next = startPt + ii + 1;
-                if (ii == pts.size()-1) {
-                    next = closed ? startPt : -1;
-                }
+            for (unsigned int ii=0;ii<newPts.size();ii++) {
+                const auto &pt = newPts[ii];
 
                 Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
                 Point3d dispPa = coordAdapter->localToDisplay(localPa);
 
+                int prev = startPt + ii - 1;
+                if (ii == 0) {
+                    prev = closed ? startPt + newPts.size() - 1 : -1;
+                }
+                int next = startPt + ii + 1;
+                if (ii == newPts.size()-1) {
+                    next = closed ? startPt : -1;
+                }
+
                 drawable->addCenterLine(dispPa,up,len,vecInfo->color,maskIDs,prev,next);
-                if (ii<pts.size()-1)
-                    len += (pts[ii+1] - pts[ii]).norm();
+                
+                if (ii<newPts.size()-1)
+                    len += (newPts[ii+1] - newPts[ii]).norm();
             }
         } else {
             // We'll add one on the beginning and two on the end
@@ -1027,7 +1046,7 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         {
             for (const auto &loop : ar->loops)
             {
-                if (loop.size() > 2 && loop.begin() != loop.end())
+                if (loop.size() > 2 && (loop.begin() != loop.end() && vecInfo.implType != WideVecImplPerf))
                 {
                     // Just tack on another point at the end.  Kind of dumb, but easy.
                     VectorRing newLoop = loop;
