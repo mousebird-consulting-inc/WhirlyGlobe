@@ -965,8 +965,7 @@ fragment float4 fragmentTri_wideVecPerf(
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-
-    return float4(1.0,0.0,0.0,0.5);
+    return vert.color;
 }
 
 
