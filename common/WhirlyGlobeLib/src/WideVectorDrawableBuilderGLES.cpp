@@ -30,36 +30,32 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
 {
     BasicDrawableGLES *basicDraw = dynamic_cast<BasicDrawableGLES *>(inDraw);
 
-    if (frameInfo->program)
+    const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+    const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
+    const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
+    const double texScale = scale / (screenSize * texRepeat);
+    const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
+
+    Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
+
+    if (opacityExp)
     {
-        const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
-        const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
-        const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
-        const double texScale = scale / (screenSize * texRepeat);
-        const auto programGLES = (ProgramGLES *)frameInfo->program;
-        const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
+        c.w() = opacityExp->evaluate(zoom, 1.0f);
+    }
 
-        Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
-
-        if (opacityExp)
-        {
-            c.w() = opacityExp->evaluate(zoom, 1.0f);
-        }
-
-        if (basicDraw) {
-            RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
-            basicDraw->setOverrideColor(newC);
-        }
+    if (basicDraw) {
+        RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
+        basicDraw->setOverrideColor(newC);
+    }
 
 //        programGLES->setUniform(u_colorNameID, c);
 
-        const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
-        basicDraw->setUniform(u_w2NameID, width);
-        basicDraw->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
+    const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
+    basicDraw->setUniform(u_w2NameID, width);
+    basicDraw->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
 
-        basicDraw->setUniform(u_EdgeNameID, edgeSize);
-        basicDraw->setUniform(u_texScaleNameID, (float)texScale);
-    }
+    basicDraw->setUniform(u_EdgeNameID, edgeSize);
+    basicDraw->setUniform(u_texScaleNameID, (float)texScale);
 }
 
 WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene)
