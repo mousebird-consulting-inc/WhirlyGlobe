@@ -1,4 +1,4 @@
-/*  LabelManager.mm
+/*  LabelManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.

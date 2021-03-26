@@ -578,7 +578,7 @@ ComponentObjectRef MapboxVectorStyleSetImpl_iOS::makeComponentObject(PlatformThr
     return std::make_shared<ComponentObject_iOS>(/*enabled=*/false, /*isSelectable=*/false, nsDesc);
 }
 
-void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
+void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,const VectorObjectRef &vecObj,const ComponentObjectRef &compObj)
 {
     if (auto compManage_iOS = dynamic_cast<ComponentManager_iOS*>(compManage.get()))
     {
@@ -590,7 +590,7 @@ void MapboxVectorStyleSetImpl_iOS::addSelectionObject(SimpleIdentity selectID,Ve
 }
 
 
-double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst,LabelInfoRef inLabelInfo,const std::string &testStr)
+double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst,const LabelInfoRef &inLabelInfo,const std::string &testStr)
 {
     LabelInfo_iOSRef labelInfo = std::dynamic_pointer_cast<LabelInfo_iOS>(inLabelInfo);
     if (!labelInfo)
@@ -605,7 +605,7 @@ double MapboxVectorStyleSetImpl_iOS::calculateTextWidth(PlatformThreadInfo *inst
 void MapboxVectorStyleSetImpl_iOS::addSprites(MapboxVectorStyleSpritesRef newSprites,MaplyTexture *tex)
 {
     textures.push_back(tex);
-    MapboxVectorStyleSetImpl::addSprites(newSprites);
+    MapboxVectorStyleSetImpl::addSprites(std::move(newSprites));
 }
 
 VectorStyleDelegateWrapper::VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate)

@@ -107,18 +107,19 @@ public:
     // Return the string for a string identity
     static std::string getString(StringIdentity);
     
-public:
+protected:
+    StringIndexer();
     StringIndexer(StringIndexer const&)     = delete;
     void operator=(StringIndexer const&)    = delete;
+
+    static StringIndexer &getInstance() { return instance; }
     
-protected:
-    StringIndexer() { }
-    
-    static StringIndexer &getInstance();
-    
-    std::mutex mutex;
+    mutable std::mutex mutex;
     std::unordered_map<std::string,StringIdentity> stringToIdent;
     std::vector<std::string> identToString;
+
+private:
+    static StringIndexer instance;
 };
 
 }

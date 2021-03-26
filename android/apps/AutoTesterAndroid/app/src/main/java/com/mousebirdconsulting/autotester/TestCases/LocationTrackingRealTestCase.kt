@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.os.Looper
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -15,14 +14,10 @@ import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import com.mousebirdconsulting.autotester.R
 
-open class LocationTrackingRealTestCase : MaplyTestCase, LocationTrackerDelegate {
-
-    constructor(activity: Activity) : super(activity)
-    {
-        setTestName("Location Tracking - Real")
-        implementation = TestExecutionImplementation.Both
-    }
-
+open class LocationTrackingRealTestCase(activity: Activity) :
+        MaplyTestCase(activity, "Location Tracking - Real"),
+        LocationTrackerDelegate {
+    
     override fun onPreExecute() {
 
         activity.findViewById<FrameLayout>(R.id.content_frame)?.let { frame ->
