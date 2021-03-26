@@ -134,8 +134,8 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
     if (uni->type != GL_FLOAT_VEC2)
         return false;
     
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y())
-        return true;
+//    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y())
+//        return true;
     
     glUniform2f(uni->index, vec.x(), vec.y());
     CheckGLError("ProgramGLES::setUniform() glUniform2f");
@@ -153,8 +153,8 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
     
     if (uni->type != GL_FLOAT_VEC3)
         return false;
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() && uni->val.fVals[2] == vec.z())
-        return true;
+//    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() && uni->val.fVals[2] == vec.z())
+//        return true;
     
     glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
     CheckGLError("ProgramGLES::setUniform() glUniform3f");
@@ -173,9 +173,9 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
     
     if (uni->type != GL_FLOAT_VEC4)
         return false;
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
-        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
-        return true;
+//    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+//        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+//        return true;
     
     glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
@@ -194,9 +194,9 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,in
     
     if (uni->type != GL_FLOAT_VEC4)
         return false;
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
-        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
-        return true;
+//    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+//        uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+//        return true;
     
     glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
@@ -217,18 +217,18 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
     if (uni->type != GL_FLOAT_MAT4)
         return false;
     
-    if (uni->isSet)
-    {
-        bool equal = true;
-        for (unsigned int ii=0;ii<16;ii++)
-            if (mat.data()[ii] != uni->val.mat[ii])
-            {
-                equal = false;
-                break;
-            }
-        if (equal)
-            return true;
-    }
+//    if (uni->isSet)
+//    {
+//        bool equal = true;
+//        for (unsigned int ii=0;ii<16;ii++)
+//            if (mat.data()[ii] != uni->val.mat[ii])
+//            {
+//                equal = false;
+//                break;
+//            }
+//        if (equal)
+//            return true;
+//    }
     
     glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
     CheckGLError("ProgramGLES::setUniform() glUniformMatrix4fv");
