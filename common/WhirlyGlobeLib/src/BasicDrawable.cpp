@@ -431,6 +431,9 @@ void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector4f &vec
 
 void BasicDrawable::setUniform(const SingleVertexAttribute &attr)
 {
+    auto it = uniforms.find(attr);
+    if (it != uniforms.end())
+        uniforms.erase(it);
     uniforms.insert(attr);
 }
 
