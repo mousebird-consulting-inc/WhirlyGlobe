@@ -28,6 +28,8 @@ namespace WhirlyKit
 // OpenGL version of the tweaker
 void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
+    BasicDrawableGLES *basicDraw = dynamic_cast<BasicDrawableGLES *>(inDraw);
+
     if (frameInfo->program)
     {
         const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
@@ -44,7 +46,12 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
             c.w() = opacityExp->evaluate(zoom, 1.0f);
         }
 
-        programGLES->setUniform(u_colorNameID, c);
+        if (basicDraw) {
+            RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
+            basicDraw->setOverrideColor(newC);
+        }
+
+//        programGLES->setUniform(u_colorNameID, c);
 
         const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
         programGLES->setUniform(u_w2NameID, width);
@@ -109,23 +116,22 @@ uniform float u_fade;
 uniform float u_w2;
 uniform float u_real_w2;
 uniform float u_texScale;
-uniform vec4 u_color;
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texinfo;
-//attribute vec4 a_color;
+attribute vec4 a_color;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
 attribute vec3 a_offset;
 
 varying vec2 v_texCoord;
-//"varying vec4 v_color;
+varying vec4 v_color;
 
 void main()
 {
-    //   v_color = a_color;\n"
+    v_color = a_color;
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,-4.0,5.0);
@@ -152,24 +158,23 @@ uniform float u_fade;
 uniform float u_w2;
 uniform float u_real_w2;
 uniform float u_texScale;
-uniform vec4 u_color;
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texinfo;
-//attribute vec4 a_color;
+attribute vec4 a_color;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
 attribute vec3 a_offset;
 
 varying vec2 v_texCoord;
-//varying vec4 v_color;
+varying vec4 v_color;
 varying float      v_dot;
 
 void main()
 {
-    //   v_color = a_color;
+    v_color = a_color;
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,-4.0,5.0);
@@ -197,10 +202,10 @@ uniform sampler2D s_baseMap0;
 uniform bool  u_hasTexture;
 uniform float u_w2;
 uniform float u_edge;
-uniform vec4 u_color;
 uniform float u_fade;
 
 varying vec2      v_texCoord;
+varying vec4      v_color;
 
 void main()
 {
@@ -211,7 +216,7 @@ void main()
         alpha = across/u_edge;
     if (across > u_w2-u_edge)
         alpha = (u_w2-across)/u_edge;
-    gl_FragColor = u_color * alpha * patternVal * u_fade;
+    gl_FragColor = v_color * alpha * patternVal * u_fade;
 }
 )";
 
@@ -222,12 +227,11 @@ uniform sampler2D s_baseMap0;
 uniform bool  u_hasTexture;
 uniform float u_w2;
 uniform float u_edge;
-uniform vec4 u_color;
 uniform float u_fade;
 
 varying vec2      v_texCoord;
 varying float      v_dot;
-//"varying vec4      v_color;
+varying vec4      v_color;
 
 void main()
 {
@@ -238,7 +242,7 @@ void main()
         alpha = across/u_edge;
     if (across > u_w2-u_edge)
         alpha = (u_w2-across)/u_edge;
-    gl_FragColor = (v_dot > 0.0 ? u_color * alpha * patternVal * u_fade : vec4(0.0,0.0,0.0,0.0));
+    gl_FragColor = (v_dot > 0.0 ? v_color * alpha * patternVal * u_fade : vec4(0.0,0.0,0.0,0.0));
 }
 )";
 
