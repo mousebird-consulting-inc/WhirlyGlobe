@@ -29,7 +29,7 @@ ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
 {
 }
 
-void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
+void ScreenSpaceDrawableBuilder::ScreenSpaceInit(bool hasMotion,bool hasRotation,bool buildAnyway)
 {
     rotation = hasRotation;
     motion = hasMotion;
