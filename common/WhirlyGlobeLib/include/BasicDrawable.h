@@ -169,7 +169,25 @@ public:
     
     /// Change all the uniforms applied at once
     virtual void setUniforms(const SingleVertexAttributeSet &newUniforms);
-    
+
+    /// Set a float uniform on a BasicDrawable
+    void setUniform(SimpleIdentity nameID, float val);
+
+    /// Set an int uniform on a BasicDrawable
+    void setUniform(SimpleIdentity nameID, int val);
+
+    /// Set a float uniform on a BasicDrawable
+    void setUniform(SimpleIdentity nameID, const Eigen::Vector2f &vec);
+
+    /// Set a float uniform on a BasicDrawable
+    void setUniform(SimpleIdentity nameID, const Eigen::Vector3f &vec);
+
+    /// Set a float uniform on a BasicDrawable
+    void setUniform(SimpleIdentity nameID, const Eigen::Vector4f &vec);
+
+    /// Apply a generic single attribute
+    void setUniform(const SingleVertexAttribute &attr);
+
     // Block of data to be passed into a given buffer ID
     // We do this in Metal rather than setting individual uniforms (like OpenGL)
     class UniformBlock
