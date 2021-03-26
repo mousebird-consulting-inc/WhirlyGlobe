@@ -49,8 +49,8 @@ bool ProgramGLES::setUniform(StringIdentity nameID,float val)
     if (uni->type != GL_FLOAT)
         return false;
     
-    if (uni->isSet && uni->val.fVals[0] == val)
-        return true;
+//    if (uni->isSet && uni->val.fVals[0] == val)
+//        return true;
     
     glUniform1f(uni->index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1f");
@@ -87,8 +87,8 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     if (uni->type != GL_INT && uni->type != GL_SAMPLER_2D && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
         return false;
     
-    if (uni->isSet && uni->val.iVals[0] == val)
-        return true;
+//    if (uni->isSet && uni->val.iVals[0] == val)
+//        return true;
     
     glUniform1i(uni->index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1i");
