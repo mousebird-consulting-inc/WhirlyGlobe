@@ -200,6 +200,7 @@ void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker
         tweak->offset = lineOffset;
         tweak->offsetSet = lineOffsetSet;
         tweak->offsetExp = offsetExp;
+        tweak->color = color;
     }
 }
 
@@ -277,6 +278,7 @@ void WideVectorDrawableBuilder::setFade(TimeInterval inFadeDown,TimeInterval inF
 
 void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
 {
+    color = inColor;
     if (instDrawable)
         instDrawable->setColor(inColor);
     else

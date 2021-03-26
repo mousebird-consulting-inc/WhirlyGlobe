@@ -209,7 +209,7 @@ protected:
     WideVecImplType implType;
     BasicDrawableInstanceBuilderRef instDrawable;
 
-    
+    RGBAColor color = RGBAColor::white();
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
     FloatExpressionInfoRef opacityExp;
