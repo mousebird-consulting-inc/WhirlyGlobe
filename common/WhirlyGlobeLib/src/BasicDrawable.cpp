@@ -367,7 +367,73 @@ void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
 
     uniforms = newUniforms;
 }
-    
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, float val)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloatType;
+    attr.data.floatVal = val;
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, int val)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDIntType;
+    attr.data.intVal = val;
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector2f &vec)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloat2Type;
+    attr.data.vec2[0] = vec.x();
+    attr.data.vec2[1] = vec.y();
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector3f &vec)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloat2Type;
+    attr.data.vec3[0] = vec.x();
+    attr.data.vec3[1] = vec.y();
+    attr.data.vec3[2] = vec.z();
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector4f &vec)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloat2Type;
+    attr.data.vec4[0] = vec.x();
+    attr.data.vec4[1] = vec.y();
+    attr.data.vec4[2] = vec.z();
+    attr.data.vec4[3] = vec.w();
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(const SingleVertexAttribute &attr)
+{
+    uniforms.insert(attr);
+}
+
 void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
 {
     setValuesChanged();

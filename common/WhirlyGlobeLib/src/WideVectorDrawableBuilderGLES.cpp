@@ -54,11 +54,11 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
 //        programGLES->setUniform(u_colorNameID, c);
 
         const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
-        programGLES->setUniform(u_w2NameID, width);
-        programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
+        basicDraw->setUniform(u_w2NameID, width);
+        basicDraw->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
 
-        programGLES->setUniform(u_EdgeNameID, edgeSize);
-        programGLES->setUniform(u_texScaleNameID, (float)texScale);
+        basicDraw->setUniform(u_EdgeNameID, edgeSize);
+        basicDraw->setUniform(u_texScaleNameID, (float)texScale);
     }
 }
 
