@@ -528,10 +528,6 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
             const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID);
             if (thisAttr)
             {
-                if (hasOverrideColor && thisAttr->nameID == a_colorNameID) {
-                    glDisableVertexAttribArray(thisAttr->index);
-                    continue;
-                }
                 if (attr->buffer != 0 || attr->numElements() != 0)
                 {
                     if (attr->buffer)
@@ -562,8 +558,11 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
     // Color has been overridden, so don't use the embedded ones
     if (hasOverrideColor) {
         const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
-        if (colorAttr)
-            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+        if (colorAttr) {
+            glDisableVertexAttribArray(colorAttr->index);
+            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0,
+                             color.a / 255.0);
+        }
     }
     
     
