@@ -361,6 +361,14 @@ open class MapboxKindaMap(
         } else {
             startSimpleLoader(sampleParams, tileInfos, localFetchers)
         }
+    
+        (control.get() as? MapController)?.let { mc ->
+            // Set the background clear to the color at level 0
+            // TODO: Make this change by level
+            styleSheetVector?.backgroundColorForZoom(0.0)?.let {
+                mc.setClearColor(it)
+            }
+        }
 
         postSetup(this)
     }
@@ -463,14 +471,6 @@ open class MapboxKindaMap(
         }
         val metrics = control.activity.resources.displayMetrics
         styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, metrics, control)
-
-        if (control is GlobeController) {
-            // Set the background clear to the color at level 0
-            // TODO: Make this change by level
-            styleSheetVector?.backgroundColorForZoom(0.0)?.let {
-                control.setClearColor(it)
-            }
-        }
 
         mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
             MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, control)
