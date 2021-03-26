@@ -914,7 +914,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         // We only need one intersection depending
         int interPt = (whichVert == 6 || whichVert == 7) ? 1 : 0;
         if (instValid[interPt] && instValid[interPt+1] && instValid[interPt+2]) {
-            float dotProd = dot(centers[1].nDir, centers[2].nDir);
+            float dotProd = dot(centers[interPt+1].nDir, centers[interPt+2].nDir);
             if (dotProd > -0.99999998476 && dotProd < 0.99999998476) {
                 // Acute angles tend to break things
 //                angleBetween = acos(dotProd);

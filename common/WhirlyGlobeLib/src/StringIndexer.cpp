@@ -176,7 +176,7 @@ static void SetupDrawableStringsOnce()
     a_rotNameID = StringIndexer::getStringID("a_rot");
     a_dirNameID = StringIndexer::getStringID("a_dir");
     a_maskNameID = StringIndexer::getStringID("a_maskID");
-    for (unsigned int index=0;index<WhirlyKitMaxTextures;index++) {
+    for (unsigned int index=0;index<WhirlyKitMaxMasks;index++) {
         sprintf(name,"a_maskID%d",index);
         a_maskNameIDs[index] = StringIndexer::getStringID(name);
     }
