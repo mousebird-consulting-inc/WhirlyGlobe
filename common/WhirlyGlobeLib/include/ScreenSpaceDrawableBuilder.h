@@ -44,8 +44,8 @@ public:
 
     // Construct with or without motion support
     ScreenSpaceDrawableBuilder();
-    virtual void Init(bool hasMotion,bool hasRotation,bool buildAnyway = false);
-    
+    virtual void ScreenSpaceInit(bool hasMotion,bool hasRotation,bool buildAnyway = false);
+
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
     void setKeepUpright(bool keepUpright);
@@ -72,6 +72,9 @@ public:
     virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
 
 protected:
+    // Call ScreenSpaceInit instead
+    virtual void Init() override { BasicDrawableBuilder::Init(); }
+
     bool motion,rotation;
     bool keepUpright;
     int offsetIndex;
