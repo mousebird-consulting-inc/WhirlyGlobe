@@ -160,6 +160,7 @@ class AirwayTestCase: MaplyTestCase {
             }
 
             viewC.addWideVectors(lines, desc: [kMaplyVecWidth: 2.0,
+                                               kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                                   kMaplyColor: UIColor.blue],
                                  mode: .any)
             if !labels.isEmpty {
@@ -215,6 +216,7 @@ class AirwayTestCase: MaplyTestCase {
 
         if (!airspaceVecs.isEmpty) {
             viewC.addWideVectors(airspaceVecs, desc: [kMaplyVecWidth: 6.0,
+                                                      kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                                       kMaplyColor: UIColor.blue], mode: .any)
         }
         if (!labels.isEmpty) {
