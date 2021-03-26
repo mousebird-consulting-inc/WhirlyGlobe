@@ -314,10 +314,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWr
 /*
  * Class:     com_mousebird_maply_VectorStyleSettings
  * Method:    initialise
- * Signature: ()V
+ * Signature: (D)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject, jdouble);
 
 /*
  * Class:     com_mousebird_maply_VectorStyleSettings

@@ -57,12 +57,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
         // Need a pointer to this JNIEnv for low level parsing callbacks
         PlatformInfo_Android threadInst(env);
 
-        const bool success = (*inst)->parse(&threadInst,*attrDict);
-        if (!success) {
-            __android_log_print(ANDROID_LOG_WARN, "Maply", "Failed to parse attrs in MapboxVectorStyleSet::initialise()");
-        }
         (*inst)->thisObj = env->NewGlobalRef(obj);
         MapboxVectorStyleSetClassInfo::getClassInfo()->setHandle(env,obj,inst);
+
+        const bool success = (*inst)->parse(&threadInst,*attrDict);
+        if (!success)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "Maply", "Failed to parse attrs in MapboxVectorStyleSet::initialise()");
+        }
     }
     catch (...)
     {

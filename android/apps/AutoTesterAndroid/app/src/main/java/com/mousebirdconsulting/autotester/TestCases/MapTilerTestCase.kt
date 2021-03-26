@@ -7,22 +7,39 @@ import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
 import java.io.IOException
+import kotlin.math.min
 
-class MapTilerTestCase(activity: Activity) :
-        MaplyTestCase(activity, "MapTiler", TestExecutionImplementation.Both)
+open class MapTilerTestCase : MaplyTestCase
 {
+    constructor(activity: Activity) :
+            this(activity, "MapTiler", TestExecutionImplementation.Both) {
+    }
+    
+    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
+            super(activity, name, impl) {
+    }
+    
     // Maptiler token
     // Go to maptiler.com, setup an account and get your own
     private val token = "GetYerOwnToken"
     
     // Set up the loader (and all the stuff it needs) for the map tiles
     private fun setupLoader(control: BaseController, whichMap: Int) {
+        // Approximate the effect of `UIScreen.scale` on iOS
+        val dpi = displayDensity ?: Point2d(200.0,200.0)
+        val scale = min(dpi.x,dpi.y) / 225
+        
         getStyleJson(whichMap)?.let { json ->
-            map = MapboxKindaMap(json, control).apply {
+            val settings = VectorStyleSettings(scale).apply {
+                baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault + 1000
+                drawPriorityPerLevel = 100
+            }
+            map = MapboxKindaMap(json, control, settings).apply {
                 mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
                 backgroundAllPolys = (control is GlobeController)
                 imageVectorHybrid = true
                 minImportance = 768.0 * 768.0
+                setup(this)
                 start()
             }
         }
@@ -41,9 +58,13 @@ class MapTilerTestCase(activity: Activity) :
             loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
         }
     }
-    
-    private fun getStyleJson(whichMap: Int): String? {
-        return maps[whichMap]?.let {
+
+    protected open fun setup(map: MapboxKindaMap) {
+        map.styleSettings.drawPriorityPerLevel = 100
+    }
+
+    protected open fun getStyleJson(whichMap: Int): String? =
+        getMaps().elementAt(whichMap)?.let {
             Log.i(javaClass.name, "Loading $it")
             try {
                 Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
@@ -52,7 +73,6 @@ class MapTilerTestCase(activity: Activity) :
                 return null
             }
         } ?: customStyle
-    }
     
     // Switch maps on long press
     override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
@@ -66,7 +86,7 @@ class MapTilerTestCase(activity: Activity) :
         loader = null
         map?.stop()
         map = null
-        currentMap = (currentMap + 1) % maps.size
+        currentMap = (currentMap + 1) % getMaps().size
         baseViewC?.let { setupLoader(it, currentMap) }
     }
     
@@ -85,8 +105,8 @@ class MapTilerTestCase(activity: Activity) :
         }
         return true
     }
-
-    private val maps = arrayOf(
+    
+    protected open fun getMaps(): Collection<String?> = listOf(
         "maptiler_basic.json",
         "maptiler_streets.json",
         "maptiler_topo.json",
@@ -94,6 +114,7 @@ class MapTilerTestCase(activity: Activity) :
         "maptiler_expr_test.json",
         null        // placeholder for custom stylesheet below
     )
+
     private var currentMap = 0
     private var map: MapboxKindaMap? = null
     private var baseViewC : BaseController? = null

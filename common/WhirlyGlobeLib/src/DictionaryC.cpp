@@ -452,33 +452,7 @@ double MutableDictionaryC::getDouble(unsigned int key,double defVal) const
 
 std::string MutableDictionaryC::getString(const std::string &name) const
 {
-    const auto it = stringMap.find(name);
-    return (it != stringMap.end()) ? getString(it->second) : std::string();
-}
-
-std::string MutableDictionaryC::getString(unsigned int key) const
-{
-    const auto it = valueMap.find(key);
-    if (it == valueMap.end())
-        return std::string();
-    auto const &val = it->second;
-    switch (val.type) {
-        case DictTypeString:
-            return stringVals[val.entry];
-        case DictTypeInt:
-            return std::to_string(intVals[val.entry]);
-        case DictTypeInt64:
-        case DictTypeIdentity:
-            return std::to_string(int64Vals[val.entry]);
-        case DictTypeDouble:
-            return std::to_string(dVals[val.entry]);
-        case DictTypeNone:
-        case DictTypeObject:
-        case DictTypeDictionary:
-        case DictTypeArray:
-            wkLogLevel(Warn, "Unsupported conversion from type %d to string", val.type);
-            return std::string();
-    }
+    return getString(name, std::string());
 }
 
 std::string MutableDictionaryC::getString(const std::string &name,const std::string &defVal) const
@@ -487,10 +461,33 @@ std::string MutableDictionaryC::getString(const std::string &name,const std::str
     return (it != stringMap.end()) ? getString(it->second,defVal) : defVal;
 }
 
+std::string MutableDictionaryC::getString(unsigned int key) const
+{
+    return getString(key, std::string());
+}
+
 std::string MutableDictionaryC::getString(unsigned int key,const std::string &defVal) const
 {
     const auto it = valueMap.find(key);
-    return (it != valueMap.end()) ? stringVals[it->second.entry] : defVal;
+    if (it != valueMap.end())
+    {
+        const auto &value = it->second;
+        switch (value.type)
+        {
+            case DictTypeString:   return stringVals[value.entry];
+            case DictTypeInt:      return std::to_string(intVals[value.entry]);
+            case DictTypeInt64:
+            case DictTypeIdentity: return std::to_string(int64Vals[value.entry]);
+            case DictTypeDouble:   return std::to_string(dVals[value.entry]);
+            case DictTypeNone:
+            case DictTypeObject:
+            case DictTypeDictionary:
+            case DictTypeArray:
+                wkLogLevel(Warn, "Unsupported conversion from type %d to string", value.type);
+                break;
+        }
+    }
+    return defVal;
 }
 
 DictionaryRef MutableDictionaryC::getDict(const std::string &name) const

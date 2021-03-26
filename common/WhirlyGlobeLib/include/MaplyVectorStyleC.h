@@ -112,8 +112,8 @@ typedef std::shared_ptr<VectorStyleImpl> VectorStyleImplRef;
 class VectorStyleDelegateImpl
 {
 public:
-    VectorStyleDelegateImpl() { }
-    virtual ~VectorStyleDelegateImpl() { }
+    VectorStyleDelegateImpl() = default;
+    virtual ~VectorStyleDelegateImpl() = default;
 
     /// Return the styles that apply to the given feature (attributes).
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
