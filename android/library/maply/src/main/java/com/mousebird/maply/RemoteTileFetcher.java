@@ -33,8 +33,10 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
@@ -276,10 +278,10 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     }
 
     // Tiles sorted by priority, importance etc...
-    final ConcurrentSkipListSet<TileInfo> loading = new ConcurrentSkipListSet<>();
-    final ConcurrentSkipListSet<TileInfo> toLoad = new ConcurrentSkipListSet<>();
+    final TreeSet<TileInfo> loading = new TreeSet<>();
+    final TreeSet<TileInfo> toLoad = new TreeSet<>();
     // Tiles sorted by fetch request
-    final ConcurrentSkipListMap<TileFetchRequest,TileInfo> tilesByFetchRequest = new ConcurrentSkipListMap<>();
+    final HashMap<TileFetchRequest,TileInfo> tilesByFetchRequest = new HashMap<>();
 
     /**
      * Add a whole group of requests at once.
@@ -323,9 +325,13 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 // If it's already cached, let's mark that
                 tile.isLocal = tile.fetchInfo.cacheFile != null && tile.fetchInfo.cacheFile.exists();
 
-                tilesByFetchRequest.put(request,tile);
-                if (!toLoad.add(tile)) {
-                    Log.w("RemoteTileFetcher", "Duplicate Tile: " + tile.toString());
+                synchronized (tilesByFetchRequest) {
+                    tilesByFetchRequest.put(request, tile);
+                }
+                synchronized (toLoad) {
+                    if (!toLoad.add(tile)) {
+                        Log.w("RemoteTileFetcher", "Duplicate Tile: " + tile.toString());
+                    }
                 }
             }
 
@@ -363,24 +369,24 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         while (loading.size() < numConnections) {
             updateActiveStats();
 
-            if (toLoad.isEmpty())
-                break;
-
-            // Move one over to loading
-            TileInfo tile = null;
-            try {
+            final TileInfo tile;
+            synchronized (toLoad) {
+                if (toLoad.isEmpty())
+                    break;
                 tile = toLoad.last();
-            } catch (NoSuchElementException ignored) {
+                if (tile != null) {
+                    toLoad.remove(tile);
+                }
+            }
+            if (tile == null) {
+                break;
             }
 
-            if (tile == null){
-                break;
-            } else {
-                toLoad.remove(tile);
-            }
             tile.state = TileInfoState.Loading;
-            if (!loading.add(tile)) {
-                Log.w("RemoteTileFetcher", "Tile already loading: " + tile.toString());
+            synchronized (loading) {
+                if (!loading.add(tile)) {
+                    Log.w("RemoteTileFetcher", "Tile already loading: " + tile.toString());
+                }
             }
 
             if (debugMode)
@@ -464,7 +470,10 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         Handler handler = new Handler(getLooper());
         handler.post(() -> {
             // Make sure we still care
-            TileInfo tile = tilesByFetchRequest.get(inTile.request);
+            final TileInfo tile;
+            synchronized (tilesByFetchRequest) {
+                tile = tilesByFetchRequest.get(inTile.request);
+            }
             if (tile == null) {
                 if (debugMode)
                     Log.d("RemoteTileFetcher","Dropping a tile request because it was cancelled: " + inTile.fetchInfo.urlReq);
@@ -573,12 +582,14 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     protected void handleFinishLoading(TileInfo inTile,final byte[] data,final Exception error)
     {
         // Make sure we still want it
-        final TileInfo tile = tilesByFetchRequest.get(inTile.request);
-        if (tile == null)
-            return;
+        final TileInfo tile;
+        synchronized (tilesByFetchRequest) {
+            tile = tilesByFetchRequest.get(inTile.request);
+        }
         // Might have been cancelled
-        if (tile.state == TileInfoState.None)
+        if (tile == null || tile.state == TileInfoState.None) {
             return;
+        }
 
         BaseController theControl = control.get();
 
@@ -626,16 +637,25 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     protected void finishTile(TileInfo inTile)
     {
         // Make sure we still want it
-        final TileInfo tile = tilesByFetchRequest.get(inTile.request);
+        final TileInfo tile;
+        synchronized (tilesByFetchRequest) {
+            tile = tilesByFetchRequest.get(inTile.request);
+            if (tile != null) {
+                tilesByFetchRequest.remove(tile.request);
+            }
+        }
         if (tile == null) {
             if (debugMode)
                 Log.d("RemoteTileFetcher","Dropping fetch: " + inTile.fetchInfo.urlReq);
             return;
         }
 
-        tilesByFetchRequest.remove(tile.request);
-        loading.remove(tile);
-        toLoad.remove(tile);
+        synchronized (loading) {
+            loading.remove(tile);
+        }
+        synchronized (toLoad) {
+            toLoad.remove(tile);
+        }
 
         updateActiveStats();
     }
@@ -652,14 +672,20 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         Handler handler = new Handler(getLooper());
         handler.post(() -> {
             if (fetchRequest instanceof TileFetchRequest) {
-                TileInfo tile = tilesByFetchRequest.get((TileFetchRequest)fetchRequest);
+                final TileInfo tile;
+                synchronized (tilesByFetchRequest) {
+                    tile = tilesByFetchRequest.get((TileFetchRequest)fetchRequest);
+                }
                 // Only mess with tiles that are actually loading
                 if (tile != null && tile.state == TileInfoState.ToLoad) {
-                    toLoad.remove(tile);
-                    tile.priority = priority;
-                    tile.importance = importance;
-                    if (!toLoad.add(tile)) {
-                        Log.w("RemoteTileFetcher", "Duplicate tile: " + tile.toString());
+                    synchronized (toLoad) {
+                        // do we still want to re-add it if remove fails, i.e., it's already been removed?
+                        toLoad.remove(tile);
+                        tile.priority = priority;
+                        tile.importance = importance;
+                        if (!toLoad.add(tile)) {
+                            Log.w("RemoteTileFetcher", "Duplicate tile: " + tile.toString());
+                        }
                     }
                 }
             }
@@ -688,15 +714,24 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
 
             for (Object fetchRequest : fetchRequests) {
                 if (fetchRequest instanceof TileFetchRequest) {
-                    TileInfo tile = tilesByFetchRequest.get((TileFetchRequest)fetchRequest);
+                    final TileInfo tile;
+                    synchronized (tilesByFetchRequest) {
+                        tile = tilesByFetchRequest.get((TileFetchRequest)fetchRequest);
+                    }
                     if (tile == null)
                         continue;
                     if (tile.task != null)
                         tile.task.cancel();
                     tile.state = TileInfoState.None;
-                    toLoad.remove(tile);
-                    loading.remove(tile);
-                    tilesByFetchRequest.remove(fetchRequest);
+                    synchronized (toLoad) {
+                        toLoad.remove(tile);
+                    }
+                    synchronized (loading) {
+                        loading.remove(tile);
+                    }
+                    synchronized (tilesByFetchRequest) {
+                        tilesByFetchRequest.remove(fetchRequest);
+                    }
                 }
             }
         });
@@ -710,8 +745,14 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         valid = false;
         quitSafely();
 
-        loading.clear();
-        toLoad.clear();
-        tilesByFetchRequest.clear();
+        synchronized (loading) {
+            loading.clear();
+        }
+        synchronized (toLoad) {
+            toLoad.clear();
+        }
+        synchronized (tilesByFetchRequest) {
+            tilesByFetchRequest.clear();
+        }
     }
 }
