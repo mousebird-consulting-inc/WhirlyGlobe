@@ -847,6 +847,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         instValid[3] = true;
     } else
         instValid[3] = false;
+
+    float dotProd = 1.0;
     
     // Figure out position on the screen for every center point
     CenterInfo centers[4];
@@ -856,6 +858,17 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
             screenPt /= screenPt.w;
             centers[ii].screenPos = screenPt.xy;
+            
+            // Make sure the object is facing the user (only for the globe)
+            if (uniforms.globeMode && ii == 1) {
+                float4 pt = uniforms.mvMatrix * float4(centerPos,1.0);
+                pt /= pt.w;
+
+                float4 testNorm = uniforms.mvNormalMatrix * float4(centerPos,0.0);
+                dotProd = dot(-pt.xyz,testNorm.xyz);
+                if (pt.z > 0.0)
+                    dotProd = -1.0;
+            }
         }
     
     // Size of pixels
@@ -941,7 +954,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.w2 = vertArgs.wideVec.w2;
     
-    if (isValid) {
+    if (isValid && dotProd > 0.0) {
         if (iPtsValid) {
             outVert.position = float4(iPts, 0.0, 1.0);
         } else {
