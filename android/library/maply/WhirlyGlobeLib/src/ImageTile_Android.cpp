@@ -67,8 +67,8 @@ void ImageTile_Android::setBitmap(JNIEnv *env,jobject bitmapObj)
 
     if (info.height > 0 && info.width > 0)
     {
-        uint32_t* src = (uint32_t*) bitmapPixels;
-        rawData = RawDataRef(new MutableRawData(bitmapPixels,info.height*info.width*4));
+        //uint32_t* src = (uint32_t*) bitmapPixels;
+        rawData = std::make_shared<MutableRawData>(bitmapPixels,info.height*info.width*4);
     }
 
     type = MaplyImgTypeRawImage;
@@ -86,7 +86,7 @@ Texture *ImageTile_Android::buildTexture()
         return tex;
 
     if (type == MaplyImgTypeNone)
-        return NULL;
+        return nullptr;
 
     int destWidth = targetWidth;
     int destHeight = targetHeight;

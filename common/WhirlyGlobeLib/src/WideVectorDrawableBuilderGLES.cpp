@@ -28,7 +28,12 @@ namespace WhirlyKit
 // OpenGL version of the tweaker
 void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
-    BasicDrawableGLES *basicDraw = dynamic_cast<BasicDrawableGLES *>(inDraw);
+    auto basicDraw = dynamic_cast<BasicDrawableGLES *>(inDraw);
+    if (!basicDraw)
+    {
+        wkLogLevel(Warn, "Invalid drawable passed to WideVectorTweakerGLES");
+        return;
+    }
 
     const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
     const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
@@ -43,12 +48,8 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         c.w() = opacityExp->evaluate(zoom, 1.0f);
     }
 
-    if (basicDraw) {
-        RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
-        basicDraw->setOverrideColor(newC);
-    }
-
-//        programGLES->setUniform(u_colorNameID, c);
+    const RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
+    basicDraw->setOverrideColor(newC);
 
     const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
     basicDraw->setUniform(u_w2NameID, width);

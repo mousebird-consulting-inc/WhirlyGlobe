@@ -51,7 +51,7 @@ class WideVectorDrawableBuilder
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    WideVectorDrawableBuilder(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene);
+    WideVectorDrawableBuilder(std::string name,const SceneRenderer *sceneRenderer,Scene *scene);
     virtual ~WideVectorDrawableBuilder();
 
     virtual void Init(unsigned int numVert,
@@ -65,7 +65,7 @@ public:
     void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
     
     /// Set the bounding box for the data
-    void setLocalMbr(Mbr mbr);
+    void setLocalMbr(const Mbr &mbr);
 
     virtual unsigned int addPoint(const Point3f &pt);
     // Next point, for calculating p1 - p0
@@ -134,10 +134,10 @@ public:
     void setOpacityExpression(FloatExpressionInfoRef opacityExp);
 
     // Apply a width expression
-    void setWidthExpression(const FloatExpressionInfoRef &widthExp);
+    void setWidthExpression(FloatExpressionInfoRef widthExp);
     
     // Apply an offset expression
-    void setOffsetExpression(const FloatExpressionInfoRef &offsetExp);
+    void setOffsetExpression(FloatExpressionInfoRef offsetExp);
     
     // The tweaker sets up uniforms before a given drawable draws
     virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const;
@@ -148,7 +148,7 @@ public:
     // For performance mode wide vectors (Metal for now), the center line instances
     
     void addCenterLine(const Point3d &centerPt,const Point3d &up,double len,const RGBAColor &color,const std::vector<SimpleIdentity> &maskIDs,int prev,int next);
-    // Number of centerlines defined so far
+    // Number of center-lines defined so far
     int getCenterLineCount();
     
     // We need slightly different tweakers for the rendering variants

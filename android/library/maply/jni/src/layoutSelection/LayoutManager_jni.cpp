@@ -248,10 +248,10 @@ public:
         const ClusterInfo &clusterGenerator = *it;
         
         clusterParams.motionShaderID = motionShaderID;
-        clusterParams.selectable = it->selectable;
+        clusterParams.selectable = clusterGenerator.selectable;
         // Note: Make this selectable
         clusterParams.markerAnimationTime = 0.2;
-        clusterParams.clusterSize = it->layoutSize;
+        clusterParams.clusterSize = clusterGenerator.layoutSize;
     }
 
 public:

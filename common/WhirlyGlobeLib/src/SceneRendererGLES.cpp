@@ -359,8 +359,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
-        Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
-        baseFrameInfo.pvMat = pvMat4f;
+        baseFrameInfo.pvMat = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat4d = pvMat;
         theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
@@ -458,8 +457,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
             offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
-            Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
-            offFrameInfo.pvMat = pvMat4f;
+            offFrameInfo.pvMat = Matrix4dToMatrix4f(pvMat);
             offFrameInfo.pvMat4d = pvMat;
 
             auto rawDrawables = scene->getDrawables();
