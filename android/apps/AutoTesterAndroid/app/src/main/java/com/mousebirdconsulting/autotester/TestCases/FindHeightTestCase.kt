@@ -33,7 +33,7 @@ class FindHeightTestCase : MaplyTestCase {
                 val height = vc.findHeightToViewBounds(bbox, center)
                 vc.animatePositionGeo(center.x,center.y,height,1.0)
             }
-        }, 10000)
+        }, 1000)
     }
 
     var baseCase : MaplyTestCase? = null
