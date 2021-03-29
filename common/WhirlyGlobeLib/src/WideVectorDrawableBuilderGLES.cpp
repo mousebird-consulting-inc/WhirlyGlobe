@@ -58,8 +58,10 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
     basicDraw->setUniform(u_texScaleNameID, (float)texScale);
 }
 
-WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene)
-: WideVectorDrawableBuilder(name,sceneRenderer,scene)
+WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene) :
+    WideVectorDrawableBuilder(name,sceneRenderer,scene),
+    drawableGotten(false),
+    instanceGotten(false)
 {
 }
     
