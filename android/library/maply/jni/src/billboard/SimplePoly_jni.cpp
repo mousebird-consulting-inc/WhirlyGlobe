@@ -53,9 +53,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SimplePoly_initialise__JFFFF_3Lc
     {
         SimplePolyClassInfo *classInfo = SimplePolyClassInfo::getClassInfo();
         SimplePoly *inst = new SimplePoly();
-        if (!inst)
-            return;
-        
+
         inst->texID = texID;
         //color
 

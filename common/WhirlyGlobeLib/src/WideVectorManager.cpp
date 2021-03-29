@@ -30,14 +30,14 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-WideVectorInfo::WideVectorInfo()
-: implType(WideVecImplBasic), color(255,255,255,255), width(2.0),
-repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
-coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
-texID(EmptyIdentity), miterLimit(2.0)
-{    
+WideVectorInfo::WideVectorInfo() :
+    implType(WideVecImplBasic), color(RGBAColor::white()), width(2.0),
+    repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
+    coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
+    texID(EmptyIdentity), miterLimit(2.0), offset(0.0f)
+{
 }
-    
+
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
@@ -45,9 +45,9 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     std::string implTypeStr = dict.getString(MaplyWideVecImpl);
     if (!implTypeStr.compare(MaplyWideVecImplPerf))
         implType = WideVecImplPerf;
-    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
+    color = dict.getColor(MaplyColor,RGBAColor::white());
     width = dict.getDouble(MaplyVecWidth,2.0);
-    offset = -dict.getDouble(MaplyWideVecOffset,0.0);
+    offset = (float)-dict.getDouble(MaplyWideVecOffset,0.0);
     std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
     subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
     coordType = WideVecCoordScreen;
@@ -75,13 +75,22 @@ class WideVectorBuilder
 {
 public:
     WideVectorBuilder(const WideVectorInfo *vecInfo,
-                      const Point3d &localCenter,
-                      const Point3d &dispCenter,
+                      Point3d localCenter,
+                      Point3d dispCenter,
                       const RGBAColor inColor,
-                      const std::vector<SimpleIdentity> &maskIDs,
+                      std::vector<SimpleIdentity> maskIDs,
                       bool makeTurns,
-                      CoordSystemDisplayAdapter *coordAdapter)
-    : vecInfo(vecInfo), angleCutoff(DegToRad(30.0)), texOffset(0.0), edgePointsValid(false), coordAdapter(coordAdapter), localCenter(localCenter), dispCenter(dispCenter), makeDistinctTurn(makeTurns), maskIDs(maskIDs)
+                      CoordSystemDisplayAdapter *coordAdapter) :
+          vecInfo(vecInfo),
+          angleCutoff(DegToRad(30.0)),
+          texOffset(0.0),
+          edgePointsValid(false),
+          coordAdapter(coordAdapter),
+          localCenter(std::move(localCenter)),
+          dispCenter(std::move(dispCenter)),
+          makeDistinctTurn(makeTurns),
+          maskIDs(std::move(maskIDs)),
+          color(RGBAColor::white())
     {
         color = inColor;
     }
@@ -91,7 +100,16 @@ public:
     class InterPoint
     {
     public:
-        InterPoint() : texX(0.0),texYmin(0.0),texYmax(0.0),texOffset(0.0), offset(0.0,0.0), centerlineDir(1.0) { }
+        InterPoint() :
+            c(0.0),
+            texX(0.0),
+            texYmin(0.0),
+            texYmax(0.0),
+            texOffset(0.0),
+            offset(0.0,0.0),
+            centerlineDir(1.0)
+        { }
+
         // Construct with a single line
         InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset)
         {
@@ -180,11 +198,11 @@ public:
     };
     
     // Intersect the wide lines, but return an equation to calculate the point
-    bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,
-                            const Point3d &n0,const Point3d &n1,
-                            InterPoint &iPt0,InterPoint &iPt1,
-                            double centerlineDir0, double centerlineDir1,
-                            double texX,double texY0,double texY1,double texY2)
+    static bool intersectWideLines(const Point3d &p0,const Point3d &p1,const Point3d &p2,
+                                   const Point3d &n0,const Point3d &n1,
+                                   InterPoint &iPt0,InterPoint &iPt1,
+                                   double centerlineDir0, double centerlineDir1,
+                                   double texX,double texY0,double texY1,double texY2)
     {
         {
             iPt0.texX = texX;
@@ -227,7 +245,7 @@ public:
     }
 
     // Add a rectangle to the wide drawable
-    void addWideRect(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
+    void addWideRect(const WideVectorDrawableBuilderRef &drawable,InterPoint *verts,const Point3d &up)
     {
         const int startPt = drawable->getNumPoints();
 
@@ -284,7 +302,7 @@ public:
         if (pc)
         {
             if ((*pc-*pb).norm() == 0.0)
-                pc = NULL;
+                pc = nullptr;
         }
 
         // We need the normal (with respect to the line), and its inverse
@@ -558,7 +576,7 @@ public:
         {
             const Point3d &pa = pts[pts.size()-2];
             const Point3d &pb = pts[pts.size()-1];
-            buildPolys(&pa, &pb, NULL, lastUp, drawable, buildLastSegment, buildLastJunction);
+            buildPolys(&pa, &pb, nullptr, lastUp, drawable, buildLastSegment, buildLastJunction);
         }
     }
 
@@ -700,7 +718,7 @@ public:
     // Add the points for a linear
     void addLinear(const VectorRing &pts,
                    const Point3d &up,
-                   const std::vector<SimpleIdentity> maskIDs,
+                   const std::vector<SimpleIdentity> &maskIDs,
                    bool closed)
     {
         if (vecInfo->implType == WideVecImplPerf) {

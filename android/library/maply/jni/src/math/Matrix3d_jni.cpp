@@ -1,9 +1,8 @@
-/*
- *  Matrix3d_jni.cpp
+/*  Matrix3d_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -25,20 +23,20 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> Matrix3dClassInfo *Matrix3dClassInfo::classInfoObj = NULL;
+template<> Matrix3dClassInfo *Matrix3dClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_nativeInit(JNIEnv *env, jclass cls)
 {
     Matrix3dClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_initialise
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_initialise(JNIEnv *env, jobject obj)
 {
     try
     {
-        Matrix3d *mat = new Matrix3d();
+        auto mat = new Matrix3d();
         *mat = Matrix3d::Identity();
         Matrix3dClassInfo::getClassInfo()->setHandle(env,obj,mat);
     }
@@ -50,8 +48,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_dispose
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_dispose(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -59,10 +57,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_dispose
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             Matrix3d *inst = classInfo->getObject(env,obj);
-            if (!inst)
-                return;
             delete inst;
-            
             classInfo->clearHandle(env,obj);
         }
     }
@@ -72,15 +67,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_dispose
     }
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_inverse
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_inverse(JNIEnv *env, jobject obj)
 {
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
         Matrix3d *inst = classInfo->getObject(env,obj);
         if (!inst)
-            return NULL;
+            return nullptr;
         
         Matrix3d matInv = inst->inverse();
         return MakeMatrix3d(env,matInv);
@@ -90,18 +85,18 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_inverse
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::inverse()");
     }
     
-    return NULL;
+    return nullptr;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_transpose
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_transpose(JNIEnv *env, jobject obj)
 {
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
         Matrix3d *inst = classInfo->getObject(env,obj);
         if (!inst)
-            return NULL;
+            return nullptr;
         
         Matrix3d matTrans = inst->transpose();
         return MakeMatrix3d(env,matTrans);
@@ -111,11 +106,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_transpose
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::transpose()");
     }
     
-    return NULL;
+    return nullptr;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mousebird_maply_Point3d_2
-(JNIEnv *env, jobject obj, jobject ptObj)
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mousebird_maply_Point3d_2(JNIEnv *env, jobject obj, jobject ptObj)
 {
     try
     {
@@ -124,7 +119,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
         Point3dClassInfo *ptClassInfo = Point3dClassInfo::getClassInfo();
         Point3d *pt = ptClassInfo->getObject(env,ptObj);
         if (!mat || !pt)
-            return NULL;
+            return nullptr;
         
         Point3d ret = (*mat) * (*pt);
         
@@ -135,38 +130,37 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::multiply()");
     }
     
-    return NULL;
+    return nullptr;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mousebird_maply_Matrix3d_2
-(JNIEnv *env, jobject obj, jobject mtxObj)
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mousebird_maply_Matrix3d_2(JNIEnv *env, jobject obj, jobject mtxObj)
 {
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
-        Matrix3d *mat = classInfo->getObject(env,obj);
-        Matrix3d *mtx = classInfo->getObject(env,mtxObj);
-        if (!mat || !mtx)
-            return NULL;
-        
-        Matrix3d ret = (*mat) * (*mtx);
-        
-        return MakeMatrix3d(env,ret);
+        if (auto mat = classInfo->getObject(env,obj))
+        {
+            if (auto mtx = classInfo->getObject(env, mtxObj))
+            {
+                return MakeMatrix3d(env, (*mat) * (*mtx));
+            }
+        }
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::multiply()");
     }
     
-    return NULL;
+    return nullptr;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_translate
-(JNIEnv *env, jclass cls, jdouble x, jdouble y)
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_translate(JNIEnv *env, jclass, jdouble x, jdouble y)
 {
     try
     {
-        Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
+        //Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
         
         Affine2d trans(Eigen::Translation2d(x,y));
         Matrix3d mat = trans.matrix();
@@ -178,15 +172,15 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_translate
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::translateX()");
     }
     
-    return NULL;
+    return nullptr;
 }
 
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scale
-(JNIEnv *env, jclass cls, jdouble x, jdouble y)
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scale(JNIEnv *env, jclass, jdouble x, jdouble y)
 {
     try
     {
-        Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
+        //Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
         
         Affine2d trans(Eigen::Scaling(x,y));
         Matrix3d mat = trans.matrix();
@@ -198,7 +192,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scale
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::scaleX()");
     }
     
-    return NULL;
+    return nullptr;
 }
 
 jobject MakeMatrix3d(JNIEnv *env,const Eigen::Matrix3d &mat)

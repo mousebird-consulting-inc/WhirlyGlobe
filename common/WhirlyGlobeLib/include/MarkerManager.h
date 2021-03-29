@@ -65,7 +65,8 @@ class MarkerInfo : public BaseInfo
 public:
     MarkerInfo(bool screenObject);
     MarkerInfo(const Dictionary &,bool screenObject);
-    
+    virtual ~MarkerInfo() = default;
+
     RGBAColor color;
     bool screenObject;
     float width,height;

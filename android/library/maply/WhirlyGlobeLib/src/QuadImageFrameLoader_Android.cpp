@@ -119,9 +119,9 @@ QIFTileAsset_Android::~QIFTileAsset_Android()
 {
 }
 
-QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *inLoader)
+QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *)
 {
-    const auto loader = (QuadImageFrameLoader_Android *)inLoader;
+    //const auto loader = (QuadImageFrameLoader_Android *)inLoader;
     const auto threadInfo = (PlatformInfo_Android *)inThreadInfo;
 
     auto frame = std::make_shared<QIFFrameAsset_Android>(threadInfo,frameInfo);

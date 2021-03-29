@@ -47,73 +47,60 @@ static TextJustify parseTextJustify(const std::string &str, TextJustify def)
 }
 
 LabelInfo::LabelInfo(bool screenObject) :
-    hasTextColor(false),
-    textColor(255,255,255,255),
-    backColor(0,0,0,0),
     screenObject(screenObject),
     width(screenObject ? 16.0 : 0.001),
-    height(screenObject ? 16.0 : 0.001),
-    labelJustify(WhirlyKitLabelMiddle),
-    textJustify(WhirlyKitTextCenter),
-    shadowColor(0,0,0,0), shadowSize(-1.0),
-    outlineColor(0,0,0,0), outlineSize(-1.0),
-    lineHeight(0.0), fontPointSize(16.0),
-    layoutOffset(0.0), layoutSpacing(20.0), layoutRepeat(0), layoutDebug(false)
+    height(screenObject ? 16.0 : 0.001)
 {
 }
 
-LabelInfo::LabelInfo(const LabelInfo &that)
-: BaseInfo(that), hasTextColor(that.hasTextColor), textColor(that.textColor), backColor(that.backColor),
-screenObject(that.screenObject), width(that.width), height(that.height),
-labelJustify(that.labelJustify), textJustify(that.textJustify),
-shadowColor(that.shadowColor), shadowSize(that.shadowSize),
-outlineColor(that.outlineColor), outlineSize(that.outlineSize),
-lineHeight(that.lineHeight), fontPointSize(that.fontPointSize),
-layoutOffset(that.layoutOffset), layoutSpacing(that.layoutSpacing), layoutRepeat(that.layoutRepeat)
+LabelInfo::LabelInfo(const LabelInfo &that) :
+    BaseInfo(that), hasTextColor(that.hasTextColor), textColor(that.textColor), backColor(that.backColor),
+    screenObject(that.screenObject), width(that.width), height(that.height),
+    labelJustify(that.labelJustify), textJustify(that.textJustify),
+    shadowColor(that.shadowColor), shadowSize(that.shadowSize),
+    outlineColor(that.outlineColor), outlineSize(that.outlineSize),
+    lineHeight(that.lineHeight), fontPointSize(that.fontPointSize),
+    layoutOffset(that.layoutOffset), layoutSpacing(that.layoutSpacing), layoutRepeat(that.layoutRepeat)
 {
 }
 
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     BaseInfo(dict),
-    screenObject(screenObject),
-    fontPointSize(16.0)
+    screenObject(screenObject)
 {
     hasTextColor = dict.hasField(MaplyTextColor);
-    textColor = dict.getColor(MaplyTextColor, RGBAColor(255,255,255,255));
-    backColor = dict.getColor(MaplyBackgroundColor, RGBAColor(0,0,0,0));
+    textColor = dict.getColor(MaplyTextColor, textColor);
+    backColor = dict.getColor(MaplyBackgroundColor, backColor);
     width = (float)dict.getDouble(MaplyLabelWidth,0.0);
     height = (float)dict.getDouble(MaplyLabelHeight,screenObject ? 16.0 : 0.001);
-    shadowColor = dict.getColor(MaplyShadowColor, RGBAColor(0,0,0,255));
+    shadowColor = dict.getColor(MaplyShadowColor, shadowColor);
     shadowSize = (float)dict.getDouble(MaplyShadowSize, 0.0);
     outlineSize = (float)dict.getDouble(MaplyTextOutlineSize,0.0);
-    outlineColor = dict.getColor(MaplyTextOutlineColor, RGBAColor(0,0,0,255));
+    outlineColor = dict.getColor(MaplyTextOutlineColor, outlineColor);
     lineHeight = (float)dict.getDouble(MaplyTextLineHeight,0.0);
     labelJustify = parseLabelJustify(dict.getString(MaplyLabelJustifyName), WhirlyKitLabelMiddle);
     textJustify = parseTextJustify(dict.getString(MaplyTextJustify), WhirlyKitTextLeft);
     layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
     layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
-    layoutSpacing = dict.getDouble(MaplyTextLayoutSpacing,24.0);
-    layoutOffset = dict.getDouble(MaplyTextLayoutOffset,0.0);
+    layoutSpacing = (float)dict.getDouble(MaplyTextLayoutSpacing,24.0);
+    layoutOffset = (float)dict.getDouble(MaplyTextLayoutOffset,0.0);
 }
 
 
 // We use these for labels that have icons
 // Don't want to give them their own separate drawable, obviously
-typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
+//typedef std::map<SimpleIdentity,BasicDrawable *> IconDrawables;
 
 LabelRenderer::LabelRenderer(Scene *scene,
                              SceneRenderer *renderer,
-                             const FontTextureManagerRef &fontTexManager,
+                             FontTextureManagerRef fontTexManager,
                              const LabelInfo *labelInfo,
                              SimpleIdentity maskProgID) :
-    useAttributedString(true),
     scene(scene),
     renderer(renderer),
     coordAdapter(scene->getCoordAdapter()),
-    fontTexManager(fontTexManager),
+    fontTexManager(std::move(fontTexManager)),
     labelInfo(labelInfo),
-    textureAtlasSize(2048),
-    labelRep(nullptr),
     maskProgID(maskProgID)
 {
 }
@@ -163,7 +150,10 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
             drawMbr.expand(drawStr->mbr);
             layoutMbr.expand(drawStr->mbr);
         }
+
+#ifndef __ANDROID__
         const float heightAboveBaseline = drawMbr.ur().y();
+#endif
         
         // Override the layout size, but do so from the middle
         if (label->layoutSize.x() >= 0.0 && label->layoutSize.y() >= 0.0)
@@ -488,3 +478,5 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
 }
 
 }
+
+#include <utility>

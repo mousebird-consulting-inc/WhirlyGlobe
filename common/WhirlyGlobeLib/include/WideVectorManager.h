@@ -53,6 +53,7 @@ class WideVectorInfo : public BaseInfo
 public:
     WideVectorInfo();
     WideVectorInfo(const Dictionary &dict);
+    virtual ~WideVectorInfo() = default;
 
     WideVecImplType implType;
     RGBAColor color;

@@ -266,6 +266,7 @@ public:
     DictionaryEntryCBasic(int iVal)     : DictionaryEntryC(DictTypeInt),    val { .iVal   = iVal } { }
     DictionaryEntryCBasic(double dVal)  : DictionaryEntryC(DictTypeDouble), val { .dVal   = dVal } { }
     DictionaryEntryCBasic(int64_t iVal) : DictionaryEntryC(DictTypeInt64),  val { .i64Val = iVal } { }
+    virtual ~DictionaryEntryCBasic() = default;
 
     /// Return an int, using the default if it's missing
     virtual int getInt() const override;
@@ -302,6 +303,7 @@ public:
             : DictionaryEntryC(DictTypeString), str(std::move(str))
     {
     }
+    virtual ~DictionaryEntryCString() = default;
 
     const std::string &getStringRef() const { return str; }
 
@@ -331,6 +333,7 @@ public:
             : DictionaryEntryC(DictTypeDictionary), dict(std::move(dict))
     {
     }
+    virtual ~DictionaryEntryCDict() = default;
 
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict() const override { return dict; }
@@ -357,6 +360,7 @@ public:
     {
     }
     DictionaryEntryCArray(const std::vector<DictionaryEntryRef> &vals);
+    virtual ~DictionaryEntryCArray() = default;
 
     /// Return the array
     virtual std::vector<DictionaryEntryRef> getArray() const override;

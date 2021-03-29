@@ -73,23 +73,26 @@ public:
     LabelInfo(bool screenObject);
     LabelInfo(const LabelInfo &that);
     LabelInfo(const Dictionary &dict,bool screenObject);
+    virtual ~LabelInfo() = default;
 
-    bool hasTextColor;
-    RGBAColor textColor,backColor;
-    bool screenObject;
-    float width,height;
-    LabelJustify labelJustify;
-    TextJustify textJustify;
-    RGBAColor shadowColor;
-    float shadowSize;
-    RGBAColor outlineColor;
-    float outlineSize;
-    float lineHeight;
-    float fontPointSize;
-    float layoutOffset;
-    float layoutSpacing;
-    int layoutRepeat;
-    bool layoutDebug;
+    bool hasTextColor = false;
+    RGBAColor textColor = RGBAColor::white();
+    RGBAColor backColor = RGBAColor::clear();
+    bool screenObject  = true;
+    float width = 0.0f;
+    float height = 0.0f;
+    LabelJustify labelJustify = WhirlyKitLabelMiddle;
+    TextJustify textJustify = WhirlyKitTextCenter;
+    RGBAColor shadowColor = RGBAColor::black();
+    float shadowSize = -1.0f;
+    RGBAColor outlineColor = RGBAColor::black();
+    float outlineSize = -1.0f;
+    float lineHeight = 0.0f;
+    float fontPointSize = 16.0f;
+    float layoutOffset = 0.0f;
+    float layoutSpacing = 20.0f;
+    int layoutRepeat = 0;
+    bool layoutDebug = false;
 
     FloatExpressionInfoRef opacityExp;
 //    ColorExpressionInfoRef colorExp;
@@ -107,21 +110,21 @@ class LabelRenderer
 public:
     LabelRenderer(Scene *scene,
                   SceneRenderer *renderer,
-                  const FontTextureManagerRef &fontTexManager,
+                  FontTextureManagerRef fontTexManager,
                   const LabelInfo *labelInfo,
                   SimpleIdentity maskProgID);
-    
+
     /// Description of the labels
-    const LabelInfo *labelInfo;
+    const LabelInfo *labelInfo = nullptr;
     /// How big texture atlases should be if we're not using fonts
-    int textureAtlasSize;
-    /// Coordinate system display adapater
-    CoordSystemDisplayAdapter *coordAdapter;
+    int textureAtlasSize = 2048;
+    /// Coordinate system display adapter
+    CoordSystemDisplayAdapter *coordAdapter = nullptr;
     /// Label representation (return value)
-    LabelSceneRep *labelRep;
+    LabelSceneRep *labelRep = nullptr;
     /// Scene we're building in
-    Scene *scene;
-    SceneRenderer *renderer;
+    Scene *scene = nullptr;
+    SceneRenderer *renderer = nullptr;
     /// Screen space objects
     std::vector<WhirlyKit::ScreenSpaceObject> screenObjects;
     /// Layout objects (pass these to the layout engine if you want that)
@@ -138,11 +141,11 @@ public:
     /// Font texture manager to use if we're doing fonts
     FontTextureManagerRef fontTexManager;
     /// Set if want to use attributed strings (we usually do)
-    bool useAttributedString;
+    bool useAttributedString = true;
     /// Scale, if we're using that
-    float scale;
+    float scale = 1.0f;
     // Program used to render masks to their target
-    SimpleIdentity maskProgID;
+    SimpleIdentity maskProgID = 0;
     
     /// Convenience routine to convert the points to model space
     Point3dVector convertGeoPtsToModelSpace(const VectorRing &inPts);

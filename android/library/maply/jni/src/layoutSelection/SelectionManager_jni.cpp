@@ -28,7 +28,7 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-static const char *SceneHandleName = "nativeSceneHandle";
+//static const char *SceneHandleName = "nativeSceneHandle";
 
 template<> SelectionManagerClassInfo *SelectionManagerClassInfo::classInfoObj = NULL;
 

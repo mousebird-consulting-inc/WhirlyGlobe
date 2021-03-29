@@ -116,11 +116,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_transpose
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_translate
-(JNIEnv *env, jclass cls, jdouble x, jdouble y, jdouble z)
+(JNIEnv *env, jclass, jdouble x, jdouble y, jdouble z)
 {
     try
     {
-        Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env, cls);
+        //Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env, cls);
         
         Affine3d trans(Eigen::Translation3d(x,y,z));
         Matrix4d mat = trans.matrix();
@@ -136,11 +136,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_translate
 }
 
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_scale
-(JNIEnv *env, jclass cls, jdouble x, jdouble y, jdouble z)
+(JNIEnv *env, jclass, jdouble x, jdouble y, jdouble z)
 {
     try
     {
-        Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env, cls);
+        //Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env, cls);
         
         Affine3d trans(Eigen::Scaling(x,y,z));
         Matrix4d mat = trans.matrix();

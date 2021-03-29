@@ -43,7 +43,24 @@ android {
                 }
                 externalNativeBuild {
                     cmake {
-                        cppFlags "-O0", "-g", "-DDEBUG=1", "-DCMAKE_BUILD_TYPE=Debug"
+                        cppFlags "-g",              // enable debug info
+                            "-DDEBUG=1",            // Debug flags
+                            "-DCMAKE_BUILD_TYPE=Debug",
+                            "-O0",
+                            //"-O1",                  // Minimal optimize. (-Wuninitialized requires -O1)
+                                                    // Change to -O0 if you're having trouble debugging
+                            "-Wall", "-Wextra",     // warnings
+
+                            "-Wuninitialized",      // requires -O1 or above, but doesn't seem to work anyway
+                            "-Wmissing-field-initializers",
+                            "-Woverloaded-virtual",
+
+                            "-Wno-unused-parameter",
+                            "-Wno-unused-private-field",
+                            "-Wno-reorder",
+                            "-Wno-sign-compare",
+                            "-Wno-missing-braces",
+                            "-Wno-null-pointer-arithmetic"
                     }
                 }
             }

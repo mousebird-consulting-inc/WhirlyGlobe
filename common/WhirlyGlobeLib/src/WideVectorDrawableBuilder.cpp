@@ -26,10 +26,10 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-WideVectorDrawableBuilder::WideVectorDrawableBuilder(const std::string &name,
+WideVectorDrawableBuilder::WideVectorDrawableBuilder(std::string name,
                                                      const SceneRenderer *sceneRenderer,
                                                      Scene *scene)
-    : name(name), renderer(sceneRenderer), scene(scene),
+    : name(std::move(name)), renderer(sceneRenderer), scene(scene),
       implType(WideVecImplBasic), basicDrawable(nullptr), instDrawable(nullptr),
       lineWidth(1.0), lineOffset(0.0), globeMode(false),
       texRepeat(1.0), edgeSize(1.0),
@@ -161,22 +161,22 @@ void WideVectorDrawableBuilder::add_c0(float val)
 
 void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef colorExp)
 {
-    this->colorExp = colorExp;
+    this->colorExp = std::move(colorExp);
 }
 
 void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef opacityExp)
 {
-    this->opacityExp = opacityExp;
+    this->opacityExp = std::move(opacityExp);
 }
 
-void WideVectorDrawableBuilder::setWidthExpression(const FloatExpressionInfoRef &inWidthExp)
+void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidthExp)
 {
-    widthExp = inWidthExp;
+    widthExp = std::move(inWidthExp);
 }
 
-void WideVectorDrawableBuilder::setOffsetExpression(const FloatExpressionInfoRef &inOffsetExp)
+void WideVectorDrawableBuilder::setOffsetExpression(FloatExpressionInfoRef inOffsetExp)
 {
-    offsetExp = inOffsetExp;
+    offsetExp = std::move(inOffsetExp);
 }
 
 void WideVectorDrawableBuilder::setupTweaker(BasicDrawable &theDraw) const
@@ -191,7 +191,7 @@ void WideVectorDrawableBuilder::setupTweaker(BasicDrawable &theDraw) const
 void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
     basicDrawable->setupTweaker(inTweaker);
-    if (auto tweak = std::dynamic_pointer_cast<WideVectorTweaker>(inTweaker))
+    if (auto tweak = dynamic_cast<WideVectorTweaker*>(inTweaker.get()))
     {
         tweak->edgeSize = edgeSize;
         tweak->lineWidth = lineWidth;
@@ -207,17 +207,17 @@ void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker
 void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,
                                               const Point3d &up,
                                               double len,
-                                              const RGBAColor &color,
+                                              const RGBAColor &inColor,
                                               const std::vector<SimpleIdentity> &maskIDs,
                                               int prev,int next)
 {
     CenterPoint pt;
     pt.center = Point3f(centerPt.x(),centerPt.y(),centerPt.z());
     pt.up = Point3f(up.x(),up.y(),up.z());
-    pt.len = len;
-    pt.color = color;
-    pt.maskIDs[0] = maskIDs.empty() ? 0 : maskIDs[0];
-    pt.maskIDs[1] = maskIDs.size() > 1 ? maskIDs[1] : 0;
+    pt.len = (float)len;
+    pt.color = inColor;
+    pt.maskIDs[0] = maskIDs.empty() ? 0 : (int)maskIDs[0];
+    pt.maskIDs[1] = maskIDs.size() > 1 ? (int)maskIDs[1] : 0;
     pt.prev = prev;
     pt.next = next;
     centerline.push_back(pt);
@@ -286,7 +286,7 @@ void WideVectorDrawableBuilder::setColor(RGBAColor inColor)
 }
 
 
-void WideVectorDrawableBuilder::setLocalMbr(Mbr mbr)
+void WideVectorDrawableBuilder::setLocalMbr(const Mbr &)
 {
 //    instDrawable->setLocalMbr(mbr);
 }
@@ -324,15 +324,15 @@ void WideVectorDrawableBuilder::addAttributeValue(int attrId,const Eigen::Vector
 }
 
 /// Add a 4 component char array to the given attribute array
-void WideVectorDrawableBuilder::addAttributeValue(int attrId,const RGBAColor &color)
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,const RGBAColor &theColor)
 {
-    basicDrawable->addAttributeValue(attrId,color);
+    basicDrawable->addAttributeValue(attrId,theColor);
 }
 
 /// Add a float to the given attribute array
-void WideVectorDrawableBuilder::addAttributeValue(int attrId,float color)
+void WideVectorDrawableBuilder::addAttributeValue(int attrId,float theColor)
 {
-    basicDrawable->addAttributeValue(attrId,color);
+    basicDrawable->addAttributeValue(attrId,theColor);
 }
 
 /// Add an integer value to the given attribute array
@@ -370,3 +370,5 @@ void WideVectorDrawableBuilder::setProgram(SimpleIdentity progId)
 }
 
 }
+
+#include <utility>

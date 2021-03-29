@@ -54,7 +54,7 @@ public:
     // Return the basic drawable for the simple and complex cases
     virtual BasicDrawableRef getBasicDrawable() override;
 
-    // Return the drawable instance for the complec case
+    // Return the drawable instance for the complex case
     virtual BasicDrawableInstanceRef getInstanceDrawable() override;
 
     virtual DrawableTweakerRef makeTweaker() const override;

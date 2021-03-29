@@ -37,6 +37,7 @@ public:
     
     GeometryInfo();
     GeometryInfo(const Dictionary &);
+    virtual ~GeometryInfo() = default;
 
     bool colorOverride;
     RGBAColor color;
