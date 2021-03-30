@@ -628,6 +628,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 //        wkLog("----");
         
         for (auto layoutObj : container.objs) {
+            layoutObj->newEnable = false;
+            layoutObj->obj.layoutModelPlaces.clear();
+            layoutObj->obj.layoutPlaces.clear();
+
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty()) {
                 // Sometimes there are just a few instances
@@ -646,7 +650,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     std::vector<Point3d> layoutModelInstances;
 
                     auto runs = textBuilder.getScreenVecs();
-//                    unsigned int ri=0;
+                    unsigned int ri=0;
                     for (auto run: runs) {
 //                        wkLog("Run %d",ri++);
                         
@@ -674,7 +678,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                             Point2f midRun;
                             if (!walk.nextPoint(resScale * layoutMbr.span().x()/2.0, &midRun, nullptr, false))
                                 continue;
-                            wkLogLevel(Debug, "midRun = (%f,%f)",midRun.x(),midRun.y());
+//                            wkLogLevel(Info, "midRun = (%f,%f)",midRun.x(),midRun.y());
                             Point2f worldScreenPt = midRun;
                             Point3d worldPt(0.0,0.0,0.0);
                             if (!textBuilder.screenToWorld(midRun, worldPt))
@@ -740,7 +744,6 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 //                                }
 
                                 if (!overlapMan.checkObject(objPts)) {
-//                                    wkLog("   Failed");
                                     failed = true;
                                     break;
                                 }
@@ -749,7 +752,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                             }
                             
                             if (!failed) {
-                                layoutObj->obj.setRotation(textBuilder.getViewStateRotation());
+//                                layoutObj->obj.setRotation(textBuilder.getViewStateRotation());
                                 layoutModelInstances.push_back(worldPt);
                                 layoutInstances.push_back(layoutMats);
                                 numInstances++;
@@ -778,9 +781,6 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                         layoutObj->offset = Point2d(0.0,0.0);
                     } else {
                         isActive = false;
-                        layoutObj->newEnable = false;
-                        layoutObj->obj.layoutPlaces.clear();
-                        layoutObj->obj.layoutModelPlaces.clear();
                     }
                     
                     if (layoutObj->currentEnable != isActive) {
@@ -1038,24 +1038,25 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj,animObj.worldLoc,animObj.geometry);
+                ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
                 
                 // And hold off on adding it
                 // todo: slicing, is this ok?
                 ScreenSpaceObject shortObj = layoutObj->obj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj,shortObj.worldLoc,shortObj.geometry);
+                ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry);
             } else {
                 // It's boring, just add it
                 if (layoutObj->newEnable) {
                     // It's a single point placement
                     if (layoutObj->obj.layoutShape.empty())
-                        ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,layoutObj->obj.geometry);
+                        ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,&layoutObj->obj.geometry);
                     else {
                         // One or more placements along a path
-                        for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
-                            ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
+                        for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++) {
+                            ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
+                        }
                     }
                 }
             }
@@ -1092,16 +1093,16 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
                     geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj, animObj.worldLoc, animObj.geometry);
+                ssBuild.addScreenObject(animObj, animObj.worldLoc, &animObj.geometry);
 
                 // Hold off on adding the new one
                 ScreenSpaceObject shortObj = cluster.layoutObj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj, shortObj.worldLoc, shortObj.geometry);
+                ssBuild.addScreenObject(shortObj, shortObj.worldLoc, &shortObj.geometry);
                 
             } else
-                ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, cluster.layoutObj.geometry);
+                ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, &cluster.layoutObj.geometry);
         }
         
         ssBuild.flushChanges(changes, drawIDs);

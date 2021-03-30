@@ -240,7 +240,7 @@ class AirwayTestCase: MaplyTestCase {
                                                  kMaplyTextLayoutSpacing: 100.0, // 100 pixels between
 //                                                 kMaplyTextLayoutSpacing: 0.0, // 100 pixels between
 //                                                 kMaplyTextLayoutRepeat: 4,  // As many as fit
-                                                 kMaplyTextLayoutDebug: true
+//                                                 kMaplyTextLayoutDebug: true
                                                  ],
                                   mode: .any)
         }

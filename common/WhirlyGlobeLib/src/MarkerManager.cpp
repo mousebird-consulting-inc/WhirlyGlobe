@@ -252,8 +252,8 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             // Handle the mask rendering if it's there
             if (marker->maskID != EmptyIdentity && marker->maskRenderTargetID != EmptyIdentity) {
                 // Make a copy of the geometry, but target it to the mask render target
-                std::vector<ScreenSpaceConvexGeometry> geom = shape->getGeometry();
-                for (auto entry: geom) {
+                const std::vector<ScreenSpaceConvexGeometry> *geom = shape->getGeometry();
+                for (auto entry: *geom) {
                     entry.vertexAttrs.insert(SingleVertexAttribute(a_maskNameID, renderer->getSlotForNameID(a_maskNameID), (int)marker->maskID));
                     entry.renderTargetID = marker->maskRenderTargetID;
                     entry.progID = maskProgID;
