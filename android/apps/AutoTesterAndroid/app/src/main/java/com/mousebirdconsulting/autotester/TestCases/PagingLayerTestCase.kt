@@ -36,7 +36,7 @@ class PagingLayerTestCase(activity: Activity) : MaplyTestCase(activity) {
     fun setupLayer(vc: BaseController) {
         // Describes how to break down the space
         val params = SamplingParams()
-        params.minZoom = 4
+        params.minZoom = 0
         params.maxZoom = 22
         params.minImportance = 256.0*256.0
         params.singleLevel = true
