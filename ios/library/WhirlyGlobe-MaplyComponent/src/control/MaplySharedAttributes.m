@@ -224,6 +224,9 @@ NSString* const kMaplyWideVecMiterLimit = MaplyWideVecMiterLimit;
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 NSString* const kMaplyWideVecTexRepeatLen = MaplyWideVecTexRepeatLen;
 
+NSString* const kMaplyWideVecImpl = MaplyWideVecImpl;
+NSString* const kMaplyWideVecImplPerf = MaplyWideVecImplPerf;
+
 /// Offset to left (negative) or right (positive) of the centerline
 NSString* const kMaplyWideVecOffset = MaplyWideVecOffset;
 
@@ -349,6 +352,7 @@ NSString* const kMaplyShaderBillboardEye = @"Default Billboard eye";
 
 NSString* const kMaplyShaderDefaultWideVector = @"Default Wide Vector";
 NSString* const kMaplyShaderWideVectorExp = @"Default Wide Vector with expressions";
+NSString* const kMaplyShaderWideVectorPerformance = @"Wide Vector performance";
 
 NSString* const kMaplyScreenSpaceDefaultMotionProgram = @"Default Screenspace Motion";
 NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";

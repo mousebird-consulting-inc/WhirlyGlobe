@@ -40,7 +40,8 @@ public:
     
     LoftedPolyInfo();
     LoftedPolyInfo(const Dictionary &dict);
-    
+    virtual ~LoftedPolyInfo() = default;
+
     float       height;
     float       base;
     bool        top,side;

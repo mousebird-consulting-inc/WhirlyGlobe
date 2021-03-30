@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleFill.mm
+/*  MapboxVectorStyleFill.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleFill.h"
@@ -110,7 +108,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     // Filled polygons
     if (paint.color)
     {
-        // tesselate the area features
+        // tessellate the area features
         std::vector<VectorShapeRef> tessShapes;
         for (const auto &it : shapes)
         {

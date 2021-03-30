@@ -187,7 +187,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_AttrDictionaryEntry_getIdentity
     {
         DictionaryEntry_AndroidRef *entry = AttrDictEntryClassInfo::getClassInfo()->getObject(env,obj);
         if (!entry)
-            return 0.0;
+            return 0;
         DictionaryType type = (*entry)->getType();
         if (type != DictTypeDouble && type != DictTypeInt && type != DictTypeIdentity)
             return 0;

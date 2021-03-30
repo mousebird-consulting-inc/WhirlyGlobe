@@ -112,6 +112,7 @@
 
 #define MaplyDefaultWideVectorShader WKString("Default Wide Vector")
 #define MaplyWideVectorExpShader WKString("Default Wide Vector with expressions")
+#define MaplyWideVectorPerformanceShader WKString("Wide Vector performance")
 #define MaplyDefaultWideVectorGlobeShader WKString("Default Wide Vector Globe")
 
 #define MaplyScreenSpaceDefaultMotionShader WKString("Default Screenspace Motion")
@@ -230,6 +231,12 @@
 
 /// For wide vectors, we can widen them in screen space or display space
 #define MaplyWideVecCoordType WKString("wideveccoordtype")
+
+/// Basic or performance mode for wide vectors
+#define MaplyWideVecImpl WKString("widevecimplementation")
+
+/// Performance mode for wide vectors
+#define MaplyWideVecImplPerf WKString("widevecperformance")
 
 /// Widened vectors are widened in real space.  The width is in meters.
 #define MaplyWideVecCoordTypeReal WKString("real")

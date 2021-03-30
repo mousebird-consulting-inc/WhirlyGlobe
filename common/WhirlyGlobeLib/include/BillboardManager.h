@@ -85,7 +85,7 @@ class BillboardInfo : public BaseInfo
 public:
     BillboardInfo();
     BillboardInfo(const Dictionary &);
-    ~BillboardInfo(){};
+    virtual ~BillboardInfo() = default;
     
     typedef enum {Eye=0,Ground} Orient;
     Orient orient;

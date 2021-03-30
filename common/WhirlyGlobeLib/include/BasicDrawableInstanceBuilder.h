@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableInstanceBuilder.h
+/*  BasicDrawableInstanceBuilder.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/9/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -40,8 +38,8 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Construct empty
-    BasicDrawableInstanceBuilder(const std::string &name,Scene *scene);
-    virtual ~BasicDrawableInstanceBuilder();
+    BasicDrawableInstanceBuilder(std::string name,Scene *scene);
+    virtual ~BasicDrawableInstanceBuilder() = default;
     
     /// Set the base draw ID and type
     void setMasterID(SimpleIdentity baseDrawID,BasicDrawableInstance::Style style);
@@ -53,6 +51,7 @@ public:
     void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
     
     /// Set the fade in and out
+    // Not supported for instances
     void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
         
     /// Set the viewer based visibility
@@ -88,7 +87,7 @@ public:
     void setRenderTarget(SimpleIdentity newRenderTarget);
         
     /// Add a tweaker to this list to be run each frame
-    void addTweaker(DrawableTweakerRef tweakRef);
+    void addTweaker(const DrawableTweakerRef &tweakRef);
     
     /// Set this when we're representing moving geometry model instances
     void setIsMoving(bool inMoving);
@@ -114,16 +113,19 @@ public:
     
     /// Set all the textures at once
     virtual void setTexIDs(const std::vector<SimpleIdentity> &texIDs);
-    
+
     /// Set the relative offsets for texture usage.
     /// We use these to look up parts of a texture at a higher level
     virtual void setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY);
-    
+
     /// Check for the given texture coordinate entry and add it if it's not there
     virtual void setupTexCoordEntry(int which,int numReserve);
     
     /// Set the shader program
     void setProgram(SimpleIdentity progID);
+    
+    /// For Metal, we can set instance data in one big chunk
+    virtual void setInstanceData(int numInstance,RawDataRef data);
     
     /// Constructs the remaining pieces of the drawable and returns it
     /// Caller is responsible for deletion
@@ -131,14 +133,15 @@ public:
     
     /// Return just the ID of the drawable being created
     /// This doesn't flush out the drawable in any way
-    virtual SimpleIdentity getDrawableID();
+    virtual SimpleIdentity getDrawableID() const;
 
-protected:
+public:
     // Called by subclasses
     void Init();
     
     Scene *scene;
     BasicDrawableInstanceRef drawInst;
+    std::string name;
 };
     
 typedef std::shared_ptr<BasicDrawableInstanceBuilder> BasicDrawableInstanceBuilderRef;

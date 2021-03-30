@@ -68,38 +68,51 @@
 		});
 }
 
-- (NSArray *)addGeoJson:(NSString*)name dashPattern:(NSArray*)dashPattern width:(CGFloat)width viewC:(MaplyBaseViewController *)baseViewC
+- (NSArray *)addGeoJson:(NSString*)name
+            dashPattern:(NSArray*)dashPattern
+                  width:(CGFloat)width
+                   edge:(double)edge
+                 simple:(bool)simple
+                  viewC:(MaplyBaseViewController *)baseViewC
 {
-    MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
-    [lineTexBuilder setPattern:dashPattern];
-    UIImage *lineImage = [lineTexBuilder makeImage];
-    MaplyTexture *lineTexture = [baseViewC addTexture:lineImage
-                                          imageFormat:MaplyImageIntRGBA
-                                            wrapFlags:MaplyImageWrapY
-                                                 mode:MaplyThreadCurrent];
-    
+    MaplyTexture *lineTexture = nil;
+    if (dashPattern) {
+        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
+        [lineTexBuilder setPattern:dashPattern];
+        UIImage *lineImage = [lineTexBuilder makeImage];
+        lineTexture = [baseViewC addTexture:lineImage
+                                imageFormat:MaplyImageIntRGBA
+                                  wrapFlags:MaplyImageWrapY
+                                       mode:MaplyThreadCurrent];
+    }
+
     NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:nil];
     if(path) {
         NSData *data = [NSData dataWithContentsOfFile:path];
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithGeoJSON:data];
         if(vecObj) {
             [vecObj subdivideToGlobe:0.0001];
-            MaplyComponentObject *obj1 = [baseViewC addWideVectors:@[vecObj]
-                                 desc: @{kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0],
-                                         kMaplyFilled: @NO,
-                                         kMaplyEnable: @YES,
-                                         kMaplyFade: @0,
-                                         kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
-                                         kMaplyVecCentered: @YES,
-                                         kMaplyVecTexture: lineTexture,
-                                         kMaplyWideVecEdgeFalloff: @(1.0),
-                                         kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
-                                         kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-                                         kMaplyWideVecOffset: @(10.0),
-                                         // More than 10 degrees need a bevel join
-                                         kMaplyWideVecMiterLimit: @(10.0),
-                                         kMaplyVecWidth: @(width)}
-                                 mode:MaplyThreadCurrent];
+
+            //NSMutableDictionary *wideDesc = [NSMutableDictionary dictionaryWithDictionary:@{
+            NSDictionary *wideDesc = @{
+                kMaplyColor: [UIColor colorWithRed:1 green:0 blue:0 alpha:1.0],
+                kMaplyFilled: @NO,
+                kMaplyEnable: @YES,
+                kMaplyFade: @0,
+                kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+                kMaplyVecCentered: @YES,
+                kMaplyVecTexture: lineTexture ? lineTexture : [NSNull null],
+                kMaplyWideVecEdgeFalloff:@(edge),
+                kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                kMaplyWideVecOffset: @(10.0),
+                kMaplyWideVecMiterLimit: @(10.0),  // More than 10 degrees need a bevel join
+                kMaplyVecWidth: @(width),
+                kMaplyWideVecImpl: simple ? kMaplyWideVecImplPerf : kMaplyWideVecImpl,
+            };
+
+            MaplyComponentObject *obj1 = [baseViewC addWideVectors:@[vecObj] desc: wideDesc mode:MaplyThreadCurrent];
             MaplyComponentObject *obj2 = [baseViewC addVectors:@[vecObj]
                              desc: @{kMaplyColor: [UIColor blackColor],
                                      kMaplyFilled: @NO,
@@ -117,13 +130,24 @@
     return nil;
 }
 
+- (NSArray *)addGeoJson:(NSString*)name
+            dashPattern:(NSArray*)dashPattern
+                  width:(CGFloat)width
+                  viewC:(MaplyBaseViewController *)baseViewC
+{
+    return [self addGeoJson:name dashPattern:dashPattern width:width edge:1.0 simple:false viewC:baseViewC];
+}
+
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
     return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
 //    return [self addGeoJson:name dashPattern:@[@8, @8] width:100 viewC:viewC];
 }
 
-- (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj baseViewC: (MaplyBaseViewController*) baseViewC dashedLineTex: (MaplyTexture*) dashedLineTex filledLineTex: (MaplyTexture*) filledLineTex
+- (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
+                  baseViewC:(MaplyBaseViewController*)baseViewC
+              dashedLineTex:(MaplyTexture*)dashedLineTex
+              filledLineTex:(MaplyTexture*)filledLineTex
 {
 	UIColor *color = [UIColor blueColor];
 	float fade = 0.25;
@@ -213,7 +237,7 @@
 
 - (void)wideLineTest:(MaplyBaseViewController *)viewC
 {
-    [self addGeoJson:@"sawtooth.geojson" viewC:viewC];
+    [self addGeoJson:@"sawtooth.geojson" dashPattern:nil width:50.0 edge:20.0 simple:false viewC:viewC];
     [self addGeoJson:@"moving-lawn.geojson" viewC:viewC];
     [self addGeoJson:@"spiral.geojson" viewC:viewC];
     [self addGeoJson:@"square.geojson" dashPattern:@[@2, @2] width:10.0 viewC:viewC];
@@ -226,6 +250,7 @@
     
     //    [self addGeoJson:@"straight.geojson"];
     //    [self addGeoJson:@"uturn.geojson"];
+    
 }
 
 

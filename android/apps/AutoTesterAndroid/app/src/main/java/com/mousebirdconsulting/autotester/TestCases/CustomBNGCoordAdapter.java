@@ -50,7 +50,7 @@ public class CustomBNGCoordAdapter extends MaplyTestCase
 
         MapController.Settings settings = new MapController.Settings();
         settings.coordSys = coordSys;
-        MapController mapControl = new MapController(activity,settings);
+        MapController mapControl = new MapController(getActivity(),settings);
         mapControl.gestureDelegate = this;
 
         return mapControl;

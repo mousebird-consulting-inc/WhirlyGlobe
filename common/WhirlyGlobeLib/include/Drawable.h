@@ -1,9 +1,8 @@
-/*
- *  Drawable.h
+/*  Drawable.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -39,14 +37,17 @@ class SceneRenderer;
 /** Drawable tweakers are called every frame to mess with things.
     It's up to you to make the changes, just make them quick.
   */
-class DrawableTweaker : public Identifiable
+struct DrawableTweaker : public Identifiable
 {
-public:
-    virtual ~DrawableTweaker();
+    virtual ~DrawableTweaker() = default;
+
     /// Do your tweaking here
     virtual void tweakForFrame(Drawable *draw,RendererFrameInfo *frame) = 0;
+
+protected:
+    virtual float getZoom(const Drawable &inDraw,const Scene &scene,float def) const = 0;
 };
-    
+
 typedef std::shared_ptr<DrawableTweaker> DrawableTweakerRef;
 typedef std::set<DrawableTweakerRef> DrawableTweakerRefSet;
 

@@ -1,9 +1,8 @@
-/*
- *  VectorManager.mm
+/*  VectorManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/26/11.
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyKitLog.h"
@@ -106,6 +104,8 @@ void VectorSceneRep::clear(ChangeSet &changes)
         changes.push_back(new RemDrawableReq(it));
 }
 
+static const std::string vecBuilderName("Vector Layer");
+
 /* Drawable Builder
  Used to construct drawables with multiple shapes in them.
  Eventually, we'll move this out to be a more generic object.
@@ -165,7 +165,7 @@ public:
             if (drawable)
                 flush();
             
-            drawable = sceneRender->makeBasicDrawableBuilder("Vector Layer");
+            drawable = sceneRender->makeBasicDrawableBuilder(vecBuilderName);
             drawMbr.reset();
             drawable->setType(primType);
             vecInfo->setupBasicDrawable(drawable);
@@ -255,7 +255,7 @@ public:
                 }
                 changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
             }
-            drawable = NULL;
+            drawable = nullptr;
         }
     }
     
@@ -308,7 +308,7 @@ public:
         geoCenter = newGeoCenter;
     }
     
-    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    // This version converts a ring into a mesh (chopping, tessellating, etc...)
     void addPoints(const VectorRing &ring,const MutableDictionaryRef &attrs)
     {
         // Grid subdivision is done here
@@ -325,7 +325,7 @@ public:
         addPoints(mesh, attrs);
     }
 
-    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    // This version converts a ring into a mesh (chopping, tessellating, etc...)
     void addPoints(const VectorRing3d &inRing,const MutableDictionaryRef &attrs)
     {
         VectorRing ring;
@@ -347,7 +347,7 @@ public:
         addPoints(mesh, attrs);
     }
 
-    // This version converts a ring into a mesh (chopping, tesselating, etc...)
+    // This version converts a ring into a mesh (chopping, tessellating, etc...)
     void addPoints(const std::vector<VectorRing> &rings,const MutableDictionaryRef &attrs)
     {
         // Grid subdivision is done here
@@ -393,7 +393,7 @@ public:
                 if (drawable)
                     flush();
                 
-                drawable = sceneRender->makeBasicDrawableBuilder("Vector Layer");
+                drawable = sceneRender->makeBasicDrawableBuilder(vecBuilderName);
                 drawMbr.reset();
                 drawable->setType(Triangles);
                 vecInfo->setupBasicDrawable(drawable);
@@ -505,7 +505,7 @@ public:
     void flush()
     {
         if (drawable)
-        {            
+        {
             if (drawable->getNumPoints() > 0)
             {
                 // If we're doing screen coordinates, attach the tweaker
@@ -514,8 +514,7 @@ public:
                     const Point2f midPt = drawMbr.mid();
                     const Point3d centerPt = scene->getCoordAdapter()->localToDisplay(Point3d(midPt.x(),midPt.y(),0.0));
                     const Point2d texScale(vecInfo->texScale.x(),vecInfo->texScale.y());
-                    BasicDrawableScreenTexTweaker *texTweaker = new BasicDrawableScreenTexTweaker(centerPt,texScale);
-                    drawable->addTweaker(DrawableTweakerRef(texTweaker));
+                    drawable->addTweaker(std::make_shared<BasicDrawableScreenTexTweaker>(centerPt,texScale));
                 }
 
                 drawable->setLocalMbr(drawMbr);
@@ -535,7 +534,7 @@ public:
                 
                 changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
             }
-            drawable = NULL;
+            drawable = nullptr;
         }
     }
     
@@ -728,9 +727,11 @@ SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vec
 // TODO: Take a reference instead of a pointer
 SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
 {
-    if (shapes->empty())
+    if (!shapes || shapes->empty())
+    {
         return EmptyIdentity;
-    
+    }
+
     VectorSceneRep *sceneRep = new VectorSceneRep();
     sceneRep->fade = vecInfo.fade;
 
@@ -739,13 +740,16 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
 //    bool linesOrPoints = (thePoints.get() ? false : true);
     
     // Look for per vector colors
-    bool doColors = false;
-    for (auto it = shapes->begin();it != shapes->end(); ++it)
+    bool doColors = (vecInfo.colorExp || vecInfo.opacityExp);
+    if (!doColors)
     {
-        if ((*it)->getAttrDict()->hasField(colorStr))
+        for (const auto &shape : *shapes)
         {
-            doColors = true;
-            break;
+            if (shape->getAttrDict()->hasField(colorStr))
+            {
+                doColors = true;
+                break;
+            }
         }
     }
 
@@ -799,7 +803,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> *shap
 
             if (vecInfo.filled)
             {
-                // Trianglate outside and loops
+                // Triangulate outside and loops
                 drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDict());
             } else {
                 // Work through the loops

@@ -50,7 +50,9 @@ class AirwayTestCase: MaplyTestCase {
     
     let buildPointMarkers = true
     let buildPointLabels = false
-    let buildAirspaces = false
+    let buildAirways = false
+    let buildAirspaces = true
+    let buildLineLabels = true
     
     func setupAirways(_ viewC: MaplyBaseViewController) {
         DispatchQueue.global(qos: .default).async {
@@ -116,33 +118,60 @@ class AirwayTestCase: MaplyTestCase {
             
             // For each segment, we want to add the two endpoints as masks
             var labels: [MaplyScreenLabel] = []
+            var lines: [MaplyVectorObject] = []
             for seg in segments {
-                if let locArr = seg.asCLLocationArrays()?.first as? [CLLocation],
-                   let locStart = locArr.first,
-                   let locEnd = locArr.last {
-                    if let markStart = graphBuilder.getPoint(locStart),
-                       let markEnd = graphBuilder.getPoint(locEnd) {
-                        seg.attributes?["maskID0"] = markStart.uuid
-                        seg.attributes?["maskID1"] = markEnd.uuid
-                    }
+                var include = true
+//                if let highVal = seg.attributes?["US_HIGH"] as? Int {
+//                    if highVal > 0 {
+//                        include = true
+//                    }
+//                }
+                guard let text = seg.attributes?["IDENT"] as? String else {
+                    continue
                 }
+                // Used for testing
+//                if seg.attributes?["OBJECTID"] as? Int != 14807 {
+//                    include = false
+//                }
                 
-                // Put a label along the line
-                let label = MaplyScreenLabel()
-                label.layoutVec = seg
-                label.text = seg.attributes?["IDENT"] as? String
-                label.loc = seg.center()
-                label.layoutImportance = 1.0
-                labels.append(label)
+                if include {
+                    if let locArr = seg.asCLLocationArrays()?.first as? [CLLocation],
+                       let locStart = locArr.first,
+                       let locEnd = locArr.last {
+                        if let markStart = graphBuilder.getPoint(locStart),
+                           let markEnd = graphBuilder.getPoint(locEnd) {
+                            seg.attributes?["maskID0"] = markStart.uuid
+                            seg.attributes?["maskID1"] = markEnd.uuid
+                        }
+                    }
+                    
+                    if self.buildLineLabels {
+                        // Put a label along the line
+                        let label = MaplyScreenLabel()
+                        label.layoutVec = seg
+                        label.text = text
+                        label.loc = seg.center()
+                        label.layoutImportance = 1.0
+                        labels.append(label)
+                    }
+                    
+                    lines.append(seg)
+                }
             }
 
-            viewC.addWideVectors(segments, desc: [kMaplyVecWidth: 2.0,
+            viewC.addWideVectors(lines, desc: [kMaplyVecWidth: 2.0,
+                                               kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                                   kMaplyColor: UIColor.blue],
                                  mode: .any)
-//            viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
-//                                                 kMaplyTextColor: UIColor.purple,
-//                                                 kMaplyJustify: kMaplyTextJustifyCenter],
-//                                  mode: .any)
+            if !labels.isEmpty {
+                viewC.addScreenLabels(labels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 24.0),
+                                                     kMaplyTextColor: UIColor.purple,
+                                                     kMaplyTextLayoutOffset: 26.0,
+                                                     kMaplyTextLayoutSpacing: 24.0, // 100 pixels between
+                                                     kMaplyTextLayoutRepeat: 1,
+                                                     kMaplyJustify: kMaplyTextJustifyCenter],
+                                      mode: .any)
+            }
         }
     }
     
@@ -187,6 +216,7 @@ class AirwayTestCase: MaplyTestCase {
 
         if (!airspaceVecs.isEmpty) {
             viewC.addWideVectors(airspaceVecs, desc: [kMaplyVecWidth: 6.0,
+                                                      kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                                       kMaplyColor: UIColor.blue], mode: .any)
         }
         if (!labels.isEmpty) {
@@ -208,7 +238,10 @@ class AirwayTestCase: MaplyTestCase {
 //        globeVC.keepNorthUp = false
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
 
-        setupAirways(globeVC)
+        if buildAirways {
+            setupAirways(globeVC)
+        }
+
         if buildAirspaces {
             setupAirspaces(globeVC)
         }
@@ -219,7 +252,9 @@ class AirwayTestCase: MaplyTestCase {
         
         mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
         
-        setupAirways(mapVC)
+        if buildAirways {
+            setupAirways(mapVC)
+        }
 
         if buildAirspaces {
             setupAirspaces(mapVC)

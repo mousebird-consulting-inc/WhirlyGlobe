@@ -29,7 +29,7 @@ ScreenSpaceDrawableBuilder::ScreenSpaceDrawableBuilder()
 {
 }
 
-void ScreenSpaceDrawableBuilder::Init(bool hasMotion,bool hasRotation,bool buildAnyway)
+void ScreenSpaceDrawableBuilder::ScreenSpaceInit(bool hasMotion,bool hasRotation,bool buildAnyway)
 {
     rotation = hasRotation;
     motion = hasMotion;
@@ -89,14 +89,15 @@ void ScreenSpaceDrawableBuilder::setScaleExpression(FloatExpressionInfoRef inSca
     scaleExp = inScaleExp;
 }
     
-void ScreenSpaceDrawableBuilder::setupTweaker(BasicDrawable *theDraw)
+void ScreenSpaceDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
-    ScreenSpaceTweaker *tweak = makeTweaker();
-    tweak->startTime = startTime;
-    tweak->keepUpright = keepUpright;
-    tweak->activeRot = rotation;
-    tweak->motion = motion;
-    theDraw->addTweaker(DrawableTweakerRef(tweak));
+    if (auto tweak = std::dynamic_pointer_cast<ScreenSpaceTweaker>(inTweaker))
+    {
+        tweak->startTime = startTime;
+        tweak->keepUpright = keepUpright;
+        tweak->activeRot = rotation;
+        tweak->motion = motion;
+    }
 }
-    
+
 }

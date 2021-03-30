@@ -1,9 +1,8 @@
-/*
- *  LayoutManager.h
+/*  LayoutManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/15/13.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -60,7 +58,7 @@ public:
     void setLayoutSize(const Point2d &layoutSize,const Point2d &offset);
     
     // Set the selection size from width/height
-    __unused void setSelectSize(const Point2d &layoutSize,const Point2d &offset);
+    void setSelectSize(const Point2d &layoutSize,const Point2d &offset);
 
     // Size to use for laying out
     Point2dVector layoutPts;

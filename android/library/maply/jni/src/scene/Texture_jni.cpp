@@ -91,7 +91,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
 			return false;
 
-		uint32_t* src = (uint32_t*) bitmapPixels;
+		//uint32_t* src = (uint32_t*) bitmapPixels;
 		MutableRawData *rawData = new MutableRawData(bitmapPixels,info.height*info.width*4);
 		tex->setRawData(rawData, info.width, info.height);
 		AndroidBitmap_unlockPixels(env, bitmapObj);

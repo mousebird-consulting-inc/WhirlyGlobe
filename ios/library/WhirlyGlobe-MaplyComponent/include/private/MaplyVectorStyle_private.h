@@ -105,11 +105,11 @@ public:
     ComponentObjectRef makeComponentObject(PlatformThreadInfo *_Nullable inst, const Dictionary *_Nullable desc) override;
 
     /// Tie a selection ID to the given vector object
-    void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) override;
+    void addSelectionObject(SimpleIdentity selectID,const VectorObjectRef &vecObj,const ComponentObjectRef &compObj) override;
         
     /// Return the width of the given line of text
     double calculateTextWidth(PlatformThreadInfo *_Nullable threadInfo,
-                              LabelInfoRef labelInfo,
+                              const LabelInfoRef &labelInfo,
                               const std::string &testStr) override;
     
     /// Add a sprite sheet

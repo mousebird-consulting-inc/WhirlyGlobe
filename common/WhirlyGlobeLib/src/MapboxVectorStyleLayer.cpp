@@ -54,7 +54,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
 
     if (type.empty()) {
         wkLogLevel(Warn, "Expecting string type for layer");
-        return NULL;
+        return nullptr;
     }
     
     if (type == "fill") {
@@ -74,16 +74,16 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
         layer = std::make_shared<MapboxVectorLayerBackground>(styleSet);
     } else if (type == "fill-extrusion") {
         wkLogLevel(Warn,"Skipping layer type %s",type.c_str());
-        return NULL;
+        return nullptr;
     }
-    layer->type = type;
     if (!layer) {
         wkLogLevel(Warn,"Unknown layer type %s",type.c_str());
-        return NULL;
+        return nullptr;
     }
+    layer->type = type;
     if (!layer->parse(inst, layerDict, refLayer, drawPriority)) {
         wkLogLevel(Warn, "Failed to parse layer %s",layer->ident.c_str());
-        return NULL;
+        return nullptr;
     }
     
     if (layerDict->getType("filter") == DictTypeArray) {

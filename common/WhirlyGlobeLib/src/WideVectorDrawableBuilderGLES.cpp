@@ -16,8 +16,9 @@
  *  limitations under the License.
  */
 
-#import "WideVectorDrawableBuilderGLES.h"
-#import "WhirlyKitLog.h"
+#import <WhirlyGlobe.h>
+#import <WideVectorDrawableBuilderGLES.h>
+#import <WhirlyKitLog.h>
 
 using namespace Eigen;
 
@@ -27,78 +28,82 @@ namespace WhirlyKit
 // OpenGL version of the tweaker
 void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
-    if (frameInfo->program)
+    auto basicDraw = dynamic_cast<BasicDrawableGLES *>(inDraw);
+    if (!basicDraw)
     {
-        const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
-        const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
-        const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
-        const double texScale = scale / (screenSize * texRepeat);
-
-        auto programGLES = (ProgramGLES *)frameInfo->program;
-
-        if (widthExp)
-        {
-            const auto bd = dynamic_cast<BasicDrawable*>(inDraw);
-            if (bd && bd->zoomSlot >= 0)
-            {
-                auto zoom = frameInfo->scene->getZoomSlotValue(bd->zoomSlot);
-                const float expWidth = widthExp->evaluate(zoom, lineWidth);
-                programGLES->setUniform(u_w2NameID, expWidth);
-                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * expWidth));
-                //wkLog("id=%lld on=%s p=%lld n=%s zoom=%f exp=%f/%f lW=%f/%f", inDraw->getId(), inDraw->isOn(frameInfo)?"T":"F", inDraw->getProgram(), inDraw->getName().c_str(), zoom, expWidth, pixDispSize * expWidth, lineWidth, lineWidth * pixDispSize);
-            }
-            else
-            {
-                programGLES->setUniform(u_w2NameID, lineWidth);
-                programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
-            }
-        }
-        else if (realWidthSet)
-        {
-            programGLES->setUniform(u_w2NameID, (float)(realWidth / pixDispSize));
-            programGLES->setUniform(u_Realw2NameID, realWidth);
-        }
-        else
-        {
-            programGLES->setUniform(u_w2NameID, lineWidth);
-            programGLES->setUniform(u_Realw2NameID, (float)(pixDispSize * lineWidth));
-        }
-        programGLES->setUniform(u_EdgeNameID, edgeSize);
-        programGLES->setUniform(u_texScaleNameID, (float)texScale);
-        programGLES->setUniform(u_colorNameID, Vector4f(color.r/255.0f,color.g/255.0f,color.b/255.0f,color.a/255.0f));
+        wkLogLevel(Warn, "Invalid drawable passed to WideVectorTweakerGLES");
+        return;
     }
+
+    const double scale = std::max(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+    const double screenSize = frameInfo->screenSizeInDisplayCoords.x();
+    const double pixDispSize = std::min(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()) / scale;
+    const double texScale = scale / (screenSize * texRepeat);
+    const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
+
+    Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
+
+    if (opacityExp)
+    {
+        c.w() = opacityExp->evaluate(zoom, 1.0f);
+    }
+
+    const RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
+    basicDraw->setOverrideColor(newC);
+
+    const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
+    basicDraw->setUniform(u_w2NameID, width);
+    basicDraw->setUniform(u_Realw2NameID, (float)(pixDispSize * width));
+
+    basicDraw->setUniform(u_EdgeNameID, edgeSize);
+    basicDraw->setUniform(u_texScaleNameID, (float)texScale);
 }
 
-WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,Scene *scene)
-: BasicDrawableBuilderGLES(name,scene,false)
+WideVectorDrawableBuilderGLES::WideVectorDrawableBuilderGLES(const std::string &name,const SceneRenderer *sceneRenderer,Scene *scene) :
+    WideVectorDrawableBuilder(name,sceneRenderer,scene),
+    drawableGotten(false),
+    instanceGotten(false)
 {
 }
     
-void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTri,bool globeMode)
+void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTri,unsigned int numCenterline,
+                                         WideVecImplType implType,
+                                         bool globeMode,
+                                         const WideVectorInfo *vecInfo)
 {
-    basicDraw = std::make_shared<BasicDrawableGLES>("Wide Vector");
-    WideVectorDrawableBuilder::Init(numVert,numTri,globeMode);
+    WideVectorDrawableBuilder::Init(numVert,numTri,0,implType,globeMode,vecInfo);
 }
-    
+
+// NOLINTNEXTLINE(google-default-arguments)
 int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
-    return BasicDrawableBuilderGLES::addAttribute(dataType, nameID, slot, numThings);
+    return basicDrawable->addAttribute(dataType, nameID, slot, numThings);
 }
-    
-WideVectorTweaker *WideVectorDrawableBuilderGLES::makeTweaker()
+
+DrawableTweakerRef WideVectorDrawableBuilderGLES::makeTweaker() const
 {
-    return new WideVectorTweakerGLES();
+    return std::make_shared<WideVectorTweakerGLES>();
 }
-    
-BasicDrawableRef WideVectorDrawableBuilderGLES::getDrawable()
+
+BasicDrawableRef WideVectorDrawableBuilderGLES::getBasicDrawable()
 {
     if (drawableGotten)
-        return BasicDrawableBuilderGLES::getDrawable();
-    
-    const auto theDraw = BasicDrawableBuilderGLES::getDrawable();
-    setupTweaker(theDraw.get());
-        
+    {
+        return basicDrawable->getDrawable();
+    }
+
+    drawableGotten = true;
+    // non-const to allow copy elision on return
+    auto theDraw = basicDrawable->getDrawable();
+
+    setupTweaker(*theDraw);
+
     return theDraw;
+}
+
+BasicDrawableInstanceRef  WideVectorDrawableBuilderGLES::getInstanceDrawable()
+{
+    return nullptr;
 }
     
 static const char *vertexShaderTri = R"(
@@ -110,23 +115,22 @@ uniform float u_fade;
 uniform float u_w2;
 uniform float u_real_w2;
 uniform float u_texScale;
-uniform vec4 u_color;
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texinfo;
-//attribute vec4 a_color;
+attribute vec4 a_color;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
 attribute vec3 a_offset;
 
 varying vec2 v_texCoord;
-//"varying vec4 v_color;
+varying vec4 v_color;
 
 void main()
 {
-    //   v_color = a_color;\n"
+    v_color = a_color;
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,-4.0,5.0);
@@ -153,24 +157,23 @@ uniform float u_fade;
 uniform float u_w2;
 uniform float u_real_w2;
 uniform float u_texScale;
-uniform vec4 u_color;
 
 attribute vec3 a_position;
 attribute vec3 a_normal;
 attribute vec4 a_texinfo;
-//attribute vec4 a_color;
+attribute vec4 a_color;
 attribute vec3 a_p1;
 attribute vec3 a_n0;
 attribute float a_c0;
 attribute vec3 a_offset;
 
 varying vec2 v_texCoord;
-//varying vec4 v_color;
+varying vec4 v_color;
 varying float      v_dot;
 
 void main()
 {
-    //   v_color = a_color;
+    v_color = a_color;
     //  Position along the line
     float t0 = a_c0 * u_real_w2;
     t0 = clamp(t0,-4.0,5.0);
@@ -198,10 +201,10 @@ uniform sampler2D s_baseMap0;
 uniform bool  u_hasTexture;
 uniform float u_w2;
 uniform float u_edge;
-uniform vec4 u_color;
 uniform float u_fade;
 
 varying vec2      v_texCoord;
+varying vec4      v_color;
 
 void main()
 {
@@ -212,7 +215,7 @@ void main()
         alpha = across/u_edge;
     if (across > u_w2-u_edge)
         alpha = (u_w2-across)/u_edge;
-    gl_FragColor = u_color * alpha * patternVal * u_fade;
+    gl_FragColor = v_color * alpha * patternVal * u_fade;
 }
 )";
 
@@ -223,12 +226,11 @@ uniform sampler2D s_baseMap0;
 uniform bool  u_hasTexture;
 uniform float u_w2;
 uniform float u_edge;
-uniform vec4 u_color;
 uniform float u_fade;
 
 varying vec2      v_texCoord;
 varying float      v_dot;
-//"varying vec4      v_color;
+varying vec4      v_color;
 
 void main()
 {
@@ -239,17 +241,17 @@ void main()
         alpha = across/u_edge;
     if (across > u_w2-u_edge)
         alpha = (u_w2-across)/u_edge;
-    gl_FragColor = (v_dot > 0.0 ? u_color * alpha * patternVal * u_fade : vec4(0.0,0.0,0.0,0.0));
+    gl_FragColor = (v_dot > 0.0 ? v_color * alpha * patternVal * u_fade : vec4(0.0,0.0,0.0,0.0));
 }
 )";
 
-ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildWideVectorProgramGLES(const std::string &name, SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTriAlias);
+    auto shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     // Set some reasonable defaults
@@ -265,13 +267,13 @@ ProgramGLES *BuildWideVectorProgramGLES(const std::string &name,SceneRenderer *r
     return shader;
 }
 
-ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name, SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
+    auto shader = new ProgramGLES(name,vertexGlobeShaderTri,fragmentGlobeShaderTriAlias);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     // Set some reasonable defaults
@@ -282,8 +284,7 @@ ProgramGLES *BuildWideVectorGlobeProgramGLES(const std::string &name,SceneRender
         shader->setUniform(u_lengthNameID, 10.f/1024);
         shader->setUniform(u_texScaleNameID, 1.f);
     }
-    
-    
+
     return shader;
 }
     

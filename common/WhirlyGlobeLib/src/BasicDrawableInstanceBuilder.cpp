@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableInstanceBuilder.cpp
+/*  BasicDrawableInstanceBuilder.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/10/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableInstanceBuilder.h"
@@ -23,15 +21,12 @@
 namespace WhirlyKit
 {
 
-BasicDrawableInstanceBuilder::BasicDrawableInstanceBuilder(const std::string &name,Scene *scene)
-: scene(scene)
+BasicDrawableInstanceBuilder::BasicDrawableInstanceBuilder(std::string name,Scene *scene) :
+    scene(scene),
+    name(std::move(name))
 {
 }
-    
-BasicDrawableInstanceBuilder::~BasicDrawableInstanceBuilder()
-{
-}
-    
+
 void BasicDrawableInstanceBuilder::Init()
 {
     drawInst->programID = EmptyIdentity;
@@ -77,6 +72,12 @@ void BasicDrawableInstanceBuilder::setEnableTimeRange(TimeInterval inStartEnable
     drawInst->endEnable = inEndEnable;
 }
 
+void BasicDrawableInstanceBuilder::setFade(TimeInterval inFadeDown,TimeInterval inFadeUp)
+{
+    // TODO: Add fade to instances
+//    drawInst->setFade(inFadeDown,inFadeUp);
+}
+
 void BasicDrawableInstanceBuilder::setViewerVisibility(double minViewerDist,double maxViewerDist,const Point3d &viewerCenter)
 {
     drawInst->minViewerDist = minViewerDist;
@@ -104,7 +105,7 @@ void BasicDrawableInstanceBuilder::setDrawOrder(int64_t newOrder)
 void BasicDrawableInstanceBuilder::setDrawPriority(unsigned int newPriority)
 {
     drawInst->hasDrawPriority = true;
-    drawInst->drawPriority = newPriority;
+    drawInst->drawPriority = (int)newPriority;
 }
     
 void BasicDrawableInstanceBuilder::setColor(const RGBAColor &color)
@@ -115,7 +116,7 @@ void BasicDrawableInstanceBuilder::setColor(const RGBAColor &color)
 
 void BasicDrawableInstanceBuilder::setLineWidth(float lineWidth)
 {
-    drawInst->hasLineWidth = lineWidth;
+    drawInst->hasLineWidth = true;
     drawInst->setLineWidth(lineWidth);
 }
 
@@ -134,7 +135,7 @@ void BasicDrawableInstanceBuilder::setRenderTarget(SimpleIdentity newRenderTarge
     drawInst->renderTargetID = newRenderTarget;
 }
 
-void BasicDrawableInstanceBuilder::addTweaker(DrawableTweakerRef tweakRef)
+void BasicDrawableInstanceBuilder::addTweaker(const DrawableTweakerRef &tweakRef)
 {
     drawInst->tweakers.insert(tweakRef);
 }
@@ -172,17 +173,17 @@ void BasicDrawableInstanceBuilder::setUniBlock(const BasicDrawable::UniformBlock
 
 void BasicDrawableInstanceBuilder::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    setupTexCoordEntry(which, 0);
+    setupTexCoordEntry((int)which, 0);
     
-    if (drawInst->texInfo.empty())
-        return;
-    
-    drawInst->texInfo[which].texId = inId;
+    if (!drawInst->texInfo.empty())
+    {
+        drawInst->texInfo[which].texId = inId;
+    }
 }
 
 void BasicDrawableInstanceBuilder::setTexIDs(const std::vector<SimpleIdentity> &texIDs)
 {
-    for (unsigned int ii=0;ii<texIDs.size();ii++)
+    for (int ii=0;ii<texIDs.size();ii++)
     {
         setupTexCoordEntry(ii, 0);
         drawInst->texInfo[ii].texId = texIDs[ii];
@@ -199,7 +200,7 @@ void BasicDrawableInstanceBuilder::setupTexCoordEntry(int which,int numReserve)
     if (which < drawInst->texInfo.size())
         return;
     
-    for (unsigned int ii=(unsigned int)drawInst->texInfo.size();ii<=which;ii++)
+    for (auto ii=(unsigned int)drawInst->texInfo.size();ii<=which;ii++)
     {
         BasicDrawableInstance::TexInfo newInfo;
         drawInst->texInfo.push_back(newInfo);
@@ -211,11 +212,14 @@ void BasicDrawableInstanceBuilder::setProgram(SimpleIdentity progID)
     drawInst->setProgram(progID);
 }
     
-SimpleIdentity BasicDrawableInstanceBuilder::getDrawableID()
+SimpleIdentity BasicDrawableInstanceBuilder::getDrawableID() const
 {
-    if (drawInst)
-        return drawInst->getId();
-    return EmptyIdentity;
+    return drawInst ? drawInst->getId() : EmptyIdentity;
+}
+
+void BasicDrawableInstanceBuilder::setInstanceData(int numInstance,RawDataRef data)
+{
+    drawInst->setInstanceData(numInstance, data);
 }
 
 }

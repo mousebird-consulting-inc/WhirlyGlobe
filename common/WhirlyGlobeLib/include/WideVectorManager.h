@@ -23,7 +23,6 @@
 #import <map>
 #import "Identifiable.h"
 #import "BasicDrawableInstance.h"
-#import "WideVectorDrawableBuilder.h"
 #import "Scene.h"
 #import "SelectionManager.h"
 #import "VectorData.h"
@@ -43,6 +42,9 @@ typedef enum {WideVecMiterJoin,WideVecRoundJoin,WideVecBevelJoin} WideVectorLine
     
 /// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
 typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
+
+/// Performance vs basic wide vector implementation
+typedef enum {WideVecImplBasic,WideVecImplPerf} WideVecImplType;
     
 /** Used to pass parameters for the wide vectors around.
   */
@@ -51,7 +53,9 @@ class WideVectorInfo : public BaseInfo
 public:
     WideVectorInfo();
     WideVectorInfo(const Dictionary &dict);
+    virtual ~WideVectorInfo() = default;
 
+    WideVecImplType implType;
     RGBAColor color;
     float width;
     float offset;

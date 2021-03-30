@@ -64,6 +64,8 @@ typedef enum {
 // Wide Vector vertex attribute positions
 typedef enum {
     WKSVertexWideVecTexInfoAttribute = 7,
+    // We don't use these at the same time
+    WKSVertexWideVecInstIndexAttribute = 7,
     WKSVertexWideVecP1Attribute,
     WKSVertexWideVecN0Attribute,
     WKSVertexWideVecC0Attribute,
@@ -238,6 +240,23 @@ struct UniformWideVecExp {
     FloatExp opacityExp;
     ColorExp colorExp;
 };
+
+// Instance info for the wide vector (new) vertex shader
+typedef struct
+{
+    // Center of the point on the line
+    simd::float3 center;
+    // Upward direction (for 3D lines)
+    simd::float3 up;
+    // Length of the line up to this point
+    float len;
+    // Color for the whole line
+    simd::float4 color;
+    // Used to track loops and such
+    int prev,next;
+    // Mask IDs for comparison
+    int mask0,mask1;
+} VertexTriWideVecInstance;
     
 // Instructions to the screen space shaders, usually per-drawable
 struct UniformScreenSpace {
@@ -366,6 +385,23 @@ struct ProjVertexTriWideVec {
     float4 color;
     float2 texCoord;
     float dotProd;
+    float w2;
+    uint2 maskIDs;
+};
+
+// Vertex definition for wide vector (new version)
+struct VertexTriWideVecB
+{
+    // x, y offset around the center
+    float3 screenPos [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    int index [[attribute(WhirlyKitShader::WKSVertexWideVecInstIndexAttribute)]];
+};
+
+// Wide vector vertex passed to fragment shader (new version)
+struct ProjVertexTriWideVecPerf {
+    float4 position [[invariant]] [[position]];
+    float4 color;
+    float2 texCoord;
     float w2;
     uint2 maskIDs;
 };
