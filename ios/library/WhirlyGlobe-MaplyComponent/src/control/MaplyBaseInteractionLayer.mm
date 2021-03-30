@@ -1004,7 +1004,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         if (topObject == nullptr || sorter(obj, topObject))
             topObject = obj;
     
-    if (topObject == nullptr || topObject->obj.getGeometry().empty())
+    if (topObject == nullptr || topObject->obj.getGeometry()->empty())
         return;
     
     retObj.setWorldLoc(topObject->obj.getWorldLoc());
@@ -1012,15 +1012,15 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     if (topObject->obj.hasRotation())
         retObj.setRotation(topObject->obj.getRotation());
     
-    std::vector<ScreenSpaceConvexGeometry> allGeometry = topObject->obj.getGeometry();
+    const std::vector<ScreenSpaceConvexGeometry> *allGeometry = topObject->obj.getGeometry();
     
-    if (allGeometry.empty())
+    if (allGeometry->empty())
         return;
     
-    retObj.layoutPts = allGeometry.back().coords;
-    retObj.selectPts = allGeometry.back().coords;
+    retObj.layoutPts = allGeometry->back().coords;
+    retObj.selectPts = allGeometry->back().coords;
     
-    for (auto geometry : allGeometry)
+    for (auto geometry : *allGeometry)
         retObj.addGeometry(geometry);
 }
 
