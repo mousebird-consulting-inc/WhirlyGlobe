@@ -70,16 +70,6 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		this.implementation = impl;
 	}
 
-	public MaplyTestCase(Activity activity, String name) {
-		this(activity, name, TestExecutionImplementation.Both);
-	}
-
-	public MaplyTestCase(Activity activity, String name, TestExecutionImplementation impl) {
-		this(activity);
-		setTestName(name);
-		implementation = impl;
-	}
-
 	public boolean areResourcesDownloaded(){
 		for (int ii = 0; ii < remoteResources.size(); ii++){
 			File file = new File(ConfigOptions.getCacheDir(getActivity()) + "/" + getFileName(remoteResources.get(ii)));
