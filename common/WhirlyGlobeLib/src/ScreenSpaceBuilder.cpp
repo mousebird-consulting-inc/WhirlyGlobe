@@ -367,10 +367,10 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
 {
     for (unsigned int ii=0;ii<geoms->size();ii++)
     {
-        Eigen::Matrix3d placeMat = places->at(ii);
         ScreenSpaceConvexGeometry geom = geoms->at(ii);
         // Apply a matrix to the geometry for a given version of the placement
         if (places) {
+            Eigen::Matrix3d placeMat = places->at(ii);
             for (auto &pt: geom.coords) {
                 Point3d pt2d = placeMat * Point3d(pt.x(),pt.y(),1.0);
                 pt = Point2d(pt2d.x(),pt2d.y());
