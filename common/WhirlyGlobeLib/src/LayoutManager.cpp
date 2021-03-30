@@ -672,8 +672,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                             // Center around the world point on the screen
                             Point2f midRun;
-                            if (!walk.nextPoint(layoutMbr.span().x()/2.0, &midRun, nullptr, false))
+                            if (!walk.nextPoint(resScale * layoutMbr.span().x()/2.0, &midRun, nullptr, false))
                                 continue;
+                            wkLogLevel(Debug, "midRun = (%f,%f)",midRun.x(),midRun.y());
                             Point2f worldScreenPt = midRun;
                             Point3d worldPt(0.0,0.0,0.0);
                             if (!textBuilder.screenToWorld(midRun, worldPt))
@@ -711,31 +712,30 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 
                                 // Translate the glyph into that position
                                 Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
-                                                                  -(centerPt.y()-worldScreenPt.y())/2.0));
+                                                                  (worldScreenPt.y()-centerPt.y())/2.0));
                                 double ang = -1.0 * (atan2(norm.y(),norm.x()) - M_PI/2.0);
                                 Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
                                 Matrix3d screenRotMat = Matrix3d::Identity();
                                 for (unsigned ix=0;ix<2;ix++)
                                     for (unsigned iy=0;iy<2;iy++)
                                         screenRotMat(ix, iy) = screenRot(ix, iy);
+                                Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
                                 Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
-                                Matrix3d overlapMat = transPlace.matrix() * screenRotMat * scaleMat * transOrigin.matrix();
-//                                Matrix3d overlapMat = transPlace.matrix() * transOrigin.matrix();
-                                layoutMats.push_back(transPlace.matrix() * screenRotMat * transOrigin.matrix());
-//                                layoutMats.push_back(transPlace.matrix() * transOrigin.matrix());
+                                Matrix3d testMat = screenRotMat * scaleMat * transOrigin.matrix();
+                                layoutMats.push_back(overlapMat);
 
                                 // Check for overlap
                                 Point2dVector objPts;  objPts.reserve(4);
                                 for (unsigned int oi=0;oi<4;oi++) {
-                                    Point3d pt = overlapMat * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
-                                    Point2d objPt(pt.x()+worldScreenPt.x(),pt.y()+worldScreenPt.y());
+                                    Point3d pt = testMat * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
+                                    Point2d objPt(pt.x()+centerPt.x(),pt.y()+centerPt.y());
                                     objPts.push_back(objPt);
                                 }
                                 
 //                                if (!failed) {
 //                                    wkLog("  Geometry %d",ig);
 //                                    for (unsigned int ip=0;ip<objPts.size();ip++) {
-//                                        wkLog("    (%f,%f)",objPts[ip].x(),frameBufferSize.y()-objPts[ip].y());
+//                                        wkLog("    (%f,%f)",objPts[ip].x(),objPts[ip].y());
 //                                    }
 //                                }
 
@@ -891,10 +891,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     }
                                 }
                                 
-    //                        wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
-    //                        wkLogLevel(Debug, "Layout Pts");
-    //                        for (unsigned int xx=0;xx<objPts.size();xx++)
-    //                           wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
+//                            wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
+//                            wkLogLevel(Debug, "Layout Pts");
+//                            for (unsigned int xx=0;xx<objPts.size();xx++)
+//                               wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
                                 
                                 // Now try it.  Objects we've pegged as essential always win
                                 if (overlapMan.addCheckObject(objPts) || container.importance >= MAXFLOAT)
