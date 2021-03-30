@@ -3,34 +3,41 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 11/8/19.
-//  Copyright © 2019 mousebird consulting. All rights reserved.
+//  Copyright © 2021 mousebird consulting. All rights reserved.
 //
 
 import UIKit
 
 class MapTilerTestCase: MaplyTestCase {
-    
-    override init() {
+
+    init(_ name: String, _ impl: MaplyTestCaseImplementations = [.map,.globe]) {
         super.init()
-        
-        self.name = "MapTiler Test Cases"
-        self.implementations = [.map,.globe]
+        self.name = name
+        self.implementations = impl
+        self.styles = getStyles()
+    }
+
+    override convenience init() {
+        self.init("MapTiler Test Cases",[.map,.globe])
         
         let env = ProcessInfo.processInfo.environment
         mapTilerStyle = NumberFormatter().number(from: env["MAPTILER_STYLE"] ?? "")?.intValue ?? mapTilerStyle
     }
-    
-    // Styles included in the bundle
-    let styles : [(name: String, sheet: String)] =
-        [("Basic", "maptiler_basic"),
-         ("Hybrid Satellite", "maptiler_hybrid_satellite"),
-         ("Streets", "maptiler_streets"),
-//         ("Topo", "maptiler_topo")
-    ]
-    var mapTilerStyle = 2
 
+    func getStyles() -> [(name: String, sheet: String)] {
+        return [
+            ("Basic", "maptiler_basic"),
+            ("Hybrid Satellite", "maptiler_hybrid_satellite"),
+            ("Streets", "maptiler_streets"),
+    //         ("Topo", "maptiler_topo"),   // ?
+            ("Custom", "maptiler_expr_test")
+        ]
+    }
+
+    var styles = [(name: String, sheet: String)]()
+    var mapTilerStyle = 2
     var mapboxMap : MapboxKindaMap? = nil
-    
+
     // Start fetching the required pieces for a Mapbox style map
     func startMap(_ style: (name: String, sheet: String), viewC: MaplyBaseViewController, round: Bool) {
         guard let fileName = Bundle.main.url(forResource: style.sheet, withExtension: "json") else {
@@ -79,10 +86,15 @@ class MapTilerTestCase: MaplyTestCase {
                 self.legendVC = legendVC
             }
         }
+        setup(mapboxMap)
         mapboxMap.start()
         self.mapboxMap = mapboxMap
     }
     
+    func setup(_ map: MapboxKindaMap) {
+        map.styleSettings.textScale = 1.1
+    }
+
     var legendVisibile = false
     var legendVC: LegendViewController? = nil
     
@@ -164,7 +176,7 @@ class MapTilerTestCase: MaplyTestCase {
         mapboxMap?.stop()
         mapboxMap = nil
 
-        mapTilerStyle = (mapTilerStyle + 1) % 3
+        mapTilerStyle = (mapTilerStyle + 1) % styles.count
         startMap(styles[mapTilerStyle], viewC: viewC, round: false)
     }
 }

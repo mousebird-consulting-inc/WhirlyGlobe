@@ -26,6 +26,7 @@ using namespace WhirlyKit;
 
 template<> BaseInfoClassInfo *BaseInfoClassInfo::classInfoObj = NULL;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_nativeInit
 (JNIEnv *env, jclass cls)
 {
@@ -33,6 +34,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_nativeInit
 }
 
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setVisibleHeightRange
   (JNIEnv *env, jobject obj, jdouble minVis, jdouble maxVis)
 {
@@ -51,6 +53,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setVisibleHeightRange
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getVisibleHeightMin
   (JNIEnv *env, jobject obj)
 {
@@ -70,6 +73,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getVisibleHeightMin
     return DrawVisibleInvalid;
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getVisibleHeightMax
   (JNIEnv *env, jobject obj)
 {
@@ -89,6 +93,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getVisibleHeightMax
     return DrawVisibleInvalid;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setViewDistRange
   (JNIEnv *env, jobject obj, jdouble viewMin, jdouble viewMax)
 {
@@ -107,6 +112,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setViewDistRange
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getViewDistRangeMin
   (JNIEnv *env, jobject obj)
 {
@@ -126,6 +132,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getViewDistRangeMin
     return DrawVisibleInvalid;
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getViewDistRangeMax
   (JNIEnv *env, jobject obj)
 {
@@ -145,6 +152,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getViewDistRangeMax
     return DrawVisibleInvalid;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setViewerCenter
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -164,6 +172,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setViewerCenter
     }
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_BaseInfo_getViewerCenter
   (JNIEnv *env, jobject obj)
 {
@@ -184,6 +193,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_BaseInfo_getViewerCenter
     return NULL;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawOffset
 (JNIEnv *env, jobject obj, jfloat drawOffset)
 {
@@ -201,6 +211,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawOffset
     }
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getDrawOffset
   (JNIEnv *env, jobject obj)
 {
@@ -220,6 +231,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getDrawOffset
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawPriority
 (JNIEnv *env, jobject obj, jint drawPriority)
 {
@@ -237,6 +249,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setDrawPriority
     }
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_BaseInfo_getDrawPriority
 (JNIEnv *env, jobject obj)
 {
@@ -256,6 +269,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_BaseInfo_getDrawPriority
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnable
 (JNIEnv *env, jobject obj, jboolean enable)
 {
@@ -273,6 +287,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnable
     }
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_BaseInfo_getEnable
   (JNIEnv *env, jobject obj)
 {
@@ -292,6 +307,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_BaseInfo_getEnable
     return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
 (JNIEnv *env, jobject obj, jdouble fade)
 {
@@ -309,6 +325,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFadeInOut
   (JNIEnv *env, jobject obj, jdouble fadeIn, jdouble fadeOut)
 {
@@ -327,16 +344,17 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFadeInOut
     }
 }
 
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeIn
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeIn(JNIEnv *env, jobject obj)
 {
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
         BaseInfoRef *info = classInfo->getObject(env,obj);
-        if (!info)
-            return 0.0;
-        return (*info)->fadeIn;
+        if (info)
+        {
+            return (jfloat)(*info)->fadeIn;
+        }
     }
     catch (...)
     {
@@ -346,16 +364,17 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeIn
     return 0.0;
 }
 
-JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOut
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOut(JNIEnv *env, jobject obj)
 {
     try
     {
         BaseInfoClassInfo *classInfo = BaseInfoClassInfo::getClassInfo();
         BaseInfoRef *info = classInfo->getObject(env,obj);
-        if (!info)
-            return 0.0;
-        return (*info)->fadeOut;
+        if (info)
+        {
+            return (jfloat)(*info)->fadeOut;
+        }
     }
     catch (...)
     {
@@ -365,6 +384,7 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOut
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFadeOutTime
   (JNIEnv *env, jobject obj, jdouble fadeOutTime)
 {
@@ -387,6 +407,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFadeOutTime
  * Method:    getFadeOutTime
  * Signature: ()D
  */
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOutTime
   (JNIEnv *env, jobject obj)
 {
@@ -406,6 +427,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_BaseInfo_getFadeOutTime
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnableTimes
   (JNIEnv *env, jobject obj, jdouble startEnable, jdouble endEnable)
 {
@@ -425,6 +447,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setEnableTimes
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
   (JNIEnv *env, jobject obj, jlong shaderID)
 {
@@ -443,6 +466,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setShaderID
     }
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
   (JNIEnv *env, jobject obj)
 {
@@ -463,6 +487,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BaseInfo_getShaderID
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferRead
   (JNIEnv *env, jobject obj, jboolean val)
 {
@@ -481,6 +506,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferRead
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferWrite
   (JNIEnv *env, jobject obj, jboolean val)
 {
@@ -499,6 +525,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setZBufferWrite
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setRenderTargetNative
   (JNIEnv *env, jobject obj, jlong targetID)
 {

@@ -1,4 +1,4 @@
-/*  LayoutManager.h
+/*  LayoutManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/15/13.

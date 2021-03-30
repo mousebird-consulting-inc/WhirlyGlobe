@@ -28,6 +28,8 @@ class SceneRendererGLES_Android;
 // Snapshot base class for Android
 class Snapshot_Android {
 public:
+    virtual ~Snapshot_Android() = default;
+
     // Return true if we want a snapshot this frame
     virtual bool needsSnapshot(TimeInterval val) { return true; }
 

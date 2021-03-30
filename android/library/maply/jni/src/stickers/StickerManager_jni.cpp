@@ -1,9 +1,8 @@
-/*
- *  StickerMAnager_jni.cpp
+/*  StickerMAnager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/18/15.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Stickers_jni.h"
@@ -25,18 +23,18 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-static const char *SceneHandleName = "nativeSceneHandle";
+//static const char *SceneHandleName = "nativeSceneHandle";
 
-template<> StickerManagerClassInfo *StickerManagerClassInfo::classInfoObj = NULL;
+template<> StickerManagerClassInfo *StickerManagerClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_nativeInit(JNIEnv *env, jclass cls)
 {
     StickerManagerClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_initialise
-(JNIEnv *env, jobject obj, jobject sceneObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_initialise(JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
@@ -54,14 +52,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_dispose
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_dispose(JNIEnv *env, jobject obj)
 {
     try
     {
         SphericalChunkManagerRef *chunkManager = StickerManagerClassInfo::getClassInfo()->getObject(env,obj);
-        if (chunkManager)
-            delete chunkManager;
+        delete chunkManager;
         StickerManagerClassInfo::getClassInfo()->clearHandle(env,obj);
     }
     catch (...)
@@ -70,6 +67,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_dispose
     }
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
         (JNIEnv *env, jobject obj, jobjectArray stickerArr, jobject stickerInfoObj, jobject changeSetObj)
 {
@@ -111,8 +109,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_StickerManager_addStickers
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTextures
-(JNIEnv *env, jobject obj, jlong stickerID, jobject stickerInfoObj, jobject changeSetObj)
+    (JNIEnv *env, jobject obj, jlong stickerID, jobject stickerInfoObj, jobject changeSetObj)
 {
     try
     {
@@ -135,8 +134,9 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyChunkTe
     return false;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPriority
-(JNIEnv *env, jobject obj, jlong stickerID, jint drawPriority, jobject changeSetObj)
+    (JNIEnv *env, jobject obj, jlong stickerID, jint drawPriority, jobject changeSetObj)
 {
     try
     {
@@ -158,8 +158,9 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_StickerManager_modifyDrawPri
     return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
+    (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
 {
     try
     {
@@ -182,8 +183,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeSetObj)
+    (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeSetObj)
 {
     try
     {

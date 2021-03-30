@@ -36,7 +36,7 @@ ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
 
 void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
     if (pointBuffer != 0)
         return;
@@ -76,17 +76,17 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
     }
     
     // If we have varyings we need buffers to hold them
-    for (auto varyAttr : varyAttrs) {
-        GLuint totalSize = varyAttr.size()*numTotalPoints;
+    for (const auto &varyAttr : varyAttrs) {
+        const GLuint totalSize = varyAttr.size()*numTotalPoints;
         
-        VaryBufferPair bufferPair;
-        for (unsigned int ii=0;ii<2;ii++) {
-            bufferPair.buffers[ii] = setupInfo->memManager->getBufferID(totalSize,GL_DYNAMIC_DRAW);
+        VaryBufferPair bufferPair = {0,0};
+        for (auto &buffer : bufferPair.buffers) {
+            buffer = setupInfo->memManager->getBufferID(totalSize,GL_DYNAMIC_DRAW);
             
             // Zero out the new buffers
             // That's how we signal that they're new
-            glBindBuffer(GL_ARRAY_BUFFER, bufferPair.buffers[ii]);
-            void *glMem = NULL;
+            glBindBuffer(GL_ARRAY_BUFFER, buffer);
+            void *glMem = nullptr;
             glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalSize, GL_MAP_WRITE_BIT);
             memset(glMem, 0, totalSize);
             glUnmapBuffer(GL_ARRAY_BUFFER);
@@ -114,7 +114,7 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
 
 void ParticleSystemDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene,RenderTeardownInfoRef teardown)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 
     if (pointBuffer)
         setupInfo->memManager->removeBufferID(pointBuffer);
@@ -122,8 +122,8 @@ void ParticleSystemDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSe
     if (rectBuffer)
         setupInfo->memManager->removeBufferID(rectBuffer);
     for (auto bufferPair : varyBuffers)
-        for (unsigned int ii=0;ii<2;ii++)
-            setupInfo->memManager->removeBufferID(bufferPair.buffers[ii]);
+        for (unsigned int buffer : bufferPair.buffers)
+            setupInfo->memManager->removeBufferID(buffer);
     varyBuffers.clear();
     rectBuffer = 0;
     batches.clear();
@@ -139,7 +139,7 @@ void ParticleSystemDrawableGLES::addAttributeData(const RenderSetupInfo *setupIn
     // When the particles initialize themselves we don't have vertex data
     if (vertexSize > 0) {
         glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-        unsigned char *glMem = NULL;
+        unsigned char *glMem = nullptr;
         int glMemOffset = 0;
         glMem = (unsigned char *)glMapBufferRange(GL_ARRAY_BUFFER, batch.batchID*vertexSize*batchSize, vertexSize*batchSize, GL_MAP_WRITE_BIT);
         
@@ -150,7 +150,7 @@ void ParticleSystemDrawableGLES::addAttributeData(const RenderSetupInfo *setupIn
             const AttributeData &thisAttrData = attrData[ai];
             SingleVertexAttributeInfo &attrInfo = vertAttrs[ai];
             int attrSize = attrInfo.size();
-            unsigned char *rawAttrData = (unsigned char *)thisAttrData.data;
+            auto rawAttrData = (unsigned char *)thisAttrData.data;
             unsigned char *ptr = glMem + attrOffset + glMemOffset;
             // Copy into each vertex
             for (unsigned int ii=0;ii<batchSize;ii++)
@@ -177,15 +177,15 @@ void ParticleSystemDrawableGLES::addAttributeData(const RenderSetupInfo *setupIn
 
 void ParticleSystemDrawableGLES::drawSetupTextures(RendererFrameInfo *frameInfo,Scene *inScene,ProgramGLES *prog,bool hasTexture[],int &progTexBound)
 {
-    SceneGLES *scene = (SceneGLES *)inScene;
+    auto scene = (SceneGLES *)inScene;
     
     // GL Texture IDs
-    bool anyTextures = false;
+    //bool anyTextures = false;
     std::vector<GLuint> glTexIDs;
     for (SimpleIdentity texID : texIDs)
     {
         GLuint glTexID = scene->getGLTexture(texID);
-        anyTextures = true;
+        //anyTextures = true;
         glTexIDs.push_back(glTexID);
     }
     
@@ -252,7 +252,7 @@ void ParticleSystemDrawableGLES::drawSetupUniforms(RendererFrameInfo *frameInfo,
     prog->setUniform(u_frameLenID, (float)frameInfo->frameLen);
 }
 
-void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
+void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,ProgramGLES *prog,const BufferChunk &chunk,int vertexOffset,bool useInstancingHere)
 {
     glBindBuffer(GL_ARRAY_BUFFER,pointBuffer);
     
@@ -335,15 +335,14 @@ void ParticleSystemDrawableGLES::drawUnbindAttrs(ProgramGLES *prog)
             glVertexAttribDivisor(thisAttr->index, 0);
         }
     }
-    int which = 0;
-    for (SingleVertexAttributeInfo &varyInfo : varyAttrs)
+    for (const auto &name : varyNames)
     {
-        const OpenGLESAttribute *thisAttr = prog->findAttribute(varyNames[which]);
-        if (thisAttr) {
+        const OpenGLESAttribute *thisAttr = prog->findAttribute(name);
+        if (thisAttr)
+        {
             glDisableVertexAttribArray(thisAttr->index);
             glVertexAttribDivisor(thisAttr->index, 0);
         }
-        which++;
     }
 }
 
@@ -358,7 +357,7 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scen
     if (chunks.empty())
         return;
     
-    ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
+    auto prog = (ProgramGLES *)frameInfo->program;
     
     if (!prog)
         return;
@@ -394,7 +393,7 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scen
         glEndTransformFeedback();
         CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
         
-        for (int varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
+        for (varyIdx = 0; varyIdx < varyAttrs.size(); varyIdx++) {
             glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, varyIdx, 0);
         }
         
@@ -441,7 +440,7 @@ void ParticleSystemDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *sc
     if (chunks.empty())
         return;
     
-    ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
+    auto prog = (ProgramGLES *)frameInfo->program;
     
     // Sometimes the program is deleted before the drawable (oops)
     if (!prog)
@@ -562,13 +561,13 @@ void main()
 }
 )";
 
-ProgramGLES *BuildParticleSystemProgramGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildParticleSystemProgramGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
+    auto shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     if (shader)

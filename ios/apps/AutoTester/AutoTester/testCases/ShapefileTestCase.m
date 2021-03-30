@@ -33,7 +33,11 @@
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithShapeFile:@"ne_10m_roads"];
 
 	NSLog(@"Adding vectors...");
-    compObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor whiteColor]}];
+//    compObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor whiteColor]}];
+    compObj = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor whiteColor],
+                                                         kMaplyVecWidth: @(20.0),
+                                                         kMaplyWideVecImpl: kMaplyWideVecImplPerf
+    }];
 
 	NSLog(@"Done.");
 }

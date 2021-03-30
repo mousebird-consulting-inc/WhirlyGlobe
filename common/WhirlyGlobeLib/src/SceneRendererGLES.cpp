@@ -1,9 +1,8 @@
-/*
- *  SceneRendererGLES.cpp
+/*  SceneRendererGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/13/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneRendererGLES.h"
@@ -27,7 +25,6 @@
 #import "ScreenSpaceDrawableBuilderGLES.h"
 #import "WideVectorDrawableBuilderGLES.h"
 #import "ParticleSystemDrawableBuilderGLES.h"
-#import "RenderTargetGLES.h"
 #import "DynamicTextureAtlasGLES.h"
 #import "MaplyView.h"
 #import "WhirlyKitLog.h"
@@ -45,12 +42,11 @@ WorkGroupGLES::WorkGroupGLES(GroupType inGroupType)
     switch (groupType) {
         case Calculation:
             // For calculation we don't really have a render target
-            renderTargetContainers.push_back(WorkGroupGLES::makeRenderTargetContainer(NULL));
+            renderTargetContainers.push_back(WorkGroupGLES::makeRenderTargetContainer(nullptr));
             break;
+        default:
         case Offscreen:
-            break;
         case ReduceOps:
-            break;
         case ScreenRender:
             break;
     }
@@ -58,26 +54,27 @@ WorkGroupGLES::WorkGroupGLES(GroupType inGroupType)
 
 RenderTargetContainerRef WorkGroupGLES::makeRenderTargetContainer(RenderTargetRef renderTarget)
 {
-    return RenderTargetContainerRef(new RenderTargetContainerGLES(renderTarget));
+    return std::make_shared<RenderTargetContainerGLES>(renderTarget);
 }
     
 RendererFrameInfoGLES::RendererFrameInfoGLES()
-: glesVersion(0)
+    : glesVersion(0)
 {
 }
     
-SceneRendererGLES::SceneRendererGLES()
+SceneRendererGLES::SceneRendererGLES() :
+    extraFrameCount(0)
 {
-    init();
+    init(); // NOLINT: derived virtual methods not called
 
     // Calculation shaders
-    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::Calculation)));
+    workGroups.emplace_back(std::make_shared<WorkGroupGLES>(WorkGroup::Calculation));
     // Offscreen target render group
-    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::Offscreen)));
+    workGroups.emplace_back(std::make_shared<WorkGroupGLES>(WorkGroup::Offscreen));
     // Middle one for weird stuff
-    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::ReduceOps)));
+    workGroups.emplace_back(std::make_shared<WorkGroupGLES>(WorkGroup::ReduceOps));
     // Last workgroup is used for on screen rendering
-    workGroups.push_back(WorkGroupRef(new WorkGroupGLES(WorkGroup::ScreenRender)));
+    workGroups.emplace_back(std::make_shared<WorkGroupGLES>(WorkGroup::ScreenRender));
 
     extraFrameMode = false;
 }
@@ -101,9 +98,9 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
     zBufferMode = zBufferOn;
     clearColor.r = 0;  clearColor.g = 0;  clearColor.b = 0;  clearColor.a = 0;
     perfInterval = -1;
-    scene = NULL;
+    scene = nullptr;
     scale = inScale;
-    theView = NULL;
+    theView = nullptr;
     
     // All the animations should work now, except for particle systems
     useViewChanged = true;
@@ -123,11 +120,11 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
         framebufferTexGL->setHeight(framebufferHeight);
         framebufferTexGL->setIsEmptyTexture(true);
         framebufferTexGL->setFormat(TexTypeUnsignedByte);
-        framebufferTexGL->createInRenderer(NULL);
+        framebufferTexGL->createInRenderer(nullptr);
         framebufferTex = framebufferTexGL;
     }
     
-    RenderTargetGLESRef defaultTarget = RenderTargetGLESRef(new RenderTargetGLES(EmptyIdentity));
+    auto defaultTarget = std::make_shared<RenderTargetGLES>(EmptyIdentity);
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
     if (framebufferTex) {
@@ -136,7 +133,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
         defaultTarget->blendEnable = false;
     } else {
         if (sizeX > 0 && sizeY > 0)
-            defaultTarget->init(this,NULL,EmptyIdentity);
+            defaultTarget->init(this,nullptr,EmptyIdentity);
         defaultTarget->blendEnable = true;
     }
     defaultTarget->clearEveryFrame = true;
@@ -157,7 +154,7 @@ void SceneRendererGLES::setView(View *newView)
 void SceneRendererGLES::setScene(Scene *newScene)
 {
     SceneRenderer::setScene(newScene);
-    SceneGLES *sceneGL = (SceneGLES *)newScene;
+    auto *sceneGL = (SceneGLES *)newScene;
     setupInfo.memManager = sceneGL->getMemManager();
 }
     
@@ -173,23 +170,34 @@ bool SceneRendererGLES::resize(int sizeX,int sizeY)
     RenderTargetRef defaultTarget = renderTargets.back();
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
-    defaultTarget->init(this, NULL, EmptyIdentity);
+    defaultTarget->init(this, nullptr, EmptyIdentity);
     
     // Note: Check this
     return true;
 }
 
-SceneRendererGLES::~SceneRendererGLES()
-{
-}
+SceneRendererGLES::~SceneRendererGLES() = default;
 
 // Keep track of a drawable and the MVP we're supposed to use with it
 class DrawableContainer
 {
 public:
-    DrawableContainer(DrawableGLES *draw) : drawable(draw) { mvpMat = mvpMat.Identity(); mvMat = mvMat.Identity();  mvNormalMat = mvNormalMat.Identity(); }
-    DrawableContainer(DrawableGLES *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) : drawable(draw), mvpMat(mvpMat), mvMat(mvMat), mvNormalMat(mvNormalMat) { }
-    
+    explicit DrawableContainer(DrawableGLES *draw) :
+        drawable(draw),
+        mvpMat(Eigen::Matrix4d::Identity()),
+        mvMat(Eigen::Matrix4d::Identity()),
+        mvNormalMat(Eigen::Matrix4d::Identity())
+    {
+    }
+
+    DrawableContainer(DrawableGLES *draw,Matrix4d mvpMat,Matrix4d mvMat,Matrix4d mvNormalMat) :
+        drawable(draw),
+        mvpMat(std::move(mvpMat)),
+        mvMat(std::move(mvMat)),
+        mvNormalMat(std::move(mvNormalMat))
+    {
+    }
+
     DrawableGLES *drawable;
     Matrix4d mvpMat,mvMat,mvNormalMat;
 };
@@ -199,30 +207,31 @@ public:
 class DrawListSortStruct2
 {
 public:
+    DrawListSortStruct2() = delete;
     DrawListSortStruct2(bool useZBuffer,RendererFrameInfo *frameInfo) : useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
-    DrawListSortStruct2() { }
-    DrawListSortStruct2(const DrawListSortStruct2 &that) : useZBuffer(that.useZBuffer), frameInfo(that.frameInfo)
+    DrawListSortStruct2(const DrawListSortStruct2 &that) = default;
+    DrawListSortStruct2 & operator =(const DrawListSortStruct2 &that)
     {
-    }
-    DrawListSortStruct2 & operator = (const DrawListSortStruct2 &that)
-    {
-        useZBuffer= that.useZBuffer;
-        frameInfo = that.frameInfo;
+        if (this != &that)
+        {
+            useZBuffer= that.useZBuffer;
+            frameInfo = that.frameInfo;
+        }
         return *this;
     }
-    bool operator()(const DrawableContainer &conA, const DrawableContainer &conB)
+    bool operator()(const DrawableContainer &conA, const DrawableContainer &conB) const
     {
-        Drawable *a = conA.drawable;
-        Drawable *b = conB.drawable;
+        const Drawable *a = conA.drawable;
+        const Drawable *b = conB.drawable;
 
         if (a->getDrawPriority() == b->getDrawPriority())
         {
             if (useZBuffer)
             {
-                bool bufferA = a->getRequestZBuffer();
-                bool bufferB = b->getRequestZBuffer();
+                const bool bufferA = a->getRequestZBuffer();
+                const bool bufferB = b->getRequestZBuffer();
                 if (bufferA != bufferB)
                     return !bufferA;
             }
@@ -234,7 +243,7 @@ public:
     bool useZBuffer;
     RendererFrameInfo *frameInfo;
 };
-    
+
 void SceneRendererGLES::setExtraFrameMode(bool newMode)
 {
     extraFrameMode = newMode;
@@ -274,10 +283,10 @@ void SceneRendererGLES::render(TimeInterval duration)
     }
     
     // See if we're dealing with a globe or map view
-    Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(theView);
     float overlapMarginX = 0.0;
-    if (mapView) {
-        overlapMarginX = scene->getOverlapMargin();
+    if (auto mapView = dynamic_cast<Maply::MapView *>(theView))
+    {
+        overlapMarginX = (float)scene->getOverlapMargin();
     }
     
     // Get the model and view matrices
@@ -350,8 +359,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
         baseFrameInfo.viewAndModelMat = modelAndViewMat;
         baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
-        Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
-        baseFrameInfo.pvMat = pvMat4f;
+        baseFrameInfo.pvMat = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat4d = pvMat;
         theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
         Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
@@ -370,7 +378,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.fullEyeVec = -fullEyeVec3;
         Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
         baseFrameInfo.heightAboveSurface = 0.0;
-        baseFrameInfo.heightAboveSurface = theView->heightAboveSurface();
+        baseFrameInfo.heightAboveSurface = (float)theView->heightAboveSurface();
         baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
         
         if (perfInterval > 0)
@@ -391,7 +399,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         // Let the active models to their thing
         // That thing had better not take too long
         auto activeModels = scene->getActiveModels();
-        for (auto activeModel : activeModels) {
+        for (const auto &activeModel : activeModels) {
             activeModel->updateForFrame(&baseFrameInfo);
             // Note: We were setting the GL context here.  Do we need to?
         }
@@ -430,7 +438,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         bool calcPassDone = false;
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
-            RendererFrameInfo offFrameInfo(baseFrameInfo);
+            RendererFrameInfo offFrameInfo(baseFrameInfo);  // NOLINT: slicing from GLES frame
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
             pvMat = projMat4d * viewTrans4d * offsetMats[off];
@@ -449,14 +457,13 @@ void SceneRendererGLES::render(TimeInterval duration)
             offFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
             offFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
             offFrameInfo.viewAndModelMat = modelAndViewMat;
-            Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat);
-            offFrameInfo.pvMat = pvMat4f;
+            offFrameInfo.pvMat = Matrix4dToMatrix4f(pvMat);
             offFrameInfo.pvMat4d = pvMat;
 
             auto rawDrawables = scene->getDrawables();
             for (auto draw : rawDrawables)
             {
-                DrawableGLES *theDrawable = dynamic_cast<DrawableGLES *>(draw);
+                auto *theDrawable = dynamic_cast<DrawableGLES *>(draw);
                 if (theDrawable->isOn(&offFrameInfo))
                 {
                     const Matrix4d *localMat = theDrawable->getMatrix();
@@ -465,9 +472,9 @@ void SceneRendererGLES::render(TimeInterval duration)
                         Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
                         Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
                         Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                        drawList.push_back(DrawableContainer(theDrawable,newMvpMat,newMvMat,newMvNormalMat));
+                        drawList.emplace_back(theDrawable,newMvpMat,newMvMat,newMvNormalMat);
                     } else
-                        drawList.push_back(DrawableContainer(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d));
+                        drawList.emplace_back(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d);
                 }
             }
         }
@@ -504,7 +511,7 @@ void SceneRendererGLES::render(TimeInterval duration)
                     // Figure out the program to use for drawing
                     if (calcProgID == EmptyIdentity)
                         continue;
-                    ProgramGLES *program = (ProgramGLES *)scene->getProgram(calcProgID);
+                    auto *program = (ProgramGLES *)scene->getProgram(calcProgID);
                     if (program)
                     {
                         glUseProgram(program->getProgram());
@@ -533,7 +540,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         SimpleIdentity curProgramId = EmptyIdentity;
         
         // Iterate through rendering targets here
-        for (RenderTargetRef inRenderTarget : renderTargets)
+        for (const RenderTargetRef &inRenderTarget : renderTargets)
         {
             RenderTargetGLESRef renderTarget = std::dynamic_pointer_cast<RenderTargetGLES>(inRenderTarget);
             
@@ -591,13 +598,13 @@ void SceneRendererGLES::render(TimeInterval duration)
                 if (drawProgramId != curProgramId)
                 {
                     curProgramId = drawProgramId;
-                    ProgramGLES *program = (ProgramGLES *)scene->getProgram(drawProgramId);
+                    auto program = (ProgramGLES *)scene->getProgram(drawProgramId);
                     if (program)
                     {
                         //                    [renderStateOptimizer setUseProgram:program->getProgram()];
                         glUseProgram(program->getProgram());
                         // Assign the lights if we need to
-                        if (program->hasLights() && (lights.size() > 0))
+                        if (program->hasLights() && !lights.empty())
                             program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
                         // Explicitly turn the lights on
                         program->setUniform(u_numLightsNameID, (int)lights.size());
@@ -674,10 +681,10 @@ void SceneRendererGLES::render(TimeInterval duration)
     // Update the frames per sec
     if (perfInterval > 0 && frameCount > perfInterval)
     {
-        TimeInterval now = scene->getCurrentTime();
-        TimeInterval howLong =  now - frameCountStart;;
-        framesPerSec = frameCount / howLong;
-        frameCountStart = now;
+        const TimeInterval newNow = scene->getCurrentTime();
+        const TimeInterval howLong =  newNow - frameCountStart;
+        framesPerSec = (float)(frameCount / howLong);
+        frameCountStart = newNow;
         frameCount = 0;
         
         wkLogLevel(Verbose,"---Rendering Performance---");
@@ -689,7 +696,7 @@ void SceneRendererGLES::render(TimeInterval duration)
 
 RawDataRef SceneRendererGLES::getSnapshotAt(SimpleIdentity renderTargetID, int x, int y, int width, int height)
 {
-    for (auto renderTarget: renderTargets) {
+    for (const auto &renderTarget: renderTargets) {
         if (renderTarget->getId() == renderTargetID) {
             if (width <= 0 || height <= 0) {
                 return renderTarget->snapshot();
@@ -705,43 +712,45 @@ RawDataRef SceneRendererGLES::getSnapshotAt(SimpleIdentity renderTargetID, int x
 
 BasicDrawableBuilderRef SceneRendererGLES::makeBasicDrawableBuilder(const std::string &name) const
 {
-    return BasicDrawableBuilderRef(new BasicDrawableBuilderGLES(name,scene));
+    return std::make_shared<BasicDrawableBuilderGLES>(name,scene);
 }
 
 BasicDrawableInstanceBuilderRef SceneRendererGLES::makeBasicDrawableInstanceBuilder(const std::string &name) const
 {
-    return BasicDrawableInstanceBuilderRef(new BasicDrawableInstanceBuilderGLES(name,scene));
+    return std::make_shared<BasicDrawableInstanceBuilderGLES>(name,scene);
 }
 
 BillboardDrawableBuilderRef SceneRendererGLES::makeBillboardDrawableBuilder(const std::string &name) const
 {
-    return BillboardDrawableBuilderRef(new BillboardDrawableBuilderGLES(name,scene));
+    return std::make_shared<BillboardDrawableBuilderGLES>(name,scene);
 }
 
 ScreenSpaceDrawableBuilderRef SceneRendererGLES::makeScreenSpaceDrawableBuilder(const std::string &name) const
 {
-    return ScreenSpaceDrawableBuilderRef(new ScreenSpaceDrawableBuilderGLES(name,scene));
+    return std::make_shared<ScreenSpaceDrawableBuilderGLES>(name,scene);
 }
 
 ParticleSystemDrawableBuilderRef  SceneRendererGLES::makeParticleSystemDrawableBuilder(const std::string &name) const
 {
-    return ParticleSystemDrawableBuilderRef(new ParticleSystemDrawableBuilderGLES(name,scene));
+    return std::make_shared<ParticleSystemDrawableBuilderGLES>(name,scene);
 }
 
 WideVectorDrawableBuilderRef SceneRendererGLES::makeWideVectorDrawableBuilder(const std::string &name) const
 {
-    return WideVectorDrawableBuilderRef(new WideVectorDrawableBuilderGLES(name,scene));
+    return std::make_shared<WideVectorDrawableBuilderGLES>(name,this,scene);
 }
 
 RenderTargetRef SceneRendererGLES::makeRenderTarget() const
 {
-    return RenderTargetRef(new RenderTargetGLES());
+    return std::make_shared<RenderTargetGLES>();
 }
 
 DynamicTextureRef SceneRendererGLES::makeDynamicTexture(const std::string &name) const
 {
-    return DynamicTextureRef(new DynamicTextureGLES(name));
+    return std::make_shared<DynamicTextureGLES>(name);
 }
 
 }
 
+
+#include <utility>

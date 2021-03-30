@@ -67,7 +67,8 @@ public:
     
     VectorInfo();
     VectorInfo(const Dictionary &dict);
-    
+    virtual ~VectorInfo() = default;
+
     // Convert contents to a string for debugging
     virtual std::string toString();
     

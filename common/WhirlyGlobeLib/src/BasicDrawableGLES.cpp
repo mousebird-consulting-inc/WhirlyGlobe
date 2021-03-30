@@ -555,11 +555,14 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         }
     }
     
-    // Color has been overriden, so don't use the embedded ones
+    // Color has been overridden, so don't use the embedded ones
     if (hasOverrideColor) {
         const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
-        if (colorAttr)
-            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+        if (colorAttr) {
+            glDisableVertexAttribArray(colorAttr->index);
+            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0,
+                             color.a / 255.0);
+        }
     }
     
     

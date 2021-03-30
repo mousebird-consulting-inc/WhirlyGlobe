@@ -49,7 +49,7 @@ public:
     virtual MutableDictionaryRef copy() const override;
     virtual ~MutableDictionary_Android() = default;
 
-    class Value;
+    struct Value;
     typedef std::shared_ptr<Value> ValueRef;
 
     // Parse from a JSON string
@@ -332,6 +332,8 @@ public:
         : val(val), type(val->type())
     {
     }
+
+    virtual ~DictionaryEntry_Android() = default;
 
     DictionaryEntry_Android &operator= (const DictionaryEntry_Android &that)
     {

@@ -125,6 +125,9 @@
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
 		313C522325D369270036C22E /* GlobeRotationTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C522225D369260036C22E /* GlobeRotationTestCase.swift */; };
+		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
+		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
+		316B5CFE260A58A8000B4F15 /* MapTilerCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */; };
 		31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */; };
 		3183380F25A67CD8005FEF70 /* RepresentationsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
@@ -732,6 +735,9 @@
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenMarkersTestCase.swift; sourceTree = "<group>"; };
 		313C522225D369260036C22E /* GlobeRotationTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobeRotationTestCase.swift; sourceTree = "<group>"; };
+		316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_expr_test.json; sourceTree = "<group>"; };
+		316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_test_circles.json; sourceTree = "<group>"; };
+		316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTilerCircleTestCase.swift; sourceTree = "<group>"; };
 		31833791259E5291005FEF70 /* ChangeVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChangeVectorsTestCase.h; sourceTree = "<group>"; };
 		31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ChangeVectorsTestCase.mm; sourceTree = "<group>"; };
 		3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RepresentationsTestCase.mm; sourceTree = "<group>"; };
@@ -1268,6 +1274,8 @@
 		2B4B30B92395F07000854073 /* vector maps */ = {
 			isa = PBXGroup;
 			children = (
+				316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */,
+				316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */,
 				2B4B30BD2395F08C00854073 /* default.sld */,
 				2B4B30C02395F08D00854073 /* mapbox_satellite-streets-v9.json */,
 				2B4B30BF2395F08C00854073 /* mapbox_satellite-v9.json */,
@@ -1428,6 +1436,7 @@
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
 				E5679F441CB72DE800369A15 /* WMSTestCase.h */,
 				E5679F451CB72DE800369A15 /* WMSTestCase.m */,
+				316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2235,6 +2244,7 @@
 				88FF5CE01BC31D6D002F15CE /* toilets-24@2x.png in Resources */,
 				88FF5C951BC31D6D002F15CE /* circle-24@2x.png in Resources */,
 				88FF5C9F1BC31D6D002F15CE /* disability-24@2x.png in Resources */,
+				316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */,
 				88FF5EA11BC31D95002F15CE /* PAK.geojson in Resources */,
 				88FF5CB11BC31D6D002F15CE /* library-24@2x.png in Resources */,
 				88FF5E281BC31D95002F15CE /* CPV.geojson in Resources */,
@@ -2479,6 +2489,7 @@
 				88FF5CD01BC31D6D002F15CE /* roadblock-24@2x.png in Resources */,
 				88FF5CCF1BC31D6D002F15CE /* restaurant-24@2x.png in Resources */,
 				88FF5E671BC31D95002F15CE /* JOR.geojson in Resources */,
+				316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */,
 				88FF5CBB1BC31D6D002F15CE /* music-24@2x.png in Resources */,
 				88FF5CAD1BC31D6D002F15CE /* hospital-24@2x.png in Resources */,
 				88FF5C921BC31D6D002F15CE /* car-24@2x.png in Resources */,
@@ -2617,6 +2628,7 @@
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
 				2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */,
 				2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */,
+				316B5CFE260A58A8000B4F15 /* MapTilerCircleTestCase.swift in Sources */,
 				2B4B30AE2395E0DE00854073 /* MapTilerTestCase.swift in Sources */,
 				2B7787CA21CDA47F006ABF5D /* CartoDBLightTestCase.swift in Sources */,
 				2B4B30AD2395E0DE00854073 /* LayerStartupShutdownTestCase.swift in Sources */,

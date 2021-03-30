@@ -20,6 +20,10 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -374,6 +378,17 @@ public class VectorObject implements Iterable<VectorObject>
 	 * @return false if we were unable to parse the GeoJSON
 	 */
 	public native boolean fromGeoJSON(String json);
+
+	/**
+	 * Load vector objects from a GeoJSON string.
+	 * @param json The GeoJSON string, presumably read from a file or over the network
+	 * @return null if we were unable to parse the GeoJSON
+	 */
+	@Nullable
+	public static VectorObject createFromGeoJSON(@NotNull String json) {
+		VectorObject vo = new VectorObject();
+		return vo.fromGeoJSON(json) ? vo : null;
+	}
 
 	/**
 	 * Load vector objects from a Shapefile.

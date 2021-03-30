@@ -725,6 +725,7 @@ struct TriWideArgBufferFrag {
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+            constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
@@ -759,6 +760,227 @@ fragment float4 fragmentTri_wideVec(
     return vert.dotProd > 0.0 ?
     float4(vert.color.rgb*patternColor.rgb,vert.color.a*alpha*patternColor.a)  : float4(0.0);
 }
+
+struct IntersectInfo {
+    bool valid;
+    float2 interPt;
+    float ta,tb;
+};
+
+// Intersect two offset lines
+IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
+                        float2 n0,float2 n1)
+{
+    IntersectInfo iInfo;
+    iInfo.valid = false;
+    
+    float2 lineA[2];
+    lineA[0] = p0 + n0;
+    lineA[1] = p1 + n0;
+    float2 lineB[2];
+    lineB[0] = p1 + n1;
+    lineB[1] = p2 + n1;
+    
+    float denom = (lineA[0].x-lineA[1].x)*(lineB[0].y-lineB[1].y) - (lineA[0].y - lineA[1].y)*(lineB[0].x - lineB[1].x);
+    if (denom == 0.0)
+        return iInfo;
+    
+    float termA = (lineA[0].x * lineA[1].y - lineA[0].y * lineA[1].x);
+    float termB = (lineB[0].x * lineB[1].y - lineB[0].y * lineB[1].x);
+    iInfo.interPt.x = ( termA * (lineB[0].x - lineB[1].x) - (lineA[0].x - lineA[1].x) * termB)/denom;
+    iInfo.interPt.y = ( termA * (lineB[0].y - lineB[1].y) - (lineA[0].y - lineA[1].y) * termB)/denom;
+
+    iInfo.ta = 0.0;  iInfo.tb = 0.0;
+    iInfo.valid = true;
+    
+    return iInfo;
+}
+
+struct TriWideArgBufferC {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformWideVec wideVec              [[ id(WKSUniformWideVecEntry) ]];
+    UniformWideVecExp wideVecExp        [[ id(WKSUniformWideVecEntryExp) ]];
+    bool hasTextures;
+};
+
+// Used to track what info we have about a center point
+struct CenterInfo {
+    float2 screenPos;
+    float2 dir;
+    float2 nDir;
+    float2 norm;
+};
+
+// Performance version of wide vector shader
+vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
+          VertexTriWideVecB vert [[stage_in]],
+          constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+          constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
+          constant TriWideArgBufferC &vertArgs [[buffer(WKSVertexArgBuffer)]],
+          uint instanceID [[instance_id]],
+          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
+          constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+{
+    ProjVertexTriWideVecPerf outVert;
+    
+    int whichVert = (vert.index >> 16) & 0xffff;
+    int whichPoly = vert.index & 0xffff;
+
+    // Find the various instances representing center points
+    // We need one behind and two ahead of us
+    bool instValid[4];
+    VertexTriWideVecInstance inst[4];
+    inst[1] = wideVecInsts[instanceID];
+    instValid[1] = true;
+    if (inst[1].prev != -1) {
+        inst[0] = wideVecInsts[inst[1].prev];
+        instValid[0] = true;
+    } else
+        instValid[0] = false;
+    if (inst[1].next != -1) {
+        inst[2] = wideVecInsts[inst[1].next];
+        instValid[2] = true;
+    } else
+        instValid[2] = false;
+    if (instValid[2] && inst[2].next != -1) {
+        inst[3] = wideVecInsts[inst[2].next];
+        instValid[3] = true;
+    } else
+        instValid[3] = false;
+
+    float dotProd = 1.0;
+    
+    // Figure out position on the screen for every center point
+    CenterInfo centers[4];
+    for (unsigned int ii=0;ii<4;ii++)
+        if (instValid[ii]) {
+            float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst[ii].center,1.0)).xyz;
+            float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
+            screenPt /= screenPt.w;
+            centers[ii].screenPos = screenPt.xy;
+            
+            // Make sure the object is facing the user (only for the globe)
+            if (uniforms.globeMode && ii == 1) {
+                float4 pt = uniforms.mvMatrix * float4(centerPos,1.0);
+                pt /= pt.w;
+
+                float4 testNorm = uniforms.mvNormalMatrix * float4(centerPos,0.0);
+                dotProd = dot(-pt.xyz,testNorm.xyz);
+                if (pt.z > 0.0)
+                    dotProd = -1.0;
+            }
+        }
+    
+    // Size of pixels
+    float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+
+    // Direction and normal info for three segments we may look at
+    bool isValid = instValid[2];
+    for (unsigned int ii=1;ii<4;ii++) {
+        if (instValid[ii-1]) {
+            centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
+            centers[ii].nDir = normalize(centers[ii].dir);
+            centers[ii].norm = normalize(float2(-centers[ii].dir.y,centers[ii].dir.x) * screenScale);
+        }
+    }
+    
+    float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+
+    // Pull out the width and possibly calculate one
+    float w2 = vertArgs.wideVec.w2;
+    if (vertArgs.wideVec.hasExp)
+        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
+    if (w2 > 0.0) {
+        w2 = w2 + vertArgs.wideVec.edge;
+    }
+    
+    // Pull out the center line offset, or calculate one
+//    float centerLine = vertArgs.wideVec.offset;
+    float centerLine = 0.0;
+//    if (vertArgs.wideVec.hasExp)
+//        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
+    
+    // Intersect on the left or right depending
+    float interDir = whichVert & 0x1 ? 1.0 : -1.0;
+
+    // Turn off the end caps for the moment
+    switch (whichPoly) {
+        case 0:
+            isValid &= false;
+            break;
+        case 1:
+            isValid &= true;
+            break;
+        case 2:
+            isValid &= false;
+            break;
+    }
+
+    // Do the offset intersection
+//    float angleBetween = 0.0;
+    bool iPtsValid = false;
+    float2 iPts;
+    if (isValid) {
+        // We'll reject
+        float nearDist = 1.42 * w2 * max(screenScale.x,screenScale.y);
+        
+        // We only need one intersection depending
+        int interPt = (whichVert == 6 || whichVert == 7) ? 1 : 0;
+        if (instValid[interPt] && instValid[interPt+1] && instValid[interPt+2]) {
+            float dotProd = dot(centers[interPt+1].nDir, centers[interPt+2].nDir);
+            if (dotProd > -0.99999998476 && dotProd < 0.99999998476) {
+                // Acute angles tend to break things
+//                angleBetween = acos(dotProd);
+//                if (angleBetween < 4.0 / 180.0 * M_PI_F) {
+////                    iPtsValid = false;
+//                }
+
+                float2 nudge = w2 * interDir * screenScale;
+                IntersectInfo interInfo = intersectWideLines(centers[interPt].screenPos,centers[interPt+1].screenPos,centers[interPt+2].screenPos,
+                                                             nudge * centers[interPt+1].norm, nudge * centers[interPt+2].norm);
+                if (interInfo.valid) {
+                    // If the intersection is too far away, we'll drop it
+                    if (distance_squared(centers[interPt+1].screenPos,interInfo.interPt) > nearDist*nearDist) {
+                        iPtsValid = false;
+                    } else {
+                        iPtsValid = true;
+                        iPts = interInfo.interPt;
+                    }
+                }
+            }
+        }
+    }
+    
+    outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
+    outVert.w2 = vertArgs.wideVec.w2;
+    
+    if (isValid && dotProd > 0.0) {
+        if (iPtsValid) {
+            outVert.position = float4(iPts, 0.0, 1.0);
+        } else {
+            // Return a vertex offset from the base
+            int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
+            float2 offset = (centers[2].norm * interDir) * screenScale * (vertArgs.wideVec.w2 + centerLine + vertArgs.wideVec.edge);
+
+            outVert.position = float4(centers[basePt].screenPos + offset, 0.0, 1.0);
+        }
+    } else {
+        outVert.position = float4(0.0,0.0,-1000.0,1.0);
+    }
+    
+    return outVert;
+}
+
+// Fragment share that takes the back of the globe into account
+fragment float4 fragmentTri_wideVecPerf(
+            ProjVertexTriWideVecPerf vert [[stage_in]],
+            constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    return vert.color;
+}
+
 
 struct VertexTriSSArgBufferA {
     UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];

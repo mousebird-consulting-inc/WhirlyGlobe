@@ -168,6 +168,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
             case 0:
                 texture->setInterpType(TexInterpNearest);
                 break;
+        	default:
             case 1:
                 texture->setInterpType(TexInterpLinear);
                 break;

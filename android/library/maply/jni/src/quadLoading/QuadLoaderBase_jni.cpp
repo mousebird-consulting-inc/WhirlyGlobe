@@ -311,7 +311,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,layerObj);
-        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        //ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!loader || !control)
             return;
 

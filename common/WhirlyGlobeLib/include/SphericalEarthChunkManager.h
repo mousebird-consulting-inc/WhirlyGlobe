@@ -74,6 +74,7 @@ public:
     
     SphericalChunkInfo();
     SphericalChunkInfo(const Dictionary &);
+    virtual ~SphericalChunkInfo() = default;
 
     RGBAColor color;
     bool doEdgeMatching;

@@ -1084,7 +1084,7 @@ ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBu
 
 WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const
 {
-    return std::make_shared<WideVectorDrawableBuilderMTL>(name,scene);
+    return std::make_shared<WideVectorDrawableBuilderMTL>(name,this,scene);
 }
 
 RenderTargetRef SceneRendererMTL::makeRenderTarget() const

@@ -27,10 +27,6 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 		
-DrawableTweaker::~DrawableTweaker()
-{
-}
-    		
 Drawable::Drawable(const std::string &name)
     : name(name)
 {

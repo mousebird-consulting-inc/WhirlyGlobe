@@ -71,16 +71,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleWrapper_dispose
     {
         VectorStyleSetWrapperClassInfo *classInfo = VectorStyleSetWrapperClassInfo::getClassInfo();
 
-        {
-            PlatformInfo_Android threadInst(env);
+        PlatformInfo_Android threadInst(env);
 
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            VectorStyleSetWrapper_AndroidRef *inst = classInfo->getObject(env,obj);
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        VectorStyleSetWrapper_AndroidRef *inst = classInfo->getObject(env,obj);
+        if (inst && *inst)
+        {
             (*inst)->shutdown(&threadInst);
-            if (!inst)
-                return;
-            delete inst;
         }
+        delete inst;
 
         classInfo->clearHandle(env,obj);
     }

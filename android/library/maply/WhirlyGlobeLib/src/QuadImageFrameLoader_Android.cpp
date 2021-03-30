@@ -41,7 +41,7 @@ QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,Qu
 QIFFrameAsset_Android::~QIFFrameAsset_Android()
 {
     if (frameAssetObj) {
-        wkLog("Failed to clean up QIFFrameAsset on Java side");
+        wkLogLevel(Warn,"Failed to clean up QIFFrameAsset on Java side");
     }
 }
 
@@ -119,9 +119,9 @@ QIFTileAsset_Android::~QIFTileAsset_Android()
 {
 }
 
-QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *inLoader)
+QIFFrameAssetRef QIFTileAsset_Android::makeFrameAsset(PlatformThreadInfo *inThreadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *)
 {
-    const auto loader = (QuadImageFrameLoader_Android *)inLoader;
+    //const auto loader = (QuadImageFrameLoader_Android *)inLoader;
     const auto threadInfo = (PlatformInfo_Android *)inThreadInfo;
 
     auto frame = std::make_shared<QIFFrameAsset_Android>(threadInfo,frameInfo);

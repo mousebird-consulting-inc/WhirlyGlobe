@@ -38,9 +38,9 @@ class BillboardDrawableBuilderGLES : public BasicDrawableBuilderGLES, public Bil
 public:
     BillboardDrawableBuilderGLES(const std::string &name,Scene *scene);
     
-    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1);
+    virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1) override;
 
-    virtual BasicDrawableRef getDrawable();
+    virtual BasicDrawableRef getDrawable() override;
 };
 
 }

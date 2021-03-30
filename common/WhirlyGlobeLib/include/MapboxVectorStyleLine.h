@@ -31,7 +31,7 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 class MapboxVectorLineLayout
 {
 public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
     MapboxVectorLineCap cap;
     MapboxVectorLineJoin join;
@@ -45,7 +45,7 @@ public:
 class MapboxVectorLinePaint
 {
 public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
     MapboxTransDoubleRef opacity;
     MapboxTransColorRef color;
