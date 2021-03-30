@@ -53,6 +53,7 @@ class AirwayTestCase: MaplyTestCase {
     let buildAirways = false
     let buildAirspaces = true
     let buildLineLabels = true
+    let buildCenterLabels = false
     
     func setupAirways(_ viewC: MaplyBaseViewController) {
         DispatchQueue.global(qos: .default).async {
@@ -184,6 +185,7 @@ class AirwayTestCase: MaplyTestCase {
         // Put the airspace vectors together
         var airspaceVecs = [MaplyVectorObject]()
         var labels = [MaplyScreenLabel]()
+        var centerLabels = [MaplyScreenLabel]()
         for vec in vecObj.splitVectors() {
             var include = false
             if let highVal = vec.attributes?["US_HIGH"] as? Int {
@@ -211,6 +213,18 @@ class AirwayTestCase: MaplyTestCase {
                     labels.append(label)
                     airspaceVecs.append(vec)
                 }
+                
+                if buildCenterLabels {
+                    // Add a label right in the middle, for debugging
+                    let centerLabel = MaplyScreenLabel()
+                    centerLabel.loc = vec.centroid()
+                    centerLabel.text = name
+                    centerLabel.layoutImportance = 2.0
+                    centerLabel.layoutPlacement = kMaplyLayoutCenter
+                    if centerLabel.text != nil {
+                        centerLabels.append(centerLabel)
+                    }
+                }
             }
         }
 
@@ -227,6 +241,12 @@ class AirwayTestCase: MaplyTestCase {
 //                                                 kMaplyTextLayoutSpacing: 0.0, // 100 pixels between
 //                                                 kMaplyTextLayoutRepeat: 4,  // As many as fit
                                                  kMaplyTextLayoutDebug: true
+                                                 ],
+                                  mode: .any)
+        }
+        if (!centerLabels.isEmpty) {
+            viewC.addScreenLabels(centerLabels, desc: [kMaplyFont: UIFont.boldSystemFont(ofSize: 48.0),
+                                                 kMaplyTextColor: UIColor.red,
                                                  ],
                                   mode: .any)
         }
