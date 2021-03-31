@@ -1,9 +1,8 @@
-/*
- *  LayoutManager_jni.cpp
+/*  LayoutManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -35,14 +33,43 @@ class LayoutManagerWrapper : public ClusterGenerator
 public:
     
     // Used to keep track of cluster objects for callbacks
-    class ClusterInfo
+    struct ClusterInfo
     {
-    public:
-        bool operator < (const ClusterInfo &that) const
+        ClusterInfo() : clusterObj(nullptr)
         {
-            return clusterID < that.clusterID;
         }
-        
+
+        // Move only
+        ClusterInfo(const ClusterInfo &) = delete;
+        ClusterInfo(ClusterInfo &&other) noexcept
+        {
+            copy(other);
+            other.clusterObj = nullptr;
+        }
+
+        ~ClusterInfo()
+        {
+            if (clusterObj) {
+                wkLogLevel(Warn, "ClusterInfo not cleaned up");
+            }
+        }
+
+        bool operator < (const ClusterInfo &that) const { return clusterID < that.clusterID; }
+
+        // Move only
+        ClusterInfo& operator =(const ClusterInfo &) = delete;
+        ClusterInfo& operator =(ClusterInfo &&other) noexcept {
+            if (this != &other) {
+                if (clusterObj) {
+                    // Replacing this one leaks it
+                    wkLogLevel(Warn, "ClusterInfo not cleaned up");
+                }
+                copy(other);
+                other.clusterObj = nullptr;
+            }
+            return *this;
+        }
+
         void init(JNIEnv *env,int inClusterID,const Point2d &inLayoutSize,jobject inClusterObj)
         {
             clusterID = inClusterID;
@@ -50,6 +77,7 @@ public:
             clusterObj = env->NewGlobalRef(inClusterObj);
             
             // Methods can be saved without consequence
+            // (as long as the class isn't unloaded and reloaded)
             jclass theClass = env->GetObjectClass(clusterObj);
             startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
             makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I)J");
@@ -57,9 +85,10 @@ public:
             env->DeleteLocalRef(theClass);
         }
         
-        void clear(JNIEnv *env) const
+        void clear(JNIEnv *env)
         {
             env->DeleteGlobalRef(clusterObj);
+            clusterObj = nullptr;
         }
 
         int clusterID;
@@ -71,17 +100,29 @@ public:
         jmethodID startClusterGroupJava;
         jmethodID makeClusterGroupJNIJava;
         jmethodID endClusterGroupJava;
+
+    private:
+        void copy(const ClusterInfo &other) {
+            clusterID = other.clusterID;
+            layoutSize = other.layoutSize;
+            clusterObj = other.clusterObj;
+            selectable = other.selectable;
+            startClusterGroupJava = other.startClusterGroupJava;
+            makeClusterGroupJNIJava = other.makeClusterGroupJNIJava;
+            endClusterGroupJava = other.endClusterGroupJava;
+        }
+        friend class LayoutManagerWrapper;
     };
     typedef std::set<ClusterInfo> ClusterInfoSet;
 
-    LayoutManagerWrapper(Scene *scene,LayoutManager *layoutManager)
-        : layoutManager(layoutManager), env(NULL), motionShaderID(EmptyIdentity)
+    LayoutManagerWrapper(PlatformThreadInfo *threadInfo, LayoutManagerRef layoutManager)
+        : layoutManager(layoutManager), motionShaderID(EmptyIdentity)
     {
-        layoutManager->addClusterGenerator(this);
+        layoutManager->addClusterGenerator(threadInfo,this);
     }
 
-    ~LayoutManagerWrapper() {
-        // Note: Should clean up Java refs
+    virtual ~LayoutManagerWrapper()
+    {
     }
     
     void updateShader()
@@ -93,71 +134,78 @@ public:
                 motionShaderID = program->getId();
         }
     }
-    
-    void setEnv(JNIEnv *inEnv)
-    {
-        env = inEnv;
-    }
-    
+
     // Add a cluster generator for callback
-    void addClusterGenerator(jobject clusterObj, jint clusterID,bool selectable, double sizeX, double sizeY)
+    void addClusterGenerator(JNIEnv* env, jobject clusterObj, jint clusterID,bool selectable, double sizeX, double sizeY)
     {
         ClusterInfo clusterInfo;
         clusterInfo.init(env,clusterID,Point2d(sizeX,sizeY),clusterObj);
         clusterInfo.selectable = selectable;
         
-        clusterGens.insert(clusterInfo);
+        clusterGens.insert(std::move(clusterInfo));
     }
     
-    void clearClusterGenerators()
+    void clearClusterGenerators(JNIEnv* env)
     {
         for (auto &ci : clusterGens)
-            ci.clear(env);
+        {
+            // why TF does this produce a const ref?
+            // (answer: std::set has `typedef typename __base::const_iterator iterator`, bug?)
+            const_cast<ClusterInfo&>(ci).clear(env);
+        }
         clusterGens.clear();
     }
 
     /** ClusterGenerator virtual methods.
       */
     // Called right before we start generating layout objects
-    void startLayoutObjects()
+    virtual void startLayoutObjects(PlatformThreadInfo *threadInfo) override
     {
+        const auto env = ((PlatformInfo_Android*)threadInfo)->env;
+
         oldClusterTex = currentClusterTex;
         currentClusterTex.clear();
 
         // Notify all the cluster generators
         for (const auto &clusterGen : clusterGens)
+        {
             env->CallVoidMethod(clusterGen.clusterObj,clusterGen.startClusterGroupJava);
+        }
     }
 
     // Ask the appropriate cluster generator to make a cluster image
-    void makeLayoutObject(int clusterID, const std::vector<LayoutObjectEntry *> &layoutObjects, LayoutObject &retObj)
+    virtual void makeLayoutObject(PlatformThreadInfo *threadInfo,int clusterID,
+                                  const std::vector<LayoutObjectEntry *> &layoutObjects,
+                                  LayoutObject &retObj) override
     {
+        const auto env = ((PlatformInfo_Android*)threadInfo)->env;
+
         ClusterInfo dummyInfo;
         dummyInfo.clusterID = clusterID;
-        auto it = clusterGens.find(dummyInfo);
+        const auto it = clusterGens.find(dummyInfo);
         if (it == clusterGens.end())
             return;
         
         const ClusterInfo &clusterGenerator = *it;
         
-        // Pick a representive screen object
+        // Pick a representative screen object
         int drawPriority = -1;
-        LayoutObject *sampleObj = NULL;
+        LayoutObject *sampleObj = nullptr;
         for (auto obj : layoutObjects) {
             if (obj->obj.getDrawPriority() > drawPriority) {
                 drawPriority = obj->obj.getDrawPriority();
                 sampleObj = &obj->obj;
             }
         }
-        SimpleIdentity progID = sampleObj->getTypicalProgramID();
+        const SimpleIdentity progID = sampleObj->getTypicalProgramID();
 
         // The texture gets created on the Java side, so we'll just use the ID
-        long texID = env->CallLongMethod(clusterGenerator.clusterObj, clusterGenerator.makeClusterGroupJNIJava, layoutObjects.size());
+        const long texID = env->CallLongMethod(clusterGenerator.clusterObj, clusterGenerator.makeClusterGroupJNIJava, layoutObjects.size());
         
-        Point2d size = clusterGenerator.layoutSize;
+        const Point2d size = clusterGenerator.layoutSize;
         
         // Geometry for the new cluster object
-        ScreenSpaceObject::ConvexGeometry smGeom;
+        ScreenSpaceConvexGeometry smGeom;
         smGeom.progID = progID;
         smGeom.coords.push_back(Point2d(- size.x()/2.0,-size.y()/2.0));
         smGeom.texCoords.push_back(TexCoord(0,1));
@@ -178,14 +226,18 @@ public:
     }
     
     // Called right after all the layout objects are generated
-    virtual void endLayoutObjects()
+    virtual void endLayoutObjects(PlatformThreadInfo *threadInfo) override
     {
+        const auto env = ((PlatformInfo_Android*)threadInfo)->env;
+
         // Notify all the cluster generators
         for (const auto &clusterGen : clusterGens)
+        {
             env->CallVoidMethod(clusterGen.clusterObj,clusterGen.endClusterGroupJava);
+        }
     }
     
-    virtual void paramsForClusterClass(int clusterID,ClusterClassParams &clusterParams)
+    virtual void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams) override
     {
         ClusterInfo dummyInfo;
         dummyInfo.clusterID = clusterID;
@@ -196,165 +248,156 @@ public:
         const ClusterInfo &clusterGenerator = *it;
         
         clusterParams.motionShaderID = motionShaderID;
-        clusterParams.selectable = it->selectable;
+        clusterParams.selectable = clusterGenerator.selectable;
         // Note: Make this selectable
         clusterParams.markerAnimationTime = 0.2;
-        clusterParams.clusterSize = it->layoutSize;
+        clusterParams.clusterSize = clusterGenerator.layoutSize;
     }
 
 public:
-    LayoutManager *layoutManager;
+    LayoutManagerRef layoutManager;
 
     SimpleIDSet currentClusterTex,oldClusterTex;
     
     SimpleIdentity motionShaderID;
     ClusterInfoSet clusterGens;
-    JNIEnv *env;
 };
 
 typedef JavaClassInfo<LayoutManagerWrapper> LayoutManagerWrapperClassInfo;
-template<> LayoutManagerWrapperClassInfo *LayoutManagerWrapperClassInfo::classInfoObj = NULL;
+template<> LayoutManagerWrapperClassInfo *LayoutManagerWrapperClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_nativeInit
-  (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_nativeInit(JNIEnv *env, jclass cls)
 {
     LayoutManagerWrapperClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise
-  (JNIEnv *env, jobject obj,jobject sceneObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise(JNIEnv *env, jobject obj,jobject sceneObj)
 {
     try
     {
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-        LayoutManager *layoutManager = dynamic_cast<LayoutManager *>(scene->getManager(kWKLayoutManager));
-        LayoutManagerWrapper *wrap = new LayoutManagerWrapper(scene,layoutManager);
+        const auto scene = SceneClassInfo::get(env,sceneObj);
+        const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
+        PlatformInfo_Android threadInfo(env);
+        auto wrap = new LayoutManagerWrapper(&threadInfo, layoutManager);
         LayoutManagerWrapperClassInfo::getClassInfo()->setHandle(env, obj, wrap);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::initialise()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::initialise()");
     }
 }
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_dispose
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_dispose(JNIEnv *env, jobject obj)
 {
     try
     {
-        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
+        auto classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
             classInfo->clearHandle(env, obj);
-            if (!wrap)
-                return;
             delete wrap;
         }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::dispose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::dispose()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setMaxDisplayObjects
-  (JNIEnv *env, jobject obj, jint maxObjs)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setMaxDisplayObjects(JNIEnv *env, jobject obj, jint maxObjs)
 {
     try
     {
-        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
-        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        if (!wrap)
-            return
-            
-        wrap->layoutManager->setMaxDisplayObjects(maxObjs);
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            wrap->layoutManager->setMaxDisplayObjects(maxObjs);
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::setMaxDisplayObjects()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::setMaxDisplayObjects()");
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
   (JNIEnv *env, jobject obj, jobject viewStateObj, jobject changeSetObj)
 {
     try
     {
-        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
-        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        ViewStateRef *viewState = ViewStateRefClassInfo::getClassInfo()->getObject(env,viewStateObj);
-        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
-        if (!wrap || !viewState || !changeSet)
-            return;
-        wrap->setEnv(env);
-        wrap->updateShader();
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            if (auto viewState = ViewStateRefClassInfo::get(env, viewStateObj))
+            {
+                if (auto changeSet = ChangeSetClassInfo::get(env, changeSetObj))
+                {
+                    wrap->updateShader();
 
-        wrap->layoutManager->updateLayout(*viewState,*(changeSet->get()));
+                    PlatformInfo_Android threadInfo(env);
+                    wrap->layoutManager->updateLayout(&threadInfo,*viewState,**changeSet);
+                }
+            }
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::updateLayout()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::updateLayout()");
     }
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges(JNIEnv *env, jobject obj)
 {
     try
     {
-        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
-        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        if (!wrap)
-            return false;
-        wrap->setEnv(env);
-        
-        return wrap->layoutManager->hasChanges();
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            return wrap->layoutManager->hasChanges();
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::hasChanges()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::hasChanges()");
     }
-    
     return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerator
-(JNIEnv *env, jobject obj, jobject clusterObj, jint clusterID, jboolean selectable, jdouble sizeX, jdouble sizeY)
+    (JNIEnv *env, jobject obj, jobject clusterObj, jint clusterID, jboolean selectable, jdouble sizeX, jdouble sizeY)
 {
     try
     {
-        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
-        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        if (!wrap)
-            return;
-        wrap->setEnv(env);
-
-        wrap->addClusterGenerator(clusterObj,clusterID,selectable,sizeX,sizeY);
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            wrap->addClusterGenerator(env, clusterObj, clusterID, selectable, sizeX, sizeY);
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::addClusterGenerator()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenerators
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenerators(JNIEnv *env, jobject obj)
 {
     try
     {
-        LayoutManagerWrapperClassInfo *classInfo = LayoutManagerWrapperClassInfo::getClassInfo();
-        LayoutManagerWrapper *wrap = classInfo->getObject(env, obj);
-        if (!wrap)
-            return;
-        wrap->setEnv(env);
-
-        wrap->clearClusterGenerators();
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            wrap->clearClusterGenerators(env);
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LayoutManager::addClusterGenerator()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
     }
 }

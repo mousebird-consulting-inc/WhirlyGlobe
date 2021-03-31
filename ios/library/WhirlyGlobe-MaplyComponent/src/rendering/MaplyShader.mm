@@ -60,7 +60,7 @@ using namespace WhirlyKit;
     ProgramMTLRef prog(new ProgramMTL(name,vertexFunc,fragFunc));
     _program = prog;
 
-    MaplyRenderController *renderControl = [viewC getRenderControl];
+    MaplyRenderController *renderControl = [baseViewC getRenderControl];
     if (!renderControl)
         return nil;
     

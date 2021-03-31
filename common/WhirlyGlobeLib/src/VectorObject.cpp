@@ -79,10 +79,9 @@ bool VectorObject::fromShapeFile(const std::string &fileName)
         return false;
     
     const int numObj = shapeReader.getNumObjects();
-    shapes.reserve(numObj);
+    shapes.reserve(shapes.size() + numObj);
     for (unsigned int ii=0;ii<numObj;ii++) {
-        VectorShapeRef shape = shapeReader.getObjectByIndex(ii, NULL);
-        shapes.insert(shape);
+        shapes.insert(shapeReader.getObjectByIndex(ii, NULL));
     }
     
     return true;
@@ -135,21 +134,21 @@ bool VectorObject::center(Point2d &center) const
 bool VectorObject::centroid(Point2d &centroid) const
 {
     // Find the loop with the largest area
-    float bigArea = -1.0;
-    const VectorRing *bigLoop = NULL;
+    float bigArea = 0.0;
+    const VectorRing *bigLoop = nullptr;
     for (const auto &shapeRef : shapes)
     {
         const auto shape = shapeRef.get();
-        const auto areal = dynamic_cast<const VectorAreal*>(shape);
-        if (areal && areal->loops.size() > 0)
-        {
-            for (unsigned int ii=0;ii<areal->loops.size();ii++)
-            {
-                const float area = std::abs(CalcLoopArea(areal->loops[ii]));
-                if (area > bigArea)
+        if (const auto areal = dynamic_cast<const VectorAreal*>(shape)) {
+            if (areal->loops.size() > 0) {
+                for (unsigned int ii=0;ii<areal->loops.size();ii++)
                 {
-                    bigLoop = &areal->loops[ii];
-                    bigArea = area;
+                    const float area = CalcLoopArea(areal->loops[ii]);
+                    if (std::abs(area) > std::abs(bigArea))
+                    {
+                        bigLoop = &areal->loops[ii];
+                        bigArea = area;
+                    }
                 }
             }
         } else if (const auto linear = dynamic_cast<const VectorLinear*>(shape)) {
@@ -170,9 +169,9 @@ bool VectorObject::centroid(Point2d &centroid) const
         }
     }
 
-    if (bigLoop && bigArea >= 0)    // TODO: >?
+    if (bigLoop && bigArea != 0)
     {
-        const Point2f centroid2f = CalcLoopCentroid(*bigLoop);
+        const Point2f centroid2f = CalcLoopCentroid(*bigLoop, bigArea);
         centroid.x() = centroid2f.x();
         centroid.y() = centroid2f.y();
         return true;

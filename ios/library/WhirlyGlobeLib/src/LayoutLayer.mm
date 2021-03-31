@@ -61,18 +61,16 @@ namespace WhirlyKit
     scene = inScene;
     
     // Get us view updates, but we'll filter them
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0 minDist:0.0 maxLagTime:0.0];
-    
+    [inLayerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:0.0 minDist:0.0 maxLagTime:0.0];
+
     [self checkUpdate];
 }
 
 - (void)teardown
 {
     scene = NULL;
-    if (layerThread.viewWatcher)
-        [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
-    
+    [layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(checkUpdate) object:nil];
 }
@@ -120,7 +118,7 @@ static const float MaxDelay = 1.0;
 // We also need to check on updates outside of the layer thread
 - (void)checkUpdate
 {
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (viewState && layoutManager && layoutManager->hasChanges())
     {
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayCheck) object:nil];
@@ -147,7 +145,7 @@ static const float MaxDelay = 1.0;
 - (void)setMaxDisplayObjects:(int)maxDisplayObjects
 {
     _maxDisplayObjects = maxDisplayObjects;
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(_maxDisplayObjects);
 }
@@ -160,11 +158,11 @@ static const float MaxDelay = 1.0;
         return;
     lastUpdate = scene->getCurrentTime();
 
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
     {
         ChangeSet changes;
-        layoutManager->updateLayout(viewState,changes);
+        layoutManager->updateLayout(nullptr,viewState,changes);
         [layerThread addChangeRequests:changes];
     }
 }
@@ -177,7 +175,7 @@ static const float MaxDelay = 1.0;
         return;
     }
     
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->addLayoutObjects(newObjects);
 
@@ -193,7 +191,7 @@ static const float MaxDelay = 1.0;
         return;
     }
     
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->removeLayoutObjects(objectIDs);
     

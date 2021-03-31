@@ -108,7 +108,6 @@
         sampleParams.coordSys = coordSys;
         sampleParams.coverPoles = false;
         sampleParams.edgeMatching = false;
-        sampleParams.minZoom = tileSource.minZoom;
         sampleParams.maxZoom = tileSource.maxZoom;
         sampleParams.singleLevel = true;
         

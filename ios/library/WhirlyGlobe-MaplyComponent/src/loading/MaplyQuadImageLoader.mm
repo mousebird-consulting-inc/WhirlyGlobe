@@ -27,7 +27,6 @@
 #import "MaplyRenderTarget_private.h"
 #import "MaplyRenderController_private.h"
 #import "MaplyQuadSampler_private.h"
-#import "lodepng.h"
 
 using namespace WhirlyKit;
 
@@ -47,18 +46,17 @@ using namespace WhirlyKit;
 
 - (void)addImage:(UIImage *)image
 {
-    if (!viewC)
-        return;
-    
-    ImageTile_iOSRef imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
-    imageTile->type = MaplyImgTypeImage;
-    imageTile->components = 4;
-    imageTile->width = -1;
-    imageTile->height = -1;
-    imageTile->borderSize = 0;
-    imageTile->imageStuff = image;
-    
-    loadReturn->images.push_back(imageTile);
+    if (const auto __strong vc = viewC) {
+        ImageTile_iOSRef imageTile = std::make_shared<ImageTile_iOS>(vc.getRenderControl->renderType);
+        imageTile->type = MaplyImgTypeImage;
+        imageTile->components = 4;
+        imageTile->width = -1;
+        imageTile->height = -1;
+        imageTile->borderSize = 0;
+        imageTile->imageStuff = image;
+
+        loadReturn->images.push_back(imageTile);
+    }
 }
 
 - (NSArray<MaplyImageTile *> *)getImages
@@ -135,14 +133,13 @@ using namespace WhirlyKit;
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
-    if (!loadReturn->viewC)
-        return;
-    
-    NSArray *tileDatas = [loadReturn getTileData];
-    
-    for (NSData *tileData in tileDatas) {
-        MaplyImageTile *imageTile = [[MaplyImageTile alloc] initWithPNGorJPEGData:tileData viewC:loadReturn->viewC];
-        [loadReturn addImageTile:imageTile];
+    if (const auto __strong vc = loadReturn->viewC) {
+        NSArray *tileDatas = [loadReturn getTileData];
+        
+        for (NSData *tileData in tileDatas) {
+            MaplyImageTile *imageTile = [[MaplyImageTile alloc] initWithPNGorJPEGData:tileData viewC:vc];
+            [loadReturn addImageTile:imageTile];
+        }
     }
 }
 
@@ -168,6 +165,8 @@ using namespace WhirlyKit;
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
+    auto const __strong vc = viewC;
+    
     [super dataForTile:loadReturn loader:loader];
     
     MaplyBoundingBox bbox = [loader geoBoundsForTile:loadReturn.tileID];
@@ -178,14 +177,14 @@ using namespace WhirlyKit;
     label.text = [NSString stringWithFormat:@"%d: (%d,%d)",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y];
     label.layoutImportance = MAXFLOAT;
     
-    MaplyComponentObject *labelObj = [viewC addScreenLabels:@[label] desc:
+    MaplyComponentObject *labelObj = [vc addScreenLabels:@[label] desc:
                                       @{kMaplyFont: font,
                                         kMaplyTextColor: UIColor.blackColor,
                                         kMaplyTextOutlineColor: UIColor.whiteColor,
                                         kMaplyTextOutlineSize: @(2.0),
                                         kMaplyEnable: @(false),
                                         }
-                                                       mode:MaplyThreadCurrent];
+                                      mode:MaplyThreadCurrent];
     
     MaplyCoordinate coords[5];
     coords[0] = bbox.ll;  coords[1] = MaplyCoordinateMake(bbox.ur.x, bbox.ll.y);
@@ -193,7 +192,7 @@ using namespace WhirlyKit;
     coords[4] = coords[0];
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:5 attributes:nil];
     [vecObj subdivideToGlobe:0.001];
-    MaplyComponentObject *outlineObj = [viewC addVectors:@[vecObj] desc:@{kMaplyEnable: @(false)} mode:MaplyThreadCurrent];
+    MaplyComponentObject *outlineObj = [vc addVectors:@[vecObj] desc:@{kMaplyEnable: @(false)} mode:MaplyThreadCurrent];
     
     [loadReturn addCompObjs:@[labelObj,outlineObj]];
 }
@@ -201,44 +200,46 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyRawPNGImageLoaderInterpreter
+{
+    std::vector<int> valueMap;
+}
+
+- (void)addMappingFrom:(int)inVal to:(int)outVal
+{
+    if (valueMap.empty())
+        valueMap.resize(256,-1);
+    if (inVal < 256)
+        valueMap[inVal] = outVal;
+}
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
+    const auto __strong vc = loader.viewC;
     NSArray<id> *tileData = [loadReturn getTileData];
     for (unsigned int ii=0;ii<[tileData count];ii++) {
         NSData *inData = [tileData objectAtIndex:ii];
         if (![inData isKindOfClass:[NSData class]])
             continue;
         
-        unsigned char *outData = NULL;
-        unsigned int width,height;
+        unsigned int width=0,height=0;
         
         unsigned int err = 0;
         int byteWidth = -1;
-        try {
-            LodePNGState pngState;
-            lodepng_state_init(&pngState);
-            err = lodepng_inspect(&width, &height, &pngState, (const unsigned char *)[inData bytes], [inData length]);
-            if (pngState.info_png.color.colortype == LCT_GREY) {
-                byteWidth = 1;
-                err = lodepng_decode_memory(&outData, &width, &height, (const unsigned char *)[inData bytes], [inData length], LCT_GREY, 8);
-            } else {
-                byteWidth = 4;
-                err = lodepng_decode_memory(&outData, &width, &height, (const unsigned char *)[inData bytes], [inData length], LCT_RGBA, 8);
-            }
-        }
-        catch (...) {
-            err = -1;
-        }
-        
+        unsigned char *outData = RawPNGImageLoaderInterpreter(width,height,
+                                                              (const unsigned char *)[inData bytes],[inData length],
+                                                              valueMap,
+                                                              byteWidth, err);
+
         if (err != 0) {
-            NSLog(@"Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d) frame = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.frame);
+            wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d) frame = %d",loadReturn.tileID.level,loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.frame);
         } else {
             NSData *retData = [[NSData alloc] initWithBytesNoCopy:outData length:width*height*byteWidth freeWhenDone:YES];
 
             // Build a wrapper around the data and pass it on
-            MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:retData width:width height:height components:byteWidth viewC:loader.viewC];
-            loadReturn->loadReturn->images.push_back(tileData->imageTile);
+            MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithRawImage:retData width:width height:height components:byteWidth viewC:vc];
+            if (tileData) {
+                loadReturn->loadReturn->images.push_back(tileData->imageTile);
+            }
         }
     }
 }
@@ -333,16 +334,17 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     if (!valid)
         return false;
     
-    if (!self.viewC || ![self.viewC getRenderControl])
+    auto const __strong vc = self.viewC;
+    if (![vc getRenderControl])
         return false;
     
     if (!tileFetcher) {
-        tileFetcher = [[self.viewC getRenderControl] addTileFetcher:MaplyQuadImageLoaderFetcherName];
+        tileFetcher = [[vc getRenderControl] addTileFetcher:MaplyQuadImageLoaderFetcherName];
     }
     loader->tileFetcher = tileFetcher;
     loader->setDebugMode(self.debugMode);
 
-    samplingLayer = [[self.viewC getRenderControl] findSamplingLayer:params forUser:self->loader];
+    samplingLayer = [[vc getRenderControl] findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
     loader->setSamplingParams(params);
     
@@ -405,7 +407,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     
     for (unsigned int ii=0;ii<loader->getNumFocus();ii++) {
         if (loader->getShaderID(ii) == EmptyIdentity) {
-            MaplyShader *theShader = [self.viewC getShaderByName:kMaplyShaderDefaultTriMultiTex];
+            MaplyShader *theShader = [vc getShaderByName:kMaplyShaderDefaultTriMultiTex];
             if (theShader)
                 loader->setShaderID(ii,[theShader getShaderID]);
         }
@@ -415,7 +417,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     loader->setFlipY(self.flipY);
     loader->setBaseDrawPriority(_baseDrawPriority);
     loader->setDrawPriorityPerLevel(_drawPriorityPerLevel);
-    RGBAColor color = [_color asRGBAColor];
+
+    const RGBAColor color = [_color asRGBAColor];
     loader->setColor(color,NULL);
 
     return true;
@@ -449,10 +452,11 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     _color = newColor;
     
-    if (samplingLayer.layerThread)
-        [self performSelector:@selector(setColorThread:) onThread:samplingLayer.layerThread withObject:_color waitUntilDone:NO];
+    const auto __strong thread = samplingLayer.layerThread;
+    if (thread)
+        [self performSelector:@selector(setColorThread:) onThread:thread withObject:_color waitUntilDone:NO];
     else if (loader) {
-        RGBAColor color = [_color asRGBAColor];
+        const RGBAColor color = [_color asRGBAColor];
         loader->setColor(color, NULL);
     }
 }
@@ -461,7 +465,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 - (void)setColorThread:(UIColor *)newColor
 {
     ChangeSet changes;
-    RGBAColor color = [_color asRGBAColor];
+    const RGBAColor color = [_color asRGBAColor];
     loader->setColor(color,&changes);
     
     [samplingLayer.layerThread addChangeRequests:changes];

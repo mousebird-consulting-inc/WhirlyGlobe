@@ -47,7 +47,8 @@ public:
     virtual bool geomAdditive(PlatformThreadInfo *inst) override;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(PlatformThreadInfo *inst, std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) override;
+    virtual void buildObjects(PlatformThreadInfo *inst, const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo, const Dictionary *desc) override;
 
 protected:
     SimpleIdentity uuid;  // ID of this style on the Java side
@@ -62,10 +63,10 @@ public:
 
     VectorStyleSetWrapper_Android(PlatformThreadInfo *inst,
                                 jobject obj,
-                                const std::vector<SimpleIdentity> uuids,
-                                const std::vector<std::string> categories,
+                                const std::vector<SimpleIdentity> &uuids,
+                                const std::vector<std::string> &categories,
                                 const std::vector<bool> &geomAdditive);
-    virtual ~VectorStyleSetWrapper_Android() { }
+    virtual ~VectorStyleSetWrapper_Android();
 
     /// Return the styles that apply to the given feature (attributes).
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
@@ -94,7 +95,8 @@ public:
     void shutdown(PlatformThreadInfo *inst);
 
 public:
-    void buildObjects(PlatformThreadInfo *inst,SimpleIdentity styleID,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    void buildObjects(PlatformThreadInfo *inst,SimpleIdentity styleID,const std::vector<VectorObjectRef> &vecObjs,
+                      const VectorTileDataRef &tileInfo,const Dictionary *desc);
 
     jobject wrapperObj;
     jmethodID layerShouldDisplayMethod;

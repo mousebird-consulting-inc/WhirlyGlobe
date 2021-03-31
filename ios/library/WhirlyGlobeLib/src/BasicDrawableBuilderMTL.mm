@@ -38,13 +38,17 @@ BasicDrawableBuilderMTL::BasicDrawableBuilderMTL(const std::string &name,Scene *
     
 void BasicDrawableBuilderMTL::setupStandardAttributes(int numReserve)
 {
-    basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
+    basicDraw->colorEntry = findAttribute(a_colorNameID);
+    if (basicDraw->colorEntry < 0)
+        basicDraw->colorEntry = addAttribute(BDChar4Type,a_colorNameID);
     VertexAttributeMTL *colorAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->colorEntry];
     colorAttr->slot = WhirlyKitShader::WKSVertexColorAttribute;
     colorAttr->setDefaultColor(RGBAColor(255,255,255,255));
     colorAttr->reserve(numReserve);
-    
-    basicDraw->normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
+
+    basicDraw->normalEntry = findAttribute(a_normalNameID);
+    if (basicDraw->normalEntry < 0)
+        basicDraw->normalEntry = addAttribute(BDFloat3Type,a_normalNameID);
     VertexAttributeMTL *normalAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[basicDraw->normalEntry];
     normalAttr->slot = WhirlyKitShader::WKSVertexNormalAttribute;
     normalAttr->setDefaultVector3f(Vector3f(1.0,1.0,1.0));
@@ -54,7 +58,7 @@ void BasicDrawableBuilderMTL::setupStandardAttributes(int numReserve)
 BasicDrawableBuilderMTL::~BasicDrawableBuilderMTL()
 {
     if (!drawableGotten && basicDraw)
-        basicDraw = NULL;
+        basicDraw.reset();
 }
     
 int BasicDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
@@ -90,7 +94,7 @@ void BasicDrawableBuilderMTL::setupTexCoordEntry(int which,int numReserve)
 BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
 {
     if (!basicDraw)
-        return NULL;
+        return nullptr;
     
     BasicDrawableMTLRef draw = std::dynamic_pointer_cast<BasicDrawableMTL>(basicDraw);
     
@@ -123,5 +127,5 @@ BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
     
     return draw;
 }
-    
+
 }

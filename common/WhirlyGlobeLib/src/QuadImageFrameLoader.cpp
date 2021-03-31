@@ -703,9 +703,10 @@ QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mod
     baseDrawPriority(100), drawPriorityPerLevel(1),
     colorChanged(false),
     color(RGBAColor(255,255,255,255)),
-    control(NULL), builder(NULL),
+    control(nullptr),
+    builder(nullptr),
     changesSinceLastFlush(true),
-    compManager(NULL),
+    compManager(nullptr),
     generation(0),
     targetLevel(-1), curOvlLevel(-1), loadingStatus(true)
 {
@@ -785,6 +786,11 @@ void QuadImageFrameLoader::setLoadMode(LoadMode newMode)
     updatePriorityDefaults();
 }
 
+QuadImageFrameLoader::LoadMode QuadImageFrameLoader::getLoadMode()
+{
+    return loadMode;
+}
+
 bool QuadImageFrameLoader::getLoadingStatus()
 {
     return loadingStatus;
@@ -833,7 +839,7 @@ int QuadImageFrameLoader::calcLoadPriority(const QuadTreeNew::ImportantNode &ide
     return restPriority;
 }
     
-void QuadImageFrameLoader::setColor(RGBAColor &inColor,ChangeSet *changes)
+void QuadImageFrameLoader::setColor(const RGBAColor &inColor,ChangeSet *changes)
 {
     color = inColor;
 
@@ -904,8 +910,11 @@ void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
     drawPriorityPerLevel = newPrior;
 }
     
-void QuadImageFrameLoader::setCurFrame(int focusID,double inCurFrame)
+void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *threadInfo,int focusID,double inCurFrame)
 {
+    if (curFrames[focusID] == inCurFrame)
+        return;
+    
     curFrames[focusID] = inCurFrame;
 }
     
@@ -1014,6 +1023,23 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,
     // Process all the fetches and cancels at once
     // We're not making any visual changes here, just messing with loading so no ChangeSet
     processBatchOps(threadInfo,batchOps.get());
+}
+
+void QuadImageFrameLoader::updatePriorities(PlatformThreadInfo *threadInfo)
+{
+    // Work through the tiles and frames
+    for (const auto &it : tiles) {
+        const QIFTileAssetRef &tile = it.second;
+
+        for (const auto &frame: tile->frames) {
+            if (tile->isFrameLoading(frame->getFrameInfo())) {
+                int newPriority = calcLoadPriority(tile->ident, frame->getFrameInfo()->frameIndex);
+                if (newPriority != frame->getPriority()) {
+                    frame->updateFetching(threadInfo, this, newPriority, tile->ident.importance);
+                }
+            }
+        }
+    }
 }
     
 QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes)
@@ -1162,15 +1188,15 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
     }
     
     // Work through the tiles, figuring out textures and objects
-    for (auto tileIt : tiles) {
-        auto tileID = tileIt.first;
-        auto tile = tileIt.second;
+    for (const auto &tileIt : tiles) {
+        const auto tileID = tileIt.first;
+        const auto tile = tileIt.second;
         
         // Enable/disable the various visual objects
-        bool enable = tile->getShouldEnable() || !params.singleLevel;
-        auto compObjIDs = tile->getCompObjs();
+        const bool enable = tile->getShouldEnable() || !params.singleLevel;
+        const auto compObjIDs = tile->getCompObjs();
         if (!compObjIDs.empty())
-            compManager->enableComponentObjects(compObjIDs, enable, changes);
+            compManager->enableComponentObjects(compObjIDs, enable, changes, /*resolveReps=*/true);
 
         // Only turn on the overlays if the Tile ID is one of the overlay level
         bool ovlEnable = enable && (tileID.level == curOvlLevel);
@@ -1315,7 +1341,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
     auto theLastRunReqFlag = lastRunReqFlag;
     auto mergeReq = new RunBlockReq([this,newRenderState,theLastRunReqFlag](Scene *scene,SceneRenderer *renderer,View *view)
     {
-        if (theLastRunReqFlag) {
+        if (*theLastRunReqFlag) {
             if (builder)
                 renderState = newRenderState;
         }
@@ -1341,7 +1367,7 @@ void QuadImageFrameLoader::setBuilder(QuadTileBuilder *inBuilder,QuadDisplayCont
 {
     builder = inBuilder;
     control = inControl;
-    compManager = (ComponentManager *)control->getScene()->getManager(kWKComponentManager);
+    compManager = std::dynamic_pointer_cast<ComponentManager>(control->getScene()->getManager(kWKComponentManager));
 }
 
 /// Before we tell the delegate to unload tiles, see if they want to keep them around
@@ -1460,6 +1486,8 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
         removeTile(threadInfo,inTile, batchOps, changes);
         somethingChanged = true;
     }
+    
+    // Note: Not processing changes in importance
 
     builderLoadAdditional(threadInfo,builder,updates,changes);
     
@@ -1543,6 +1571,9 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
         return;
     if (!control)
         return;
+    Scene *scene = control->getScene();
+    if (!scene)
+        return;
 
     ChangeSet changes;
 
@@ -1616,6 +1647,8 @@ void QuadImageFrameLoader::cleanup(PlatformThreadInfo *threadInfo,ChangeSet &cha
 
     processBatchOps(threadInfo,batchOps);
     delete batchOps;
+    
+    compManager.reset();
 }
 
 bool QuadImageFrameLoader::isFrameLoading(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame)

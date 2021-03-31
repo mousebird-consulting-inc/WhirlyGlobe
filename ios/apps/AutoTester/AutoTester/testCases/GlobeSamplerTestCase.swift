@@ -35,7 +35,6 @@ class GlobeSamplerTestCase: MaplyTestCase {
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = true
         sampleParams.edgeMatching = true
-        sampleParams.minZoom = tileInfo.minZoom()
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
         
@@ -44,7 +43,9 @@ class GlobeSamplerTestCase: MaplyTestCase {
         }
         let interp = MaplyOvlDebugImageLoaderInterpreter(viewC: baseVC)
         imageLoader.setInterpreter(interp)
+#if !targetEnvironment(simulator)
         imageLoader.imageFormat = .imageUShort565;
+#endif
 //        imageLoader.debugMode = true
 
         return imageLoader

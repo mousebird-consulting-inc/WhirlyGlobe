@@ -20,13 +20,19 @@
 
 package com.mousebird.maply;
 
+import android.annotation.SuppressLint;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
+
 /**
  *  Generic Tile fetcher request.
  *
  *  A single request for a single tile of data from a single source.
  *  The tile fetcher will... fetch this and call the success or failure callback.
  */
-public class TileFetchRequest
+public class TileFetchRequest implements Comparable<TileFetchRequest>
 {
     /**
      * Priority before importance.  Less is more important
@@ -64,16 +70,72 @@ public class TileFetchRequest
          *  Called on a random thread and won't be marked as loaded until it returns.
          *  This is a good way to limit how many things are loading/parsing at the same time.
          */
-        public void success(TileFetchRequest fetchRequest,byte[] data);
+        void success(TileFetchRequest fetchRequest,byte[] data);
 
         /**
          *  Tile Fetcher failure callback.
          */
-        public void failure(TileFetchRequest fetchRequest,String errorStr);
+        void failure(TileFetchRequest fetchRequest,String errorStr);
     };
 
     /**
      * Fill in these callbacks to get status back from a tile fetch.
      */
     public Callback callback = null;
+
+    /**
+     * Convenience helper for calling the success callback
+     */
+    public Boolean success(byte[] data) {
+        if (callback != null) {
+            callback.success(this, data);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Convenience helper for calling the failure callback
+     */
+    public Boolean failure(String errorStr) {
+        if (callback != null) {
+            callback.failure(this, errorStr);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int compareTo(TileFetchRequest other) {
+        int res = priority - other.priority;
+        if (res == 0) res = -Float.compare(importance, other.importance);
+        if (res == 0) res = group - other.group;
+        if (res == 0) res = (int)(tileSource - other.tileSource);
+        return res;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TileFetchRequest)) return false;
+        TileFetchRequest that = (TileFetchRequest)o;
+        return priority == that.priority &&
+                Float.compare(that.importance, importance) == 0 &&
+                group == that.group &&
+                tileSource == that.tileSource;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(priority, importance, group, tileSource, fetchInfo);
+    }
+
+    @NotNull
+    @SuppressLint("DefaultLocale")
+    @Override
+    public String toString() {
+        return String.format("TileFetchRequest{%d,%f,%d,%d,%s}",
+                priority, importance, group, tileSource,
+                (fetchInfo != null) ? fetchInfo.toString() : "null");
+    }
 }

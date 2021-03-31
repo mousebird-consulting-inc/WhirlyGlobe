@@ -1,9 +1,8 @@
-/*
- *  BasicDrawable.mm
+/*  BasicDrawable.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Program.h"
@@ -369,7 +367,76 @@ void BasicDrawable::setUniforms(const SingleVertexAttributeSet &newUniforms)
 
     uniforms = newUniforms;
 }
-    
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, float val)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloatType;
+    attr.data.floatVal = val;
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, int val)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDIntType;
+    attr.data.intVal = val;
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector2f &vec)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloat2Type;
+    attr.data.vec2[0] = vec.x();
+    attr.data.vec2[1] = vec.y();
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector3f &vec)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloat2Type;
+    attr.data.vec3[0] = vec.x();
+    attr.data.vec3[1] = vec.y();
+    attr.data.vec3[2] = vec.z();
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector4f &vec)
+{
+    SingleVertexAttribute attr;
+    attr.nameID = nameID;
+    attr.slot = -1;
+    attr.type = BDFloat2Type;
+    attr.data.vec4[0] = vec.x();
+    attr.data.vec4[1] = vec.y();
+    attr.data.vec4[2] = vec.z();
+    attr.data.vec4[3] = vec.w();
+
+    setUniform(attr);
+}
+
+void BasicDrawable::setUniform(const SingleVertexAttribute &attr)
+{
+    auto it = uniforms.find(attr);
+    if (it != uniforms.end())
+        uniforms.erase(it);
+    uniforms.insert(attr);
+}
+
 void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
 {
     setValuesChanged();
@@ -383,7 +450,7 @@ void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
     uniBlocks.push_back(uniBlock);
 }
     
-void BasicDrawable::addTweaker(DrawableTweakerRef tweak)
+void BasicDrawable::addTweaker(const DrawableTweakerRef &tweak)
 {
     setValuesChanged();
 
@@ -403,9 +470,14 @@ void BasicDrawable::setTexturesChanged()
     if (renderTargetCon)
         renderTargetCon->modified = true;
 }
-    
+
+BasicDrawableTexTweaker::BasicDrawableTexTweaker(std::vector<SimpleIdentity> &&texIDs,TimeInterval startTime,double period)
+    : texIDs(std::move(texIDs)), startTime(startTime), period(period)
+{
+}
+
 BasicDrawableTexTweaker::BasicDrawableTexTweaker(const std::vector<SimpleIdentity> &texIDs,TimeInterval startTime,double period)
-: texIDs(texIDs), startTime(startTime), period(period)
+    : texIDs(texIDs), startTime(startTime), period(period)
 {
 }
 
@@ -428,7 +500,7 @@ void BasicDrawableTexTweaker::tweakForFrame(Drawable *draw,RendererFrameInfo *fr
 
     // This forces a redraw every frame
     // Note: There has to be a better way
-    frame->scene->addChangeRequest(NULL);
+    frame->scene->addChangeRequest(nullptr);
 }
     
 BasicDrawableScreenTexTweaker::BasicDrawableScreenTexTweaker(const Point3d &centerPt,const Point2d &texScale)
@@ -440,7 +512,7 @@ void BasicDrawableScreenTexTweaker::tweakForFrame(Drawable *draw,RendererFrameIn
 {
     BasicDrawable *basicDraw = dynamic_cast<BasicDrawable *>(draw);
 
-    if (frameInfo->program)
+    if (basicDraw && frameInfo->program)
     {
         Vector4f screenPt = frameInfo->mvpMat * Vector4f(centerPt.x(),centerPt.y(),centerPt.z(),1.0);
         screenPt /= screenPt.w();
@@ -469,38 +541,34 @@ ColorChangeRequest::ColorChangeRequest(SimpleIdentity drawId,RGBAColor inColor)
 
 void ColorChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
     {
         basicDrawable->setOverrideColor(color);
-    } else {
-        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
-        if (basicDrawInst)
-            basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
+    }
+    else if (auto basicDrawInst = dynamic_cast<BasicDrawableInstance*>(draw.get()))
+    {
+        basicDrawInst->setColor(RGBAColor(color[0],color[1],color[2],color[3]));
     }
 }
 
 OnOffChangeRequest::OnOffChangeRequest(SimpleIdentity drawId,bool OnOff)
 : DrawableChangeRequest(drawId), newOnOff(OnOff)
 {
-    
 }
 
 void OnOffChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable) {
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
+    {
         basicDrawable->setOnOff(newOnOff);
     }
-    else {
-        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
-        if (basicDrawInst)
-            basicDrawInst->setEnable(newOnOff);
-        else {
-            ParticleSystemDrawableRef partSys = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
-            if (partSys)
-                partSys->setOnOff(newOnOff);
-        }
+    else if (auto basicDrawInst = dynamic_cast<BasicDrawableInstance*>(draw.get()))
+    {
+        basicDrawInst->setEnable(newOnOff);
+    }
+    else if (auto partSys = dynamic_cast<ParticleSystemDrawable*>(draw.get()))
+    {
+        partSys->setOnOff(newOnOff);
     }
 }
 
@@ -511,11 +579,12 @@ VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float min
 
 void VisibilityChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
+    {
         basicDrawable->setVisibleRange(minVis,maxVis);
-    else {
-        BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
+    }
+    else if (auto basicDrawInst = dynamic_cast<BasicDrawableInstance*>(draw.get()))
+    {
         basicDrawInst->setVisibleRange(minVis, maxVis);
     }
 }
@@ -529,8 +598,7 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,T
 void FadeChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
-    BasicDrawableRef basicDrawable = std::dynamic_pointer_cast<BasicDrawable>(draw);
-    if (basicDrawable)
+    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
     {
         basicDrawable->setFade(fadeDown, fadeUp);
     }

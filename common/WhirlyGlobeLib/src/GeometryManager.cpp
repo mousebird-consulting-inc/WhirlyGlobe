@@ -57,7 +57,7 @@ GeometryInfo::GeometryInfo(const Dictionary &dict)
     pointSize = dict.getDouble(MaplyGeomPointSize,1.0);
 }
 
-void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &changes,TimeInterval when)
+void GeomSceneRep::clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when)
 {
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
@@ -66,7 +66,7 @@ void GeomSceneRep::clearContents(SelectionManager *selectManager,ChangeSet &chan
         selectManager->removeSelectables(selectIDs);
 }
 
-void GeomSceneRep::enableContents(SelectionManager *selectManager,bool enable,ChangeSet &changes)
+void GeomSceneRep::enableContents(SelectionManagerRef &selectManager,bool enable,ChangeSet &changes)
 {
     for (SimpleIDSet::iterator it = drawIDs.begin();
          it != drawIDs.end(); ++it)
@@ -618,6 +618,8 @@ GeometryManager::GeometryManager()
     
 GeometryManager::~GeometryManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (GeomSceneRepSet::iterator it = sceneReps.begin();
          it != sceneReps.end(); ++it)
         delete *it;
@@ -626,9 +628,9 @@ GeometryManager::~GeometryManager()
     
 SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
     GeomSceneRep *sceneRep = new GeomSceneRep();
-    
+
     // Calculate the bounding box for the whole thing
     Point3d ll,ur;
 
@@ -706,7 +708,7 @@ SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,con
     SimpleIdentity geomID = sceneRep->getId();
     
     {
-        std::lock_guard<std::mutex> guardLock(geomLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         sceneReps.insert(sceneRep);
     }
     
@@ -775,7 +777,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
     SimpleIdentity geomID = sceneRep->getId();
     
     {
-        std::lock_guard<std::mutex> guardLock(geomLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         sceneReps.insert(sceneRep);
     }
     
@@ -794,7 +796,7 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw> &inGeom
 /// Add instances that reuse base geometry
 SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,const std::vector<GeometryInstance> &instances,GeometryInfo &geomInfo,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(geomLock);
+    std::lock_guard<std::mutex> guardLock(lock);
     TimeInterval startTime = scene->getCurrentTime();
 
     // Look for the scene rep we're basing this on
@@ -809,9 +811,9 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
         return EmptyIdentity;
     }
     
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
     GeomSceneRep *sceneRep = new GeomSceneRep();
-    
+
     // Check for moving models
     bool hasMotion = false;
     for (const GeometryInstance &inst : instances)
@@ -881,7 +883,7 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
 
 SimpleIdentity GeometryManager::addGPUGeomInstance(SimpleIdentity baseGeomID,SimpleIdentity programID,SimpleIdentity texSourceID,SimpleIdentity srcProgramID,GeometryInfo &geomInfo,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(geomLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     // Look for the scene rep we're basing this on
     GeomSceneRep *baseSceneRep = NULL;
@@ -956,7 +958,7 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
     SimpleIdentity geomID = sceneRep->getId();
     
     {
-        std::lock_guard<std::mutex> guardLock(geomLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         sceneReps.insert(sceneRep);
     }
     
@@ -965,9 +967,8 @@ SimpleIdentity GeometryManager::addGeometryPoints(const GeometryRawPoints &geomP
 
 void GeometryManager::enableGeometry(SimpleIDSet &geomIDs,bool enable,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    
-    std::lock_guard<std::mutex> guardLock(geomLock);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator git = geomIDs.begin(); git != geomIDs.end(); ++git)
     {
@@ -983,9 +984,8 @@ void GeometryManager::enableGeometry(SimpleIDSet &geomIDs,bool enable,ChangeSet 
 
 void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-
-    std::lock_guard<std::mutex> guardLock(geomLock);
+    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
     for (SimpleIDSet::iterator git = geomIDs.begin(); git != geomIDs.end(); ++git)
@@ -1016,7 +1016,7 @@ void GeometryManager::removeGeometry(SimpleIDSet &geomIDs,ChangeSet &changes)
 
 void GeometryManager::setUniformBlock(const SimpleIDSet &geomID,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(geomLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (auto geomID : geomID) {
         GeomSceneRep dummyRep(geomID);

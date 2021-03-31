@@ -101,13 +101,14 @@ using namespace WhirlyKit;
 {
     loader->layer = self;
     
+    const auto __strong vc = self.viewC;
     if (!tileFetcher) {
-        tileFetcher = [self.viewC addTileFetcher:MaplyQuadImageLoaderFetcherName];
+        tileFetcher = [vc addTileFetcher:MaplyQuadImageLoaderFetcherName];
     }
     loader->tileFetcher = tileFetcher;
     loader->layer = self;
 
-    samplingLayer = [[self.viewC getRenderControl] findSamplingLayer:params forUser:self->loader];
+    samplingLayer = [[vc getRenderControl] findSamplingLayer:params forUser:self->loader];
     // Do this again in case they changed them
     loader->setSamplingParams(params);
     loader->setFlipY(self.flipY);

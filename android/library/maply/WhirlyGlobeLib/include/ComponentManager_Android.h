@@ -40,9 +40,10 @@ public:
     virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes) override;
 
 protected:
-    virtual ComponentObjectRef makeComponentObject() override;
+    virtual ComponentObjectRef makeComponentObject(const Dictionary *desc = nullptr) override;
     jobject compManagerObj;
     jmethodID objectsRemovedMethod;
 };
+typedef std::shared_ptr<ComponentManager_Android> ComponentManager_AndroidRef;
 
 }

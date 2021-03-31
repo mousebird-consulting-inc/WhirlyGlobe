@@ -90,6 +90,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
                     ScreenLabel label = new ScreenLabel();
                     label.text = name != null ? name : ".";
                     label.loc = pt;
+                    label.layoutImportance = 1.f;
 
                     labels.add(label);
                 }
@@ -238,5 +239,12 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     @Override
     public int backgroundColorForZoom(double zoom) {
         return Color.BLACK;
+    }
+
+    @Override
+    public int getZoomSlot() { return -1; }
+
+    @Override
+    public void setZoomSlot(int inZoomSlot) {
     }
 }

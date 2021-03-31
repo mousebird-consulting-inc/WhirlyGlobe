@@ -47,7 +47,10 @@ public class MapboxKindaMap {
     //  font name in the style.  Font names in the style often don't map
     //  directly to local font names.
     public var fontOverride : (_ name: String) -> UIFontDescriptor? = { _ in return nil }
-    
+
+    // If set, we'll run the stylesheet JSON through it before loading it into a style delegate
+    public var preStyle: (_ : [AnyHashable:Any]) -> [AnyHashable:Any] = { $0 }
+
     // If set, this will be called right after everything is set up
     // This is after all the configuration files are fetched so
     //  you can make any final tweaks to loading objects here
@@ -259,7 +262,9 @@ public class MapboxKindaMap {
                     }
 
                     DispatchQueue.main.async {
-                        self.outstandingFetches[fetchIdx1] = nil
+                        if self.outstandingFetches.count > fetchIdx1 {
+                            self.outstandingFetches[fetchIdx1] = nil
+                        }
                         self.checkFinished()
                     }
                 }
@@ -279,7 +284,9 @@ public class MapboxKindaMap {
                     }
 
                     DispatchQueue.main.async {
-                        self.outstandingFetches[fetchIdx2] = nil
+                        if self.outstandingFetches.count > fetchIdx2 {
+                            self.outstandingFetches[fetchIdx2] = nil
+                        }
                         self.checkFinished()
                     }
                 }
@@ -322,18 +329,32 @@ public class MapboxKindaMap {
             // Go get the style sheet (this will also handle local
             let fetchIdx = self.outstandingFetches.count
             let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(styleURL)) { (data, _, error) in
-                guard error == nil, let data = data else {
+                guard error == nil, var data = data else {
                     print("Error fetching style sheet:\n\(String(describing: error))")
                     
                     self.stop()
                     return
                 }
-                
+
+                var jsonDict: [AnyHashable: Any]?
+                do {
+                    let result = try JSONSerialization.jsonObject(with: data)
+                    jsonDict = result as? [AnyHashable: Any]
+                    if jsonDict != nil {
+                        jsonDict = self.preStyle(jsonDict!)
+                        if let jd = jsonDict {
+                            data = try JSONSerialization.data(withJSONObject: jd)
+                        }
+                    }
+                } catch {
+                    print("Failed to parse stylesheet: \(String(describing: error))")
+                }
+
                 DispatchQueue.main.async {
                     self.outstandingFetches[fetchIdx] = nil
-                    guard let styleSheet = MapboxVectorStyleSet(json: data,
-                                                          settings: self.styleSettings,
-                                                            viewC: viewC) else {
+                    guard let styleSheet = MapboxVectorStyleSet(dict: jsonDict!,
+                                                                settings: self.styleSettings,
+                                                                viewC: viewC) else {
                         print("Failed to parse style sheet")
                         self.stop()
                         return
@@ -435,7 +456,6 @@ public class MapboxKindaMap {
             sampleParams.coverPoles = false
             sampleParams.edgeMatching = false
         }
-        sampleParams.minZoom = zoom.min
         sampleParams.maxZoom = zoom.max
         sampleParams.reportedMaxZoom = 21;
         
@@ -646,7 +666,6 @@ public class MapboxKindaMap {
         outstandingFetches.forEach {
             $0?.cancel()
         }
-        outstandingFetches = []
 
         loader?.shutdown()
         loader = nil

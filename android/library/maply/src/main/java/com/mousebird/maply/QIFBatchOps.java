@@ -57,8 +57,16 @@ class QIFBatchOps
      */
     void process(TileFetcher fetcher)
     {
-        if (fetcher == null)
+        // Just run the logic ourselves
+        if (fetcher == null) {
+            // Don't do anything for cancel
+
+            for (TileFetchRequest request: toStart) {
+                request.callback.success(request, null);
+            }
+
             return;
+        }
 
         if (!toCancel.isEmpty()) {
             fetcher.cancelTileFetches(toCancel.toArray(new TileFetchRequest[0]));

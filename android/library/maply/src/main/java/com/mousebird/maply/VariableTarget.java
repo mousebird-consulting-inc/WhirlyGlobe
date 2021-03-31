@@ -129,6 +129,11 @@ public class VariableTarget
     public Boolean clearEveryFrame = true;
 
     /**
+     * When we're clearing, use this value.  0 by default
+     */
+    public double clearVal = 0.0;
+
+    /**
      * Call setup explicitly after setting values.
      */
     public void setup() {
@@ -155,6 +160,7 @@ public class VariableTarget
         renderTex = viewC.createTexture(frameSize[0], frameSize[1],settings, RenderControllerInterface.ThreadMode.ThreadCurrent);
         renderTarget.texture = renderTex;
         renderTarget.clearEveryFrame = clearEveryFrame;
+        renderTarget.clearVal = (float)clearVal;
         viewC.addRenderTarget(renderTarget);
 
         // Default shader
@@ -169,6 +175,9 @@ public class VariableTarget
             rect.setClipCoords(true);
             rect.addTexture(renderTex);
             for (VariableTarget target : auxTargets) {
+                // Bit if a cheat, but it should be fine
+                if (target.renderTex == null)
+                    target.delayedSetup();
                 rect.addTexture(target.renderTex);
             }
             ArrayList<Shape> shapes = new ArrayList<Shape>();

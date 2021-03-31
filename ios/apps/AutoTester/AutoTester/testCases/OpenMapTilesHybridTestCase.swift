@@ -98,7 +98,6 @@ class OpenMapTilesHybridTestCase: MaplyTestCase {
             sampleParams.coverPoles = false
             sampleParams.edgeMatching = false
         }
-        sampleParams.minZoom = 0
         sampleParams.maxZoom = tileInfo.maxZoom()
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {

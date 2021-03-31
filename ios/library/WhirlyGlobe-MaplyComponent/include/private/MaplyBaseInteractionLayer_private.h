@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@
     NSArray *layerThreads;
 
     // Used to track groups of low level objects and vectors
-    WhirlyKit::ComponentManager_iOS *compManager;
+    WhirlyKit::ComponentManager_iOSRef compManager;
 
     std::mutex imageLock;
     // Used to track textures
@@ -56,6 +56,10 @@
         
     // Texture atlas manager
     MaplyTextureAtlasGroup *atlasGroup;
+    
+    // If set, the render target used for masking features against each other
+    WhirlyKit::SimpleIdentity maskRenderTargetID;
+    WhirlyKit::SimpleIdentity maskTexID;
     
     /// Active shaders
     NSMutableArray *shaders;
@@ -153,6 +157,18 @@
 
 // Disable objects, but just generate the changes don't flush them
 - (void)disableObjects:(NSArray *__nonnull)userObjs changes:(WhirlyKit::ChangeSet &)changes;
+
+// Set the representation to use for the specified UUIDs
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
+
+// Generate changes for setting the representation to use for the specified UUIDs
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                  changes:(WhirlyKit::ChangeSet &)changes;
 
 // Pass through a uniform block
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode;

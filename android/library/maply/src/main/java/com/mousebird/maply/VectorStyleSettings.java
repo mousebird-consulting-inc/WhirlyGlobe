@@ -10,7 +10,10 @@ package com.mousebird.maply;
 public class VectorStyleSettings {
 
     public VectorStyleSettings() {
-        initialise();
+        this(1.0);
+    }
+    public VectorStyleSettings(double scale) {
+        initialise(scale);
     }
 
     /// Line widths will be scaled by this amount before display.
@@ -39,7 +42,7 @@ public class VectorStyleSettings {
 
     /// If set we'll use the zoom levels defined in the style
     native public boolean getUseZoomLevels();
-    native public void setUseZoomLabels(boolean useZoomLabels);
+    native public void setUseZoomLevels(boolean useZoomLabels);
 
     /// For symbols we'll try to pull a UUID out of this field to stick in the marker and label uniqueID
     native public String getUuidField();
@@ -54,47 +57,49 @@ public class VectorStyleSettings {
     native public void setDrawPriorityPerLevel(int drawPriorityPerLevel);
 
 
-    /** @brief The overall map scale calculations will be scaled by this amount
-     *  @details We use the map scale calculations to figure out what is displayed and when.  Not
-     *  what to load in, mind you, that's a separate, but related calculation.  This controls the
-     *  scaling of those calculations.  Scale it down to load things in later, up to load them in
-     *  sooner.
+    /** The overall map scale calculations will be scaled by this amount
+     *  We use the map scale calculations to figure out what is displayed and when.  Not what to
+     *  load in, mind you, that's a separate, but related calculation.  This controls the scaling
+     *  of those calculations.  Scale it down to load things in later, up to load them in sooner.
      */
     native public double getMapScaleScale();
     native public void setMapScaleScale(double scale);
 
-    /// @brief Dashed lines will be scaled by this amount before display.
+    /** Dashed lines will be scaled by this amount before display. */
     native public double getDashPatternScale();
     native public void setDashPatternScale(double scale);
 
-    /// @brief Use widened vectors (which do anti-aliasing and such)
+    /** Use widened vectors (which do anti-aliasing and such) */
     native public boolean getUseWideVectors();
     native public void setUseWideVectors(boolean useWideVectors);
 
-    /// @brief Where we're using old vectors (e.g. not wide) scale them by this amount
+    /** Where we're using old vectors (e.g. not wide) scale them by this amount */
     native public double getOldVecWidthScale();
     native public void setOldVecWidthScale(double widthScale);
 
-    /// @brief If we're using widened vectors, only active them for strokes wider than this.  Defaults to zero.
+    /**
+     * If we're using widened vectors, only active them for strokes wider than this.
+     * Defaults to zero.
+     */
     native public double getWideVecCutoff();
     native public void setWideVecCutoff(double cutoff);
 
-    /// @brief If set, we'll make the areal features selectable.  If not, this saves memory.
+    /** If set, we'll make the areal features selectable.  If not, this saves memory. */
     native public boolean getSelectable();
     native public void setSelectable(boolean selectable);
 
-    /// @brief If set, icons will be loaded from this directory
+    /** If set, icons will be loaded from this directory */
     native public String getIconDirectory();
     native public void setIconDirectory(String iconDirectory);
 
-    /// @brief The default font family for all text
+    /** The default font family for all text */
     native public String getFontName();
     native public void setFontName(String fontName);
 
-    /// Use the z buffer when rendering polygons
+    /** Use the z buffer when rendering polygons */
     native public void setZBufferRead(boolean val);
 
-    /// Write to the z buffer when rendering polygons
+     /** Write to the z buffer when rendering polygons */
     native public void setZBufferWrite(boolean val);
 
     public void finalize()
@@ -106,7 +111,7 @@ public class VectorStyleSettings {
     {
         nativeInit();
     }
-    native void initialise();
+    native void initialise(double scale);
     native void dispose();
     private static native void nativeInit();
     protected long nativeHandle;

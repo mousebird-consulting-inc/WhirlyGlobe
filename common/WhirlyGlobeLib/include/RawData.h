@@ -60,6 +60,7 @@ protected:
     const unsigned char *data;
     unsigned int len;
 };
+typedef std::shared_ptr<RawDataWrapper> RawDataWrapperRef;
     
 // Wrapper on top of a raw data object for reading more structured data
 class RawDataReader

@@ -26,21 +26,28 @@
 
 using namespace WhirlyKit;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFrameModeNative
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFrameModeNative
         (JNIEnv *env, jobject obj, jint mode)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
-            return;
+            return false;
 
+        if ((*loader)->getLoadMode() == (QuadImageFrameLoader::LoadMode)mode)
+            return false;
+
+        PlatformInfo_Android platformInfo(env);
         (*loader)->setLoadMode((QuadImageFrameLoader::LoadMode)mode);
+
+        return true;
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setLoadFrameModeNative()");
     }
 
+    return false;
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_addFocus
@@ -77,21 +84,26 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getNumFocus
     return 0;
 }
 
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setCurrentImageNative
         (JNIEnv *env, jobject obj, jint focusID, jdouble curImage)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         if (!loader)
-            return;
+            return false;
 
-        (*loader)->setCurFrame(focusID,curImage);
+        PlatformInfo_Android platformInfo(env);
+        double oldPos = (*loader)->getCurFrame(focusID);
+        (*loader)->setCurFrame(&platformInfo,focusID,curImage);
+
+        return (int)oldPos != (int)curImage;
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setCurrentImageNative()");
     }
+
+    return false;
 }
 
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getCurrentImage
@@ -145,6 +157,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setRenderTa
     }
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setTextureSize
+        (JNIEnv *env, jobject obj, jint texSize, jint borderSize)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        (*loader)->setTexSize(texSize,borderSize);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::setTextureSize()");
+    }
+}
+
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setShaderIDNative
         (JNIEnv *env, jobject obj, jint focusID, jlong shaderID)
 {
@@ -188,4 +216,21 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getStatsNat
     }
 
     return 0;
+}
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_updatePriorities
+        (JNIEnv *env, jobject obj)
+{
+    try {
+        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (!loader)
+            return;
+
+        PlatformInfo_Android platformInfo(env);
+        (*loader)->updatePriorities(&platformInfo);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageFrameLoader::updatePriorities()");
+    }
 }

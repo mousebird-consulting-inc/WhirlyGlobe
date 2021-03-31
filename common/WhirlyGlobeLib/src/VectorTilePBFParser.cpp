@@ -154,7 +154,7 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
         return false;
     }
 
-    const auto layerName = std::string(layerNameView);
+    auto layerName = std::string(layerNameView);
 
     // When `has_extent` is false, nanopb sets the default in `extent`
     _layerScale = (double)layer.extent / TileSize;
@@ -168,9 +168,25 @@ bool VectorTilePBFParser::layerDecode(pb_istream_t *stream, const pb_field_iter_
         return true;
     }
 
-    // if we dont have any styles for a layer, dont bother parsing the features
-    if (!_styleDelegate->layerShouldDisplay(_styleInst, layerName, _tileData->ident))
-    {
+    // if we don't have any styles for a layer, don't bother parsing the features
+    bool found = false;
+    if (_styleDelegate->layerShouldDisplay(_styleInst, layerName, _tileData->ident))
+        found = true;
+    else {
+        // Try a lowercase version
+        // TODO: This doesn't handle non-ASCII well
+        std::string lowerLayerName = layerName;
+        std::transform(lowerLayerName.begin(), lowerLayerName.end(), lowerLayerName.begin(),
+                                   [](unsigned char c){ return std::tolower(c); });
+        
+        if (lowerLayerName != layerName)
+            if (_styleDelegate->layerShouldDisplay(_styleInst, lowerLayerName, _tileData->ident)) {
+                found = true;
+                layerName = lowerLayerName;
+            }
+    }
+    
+    if (!found) {
         _skippedLayerCount += 1;
         return true;
     }

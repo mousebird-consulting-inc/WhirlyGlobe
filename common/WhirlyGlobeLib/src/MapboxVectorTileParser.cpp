@@ -102,11 +102,22 @@ MapboxVectorTileParser::MapboxVectorTileParser(PlatformThreadInfo *inst,VectorSt
 MapboxVectorTileParser::~MapboxVectorTileParser()
 {
 }
-    
-void MapboxVectorTileParser::setUUIDs(const std::string &name,const std::set<std::string> &uuids)
+
+void MapboxVectorTileParser::setUUIDName(const std::string &name)
 {
     uuidName = name;
-    uuidValues = uuids;
+}
+
+void MapboxVectorTileParser::setAttributeFilter(const std::string &name,const std::set<std::string> &values)
+{
+    filterName = name;
+    filterValues = values;
+}
+
+void MapboxVectorTileParser::setAttributeFilter(const std::string &name,std::set<std::string> &&values)
+{
+    filterName = name;
+    filterValues = std::move(values);
 }
 
 void MapboxVectorTileParser::addCategory(const std::string &category,long long styleID)
@@ -122,27 +133,33 @@ static inline double secondsSince(const std::chrono::steady_clock::time_point &t
 
 bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool)
 {
-    wkLogLevel(Verbose, "MapboxVectorTileParser: Parse [%d/%d/%d] starting",
-               tileData->ident.level, tileData->ident.x, tileData->ident.y);
+//#if DEBUG
+//    wkLogLevel(Verbose, "MapboxVectorTileParser: Parse [%d/%d/%d] starting",
+//               tileData->ident.level, tileData->ident.x, tileData->ident.y);
+//#endif
     const auto t0 = std::chrono::steady_clock::now();
 
-    VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst, uuidName, uuidValues,
+    VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst, filterName, filterValues,
                                tileData->vecObjsByStyle, localCoords, parseAll,
                                keepVectors ? &tileData->vecObjs : nullptr,
                                [=](){ return cancelBool && *cancelBool; });
     if (!parser.parse(rawData->getRawData(), rawData->getLen()))
     {
-        if (parser.getParseCancelled()) {
+        if (parser.getParseCancelled())
+        {
             const auto duration = secondsSince(t0);
             wkLogLevel(Verbose, "MapboxVectorTileParser: Cancelled [%d/%d/%d] - %.2f MiB - %.4f s",
                        tileData->ident.level, tileData->ident.x, tileData->ident.y,
                        rawData->getLen() / 1024.0 / 1024, duration);
-        } else {
+        }
+        else
+        {
             wkLogLevel(Warn, "MapboxVectorTileParser: Parse [%d/%d/%d] failed - '%s'",
                        tileData->ident.level, tileData->ident.x, tileData->ident.y,
                        parser.getErrorString("unknown").c_str());
 #if DEBUG
-            if (parser.getTotalErrorCount() > 0) {
+            if (parser.getTotalErrorCount() > 0)
+            {
                 wkLogLevel(Debug,
                            "MapboxVectorTileParser: [%d/%d/%d] parse Errors: %d, Bad Attributes: %d, "
                            "Unknown Commands: %d, Unknown Geom: %d, Unknown Value Types: %d",
@@ -158,12 +175,14 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
         return false;
     }
 
+#if DEBUG
     const auto duration = std::max(1e-9, secondsSince(t0));
     wkLogLevel(Verbose, "MapboxVectorTileParser: Finished [%d/%d/%d] - %.2f MiB - %.4f s - %.4f MiB/s - %.1f features/s",
                tileData->ident.level, tileData->ident.x, tileData->ident.y,
                rawData->getLen() / 1024.0 / 1024,
                duration, rawData->getLen() / duration / 1024 / 1024,
                parser.getFeatureCount() / duration);
+#endif
 
     // TODO: Switch to stencils and get this working again
     // Call background
@@ -176,21 +195,24 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
 //    }
     
     // Run the styles over their assembled data
-    for (auto it : tileData->vecObjsByStyle) {
-        std::vector<VectorObjectRef> *vecs = it.second;
+    for (const auto &it : tileData->vecObjsByStyle)
+    {
+        std::vector<VectorObjectRef> &vecs = *it.second;
 
         auto styleData = std::make_shared<VectorTileData>(*tileData);
 
         // Ask the subclass to run the style and fill in the VectorTileData
-        buildForStyle(styleInst,it.first,*vecs,styleData);
-        
+        buildForStyle(styleInst,it.first,vecs,styleData);
+
         // Sort the results into categories if needed
         auto catIt = styleCategories.find(it.first);
-        if (catIt != styleCategories.end() && !styleData->compObjs.empty()) {
+        if (catIt != styleCategories.end() && !styleData->compObjs.empty())
+        {
             const std::string &category = catIt->second;
             auto compObjs = styleData->compObjs;
             auto categoryIt = tileData->categories.find(category);
-            if (categoryIt != tileData->categories.end()) {
+            if (categoryIt != tileData->categories.end())
+            {
                 compObjs.insert(compObjs.end(), categoryIt->second.begin(), categoryIt->second.end());
             }
             tileData->categories[category] = compObjs;
@@ -249,12 +271,13 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
 
 void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
                                            long long styleID,
-                                           std::vector<VectorObjectRef> &vecObjs,
-                                           VectorTileDataRef data)
+                                           const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &data)
 {
-    VectorStyleImplRef style = styleDelegate->styleForUUID(styleInst,styleID);
-    if (style)
-        style->buildObjects(styleInst,vecObjs, data);
+    if (auto style = styleDelegate->styleForUUID(styleInst,styleID))
+    {
+        style->buildObjects(styleInst,vecObjs,data,nullptr);
+    }
 }
     
 }

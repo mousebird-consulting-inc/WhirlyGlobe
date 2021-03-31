@@ -1,12 +1,15 @@
 package com.mousebirdconsulting.autotester.Framework;
 
-
 import android.app.Activity;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Handler;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
@@ -18,6 +21,7 @@ import com.mousebird.maply.SelectedObject;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
+import java.lang.ref.WeakReference;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,9 +31,7 @@ import java.util.ArrayList;
 
 public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeController.GestureDelegate, MapController.GestureDelegate {
 
-	public enum TestExecutionImplementation {
-		Globe, Map, Both, None;
-	}
+	public enum TestExecutionImplementation { Globe, Map, Both, None }
 
 	public interface MaplyTestCaseListener {
 		void onStart(View view);
@@ -42,7 +44,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	protected String testName;
 	protected int icon = R.drawable.ic_action_selectall;
 	protected ConfigOptions.TestType options;
-	protected Activity activity;
+	protected WeakReference<Activity> weakActivity;
 	protected BaseController controller;
 	protected GlobeController globeController;
 	protected MapController mapController;
@@ -55,12 +57,22 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 
 	public MaplyTestCase(Activity activity) {
 		super();
-		this.activity = activity;
+		weakActivity = new WeakReference<>(activity);
+	}
+
+	public MaplyTestCase(Activity activity, String testName) {
+		this(activity, testName, TestExecutionImplementation.Both);
+	}
+
+	public MaplyTestCase(Activity activity, String testName, TestExecutionImplementation impl) {
+		this(activity);
+		this.testName = testName;
+		this.implementation = impl;
 	}
 
 	public boolean areResourcesDownloaded(){
 		for (int ii = 0; ii < remoteResources.size(); ii++){
-			File file = new File(ConfigOptions.getCacheDir(activity) + "/" + getFileName(remoteResources.get(ii)));
+			File file = new File(ConfigOptions.getCacheDir(getActivity()) + "/" + getFileName(remoteResources.get(ii)));
 			if (!file.exists()){
 				return false;
 			}
@@ -80,7 +92,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	}
 
 	private void downloadFromServer(String url) {
-		String filename = ConfigOptions.getCacheDir(activity).getPath() + "/" + getFileName(url);
+		String filename = ConfigOptions.getCacheDir(getActivity()).getPath() + "/" + getFileName(url);
 		Log.e("Download", "Downloading " + url);
 
 		try {
@@ -111,10 +123,10 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		}
 	}
 
-	private void deleteFile(String name){
+	private Boolean deleteFile(String name){
 
-		File file = new File(ConfigOptions.getCacheDir(activity) + "/" + name);
-		file.delete();
+		File file = new File(ConfigOptions.getCacheDir(getActivity()) + "/" + name);
+		return file.delete();
 	}
 	// Change this to set transparent backgrounds
 	int clearColor = Color.BLACK;
@@ -123,7 +135,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	boolean success = false;
 
 	// Build the globe controller for use later
-	// This can be overriden if we're doing something tricky
+	// This can be overridden if we're doing something tricky
 	protected GlobeController makeGlobeController()
 	{
 		GlobeController.Settings settings = new GlobeController.Settings();
@@ -132,24 +144,46 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		settings.clearColor = clearColor;
 //		settings.width = 512;
 //		settings.height = 512;
-		GlobeController globeControl = new GlobeController(activity,settings);
+		GlobeController globeControl = new GlobeController(getActivity(),settings);
 		globeControl.gestureDelegate = this;
 
 		return globeControl;
 	}
 
 	// Build the map controller for use later
-	// This can be overriden if we're doing something tricky
+	// This can be overridden if we're doing something tricky
 	protected MapController makeMapController()
 	{
 		MapController.Settings settings = new MapController.Settings();
 		settings.clearColor = clearColor;
 //		settings.width = 512;
 //		settings.height = 512;
-		MapController mapControl = new MapController(activity,settings);
+		MapController mapControl = new MapController(getActivity(),settings);
 		mapControl.gestureDelegate = this;
 
 		return mapControl;
+	}
+
+	/**
+	 * Find the display DPI
+	 */
+	public Point2d getDisplayDensity() {
+		Activity activity = getActivity();
+		WindowManager windowManager = (activity != null) ? activity.getWindowManager() : null;
+		Display display = (windowManager != null) ? windowManager.getDefaultDisplay() : null;
+		if (display != null) {
+			DisplayMetrics dm = new DisplayMetrics();
+			display.getRealMetrics(dm);
+			return new Point2d(dm.xdpi, dm.ydpi);
+		}
+		Resources resources = (activity != null) ? activity.getResources() : null;
+		if (resources != null) {
+			DisplayMetrics dm = resources.getDisplayMetrics();
+			if (dm != null) {
+				return new Point2d(dm.xdpi, dm.ydpi);
+			}
+		}
+		return null;
 	}
 
 	int numRuns = 0;
@@ -164,20 +198,11 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 			startControl();
 
 			Handler handler = new Handler();
-			handler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					shutdown();
+			handler.postDelayed(() -> {
+				shutdown();
 
-					Handler handler = new Handler();
-					handler.postDelayed(new Runnable() {
-						@Override
-						public void run() {
-
-							start();
-						}
-					}, runDelay);
-				}
+				Handler handler1 = new Handler();
+				handler1.postDelayed(this::start, runDelay);
 			}, runDelay);
 		} else {
 			startControl();
@@ -205,12 +230,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		}
 		success = true;
 		listener.onStart(controller.getContentView());
-		controller.addPostSurfaceRunnable(new Runnable() {
-			@Override
-			public void run() {
-				implementationTest();
-			}
-		});
+		controller.addPostSurfaceRunnable(this::implementationTest);
 	}
 
 	private void implementationTest() {
@@ -247,35 +267,32 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	protected Void doInBackground(Void... params) {
 		if (success) {
 			publishProgress(controller.getContentView());
-			if (ConfigOptions.getExecutionMode(activity.getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+			if (ConfigOptions.getExecutionMode(getActivity().getApplicationContext()) == ConfigOptions.ExecutionMode.Interactive) {
+				//noinspection InfiniteLoopStatement
 				while (true) {
 					try {
+						//noinspection BusyWait
 						Thread.sleep(500);
-					} catch (InterruptedException e) {
+					} catch (InterruptedException ignored) {
 					}
 				}
 			}
-			if (ConfigOptions.getViewSetting(activity.getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
+			if (ConfigOptions.getViewSetting(getActivity().getApplicationContext()) == ConfigOptions.ViewMapOption.ViewMap) {
 				if (this.mapController != null && listener != null) {
 					try {
 						Thread.sleep(delay * 1000);
 					}
-					catch (InterruptedException ex) {
+					catch (InterruptedException ignored) {
 					}
 				}
 				if (this.globeController != null && listener != null) {
 					if (options == ConfigOptions.TestType.BothTest) {
-						activity.runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								listener.onExecute(globeController.getContentView());
-							}
-						});
+						getActivity().runOnUiThread(() -> listener.onExecute(globeController.getContentView()));
 					}
 					try {
 						Thread.sleep(delay * 1000);
 					}
-					catch (InterruptedException ex) {
+					catch (InterruptedException ignored) {
 					}
 				}
 			}
@@ -333,11 +350,11 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	}
 
 	public Activity getActivity() {
-		return activity;
+		return weakActivity.get();
 	}
 
 	public void setActivity(Activity value) {
-		activity = value;
+		weakActivity = new WeakReference<>(value);
 	}
 
 	public String getTestName() {
@@ -352,9 +369,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		delay = value;
 	}
 
-	public int getDelay() {
-		return delay;
-	}
+	public int getDelay() { return delay; }
 
 	public TestExecutionImplementation getImplementation() {
 		return implementation;
@@ -370,12 +385,14 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 
 	public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc)
 	{
-		Log.d("Maply","User tapped at (" + loc.getX()*180/Math.PI + "," + loc.getY()*180/Math.PI + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
-		Point2d newScreenPt = globeControl.screenPointFromGeo(loc);
-		Point2d newGeo = globeControl.geoPointFromScreen(newScreenPt);
+		Log.d("Maply",  String.format("User tapped at screen(%f,%f) = geo(%f,%f)",
+				screenLoc.getX(), screenLoc.getY(), loc.getX()*180/Math.PI, loc.getY()*180/Math.PI));
+		//Point2d newScreenPt = globeControl.screenPointFromGeo(loc);
+		//Point2d newGeo = globeControl.geoPointFromScreen(newScreenPt);
 		Mbr mbr = globeControl.getCurrentViewGeo();
-		if (mbr != null)
-			Log.d("Maply","User is looking at bounding box: " + mbr);
+		if (mbr != null) {
+			Log.d("Maply", "User is looking at bounding box: " + mbr);
+		}
 	}
 
 	public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc)
@@ -389,21 +406,21 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	public void globeDidStartMoving(GlobeController globeControl, boolean userMotion)
 	{}
 
-	public void globeDidStopMoving(GlobeController globeControl, Point3d corners[], boolean userMotion)
+	public void globeDidStopMoving(GlobeController globeControl, Point3d[] corners, boolean userMotion)
 	{}
 
-	public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion)
+	public void globeDidMove(GlobeController globeControl,Point3d[] corners, boolean userMotion)
 	{}
 
 	public void mapDidStartMoving(MapController mapControl, boolean userMotion)
 	{}
 
-	public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion)
+	public void mapDidStopMoving(MapController mapControl, Point3d[] corners, boolean userMotion)
 	{
 
 	}
 
-	public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion)
+	public void mapDidMove(MapController mapControl,Point3d[] corners, boolean userMotion)
 	{
 
 	}
@@ -418,9 +435,14 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 
 	public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc)
 	{
-		Log.d("Maply","User tapped at (" + loc.getX()*180/Math.PI + "," + loc.getY()*180/Math.PI + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
-		Point2d newScreenPt = mapControl.screenPointFromGeo(loc);
-		Point2d newGeo = mapControl.geoPointFromScreen(newScreenPt);
+		Log.d("Maply",  String.format("User tapped at screen(%f,%f) = geo(%f,%f)",
+				screenLoc.getX(), screenLoc.getY(), loc.getX()*180/Math.PI, loc.getY()*180/Math.PI));
+		//Point2d newScreenPt = mapControl.screenPointFromGeo(loc);
+		//Point2d newGeo = mapControl.geoPointFromScreen(newScreenPt);
+		Mbr mbr = mapControl.getCurrentViewGeo();
+		if (mbr != null) {
+			Log.d("Maply", "User is looking at bounding box: " + mbr);
+		}
 	}
 
 	public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)

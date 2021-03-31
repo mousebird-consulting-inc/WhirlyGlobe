@@ -83,18 +83,18 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     if ([testImageStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
         imageStyle = [testImageStyle getVectorStyleImpl];
     } else
-        imageStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inImageStyle));
+        imageStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inImageStyle);
     
     // Same for the vector, uh, vector styles
     NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
     if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
         vecStyle = [testVecStyle getVectorStyleImpl];
     } else
-        vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
+        vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
 
-    imageTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(NULL,imageStyle));
-    imageTileParser->localCoords = true;
-    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(NULL,vecStyle));
+    imageTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,imageStyle);
+    imageTileParser->setLocalCoords();
+    vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
     
     return self;
 }
@@ -110,26 +110,33 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
         vecStyle = [testVecStyle getVectorStyleImpl];
     } else
-        vecStyle = VectorStyleDelegateImplRef(new VectorStyleDelegateWrapper(viewC,inVectorStyle));
+        vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
 
-    vecTileParser = MapboxVectorTileParserRef(new MapboxVectorTileParser(NULL,vecStyle));
-    
+    vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
+
     return self;
 }
 
 - (void)setUUIDName:(NSString *)inUuidName uuidValues:(NSArray<NSString *> *)uuids
 {
-    std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
-    std::set<std::string> uuidValues;
-    for (NSString *uuid in uuids) {
-        std::string uuidStr = [uuid cStringUsingEncoding:NSUTF8StringEncoding];
-        uuidValues.insert(uuidStr);
+    if (imageTileParser || vecTileParser)
+    {
+        std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
+        std::set<std::string> uuidValues;
+        for (NSString *uuid in uuids)
+        {
+            uuidValues.emplace([uuid cStringUsingEncoding:NSUTF8StringEncoding]);
+        }
+
+        if (imageTileParser)
+        {
+            imageTileParser->setAttributeFilter(uuidName,uuidValues);
+        }
+        if (vecTileParser)
+        {
+            vecTileParser->setAttributeFilter(uuidName,uuidValues);
+        }
     }
-    
-    if (imageTileParser)
-        imageTileParser->setUUIDs(uuidName,uuidValues);
-    if (vecTileParser)
-        vecTileParser->setUUIDs(uuidName,uuidValues);
 }
 
 - (void)setLoader:(MaplyQuadLoaderBase *)inLoader
@@ -173,7 +180,8 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     const MaplyTileID tileID = loadReturn.tileID;
     std::vector<NSData *> pbfDatas;
     std::vector<UIImage *> images;
-    
+    const auto __strong vc = viewC;
+
     // Uncompress any of the data we recieved
     NSArray *tileData = [loadReturn getTileData];
     for (unsigned int ii=0;ii<[tileData count];ii++) {
@@ -272,7 +280,7 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     std::vector<ComponentObjectRef> compObjs,ovlCompObjs;
     for (NSData *thisTileData : pbfDatas) {
         // Use a separate work item for each tile, so that we react quickly if told to shut down
-        WorkRegion wr(viewC);
+        WorkRegion wr(vc);
         if (!wr) {
             return;
         }
@@ -294,10 +302,10 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     }
 
     if ([loadReturn isKindOfClass:[MaplyImageLoaderReturn class]]) {
-        if (auto wr = WorkRegion(viewC)) {
+        if (auto wr = WorkRegion(vc)) {
             if (offlineRender) {
                 // Rendered image goes in first
-                auto tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height viewC:viewC];
+                auto tileImage = [[MaplyImageTile alloc] initWithRawImage:imageData width:offlineRender.getFramebufferSize.width height:offlineRender.getFramebufferSize.height viewC:vc];
                 [loadReturn addImageTile:tileImage];
             } else if (images.empty()) {
                 // Make a single color background image
@@ -315,13 +323,13 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                     data++;
                 }
 
-                auto tileImage = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight viewC:viewC];
+                auto tileImage = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight viewC:vc];
                 [loadReturn addImageTile:tileImage];
             }
 
             // Any additional images are tacked on
             for (UIImage *image : images) {
-                MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image viewC:viewC];
+                MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image viewC:vc];
                 [loadReturn addImageTile:tileData];
             }
         }

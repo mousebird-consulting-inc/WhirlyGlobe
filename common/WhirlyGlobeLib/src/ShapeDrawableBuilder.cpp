@@ -1,9 +1,8 @@
-/*
- *  ShapeDrawableBuilder.mm
+/*  ShapeDrawableBuilder.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/11.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "GlobeMath.h"
@@ -33,28 +31,33 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
+
 ShapeInfo::ShapeInfo()
-    : color(RGBAColor(255,255,255,255)), lineWidth(1.0), insideOut(false), hasCenter(false), center(0.0,0.0,0.0)
+    : color(RGBAColor(255,255,255,255))
+    , lineWidth(1.0)
+    , insideOut(false)
+    , hasCenter(false)
+    , center(0.0,0.0,0.0)
 {
     zBufferRead = true;
 }
-    
+
 ShapeInfo::ShapeInfo(const Dictionary &dict)
     : BaseInfo(dict)
+    , hasCenter(false)
+    , center(0,0,0)
 {
-    if (!dict.hasField(MaplyZBufferRead))
-        zBufferRead = true;
+    zBufferRead = dict.getBool(MaplyZBufferRead, true);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
     lineWidth = dict.getDouble(MaplyVecWidth,1.0);
     insideOut = dict.getBool(MaplyShapeInsideOut,false);
-    hasCenter = false;
-    center = Point3d(0.0,0.0,0.0);
     if (dict.hasField(MaplyShapeCenterX) || dict.hasField(MaplyShapeCenterY) || dict.hasField(MaplyShapeCenterZ))
     {
         hasCenter = true;
-        center.x() = dict.getDouble(MaplyShapeCenterX, center.x());
-        center.y() = dict.getDouble(MaplyShapeCenterY, center.y());
-        center.z() = dict.getDouble(MaplyShapeCenterZ, center.z());
+        // Snap to float
+        center.x() = (float)dict.getDouble(MaplyShapeCenterX, 0.0);
+        center.y() = (float)dict.getDouble(MaplyShapeCenterY, 0.0);
+        center.z() = (float)dict.getDouble(MaplyShapeCenterZ, 0.0);
     }
 }
 

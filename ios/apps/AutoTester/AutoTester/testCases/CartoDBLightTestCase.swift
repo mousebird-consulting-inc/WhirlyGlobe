@@ -34,14 +34,15 @@ class CartoDBLightTestCase: MaplyTestCase {
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = true
         sampleParams.edgeMatching = true
-        sampleParams.minZoom = tileInfo.minZoom()
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
+#if !targetEnvironment(simulator)
         imageLoader.imageFormat = .imageUShort565;
+#endif
         //        imageLoader.debugMode = true
         
         return imageLoader

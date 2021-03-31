@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleSet_jni.cpp
+/*  MapboxVectorStyleSet_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Formats_jni.h>
@@ -26,14 +24,15 @@
 
 using namespace WhirlyKit;
 
-template<> MapboxVectorStyleSetClassInfo *MapboxVectorStyleSetClassInfo::classInfoObj = NULL;
+template<> MapboxVectorStyleSetClassInfo *MapboxVectorStyleSetClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_nativeInit(JNIEnv *env, jclass cls)
 {
     MapboxVectorStyleSetClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
 (JNIEnv *env, jobject obj, jobject sceneObj, jobject coordSysObj, jobject settingsObj, jobject attrObj)
 {
@@ -49,25 +48,33 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
         VectorStyleSettingsImplRef settings;
         if (settingsObj) {
             settings = *(VectorStyleSettingsClassInfo::getClassInfo()->getObject(env,settingsObj));
-        } else
-            settings = VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(1.0));
-        MapboxVectorStyleSetImpl_AndroidRef *inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,(*coordSystem).get(),settings));
+        } else {
+            settings = std::make_shared<VectorStyleSettingsImpl>(1.0);
+        }
+
+        auto inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,(*coordSystem).get(),settings));
 
         // Need a pointer to this JNIEnv for low level parsing callbacks
         PlatformInfo_Android threadInst(env);
 
-        bool success = (*inst)->parse(&threadInst,*attrDict);
         (*inst)->thisObj = env->NewGlobalRef(obj);
         MapboxVectorStyleSetClassInfo::getClassInfo()->setHandle(env,obj,inst);
+
+        const bool success = (*inst)->parse(&threadInst,*attrDict);
+        if (!success)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "Maply", "Failed to parse attrs in MapboxVectorStyleSet::initialise()");
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::initialise()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::initialise()");
     }
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
 (JNIEnv *env, jobject obj)
 {
@@ -81,6 +88,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
                 return;
             (*inst)->cleanup(env);
             env->DeleteGlobalRef((*inst)->thisObj);
+            (*inst)->thisObj = nullptr;
             delete inst;
         }
 
@@ -92,6 +100,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
     }
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundColorForZoomNative
         (JNIEnv *env, jobject obj, jdouble zoom)
 {
@@ -118,6 +127,54 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
     return 0;
 }
 
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    getZoomSlot
+ * Signature: ()I
+ */
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getZoomSlot(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        auto classInfo = MapboxVectorStyleSetClassInfo::getClassInfo();
+        auto instPtr = classInfo->getObject(env,obj);
+        if (auto inst = instPtr ? *instPtr : nullptr)
+        {
+            return inst->getZoomSlot();
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::getZoomSlot()");
+    }
+    return -1;
+}
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    setZoomSlot
+ * Signature: (I)V
+ */
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setZoomSlot(JNIEnv *env, jobject obj, jint slot)
+{
+    try
+    {
+        auto classInfo = MapboxVectorStyleSetClassInfo::getClassInfo();
+        auto instPtr = classInfo->getObject(env,obj);
+        if (auto inst = instPtr ? *instPtr : nullptr)
+        {
+            inst->setZoomSlot(slot);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::setZoomSlot()");
+    }
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealShaderNative
         (JNIEnv *env, jobject obj, jlong shaderID)
 {

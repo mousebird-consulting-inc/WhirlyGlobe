@@ -1,9 +1,8 @@
-/*
- *  ScreenSpaceDrawable.h
+/*  ScreenSpaceDrawable.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 8/24/14.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableBuilder.h"
@@ -27,7 +25,7 @@ namespace WhirlyKit
     
 // Modifies the uniform values of a given shader right before the
 //  screenspace's Basic Drawables are rendered
-class ScreenSpaceTweaker : public DrawableTweaker
+class ScreenSpaceTweaker : public BasicDrawableTweaker
 {
 public:
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) = 0;
@@ -46,8 +44,8 @@ public:
 
     // Construct with or without motion support
     ScreenSpaceDrawableBuilder();
-    virtual void Init(bool hasMotion,bool hasRotation, bool buildAnyway = false);
-    
+    virtual void ScreenSpaceInit(bool hasMotion,bool hasRotation,bool buildAnyway = false);
+
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
     void setKeepUpright(bool keepUpright);
@@ -70,13 +68,13 @@ public:
     
     // Apply a scale expression
     void setScaleExpression(FloatExpressionInfoRef scale);
-        
-    // Tweaker runs before we draw and we need different versions for the renderers
-    virtual ScreenSpaceTweaker *makeTweaker() = 0;
-    
-    void setupTweaker(BasicDrawable *theDraw);
-    
+
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
+
 protected:
+    // Call ScreenSpaceInit instead
+    virtual void Init() override { BasicDrawableBuilder::Init(); }
+
     bool motion,rotation;
     bool keepUpright;
     int offsetIndex;

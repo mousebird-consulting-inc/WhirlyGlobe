@@ -1,9 +1,8 @@
-/*
- *  ClusteredMarkersTestCase.java
+/*  ClusteredMarkersTestCase.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebirdconsulting.autotester.TestCases;
 
@@ -75,13 +73,12 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
 
     private void insertClusteredMarkers(List<VectorObject> vectors, BaseController inController) {
         Point2d size = new Point2d(32, 32);
-        List<ScreenMarker> markers = new ArrayList<>();
+        List<ScreenMarker> markers = new ArrayList<>(vectors.size());
         Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
         MaplyTexture tex = inController.addTexture(icon,new RenderController.TextureSettings(), RenderController.ThreadMode.ThreadCurrent);
 
 //        inController.addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(165, 255, 255, 0)}, 1, new Point2d(64, 64), inController, inController.getActivity()));
 
-        int which = 0;
         for (VectorObject v : vectors) {
             // Note: Increase this to test capacity
             for (int ii=0;ii<1;ii++) {
@@ -90,15 +87,15 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
                 marker.loc = v.centroid();
                 marker.size = size;
                 marker.selectable = true;
+                marker.layoutImportance = ii;
 
                 if (marker.loc != null)
                     markers.add(marker);
             }
-            which++;
         }
 
         MarkerInfo info = new MarkerInfo();
-        info.setLayoutImportance(1.f);
+        //info.setLayoutImportance(1.f);
 //        info.setClusterGroup(1);
         info.setClusterGroup(0);
 

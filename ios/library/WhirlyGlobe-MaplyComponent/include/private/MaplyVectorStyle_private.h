@@ -3,7 +3,7 @@
 *  WhirlyGlobe-MaplyComponent
 *
 *  Created by Steve Gifford on 1/3/14.
-*  Copyright 2011-2017 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -38,6 +38,30 @@
 
 @end
 
+// This wraps C++ style implementations to be called from ObjC
+@interface MaplyVectorStyleReverseWrapper: NSObject<MaplyVectorStyle>
+
+/// The C++ style we're wrapping
+- (id __nonnull)initWithCStyle:(WhirlyKit::VectorStyleImplRef)vectorStyle;
+
+/// Unique Identifier for this style
+- (long long) uuid;
+
+/// Category used for sorting
+- (NSString * _Nullable) getCategory;
+
+/// Set if this geometry is additive (e.g. sticks around) rather than replacement
+- (bool) geomAdditive;
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)desc;
+;
+
+@end
+
 namespace WhirlyKit
 {
 
@@ -45,41 +69,51 @@ namespace WhirlyKit
 class MapboxVectorStyleSetImpl_iOS : public MapboxVectorStyleSetImpl
 {
 public:
-    MapboxVectorStyleSetImpl_iOS(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl_iOS(Scene *_Nonnull scene,
+                                 CoordSystem *_Nonnull coordSys,
+                                 const VectorStyleSettingsImplRef &settings);
     ~MapboxVectorStyleSetImpl_iOS();
 
-    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
+    NSObject<MaplyRenderControllerProtocol> *_Nullable __weak viewC;
     
     /// Parse the style set
-    virtual bool parse(PlatformThreadInfo *inst,DictionaryRef dict) override;
+    virtual bool parse(PlatformThreadInfo *_Nullable inst,
+                       const DictionaryRef &dict) override;
     
     /// Local platform implementation for generating a circle and adding it as a texture
-    virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *inst,
+    virtual SimpleIdentity makeCircleTexture(PlatformThreadInfo *_Nullable inst,
                                              double radius,
                                              const RGBAColor &fillColor,
                                              const RGBAColor &strokeColor,
-                                             float strokeWidth,Point2f *circleSize) override;
+                                             float strokeWidth,
+                                             Point2f *_Nullable circleSize) override;
     
     /// Local platform implementation for generating a repeating line texture
-    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) override;
+    virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *_Nullable inst,
+                                           const std::vector<double> &dashComponents) override;
     
     /// Make platform specific label info object (ideally we're caching these)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontName,float fontSize) override;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *_Nullable inst,
+                                       const std::vector<std::string> &fontName,
+                                       float fontSize) override;
 
     /// Create a local platform label (fonts are local, and other stuff)
-    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) override;
+    virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *_Nullable inst,
+                                           const std::string &text) override;
     
     /// Create a platform specific variant of the component object
-    ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) override;
+    ComponentObjectRef makeComponentObject(PlatformThreadInfo *_Nullable inst, const Dictionary *_Nullable desc) override;
 
     /// Tie a selection ID to the given vector object
-    void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) override;
+    void addSelectionObject(SimpleIdentity selectID,const VectorObjectRef &vecObj,const ComponentObjectRef &compObj) override;
         
     /// Return the width of the given line of text
-    double calculateTextWidth(PlatformThreadInfo *threadInfo,LabelInfoRef labelInfo,const std::string &testStr) override;
+    double calculateTextWidth(PlatformThreadInfo *_Nullable threadInfo,
+                              const LabelInfoRef &labelInfo,
+                              const std::string &testStr) override;
     
     /// Add a sprite sheet
-    void addSprites(MapboxVectorStyleSpritesRef newSprites,MaplyTexture *tex);
+    void addSprites(MapboxVectorStyleSpritesRef newSprites,MaplyTexture *_Nonnull tex);
     
     // Textures we're holding on to (so they don't get released)
     std::vector<MaplyTexture *> textures;
@@ -93,28 +127,29 @@ typedef std::shared_ptr<MapboxVectorStyleSetImpl_iOS> MapboxVectorStyleSetImpl_i
 class VectorStyleDelegateWrapper : public VectorStyleDelegateImpl
 {
 public:
-    VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyleDelegate> *delegate);
-    
-    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
+    VectorStyleDelegateWrapper(NSObject<MaplyRenderControllerProtocol> *_Nonnull viewC,
+                               NSObject<MaplyVectorStyleDelegate> *_Nullable delegate);
+
+    virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *_Nullable inst,
                                                              const Dictionary &attrs,
                                                              const QuadTreeIdentifier &tileID,
                                                              const std::string &layerName) override;
-    
-    virtual bool layerShouldDisplay(PlatformThreadInfo *inst,
+
+    virtual bool layerShouldDisplay(PlatformThreadInfo *_Nullable inst,
                                     const std::string &name,
                                     const QuadTreeNew::Node &tileID) override;
 
-    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid) override;
+    virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *_Nullable inst,long long uuid) override;
 
-    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst) override;
+    virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *_Nullable inst) override;
 
-    virtual VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const override;
+    virtual VectorStyleImplRef backgroundStyle(PlatformThreadInfo *_Nullable inst) const override;
 
-    virtual RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) override;
-    
+    virtual RGBAColorRef backgroundColor(PlatformThreadInfo *_Nullable inst,double zoom) override;
+
 protected:
-    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
-    NSObject<MaplyVectorStyleDelegate> *delegate;
+    NSObject<MaplyRenderControllerProtocol> *_Nullable  __weak viewC;
+    NSObject<MaplyVectorStyleDelegate> *_Nullable delegate;
 };
 typedef std::shared_ptr<VectorStyleDelegateWrapper> VectorStyleDelegateWrapperRef;
 
@@ -125,16 +160,20 @@ typedef std::shared_ptr<VectorStyleDelegateWrapper> VectorStyleDelegateWrapperRe
 class VectorStyleWrapper : public VectorStyleImpl
 {
 public:
-    VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *viewC,NSObject<MaplyVectorStyle> *style);
-    
-    virtual long long getUuid(PlatformThreadInfo *inst);
-    virtual std::string getCategory(PlatformThreadInfo *inst);
-    virtual bool geomAdditive(PlatformThreadInfo *inst);
-    virtual void buildObjects(PlatformThreadInfo *inst,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
-    
+    VectorStyleWrapper(NSObject<MaplyRenderControllerProtocol> *_Nonnull viewC,
+                       NSObject<MaplyVectorStyle> *_Nonnull style);
+
+    virtual long long getUuid(PlatformThreadInfo *_Nullable inst) override;
+    virtual std::string getCategory(PlatformThreadInfo *_Nullable inst) override;
+    virtual bool geomAdditive(PlatformThreadInfo *_Nullable inst) override;
+    virtual void buildObjects(PlatformThreadInfo *_Nullable inst,
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileData,
+                              const Dictionary *_Nullable desc) override;
+
 protected:
-    NSObject<MaplyRenderControllerProtocol> * __weak viewC;
-    NSObject<MaplyVectorStyle> * __weak style;
+    NSObject<MaplyRenderControllerProtocol> *_Nullable  __weak viewC;
+    NSObject<MaplyVectorStyle> *_Nullable  __weak style;
 };
 typedef std::shared_ptr<VectorStyleWrapper> VectorStyleWrapperRef;
 

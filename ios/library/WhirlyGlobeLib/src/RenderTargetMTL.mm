@@ -113,7 +113,7 @@ RawDataRef RenderTargetMTL::snapshot()
     NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize];
     [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
 
-    return RawDataRef(new RawNSDataReader(data));
+    return std::make_shared<RawNSDataReader>(data);
 }
 
 RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int snapHeight)

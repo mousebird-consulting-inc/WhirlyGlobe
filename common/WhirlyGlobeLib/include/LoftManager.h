@@ -40,7 +40,8 @@ public:
     
     LoftedPolyInfo();
     LoftedPolyInfo(const Dictionary &dict);
-    
+    virtual ~LoftedPolyInfo() = default;
+
     float       height;
     float       base;
     bool        top,side;
@@ -94,8 +95,8 @@ public:
 protected:
     void addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ShapeSet &shapes, VectorTrianglesRef triMesh,std::vector<WhirlyKit::VectorRing> &outlines,ChangeSet &changes);
     
-    std::mutex loftLock;
     LoftedPolySceneRepSet loftReps;
 };
+typedef std::shared_ptr<LoftManager> LoftManagerRef;
 
 }

@@ -1,9 +1,8 @@
-/*
- *  VectorStyleSet_Android.cpp
+/*  VectorStyleSet_Android.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 8/10/20.
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #include "../include/VectorStyleSet_Android.h"
@@ -33,30 +31,27 @@ long long VectorStyleImpl_Android::getUuid(PlatformThreadInfo *inst)
 
 std::string VectorStyleImpl_Android::getCategory(PlatformThreadInfo *inst)
 {
-    auto entry = styleSet->styles.find(uuid);
-    if (entry == styleSet->styles.end())
-        return "";
-    return entry->second.category;
+    const auto entry = styleSet->styles.find(uuid);
+    return (entry != styleSet->styles.end()) ? entry->second.category : std::string();
 }
 
 bool VectorStyleImpl_Android::geomAdditive(PlatformThreadInfo *inst)
 {
-    auto entry = styleSet->styles.find(uuid);
-    if (entry == styleSet->styles.end())
-        return false;
-    return entry->second.geomAdditive;
+    const auto entry = styleSet->styles.find(uuid);
+    return (entry != styleSet->styles.end()) && entry->second.geomAdditive;
 }
 
-void VectorStyleImpl_Android::buildObjects(PlatformThreadInfo *inst, std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo)
+void VectorStyleImpl_Android::buildObjects(PlatformThreadInfo *inst, const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &tileInfo, const Dictionary *desc)
 {
     // Pass through to the parent object, since we're just a wrapper
-    styleSet->buildObjects(inst,uuid,vecObjs,tileInfo);
+    styleSet->buildObjects(inst,uuid,vecObjs,tileInfo,desc);
 }
 
 VectorStyleSetWrapper_Android::VectorStyleSetWrapper_Android(PlatformThreadInfo *platformInfo,
                                                              jobject obj,
-                                                             const std::vector<SimpleIdentity> uuids,
-                                                             const std::vector<std::string> categories,
+                                                             const std::vector<SimpleIdentity> &uuids,
+                                                             const std::vector<std::string> &categories,
                                                              const std::vector<bool> &geomAdditive
                                                              )
 {
@@ -71,11 +66,18 @@ VectorStyleSetWrapper_Android::VectorStyleSetWrapper_Android(PlatformThreadInfo 
         StyleEntry entry;
         entry.category = categories[ii];
         entry.geomAdditive = geomAdditive[ii];
-        entry.style = VectorStyleImpl_AndroidRef(new VectorStyleImpl_Android());
+        entry.style = std::make_shared<VectorStyleImpl_Android>();
         entry.style->styleSet = this;
-        auto uuid = uuids[ii];
+        const auto uuid = uuids[ii];
         entry.style->uuid = uuid;
         styles[uuid] = entry;
+    }
+}
+
+VectorStyleSetWrapper_Android::~VectorStyleSetWrapper_Android()
+{
+    if (wrapperObj) {
+        wkLogLevel(Warn, "VectorStyleSetWrapper_Android not cleaned up");
     }
 }
 
@@ -106,7 +108,7 @@ std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::stylesForFeature(
         for (auto uuid: uuids) {
             auto entry = styles.find(uuid);
             if (entry == styles.end()) {
-                wkLogLevel(Warn,"Failed to find style for UUID in VectorStyleSet_Android.  Features will dissappear.");
+                wkLogLevel(Warn,"Failed to find style for UUID in VectorStyleSet_Android.  Features will disappear.");
                 continue;
             }
             retStyles.push_back(entry->second.style);
@@ -120,10 +122,10 @@ bool VectorStyleSetWrapper_Android::layerShouldDisplay(PlatformThreadInfo *platf
                                 const std::string &name,
                                 const QuadTreeNew::Node &tileID)
 {
-    PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)platformInfo;
+    auto threadInfo = (PlatformInfo_Android *)platformInfo;
 
     jobject jStr = threadInfo->env->NewStringUTF(name.c_str());
-    bool val = threadInfo->env->CallBooleanMethod(wrapperObj,layerShouldDisplayMethod,jStr,tileID.x,tileID.y,tileID.level);
+    const bool val = threadInfo->env->CallBooleanMethod(wrapperObj,layerShouldDisplayMethod,jStr,tileID.x,tileID.y,tileID.level);
     threadInfo->env->DeleteLocalRef(jStr);
 
     return val;
@@ -131,17 +133,15 @@ bool VectorStyleSetWrapper_Android::layerShouldDisplay(PlatformThreadInfo *platf
 
 VectorStyleImplRef VectorStyleSetWrapper_Android::styleForUUID(PlatformThreadInfo *inst,long long uuid)
 {
-    auto entry = styles.find(uuid);
-    if (entry == styles.end())
-        return VectorStyleImplRef();
-
-    return entry->second.style;
+    const auto entry = styles.find(uuid);
+    return (entry != styles.end()) ? entry->second.style : VectorStyleImplRef();
 }
 
 std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::allStyles(PlatformThreadInfo *inst)
 {
     std::vector<VectorStyleImplRef> retStyles;
-    for (auto style: styles)
+    retStyles.reserve(styles.size());
+    for (const auto &style: styles)
         retStyles.push_back(style.second.style);
 
     return retStyles;
@@ -155,7 +155,7 @@ VectorStyleImplRef VectorStyleSetWrapper_Android::backgroundStyle(PlatformThread
 
 RGBAColorRef VectorStyleSetWrapper_Android::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
-    return RGBAColorRef(new RGBAColor(0,0,0,0));
+    return std::make_shared<RGBAColor>(0,0,0,0);
 }
 
 // Break the vectors up into groups of this size before calling back to Java
@@ -164,8 +164,9 @@ static const int VecBatchSize = 500;
 
 void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInfo,
         SimpleIdentity styleID,
-        std::vector<VectorObjectRef> &vecObjs,
-        VectorTileDataRef tileInfo)
+        const std::vector<VectorObjectRef> &vecObjs,
+        const VectorTileDataRef &tileInfo,
+        const Dictionary *desc)
 {
     PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)platformInfo;
 
@@ -174,10 +175,11 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
     for (unsigned int ii=0;ii<vecObjs.size();ii+=VecBatchSize) {
         // Make wrapper objects for the vectors and the tile data
         std::vector<jobject> vecObjVec;
+        vecObjVec.reserve(VecBatchSize);
         for (unsigned int jj=0;jj<VecBatchSize;jj++) {
             if (jj+ii >= vecObjs.size())
                 break;
-            auto vecObj = vecObjs[ii+jj];
+            const auto &vecObj = vecObjs[ii+jj];
             jobject newObj = MakeVectorObject(threadInfo->env,vecObj);
             vecObjVec.push_back(newObj);
         }
@@ -199,7 +201,7 @@ void VectorStyleSetWrapper_Android::shutdown(PlatformThreadInfo *platformInfo)
 
     if (wrapperObj) {
         info->env->DeleteGlobalRef(wrapperObj);
-        wrapperObj = NULL;
+        wrapperObj = nullptr;
     }
 
     styles.clear();

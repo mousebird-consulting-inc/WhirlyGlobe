@@ -56,15 +56,16 @@ public:
     MapboxVectorLayerCircle(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef refLayer,
-                       int drawPriority);
-    
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
+                       int drawPriority) override;
+
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo);
-    
-    virtual void cleanup(ChangeSet &changes);
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override;
+
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
 public:
     MapboxVectorCirclePaint paint;
@@ -72,7 +73,8 @@ public:
     SimpleIdentity circleTexID;
     Point2f circleSize;
     float importance;
-    std::string uuidField;
+    std::string uuidField;      // UUID field for markers/labels (from style settings)
+    std::string repUUIDField;   // UUID field for representations (from style layers)
 };
 
 }

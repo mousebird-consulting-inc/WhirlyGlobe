@@ -1,9 +1,8 @@
-/*
- *  LabelManager.mm
+/*  LabelManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LabelRenderer.h"
@@ -23,6 +21,7 @@
 #import "GlobeMath.h"
 #import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
+#import "SharedAttributes.h"
 
 #import "LabelManager.h"
 
@@ -31,98 +30,122 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-SingleLabel::SingleLabel()
-    : isSelectable(true), selectID(EmptyIdentity), loc(0,0), rotation(0), iconTexture(EmptyIdentity),
-iconSize(0,0), screenOffset(0,0), layoutSize(-1.0,-1.0), layoutEngine(false), layoutImportance(MAXFLOAT), layoutPlacement(0)
+SingleLabel::SingleLabel() :
+    isSelectable(true),
+    selectID(EmptyIdentity),
+    loc(0,0),
+    hasMotion(false),
+    endLoc(0,0),
+    startTime(0),
+    endTime(0),
+    rotation(0),
+    keepUpright(false),
+    iconTexture(EmptyIdentity),
+    iconSize(0,0),
+    screenOffset(0,0),
+    layoutSize(-1.0,-1.0),
+    layoutEngine(false),
+    layoutImportance(MAXFLOAT),
+    layoutPlacement(0),
+    maskID(EmptyIdentity),
+    maskRenderTargetID(EmptyIdentity)
 {
 }
 
 LabelManager::LabelManager()
-    : textureAtlasSize(LabelTextureAtlasSizeDefault)
+    : textureAtlasSize(LabelTextureAtlasSizeDefault), maskProgID(EmptyIdentity)
 {
 }
     
-LabelManager::~LabelManager()
-{
-}
-
-SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabelRef> &labels,const LabelInfo &desc,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabelRef> &labels,
+                                       const LabelInfo &desc,ChangeSet &changes)
 {
     std::vector<SingleLabel *> unwrapLabels;
-    
+    unwrapLabels.reserve(labels.size());
     for (auto label: labels)
+    {
         unwrapLabels.push_back(label.get());
+    }
     
     return addLabels(threadInfo,unwrapLabels, desc, changes);
 }
     
-SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vector<SingleLabel *> &labels,const LabelInfo &labelInfo,ChangeSet &changes)
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabel *> &labels,
+                                       const LabelInfo &labelInfo,ChangeSet &changes)
 {
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    const auto fontTexManager = scene->getFontTextureManager();
 
     // Set up the representation (but then hand it off)
-    LabelSceneRep *labelRep = new LabelSceneRep();
-    if (labelInfo.fadeOut > 0.0 && labelInfo.fadeOutTime != 0.0)
-        labelRep->fadeOut = labelInfo.fadeOut;
-    else
-        labelRep->fadeOut = 0.0;
-
-    FontTextureManager *fontTexManager = scene->getFontTextureManager();
+    auto labelRep = new LabelSceneRep();
+    labelRep->fadeOut = (float)((labelInfo.fadeOut > 0 && labelInfo.fadeOutTime != 0) ? labelInfo.fadeOut : 0);
     
+    if (maskProgID == EmptyIdentity) {
+        Program *prog = scene->findProgramByName(MaplyScreenSpaceMaskShader);
+        if (prog)
+            maskProgID = prog->getId();
+    }
+
     // Set up the label renderer
-    LabelRenderer labelRenderer(scene,fontTexManager,&labelInfo);
-    labelRenderer.textureAtlasSize = textureAtlasSize;
+    LabelRenderer labelRenderer(scene,renderer,fontTexManager,&labelInfo,maskProgID);
+    labelRenderer.textureAtlasSize = (int)textureAtlasSize;
     labelRenderer.coordAdapter = scene->getCoordAdapter();
     labelRenderer.labelRep = labelRep;
     labelRenderer.scene = scene;
-    labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : NULL);
+    labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nullptr);
     labelRenderer.scale = renderer->getScale();
    
     labelRenderer.render(threadInfo, labels, changes);
     
     changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
 
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    
     // Create screen shapes
     if (!labelRenderer.screenObjects.empty())
     {
-        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
-        for (unsigned int ii=0;ii<labelRenderer.screenObjects.size();ii++)
-            ssBuild.addScreenObject(labelRenderer.screenObjects[ii]);
+        auto coordAdapter = scene->getCoordAdapter();
+        ScreenSpaceBuilder ssBuild(renderer, coordAdapter, renderer->getScale());
+        for (auto & screenObject : labelRenderer.screenObjects)
+        {
+            ssBuild.addScreenObject(screenObject,screenObject.getWorldLoc(),screenObject.getGeometry());
+        }
         ssBuild.flushChanges(changes, labelRep->drawIDs);
     }
-    
+
     // Hand over some to the layout manager
-    if (layoutManager && !labelRenderer.layoutObjects.empty())
+    if (const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
     {
-        for (unsigned int ii=0;ii<labelRenderer.layoutObjects.size();ii++)
-            labelRep->layoutIDs.insert(labelRenderer.layoutObjects[ii].getId());
-        layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+        if (!labelRenderer.layoutObjects.empty())
+        {
+            for (auto & layoutObject : labelRenderer.layoutObjects)
+            {
+                labelRep->layoutIDs.insert(layoutObject.getId());
+            }
+            layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+        }
     }
-    
+
     // Pass on selection data
-    if (selectManager)
+    if (const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager))
     {
         for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
         {
-            std::vector<WhirlyKit::RectSelectable2D> &selectables2D = labelRenderer.selectables2D;
+            auto &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
             selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
         {
-            std::vector<WhirlyKit::MovingRectSelectable2D> &movingSelectables2D = labelRenderer.movingSelectables2D;
-            MovingRectSelectable2D &sel = movingSelectables2D[ii];
+            auto &movingSelectables2D = labelRenderer.movingSelectables2D;
+            auto &sel = movingSelectables2D[ii];
             selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,sel.startTime,sel.endTime,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
-            std::vector<WhirlyKit::RectSelectable3D> &selectables3D = labelRenderer.selectables3D;
-            RectSelectable3D &sel = selectables3D[ii];
+            auto &selectables3D = labelRenderer.selectables3D;
+            auto &sel = selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
@@ -130,50 +153,47 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,std::vecto
 
     SimpleIdentity labelID = labelRep->getId();
     {
-        std::lock_guard<std::mutex> guardLock(labelLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         labelReps.insert(labelRep);
     }
     
     return labelID;
 }
 
-void LabelManager::changeLabel(PlatformThreadInfo *threadInfo,SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
+void LabelManager::changeLabel(PlatformThreadInfo *,SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(labelLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     LabelSceneRep dummyRep(labelID);
-    LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
-    
+    const auto it = labelReps.find(&dummyRep);
     if (it != labelReps.end())
     {
-        LabelSceneRep *sceneRep = *it;
+        const LabelSceneRep *sceneRep = *it;
         
-        for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-             idIt != sceneRep->drawIDs.end(); ++idIt)
+        for (const auto drawID : sceneRep->drawIDs)
         {
             // Changed visibility
-            changes.push_back(new VisibilityChangeRequest(*idIt, labelInfo.minVis, labelInfo.maxVis));
+            changes.push_back(new VisibilityChangeRequest(drawID, (float)labelInfo.minVis, (float)labelInfo.maxVis));
         }
     }
 }
     
-void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &changes)
+void LabelManager::enableLabels(const SimpleIDSet &labelIDs,bool enable,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    
-    std::lock_guard<std::mutex> guardLock(labelLock);
+    auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
+    auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
 
-    for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
+    std::lock_guard<std::mutex> guardLock(lock);
+
+    for (const auto &labelID : labelIDs)
     {
-        LabelSceneRep dummyRep(*lit);
-        LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
+        LabelSceneRep dummyRep(labelID);
+        const auto it = labelReps.find(&dummyRep);
         if (it != labelReps.end())
         {
             LabelSceneRep *sceneRep = *it;
-            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                 idIt != sceneRep->drawIDs.end(); ++idIt)
-                changes.push_back(new OnOffChangeRequest(*idIt,enable));
+            for (const auto &drawID : sceneRep->drawIDs)
+                changes.push_back(new OnOffChangeRequest(drawID,enable));
             if (!sceneRep->selectIDs.empty() && selectManager)
                 selectManager->enableSelectables(sceneRep->selectIDs, enable);
             if (!sceneRep->layoutIDs.empty() && layoutManager)
@@ -183,19 +203,19 @@ void LabelManager::enableLabels(SimpleIDSet labelIDs,bool enable,ChangeSet &chan
 }
 
 
-void LabelManager::removeLabels(PlatformThreadInfo *threadInfo,SimpleIDSet &labelIDs,ChangeSet &changes)
+void LabelManager::removeLabels(PlatformThreadInfo *inst,const SimpleIDSet &labelIDs,ChangeSet &changes)
 {
-    SelectionManager *selectManager = (SelectionManager *)scene->getManager(kWKSelectionManager);
-    LayoutManager *layoutManager = (LayoutManager *)scene->getManager(kWKLayoutManager);
-    FontTextureManager *fontTexManager = scene->getFontTextureManager();
+    auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
+    auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
+    auto fontTexManager = scene->getFontTextureManager();
     
-    std::lock_guard<std::mutex> guardLock(labelLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
-    for (SimpleIDSet::iterator lit = labelIDs.begin(); lit != labelIDs.end(); ++lit)
+    for (const auto &lbl : labelIDs)
     {
-        LabelSceneRep dummyRep(*lit);
-        LabelSceneRepSet::iterator it = labelReps.find(&dummyRep);
+        LabelSceneRep dummyRep(lbl);
+        const auto it = labelReps.find(&dummyRep);
         if (it != labelReps.end())
         {
             LabelSceneRep *labelRep = *it;
@@ -204,35 +224,36 @@ void LabelManager::removeLabels(PlatformThreadInfo *threadInfo,SimpleIDSet &labe
             // We need to fade them out, then delete
             if (labelRep->fadeOut > 0.0)
             {
-                for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
-                     idIt != labelRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+labelRep->fadeOut));
-                
+                for (auto id : labelRep->drawIDs)
+                {
+                    changes.push_back(new FadeChangeRequest(id,curTime,curTime+labelRep->fadeOut));
+                }
+
                 removeTime = curTime+labelRep->fadeOut;
             }
             
-            for (SimpleIDSet::iterator idIt = labelRep->drawIDs.begin();
-                 idIt != labelRep->drawIDs.end(); ++idIt)
-                changes.push_back(new RemDrawableReq(*idIt,removeTime));
-            for (SimpleIDSet::iterator idIt = labelRep->texIDs.begin();
-                 idIt != labelRep->texIDs.end(); ++idIt)
-                changes.push_back(new RemTextureReq(*idIt,removeTime));
-            for (SimpleIDSet::iterator idIt = labelRep->drawStrIDs.begin();
-                 idIt != labelRep->drawStrIDs.end(); ++idIt)
+            for (auto drawID : labelRep->drawIDs)
+                changes.push_back(new RemDrawableReq(drawID,removeTime));
+            for (auto texID : labelRep->texIDs)
+                changes.push_back(new RemTextureReq(texID,removeTime));
+
+            if (fontTexManager)
             {
-                // Give the layout manager a little extra time so we don't pull the
-                // textures out from underneath it
-                TimeInterval fontRemoveTime = removeTime;
-                if (layoutManager && !labelRep->layoutIDs.empty())
-                    fontRemoveTime = curTime+2.0;
-                if (fontTexManager)
-                    fontTexManager->removeString(*idIt, changes, fontRemoveTime);
+                for (auto id : labelRep->drawStrIDs)
+                {
+                    // Give the layout manager a little extra time so we don't pull the
+                    // textures out from underneath it
+                    TimeInterval fontRemoveTime = removeTime;
+                    if (layoutManager && !labelRep->layoutIDs.empty())
+                        fontRemoveTime = curTime + 2.0;
+                    fontTexManager->removeString(inst, id, changes, fontRemoveTime);
+                }
             }
             
             if (selectManager && !labelRep->selectIDs.empty())
                 selectManager->removeSelectables(labelRep->selectIDs);
 
-            // Note: Screenspace  Doesn't handle fade
+            // Note: Screen-space doesn't handle fade
             if (layoutManager && !labelRep->layoutIDs.empty())
                 layoutManager->removeLayoutObjects(labelRep->layoutIDs);
             

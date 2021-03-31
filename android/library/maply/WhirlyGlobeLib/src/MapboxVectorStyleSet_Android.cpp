@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleSet_Android.cpp
+/*  MapboxVectorStyleSet_Android.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/20.
- *  Copyright 2011-2020 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,54 +14,60 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleSet_Android.h"
+#import "Formats_jni.h"
+#import "LabelsAndMarkers_jni.h"
+#import "Exceptions_jni.h"
+#import "classInfo/Geometry_jni.h"
 #import <string>
 #import <iostream>
 #import <sstream>
 #import <locale>
 #import <codecvt>
-#import "Formats_jni.h"
-#import "LabelsAndMarkers_jni.h"
 
 namespace WhirlyKit
 {
 
-MapboxVectorStyleSetImpl_Android::MapboxVectorStyleSetImpl_Android(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
-: MapboxVectorStyleSetImpl(scene,coordSys,settings), thisObj(NULL),
-    makeLabelInfoMethod(NULL), makeCircleTextureMethod(NULL), makeLineTextureMethod(NULL)
+MapboxVectorStyleSetImpl_Android::MapboxVectorStyleSetImpl_Android(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings) :
+    MapboxVectorStyleSetImpl(scene,coordSys,std::move(settings)),
+    thisObj(nullptr),
+    makeLabelInfoMethod(nullptr),
+    makeCircleTextureMethod(nullptr),
+    makeLineTextureMethod(nullptr),
+    calculateTextWidthMethod(nullptr)
 {
 }
 
 void MapboxVectorStyleSetImpl_Android::setupMethods(JNIEnv *env)
 {
-    // TODO: Turn global reference into local reference for this object
-
-    if (!makeLabelInfoMethod) {
+    if (!makeLabelInfoMethod)
+    {
         jclass thisClass = MapboxVectorStyleSetClassInfo::getClassInfo()->getClass();
-        // TODO: Get the right signatures
-        makeLabelInfoMethod = env->GetMethodID(thisClass, "labelInfoForFont",
-                                               "(Ljava/lang/String;F)Lcom/mousebird/maply/LabelInfo;");
-        calculateTextWidthMethod = env->GetMethodID(thisClass, "calculateTextWidth",
-                "(Ljava/lang/String;Lcom/mousebird/maply/LabelInfo;)D");
-//        makeCircleTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
-//                                                   "");
-//        makeLineTextureMethod = env->GetMethodID(thisClass, "makeLabelInfo",
-//                                                 "");
+        makeLabelInfoMethod      = env->GetMethodID(thisClass,"labelInfoForFont",  "(Ljava/lang/String;F)Lcom/mousebird/maply/LabelInfo;");
+        calculateTextWidthMethod = env->GetMethodID(thisClass,"calculateTextWidth","(Ljava/lang/String;Lcom/mousebird/maply/LabelInfo;)D");
+        makeCircleTextureMethod  = env->GetMethodID(thisClass,"makeCircleTexture", "(DIIFLcom/mousebird/maply/Point2d;)J");
+        makeLineTextureMethod    = env->GetMethodID(thisClass,"makeLineTexture",   "([D)J");
     }
 }
 
 void MapboxVectorStyleSetImpl_Android::cleanup(JNIEnv *env)
 {
-    for (auto labelInfo : labelInfos)
+    for (auto &labelInfo : labelInfos)
+    {
         env->DeleteGlobalRef(labelInfo.second->labelInfoObj);
+        labelInfo.second->labelInfoObj = nullptr;
+    }
     labelInfos.clear();
 }
 
 MapboxVectorStyleSetImpl_Android::~MapboxVectorStyleSetImpl_Android()
 {
+    if (thisObj)
+    {
+        wkLogLevel(Warn, "Failed to clean up MapboxVectorStyleSetImpl_Android Java ref");
+    }
 }
 
 SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(PlatformThreadInfo *inInst,
@@ -72,77 +77,148 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeCircleTexture(PlatformThrea
         float strokeWidth,
         Point2f *circleSize)
 {
-    // TODO: Implement
+    auto inst = (PlatformInfo_Android *)inInst;
+    auto env = inst->env;
+    try
+    {
+        setupMethods(env);
+        jobject pointObj = nullptr;
+        if (circleSize)
+        {
+            pointObj = MakePoint2d(env);
+            if (!pointObj)
+            {
+                return EmptyIdentity;
+            }
+        }
+
+        const auto id = env->CallLongMethod(thisObj, makeCircleTextureMethod,
+                                            radius, fillColor.asInt(), strokeColor.asInt(), strokeWidth, pointObj);
+
+        if (circleSize)
+        {
+            auto point = Point2dClassInfo::getClassInfo()->getObject(env,pointObj);
+            circleSize->x() = (float)point->x();
+            circleSize->y() = (float)point->y();
+
+            // local ref, no need for `finally` style cleanup
+            env->DeleteLocalRef(pointObj);
+        }
+
+        return id;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in makeCircleTexture()");
+    }
     return EmptyIdentity;
 }
 
 SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(PlatformThreadInfo *inInst,const std::vector<double> &dashComponents)
 {
-    // TODO: Implement
+    auto inst = (PlatformInfo_Android *)inInst;
+    auto env = inst->env;
+    try
+    {
+        setupMethods(env);
+        if (auto arrayObj = BuildDoubleArray(env, dashComponents))
+        {
+            const auto id = env->CallLongMethod(thisObj, makeLineTextureMethod, arrayObj);
+            env->DeleteLocalRef(arrayObj);
+            return id;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in makeLineTexture()");
+    }
     return EmptyIdentity;
 }
 
 LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,const std::vector<std::string> &fontNames,float fontSize)
 {
-    PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
-    std::pair<std::string, float> entry(fontNames[0],fontSize);
+    auto inst = (PlatformInfo_Android *)inInst;
 
-    LabelInfoAndroidRef refLabelInfo = NULL;
-    auto it = labelInfos.find(entry);
-    if (it != labelInfos.end())
-        refLabelInfo = it->second;
-    else {
-        jstring jFontNameStr = inst->env->NewStringUTF(fontNames[0].c_str());
-        jobject labelInfoGlobeObj = inst->env->NewGlobalRef(inst->env->CallObjectMethod(thisObj,makeLabelInfoMethod,jFontNameStr,2.0*fontSize));
-        inst->env->DeleteLocalRef(jFontNameStr);
-        LabelInfoAndroidRef *newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
-        refLabelInfo = *newRef;
-        refLabelInfo->labelInfoObj = labelInfoGlobeObj;
-        refLabelInfo->programID = screenMarkerProgramID;
-        labelInfos[entry] = refLabelInfo;
+    if (fontNames.empty())
+    {
+        return LabelInfoRef();
     }
 
-    return refLabelInfo;
+    try
+    {
+        const auto key = std::make_pair(fontNames[0],fontSize);
+        const auto result = labelInfos.insert(std::make_pair(key, LabelInfoAndroidRef()));
+        if (!result.second)
+        {
+            // Already present, return it
+            return result.first->second;
+        }
+
+        jstring jFontNameStr = inst->env->NewStringUTF(fontNames[0].c_str());
+        jobject labelInfo = inst->env->CallObjectMethod(thisObj, makeLabelInfoMethod, jFontNameStr, 2.0 * fontSize);
+        logAndClearJVMException(inst->env, "labelInfoForFont");
+        inst->env->DeleteLocalRef(jFontNameStr);
+
+        if (jobject labelInfoGlobeObj = inst->env->NewGlobalRef(labelInfo))
+        {
+            const auto newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
+            const auto refLabelInfo = *newRef;
+            refLabelInfo->labelInfoObj = labelInfoGlobeObj;
+            refLabelInfo->programID = screenMarkerProgramID;
+
+            // Save it to the cache map
+            result.first->second = refLabelInfo;
+
+            return refLabelInfo;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in makeLabelInfo()");
+    }
+    return LabelInfoRef();
 }
 
 SingleLabelRef MapboxVectorStyleSetImpl_Android::makeSingleLabel(PlatformThreadInfo *inInst,const std::string &text)
 {
-    SingleLabelAndroid *label = new SingleLabelAndroid();
+    auto label = std::make_shared<SingleLabelAndroid>();
 
     // Break up the lines and turn the characters into code points for Java
     std::istringstream ss(text);
     std::string line;
-    while (std::getline(ss, line, ss.widen('\n'))) {
-        std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
-        std::u16string utf16 = utf16conv.from_bytes(line);
-
-        std::vector<int> codePoints;
-        for (auto it = utf16.begin(); it != utf16.end(); ++it)
-            codePoints.push_back(*it);
-        label->codePointsLines.push_back(codePoints);
+    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> utf16conv;
+    while (std::getline(ss, line, ss.widen('\n')))
+    {
+        const std::u16string utf16 = utf16conv.from_bytes(line);
+        label->codePointsLines.emplace_back(utf16.begin(), utf16.end());
     }
 
-    return SingleLabelRef(label);
+    return std::move(label);
 }
 
-ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst)
+// NOLINTNEXTLINE(google-default-arguments)
+ComponentObjectRef MapboxVectorStyleSetImpl_Android::makeComponentObject(PlatformThreadInfo *inInst, const Dictionary *desc)
 {
-    return ComponentObjectRef(new ComponentObject());
+    return desc ? std::make_shared<ComponentObject>(false, false, *desc)
+                : std::make_shared<ComponentObject>(false, false);
 }
 
-double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef inLabelInfo,const std::string &text)
+double MapboxVectorStyleSetImpl_Android::calculateTextWidth(PlatformThreadInfo *inInst,const LabelInfoRef &inLabelInfo,const std::string &text)
 {
-    PlatformInfo_Android *inst = (PlatformInfo_Android *)inInst;
-    LabelInfoAndroidRef labelInfo = std::dynamic_pointer_cast<LabelInfoAndroid>(inLabelInfo);
+    auto inst = (PlatformInfo_Android *)inInst;
 
     jstring jText = inst->env->NewStringUTF(text.c_str());
-    jdouble width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    jdouble width = 0;
+    if (auto labelInfo = dynamic_cast<LabelInfoAndroid*>(inLabelInfo.get()))
+    {
+        width = inst->env->CallDoubleMethod(thisObj,calculateTextWidthMethod,jText,labelInfo->labelInfoObj);
+    }
     inst->env->DeleteLocalRef(jText);
 
     return width;
 }
 
-void MapboxVectorStyleSetImpl_Android::addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj)
+void MapboxVectorStyleSetImpl_Android::addSelectionObject(SimpleIdentity selectID,const VectorObjectRef &vecObj,const ComponentObjectRef &compObj)
 {
     if (!compManage)
         return;

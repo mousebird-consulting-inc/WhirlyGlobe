@@ -128,7 +128,7 @@ public:
     
     // Change the tile sources for upcoming loads
     virtual void setTileInfos(NSArray<NSObject<MaplyTileInfoNew> *> *tileInfos);
-
+    
 protected:
     // Convenience routine used to set up C++ version of frames
     void setupFrames();

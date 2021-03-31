@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Ranen Ghosh on 2/24/16.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -72,7 +72,10 @@ NSString* const kMaplyZBufferRead = MaplyZBufferRead;
 NSString* const kMaplyZBufferWrite = MaplyZBufferWrite;
 /// Set the render target if the given geometry type supports it
 NSString* const kMaplyRenderTarget = MaplyRenderTargetDesc;
-
+/// The the UUID of the object
+NSString* const kMaplyUUID = MaplyUUIDDesc;
+/// The representation of the UUID which this object embodies
+NSString* const kMaplyRepresentation = MaplyRepresentationDesc;
 /// Assign a shader program to a particular feature.  Use the shader program's name
 NSString* const kMaplyShader = MaplyShaderString;
 /// An NSDictionary containing uniforms to apply to a shader before drawing
@@ -134,6 +137,10 @@ NSString* const kMaplyTextJustify = MaplyTextJustify;
 NSString* const kMaplyTextJustifyRight = MaplyTextJustifyRight;
 NSString* const kMaplyTextJustifyLeft = MaplyTextJustifyLeft;
 NSString* const kMaplyTextJustifyCenter = MaplyTextJustifyCenter;
+NSString* const kMaplyTextLayoutOffset = MaplyTextLayoutOffset;
+NSString* const kMaplyTextLayoutSpacing = MaplyTextLayoutSpacing;
+NSString* const kMaplyTextLayoutRepeat = MaplyTextLayoutRepeat;
+NSString* const kMaplyTextLayoutDebug = MaplyTextLayoutDebug;
 
 /// These are used for screen and regular markers.
 NSString* const kMaplyClusterGroup = MaplyClusterGroupID;
@@ -150,6 +157,8 @@ NSString* const kMaplyFilled = MaplyFilled;
 
 /// If set, the texture to apply to the feature
 NSString* const kMaplyVecTexture = MaplyVecTexture;
+/// The format of the image given by kMaplyVecTexture, default MaplyImage4Layer8Bit
+NSString* const kMaplyVecTextureFormat = MaplyVecTextureFormat;
 /// X scale for textures applied to vectors
 NSString* const kMaplyVecTexScaleX = MaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
@@ -161,6 +170,8 @@ NSString* const kMaplyVecTextureProjection = MaplyVecTextureProjection;
 NSString* const kMaplyProjectionTangentPlane = MaplyVecProjectionTangentPlane;
 /// Screen space "projection" for texture coordinates
 NSString* const kMaplyProjectionScreen = MaplyVecProjectionScreen;
+/// No projection for texture coordinates
+NSString* const kMaplyProjectionNone = MaplyVecProjectionNone;
 
 /// If set to true we'll centered any drawables we create for features
 /// This fixes the jittering problem when zoomed in close
@@ -212,6 +223,12 @@ NSString* const kMaplyWideVecMiterLimit = MaplyWideVecMiterLimit;
 /// This is the length you'd like the texture to start repeating after.
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 NSString* const kMaplyWideVecTexRepeatLen = MaplyWideVecTexRepeatLen;
+
+NSString* const kMaplyWideVecImpl = MaplyWideVecImpl;
+NSString* const kMaplyWideVecImplPerf = MaplyWideVecImplPerf;
+
+/// Offset to left (negative) or right (positive) of the centerline
+NSString* const kMaplyWideVecOffset = MaplyWideVecOffset;
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 NSString* const kMaplySubdivEpsilon = MaplySubdivEpsilon;
@@ -335,9 +352,11 @@ NSString* const kMaplyShaderBillboardEye = @"Default Billboard eye";
 
 NSString* const kMaplyShaderDefaultWideVector = @"Default Wide Vector";
 NSString* const kMaplyShaderWideVectorExp = @"Default Wide Vector with expressions";
+NSString* const kMaplyShaderWideVectorPerformance = @"Wide Vector performance";
 
 NSString* const kMaplyScreenSpaceDefaultMotionProgram = @"Default Screenspace Motion";
 NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
+NSString* const kMaplyScreenSpaceMaskProgram = @"Screenspace mask";
 NSString* const kMaplyScreenSpaceExpProgram = @"Screenspace with expressions";
 
 NSString* const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";

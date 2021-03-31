@@ -118,7 +118,7 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
     spinDate = TimeGetCurrent();
     lastTouch = [pan locationInView:wrapView];
     
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender->getScene()->getManager(kWKIntersectionManager);
+    IntersectionManagerRef intManager = std::dynamic_pointer_cast<IntersectionManager>(sceneRender->getScene()->getManager(kWKIntersectionManager));
 
     // Look for an intersection with grabbable objects
     Point3d interPt;
@@ -191,20 +191,21 @@ static const float MomentumAnimLen = 1.0;
     auto frameSize = sceneRender->getFramebufferSizeScaled();
 
     // End for more than one finger
+    const auto __strong gestureRecognizer = self.gestureRecognizer;
     if ([pan numberOfTouches] > 1)
     {
         panType = PanSuspended;
         runEndMomentum = false;
 
-        if ([_gestureRecognizer isKindOfClass:[MinDelayPanGestureRecognizer class]]) {
+        if ([gestureRecognizer isKindOfClass:[MinDelayPanGestureRecognizer class]]) {
             // Don't cancel if interoperating with a scroll view.  (Otherwise
             // the globe view would be paged away.)
-            MinDelayPanGestureRecognizer *minDelayPanGestureRecognizer = (MinDelayPanGestureRecognizer *)_gestureRecognizer;
+            MinDelayPanGestureRecognizer *minDelayPanGestureRecognizer = (MinDelayPanGestureRecognizer *)gestureRecognizer;
             [minDelayPanGestureRecognizer forceEnd];
         } else {
             // Cancel gesture
-            _gestureRecognizer.enabled = false;
-            _gestureRecognizer.enabled = true;
+            gestureRecognizer.enabled = false;
+            gestureRecognizer.enabled = true;
         }
         return;
     }
@@ -222,8 +223,8 @@ static const float MomentumAnimLen = 1.0;
             // When interoperating with a scroll view, this allows a horizontal pan gesture
             // to be interpreted as a swipe, and thus trigger paging the scroll view.
             if (panType == PanNone) {
-                self.gestureRecognizer.enabled = NO;
-                self.gestureRecognizer.enabled = YES;
+                gestureRecognizer.enabled = NO;
+                gestureRecognizer.enabled = YES;
                 return;
             }
             [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:globeView->tag];
@@ -258,8 +259,8 @@ static const float MomentumAnimLen = 1.0;
                 // Cancel when they do that
                 if (!onSphere && globeView->getTilt() != 0.0)
                 {
-                    self.gestureRecognizer.enabled = NO;
-                    self.gestureRecognizer.enabled = YES;
+                    gestureRecognizer.enabled = NO;
+                    gestureRecognizer.enabled = YES;
                     return;
                 }
                     

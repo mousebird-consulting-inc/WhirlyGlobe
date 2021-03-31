@@ -53,13 +53,13 @@ public:
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) override;
 
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) override;
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst, const Dictionary *desc = nullptr) override;
 
     /// Return the width of the given line of text
-    virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr) override;
+    virtual double calculateTextWidth(PlatformThreadInfo *inInst,const LabelInfoRef &labelInfo,const std::string &testStr) override;
 
     /// Associate the given selection ID with a vector object
-    virtual void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) override;
+    virtual void addSelectionObject(SimpleIdentity selectID,const VectorObjectRef &vecObj,const ComponentObjectRef &compObj) override;
 
     /// Set up the Java side method references
     void setupMethods(JNIEnv *env);

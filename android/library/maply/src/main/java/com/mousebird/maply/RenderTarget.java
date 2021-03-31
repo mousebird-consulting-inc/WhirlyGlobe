@@ -29,6 +29,12 @@ public class RenderTarget
     public boolean clearEveryFrame = true;
 
     /**
+     *     Clear the render target to this value on every frame.
+     *     This is for render targets that are not purely color, such as multiple floats.
+     */
+    public float clearVal = 0.0f;
+
+    /**
      * Clear the render target to this color every frame.
      * Default is clear black.
      */

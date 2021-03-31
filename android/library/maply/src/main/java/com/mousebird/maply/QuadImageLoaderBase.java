@@ -208,7 +208,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      */
     protected void changeTileInfo(final TileInfoNew[] newTileInfo)
     {
-        if(samplingLayer.get() == null)
+        if(samplingLayer == null || samplingLayer.get() == null)
             return;
 
         samplingLayer.get().layerThread.addTask(new Runnable() {

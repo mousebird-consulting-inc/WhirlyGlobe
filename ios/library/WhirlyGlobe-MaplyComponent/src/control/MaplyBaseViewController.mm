@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -508,6 +508,16 @@ static const float PerfOutputDelay = 15.0;
     [renderControl removeShaderProgram:shader];
 }
 
+- (void)startMaskTarget:(NSNumber * __nullable)inScale
+{
+    [renderControl startMaskTarget:inScale];
+}
+
+- (void)stopMaskTarget
+{
+    [renderControl stopMaskTarget];
+}
+
 #pragma mark - Defaults and descriptions
 
 // Set new hints and update any related settings
@@ -981,7 +991,7 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
-    LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
 }
@@ -995,7 +1005,7 @@ static const float PerfOutputDelay = 15.0;
             uuidSet.insert(uuidStr);
     }
     
-    LayoutManager *layoutManager = (LayoutManager *)renderControl->scene->getManager(kWKLayoutManager);
+    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
     if (layoutManager)
         layoutManager->setOverrideUUIDs(uuidSet);
 }
@@ -1050,6 +1060,90 @@ static const float PerfOutputDelay = 15.0;
         return;
 
     [renderControl enableObjects:theObjs mode:threadMode];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName ofUUIDs:uuids mode:MaplyThreadAny];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:uuids mode:MaplyThreadAny];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName ofUUIDs:uuids mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (uuids.count)
+    {
+        [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:uuids mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+{
+    [self setRepresentation:repName ofObjects:objs mode:MaplyThreadAny];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+{
+    [self setRepresentation:repName fallbackRepName:fallbackRepName ofObjects:objs mode:MaplyThreadAny];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+                     mode:(MaplyThreadMode)threadMode
+{
+    [self setRepresentation:repName fallbackRepName:nil ofObjects:objs mode:threadMode];
+}
+
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objs
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (!objs.count)
+    {
+        return;
+    }
+    NSMutableArray<NSString *> *theUUIDs = [NSMutableArray new];
+    for (const MaplyComponentObject *obj in objs)
+    {
+        if (auto uuid = [obj getUUID])
+        {
+            [theUUIDs addObject:uuid];
+        }
+    }
+    if (![theUUIDs count])
+    {
+        return;
+    }
+    [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:theUUIDs mode:threadMode];
 }
 
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
@@ -1363,11 +1457,28 @@ static const float PerfOutputDelay = 15.0;
     // Implement in derived class.
 }
 
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse {
+    [self startLocationTrackingWithDelegate:delegate
+                                  simulator:nil
+                                simInterval:0
+                                 useHeading:useHeading
+                                  useCourse:useCourse];
+}
 
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate {
-    if (_locationTracker)
-        [self stopLocationTracking];
-    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self delegate:delegate useHeading:useHeading useCourse:useCourse simulate:simulate];
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
+                                simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                              simInterval:(NSTimeInterval)simInterval
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse {
+    [self stopLocationTracking];
+    _locationTracker = [[MaplyLocationTracker alloc] initWithViewC:self
+                                                          delegate:delegate
+                                                         simulator:simulator
+                                                       simInterval:simInterval
+                                                        useHeading:useHeading
+                                                         useCourse:useCourse];
 }
 
 - (MaplyLocationTracker *)getLocationTracker
@@ -1386,8 +1497,6 @@ static const float PerfOutputDelay = 15.0;
 }
 
 - (void)stopLocationTracking {
-    if (!_locationTracker)
-        return;
     [_locationTracker teardown];
     _locationTracker = nil;
 }

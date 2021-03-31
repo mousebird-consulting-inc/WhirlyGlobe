@@ -207,7 +207,7 @@ public:
      Returns true if we hit and where
      Returns false if not and the closest point on the sphere
      */
-    bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit);
+    bool pointOnSphereFromScreen(const WhirlyKit::Point2f &pt,const Eigen::Matrix4d &transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d &hit,bool clip = true);
 };
 
 typedef std::shared_ptr<GlobeViewState> GlobeViewStateRef;

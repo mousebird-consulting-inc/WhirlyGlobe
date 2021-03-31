@@ -173,11 +173,9 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *v
             screenPts.push_back(screenPt);
         }
         
-        double screenArea = CalcLoopArea(screenPts);
-        if (std::isnan(screenArea))
-            screenArea = 0.0;
+        const double screenArea = CalcLoopArea(screenPts);
         // The polygon came out backwards, so toss it
-        if (screenArea <= 0.0)
+        if (!std::isfinite(screenArea) || screenArea <= 0.0)
             continue;
         
         // Now project the screen points back into model space
@@ -286,7 +284,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
 bool TileIsOnScreen(ViewState *viewState,const WhirlyKit::Point2f &frameSize,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSolid)
 {
     if (!dispSolid)
-        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+        dispSolid = std::make_shared<DisplaySolid>(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
     
     // This means the tile is degenerate (as far as we're concerned)
     if (!dispSolid->valid)
@@ -300,7 +298,7 @@ bool TileIsOnScreen(ViewState *viewState,const WhirlyKit::Point2f &frameSize,Whi
 double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,const WhirlyKit::QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSolid)
 {
     if (!dispSolid)
-        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter));
+        dispSolid = std::make_shared<DisplaySolid>(nodeIdent,nodeMbr,0.0,0.0,srcSystem,coordAdapter);
 
     // This means the tile is degenerate (as far as we're concerned)
     if (!dispSolid->valid)
@@ -319,7 +317,7 @@ double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize
 double ScreenImportance(ViewState *viewState,const WhirlyKit::Point2f &frameSize,int pixelsSquare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const Mbr &nodeMbr,double minZ,double maxZ,const WhirlyKit::QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSolid)
 {
     if (!dispSolid)
-        dispSolid = DisplaySolidRef(new DisplaySolid(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter));
+        dispSolid = std::make_shared<DisplaySolid>(nodeIdent,nodeMbr,minZ,maxZ,srcSystem,coordAdapter);
     
     // This means the tile is degenerate (as far as we're concerned)
     if (!dispSolid->valid)

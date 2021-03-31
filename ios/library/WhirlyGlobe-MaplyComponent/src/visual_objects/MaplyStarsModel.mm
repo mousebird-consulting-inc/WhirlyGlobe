@@ -140,10 +140,10 @@ typedef struct
     
     MaplyTexture *starTex = nil;
     if (image)
-        starTex = [viewC addTexture:image imageFormat:MaplyImageIntRGBA wrapFlags:0 mode:MaplyThreadCurrent];
+        starTex = [inViewC addTexture:image imageFormat:MaplyImageIntRGBA wrapFlags:0 mode:MaplyThreadCurrent];
 
     // Set up a simple particle system (that doesn't move)
-    partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars" viewC:viewC];
+    partSys = [[MaplyParticleSystem alloc] initWithName:@"Stars" viewC:inViewC];
     partSys.type = MaplyParticleSystemTypePoint;
     partSys.lifetime = 1e20;
     partSys.totalParticles = (int)stars.size();
@@ -154,7 +154,7 @@ typedef struct
         [partSys addTexture:starTex];
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_size" type:MaplyShaderAttrTypeFloat];
-    partSysObj = [viewC addParticleSystem:partSys desc:desc mode:mode];
+    partSysObj = [inViewC addParticleSystem:partSys desc:desc mode:mode];
 
     // Data arrays for particles
     // We'll clear them out in case we don't fill them out completely
@@ -194,10 +194,10 @@ typedef struct
 
     // Set up the particle batch
     MaplyParticleBatch *batch = [[MaplyParticleBatch alloc] initWithParticleSystem:partSys];
-    batch.time = viewC->renderControl->scene->getCurrentTime();
+    batch.time = inViewC->renderControl->scene->getCurrentTime();
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
-    [viewC addParticleBatch:batch mode:mode];
+    [inViewC addParticleBatch:batch mode:mode];
 }
 
 - (void)removeFromViewC

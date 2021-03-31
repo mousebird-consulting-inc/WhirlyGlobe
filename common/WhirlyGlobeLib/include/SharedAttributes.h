@@ -3,7 +3,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,10 +112,12 @@
 
 #define MaplyDefaultWideVectorShader WKString("Default Wide Vector")
 #define MaplyWideVectorExpShader WKString("Default Wide Vector with expressions")
+#define MaplyWideVectorPerformanceShader WKString("Wide Vector performance")
 #define MaplyDefaultWideVectorGlobeShader WKString("Default Wide Vector Globe")
 
 #define MaplyScreenSpaceDefaultMotionShader WKString("Default Screenspace Motion")
 #define MaplyScreenSpaceDefaultShader WKString("Default Screenspace")
+#define MaplyScreenSpaceMaskShader WKString("Screenspace mask")
 #define MaplyScreenSpaceExpShader WKString("Screenspace with expressions")
 
 #define MaplyParticleSystemPointDefaultShader WKString("Default Part Sys (Point)")
@@ -163,6 +165,15 @@
 #define MaplyTextJustifyLeft WKString("left")
 /// Justify text to the right
 #define MaplyTextJustifyRight WKString("right")
+/// Layout text to right/left inside/outside by given number of piels
+#define MaplyTextLayoutOffset WKString("layoutoffset")
+/// Space between instances of text along line/inside polygon if repeating
+#define MaplyTextLayoutSpacing WKString("layoutspacing")
+/// How many times to repeat laid out text (-1 infinite, 0 not, or a number)
+#define MaplyTextLayoutRepeat WKString("layoutrepeat")
+/// Turn on or off layout debugging lines
+#define MaplyTextLayoutDebug WKString("layoutdebug")
+
 /// If set, we'll draw a shadow behind each label with this as the stroke size
 #define MaplyShadowSize WKString("shadowSize")
 /// If shadow size is being used, we can control the shadow color like so
@@ -201,6 +212,7 @@
 
 /// If set, the texture to apply to the feature
 #define MaplyVecTexture WKString("texture")
+#define MaplyVecTextureFormat WKString("textureFormat")
 #define MaplyVecTexScaleX WKString("texscalex")
 #define MaplyVecTexScaleY WKString("texscaley")
 
@@ -210,6 +222,8 @@
 #define MaplyVecProjectionTangentPlane WKString("texprojectiontanplane")
 /// Screen projection for texture coordinates
 #define MaplyVecProjectionScreen WKString("texprojectionscreen")
+/// No projection for texture coordinates
+#define MaplyVecProjectionNone WKString("texprojectionnone")
 
 /// Center of the feature, to use for texture calculations
 #define MaplyVecCenterX WKString("veccenterx")
@@ -217,6 +231,12 @@
 
 /// For wide vectors, we can widen them in screen space or display space
 #define MaplyWideVecCoordType WKString("wideveccoordtype")
+
+/// Basic or performance mode for wide vectors
+#define MaplyWideVecImpl WKString("widevecimplementation")
+
+/// Performance mode for wide vectors
+#define MaplyWideVecImplPerf WKString("widevecperformance")
 
 /// Widened vectors are widened in real space.  The width is in meters.
 #define MaplyWideVecCoordTypeReal WKString("real")
@@ -258,6 +278,8 @@
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 #define MaplyWideVecTexRepeatLen WKString("repeatSize")
 
+/// Offset to left (negative) or right (positive) of the centerline
+#define MaplyWideVecOffset WKString("vecOffset")
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define MaplySubdivEpsilon WKString("subdivisionepsilon")
@@ -331,3 +353,8 @@
 
 /// Used to designate a non-default render target by ID
 #define MaplyRenderTargetDesc WKString("rendertarget")
+
+/// Used to refer to component objects by unique ID for, e.g., representation selection
+#define MaplyUUIDDesc WKString("uuid")
+/// Used to distinguish the particular representation of a unique ID
+#define MaplyRepresentationDesc WKString("representation")

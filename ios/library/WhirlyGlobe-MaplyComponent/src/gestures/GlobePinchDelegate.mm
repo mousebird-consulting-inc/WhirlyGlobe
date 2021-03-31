@@ -128,13 +128,15 @@ using namespace WhirlyGlobe;
         return;
     }
 
-    IntersectionManager *intManager = (IntersectionManager *)sceneRender->getScene()->getManager(kWKIntersectionManager);
+    IntersectionManagerRef intManager = std::dynamic_pointer_cast<IntersectionManager>(sceneRender->getScene()->getManager(kWKIntersectionManager));
     if (!intManager)
         return;
     
     if (pinch.numberOfTouches != 2)
         valid = false;
-	
+
+    const auto __strong gestureRecognizer = self.gestureRecognizer;
+    
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
 	switch (theState)
 	{
@@ -308,8 +310,8 @@ using namespace WhirlyGlobe;
                 if (!onSphere && globeView->getTilt() != 0.0)
                 {
                     globeView->setRotQuat(oldQuat);
-                    self.gestureRecognizer.enabled = NO;
-                    self.gestureRecognizer.enabled = YES;
+                    gestureRecognizer.enabled = NO;
+                    gestureRecognizer.enabled = YES;
                     return;
                 }
                 
@@ -321,9 +323,8 @@ using namespace WhirlyGlobe;
                     globeView->setTilt(newTilt);
                 }
 
-                if (_rotateDelegate)
-                    [_rotateDelegate updateWithCenter:[pinch locationInView:wrapView] touch:[pinch locationOfTouch:0 inView:wrapView ] wrapView:wrapView];
-                
+                [_rotateDelegate updateWithCenter:[pinch locationInView:wrapView] touch:[pinch locationOfTouch:0 inView:wrapView ] wrapView:wrapView];
+
                 globeView->runViewUpdates();
             }
 			break;

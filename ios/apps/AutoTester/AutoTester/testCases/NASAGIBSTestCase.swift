@@ -47,7 +47,6 @@ class NASAGIBSTestCase: MaplyTestCase {
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = true
         sampleParams.edgeMatching = true
-        sampleParams.minZoom = tileInfo.minZoom()
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
         
@@ -55,8 +54,10 @@ class NASAGIBSTestCase: MaplyTestCase {
             return nil
         }
         imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault
-        imageLoader.imageFormat = .imageUShort565;
-        
+        #if !targetEnvironment(simulator)
+                imageLoader.imageFormat = .imageUShort565;
+        #endif
+
         return imageLoader
 	}
 	
@@ -73,7 +74,6 @@ class NASAGIBSTestCase: MaplyTestCase {
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
         sampleParams.coverPoles = false
         sampleParams.edgeMatching = false
-        sampleParams.minZoom = tileInfo.minZoom()
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true
         
@@ -81,8 +81,10 @@ class NASAGIBSTestCase: MaplyTestCase {
             return nil
         }
         imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
-        imageLoader.imageFormat = .imageUShort565;
-        
+        #if !targetEnvironment(simulator)
+                imageLoader.imageFormat = .imageUShort565;
+        #endif
+
         return imageLoader
 	}
 

@@ -49,7 +49,7 @@
     
     // List of annotations we're tracking for location
     NSMutableArray *annotations;
-
+    
     /// View Placement logic used to move annotations around
     WhirlyKit::ViewPlacementActiveModelRef viewPlacementModel;
                 

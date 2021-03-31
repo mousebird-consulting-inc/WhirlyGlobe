@@ -44,10 +44,10 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     loader = inLoader;
     viewC = inViewC;
     _pauseLength = 0.0;
-    numFrames = [loader getNumFrames];
+    numFrames = [inLoader getNumFrames];
     self.period = 10.0;
 
-    [viewC addActiveObject:self];
+    [inViewC addActiveObject:self];
 
     return self;
 }
@@ -56,15 +56,17 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
     if (period == _period)
         return;
-    
     _period = period;
+    
     if (!scene)
         return;
+
     // Adjust the start time to make the quad loader appear not to move initially
+    const auto img = [loader getCurrentImage];
     if (numFrames > 1) {
-        startTime = scene->getCurrentTime()-[loader getCurrentImage]/(numFrames-1) * _period;
+        startTime = scene->getCurrentTime()-img/(numFrames-1) * _period;
     } else if (numFrames > 0) {
-        startTime = scene->getCurrentTime()-[loader getCurrentImage] * _period;
+        startTime = scene->getCurrentTime()-img * _period;
     }
 }
 
@@ -80,18 +82,19 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 // Have to do the position update in the setCurrentImage so we're not messing with the rendering loop
 - (bool)hasUpdate
 {
-    if (!viewC || !loader)
+    const auto __strong ldr = loader;
+    if (!viewC || !ldr)
         return false;
 
-    TimeInterval now = scene->getCurrentTime();
-    TimeInterval totalPeriod = _period + _pauseLength;
-    double when = fmod(now-startTime,totalPeriod);
+    const TimeInterval now = scene->getCurrentTime();
+    const TimeInterval totalPeriod = _period + _pauseLength;
+    const double when = fmod(now-startTime,totalPeriod);
     if (when >= _period)
         // Snap it to the end for a while
-        [loader setCurrentImage:numFrames-1];
+        [ldr setCurrentImage:numFrames-1];
     else {
-        double where = when/_period * (numFrames-1);
-        [loader setCurrentImage:where];
+        const double where = when/_period * (numFrames-1);
+        [ldr setCurrentImage:where];
     }
 
     return false;
@@ -168,8 +171,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     if (!loader)
         return;
     
+    if (_loadFrameMode == loadFrameMode)
+        return;
+
     _loadFrameMode = loadFrameMode;
     loader->setLoadMode(_loadFrameMode == MaplyLoadFrameBroad ? QuadImageFrameLoader::LoadMode::Broad : QuadImageFrameLoader::LoadMode::Narrow);
+
+    [self updatePriorities];
 }
 
 - (bool)delayedInit
@@ -210,7 +218,17 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 - (void)setFocus:(int)focusID currentImage:(double)where
 {
     double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
-    loader->setCurFrame(focusID,curFrame);
+    double oldFrame = loader->getCurFrame(focusID);
+    loader->setCurFrame(NULL, focusID, curFrame);
+    
+    // Update the loading priorities if we're in narrow mode and we changed images
+    if (_loadFrameMode != MaplyLoadFrameBroad) {
+        int oldInt = oldFrame;
+        int newInt = curFrame;
+
+        if (oldInt != newInt)
+            [self updatePriorities];
+    }
 }
 
 - (double)getCurrentImage
@@ -280,7 +298,10 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 - (void)shutdown
 {
-    self->samplingLayer.layerThread.scene->removeActiveModel(loader);
+    if (self->samplingLayer) {
+        auto layerThread = self->samplingLayer.layerThread;
+        layerThread.scene->removeActiveModel(loader);
+    }
 
     [super shutdown];
 }

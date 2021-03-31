@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+#SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -v")
+#SET(CMAKE_LINKER_FLAGS  "${CMAKE_CXX_FLAGS} -v")
+
 target_include_directories(
         ${WGTARGET}
 
@@ -35,6 +38,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/View_jni.h"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Maply_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Exceptions_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/math/AngleAxis_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/math/Matrix3d_jni.cpp"
@@ -145,6 +149,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadImageLoaderBase_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadImageFrameLoader_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/QuadSamplingLayer_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/quadLoading/RawPNGImageLoaderInterpreter_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/renderer/RenderController_jni.cpp"
 

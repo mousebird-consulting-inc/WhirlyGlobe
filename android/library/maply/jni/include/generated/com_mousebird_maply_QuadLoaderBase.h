@@ -113,6 +113,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    reloadAreaNative
+ * Signature: (Lcom/mousebird/maply/ChangeSet;[Lcom/mousebird/maply/Mbr;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
+  (JNIEnv *, jobject, jobject, jobjectArray);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getZoomSlot
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getZoomSlot
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    nativeInit
  * Signature: ()V
  */

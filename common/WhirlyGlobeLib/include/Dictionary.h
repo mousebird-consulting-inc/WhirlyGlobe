@@ -45,6 +45,9 @@ public:
     Dictionary();
     virtual ~Dictionary() { };
 
+    virtual int count() const = 0;
+    virtual bool empty() const = 0;
+
     /// Returns true if the field exists
     virtual bool hasField(const std::string &name) const = 0;
     
@@ -125,6 +128,8 @@ public:
 
     /// Set field as int
     virtual void setInt(const std::string &name,int val) = 0;
+    /// Set field as int64
+    virtual void setInt64(const std::string &name,int64_t val) = 0;
     /// Set field as 64 bit unique value
     virtual void setIdentifiable(const std::string &name,SimpleIdentity val) = 0;
     /// Set field as double

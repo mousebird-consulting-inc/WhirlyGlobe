@@ -28,62 +28,72 @@
 namespace WhirlyKit
 {
 
+static const std::string strUnderbar("_");
+static const std::string strBase("base");
+static const std::string strStops("stops");
+static const std::string strName("name");
+static const std::string strVersion("version");
+static const std::string strLayers("layers");
+static const std::string strBackground("background");
+static const std::regex colorSeparatorPattern("[(),]");
+static const std::regex fieldSeparatorPattern(R"([{}]+)");
+static const std::regex colonPattern(":");
+
 bool MapboxRegexField::parse(const std::string &textField)
 {
     // Parse out the {} groups in the text
     // TODO: We're missing a boatload of stuff in the spec
-    std::regex regex{R"([{}]+)"};
+    const auto &regex = fieldSeparatorPattern;
     std::sregex_token_iterator it{textField.begin(), textField.end(), regex, -1};
-    std::vector<std::string> regexChunks{it, {}};
     bool isJustText = textField[0] != '{';
-    for (auto regexChunk : regexChunks) {
-        if (regexChunk.empty())
+    for (; it != std::sregex_token_iterator(); ++it) {
+        if (it->length() == 0)
+        {
             continue;
+        }
+        const auto regexChunk = std::string(*it);
         MapboxTextChunk textChunk;
         if (isJustText) {
             textChunk.str = regexChunk;
         } else {
             textChunk.keys.push_back(regexChunk);
             // For some reason name:en is sometimes name_en
-            std::string textVariant = regexChunk;
-            textVariant = std::regex_replace(textVariant, std::regex(":"), "_");
-            textChunk.keys.push_back(textVariant);
+            textChunk.keys.push_back(std::regex_replace(regexChunk, colonPattern, strUnderbar));
         }
         chunks.push_back(textChunk);
         isJustText = !isJustText;
     }
 
     valid = true;
-    
+
     return true;
 }
 
 bool MapboxRegexField::parse(const std::string &fieldName,
-                                                 MapboxVectorStyleSetImpl *styleSet,
-                                                 DictionaryRef styleEntry)
+                             MapboxVectorStyleSetImpl *styleSet,
+                             const DictionaryRef &styleEntry)
 {
-    std::string textField = styleSet->stringValue(fieldName, styleEntry, "");
-    if (!textField.empty())
-        parse(textField);
-    
-    return true;
+    const std::string textField = styleSet->stringValue(fieldName, styleEntry, std::string());
+    return textField.empty() || parse(textField);
 }
 
-std::string MapboxRegexField::build(DictionaryRef attrs)
+std::string MapboxRegexField::build(const DictionaryRef &attrs)
 {
     bool found = false;
     bool didLookup = false;
-    std::string text = "";
-    
-    for (auto chunk : chunks) {
+
+    std::string text;
+    text.reserve(chunks.size() * 20);
+
+    for (const auto &chunk : chunks) {
         if (!chunk.str.empty())
             text += chunk.str;
         else {
-            for (auto key : chunk.keys) {
+            for (const auto &key : chunk.keys) {
                 didLookup = true;
                 if (attrs->hasField(key)) {
                     found = true;
-                    std::string keyVal = attrs->getString(key);
+                    const std::string keyVal = attrs->getString(key);
                     if (!keyVal.empty()) {
                         text += keyVal;
                         break;
@@ -94,8 +104,8 @@ std::string MapboxRegexField::build(DictionaryRef attrs)
     }
 
     if (didLookup && !found)
-        return "";
-    
+        return std::string();
+
     if (!text.empty() && text[text.size()-1] == '\n')
         text.resize(text.size()-1);
 
@@ -107,24 +117,24 @@ MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 {
 }
 
-bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet,bool isText)
+bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *styleSet,bool isText)
 {
-    base = entry->getDouble("base",1.0);
+    base = entry->getDouble(strBase,1.0);
     
-    std::vector<DictionaryEntryRef> dataArray = entry->getArray("stops");
+    std::vector<DictionaryEntryRef> dataArray = entry->getArray(strStops);
     if (dataArray.size() < 2)
     {
         wkLogLevel(Warn, "Expecting at least two arguments for function stops.");
         return false;
     }
-    for (auto stop : dataArray) {
+    for (const auto &stop : dataArray) {
         if (stop->getType() == DictTypeArray) {
-            std::vector<DictionaryEntryRef> stopEntries = stop->getArray();
+            const std::vector<DictionaryEntryRef> stopEntries = stop->getArray();
             if (stopEntries.size() != 2) {
                 wkLogLevel(Warn,"Expecting two arguments in each entry for a function stop.");
                 return false;
             }
-            
+
             MaplyVectorFunctionStop fStop;
             fStop.zoom = stopEntries[0]->getDouble();
             if (stopEntries[1]->getType() == DictTypeDouble || stopEntries[1]->getType() == DictTypeInt) {
@@ -136,10 +146,10 @@ bool MaplyVectorFunctionStops::parse(DictionaryRef entry,MapboxVectorStyleSetImp
                         if (isText)
                             fStop.textField.parse(stopEntries[1]->getString());
                         else
-                            fStop.color = styleSet->colorValue("", stopEntries[1], NULL, NULL, false);
+                            fStop.color = styleSet->colorValue(std::string(), stopEntries[1], nullptr, nullptr, false);
                         break;
                     case DictTypeObject:
-                        fStop.color = RGBAColorRef(new RGBAColor(stopEntries[1]->getColor()));
+                        fStop.color = std::make_shared<RGBAColor>(stopEntries[1]->getColor());
                         break;
                     default:
                         wkLogLevel(Warn, "Expecting color compatible object in function stop.");
@@ -208,7 +218,7 @@ RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
             float res[4];
             for (unsigned int ii=0;ii<4;ii++)
                 res[ii] = ratio * (bc[ii]-ac[ii]) + ac[ii];
-            return RGBAColorRef(new RGBAColor(RGBAColor::FromUnitFloats(res)));
+            return std::make_shared<RGBAColor>(RGBAColor::FromUnitFloats(res));
         }
         a = b;
     }
@@ -237,8 +247,10 @@ double MaplyVectorFunctionStops::minValue()
 {
     double val = MAXFLOAT;
 
-    for (auto stop : stops)
+    for (const auto &stop : stops)
+    {
         val = std::min(val,stop.val);
+    }
 
     return val;
 }
@@ -247,7 +259,8 @@ double MaplyVectorFunctionStops::maxValue()
 {
     double val = -MAXFLOAT;
 
-    for (auto stop : stops) {
+    for (const auto &stop : stops)
+    {
         val = std::max(val,stop.val);
     }
 
@@ -262,7 +275,7 @@ MapboxTransDouble::MapboxTransDouble(double value)
 MapboxTransDouble::MapboxTransDouble(MaplyVectorFunctionStopsRef inStops)
 {
     val = 0.0;
-    stops = inStops;
+    stops = std::move(inStops);
 }
 
 double MapboxTransDouble::valForZoom(double zoom)
@@ -280,7 +293,7 @@ FloatExpressionInfoRef MapboxTransDouble::expression()
     if (!stops)
         return FloatExpressionInfoRef();
     
-    FloatExpressionInfoRef floatExp(new FloatExpressionInfo());
+    auto floatExp = std::make_shared<FloatExpressionInfo>();
     floatExp->type = ExpressionExponential;
     floatExp->base = stops->base;
     floatExp->stopInputs.resize(stops->stops.size());
@@ -296,27 +309,25 @@ FloatExpressionInfoRef MapboxTransDouble::expression()
 
 double MapboxTransDouble::minVal()
 {
-    if (stops) {
-        return stops->minValue();
-    } else
-        return val;
+    return stops ? stops->minValue() : val;
 }
 
 double MapboxTransDouble::maxVal()
 {
-    if (stops) {
-        return stops->maxValue();
-    } else
-        return val;
+    return stops ? stops->maxValue() : val;
 }
 
-MapboxTransColor::MapboxTransColor(RGBAColorRef color)
-: color(color), useAlphaOverride(false), alpha(1.0)
+MapboxTransColor::MapboxTransColor(RGBAColorRef color) :
+    color(std::move(color)),
+    useAlphaOverride(false),
+    alpha(1.0)
 {
 }
 
-MapboxTransColor::MapboxTransColor(MaplyVectorFunctionStopsRef stops)
-: useAlphaOverride(false), alpha(1.0), stops(stops)
+MapboxTransColor::MapboxTransColor(MaplyVectorFunctionStopsRef stops) :
+    useAlphaOverride(false),
+    alpha(1.0),
+    stops(std::move(stops))
 {
 }
 
@@ -342,7 +353,7 @@ ColorExpressionInfoRef MapboxTransColor::expression()
     if (!stops)
         return ColorExpressionInfoRef();
     
-    ColorExpressionInfoRef colorExp(new ColorExpressionInfo());
+    auto colorExp = std::make_shared<ColorExpressionInfo>();
     colorExp->type = ExpressionExponential;
     colorExp->base = stops->base;
     colorExp->stopInputs.resize(stops->stops.size());
@@ -361,28 +372,38 @@ MapboxTransText::MapboxTransText(const std::string &inText)
     textField.parse(inText);
 }
 
-MapboxTransText::MapboxTransText(MaplyVectorFunctionStopsRef stops)
-: stops(stops)
+MapboxTransText::MapboxTransText(MaplyVectorFunctionStopsRef stops) :
+    stops(std::move(stops))
 {
 }
 
 MapboxRegexField MapboxTransText::textForZoom(double zoom)
 {
-    if (stops) {
-        return stops->textForZoom(zoom);
-    }
-    
-    return textField;
+    return stops ? stops->textForZoom(zoom) : textField;
 }
 
-MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings)
-: scene(inScene), currentID(0), tileStyleSettings(settings), coordSys(coordSys), zoomSlot(-1)
+static constexpr size_t TypicalLayerCount = 500;
+
+MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,
+                                                   CoordSystem *coordSys,
+                                                   VectorStyleSettingsImplRef settings) :
+    scene(inScene),
+    version(-1),
+    currentID(0),
+    tileStyleSettings(std::move(settings)),
+    coordSys(coordSys),
+    zoomSlot(-1),
+    layersByName(TypicalLayerCount),
+    layersByUUID(TypicalLayerCount),
+    layersBySource(TypicalLayerCount)
 {
-    vecManage = (VectorManager *)scene->getManager(kWKVectorManager);
-    wideVecManage = (WideVectorManager *)scene->getManager(kWKWideVectorManager);
-    markerManage = (MarkerManager *)scene->getManager(kWKMarkerManager);
-    labelManage = (LabelManager *)scene->getManager(kWKLabelManager);
-    compManage = (ComponentManager *)scene->getManager(kWKComponentManager);
+    layers.reserve(TypicalLayerCount);
+
+    vecManage = scene->getManager<VectorManager>(kWKVectorManager);
+    wideVecManage = scene->getManager<WideVectorManager>(kWKWideVectorManager);
+    markerManage = scene->getManager<MarkerManager>(kWKMarkerManager);
+    labelManage = scene->getManager<LabelManager>(kWKLabelManager);
+    compManage = scene->getManager<ComponentManager>(kWKComponentManager);
 
     // We'll look for the versions that do expressions first and
     //  then fall back to the simpler ones
@@ -411,39 +432,30 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,CoordSystem *c
         wideVectorProgramID = prog->getId();
 }
 
-MapboxVectorStyleSetImpl::~MapboxVectorStyleSetImpl()
+bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,const DictionaryRef &styleDict)
 {
-}
+    name = styleDict->getString(strName);
+    version = styleDict->getInt(strVersion);
 
-bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,DictionaryRef styleDict)
-{
-    name = styleDict->getString("name");
-    version = styleDict->getInt("version");
-    
     // Layers are where the action is
-    std::vector<DictionaryEntryRef> layerStyles = styleDict->getArray("layers");
+    const std::vector<DictionaryEntryRef> layerStyles = styleDict->getArray(strLayers);
     int which = 0;
-    for (auto layerStyle : layerStyles) {
+    for (const auto &layerStyle : layerStyles) {
         if (layerStyle->getType() == DictTypeDictionary) {
-            MapboxVectorStyleLayerRef layer(MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority)));
-            if (!layer) {
+            auto layer = MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority));
+            if (!layer)
+            {
                 continue;
-            } else {
-                // Sort into various buckets for quick lookup
-                layersByName[layer->ident] = layer;
-                layersByUUID[layer->getUuid(inst)] = layer;
-                if (!layer->sourceLayer.empty()) {
-                    auto it = layersBySource.find(layer->sourceLayer);
-                    if (it != layersBySource.end()) {
-                        it->second.push_back(layer);
-                    } else {
-                        std::vector<MapboxVectorStyleLayerRef> layers;
-                        layers.push_back(layer);
-                        layersBySource[layer->sourceLayer] = layers;
-                    }
-                }
-                layers.push_back(layer);
             }
+
+            // Sort into various buckets for quick lookup
+            layersByName[layer->ident] = layer;
+            layersByUUID[layer->getUuid(inst)] = layer;
+            if (!layer->sourceLayer.empty())
+            {
+                layersBySource.insert(std::make_pair(layer->sourceLayer, layer));
+            }
+            layers.push_back(layer);
         }
         which++;
     }
@@ -456,20 +468,26 @@ long long MapboxVectorStyleSetImpl::generateID()
     return currentID++;
 }
 
-int MapboxVectorStyleSetImpl::intValue(const std::string &name,DictionaryRef dict,int defVal)
+int MapboxVectorStyleSetImpl::intValue(const std::string &inName,const DictionaryRef &dict,int defVal)
 {
-    DictionaryEntryRef thing = dict->getEntry(name);
-    if (!thing)
-        return defVal;
-        
-    if (thing->getType() == DictTypeDouble || thing->getType() == DictTypeInt || thing->getType() == DictTypeIdentity)
-        return thing->getInt();
-
-    wkLogLevel(Warn, "Expected integer for %s but got something else",name.c_str());
-    return defVal;
+    const auto thing = dict->getEntry(inName);
+    switch (thing ? thing->getType() : DictTypeNone)
+    {
+        case DictTypeDouble:
+        case DictTypeInt:
+        case DictTypeInt64:
+        case DictTypeIdentity:
+            return thing->getInt();
+        default:
+            if (thing)
+            {
+                wkLogLevel(Warn,"Expected integer for %s but got type %d",inName.c_str(),thing->getType());
+            }
+            return defVal;
+    }
 }
 
-double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double defVal)
+double MapboxVectorStyleSetImpl::doubleValue(const DictionaryEntryRef &thing,double defVal)
 {
     if (!thing)
         return defVal;
@@ -481,7 +499,7 @@ double MapboxVectorStyleSetImpl::doubleValue(DictionaryEntryRef thing,double def
     return defVal;
 }
 
-double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryRef dict,double defVal)
+double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,const DictionaryRef &dict,double defVal)
 {
     if (!dict)
         return defVal;
@@ -497,78 +515,76 @@ double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,DictionaryR
     return defVal;
 }
 
-bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal)
+bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,const DictionaryRef &dict,const std::string &onString,bool defVal)
 {
     if (!dict)
         return defVal;
-    
-    DictionaryEntryRef thing = dict->getEntry(name);
-    if (!thing)
-        return defVal;
-    
-    if (thing->getType() == DictTypeString)
-        return thing->getString() == onString;
-    else if (thing->getType() == DictTypeInt)
-        return thing->getInt();
-    else if (thing->getType() == DictTypeDouble)
-        return thing->getInt();
-    else
-        return defVal;
+
+    const auto thing = dict->getEntry(name);
+    switch (thing ? thing->getType() : DictTypeNone)
+    {
+        case DictTypeString: return thing->getString() == onString;
+        case DictTypeInt:
+        case DictTypeInt64:
+        case DictTypeIdentity:
+        case DictTypeDouble: return thing->getInt() != 0;
+        default:             return defVal;
+    }
 }
 
-std::string MapboxVectorStyleSetImpl::stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal)
+std::string MapboxVectorStyleSetImpl::stringValue(const std::string &inName,const DictionaryRef &dict,const std::string &defVal)
 {
     if (!dict)
         return defVal;
     
-    DictionaryEntryRef thing = dict->getEntry(name);
+    DictionaryEntryRef thing = dict->getEntry(inName);
     if (!thing)
         return defVal;
 
     if (thing->getType() == DictTypeString)
         return thing->getString();
 
-    wkLogLevel(Warn, "Expected string for %s but got something else",name.c_str());
+    wkLogLevel(Warn, "Expected string for %s but got something else",inName.c_str());
     return defVal;
 }
 
-std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::string &name,DictionaryRef dict)
+std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::string &inName,const DictionaryRef &dict)
 {
     std::vector<DictionaryEntryRef> ret;
 
     if (!dict)
         return ret;
     
-    DictionaryEntryRef thing = dict->getEntry(name);
+    DictionaryEntryRef thing = dict->getEntry(inName);
     if (!thing)
         return ret;
     
     if (thing->getType() == DictTypeArray)
         return thing->getArray();
     
-    wkLogLevel(Warn, "Expected string for %s but got something else",name.c_str());
+    wkLogLevel(Warn, "Expected array for %s but got something else",inName.c_str());
     return ret;
 }
 
-RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha)
+RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, const DictionaryEntryRef &val, const DictionaryRef &dict, const RGBAColorRef &defVal, bool multiplyAlpha)
 {
     DictionaryEntryRef thing;
     if (dict)
-        thing = dict->getEntry(name);
+        thing = dict->getEntry(inName);
     else
         thing = val;
     if (!thing)
         return defVal;
 
     if (thing->getType() != DictTypeString) {
-        wkLogLevel(Warn,"Expecting a string for color (%s)",name.c_str());
+        wkLogLevel(Warn, "Expecting a string for color (%s)", inName.c_str());
         return defVal;
     }
 
     std::string str = thing->getString();
     if (str.empty())
     {
-        wkLogLevel(Warn,"Expecting non-empty string for color (%s)",name.c_str());
+        wkLogLevel(Warn, "Expecting non-empty string for color (%s)", inName.c_str());
         return defVal;
     }
     // Hex string
@@ -580,7 +596,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
             iVal = std::stoul(str.substr(1), nullptr, 16);
         }
         catch (...) {
-            wkLogLevel(Warn,"Invalid hex value (%s) in color (%s)",str.c_str(),name.c_str());
+            wkLogLevel(Warn, "Invalid hex value (%s) in color (%s)", str.c_str(), inName.c_str());
             return defVal;
         }
 
@@ -601,110 +617,107 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,Dictio
             green = (iVal >> 8) & 0xff;
             blue = iVal & 0xff;
         }
-        return RGBAColorRef(new RGBAColor(red,green,blue,alpha));
+        return std::make_shared<RGBAColor>(red,green,blue,alpha);
     } else if (str.find("rgb(") == 0) {
-        std::regex reg("[(),]");
-        std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
-        std::sregex_token_iterator end;
-        std::vector<std::string> toks(iter, end);
+        const auto &reg = colorSeparatorPattern;
+        const std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
+        const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 3) {
-            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
             return defVal;
         }
-        int red = std::stoi(toks[0]);
-        int green = std::stoi(toks[1]);
-        int blue = std::stoi(toks[2]);
+        const int red = std::stoi(toks[0]);
+        const int green = std::stoi(toks[1]);
+        const int blue = std::stoi(toks[2]);
 
-        return RGBAColorRef(new RGBAColor(red,green,blue,1.0));
+        return std::make_shared<RGBAColor>(red,green,blue,1.0);
     } else if (str.find("rgba(") == 0) {
-        std::regex reg("[(),]");
-        std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
-        std::sregex_token_iterator end;
-        std::vector<std::string> toks(iter, end);
+        const auto &reg = colorSeparatorPattern;
+        const std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
+        std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 4) {
-            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
             return defVal;
         }
-        int red = std::stoi(toks[0]);
-        int green = std::stoi(toks[1]);
-        int blue = std::stoi(toks[2]);
-        double alpha = std::stod(toks[3]);
+        const int red = std::stoi(toks[0]);
+        const int green = std::stoi(toks[1]);
+        const int blue = std::stoi(toks[2]);
+        const double alpha = std::stod(toks[3]);
         
         if (multiplyAlpha)
-            return RGBAColorRef(new RGBAColor(red * alpha,green * alpha,blue * alpha,255.0*alpha));
+            return std::make_shared<RGBAColor>(red * alpha,green * alpha,blue * alpha,255.0*alpha);
         else
-            return RGBAColorRef(new RGBAColor(red,green,blue,255.0*alpha));
+            return std::make_shared<RGBAColor>(red,green,blue,255.0*alpha);
     } else if (str.find("hsl(") == 0) {
-        std::regex reg("[(),]");
-        std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
-        std::sregex_token_iterator end;
-        std::vector<std::string> toks(iter, end);
+        const auto &reg = colorSeparatorPattern;
+        const std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
+        const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 3) {
-            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
             return defVal;
         }
-        int hue = std::stoi(toks[0]);
-        int sat = std::stoi(toks[1]);
-        int light = std::stoi(toks[2]);
-        float newLight = light / 100.0;
-        float newSat = sat / 100.0;
+        const int hue = std::stoi(toks[0]);
+        const int sat = std::stoi(toks[1]);
+        const int light = std::stoi(toks[2]);
+        const float newLight = light / 100.0;
+        const float newSat = sat / 100.0;
 
-        return RGBAColorRef(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
+        return std::make_shared<RGBAColor>(RGBAColor::FromHSL(hue, newSat, newLight));
     } else if (str.find("hsla(") == 0) {
-        std::regex reg("[(),]");
-        std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
-        std::sregex_token_iterator end;
-        std::vector<std::string> toks(iter, end);
+        const auto &reg = colorSeparatorPattern;
+        const std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
+        const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 4) {
-            wkLogLevel(Warn, "Unrecognized format in color %s",name.c_str());
+            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
             return defVal;
         }
-        int hue = std::stoi(toks[0]);
-        int sat = std::stoi(toks[1]);
-        int light = std::stoi(toks[2]);
-        float alpha = std::stod(toks[3]);
-        float newLight = light / 100.0;
-        float newSat = sat / 100.0;
+        const int hue = std::stoi(toks[0]);
+        const int sat = std::stoi(toks[1]);
+        const int light = std::stoi(toks[2]);
+        const auto alpha = (float)std::stod(toks[3]);
+        const auto newLight = light / 100.0f;
+        const auto newSat = sat / 100.0f;
 
-        RGBAColorRef color(new RGBAColor(RGBAColor::FromHSL(hue, newSat, newLight)));
-        color->a = alpha * 255.0;
-        
+        auto color = std::make_shared<RGBAColor>(RGBAColor::FromHSL(hue, newSat, newLight));
+        color->a = (uint8_t)(alpha * 255.0);
+
         return color;
     }
 
-    wkLogLevel(Warn,"Didn't recognize format of color (%s)",name.c_str());
+    wkLogLevel(Warn, "Didn't recognize format of color (%s)", inName.c_str());
     return defVal;
 }
 
-RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha)
+RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName,const DictionaryEntryRef &val,const DictionaryRef &dict,const RGBAColor &defVal,bool multiplyAlpha)
 {
-    RGBAColorRef color(new RGBAColor(defVal));
-    
-    return colorValue(name, val, dict, color, multiplyAlpha);
+    return colorValue(inName, val, dict, std::make_shared<RGBAColor>(defVal), multiplyAlpha);
 }
 
-int MapboxVectorStyleSetImpl::enumValue(DictionaryEntryRef entry,const char * const options[],int defVal)
+int MapboxVectorStyleSetImpl::enumValue(const DictionaryEntryRef &entry,const char * const options[],int defVal)
 {
     if (!entry || entry->getType() != DictTypeString)
         return defVal;
 
-    std::string name = entry->getString();
+    const std::string localName = entry->getString();
     
-    for (int which = 0; options[which]; which++) {
+    for (int which = 0; options[which]; which++)
+    {
         const char * const val = options[which];
-        if (!strcmp(val, name.c_str()))
+        if (!strcmp(val, localName.c_str()))
+        {
             return which;
+        }
     }
 
-    wkLogLevel(Warn,"Found unexpected value (%s) in enumerated type",name.c_str());
+    wkLogLevel(Warn, "Found unexpected value (%s) in enumerated type", localName.c_str());
     return defVal;
 }
 
-MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(DictionaryEntryRef theEntry, double defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const DictionaryEntryRef &theEntry, double defVal)
 {
     if (!theEntry)
         return std::make_shared<MapboxTransDouble>(defVal);
@@ -728,20 +741,20 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(DictionaryEntryRef th
 }
 
 
-MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,DictionaryRef entry,double defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,const DictionaryRef &entry,double defVal)
 {
     return transDouble(entry ? entry->getEntry(name) : DictionaryEntryRef(), defVal);
 }
 
-MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,DictionaryRef entry,const RGBAColor *defVal)
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor *defVal)
 {
     RGBAColorRef defValRef;
     if (defVal)
-        defValRef = RGBAColorRef(new RGBAColor(*defVal));
+        defValRef = std::make_shared<RGBAColor>(*defVal);
 
     if (!entry) {
         if (defVal)
-            return MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(*defVal))));
+            return std::make_shared<MapboxTransColor>(std::make_shared<RGBAColor>(*defVal));
         return MapboxTransColorRef();
     }
 
@@ -749,23 +762,22 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     DictionaryEntryRef theEntry = entry->getEntry(name);
     if (!theEntry) {
         if (defVal)
-            return MapboxTransColorRef(new MapboxTransColor(RGBAColorRef(new RGBAColor(*defVal))));
+            return std::make_shared<MapboxTransColor>(std::make_shared<RGBAColor>(*defVal));
         return MapboxTransColorRef();
     }
 
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
-        MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
-        stops->parse(theEntry->getDict(), this, false);
-        if (stops) {
-            return MapboxTransColorRef(new MapboxTransColor(stops));;
+        auto stops = std::make_shared<MaplyVectorFunctionStops>();
+        if (stops->parse(theEntry->getDict(), this, false)) {
+            return std::make_shared<MapboxTransColor>(stops);
         } else {
             wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
         }
     } else if (theEntry->getType() == DictTypeString) {
         RGBAColorRef color = colorValue(name, theEntry, DictionaryRef(), defValRef, false);
         if (color)
-            return MapboxTransColorRef(new MapboxTransColor(color));
+            return std::make_shared<MapboxTransColor>(color);
         else {
             wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a color.",name.c_str());
         }
@@ -776,48 +788,42 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
     return MapboxTransColorRef();
 }
 
-MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,DictionaryRef entry,const RGBAColor &inColor)
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &inName, const DictionaryRef &entry, const RGBAColor &inColor)
 {
     RGBAColor color = inColor;
-    return transColor(name, entry, &color);
+    return transColor(inName, entry, &color);
 }
 
-MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &name,DictionaryRef entry,const std::string &str)
+MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &inName, const DictionaryRef &entry, const std::string &str)
 {
     if (!entry) {
-        if (!str.empty())
-            return MapboxTransTextRef(new MapboxTransText(str));
-        return MapboxTransTextRef();
+        return str.empty() ? MapboxTransTextRef() : std::make_shared<MapboxTransText>(str);
     }
     
     // They pass in the whole dictionary and let us look the field up
-    DictionaryEntryRef theEntry = entry->getEntry(name);
+    DictionaryEntryRef theEntry = entry->getEntry(inName);
     if (!theEntry) {
-        if (!str.empty())
-            return MapboxTransTextRef(new MapboxTransText(str));
-        return MapboxTransTextRef();
+        return str.empty() ? MapboxTransTextRef() : std::make_shared<MapboxTransText>(str);
     }
 
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
-        MaplyVectorFunctionStopsRef stops(new MaplyVectorFunctionStops());
-        stops->parse(theEntry->getDict(), this, true);
-        if (stops) {
-            return MapboxTransTextRef(new MapboxTransText(stops));;
+        auto stops = std::make_shared<MaplyVectorFunctionStops>();
+        if (stops->parse(theEntry->getDict(), this, true)) {
+            return std::make_shared<MapboxTransText>(stops);
         } else {
-            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
+            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s", inName.c_str());
         }
     } else if (theEntry->getType() == DictTypeString) {
-        std::string text = theEntry->getString();
-        return MapboxTransTextRef(new MapboxTransText(text));
+        return std::make_shared<MapboxTransText>(theEntry->getString());
     } else {
-        wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a string.",name.c_str());
+        wkLogLevel(Warn, "Unexpected type found in entry %s. Was expecting a string.", inName.c_str());
     }
 
     return MapboxTransTextRef();
 }
 
-void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry)
+void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,const DictionaryRef &styleEntry)
 {
     if (styleEntry && styleEntry->hasField(field)) {
 #if DEBUG
@@ -826,7 +832,7 @@ void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *wh
     }
 }
 
-RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode)
+RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(const MapboxTransColorRef &color,const MapboxTransDoubleRef &opacity,double zoom,MBResolveColorType resolveMode)
 {
     // No color means no color
     if (!color)
@@ -838,7 +844,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(MapboxTransColorRef color,Ma
     if (!opacity || color->hasAlphaOverride())
         return std::make_shared<RGBAColor>(thisColor);
 
-    double const thisOpacity = opacity->valForZoom(zoom) * 255;
+    const double thisOpacity = opacity->valForZoom(zoom) * 255;
 
     float vals[4];
     thisColor.asUnitFloats(vals);
@@ -860,27 +866,23 @@ RGBAColor MapboxVectorStyleSetImpl::color(RGBAColor color,double opacity)
 {
     float vals[4];
     color.asUnitFloats(vals);
-
-    return RGBAColor(vals[0]*opacity*255,vals[1]*opacity*255,vals[2]*opacity*255,vals[3]*opacity*255);
+    return {
+        (uint8_t)(vals[0]*opacity*255),
+        (uint8_t)(vals[1]*opacity*255),
+        (uint8_t)(vals[2]*opacity*255),
+        (uint8_t)(vals[3]*opacity*255)
+    };
 }
 
-MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &name)
+MapboxVectorStyleLayerRef MapboxVectorStyleSetImpl::getLayer(const std::string &inName)
 {
-    auto it = layersByName.find(name);
-    if (it == layersByName.end())
-        return MapboxVectorStyleLayerRef();
-    
-    return it->second;
-}
-
-void MapboxVectorStyleSetImpl::setZoomSlot(int inZoomSlot)
-{
-    zoomSlot = inZoomSlot;
+    const auto it = layersByName.find(inName);
+    return (it == layersByName.end()) ? MapboxVectorStyleLayerRef() : it->second;
 }
 
 VectorStyleImplRef MapboxVectorStyleSetImpl::backgroundStyle(PlatformThreadInfo *inst) const
 {
-    const auto it = layersByName.find("background");
+    const auto it = layersByName.find(strBackground);
     if (it != layersByName.end()) {
         if (auto backLayer = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(it->second)) {
             return backLayer;
@@ -891,17 +893,14 @@ VectorStyleImplRef MapboxVectorStyleSetImpl::backgroundStyle(PlatformThreadInfo 
 
 RGBAColorRef MapboxVectorStyleSetImpl::backgroundColor(PlatformThreadInfo *inst,double zoom)
 {
-    auto it = layersByName.find("background");
+    const auto it = layersByName.find(strBackground);
     if (it != layersByName.end()) {
-        MapboxVectorLayerBackgroundRef backLayer = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(it->second);
-        if (backLayer) {
-            return RGBAColorRef(new RGBAColor(backLayer->paint.color->colorForZoom(zoom)));
+        if (const auto backLayer = std::dynamic_pointer_cast<MapboxVectorLayerBackground>(it->second)) {
+            return std::make_shared<RGBAColor>(backLayer->paint.color->colorForZoom(zoom));
         }
     }
-    
     return RGBAColorRef();
 }
-
 
 std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(PlatformThreadInfo *inst,
                                                                            const Dictionary &attrs,
@@ -909,14 +908,18 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::stylesForFeature(Platf
                                                                            const std::string &layerName)
 {
     std::vector<VectorStyleImplRef> styles;
-    
-    const auto it = layersBySource.find(layerName);
-    if (it != layersBySource.end()) {
-        for (const auto &layer : it->second) {
-            if (!layer->filter || layer->filter->testFeature(attrs, tileID)) {
-                styles.reserve(it->second.size());
-                styles.push_back(layer);
+
+    const auto range = layersBySource.equal_range(layerName);
+    for (auto i = range.first; i != range.second; ++i)
+    {
+        auto &layer = i->second;
+        if (!layer->filter || layer->filter->testFeature(attrs, tileID))
+        {
+            if (styles.empty())
+            {
+                styles.reserve(std::distance(range.first, range.second));
             }
+            styles.push_back(layer);
         }
     }
     
@@ -928,8 +931,15 @@ bool MapboxVectorStyleSetImpl::layerShouldDisplay(PlatformThreadInfo *inst,
                                                   const std::string &layerName,
                                                   const QuadTreeNew::Node &tileID)
 {
-    const auto it = layersBySource.find(layerName);
-    return it != layersBySource.end();
+    const auto range = layersBySource.equal_range(layerName);
+    for (auto i = range.first; i != range.second; ++i)
+    {
+        if (i->second->visible || !i->second->representation.empty())
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 /// Return the style associated with the given UUID.
@@ -947,7 +957,7 @@ std::vector<VectorStyleImplRef> MapboxVectorStyleSetImpl::allStyles(PlatformThre
 
 void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites)
 {
-    sprites = newSprites;
+    sprites = std::move(newSprites);
 }
 
 }

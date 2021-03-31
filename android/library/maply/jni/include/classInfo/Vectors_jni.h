@@ -30,12 +30,12 @@ typedef JavaClassInfo<WhirlyKit::LoftedPolyInfoRef> LoftedPolyInfoClassInfo;
 //typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 
 // Construct a Java-side AttrDictionary wrapper
-JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,WhirlyKit::MutableDictionary_AndroidRef dict);
-JNIEXPORT jobject JNICALL MakeAttrDictionaryEntry(JNIEnv *env,WhirlyKit::DictionaryEntry_AndroidRef dict);
+JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,const WhirlyKit::MutableDictionary_AndroidRef &dict);
+JNIEXPORT jobject JNICALL MakeAttrDictionaryEntry(JNIEnv *env,const WhirlyKit::DictionaryEntry_AndroidRef &dict);
 
 // Construct a Java-side Vector Object
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObject *vec);
-JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObjectRef vec);
+JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,const WhirlyKit::VectorObjectRef &vec);
 
 // This one takes the classInfo object which skips a lookup
-JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,WhirlyKit::VectorObjectRef vecObj);
+JNIEXPORT jobject JNICALL MakeVectorObjectWrapper(JNIEnv *env,VectorObjectClassInfo *classInfo,const WhirlyKit::VectorObjectRef &vecObj);

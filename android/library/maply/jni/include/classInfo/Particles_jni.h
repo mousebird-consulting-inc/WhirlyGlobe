@@ -22,5 +22,5 @@
 #import "WhirlyGlobe_Android.h"
 
 typedef JavaClassInfo<WhirlyKit::ParticleSystem> ParticleSystemClassInfo;
-typedef JavaClassInfo<WhirlyKit::ParticleSystemManager> ParticleSystemManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::ParticleSystemManagerRef> ParticleSystemManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::ParticleBatch_Android> ParticleBatchClassInfo;

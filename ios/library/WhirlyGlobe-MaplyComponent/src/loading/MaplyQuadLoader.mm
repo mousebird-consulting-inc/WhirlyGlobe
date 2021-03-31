@@ -84,6 +84,14 @@ using namespace WhirlyKit;
     return tileData[0];
 }
 
+- (bool)isCancelled
+{
+    if (!loadReturn)
+        return true;
+    
+    return loadReturn->cancel;
+}
+
 - (void)setError:(NSError *)error
 {
     _error = error;
@@ -243,8 +251,9 @@ using namespace WhirlyKit;
     if (!samplingLayer)
         return;
     
-    if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(changeTileInfos:) onThread:samplingLayer.layerThread withObject:tileInfos waitUntilDone:false];
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(changeTileInfos:) onThread:thread withObject:tileInfos waitUntilDone:false];
         return;
     }
 
@@ -252,7 +261,7 @@ using namespace WhirlyKit;
     ChangeSet changes;
     loader->setTileInfos(tileInfos);
     loader->reload(NULL,-1,changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 - (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
@@ -260,15 +269,16 @@ using namespace WhirlyKit;
     if (!samplingLayer)
         return;
     
-    if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(changeInterpreter:) onThread:samplingLayer.layerThread withObject:interp waitUntilDone:false];
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(changeInterpreter:) onThread:thread withObject:interp waitUntilDone:false];
         return;
     }
     
     ChangeSet changes;
     loadInterp = interp;
     loader->reload(NULL,-1,changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 - (void)reload
@@ -286,8 +296,9 @@ using namespace WhirlyKit;
     if (!samplingLayer)
         return;
 
-    if ([NSThread currentThread] != samplingLayer.layerThread) {
-        [self performSelector:@selector(reloadAreas:) onThread:samplingLayer.layerThread withObject:bounds waitUntilDone:false];
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(reloadAreas:) onThread:thread withObject:bounds waitUntilDone:false];
         return;
     }
 
@@ -304,7 +315,21 @@ using namespace WhirlyKit;
     
     ChangeSet changes;
     loader->reload(nullptr,-1,boxPtr,(int)boxes.size(),changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
+}
+
+- (void)updatePriorities
+{
+    if (!samplingLayer)
+        return;
+    
+    const auto __strong thread = samplingLayer.layerThread;
+    if ([NSThread currentThread] != thread) {
+        [self performSelector:@selector(updatePriorities) onThread:thread withObject:nil waitUntilDone:false];
+        return;
+    }
+
+    loader->updatePriorities(NULL);
 }
 
 // Called on a random dispatch queue
@@ -423,45 +448,41 @@ using namespace WhirlyKit;
 
         // Hold on to these till the task runs
         NSObject<MaplyLoaderInterpreter> *theLoadInterp = self->loadInterp;
-        MaplyQuadSamplingLayer *samplingLayer = self->samplingLayer;
 
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
                 return;
 
+            auto loadAndMerge = ^{
+                // No load interpreter means the fetcher created the objects.  Hopefully.
+                if (theLoadInterp && !loadReturn->loadReturn->cancel)
+                    [theLoadInterp dataForTile:loadReturn loader:self];
+                
+                // Merge in the results on the sampling layer thread.
+                // If the load was canceled, or we're shutting down and the thread no
+                // longer exists, then we need to clean up the results to avoid leaks.
+                const auto thread = self->samplingLayer.layerThread;
+                if (!thread || [thread isCancelled]) {
+                    [self cleanupLoadedData:loadReturn];
+                } else {
+                    [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
+                }
+            };
+            
             if (theSemaphore) {
                 // Need to limit the number of simultaneous loader return parses
                 dispatch_semaphore_wait(theSemaphore, DISPATCH_TIME_FOREVER);
-                
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    // No load interpreter means the fetcher created the objects.  Hopefully.
-                    if (theLoadInterp && !loadReturn->loadReturn->cancel)
-                        [theLoadInterp dataForTile:loadReturn loader:self];
-                    
-                    // Need to clean up the loader return objects
-                    if ([samplingLayer.layerThread isCancelled]) {
-                        [self cleanupLoadedData:loadReturn];
-                        return;
+                    @try {
+                        loadAndMerge();
+                    } @finally {
+                        // _wait and _signal calls must be balanced
+                        dispatch_semaphore_signal(theSemaphore);
                     }
-
-                    [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
-                    
-                    dispatch_semaphore_signal(theSemaphore);
                 });
             } else {
                 // Just run it on this queue right here
-                
-                // No load interpreter means the fetcher created the objects.  Hopefully.
-                if (theLoadInterp)
-                    [theLoadInterp dataForTile:loadReturn loader:self];
-                
-                // Need to clean up the loader return objects
-                if ([samplingLayer.layerThread isCancelled]) {
-                    [self cleanupLoadedData:loadReturn];
-                    return;
-                }
-
-                [self performSelector:@selector(mergeLoadedTile:) onThread:self->samplingLayer.layerThread withObject:loadReturn waitUntilDone:NO];
+                loadAndMerge();
             }
         });
     }
@@ -470,30 +491,40 @@ using namespace WhirlyKit;
 // Called on the SamplingLayer.LayerThread
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
-    if (!loader || !valid) {
+    const auto __strong thread = samplingLayer.layerThread;
+    if (!loader || !thread || !valid) {
         [self cleanupLoadedData:loadReturn];
         return;
     }
     
     ChangeSet changes;
     if (!loadReturn->loadReturn->changes.empty()) {
-        [samplingLayer.layerThread addChangeRequests:loadReturn->loadReturn->changes];
+        [thread addChangeRequests:loadReturn->loadReturn->changes];
         loadReturn->loadReturn->changes.clear();
     }
     loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
 
     loader->setLoadReturnRef(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,NULL);
 
-    [samplingLayer.layerThread addChangeRequests:changes];
+    [thread addChangeRequests:changes];
 }
 
 - (void)cleanup
 {
     ChangeSet changes;
-    
     loader->cleanup(NULL,changes);
-    [samplingLayer.layerThread addChangeRequests:changes];
-    [samplingLayer.layerThread flushChangeRequests];
+
+    if (!changes.empty()) {
+        const auto __strong thread = samplingLayer.layerThread;
+        if (thread) {
+            [thread addChangeRequests:changes];
+            [thread flushChangeRequests];
+        } else {
+            for (auto change : changes) {
+                delete change;
+            }
+        }
+    }
 
     dispatch_async(dispatch_get_main_queue(), ^{
         [[self.viewC getRenderControl] releaseSamplingLayer:self->samplingLayer forUser:self->loader];
@@ -508,8 +539,9 @@ using namespace WhirlyKit;
 {
     valid = false;
     
-    if (self->samplingLayer && self->samplingLayer.layerThread)
-        [self performSelector:@selector(cleanup) onThread:self->samplingLayer.layerThread withObject:nil waitUntilDone:NO];
+    const auto __strong thread = samplingLayer.layerThread;
+    if (thread)
+        [self performSelector:@selector(cleanup) onThread:thread withObject:nil waitUntilDone:NO];
 }
 
 @end

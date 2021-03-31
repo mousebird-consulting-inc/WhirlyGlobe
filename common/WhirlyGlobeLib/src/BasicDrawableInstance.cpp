@@ -29,7 +29,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
-: Drawable(name), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
+: Drawable(name), numInstances(0), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
 {
 }
     
@@ -253,14 +253,15 @@ void BasicDrawableInstance::setDrawPriority(int newPriority)
 }
 
 /// Set the line width
-void BasicDrawableInstance::setLineWidth(int newLineWidth)
+void BasicDrawableInstance::setLineWidth(float newLineWidth)
 {
     if (hasLineWidth && lineWidth == newLineWidth)
         return;
     
     setValuesChanged();
 
-    hasLineWidth = true;  lineWidth = newLineWidth;
+    hasLineWidth = true;
+    lineWidth = newLineWidth;
 }
     
 void BasicDrawableInstance::setStartTime(TimeInterval inStartTime)
@@ -370,6 +371,12 @@ void BasicDrawableInstance::setTexturesChanged()
     texturesChanged = true;
     if (renderTargetCon)
         renderTargetCon->modified = true;
+}
+
+void BasicDrawableInstance::setInstanceData(int numInstances,RawDataRef data)
+{
+    this->numInstances = numInstances;
+    this->instData = data;
 }
 
 }

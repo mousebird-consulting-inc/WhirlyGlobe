@@ -51,24 +51,22 @@ using namespace WhirlyKit;
     _layerThread = inLayerThread;
     
     // We want view updates, but only every so often
-    if (_layerThread.viewWatcher)
-        [_layerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:controller->getViewUpdatePeriod() minDist:0.0 maxLagTime:10.0];
-    
+    [inLayerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:controller->getViewUpdatePeriod() minDist:0.0 maxLagTime:10.0];
+
     controller->start();
 }
 
 - (void)teardown
-{    
-    ChangeSet changes;
-    
-    if (_layerThread.viewWatcher)
-        [_layerThread.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
+{
+    const auto lt = _layerThread;
+    [lt.viewWatcher removeWatcherTarget:self selector:@selector(viewUpdate:)];
 
+    ChangeSet changes;
     controller->stop(NULL,changes);
     controller = NULL;
-    
-    [_layerThread addChangeRequests:changes];
-    [_layerThread flushChangeRequests];
+
+    [lt addChangeRequests:changes];
+    [lt flushChangeRequests];
 }
 
 static const float DelayPeriod = 0.1;

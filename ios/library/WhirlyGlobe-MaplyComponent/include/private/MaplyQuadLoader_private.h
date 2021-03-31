@@ -66,6 +66,9 @@
 // Force a reload of all tiles in a bounding box
 - (void)reloadAreas:(NSArray<NSValue*>* __nullable)bounds;
 
+// Called on the layer thread.  Recalculates loading priorites and sends those to the fetcher.
+- (void)updatePriorities;
+
 @end
 
 @interface MaplyLoaderReturn()

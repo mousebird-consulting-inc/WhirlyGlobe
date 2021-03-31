@@ -130,6 +130,11 @@
   */
 @property (nonatomic,retain,nullable) NSString *uniqueID;
 
+/**
+    If this is present, we'll render an ID into the mask layer to be used by other features to mask against.
+ */
+@property (nonatomic,retain,nullable) NSString *maskID;
+
 /** 
     User data object for selection
  

@@ -95,6 +95,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
         case SHPT_MULTIPOINTZ:
         {
             VectorPointsRef points = VectorPoints::createPoints();
+            points->pts.reserve(thisShape->nParts);
             theShape = points;
             for (unsigned int ii=0;ii<thisShape->nParts;ii++)
             {
@@ -107,6 +108,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
         case SHPT_ARCZ:
         {
             VectorLinearRef linear = VectorLinear::createLinear();
+            linear->pts.reserve(thisShape->nVertices);
             theShape = linear;
             for (unsigned int ii=0;ii<thisShape->nVertices;ii++)
             {

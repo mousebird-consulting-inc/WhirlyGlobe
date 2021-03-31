@@ -1,9 +1,8 @@
-/*
- *  MaplyView.h
+/*  MaplyView.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Platform.h"
@@ -182,7 +180,7 @@ void MapView::setLoc(WhirlyKit::Point3d newLoc)
     setLoc(newLoc,true);
 }
 
-void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
+void MapView::setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates)
 {
     loc = newLoc;
     
@@ -192,7 +190,7 @@ void MapView::setLoc(WhirlyKit::Point3d &newLoc,bool runUpdates)
     {
         if (loc.z() < heightInflection)
         {
-            double t = 1.0 - (heightInflection - loc.z()) / (heightInflection - absoluteMinHeight);
+            const double t = 1.0 - (heightInflection - loc.z()) / (heightInflection - absoluteMinHeight);
             nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
             farPlane = loc.z()+nearPlane;
         } else {

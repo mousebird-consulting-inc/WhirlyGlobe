@@ -58,12 +58,15 @@ public:
 class FloatExpressionInfo: public ExpressionInfo
 {
 public:
-    FloatExpressionInfo();
-    FloatExpressionInfo(const FloatExpressionInfo &that);
+    FloatExpressionInfo() = default;
+    FloatExpressionInfo(const FloatExpressionInfo &that) = default;
     
     // Scale the outputs by the given value
     void scaleBy(double scale);
-    
+
+    // Evaluate the expression at the given zoom level
+    float evaluate(float zoom, float defaultValue);
+
     std::vector<float> stopOutputs;
 };
 typedef std::shared_ptr<FloatExpressionInfo> FloatExpressionInfoRef;
@@ -72,9 +75,15 @@ typedef std::shared_ptr<FloatExpressionInfo> FloatExpressionInfoRef;
 class ColorExpressionInfo: public ExpressionInfo
 {
 public:
-    ColorExpressionInfo();
-    ColorExpressionInfo(const ColorExpressionInfo &that);
-    
+    ColorExpressionInfo() = default;
+    ColorExpressionInfo(const ColorExpressionInfo &that) = default;
+
+    // Evaluate the expression at the given zoom level
+    RGBAColor evaluate(float zoom, RGBAColor defaultValue);
+
+    // Evaluate directly to floats, with no truncation to integer components
+    Eigen::Vector4f evaluateF(float zoom, RGBAColor defaultValue);
+
     std::vector<RGBAColor> stopOutputs;
 };
 typedef std::shared_ptr<ColorExpressionInfo> ColorExpressionInfoRef;
@@ -95,11 +104,11 @@ public:
     
     /// Set the various parameters on a basic drawable
     void setupBasicDrawable(BasicDrawableBuilder *drawBuild) const;
-    void setupBasicDrawable(BasicDrawableBuilderRef drawBuild) const;
+    void setupBasicDrawable(const BasicDrawableBuilderRef &drawBuild) const;
 
     /// Set the various parameters on a basic drawable instance
     void setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuild) const;
-    void setupBasicDrawableInstance(BasicDrawableInstanceBuilderRef drawBuild) const;
+    void setupBasicDrawableInstance(const BasicDrawableInstanceBuilderRef &drawBuild) const;
 
     double minVis,maxVis;
     double minVisBand,maxVisBand;

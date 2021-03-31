@@ -68,24 +68,28 @@ using namespace WhirlyGlobe;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pan.view;
 //    SceneRenderer *sceneRenderer = [wrapView getRenderer];
 
+    const auto __strong pinchDelegate = _pinchDelegate;
+    const auto __strong pinchRecognizer = pinchDelegate.gestureRecognizer;
     if (pan.state == UIGestureRecognizerStateCancelled)
     {
         [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidEnd object:globeView->tag];
         active = false;
-        if (turnedOffPinch && !_pinchDelegate.gestureRecognizer.enabled)
-            _pinchDelegate.gestureRecognizer.enabled = true;
+        if (turnedOffPinch && !pinchRecognizer.enabled)
+            pinchRecognizer.enabled = true;
         return;
     }
 
     // Need three fingers for tilt
     if ([pan numberOfTouches] != 3)
     {
-        self.gestureRecognizer.enabled = false;
-        self.gestureRecognizer.enabled = true;
+        // reset?
+        const auto __strong gr = self.gestureRecognizer;
+        gr.enabled = false;
+        gr.enabled = true;
         return;
     }
     
-    CGSize frameSize = wrapView.frame.size;
+    const CGSize frameSize = wrapView.frame.size;
     
     switch (pan.state)
     {
@@ -95,10 +99,10 @@ using namespace WhirlyGlobe;
             startTilt = globeView->getTilt();
             startTouch = [pan locationInView:wrapView];
             active = true;
-            if (_pinchDelegate.gestureRecognizer.enabled)
+            if (pinchRecognizer.enabled)
             {
                 turnedOffPinch = true;
-                _pinchDelegate.gestureRecognizer.enabled = false;
+                pinchRecognizer.enabled = false;
             }
             
             [[NSNotificationCenter defaultCenter] postNotificationName:kTiltDelegateDidStart object:globeView->tag];
@@ -127,8 +131,8 @@ using namespace WhirlyGlobe;
             active = false;
             if (turnedOffPinch)
             {
-                if (!_pinchDelegate.gestureRecognizer.enabled)
-                    _pinchDelegate.gestureRecognizer.enabled = true;
+                if (!pinchRecognizer.enabled)
+                    pinchRecognizer.enabled = true;
                 turnedOffPinch = false;
             }
             break;
@@ -138,8 +142,8 @@ using namespace WhirlyGlobe;
             active = false;
             if (turnedOffPinch)
             {
-                if (!_pinchDelegate.gestureRecognizer.enabled)
-                    _pinchDelegate.gestureRecognizer.enabled = true;
+                if (!pinchRecognizer.enabled)
+                    pinchRecognizer.enabled = true;
                 turnedOffPinch = false;
             }
         }

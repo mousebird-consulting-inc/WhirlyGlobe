@@ -33,6 +33,9 @@ typedef unsigned long StringIdentity;
 // Speeds things up on the main thread immensely.
 extern void SetupDrawableStrings();
 
+// Number of entries for masks used in the mask target
+#define WhirlyKitMaxMasks 2
+
 // Names used for indexing into shaders
 extern StringIdentity baseMapNameIDs[];
 extern StringIdentity hasBaseMapNameIDs[];
@@ -72,6 +75,8 @@ extern StringIdentity u_uprightNameID;
 extern StringIdentity u_activerotNameID;
 extern StringIdentity a_rotNameID;
 extern StringIdentity a_dirNameID;
+extern StringIdentity a_maskNameID;
+extern StringIdentity a_maskNameIDs[];
 extern StringIdentity a_texCoordNameID;
 extern StringIdentity u_w2NameID;
 extern StringIdentity u_Realw2NameID;
@@ -102,18 +107,19 @@ public:
     // Return the string for a string identity
     static std::string getString(StringIdentity);
     
-public:
+protected:
+    StringIndexer();
     StringIndexer(StringIndexer const&)     = delete;
     void operator=(StringIndexer const&)    = delete;
+
+    static StringIndexer &getInstance() { return instance; }
     
-protected:
-    StringIndexer() { }
-    
-    static StringIndexer &getInstance();
-    
-    std::mutex mutex;
+    mutable std::mutex mutex;
     std::unordered_map<std::string,StringIdentity> stringToIdent;
     std::vector<std::string> identToString;
+
+private:
+    static StringIndexer instance;
 };
 
 }

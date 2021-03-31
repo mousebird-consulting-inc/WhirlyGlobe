@@ -1,9 +1,9 @@
 /*
- *  MaplyRenderController.h
+ *  MaplyRenderController.mm
  *  WhirlyGlobeMaplyComponent
  *
  *  Created by Stephen Gifford on 1/19/18.
- *  Copyright 2012-2018 Saildrone Inc.
+ *  Copyright 2012-2021 Saildrone Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -212,7 +212,7 @@ using namespace Eigen;
     sceneRenderer->setScene(scene);
 
     // Set up a Font Texture Manager
-    fontTexManager = FontTextureManager_iOSRef(new FontTextureManager_iOS(sceneRenderer.get(),scene));
+    fontTexManager = std::make_shared<FontTextureManager_iOS>(sceneRenderer.get(),scene);
     scene->setFontTextureManager(fontTexManager);
     
     layerThreads = [NSMutableArray array];
@@ -658,6 +658,61 @@ using namespace Eigen;
     }
 }
 
+- (void)startMaskTarget:(NSNumber * __nullable)inScale
+{
+    if (maskRenderTarget)
+        return;
+    
+    double scale = inScale ? [inScale doubleValue] : 0.5;
+    
+    const auto __strong vc = self;
+    CGSize screenSize = [vc getFramebufferSize];
+
+    // Can get into a race on framebuffer setup
+    if (screenSize.width == 0.0) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self startMaskTarget:inScale];
+        });
+        return;
+    }
+
+    screenSize.width *= scale;
+    screenSize.height *= scale;
+
+    // Set up the render target
+    maskTex = [vc createTexture:@{kMaplyTexFormat: @(MaplyImageUInt32)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
+    maskRenderTarget = [[MaplyRenderTarget alloc] init];
+    maskRenderTarget.texture = maskTex;
+    [self addRenderTarget:maskRenderTarget];
+    
+    if (interactLayer) {
+        interactLayer->maskRenderTargetID = [maskRenderTarget renderTargetID];
+        interactLayer->maskTexID = maskTex.texID;
+    }
+    
+    // Any programs that needs the mask texture get it wired in
+    if (Program *prog = scene->findProgramByName(MaplyDefaultWideVectorShader)) {
+        scene->addChangeRequest(new ShaderAddTextureReq(prog->getId(),0,maskTex.texID,0));
+    }
+}
+
+- (void)stopMaskTarget
+{
+    if (interactLayer) {
+        interactLayer->maskRenderTargetID = EmptyIdentity;
+        interactLayer->maskTexID = EmptyIdentity;
+    }
+    
+    if (maskRenderTarget) {
+        [self removeRenderTarget:maskRenderTarget];
+        maskRenderTarget = nil;
+    }
+    if (maskTex) {
+        [self removeTextures:@[maskTex] mode:MaplyThreadCurrent];
+    }
+}
+
+
 - (void)removeObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode
 {
     if (auto wr = WorkRegion(interactLayer)) {
@@ -683,6 +738,27 @@ using namespace Eigen;
 {
     if (auto wr = WorkRegion(interactLayer)) {
         [interactLayer enableObjects:theObjs mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString * _Nullable)repName
+                  ofUUIDs:(NSArray<NSString *> * _Nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (auto wr = WorkRegion(interactLayer))
+    {
+        [interactLayer setRepresentation:repName fallbackRepName:nil ofUUIDs:uuids mode:threadMode];
+    }
+}
+
+- (void)setRepresentation:(NSString * _Nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> * _Nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode
+{
+    if (auto wr = WorkRegion(interactLayer))
+    {
+        [interactLayer setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:uuids mode:threadMode];
     }
 }
 
@@ -868,7 +944,11 @@ using namespace Eigen;
             program:ProgramRef(new ProgramMTL([kMaplyShaderWideVectorExp cStringUsingEncoding:NSASCIIStringEncoding],
                                         [mtlLib newFunctionWithName:@"vertexTri_wideVecExp"],
                                         [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
-
+    [self addShader:kMaplyShaderWideVectorPerformance
+            program:ProgramRef(new ProgramMTL([kMaplyShaderWideVectorPerformance cStringUsingEncoding:NSASCIIStringEncoding],
+                                        [mtlLib newFunctionWithName:@"vertexTri_wideVecPerf"],
+                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVecPerf"]))];
+    
     // Screen Space (motion and regular are the same)
     ProgramRef screenSpace = ProgramRef(new
             ProgramMTL([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],
@@ -876,6 +956,13 @@ using namespace Eigen;
                        [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
     [self addShader:kMaplyScreenSpaceDefaultProgram program:screenSpace];
     [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:screenSpace];
+    
+    // Renders the mask ID to the screen
+    ProgramRef screenSpaceMask = ProgramRef(new
+            ProgramMTL(MaplyScreenSpaceMaskShader,
+                       [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
+                       [mtlLib newFunctionWithName:@"fragmentTri_mask"]));
+    [self addShader:kMaplyScreenSpaceMaskProgram program:screenSpaceMask];
     
     // Screen Space that handles expressions
     ProgramRef screenSpaceExp = ProgramRef(new

@@ -87,7 +87,7 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     }
     
     // Build the argument buffers with all their attendent memory, ready to copy into
-    setupArgBuffers(setupInfo->mtlDevice,setupInfo,scene,buffBuild);
+    setupArgBuffers(setupInfo->mtlDevice,setupInfo,scene,&buffBuild);
     
     // And let's fault in the vertex descriptor as well
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
@@ -329,11 +329,17 @@ namespace {
     const static std::string hasLighting("hasLighting");
 }
 
-void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL &buffBuild)
+void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL *buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
     if (!prog)  // This happens if we're being used by an instance
         return;
+    
+    // GPU frame capture doesn't like when we stuff an argument buffer with textures inside another buffer
+    BufferBuilderMTL *texBuffBuild = NULL;
+#if !DEBUG
+    texBuffBuild = buffBuild;
+#endif
     
     // All of these are optional, but here's what we're expecting
     //   Uniforms
@@ -363,7 +369,7 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
                                                                       setupInfo,
                                                                       prog->vertFunc,
                                                                       WhirlyKitShader::WKSVertTextureArgBuffer,
-                                                                      buffBuild);
+                                                                      texBuffBuild);
     }
     if (prog->fragFunc) {
         fragABInfo = std::make_shared<ArgBuffContentsMTL>(mtlDevice,
@@ -380,7 +386,7 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
                                                                       setupInfo,
                                                                       prog->fragFunc,
                                                                       WhirlyKitShader::WKSFragTextureArgBuffer,
-                                                                      buffBuild);
+                                                                      texBuffBuild);
     }
 }
 
@@ -622,6 +628,10 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
             [cmdEncode drawPrimitives:MTLPrimitiveTypeLine vertexStart:0 vertexCount:numPts];
             break;
         case Triangles:
+            if (numTris == 0) {
+                NSLog(@"BasicDrawableMTL: Found a drawable with no triangles.");
+                return;
+            }
             // This actually draws the triangles (well, in a bit)
             [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle indexCount:numTris*3 indexType:MTLIndexTypeUInt16 indexBuffer:triBuffer.buffer indexBufferOffset:triBuffer.offset];
             break;

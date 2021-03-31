@@ -26,13 +26,14 @@ namespace WhirlyKit
     
 // The scene wants a component manager early in the process
 // This gives it an Android specific one
-ComponentManager *MakeComponentManager()
+ComponentManagerRef MakeComponentManager()
 {
-    return new ComponentManager_Android();
+    return std::make_shared<ComponentManager_Android>();
 }
 
-ComponentManager_Android::ComponentManager_Android()
-: compManagerObj(NULL), objectsRemovedMethod(NULL)
+ComponentManager_Android::ComponentManager_Android() :
+    compManagerObj(nullptr),
+    objectsRemovedMethod(nullptr)
 {
 }
 
@@ -47,13 +48,16 @@ void ComponentManager_Android::clearJNI(JNIEnv *env)
 {
     if (compManagerObj) {
         env->DeleteGlobalRef(compManagerObj);
-        compManagerObj = NULL;
+        compManagerObj = nullptr;
     }
-    objectsRemovedMethod = NULL;
+    objectsRemovedMethod = nullptr;
 }
 
 ComponentManager_Android::~ComponentManager_Android()
 {
+    if (compManagerObj) {
+        wkLogLevel(Warn, "ComponentManager_Android not cleaned up");
+    }
 }
 
 void ComponentManager_Android::removeComponentObjects(PlatformThreadInfo *inThreadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
@@ -75,9 +79,9 @@ void ComponentManager_Android::removeComponentObjects(PlatformThreadInfo *inThre
     threadInfo->env->DeleteLocalRef(idsArray);
 }
 
-ComponentObjectRef ComponentManager_Android::makeComponentObject()
+ComponentObjectRef ComponentManager_Android::makeComponentObject(const Dictionary *desc)
 {
-    return ComponentObjectRef(new ComponentObject());
+    return std::make_shared<ComponentObject>();
 }
 
 }

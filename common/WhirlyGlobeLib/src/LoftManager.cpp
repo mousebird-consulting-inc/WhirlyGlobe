@@ -1,9 +1,8 @@
-/*
- *  LoftManager.mm
+/*  LoftManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LoftManager.h"
@@ -386,6 +384,8 @@ LoftManager::LoftManager()
 }
 LoftManager::~LoftManager()
 {
+    std::lock_guard<std::mutex> guardLock(lock);
+
     for (LoftedPolySceneRepSet::iterator it = loftReps.begin();
          it != loftReps.end(); ++it)
         delete *it;
@@ -532,7 +532,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
     addGeometryToBuilder(sceneRep, polyInfo, shapeMbr, center, centerValid, geoCenter, *shapes, triMesh, outlines, changes);
     
     {
-        std::lock_guard<std::mutex> guardLock(loftLock);
+        std::lock_guard<std::mutex> guardLock(lock);
         loftReps.insert(sceneRep);
     }
     
@@ -542,7 +542,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
 /// Enable/disable lofted polys
 void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(loftLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
     {
@@ -561,7 +561,7 @@ void LoftManager::enableLoftedPolys(const SimpleIDSet &polyIDs,bool enable,Chang
 /// Remove lofted polygons
 void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &changes)
 {
-    std::lock_guard<std::mutex> guardLock(loftLock);
+    std::lock_guard<std::mutex> guardLock(lock);
 
     for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
     {

@@ -298,7 +298,6 @@ protected:
     // Internal object picking method
     void pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs);
 
-    std::mutex mutex;
     Scene *scene;
     /// The selectable objects themselves
     WhirlyKit::RectSelectable3DSet rect3Dselectables;
@@ -309,5 +308,6 @@ protected:
     WhirlyKit::LinearSelectableSet linearSelectables;
     WhirlyKit::BillboardSelectableSet billboardSelectables;
 };
+typedef std::shared_ptr<SelectionManager> SelectionManagerRef;
  
 }

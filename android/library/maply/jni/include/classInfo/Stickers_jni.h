@@ -23,4 +23,4 @@
 
 typedef JavaClassInfo<WhirlyKit::SphericalChunkInfoRef> SphericalChunkInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::SphericalChunk> SphericalChunkClassInfo;
-typedef JavaClassInfo<WhirlyKit::SphericalChunkManager> StickerManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::SphericalChunkManagerRef> StickerManagerClassInfo;

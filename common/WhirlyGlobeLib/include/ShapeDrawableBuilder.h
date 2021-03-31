@@ -37,6 +37,7 @@ public:
     
     ShapeInfo();
     ShapeInfo(const Dictionary &);
+    virtual ~ShapeInfo() = default;
 
 public:
     RGBAColor color;

@@ -40,12 +40,12 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     protected QuadLoaderBase(BaseController inControl)
     {
-        control = new WeakReference<BaseController>(inControl);
+        control = new WeakReference<>(inControl);
     }
 
     protected QuadLoaderBase(BaseController inControl,SamplingParams params,int numFrames,Mode mode)
     {
-        control = new WeakReference<BaseController>(inControl);
+        control = new WeakReference<>(inControl);
         initialise(params,numFrames,mode.ordinal());
     }
 
@@ -82,9 +82,14 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      * Controller associated with this quad loader.
      * This is where you send geometry and such.
      */
-    public BaseController getController()
-    {
-        return control.get();
+    public BaseController getController() {
+        WeakReference<BaseController> wr = control;
+        return (wr != null) ? wr.get() : null;
+    }
+
+    public QuadSamplingLayer getSamplingLayer() {
+        WeakReference<QuadSamplingLayer> wr = samplingLayer;
+        return (wr != null) ? wr.get() : null;
     }
 
     /**
@@ -102,7 +107,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         Mbr mbr = new Mbr();
         mbr.initialize();
         geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
-
         return mbr;
     }
 
@@ -117,6 +121,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *
      *  @return The lower left and upper right corner of the tile in local coordinates.
      */
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public Mbr boundsForTile(TileID tileID)
     {
         Mbr mbr = new Mbr();
@@ -135,6 +140,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *
      *  @return Return the center in display space for the given tile.
      */
+    @SuppressWarnings({"unused", "RedundantSuppression"})
     public Point3d displayCenterForTile(TileID tileID)
     {
         Point3d pt = new Point3d();
@@ -165,23 +171,25 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     /**
      * Change the interpreter for the data coming back.  This will force a reload.
-     * @param newInterp
+     * @param newInterpreter the new instance
      */
-    public void changeLoaderInterpreter(final LoaderInterpreter newInterp) {
-        if (samplingLayer.get() == null)
+    @SuppressWarnings({"unused", "RedundantSuppression"})
+    public void changeLoaderInterpreter(final LoaderInterpreter newInterpreter) {
+        QuadSamplingLayer layer = getSamplingLayer();
+        if (layer == null)
             return;
 
         final QuadLoaderBase theLoader = this;
 
         // Make this change on the layer thread
-        samplingLayer.get().layerThread.addTask(new Runnable() {
-            @Override
-            public void run() {
-                loadInterp = newInterp;
-                newInterp.setLoader(theLoader);
-                ChangeSet changes = new ChangeSet();
-                reloadNative(changes);
-                samplingLayer.get().layerThread.addChanges(changes);
+        layer.layerThread.addTask(() -> {
+            loadInterp = newInterpreter;
+            newInterpreter.setLoader(theLoader);
+            ChangeSet changes = new ChangeSet();
+            reloadNative(changes);
+            QuadSamplingLayer layerInner = getSamplingLayer();
+            if (layerInner != null) {
+                layerInner.layerThread.addChanges(changes);
             }
         });
     }
@@ -199,6 +207,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         return null;
     }
 
+    protected boolean isShuttingDown = false;
+
     /**
      * Turn off the loader and shut things down.
      * <br>
@@ -206,38 +216,48 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public void shutdown()
     {
-        tileFetcher = null;
         loadInterp = null;
-        if (samplingLayer == null || samplingLayer.get() == null || control == null || control.get() == null)
+        QuadSamplingLayer layer = getSamplingLayer();
+        if (layer == null || control == null || getController() == null) {
             return;
+        }
 
-        samplingLayer.get().removeClient(this);
+        isShuttingDown = true;
+        layer.removeClient(this);
         final QuadLoaderBase loaderBase = this;
 
         // Do all the shutdown on the layer thread
-        samplingLayer.get().layerThread.addTask(new Runnable() {
-            @Override
-            public void run() {
-                // Clean things up
-                ChangeSet changes = new ChangeSet();
-                cleanupNative(changes);
+        layer.layerThread.addTask(() -> {
+            // Clean things up
+            ChangeSet changes = new ChangeSet();
+            cleanupNative(changes);
 
-                samplingLayer.get().layerThread.addChanges(changes);
-
-                // Back to the main thread for the sampling layer stuff
-                Handler handler = new Handler(Looper.getMainLooper());
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (control.get() != null)
-                            control.get().releaseSamplingLayer(samplingLayer.get(),loaderBase);
-
-                        samplingLayer.clear();
-                        control.clear();
-                    }
-                });
+            QuadSamplingLayer layerInner = getSamplingLayer();
+            if (layerInner != null) {
+                layerInner.layerThread.addChanges(changes);
             }
+
+            // Back to the main thread for the sampling layer stuff
+            Handler handler = new Handler(Looper.getMainLooper());
+            handler.post(() -> {
+                BaseController ctrl = getController();
+                if (ctrl != null) {
+                    QuadSamplingLayer layerInner2 = getSamplingLayer();
+                    ctrl.releaseSamplingLayer(layerInner2, loaderBase);
+                }
+
+                clear(samplingLayer);
+                clear(control);
+
+                tileFetcher = null;
+            });
         });
+    }
+
+    private static <T> void clear(WeakReference<T> weakRef) {
+        if (weakRef != null) {
+            weakRef.clear();
+        }
     }
 
     protected native void cleanupNative(ChangeSet changes);
@@ -261,11 +281,12 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     private native void samplingLayerDisconnectNative(QuadSamplingLayer layer,ChangeSet changes);
 
     // Used to initialize the loader for certain types of data.
-    public enum Mode {SingleFrame,MultiFrame,Object};
+    public enum Mode {SingleFrame,MultiFrame,Object}
 
     /* --- Callback from C++ side --- */
 
     // Process the cancels and starts we get from the C++ side
+    @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
     public void processBatchOps(QIFBatchOps batchOps)
     {
         batchOps.process(tileFetcher);
@@ -273,7 +294,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     // Frame assets are used C++ side, but we have to hold a reference to them
     //  or they disappear at inopportune times.  We don't look inside them here.
-    HashSet<QIFFrameAsset> frameAssets = new HashSet<QIFFrameAsset>();
+    HashSet<QIFFrameAsset> frameAssets = new HashSet<>();
 
     // Stop tracking a frame asset
     public void clearFrameAsset(QIFFrameAsset frameAsset)
@@ -283,7 +304,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     // Start off fetches for all the frames within a given tile
     // Return an array of corresponding frame assets
-    public void startTileFetch(QIFBatchOps batchOps,QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
+    @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
+    public void startTileFetch(QIFBatchOps batchOps, QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
     {
         if (tileInfos.length == 0 || tileInfos.length != inFrameAssets.length)
             return;
@@ -291,14 +313,14 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         TileID tileID = new TileID();
         tileID.x = tileX;  tileID.y = tileY;  tileID.level = tileLevel;
 
-        final WeakReference<BaseController> holdControl = new WeakReference<BaseController>(control.get());
+        final WeakReference<BaseController> holdControl = new WeakReference<>(getController());
 
-        QIFFrameAsset[] frames = new QIFFrameAsset[tileInfos.length];
+        //QIFFrameAsset[] frames = new QIFFrameAsset[tileInfos.length];
         int frame = 0;
         final QuadLoaderBase loaderBase = this;
         for (TileInfoNew tileInfo : tileInfos) {
             final int fFrame = frame;
-            final int dispFrame = tileInfos.length > 1 ? frame : -1;
+            //final int dispFrame = tileInfos.length > 1 ? frame : -1;
 
             // Put together a fetch request for, you now, fetching
             final TileFetchRequest fetchRequest = new TileFetchRequest();
@@ -324,17 +346,16 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                         theLoadInterp.dataForTile(loadReturn,loaderBase);
 
                     // Merge the data back in on the sampling layer's thread
-                    final QuadSamplingLayer layer = samplingLayer.get();
-                    if (layer != null) {
-                        layer.layerThread.addTask(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (loadInterp != null) {
-                                    ChangeSet changes = new ChangeSet();
-                                    mergeLoaderReturn(loadReturn, changes);
-                                    layer.layerThread.addChanges(changes);
-                                    loadReturn.dispose();
-                                }
+                    final QuadSamplingLayer layer = getSamplingLayer();
+                    if (layer != null && !layer.isShuttingDown && !isShuttingDown) {
+                        layer.layerThread.addTask(() -> {
+                            if (loadInterp != null && !isShuttingDown) {
+                                ChangeSet changes = new ChangeSet();
+                                mergeLoaderReturn(loadReturn, changes);
+                                layer.layerThread.addChanges(changes);
+                                loadReturn.dispose();
+                            } else {
+                                cleanupLoadedData(holdControl, loadReturn);
                             }
                         });
                     } else {
@@ -344,14 +365,15 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
                 @Override
                 public void failure(TileFetchRequest fetchRequest, String errorStr) {
-                    final QuadSamplingLayer layer = samplingLayer.get();
+                    final QuadSamplingLayer layer = getSamplingLayer();
                     if (layer != null) {
-                        layer.layerThread.addTask(new Runnable() {
-                            @Override
-                            public void run() {
+                        layer.layerThread.addTask(() -> {
+                            QuadSamplingLayer layerInner = getSamplingLayer();
+                            if (layerInner != null) {
+                                // Give the C++ code a chance to add changes in this case
                                 ChangeSet changes = new ChangeSet();
                                 mergeLoaderReturn(null, changes);
-                                layer.layerThread.addChanges(changes);
+                                layerInner.layerThread.addChanges(changes);
                             }
                         });
                     }
@@ -371,13 +393,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                 batchOps.addToStart(fetchRequest);
             } else {
                 // There's no fetching to do, so we'll short circuit it
-                new AsyncTask<Void, Void, Void>() {
-                    protected Void doInBackground(Void... unused) {
-                        fetchRequest.callback.success(null, null);
-
-                        return null;
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
+                new BackgroundFetch(fetchRequest)
+                        .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
 
             }
 
@@ -385,10 +402,22 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
+    // This resolves "Warning: This AsyncTask class should be static or leaks might occur" on inline task
+    private static class BackgroundFetch extends AsyncTask<Void, Void, Void> {
+        public BackgroundFetch(TileFetchRequest request) {
+            this.fetchRequest = request;
+        }
+        protected Void doInBackground(Void... unused) {
+            fetchRequest.callback.success(fetchRequest, null);
+            return null;
+        }
+        private final TileFetchRequest fetchRequest;
+    }
+
     // Clean up data that's been processed but we shut down the loader before it got back
     private void cleanupLoadedData(WeakReference<BaseController> inControl,LoaderReturn loadReturn)
     {
-        BaseController theControl = inControl.get();
+        BaseController theControl = (inControl != null) ? inControl.get() : null;
         if (theControl == null)
             return;
 
@@ -414,20 +443,28 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public void reload()
     {
-        if (samplingLayer.get() == null)
-            return;
-
-        samplingLayer.get().layerThread.addTask(new Runnable() {
-            @Override
-            public void run() {
-                ChangeSet changes = new ChangeSet();
-                reloadNative(changes);
-                samplingLayer.get().layerThread.addChanges(changes);
-            }
-        });
+        reloadArea(null);
     }
 
     protected native void reloadNative(ChangeSet changes);
+
+    public void reloadArea(Mbr[] areas) {
+        QuadSamplingLayer layer = getSamplingLayer();
+        if (layer != null) {
+            layer.layerThread.addTask(() -> {
+                QuadSamplingLayer layerInner = getSamplingLayer();
+                if (layerInner != null) {
+                    ChangeSet changes = new ChangeSet();
+                    reloadAreaNative(changes,areas);
+                    layerInner.layerThread.addChanges(changes);
+                }
+            });
+        }
+    }
+
+    protected native void reloadAreaNative(ChangeSet changes,Mbr[] areas);
+
+    public native int getZoomSlot();
 
     public void finalize()
     {
@@ -440,5 +477,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     private static native void nativeInit();
     native void initialise(SamplingParams params,int numFrames,int mode);
     native void dispose();
+    @SuppressWarnings({"unused", "RedundantSuppression"})   // Used from C++
     private long nativeHandle;
 }

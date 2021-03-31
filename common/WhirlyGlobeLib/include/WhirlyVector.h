@@ -1,9 +1,8 @@
-/*
- *  WhirlyVector.h
+/*  WhirlyVector.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 // Note: This works around a problem in compilation for the iphone
@@ -76,14 +74,17 @@ public:
 	
 typedef std::vector<GeoCoord,Eigen::aligned_allocator<GeoCoord> > GeoCoordVector;
 
-/// Color. RGBA, 8 bits per
+/// Color. RGBA, 8 bits per channel.
 class RGBAColor
 {
 public:
-	RGBAColor() { }
+	RGBAColor() = default;
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
-    
+
+    RGBAColor withAlpha(int newA) const { return RGBAColor(r,g,b,(uint8_t)newA); }
+    RGBAColor withAlpha(double newA) const { return RGBAColor(r,g,b,(uint8_t)(newA * 255)); }
+
     // Create an RGBColor from unit floats
     static RGBAColor FromUnitFloats(float *ret) {
         return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
@@ -157,7 +158,9 @@ public:
     
     /// Returns as a 4 component array of unsigned chars
     void asUChar4(unsigned char *ret) const { ret[0] = r; ret[1] = g; ret[2] = b; ret[3] = a; }
-    
+
+    Eigen::Vector4f asRGBAVecF() const { return {r/255.f,g/255.f,b/255.f,a/255.f}; }
+
     bool operator == (const RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
 //    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
     RGBAColor operator * (float alpha) const { return RGBAColor(r*alpha,g*alpha,b*alpha,a*alpha); }

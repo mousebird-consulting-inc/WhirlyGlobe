@@ -23,14 +23,29 @@
 namespace WhirlyKit
 {
 
-LabelInfoAndroid::LabelInfoAndroid(bool screenObject)
-: LabelInfo(screenObject), typefaceObj(NULL), labelInfoObj(NULL)
+LabelInfoAndroid::LabelInfoAndroid(bool screenObject) :
+	LabelInfo(screenObject),
+	typefaceObj(nullptr),
+	labelInfoObj(nullptr)
 {
 }
 
-LabelInfoAndroid::LabelInfoAndroid(const LabelInfoAndroid &that)
-: LabelInfo(that), typefaceObj(that.typefaceObj), fontSize(that.fontSize), labelInfoObj(that.labelInfoObj)
+LabelInfoAndroid::LabelInfoAndroid(LabelInfoAndroid &&that) noexcept :
+	LabelInfo(that),
+	typefaceObj(that.typefaceObj),
+	fontSize(that.fontSize),
+	labelInfoObj(that.labelInfoObj)
 {
+	// ensure that the reference isn't released twice
+	that.typefaceObj = nullptr;
+}
+
+LabelInfoAndroid::~LabelInfoAndroid()
+{
+	// should have been cleaned up through clearRefs()
+	if (labelInfoObj) {
+		wkLogLevel(Warn, "LabelInfoAndroid not cleaned up");
+	}
 }
 
 void LabelInfoAndroid::clearRefs(PlatformInfo_Android *threadInfo)
@@ -38,7 +53,7 @@ void LabelInfoAndroid::clearRefs(PlatformInfo_Android *threadInfo)
 	if (typefaceObj)
 	{
 		threadInfo->env->DeleteGlobalRef(typefaceObj);
-		typefaceObj = NULL;
+		typefaceObj = nullptr;
 	}
 }
 
@@ -62,8 +77,9 @@ void LabelInfoAndroid::setTypeface(PlatformInfo_Android *threadInfo,jobject inTy
 	if (typefaceObj)
 		clearRefs(threadInfo);
 
-	if (inTypefaceObj)
+	if (inTypefaceObj) {
 		typefaceObj = threadInfo->env->NewGlobalRef(inTypefaceObj);
+	}
 }
 
 }

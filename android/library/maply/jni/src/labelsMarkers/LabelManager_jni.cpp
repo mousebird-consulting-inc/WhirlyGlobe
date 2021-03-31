@@ -1,9 +1,8 @@
-/*
- *  LabelManager_jni.cpp
+/*  LabelManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LabelsAndMarkers_jni.h"
@@ -26,27 +24,27 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-static const char *SceneHandleName = "nativeSceneHandle";
+//static const char *SceneHandleName = "nativeSceneHandle";
 
-typedef JavaClassInfo<LabelManager> LabelManagerClassInfo;
-template<> LabelManagerClassInfo *LabelManagerClassInfo::classInfoObj = NULL;
+typedef JavaClassInfo<LabelManagerRef> LabelManagerClassInfo;
+template<> LabelManagerClassInfo *LabelManagerClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_nativeInit
-  (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_nativeInit(JNIEnv *env, jclass cls)
 {
 	LabelManagerClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise
-  (JNIEnv *env, jobject obj, jobject sceneObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise(JNIEnv *env, jobject obj, jobject sceneObj)
 {
 	try
 	{
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
-        if (!scene)
-            return;
-		LabelManager *labelManager = dynamic_cast<LabelManager *>(scene->getManager(kWKLabelManager));
-		LabelManagerClassInfo::getClassInfo()->setHandle(env,obj,labelManager);
+        if (auto scene = SceneClassInfo::get(env, sceneObj))
+        {
+            auto labelManager = scene->getManager<LabelManager>(kWKLabelManager);
+            LabelManagerClassInfo::getClassInfo()->setHandle(env, obj,new LabelManagerRef(labelManager));
+        }
 	}
 	catch (...)
 	{
@@ -56,12 +54,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_dispose
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_dispose(JNIEnv *env, jobject obj)
 {
 	try
 	{
-		LabelManagerClassInfo::getClassInfo()->clearHandle(env,obj);
+		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
+		LabelManagerRef *labelManager = classInfo->getObject(env,obj);
+		delete labelManager;
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
@@ -69,13 +70,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_dispose
 	}
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
   (JNIEnv *env, jobject obj, jobjectArray labelArray, jobject labelInfoObj, jobject changeSetObj)
 {
 	try
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
-		LabelManager *labelManager = classInfo->getObject(env,obj);
+		LabelManagerRef *labelManager = classInfo->getObject(env,obj);
         LabelInfoAndroidRef *labelInfo = LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !labelInfo || !changeSet)
@@ -102,18 +104,16 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		// Resolve a missing program
 		if ((*labelInfo)->programID == EmptyIdentity)
         {
-			ProgramGLES *prog = NULL;
-            if (isMoving)
-                prog = (ProgramGLES *)labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
-            else
-                prog = (ProgramGLES *)labelManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultShader);
-            if (prog)
-                (*labelInfo)->programID = prog->getId();
+			if (auto prog = (ProgramGLES *)(*labelManager)->getScene()->findProgramByName(
+			        isMoving ? MaplyScreenSpaceDefaultMotionShader : MaplyScreenSpaceDefaultShader))
+            {
+			    (*labelInfo)->programID = prog->getId();
+            }
         }
 		PlatformInfo_Android platformInfo(env);
-		SimpleIdentity labelId = labelManager->addLabels(&platformInfo,labels,*(*labelInfo),*(changeSet->get()));
+		SimpleIdentity labelId = (*labelManager)->addLabels(&platformInfo,labels,*(*labelInfo),*(changeSet->get()));
 
-        (*labelInfo)->labelInfoObj = NULL;
+        (*labelInfo)->labelInfoObj = nullptr;
 
 		return labelId;
 	}
@@ -125,13 +125,14 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
   (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeSetObj)
 {
 	try
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
-		LabelManager *labelManager = classInfo->getObject(env,obj);
+		LabelManagerRef *labelManager = classInfo->getObject(env,obj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
@@ -140,7 +141,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		PlatformInfo_Android platformInfo(env);
-		labelManager->removeLabels(&platformInfo,idSet,*(changeSet->get()));
+		(*labelManager)->removeLabels(&platformInfo,idSet,*(changeSet->get()));
 	}
 	catch (...)
 	{
@@ -148,13 +149,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_enableLabels
   (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
 {
 	try
 	{
 		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
-		LabelManager *labelManager = classInfo->getObject(env,obj);
+		LabelManagerRef *labelManager = classInfo->getObject(env,obj);
 		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
 		if (!labelManager || !changeSet)
 			return;
@@ -162,7 +164,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_enableLabels
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		labelManager->enableLabels(idSet,enable,*(changeSet->get()));
+		(*labelManager)->enableLabels(idSet,enable,*(changeSet->get()));
 	}
 	catch (...)
 	{

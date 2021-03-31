@@ -298,12 +298,11 @@ const bool HeapManagerMTL::UseHeaps =
 HeapManagerMTL::HeapManagerMTL(id<MTLDevice> mtlDevice)
 : mtlDevice(mtlDevice)
 {
+    memAlign = [mtlDevice heapBufferSizeAndAlignWithLength:1 options:MTLResourceUsageRead].align;
 }
 
 id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-    
     HeapGroup &heapGroup = heapGroups[heapType];
     for (auto heap : heapGroup.heaps) {
         MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
@@ -328,8 +327,6 @@ id<MTLHeap> HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
 
 id<MTLHeap> HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t size)
 {
-    std::lock_guard<std::mutex> guardLock(texLock);
-
     for (auto heap : texGroups.heaps) {
         MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
         size = sAlign.size;
@@ -356,8 +353,12 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
 {
     BufferEntryMTL buffer;
     if (UseHeaps) {
-        buffer.heap = findHeap(heapType,size);
-        buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        {
+            std::lock_guard<std::mutex> guardLock(lock);
+
+            buffer.heap = findHeap(heapType,size);
+            buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        }
         if (!buffer.buffer) {
             NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
             buffer.valid = false;
@@ -365,6 +366,11 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
         }
         buffer.offset = 0;
     } else {
+        size_t extra = size % memAlign;
+        if (extra > 0) {
+            size += memAlign - extra;
+        }
+
         buffer.buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
         buffer.heap = nil;
         buffer.offset = 0;
@@ -378,8 +384,12 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data
 {
     BufferEntryMTL buffer;
     if (UseHeaps) {
-        buffer.heap = findHeap(heapType,size);
-        buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        {
+            std::lock_guard<std::mutex> guardLock(lock);
+
+            buffer.heap = findHeap(heapType,size);
+            buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+        }
         if (!buffer.buffer) {
             NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
             buffer.valid = false;
@@ -407,6 +417,8 @@ TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *d
         // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
         for (unsigned int ii=0;ii<3;ii++)
             if (!tex.tex) {
+                std::lock_guard<std::mutex> guardLock(texLock);
+
                 tex.heap = findTextureHeap(desc, (1<<ii)*size);
                 tex.tex = [tex.heap newTextureWithDescriptor:desc];
                 if (tex.tex)

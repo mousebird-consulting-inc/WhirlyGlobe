@@ -24,11 +24,8 @@
 
 - (std::string) asStdString
 {
-    const char *tmpStr = [self cStringUsingEncoding:NSASCIIStringEncoding];
-    if (!tmpStr)
-        return "";
-    std::string newStr(tmpStr);
-    return newStr;
+    const char * const tmpStr = [self cStringUsingEncoding:NSUTF8StringEncoding];
+    return tmpStr ? std::string(tmpStr) : std::string();
 }
 
 // Courtesy: http://stackoverflow.com/questions/3552195/how-to-convert-stdstring-to-nsstring

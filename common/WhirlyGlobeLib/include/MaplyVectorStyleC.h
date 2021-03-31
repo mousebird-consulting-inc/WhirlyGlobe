@@ -1,9 +1,8 @@
-/*
-*  MaplyVectorStyleC.h
+/* MaplyVectorStyleC.h
 *  WhirlyGlobe-MaplyComponent
 *
 *  Created by Steve Gifford on 4/9/20.
-*  Copyright 2011-2020 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
-*
 */
 
 #import "VectorObject.h"
@@ -114,8 +112,8 @@ typedef std::shared_ptr<VectorStyleImpl> VectorStyleImplRef;
 class VectorStyleDelegateImpl
 {
 public:
-    VectorStyleDelegateImpl() { }
-    virtual ~VectorStyleDelegateImpl() { }
+    VectorStyleDelegateImpl() = default;
+    virtual ~VectorStyleDelegateImpl() = default;
 
     /// Return the styles that apply to the given feature (attributes).
     virtual std::vector<VectorStyleImplRef> stylesForFeature(PlatformThreadInfo *inst,
@@ -131,17 +129,20 @@ public:
     /// Return the style associated with the given UUID.
     virtual VectorStyleImplRef styleForUUID(PlatformThreadInfo *inst,long long uuid) = 0;
 
-    // Return a list of all the styles in no particular order.  Needed for categories and indexing
+    /// Return a list of all the styles in no particular order.  Needed for categories and indexing
     virtual std::vector<VectorStyleImplRef> allStyles(PlatformThreadInfo *inst) = 0;
 
-    // Return the style entry for the background, if any
+    /// Return the style entry for the background, if any
     virtual VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const = 0;
 
     /// Return the background color for a given zoom level
     virtual RGBAColorRef backgroundColor(PlatformThreadInfo *inst,double zoom) = 0;
-    
+
+    /// Get the zoom slot, or -1
+    virtual int getZoomSlot() const { return -1; }
+
     /// Capture the zoom slot if you're going use it
-    virtual void setZoomSlot(int zoomSlot) { };
+    virtual void setZoomSlot(int zoomSlot) { }
 };
 typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 
@@ -154,18 +155,24 @@ public:
     VectorStyleImpl() { }
     virtual ~VectorStyleImpl() { }
 
+    virtual std::string getIdent() const { return std::string(); }
+    virtual std::string getType() const { return std::string(); }
+
     /// Unique Identifier for this style
     virtual long long getUuid(PlatformThreadInfo *inst) = 0;
     
     /// Category used for sorting
     virtual std::string getCategory(PlatformThreadInfo *inst) = 0;
-    
+
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
     virtual bool geomAdditive(PlatformThreadInfo *inst) = 0;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(PlatformThreadInfo *inst, std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo) = 0;
+    virtual void buildObjects(PlatformThreadInfo *inst,
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) = 0;
 };
 
 }

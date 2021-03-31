@@ -47,12 +47,12 @@ public:
     // Copy constructor
     MutableDictionaryC(const MutableDictionaryC &that);
     // Move constructor
-    MutableDictionaryC(MutableDictionaryC &&that);
+    MutableDictionaryC(MutableDictionaryC &&that) noexcept;
     // Assignment operator
     MutableDictionaryC &operator = (const MutableDictionaryC &that);
     // Move assignment operator
-    MutableDictionaryC &operator = (MutableDictionaryC &&that);
-    virtual ~MutableDictionaryC();
+    MutableDictionaryC &operator = (MutableDictionaryC &&that) noexcept;
+    virtual ~MutableDictionaryC() = default;
 
     virtual MutableDictionaryRef copy() const override { return std::make_shared<MutableDictionaryC>(*this); }
 
@@ -60,6 +60,9 @@ public:
 //    bool parseJSON(const std::string jsonString);
 //    bool parseJSONNode(JSONNode &node);
 //    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
+
+    virtual int count() const override { return numFields(); }
+    virtual bool empty() const override { return numFields() == 0; }
 
     /// Clean out the contents
     void clear() override;
@@ -80,23 +83,23 @@ public:
     void removeField(unsigned int key);
 
     /// Return an int, using the default if it's missing
-    virtual int getInt(const std::string &name,int defVal=0.0) const override;
-    virtual int getInt(unsigned int key,int defVal=0.0) const;
+    virtual int getInt(const std::string &name,int defVal) const override;
+    virtual int getInt(unsigned int key,int defVal) const;
     /// Return a 64 bit unique identity or 0 if missing
     virtual SimpleIdentity getIdentity(const std::string &name) const override;
     virtual SimpleIdentity getIdentity(unsigned int key) const;
     /// Return a 64 bit value or 0 if missing
-    virtual int64_t getInt64(const std::string &name,int64_t defVal=0) const override;
-    virtual int64_t getInt64(unsigned int key,int64_t defVal=0) const;
+    virtual int64_t getInt64(const std::string &name,int64_t defVal) const override;
+    virtual int64_t getInt64(unsigned int key,int64_t defVal) const;
     /// Interpret an int as a boolean
-    virtual bool getBool(const std::string &name,bool defVal=false) const override;
-    virtual bool getBool(unsigned int key,bool defVal=false) const;
+    virtual bool getBool(const std::string &name,bool defVal) const override;
+    virtual bool getBool(unsigned int key,bool defVal) const;
     /// Interpret an int as a RGBA color
     virtual RGBAColor getColor(const std::string &name,const RGBAColor &defVal) const override;
     virtual RGBAColor getColor(unsigned int key,const RGBAColor &defVal) const;
-    /// Return a double, using the default if it's missingf
-    virtual double getDouble(const std::string &name,double defVal=0.0) const override;
-    virtual double getDouble(unsigned int key,double defVal=0.0) const;
+    /// Return a double, using the default if it's missing
+    virtual double getDouble(const std::string &name,double defVal) const override;
+    virtual double getDouble(unsigned int key,double defVal) const;
     /// Return a string, or empty if it's missing
     virtual std::string getString(const std::string &name) const override;
     virtual std::string getString(unsigned int key) const;
@@ -121,6 +124,9 @@ public:
     /// Set field as int
     void setInt(const std::string &name,int val) override;
     void setInt(unsigned int key,int val);
+    /// Set field as int64
+    virtual void setInt64(const std::string &name,int64_t val) override;
+    virtual void setInt64(unsigned int key,int64_t val);
     /// Set field as 64 bit unique value
     void setIdentifiable(const std::string &name,SimpleIdentity val) override;
     void setIdentifiable(unsigned int key,SimpleIdentity val);
@@ -260,6 +266,7 @@ public:
     DictionaryEntryCBasic(int iVal)     : DictionaryEntryC(DictTypeInt),    val { .iVal   = iVal } { }
     DictionaryEntryCBasic(double dVal)  : DictionaryEntryC(DictTypeDouble), val { .dVal   = dVal } { }
     DictionaryEntryCBasic(int64_t iVal) : DictionaryEntryC(DictTypeInt64),  val { .i64Val = iVal } { }
+    virtual ~DictionaryEntryCBasic() = default;
 
     /// Return an int, using the default if it's missing
     virtual int getInt() const override;
@@ -292,6 +299,11 @@ public:
         : DictionaryEntryC(DictTypeString), str(str)
     {
     }
+    DictionaryEntryCString(std::string &&str)
+            : DictionaryEntryC(DictTypeString), str(std::move(str))
+    {
+    }
+    virtual ~DictionaryEntryCString() = default;
 
     const std::string &getStringRef() const { return str; }
 
@@ -317,6 +329,11 @@ public:
         : DictionaryEntryC(DictTypeDictionary), dict(dict)
     {
     }
+    DictionaryEntryCDict(MutableDictionaryCRef &&dict)
+            : DictionaryEntryC(DictTypeDictionary), dict(std::move(dict))
+    {
+    }
+    virtual ~DictionaryEntryCDict() = default;
 
     /// Return a dictionary as an entry
     virtual DictionaryRef getDict() const override { return dict; }
@@ -338,7 +355,12 @@ public:
         : DictionaryEntryC(DictTypeArray), vals(vals)
     {
     }
+    DictionaryEntryCArray(std::vector<DictionaryEntryCRef> &&vals) noexcept
+            : DictionaryEntryC(DictTypeArray), vals(std::move(vals))
+    {
+    }
     DictionaryEntryCArray(const std::vector<DictionaryEntryRef> &vals);
+    virtual ~DictionaryEntryCArray() = default;
 
     /// Return the array
     virtual std::vector<DictionaryEntryRef> getArray() const override;

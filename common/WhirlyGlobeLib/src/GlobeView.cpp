@@ -382,36 +382,30 @@ float GlobeView::calcZbufferRes()
 }
 
 // Construct a rotation to the given location
-//  and return it.  Doesn't actually do anything yet.
 Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const WhirlyKit::Point2d &worldCoord,bool northUp)
 {
-    Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
+    const Point3d worldLoc = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal(worldCoord));
     
     // Let's rotate to where they tapped over a 1sec period
-    Vector3d curUp = currentUp();
+    const Vector3d curUp = currentUp();
     
     // The rotation from where we are to where we tapped
-    Eigen::Quaterniond endRot;
-    endRot = QuatFromTwoVectors(worldLoc,curUp);
-    Eigen::Quaterniond curRotQuat = rotQuat;
-    Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
+    const Eigen::Quaterniond endRot = QuatFromTwoVectors(worldLoc,curUp);
+    const Eigen::Quaterniond curRotQuat = rotQuat;
+    const Eigen::Quaterniond newRotQuat = curRotQuat * endRot;
     
     if (northUp)
     {
         // We'd like to keep the north pole pointed up
         // So we look at where the north pole is going
-        Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
+        const Vector3d northPole = (newRotQuat * Vector3d(0,0,1)).normalized();
         if (northPole.y() != 0.0)
         {
-            // Then rotate it back on to the YZ axis
-            // This will keep it upward
-            float ang = atan(northPole.x()/northPole.y());
-            // However, the pole might be down now
-            // If so, rotate it back up
-            if (northPole.y() < 0.0)
-                ang += M_PI;
-            Eigen::AngleAxisd upRot(ang,worldLoc);
-            newRotQuat = newRotQuat * upRot;
+            // Then rotate it back on to the YZ axis, this will keep it upward.
+            // However, the pole might be down now.  If so, rotate it back up.
+            // todo: would `atan2` be simpler?
+            const float ang = atan(northPole.x()/northPole.y()) + ((northPole.y() < 0.0) ? M_PI : 0.0);
+            return newRotQuat * Eigen::AngleAxisd(ang,worldLoc);
         }
     }
     
@@ -478,10 +472,10 @@ Eigen::Vector3d GlobeViewState::currentUp()
 }
 
 
-bool GlobeViewState::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d &modelTrans,const Point2f &frameSize,Point3d &hit)
+bool GlobeViewState::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d &modelTrans,const Point2f &frameSize,Point3d &hit,bool clip)
 {
     // Back project the point from screen space into model space
-    Point3d screenPt = pointUnproject(Point2d(pt.x(),pt.y()),frameSize.x(),frameSize.y(),true);
+    Point3d screenPt = pointUnproject(Point2d(pt.x(),pt.y()),frameSize.x(),frameSize.y(),clip);
     
     // Run the screen point and the eye point (origin) back through
     //  the model matrix to get a direction and origin in model space

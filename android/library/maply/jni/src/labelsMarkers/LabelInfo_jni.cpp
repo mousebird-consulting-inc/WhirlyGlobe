@@ -1,9 +1,8 @@
-/*
- *  LabelInfo_jni.cpp
+/*  LabelInfo_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LabelsAndMarkers_jni.h"
@@ -23,16 +21,16 @@
 
 using namespace WhirlyKit;
 
-template<> LabelInfoClassInfo *LabelInfoClassInfo::classInfoObj = NULL;
+template<> LabelInfoClassInfo *LabelInfoClassInfo::classInfoObj = nullptr;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_nativeInit
-  (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_nativeInit(JNIEnv *env, jclass cls)
 {
 	LabelInfoClassInfo::getClassInfo(env,cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -47,8 +45,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -56,13 +54,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
             LabelInfoAndroidRef *info = classInfo->getObject(env,obj);
-            if (!info)
-                return;
-            PlatformInfo_Android platformInfo(env);
-            (*info)->clearRefs(&platformInfo);
-            delete info;
-
-            classInfo->clearHandle(env,obj);
+            if (info) {
+                PlatformInfo_Android platformInfo(env);
+                (*info)->clearRefs(&platformInfo);
+                delete info;
+                classInfo->clearHandle(env,obj);
+            }
         }
 	}
 	catch (...)
@@ -71,8 +68,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_dispose
 	}
 }
 
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -92,6 +89,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getTextColor
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextColor
   (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -109,6 +107,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextColor
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
   (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -126,6 +125,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setBackgroundColor
 	}
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackgroundColor
   (JNIEnv *env, jobject obj)
 {
@@ -147,6 +147,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getBackgroundColor
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
   (JNIEnv *env, jobject obj, jobject typefaceObj)
 {
@@ -165,6 +166,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTypefaceNative
 	}
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
   (JNIEnv *env, jobject obj)
 {
@@ -185,6 +187,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
     return NULL;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSizeNative
   (JNIEnv *env, jobject obj, jfloat fontSize)
 {
@@ -203,6 +206,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontSizeNative
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
 (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -220,6 +224,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineColor
     }
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
 (JNIEnv *env, jobject obj)
 {
@@ -241,6 +246,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineColor
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
 (JNIEnv *env, jobject obj, jfloat outlineSize)
 {
@@ -259,6 +265,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setOutlineSize
     }
 }
 
+extern "C"
 JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
 (JNIEnv *env, jobject obj)
 {
@@ -280,6 +287,7 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getOutlineSize
     return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowColor
 (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -297,8 +305,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowColor
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize
-(JNIEnv *env, jobject obj, jfloat shadowSize)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize(JNIEnv *env, jobject obj, jfloat shadowSize)
 {
     try
     {
@@ -315,8 +323,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setShadowSize
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
-(JNIEnv *env, jobject obj, jint textLayout)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative(JNIEnv *env, jobject obj, jint textLayout)
 {
     try
     {
@@ -333,8 +341,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setTextJustifyNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeight
-(JNIEnv *env, jobject obj, jfloat lineSize)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setLineHeight(JNIEnv *env, jobject obj, jfloat lineSize)
 {
     try
     {

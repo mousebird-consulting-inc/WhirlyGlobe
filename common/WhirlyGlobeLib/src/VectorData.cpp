@@ -27,108 +27,104 @@
 namespace WhirlyKit
 {
 
-// Calculate area of a single loop
-float CalcLoopArea(const VectorRing &loop)
+template <typename T>
+double CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
 {
-    float area = 0.0;
-    for (unsigned int ii=0;ii<loop.size();ii++)
+    if (loop.empty())
     {
-        const Point2f &p1 = loop[ii];
-        const Point2f &p2 = loop[(ii+1)%loop.size()];
+        return 0;
+    }
+    // If the loop returns to the initial point, stop there.
+    // If it does not, force it to be closed by re-considering the first point.
+    const bool closed = !loop.empty() && loop.front() == loop.back();
+    const auto loopSize = loop.size();
+    const auto maxIter = closed ? loopSize - 1 : loopSize;
+
+    double area = 0.0;
+    for (unsigned int ii=0;ii<maxIter;ii++)
+    {
+        const auto &p1 = loop[ii];
+        const auto &p2 = loop[(ii+1)%loopSize];
         area += p1.x()*p2.y() - p1.y()*p2.x();
     }
-    
     return area;
 }
-    
-double CalcLoopArea(const Point2dVector &loop)
-{
-    double area = 0.0;
-    for (unsigned int ii=0;ii<loop.size();ii++)
-    {
-        const Point2d &p1 = loop[ii];
-        const Point2d &p2 = loop[(ii+1)%loop.size()];
-        area += p1.x()*p2.y() - p1.y()*p2.x();
-    }
-    
-    return area;    
-}
-    
-Point2f CalcLoopCentroid(const VectorRing &loop)
-{
-    Point2f centroid(0,0);
-    
-    float area = 0.0;
-    for (unsigned int ii=0;ii<loop.size()-1;ii++)
-    {
-        const Point2f p0 = loop[ii];
-        const Point2f p1 = loop[(ii+1)%loop.size()];
-        area += (p0.x()*p1.y()-p1.x()*p0.y());
-    }
-    area /= 2.0;
-    
-    Point2f sum(0,0);
-    for (unsigned int ii=0;ii<loop.size()-1;ii++)
-    {
-        const Point2f p0 = loop[ii];
-        const Point2f p1 = loop[(ii+1)%loop.size()];
-        float b = (p0.x()*p1.y()-p1.x()*p0.y());
-        sum.x() += (p0.x()+p1.x())*b;
-        sum.y() += (p0.y()+p1.y())*b;
-    }
-    centroid.x() = sum.x()/(6*area);
-    centroid.y() = sum.y()/(6*area);
-    
-    return centroid;
-}
 
-Point2d CalcLoopCentroid(const Point2dVector &loop)
+// Calculate the centroid of a loop when the area is already known
+template <typename T>
+T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>> &loop, double loopArea)
 {
-    Point2d centroid(0,0);
-    
-    double area = 0.0;
-    for (unsigned int ii=0;ii<loop.size()-1;ii++)
-    {
-        const Point2d p0 = loop[ii];
-        const Point2d p1 = loop[(ii+1)%loop.size()];
-        area += (p0.x()*p1.y()-p1.x()*p0.y());
-    }
-    area /= 2.0;
-    
-    Point2d sum(0,0);
-    for (unsigned int ii=0;ii<loop.size()-1;ii++)
-    {
-        const Point2d p0 = loop[ii];
-        const Point2d p1 = loop[(ii+1)%loop.size()];
-        double b = (p0.x()*p1.y()-p1.x()*p0.y());
-        sum.x() += (p0.x()+p1.x())*b;
-        sum.y() += (p0.y()+p1.y())*b;
-    }
-    centroid.x() = sum.x()/(6*area);
-    centroid.y() = sum.y()/(6*area);
-    
-    return centroid;
-}
-
-Point2d CalcCenterOfMass(const Point2dVector &loop)
-{
-    Point2d center(0,0);
-
     if (loop.empty())
-        return center;
-        
-    for (auto &pt : loop)
-        center += pt;
-    center /= loop.size();
+    {
+        return {0,0};
+    }
+    // Area must be positive or negative, not zero or NaN, etc.
+    if (loopArea == 0 || !isfinite(loopArea))
+    {
+        assert(!"invalid loop area");
+        return {0,0};
+    }
 
-    return center;
+    // If the loop closes back to the initial point, stop there.
+    // If it does not, force it to be closed by re-considering the first point.
+    const bool closed = !loop.empty() && loop.front() == loop.back();
+    const auto loopSize = loop.size();
+    const auto maxIter = closed ? loopSize - 1 : loopSize;
+
+    double sumX = 0, sumY = 0;
+    for (unsigned int ii=0;ii<maxIter;ii++)
+    {
+        const auto &p0 = loop[ii];
+        const auto &p1 = loop[(ii+1)%loopSize];
+        const double b = (p0.x()*p1.y()-p1.x()*p0.y());
+        sumX += (p0.x()+p1.x())*b;
+        sumY += (p0.y()+p1.y())*b;
+    }
+
+    return {static_cast<typename T::Scalar>(sumX/(3*loopArea)),
+            static_cast<typename T::Scalar>(sumY/(3*loopArea))};
 }
+
+// Calculate the centroid of an arbitrary loop
+template <typename T>
+T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
+{
+    return CalcLoopCentroid(loop, CalcLoopArea(loop));
+}
+
+template <typename T>
+T CalcCenterOfMass(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
+{
+    if (loop.empty()) {
+        return {0,0};
+    }
+
+    double cx = 0, cy = 0;
+    for (const auto &pt : loop) {
+        cx += pt.x();
+        cy += pt.y();
+    }
+
+    return {static_cast<typename T::Scalar>(cx/loop.size()),
+            static_cast<typename T::Scalar>(cy/loop.size())};
+}
+
+// Export specific instantiations of the templates above.
+template double CalcLoopArea<Point2f>(const VectorRing&);
+template double CalcLoopArea<Point2d>(const Point2dVector&);
+template Point2f CalcLoopCentroid(const VectorRing&);
+template Point2d CalcLoopCentroid(const Point2dVector&);
+template Point2f CalcLoopCentroid(const VectorRing&, double);
+template Point2d CalcLoopCentroid(const Point2dVector&, double);
+template Point2f CalcCenterOfMass(const VectorRing&);
+template Point2d CalcCenterOfMass(const Point2dVector&);
 
 // Break any edge longer than the given length
-// Returns true if it broke anything.  If it didn't, doesn't fill in outPts
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen)
 {
-    float maxLen2 = maxLen*maxLen;
+    const float maxLen2 = maxLen*maxLen;
+
+    outPts.reserve(inPts.size());
     
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
@@ -136,15 +132,14 @@ void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
         outPts.push_back(p0);
         Point2f dir = p1-p0;
-        float dist2 = dir.squaredNorm();
+        const float dist2 = dir.squaredNorm();
         if (dist2 > maxLen2)
         {
-            float dist = sqrtf(dist2);
+            const float dist = sqrtf(dist2);
             dir /= dist;
             for (float pos=maxLen;pos<dist;pos+=maxLen)
-            {                
-                Point2f divPt = p0+dir*pos;
-                outPts.push_back(divPt);
+            {
+                outPts.emplace_back(p0+dir*pos);
             }
         }
     }

@@ -1,9 +1,8 @@
-/*
- *  InternalMarker.java
+/*  InternalMarker.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,31 +14,28 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
-
 package com.mousebird.maply;
 
 import android.graphics.Color;
 
 /**
  * An internal representation for the markers.  Toolkit users use ScreenMarker or Marker instead of this.
- *
  */
 class InternalMarker
 {
-	InternalMarker()
+	protected InternalMarker()
 	{
 		initialise();
 	}
 
 	// Basic setup for both types of screen markers
-	private void screenMakerSetup(ScreenMarker marker)
+	private void screenMarkerSetup(ScreenMarker marker)
 	{
 		if (marker.selectable)
 			setSelectID(marker.ident);
 		setLoc(marker.loc);
-		setColor(Color.red(marker.color)/255.f,Color.green(marker.color)/255.f,Color.blue(marker.color)/255.f,Color.alpha(marker.color)/255.f);
+		setColor(marker.color);
 		if (marker.rotation != 0.0)
 			setRotation(marker.rotation);
 		// Note: Lock rotation?
@@ -51,19 +47,19 @@ class InternalMarker
 		setPeriod(marker.period);
 		if (marker.vertexAttributes != null)
 			setVertexAttributes(marker.vertexAttributes.toArray());
+		setLayoutImportance(marker.layoutImportance);
 	}
 	
 	/**
 	 * Construct with the screen marker we want to represent and how it looks.
 	 * 
 	 * @param marker Screen marker to represent.
-	 * @param info How the screen marker should look.
 	 */
 	InternalMarker(ScreenMarker marker)
 	{
 		initialise();
 
-		screenMakerSetup(marker);
+		screenMarkerSetup(marker);
 	}
 
 	/**
@@ -73,7 +69,7 @@ class InternalMarker
 	{
 		initialise();
 
-		screenMakerSetup(marker);
+		screenMarkerSetup(marker);
 
 		setEndLoc(marker.endLoc);
 		setAnimationRange(startTime,startTime+marker.duration);
@@ -89,9 +85,16 @@ class InternalMarker
 		if (marker.selectable)
 			setSelectID(marker.ident);
 		setLoc(marker.loc);
-		setColor(Color.red(marker.color)/255.f,Color.green(marker.color)/255.f,Color.blue(marker.color)/255.f,Color.alpha(marker.color)/255.f);
+		setColor(marker.color);
 		setSize(marker.size.getX(),marker.size.getY());
 		setPeriod(marker.period);
+	}
+
+	void setColor(int color) {
+		setColor(Color.red(color)/255.f,
+				Color.green(color)/255.f,
+				Color.blue(color)/255.f,
+				Color.alpha(color)/255.f);
 	}
 
 	public void finalize()
@@ -111,7 +114,8 @@ class InternalMarker
 	public native void setLayoutSize(double width,double height);
 	public native void setOffset(double offX,double offY);
 	public native void setPeriod(double period);
-	public native void setVertexAttributes(Object vertAttrs[]);
+	public native void setVertexAttributes(Object[] vertexAttributes);
+	public native void setLayoutImportance(float importance);
 
 	static
 	{

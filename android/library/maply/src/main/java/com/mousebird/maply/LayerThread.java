@@ -182,11 +182,68 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			});
 		}
 	}
+
+	// Used to shut down cleaning without cutting off outstanding work threads
+	private boolean isShuttingDown = false;
+	private Semaphore workLock = new Semaphore(1, true);
+	private int numActiveWorkers = 0;
+
+	// Something is requesting a lock on shutting down while working
+	public boolean startOfWork()
+	{
+		if (isShuttingDown)
+			return false;
+
+		try {
+			workLock.acquire();
+			// Check it again
+			if (isShuttingDown) {
+				workLock.release();
+				return false;
+			}
+			numActiveWorkers = numActiveWorkers + 1;
+		}
+		catch (Exception exp) {
+			return false;
+		}
+
+		workLock.release();
+		return true;
+	}
+
+	// End of an external work block.  Safe to shut down.
+	public void endOfWork()
+	{
+		try {
+			workLock.acquire();
+			numActiveWorkers = numActiveWorkers - 1;
+			workLock.release();
+		}
+		catch (Exception exp) {
+		}
+	}
 	
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
 		final Semaphore endLock = new Semaphore(0, true);
+		isShuttingDown = true;
+
+		// Wait for anything outstanding to finish before we shut down
+		try {
+			do {
+				workLock.acquire();
+				if (numActiveWorkers == 0) {
+					workLock.release();
+					break;
+				}
+				workLock.release();
+				sleep(10);
+			} while (true);
+		}
+		catch (Exception exp) {
+			// Not sure why this would ever happen
+		}
 
 		// Run the shutdowns on the thread itself
 		addTask(new Runnable() {
@@ -194,7 +251,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			public void run() {
 				EGL10 egl = (EGL10) EGLContext.getEGL();
 
-				valid = false;
 				ArrayList<Layer> layersToRemove = null;
 				synchronized (layers) {
 					layersToRemove = new ArrayList<Layer>(layers);
@@ -203,6 +259,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					layer.shutdown();
 				}
 
+				valid = false;
 				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 
 				layers.clear();

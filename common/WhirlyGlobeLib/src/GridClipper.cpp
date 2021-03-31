@@ -1,9 +1,8 @@
-/*
- *  GridClipper.mm
+/*  GridClipper.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "GridClipper.h"
@@ -50,11 +48,13 @@ OutCode ComputeOutCode(double x, double y, const Mbr &mbr)
     
     return code;
 }
-
     
 // Clip the given loop to the given MBR
-bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets)
+bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets,double polyScale)
 {
+    if (polyScale == 0.0)
+        polyScale = PolyScale;
+    
     if(!closed)
     {
         //Cohen-sutherland algorithm based on example implementation from wikipedia
@@ -130,13 +130,13 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vecto
         for (unsigned int ii=0;ii<ring.size();ii++)
         {
             const Point2f &pt = ring[ii];
-            subject[ii] = IntPoint(pt.x()*PolyScale,pt.y()*PolyScale);
+            subject[ii] = IntPoint(pt.x()*polyScale,pt.y()*polyScale);
         }
         Path clip(4);
-        clip[0] = IntPoint(mbr.ll().x()*PolyScale,mbr.ll().y()*PolyScale);
-        clip[1] = IntPoint(mbr.ur().x()*PolyScale,mbr.ll().y()*PolyScale);
-        clip[2] = IntPoint(mbr.ur().x()*PolyScale,mbr.ur().y()*PolyScale);
-        clip[3] = IntPoint(mbr.ll().x()*PolyScale,mbr.ur().y()*PolyScale);
+        clip[0] = IntPoint(mbr.ll().x()*polyScale,mbr.ll().y()*polyScale);
+        clip[1] = IntPoint(mbr.ur().x()*polyScale,mbr.ll().y()*polyScale);
+        clip[2] = IntPoint(mbr.ur().x()*polyScale,mbr.ur().y()*polyScale);
+        clip[3] = IntPoint(mbr.ll().x()*polyScale,mbr.ur().y()*polyScale);
         
         Clipper c;
         c.AddPath(subject, ptSubject, closed);
@@ -154,7 +154,7 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vecto
             for (unsigned jj=0;jj<outPoly.size();jj++)
             {
                 IntPoint &outPt = outPoly[jj];
-                outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
+                outRing.push_back(Point2f(outPt.X/polyScale,outPt.Y/polyScale));
             }
             
             if (outRing.size() > 2)
@@ -165,8 +165,11 @@ bool ClipLoopToMbr(const VectorRing &ring,const Mbr &mbr, bool closed,std::vecto
 }
 
 // Clip the given loop to the given MBR
-bool ClipLoopsToMbr(const std::vector<VectorRing> &rings,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets)
+bool ClipLoopsToMbr(const std::vector<VectorRing> &rings,const Mbr &mbr, bool closed,std::vector<VectorRing> &rets,double polyScale)
 {
+    if (polyScale == 0.0)
+        polyScale = PolyScale;
+
     Clipper c;
     
     for (const auto &ring: rings)
@@ -175,16 +178,16 @@ bool ClipLoopsToMbr(const std::vector<VectorRing> &rings,const Mbr &mbr, bool cl
         for (unsigned int ii=0;ii<ring.size();ii++)
         {
             const Point2f &pt = ring[ii];
-            subject[ii] = IntPoint(pt.x()*PolyScale,pt.y()*PolyScale);
+            subject[ii] = IntPoint(pt.x()*polyScale,pt.y()*polyScale);
         }
         c.AddPath(subject, ptSubject, closed);
     }
 
     Path clip(4);
-    clip[0] = IntPoint(mbr.ll().x()*PolyScale,mbr.ll().y()*PolyScale);
-    clip[1] = IntPoint(mbr.ur().x()*PolyScale,mbr.ll().y()*PolyScale);
-    clip[2] = IntPoint(mbr.ur().x()*PolyScale,mbr.ur().y()*PolyScale);
-    clip[3] = IntPoint(mbr.ll().x()*PolyScale,mbr.ur().y()*PolyScale);
+    clip[0] = IntPoint(mbr.ll().x()*polyScale,mbr.ll().y()*polyScale);
+    clip[1] = IntPoint(mbr.ur().x()*polyScale,mbr.ll().y()*polyScale);
+    clip[2] = IntPoint(mbr.ur().x()*polyScale,mbr.ur().y()*polyScale);
+    clip[3] = IntPoint(mbr.ll().x()*polyScale,mbr.ur().y()*polyScale);
     
     c.AddPath(clip, ptClip, true);
     Paths solution;
@@ -200,7 +203,7 @@ bool ClipLoopsToMbr(const std::vector<VectorRing> &rings,const Mbr &mbr, bool cl
         for (unsigned jj=0;jj<outPoly.size();jj++)
         {
             IntPoint &outPt = outPoly[jj];
-            outRing.push_back(Point2f(outPt.X/PolyScale,outPt.Y/PolyScale));
+            outRing.push_back(Point2f(outPt.X/polyScale,outPt.Y/polyScale));
         }
         
         if (outRing.size() > 2)

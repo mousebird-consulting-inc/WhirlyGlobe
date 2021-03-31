@@ -280,7 +280,7 @@ public:
 - (void)setDelegate:(NSObject<MaplyViewControllerDelegate> *)delegate
 {
     _delegate = delegate;
-    delegateRespondsToViewUpdate = [_delegate respondsToSelector:@selector(maplyViewController:didMove:)];
+    delegateRespondsToViewUpdate = [delegate respondsToSelector:@selector(maplyViewController:didMove:)];
 }
 
 // Called by the globe view when something changes
@@ -390,12 +390,13 @@ public:
         rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
         rotateDelegate.rotateThreshold = _rotateGestureThreshold;
     }
+    const auto __strong tapRecognizer = tapDelegate.gestureRecognizer;
     if(_doubleTapZoomGesture)
     {
         doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
         doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
-        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
+        [tapRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
     }
     if(_twoFingerTapGesture)
     {
@@ -404,14 +405,14 @@ public:
         twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         if (pinchDelegate)
             [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
-        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+        [tapRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
     }
     if (_doubleTapDragGesture)
     {
         doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
         doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
-        [tapDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        [tapRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
     }
     if(_cancelAnimationOnTouch)
@@ -1265,11 +1266,15 @@ public:
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos marginX:(double)marginX marginY:(double)marginY
 {
-    Point2d margin(marginX,marginY);
-    Maply::MapView tempMapView(*(mapView.get()));
+    const Point2d margin(marginX,marginY);
+    
+    if (!mapView) {
+        return 0;
+    }
+    Maply::MapView tempMapView(*mapView);
 
-    Point3d oldLoc = tempMapView.getLoc();
-    Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
+    const Point3d oldLoc = tempMapView.getLoc();
+    const Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
     tempMapView.setLoc(newLoc, false);
     
     Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
@@ -1330,48 +1335,43 @@ public:
     if (coord.x > M_PI)
         coord.x -= 2*M_PI * std::ceil((coord.x - M_PI)/(2*M_PI));
 
+    const auto delegate = _delegate;
     if ([selectedObjs count] > 0 && self.selection)
     {
         // The user selected something, so let the delegate know
-        if (_delegate)
-        {
-            if ([_delegate respondsToSelector:@selector(maplyViewController:allSelect:atLoc:onScreen:)])
-                [_delegate maplyViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
-            else {
-                MaplySelectedObject *selectVecObj = nil;
-                MaplySelectedObject *selObj = nil;
-                // If the selected objects are vectors, use the draw priority
-                for (MaplySelectedObject *whichObj in selectedObjs)
+        if ([delegate respondsToSelector:@selector(maplyViewController:allSelect:atLoc:onScreen:)])
+            [delegate maplyViewController:self allSelect:selectedObjs atLoc:coord onScreen:msg.touchLoc];
+        else {
+            MaplySelectedObject *selectVecObj = nil;
+            MaplySelectedObject *selObj = nil;
+            // If the selected objects are vectors, use the draw priority
+            for (MaplySelectedObject *whichObj in selectedObjs)
+            {
+                if ([whichObj.selectedObj isKindOfClass:[MaplyVectorObject class]])
                 {
-                    if ([whichObj.selectedObj isKindOfClass:[MaplyVectorObject class]])
-                    {
-                        MaplyVectorObject *vecObj0 = selectVecObj.selectedObj;
-                        MaplyVectorObject *vecObj1 = whichObj.selectedObj;
-                        if (!vecObj0 || ([vecObj1.attributes[kMaplyDrawPriority] intValue] > [vecObj0.attributes[kMaplyDrawPriority] intValue]))
-                            selectVecObj = whichObj;
-                    } else {
-                        // If there's a non-vector object just pick it
-                        selectVecObj = nil;
-                        selObj = whichObj;
-                        break;
-                    }
+                    MaplyVectorObject *vecObj0 = selectVecObj.selectedObj;
+                    MaplyVectorObject *vecObj1 = whichObj.selectedObj;
+                    if (!vecObj0 || ([vecObj1.attributes[kMaplyDrawPriority] intValue] > [vecObj0.attributes[kMaplyDrawPriority] intValue]))
+                        selectVecObj = whichObj;
+                } else {
+                    // If there's a non-vector object just pick it
+                    selectVecObj = nil;
+                    selObj = whichObj;
+                    break;
                 }
-                if (selectVecObj)
-                    selObj = selectVecObj;
-
-                if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
-                    [_delegate maplyViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
-                else if ([_delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
-                    [_delegate maplyViewController:self didSelect:selObj.selectedObj];
             }
+            if (selectVecObj)
+                selObj = selectVecObj;
+
+            if ([delegate respondsToSelector:@selector(maplyViewController:didSelect:atLoc:onScreen:)])
+                [delegate maplyViewController:self didSelect:selObj.selectedObj atLoc:coord onScreen:msg.touchLoc];
+            else if ([delegate respondsToSelector:@selector(maplyViewController:didSelect:)])
+                [delegate maplyViewController:self didSelect:selObj.selectedObj];
         }
     } else {
         // The user didn't select anything, let the delegate know.
-        if (_delegate)
-        {
-            if ([_delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
-                [_delegate maplyViewController:self didTapAt:coord];
-        }
+        if ([delegate respondsToSelector:@selector(maplyViewController:didTapAt:)])
+            [delegate maplyViewController:self didTapAt:coord];
         if (_autoMoveToTap)
             [self animateToPosition:coord time:1.0];
     }
@@ -1467,8 +1467,9 @@ public:
 {
     if (!isPanning && !isZooming && !isAnimating)
     {
-        if([self.delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
-            [self.delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
+        const auto __strong delegate = self.delegate;
+        if ([delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
+            [delegate maplyViewControllerDidStartMoving:self userMotion:userMotion];
     }
 }
 
@@ -1478,11 +1479,12 @@ public:
     if (isPanning || isZooming || isAnimating)
         return;
 
-    if([self.delegate respondsToSelector:@selector(maplyViewController:didStopMoving:userMotion:)])
+    const auto __strong delegate = self.delegate;
+    if ([delegate respondsToSelector:@selector(maplyViewController:didStopMoving:userMotion:)])
     {
         MaplyCoordinate corners[4];
         [self corners:corners];
-        [self.delegate maplyViewController:self didStopMoving:corners userMotion:userMotion];
+        [delegate maplyViewController:self didStopMoving:corners userMotion:userMotion];
     }
 }
 
@@ -1542,21 +1544,22 @@ public:
 
 - (void)calloutViewClicked:(SMCalloutView *)calloutView
 {
-    if([self.delegate respondsToSelector:@selector(maplyViewController:didTapAnnotation:)]) {
+    const auto __strong delegate = self.delegate;
+    if([delegate respondsToSelector:@selector(maplyViewController:didTapAnnotation:)]) {
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {
-                [self.delegate maplyViewController:self didTapAnnotation:annotation];
+                [delegate maplyViewController:self didTapAnnotation:annotation];
                 return;
             }
         }
     }
 
-    if([self.delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
+    if([delegate respondsToSelector:@selector(maplyViewController:didClickAnnotation:)]) {
         for(MaplyAnnotation *annotation in self.annotations) {
             if(annotation.calloutView == calloutView) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-                [self.delegate maplyViewController:self didClickAnnotation:annotation];
+                [delegate maplyViewController:self didClickAnnotation:annotation];
                 return;
 #pragma clang diagostic pop
             }
@@ -1565,8 +1568,9 @@ public:
 }
 
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *)other {
-    if (panDelegate && panDelegate.gestureRecognizer)
-        [other requireGestureRecognizerToFail:panDelegate.gestureRecognizer];
+    auto const __strong recognizer = panDelegate.gestureRecognizer;
+    if (recognizer)
+        [other requireGestureRecognizerToFail:recognizer];
 }
 
 

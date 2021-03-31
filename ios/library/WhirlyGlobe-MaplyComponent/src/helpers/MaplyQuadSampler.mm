@@ -51,6 +51,11 @@ using namespace WhirlyKit;
 
 - (void)setMinZoom:(int)minZoom
 {
+    if (minZoom > 1) {
+        NSLog(@"\n============Error===============\nDo not set MaplySamplingParams minZoom to anything more than 1.\nInstead, set the minZoom of your tileSource to the right number.============Error===============\n");
+        return;
+    }
+    
     params.minZoom = minZoom;
 }
 
@@ -233,7 +238,7 @@ using namespace WhirlyKit;
     
     _quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()];
 
-    [super.layerThread addLayer:_quadLayer];
+    [inLayerThread addLayer:_quadLayer];
 
     return true;
 }

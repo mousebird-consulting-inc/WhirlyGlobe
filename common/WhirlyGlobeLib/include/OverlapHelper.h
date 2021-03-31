@@ -44,7 +44,13 @@ public:
     OverlapHelper(const Mbr &mbr,int sizeX,int sizeY);
     
     // Try to add an object.  Might fail (kind of the whole point).
-    bool addObject(const Point2dVector &pts);
+    bool addCheckObject(const Point2dVector &pts);
+    
+    // See if there's an object in the way
+    bool checkObject(const Point2dVector &pts);
+    
+    // Force an object in no matter what
+    void addObject(const Point2dVector &pts);
     
 protected:
     // Object and its bounds
@@ -71,7 +77,7 @@ public:
     ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, const Point2d &clusterMarkerSize);
     
     // Add an object, possibly forming a group
-    void addObject(LayoutObjectEntry *objEntry,const Point2dVector pts);
+    void addObject(LayoutObjectEntry *objEntry,const Point2dVector &pts);
 
     // Deal with cluster to cluster overlap
     void resolveClusters();

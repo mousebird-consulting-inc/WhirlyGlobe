@@ -31,15 +31,16 @@ public:
     MapboxVectorLayerRaster(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef refLayer,
-                       int drawPriority);
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
+                       int drawPriority) override;
     
     virtual void buildObjects(PlatformThreadInfo *inst,
-                              std::vector<VectorObjectRef> &vecObjs,
-                              VectorTileDataRef tileInfo);
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override;
     
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
 protected:
 };

@@ -2,79 +2,137 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.net.Uri
+import android.util.Log
 import com.mousebird.maply.*
-import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.Okio
 import java.io.IOException
+import kotlin.math.min
 
-class MapTilerTestCase : MaplyTestCase {
-    constructor(activity: Activity) : super(activity) {
-        setTestName("MapTiler")
-        implementation = TestExecutionImplementation.Both
+open class MapTilerTestCase : MaplyTestCase
+{
+    constructor(activity: Activity) :
+            this(activity, "MapTiler", TestExecutionImplementation.Both) {
     }
-
-    var map: MapboxKindaMap? = null
-
+    
+    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
+            super(activity, name, impl) {
+    }
+    
+    // Maptiler token
+    // Go to maptiler.com, setup an account and get your own
+    private val token = "GetYerOwnToken"
+    
     // Set up the loader (and all the stuff it needs) for the map tiles
     private fun setupLoader(control: BaseController, whichMap: Int) {
-        // Third map is no map
-        if (whichMap > 1)
-            return;
-
-        val mapName = if (whichMap == 0) "maptiler_basic.json" else "maptiler_streets.json"
-
-        val assetMgr = getActivity().assets
-        val stream = assetMgr.open(mapName)
-        var polyStyle: MapboxVectorStyleSet?
-
-        // Maptiler token
-        // Go to maptiler.com, setup an account and get your own
-        val token = "GetYerOwnToken"
-
-        try {
-            val json = Okio.buffer(Okio.source(stream)).readUtf8()
-            map = object: MapboxKindaMap(json,control) {
-                override fun mapboxURLFor(file: Uri): Uri {
-                    val str = file.toString()
-                    return Uri.parse(str.replace("MapTilerKey",token))
-                }
+        // Approximate the effect of `UIScreen.scale` on iOS
+        val dpi = displayDensity ?: Point2d(200.0,200.0)
+        val scale = min(dpi.x,dpi.y) / 225
+        
+        getStyleJson(whichMap)?.let { json ->
+            val settings = VectorStyleSettings(scale).apply {
+                baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault + 1000
+                drawPriorityPerLevel = 100
             }
-            if (map == null)
-                return
-            map?.backgroundAllPolys = true
-            map?.start()
+            map = MapboxKindaMap(json, control, settings).apply {
+                mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
+                backgroundAllPolys = (control is GlobeController)
+                imageVectorHybrid = true
+                minImportance = 768.0 * 768.0
+                setup(this)
+                start()
+            }
         }
-        catch (e: IOException) {
-            return
+
+        // Set up an overlay with the same importance showing the
+        // tile boundaries, for debugging/troubleshooting purposes
+        map?.let {
+            // Describes how to break down the space
+            val params = SamplingParams().apply {
+                minZoom = 1
+                maxZoom = 20
+                singleLevel = true
+                minImportance = it.minImportance
+                coordSystem = SphericalMercatorCoordSystem()
+            }
+            loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
         }
     }
 
+    protected open fun setup(map: MapboxKindaMap) {
+        map.styleSettings.drawPriorityPerLevel = 100
+    }
+
+    protected open fun getStyleJson(whichMap: Int): String? =
+        getMaps().elementAt(whichMap)?.let {
+            Log.i(javaClass.name, "Loading $it")
+            try {
+                Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
+            } catch (e: IOException) {
+                Log.w(javaClass.simpleName, "Failed to load style $it", e)
+                return null
+            }
+        } ?: customStyle
+    
     // Switch maps on long press
+    override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
+        switchMaps()
+    }
     override fun userDidLongPress(mapController: MapController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
-        map?.stop()
-
-        currentMap = currentMap + 1
-        if (currentMap > 2)
-            currentMap = 0
-        setupLoader(baseViewC!!, currentMap)
+        switchMaps()
     }
 
-    var currentMap = 0
-    var baseViewC : BaseController? = null
-
+    private fun switchMaps() {
+        loader = null
+        map?.stop()
+        map = null
+        currentMap = (currentMap + 1) % getMaps().size
+        baseViewC?.let { setupLoader(it, currentMap) }
+    }
+    
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        baseViewC = globeVC
-        setupLoader(baseViewC!!, currentMap)
-
+        baseViewC = globeVC?.also {
+            setupLoader(it, currentMap)
+            it.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
+        }
         return true
     }
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
-        baseViewC = mapVC
-        setupLoader(baseViewC!!, currentMap)
-
+        baseViewC = mapVC?.also {
+            setupLoader(it, currentMap)
+            it.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
+        }
         return true
     }
+    
+    protected open fun getMaps(): Collection<String?> = listOf(
+        "maptiler_basic.json",
+        "maptiler_streets.json",
+        "maptiler_topo.json",
+        "maptiler_hybrid_satellite.json",
+        "maptiler_expr_test.json",
+        null        // placeholder for custom stylesheet below
+    )
 
+    private var currentMap = 0
+    private var map: MapboxKindaMap? = null
+    private var baseViewC : BaseController? = null
+    private var loader : QuadPagingLoader? = null
+    
+    // Use this to test out a single or small number of elements alone.
+    // This can be helpful when you want to set a breakpoint on something that's normally used by many styles.
+    private val customStyle = """
+        {  "name":"test","version":8,"layers":[
+              {  "id":"background","type":"background","paint":{"background-color":"#aaa"}
+              },{"id":"road_motorway","type":"line","source":"openmaptiles",
+                 "source-layer":"transportation","filter":["all",["==","class","motorway"]],
+                 "paint":{
+                   "line-color":{"base":1,"stops":[[5,"hsl(26,87%,62%)"],[16,"#0f0"]]},
+                   "line-width":{"base":1.2,"stops":[[5,0],[16,60]]}
+                 }
+              }
+           ],"sources":{"openmaptiles":{"type":"vector",
+                 "url":"https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}}}
+    """.trimIndent()
 }

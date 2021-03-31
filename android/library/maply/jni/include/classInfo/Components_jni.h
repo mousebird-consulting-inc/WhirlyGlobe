@@ -24,7 +24,7 @@
 typedef JavaClassInfo<WhirlyKit::BaseInfo> BaseInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeClassInfo;
 typedef JavaClassInfo<WhirlyKit::ComponentObjectRef> ComponentObjectRefClassInfo;
-typedef JavaClassInfo<WhirlyKit::ComponentManager_Android> ComponentManagerClassInfo;
+typedef JavaClassInfo<WhirlyKit::ComponentManager_AndroidRef> ComponentManagerClassInfo;
 
 // Build a Java-side object to wrap the given ComponentObject
 JNIEXPORT jobject JNICALL MakeComponentObjectWrapper(JNIEnv *env,ComponentObjectRefClassInfo *classInfo,WhirlyKit::ComponentObjectRef compObj);

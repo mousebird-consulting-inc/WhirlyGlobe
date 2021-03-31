@@ -27,10 +27,7 @@ using namespace WhirlyKit;
 - (instancetype)init
 {
     self = [super init];
-    contents = ComponentObject_iOSRef(new ComponentObject_iOS());
-    contents->isSelectable = true;
-    contents->enable = true;
-    
+    contents = std::make_shared<ComponentObject_iOS>(/*enable=*/true, /*isSelected=*/true, /*desc=*/nil);
     return self;
 }
 
@@ -38,21 +35,18 @@ using namespace WhirlyKit;
 {
     self = [super init];
     contents = compObj;
-    
     return self;
 }
 
 - (instancetype)initWithDesc:(NSDictionary *)desc
 {
     self = [super init];
-    contents = ComponentObject_iOSRef(new ComponentObject_iOS());
-    contents->isSelectable = true;
-    contents->enable = true;
-    id enable = desc[kMaplyEnable];
-    if (enable)
-        contents->enable = [enable boolValue];
-    
+    contents = std::make_shared<ComponentObject_iOS>(/*enable=*/true, /*isSelected=*/true, /*desc=*/desc);
     return self;
+}
+
+- (NSString *__nullable)getUUID {
+    return contents->uuid.empty() ? nil : [NSString stringWithUTF8String:contents->uuid.c_str()];
 }
 
 @end

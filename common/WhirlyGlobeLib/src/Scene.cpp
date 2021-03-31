@@ -37,47 +37,72 @@
 #import "LoftManager.h"
 #import "ParticleSystemManager.h"
 #import "BillboardManager.h"
-#import "WideVectorManager.h"
 #import "GeometryManager.h"
-#import "FontTextureManager.h"
 #import "ComponentManager.h"
 
 namespace WhirlyKit
 {
-    
+
+SceneManager::SceneManager()
+: scene(nullptr), renderer(nullptr)
+{
+}
+
+void SceneManager::setRenderer(SceneRenderer *inRenderer)
+{
+//    std::lock_guard<std::mutex> guardLock(lock);  // ?
+    renderer = inRenderer;
+}
+
+void SceneManager::setScene(Scene *inScene)
+{
+//    std::lock_guard<std::mutex> guardLock(lock);
+    scene = inScene;
+}
+
+Scene *SceneManager::getScene() const
+{
+    return scene;
+}
+
+SceneRenderer *SceneManager::getSceneRenderer() const
+{
+    return renderer;
+}
+
 Scene::Scene(CoordSystemDisplayAdapter *adapter)
-    : fontTextureManager(NULL), setupInfo(NULL), currentTime(0.0)
+    : setupInfo(nullptr)
+    , currentTime(0.0)
+    , coordAdapter(adapter)
 {
     SetupDrawableStrings();
     
-    coordAdapter = adapter;
-    
     // Selection manager is used for object selection from any thread
-    addManager(kWKSelectionManager,new SelectionManager(this));
+    addManager(kWKSelectionManager,std::make_shared<SelectionManager>(this));
     // Intersection handling
-    addManager(kWKIntersectionManager, new IntersectionManager(this));
+    addManager(kWKIntersectionManager, std::make_shared<IntersectionManager>(this));
     // Layout manager handles text and icon layout
-    addManager(kWKLayoutManager, new LayoutManager());
+    addManager(kWKLayoutManager, std::make_shared<LayoutManager>());
     // Shape manager handles circles, spheres and such
-    addManager(kWKShapeManager, new ShapeManager());
+    addManager(kWKShapeManager, std::make_shared<ShapeManager>());
     // Marker manager handles 2D and 3D markers
-    addManager(kWKMarkerManager, new MarkerManager());
+    addManager(kWKMarkerManager, std::make_shared<MarkerManager>());
     // Label manager handes 2D and 3D labels
-    addManager(kWKLabelManager, new LabelManager());
+    addManager(kWKLabelManager, std::make_shared<LabelManager>());
     // Vector manager handes vector features
-    addManager(kWKVectorManager, new VectorManager());
+    addManager(kWKVectorManager, std::make_shared<VectorManager>());
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
-    addManager(kWKSphericalChunkManager, new SphericalChunkManager());
+    addManager(kWKSphericalChunkManager, std::make_shared<SphericalChunkManager>());
     // Loft manager handles lofted polygon geometry
-    addManager(kWKLoftedPolyManager, new LoftManager());
+    addManager(kWKLoftedPolyManager, std::make_shared<LoftManager>());
     // Particle system manager
-    addManager(kWKParticleSystemManager, new ParticleSystemManager());
+    addManager(kWKParticleSystemManager, std::make_shared<ParticleSystemManager>());
     // 3D billboards
-    addManager(kWKBillboardManager, new BillboardManager());
+    addManager(kWKBillboardManager, std::make_shared<BillboardManager>());
     // Widened vectors
-    addManager(kWKWideVectorManager, new WideVectorManager());
+    addManager(kWKWideVectorManager, std::make_shared<WideVectorManager>());
     // Raw Geometry
-    addManager(kWKGeometryManager, new GeometryManager());
+    addManager(kWKGeometryManager, std::make_shared<GeometryManager>());
     // Components (groups of things)
     addManager(kWKComponentManager, MakeComponentManager());
     
@@ -94,9 +119,6 @@ Scene::~Scene()
     
     textures.clear();
     
-    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
-         it != managers.end(); ++it)
-        delete it->second;
     managers.clear();
     
     auto theChangeRequests = changeRequests;
@@ -113,10 +135,10 @@ Scene::~Scene()
 
     programs.clear();
     
-    fontTextureManager = NULL;
+    fontTextureManager = nullptr;
 }
     
-CoordSystemDisplayAdapter *Scene::getCoordAdapter()
+CoordSystemDisplayAdapter *Scene::getCoordAdapter() const
 {
     return coordAdapter;
 }
@@ -152,22 +174,19 @@ void Scene::addChangeRequest(ChangeRequest *newChange)
         changeRequests.push_back(newChange);
 }
 
-int Scene::getNumChangeRequests()
+int Scene::getNumChangeRequests() const
 {
     std::lock_guard<std::mutex> guardLock(changeRequestLock);
 
     return changeRequests.size();
 }
 
-DrawableRef Scene::getDrawable(SimpleIdentity drawId)
+DrawableRef Scene::getDrawable(SimpleIdentity drawId) const
 {
     std::lock_guard<std::mutex> guardLock(drawablesLock);
     
-    auto it = drawables.find(drawId);
-    if (it != drawables.end())
-        return it->second;
-    
-    return DrawableRef();
+    const auto it = drawables.find(drawId);
+    return (it != drawables.end()) ? it->second : DrawableRef();
 }
     
 void Scene::addLocalMbr(const Mbr &localMbr)
@@ -178,61 +197,58 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     // Note: This will only get bigger, never smaller
     if (localMbr.ll().x() < ll.x() && localMbr.ur().x() > ll.x())
     {
-        double dx1 = ll.x() - localMbr.ll().x();
-        double dx2 = localMbr.ur().x() - ll.x();
-        double dx = std::max(dx1,dx2);
-        overlapMargin = std::max(overlapMargin,dx);
+        const double dx1 = ll.x() - localMbr.ll().x();
+        const double dx2 = localMbr.ur().x() - ll.x();
+        overlapMargin = std::max(overlapMargin, std::max(dx1, dx2));
     }
 }
-    
+
 void Scene::setRenderer(SceneRenderer *renderer)
 {
     setupInfo = renderer->getRenderSetupInfo();
     
     std::lock_guard<std::mutex> guardLock(managerLock);
-    
-    for (std::map<std::string,SceneManager *>::iterator it = managers.begin();
-         it != managers.end(); ++it)
-        it->second->setRenderer(renderer);
+
+    for (const auto &kvp : managers)
+    {
+        kvp.second->setRenderer(renderer);
+    }
 }
     
-SceneManager *Scene::getManager(const char *name)
+SceneManagerRef Scene::getManager(const std::string &name)
 {
     std::lock_guard<std::mutex> guardLock(managerLock);
-
     return getManagerNoLock(name);
 }
     
-SceneManager *Scene::getManagerNoLock(const char *name)
+SceneManagerRef Scene::getManagerNoLock(const std::string &name)
 {
-    SceneManager *ret = NULL;
-
-    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
-    if (it != managers.end())
-        ret = it->second;
-
-    return ret;
+    const auto it = managers.find(name);
+    return (it != managers.end()) ? it->second : SceneManagerRef();
 }
 
-void Scene::addManager(const char *name,SceneManager *manager)
+void Scene::addManager(const std::string &name,const SceneManagerRef &manager)
 {
     std::lock_guard<std::mutex> guardLock(managerLock);
 
     // If there's one here, we'll clear it out first
-    std::map<std::string,SceneManager *>::iterator it = managers.find((std::string)name);
-    if (it != managers.end())
-        managers.erase(it);
-    managers[(std::string)name] = manager;
+    const auto result = managers.insert(std::make_pair(name, manager));
+    if (!result.second)
+    {
+        // Entry was already present, replace it.
+        // Previous manager reference is released, possibly destroying it.
+        result.first->second = manager;
+    }
     manager->setScene(this);
 }
 
 void Scene::addActiveModel(ActiveModelRef activeModel)
 {
-    activeModels.push_back(activeModel);
-    activeModel->startWithScene(this);
+    activeModels.emplace_back(std::move(activeModel));
+    activeModels.back()->startWithScene(this);
 }
-    
-void Scene::removeActiveModel(ActiveModelRef activeModel)
+
+void Scene::removeActiveModel(const ActiveModelRef &activeModel)
 {
     int which = 0;
 
@@ -247,20 +263,16 @@ void Scene::removeActiveModel(ActiveModelRef activeModel)
         activeModel->teardown();
     }
 }
-    
-TextureBaseRef Scene::getTexture(SimpleIdentity texId)
+
+TextureBaseRef Scene::getTexture(SimpleIdentity texId) const
 {
     std::lock_guard<std::mutex> guardLock(textureLock);
     
-    TextureBaseRef retTex;
-    auto it = textures.find(texId);
-    if (it != textures.end())
-        retTex = it->second;
-    
-    return retTex;
+    const auto it = textures.find(texId);
+    return (it != textures.end()) ? it->second : TextureBaseRef();
 }
-    
-const std::vector<Drawable *> Scene::getDrawables()
+
+const std::vector<Drawable *> Scene::getDrawables() const
 {
     std::vector<Drawable *> retDraws;
     
@@ -280,23 +292,19 @@ void Scene::setCurrentTime(TimeInterval newTime)
 void Scene::markProgramsUnchanged()
 {
     std::lock_guard<std::mutex> guardLock(programLock);
-    
+
     for (auto it: programs) {
         auto prog = it.second;
-        if (prog->changed)
-            prog->changed = false;
+        prog->changed = false;
     }
 }
 
-TimeInterval Scene::getCurrentTime()
+TimeInterval Scene::getCurrentTime() const
 {
-    if (currentTime == 0.0)
-        return TimeGetCurrent();
-    
-    return currentTime;
+    return (currentTime == 0.0) ? TimeGetCurrent() : currentTime;
 }
 
-TimeInterval Scene::getBaseTime()
+TimeInterval Scene::getBaseTime() const
 {
     return baseTime;
 }
@@ -361,7 +369,7 @@ int Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInte
     return numChanges;
 }
     
-bool Scene::hasChanges(TimeInterval now)
+bool Scene::hasChanges(TimeInterval now) const
 {
     bool changes = false;
     if (changeRequestLock.try_lock())
@@ -423,16 +431,18 @@ void Scene::removeSubTextures(const std::vector<SimpleIdentity> &subTexIDs)
 }
 
 // Look for a sub texture by ID
-SubTexture Scene::getSubTexture(SimpleIdentity subTexId)
+SubTexture Scene::getSubTexture(SimpleIdentity subTexId) const
 {
-    std::lock_guard<std::mutex> guardLock(subTexLock);
     SubTexture dumbTex;
     dumbTex.setId(subTexId);
-    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
+
+    std::lock_guard<std::mutex> guardLock(subTexLock);
+
+    const auto it = subTextureMap.find(dumbTex);
     if (it == subTextureMap.end())
     {
         SubTexture passTex;
-        passTex.trans = passTex.trans.Identity();
+        passTex.trans = decltype(passTex.trans)::Identity();
         passTex.texId = subTexId;
         return passTex;
     }
@@ -476,7 +486,7 @@ bool Scene::removeTexture(SimpleIdentity texID)
     return false;
 }
     
-void Scene::dumpStats()
+void Scene::dumpStats() const
 {
     wkLogLevel(Verbose,"Scene: %ld drawables",drawables.size());
     wkLogLevel(Verbose,"Scene: %d active models",(int)activeModels.size());
@@ -484,7 +494,7 @@ void Scene::dumpStats()
     wkLogLevel(Verbose,"Scene: %ld sub textures",subTextureMap.size());
 }
     
-void Scene::setFontTextureManager(FontTextureManagerRef newManager)
+void Scene::setFontTextureManager(const FontTextureManagerRef &newManager)
 {
     fontTextureManager = newManager;
 }
@@ -529,7 +539,7 @@ void Scene::addProgram(ProgramRef prog)
     programs[prog->getId()] = prog;
 }
 
-void Scene::removeProgram(SimpleIdentity progId,RenderTeardownInfoRef teardown)
+void Scene::removeProgram(SimpleIdentity progId,const RenderTeardownInfoRef & /*teardown*/)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
 
@@ -571,21 +581,17 @@ void Scene::setZoomSlotValue(int zoomSlot,float zoom)
     zoomSlots[zoomSlot] = zoom;
 }
 
-float Scene::getZoomSlotValue(int zoomSlot)
+float Scene::getZoomSlotValue(int zoomSlot) const
 {
     std::lock_guard<std::mutex> guardLock(zoomSlotLock);
-    
-    if (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots)
-        return 0.0;
 
-    return zoomSlots[zoomSlot];
+    return (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots) ? 0.0 : zoomSlots[zoomSlot];
 }
 
 void Scene::copyZoomSlots(float *dest)
 {
     std::lock_guard<std::mutex> guardLock(zoomSlotLock);
-
-    memcpy(dest, &zoomSlots[0], sizeof(float)*MaplyMaxZoomSlots);
+    std::copy(&zoomSlots[0], &zoomSlots[MaplyMaxZoomSlots], dest);
 }
 
 void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
@@ -594,21 +600,21 @@ void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *sce
         texRef->createInRenderer(setupInfo);
 }
     
-TextureBase *AddTextureReq::getTex()
+TextureBase *AddTextureReq::getTex() const
 {
     return texRef.get();
 }
     
 AddTextureReq::~AddTextureReq()
 {
-    texRef = NULL;
+    texRef = nullptr;
 }
     
 void AddTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     texRef->createInRenderer(renderer->getRenderSetupInfo());
     scene->addTexture(texRef);
-    texRef = NULL;
+    texRef = nullptr;
 }
 
 void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
@@ -617,10 +623,14 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
     if (tex)
     {
         if (renderer->teardownInfo)
+        {
             renderer->teardownInfo->destroyTexture(renderer,tex);
+        }
         scene->removeTexture(texture);
     } else
+    {
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
+    }
 }
     
 void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
@@ -635,20 +645,22 @@ void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *sc
 
 AddDrawableReq::~AddDrawableReq()
 {
-    drawRef = NULL;
+    drawRef = nullptr;
 }
 
 void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     // If this is an instance, deal with that madness
-    BasicDrawableInstance *drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get());
-    if (drawInst)
+    if (auto drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get()))
     {
-        DrawableRef theDraw = scene->getDrawable(drawInst->getMasterID());
-        BasicDrawableRef baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw);
-        if (baseDraw)
+        const auto theDraw = scene->getDrawable(drawInst->getMasterID());
+        if (const auto baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw))
+        {
             drawInst->setMaster(baseDraw);
-        else {
+        }
+        else
+        {
+            wkLogLevel(Error,"Found BasicDrawableInstance without masterID.  Dropping.");
             return;
         }
     }
@@ -659,7 +671,7 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     if (drawRef->getLocalMbr().valid())
         scene->addLocalMbr(drawRef->getLocalMbr());
             
-    drawRef = NULL;
+    drawRef = nullptr;
 }
 
 RemDrawableReq::RemDrawableReq(SimpleIdentity drawId) : drawID(drawId)
@@ -679,14 +691,17 @@ void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     {
         renderer->removeDrawable(draw, true, renderer->teardownInfo);
         scene->remDrawable(draw);
-    } else
+    }
+    else
+    {
         wkLogLevel(Warn,"Missing drawable for RemDrawableReq: %llu", drawID);
+    }
 }
 
 void AddProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     scene->addProgram(program);
-    program = NULL;
+    program = nullptr;
 }
 
 void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
@@ -697,11 +712,7 @@ void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
 RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)
 {
 }
-    
-RunBlockReq::~RunBlockReq()
-{
-}
-    
+
 void RunBlockReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     func(scene,renderer,view);

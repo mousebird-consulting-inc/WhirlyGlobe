@@ -50,6 +50,7 @@ public class LabelInfo extends BaseInfo
 		setTypeface(Typeface.DEFAULT);
 		setFontSize(24.f);
 		setTextJustify(TextJustify.TextLeft);
+		setLayoutPlacement(LabelInfo.LayoutRight | LabelInfo.LayoutLeft | LabelInfo.LayoutCenter | LabelInfo.LayoutBelow);
 
 		setDrawPriority(LabelPriorityDefault);
 	}

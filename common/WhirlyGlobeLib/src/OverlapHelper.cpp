@@ -1,9 +1,8 @@
-/*
- *  OverlapHelper.mm
+/*  OverlapHelper.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/15.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "OverlapHelper.h"
@@ -36,7 +34,7 @@ OverlapHelper::OverlapHelper(const Mbr &mbr,int sizeX,int sizeY)
 }
 
 // Try to add an object.  Might fail (kind of the whole point).
-bool OverlapHelper::addObject(const Point2dVector &pts)
+bool OverlapHelper::addCheckObject(const Point2dVector &pts)
 {
     Mbr objMbr;
     for (unsigned int ii=0;ii<pts.size();ii++)
@@ -75,6 +73,62 @@ bool OverlapHelper::addObject(const Point2dVector &pts)
         }
     
     return true;
+}
+
+bool OverlapHelper::checkObject(const Point2dVector &pts)
+{
+    Mbr objMbr;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+        objMbr.addPoint(pts[ii]);
+    int sx = floorf((objMbr.ll().x()-mbr.ll().x())/cellSize.x());
+    if (sx < 0) sx = 0;
+    int sy = floorf((objMbr.ll().y()-mbr.ll().y())/cellSize.y());
+    if (sy < 0) sy = 0;
+    int ex = ceilf((objMbr.ur().x()-mbr.ll().x())/cellSize.x());
+    if (ex >= sizeX)  ex = sizeX-1;
+    int ey = ceilf((objMbr.ur().y()-mbr.ll().y())/cellSize.y());
+    if (ey >= sizeY)  ey = sizeY-1;
+    for (int ix=sx;ix<=ex;ix++)
+        for (int iy=sy;iy<=ey;iy++)
+        {
+            std::vector<int> &objList = grid[iy*sizeX + ix];
+            for (unsigned int ii=0;ii<objList.size();ii++)
+            {
+                BoundedObject &testObj = objects[objList[ii]];
+                // This will result in testing the same thing multiple times
+                if (ConvexPolyIntersect(testObj.pts,pts))
+                    return false;
+            }
+        }
+
+    return true;
+}
+
+void OverlapHelper::addObject(const Point2dVector &pts)
+{
+    Mbr objMbr;
+    for (unsigned int ii=0;ii<pts.size();ii++)
+        objMbr.addPoint(pts[ii]);
+    int sx = floorf((objMbr.ll().x()-mbr.ll().x())/cellSize.x());
+    if (sx < 0) sx = 0;
+    int sy = floorf((objMbr.ll().y()-mbr.ll().y())/cellSize.y());
+    if (sy < 0) sy = 0;
+    int ex = ceilf((objMbr.ur().x()-mbr.ll().x())/cellSize.x());
+    if (ex >= sizeX)  ex = sizeX-1;
+    int ey = ceilf((objMbr.ur().y()-mbr.ll().y())/cellSize.y());
+    if (ey >= sizeY)  ey = sizeY-1;
+    
+    // Okay, so it doesn't overlap.  Let's add it where needed.
+    objects.resize(objects.size()+1);
+    int newId = (int)(objects.size()-1);
+    BoundedObject &newObj = objects[newId];
+    newObj.pts = pts;
+    for (int ix=sx;ix<=ex;ix++)
+        for (int iy=sy;iy<=ey;iy++)
+        {
+            std::vector<int> &objList = grid[iy*sizeX + ix];
+            objList.push_back(newId);
+        }
 }
     
 ClusterHelper::ObjectWithBounds::ObjectWithBounds()
@@ -154,7 +208,7 @@ void ClusterHelper::findObjectsWithin(const Mbr &mbr,std::set<int> &objSet)
 }
 
 // Try to add an object.  Might fail (kind of the whole point).
-void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector pts)
+void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector &pts)
 {
     // We'll add this one way or another
     simpleObjects.resize(simpleObjects.size()+1);

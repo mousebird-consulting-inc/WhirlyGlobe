@@ -1,9 +1,8 @@
-/*
-*  MapboxVectorStyleSetC.h
+/* MapboxVectorStyleSetC.h
 *  WhirlyGlobeLib
 *
 *  Created by Steve Gifford on 4/8/20.
-*  Copyright 2011-2020 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
-*
 */
 
 #import "Scene.h"
@@ -56,10 +54,10 @@ public:
     // Simpler version that just takes the text string
     bool parse(const std::string &textVal);
     // Parse the regex text field out of a field name string
-    bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
     
     // Build the field based on the attributes
-    std::string build(DictionaryRef attrs);
+    std::string build(const DictionaryRef &attrs);
     
     std::vector<MapboxTextChunk> chunks;
     
@@ -89,7 +87,7 @@ public:
 class MaplyVectorFunctionStops
 {
 public:
-    bool parse(DictionaryRef entry,MapboxVectorStyleSetImpl *styleSet,bool isText);
+    bool parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *styleSet,bool isText);
 
     /// @brief Calculate a value given the zoom level
     double valueForZoom(double zoom);
@@ -200,10 +198,10 @@ class MapboxVectorStyleSetImpl : public VectorStyleDelegateImpl
 {
 public:
     MapboxVectorStyleSetImpl(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
-    virtual ~MapboxVectorStyleSetImpl();
+    virtual ~MapboxVectorStyleSetImpl() = default;
     
     // Parse the entire style sheet.  False on failure
-    virtual bool parse(PlatformThreadInfo *inst,DictionaryRef dict);
+    virtual bool parse(PlatformThreadInfo *inst,const DictionaryRef &dict);
 
     /// @brief Default settings and scale factor for Mapnik vector geometry.
     VectorStyleSettingsImplRef tileStyleSettings;
@@ -212,58 +210,61 @@ public:
     long long generateID();
 
     /// @brief Return an integer value for the given name, taking the constants into account.
-    int intValue(const std::string &name,DictionaryRef dict,int defVal);
+    int intValue(const std::string &name,const DictionaryRef &dict,int defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(DictionaryEntryRef entry,double defVal);
+    double doubleValue(const DictionaryEntryRef &entry,double defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(const std::string &name,DictionaryRef dict,double defVal);
+    double doubleValue(const std::string &name,const DictionaryRef &dict,double defVal);
         
     /// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
-    bool boolValue(const std::string &name,DictionaryRef dict,const std::string &onString,bool defVal);
+    bool boolValue(const std::string &name,const DictionaryRef &dict,const std::string &onString,bool defVal);
 
     /// @brief Return a string for the given name, taking the constants into account
-    std::string stringValue(const std::string &name,DictionaryRef dict,const std::string &defVal);
+    std::string stringValue(const std::string &name,const DictionaryRef &dict,const std::string &defVal);
 
     /// @brief Return an array for the given name, taking the constants into account
-    std::vector<DictionaryEntryRef> arrayValue(const std::string &name,DictionaryRef dict);
+    std::vector<DictionaryEntryRef> arrayValue(const std::string &name,const DictionaryRef &dict);
 
     /// @brief Return a color for the given name, taking the constants into account
-    RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColorRef defVal,bool multiplyAlpha);
-    RGBAColorRef colorValue(const std::string &name,DictionaryEntryRef val,DictionaryRef dict,RGBAColor defVal,bool multiplyAlpha);
+    RGBAColorRef colorValue(const std::string &name,const DictionaryEntryRef &val,const DictionaryRef &dict,const RGBAColorRef &defVal,bool multiplyAlpha);
+    RGBAColorRef colorValue(const std::string &name,const DictionaryEntryRef &val,const DictionaryRef &dict,const RGBAColor &defVal,bool multiplyAlpha);
 
     /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
-    int enumValue(DictionaryEntryRef entry, const char * const options[],int defVal);
+    int enumValue(const DictionaryEntryRef &entry, const char * const options[],int defVal);
 
     /// Builds a transitionable double object from a style entry and returns that
-    MapboxTransDoubleRef transDouble(DictionaryEntryRef entry,double defVal);
+    MapboxTransDoubleRef transDouble(const DictionaryEntryRef &entry,double defVal);
     
     /// Builds a transitionable double object from a style entry lookup and returns that
-    MapboxTransDoubleRef transDouble(const std::string &name,DictionaryRef entry,double defVal);
+    MapboxTransDoubleRef transDouble(const std::string &name,const DictionaryRef &entry,double defVal);
 
     /// Builds a transitionable color object and returns that
-    MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor *);
-    MapboxTransColorRef transColor(const std::string &name,DictionaryRef entry,const RGBAColor &);
+    MapboxTransColorRef transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor *);
+    MapboxTransColorRef transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor &);
     
     /// Builds a transitional text object
-    MapboxTransTextRef transText(const std::string &name,DictionaryRef entry,const std::string &str);
+    MapboxTransTextRef transText(const std::string &name,const DictionaryRef &entry,const std::string &str);
 
     /// Resolve transitionable color and opacity into a single color for the zoom
     /// If this returns nil, then the object shouldn't appear
-    RGBAColorRef resolveColor(MapboxTransColorRef color,MapboxTransDoubleRef opacity,double zoom,MBResolveColorType resolveMode);
+    RGBAColorRef resolveColor(const MapboxTransColorRef &color,const MapboxTransDoubleRef &opacity,double zoom,MBResolveColorType resolveMode);
 
     /// @brief Scale the color by the given opacity
-    RGBAColor color(RGBAColor color,double opacity);
+    static RGBAColor color(RGBAColor color,double opacity);
 
     /// @brief Check for and report an unsupported field
-    void unsupportedCheck(const char *field,const char *what,DictionaryRef styleEntry);
+    void unsupportedCheck(const char *field,const char *what,const DictionaryRef &styleEntry);
     
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);
-    
+
     /// Set the zoom slot if we've got continuous zoom going on
-    virtual void setZoomSlot(int zoomSlot) override;
+    virtual int getZoomSlot() const override { return zoomSlot; }
+
+    /// Set the zoom slot if we've got continuous zoom going on
+    virtual void setZoomSlot(int slot) override { zoomSlot = slot; }
 
     /// Get the background style, if any
     VectorStyleImplRef backgroundStyle(PlatformThreadInfo *inst) const override;
@@ -310,16 +311,16 @@ public:
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) = 0;
 
     /// Tie a selection ID to the given vector object
-    virtual void addSelectionObject(SimpleIdentity selectID,VectorObjectRef vecObj,ComponentObjectRef compObj) = 0;
+    virtual void addSelectionObject(SimpleIdentity selectID,const VectorObjectRef &vecObj,const ComponentObjectRef &compObj) = 0;
 
     /// Return the width of the given line of text
-    virtual double calculateTextWidth(PlatformThreadInfo *inInst,LabelInfoRef labelInfo,const std::string &testStr) = 0;
+    virtual double calculateTextWidth(PlatformThreadInfo *inInst,const LabelInfoRef &labelInfo,const std::string &testStr) = 0;
     
     /// Add a sprite sheet for use by the layers
     virtual void addSprites(MapboxVectorStyleSpritesRef newSprites);
-    
+
     /// Create a local platform component object
-    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst) = 0;
+    virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst, const Dictionary *desc = nullptr) = 0;
 
 public:
     Scene *scene;
@@ -336,19 +337,19 @@ public:
     std::vector<MapboxVectorStyleLayerRef> layers;
 
     /// @brief Layers sorted by their ID
-    std::map<std::string, MapboxVectorStyleLayerRef> layersByName;
-    
+    std::unordered_map<std::string, MapboxVectorStyleLayerRef> layersByName;
+
     /// Layers sorted by UUID
-    std::map<long long, MapboxVectorStyleLayerRef> layersByUUID;
+    std::unordered_map<long long, MapboxVectorStyleLayerRef> layersByUUID;
 
     /// @brief Layers sorted by source layer name
-    std::map<std::string, std::vector<MapboxVectorStyleLayerRef> > layersBySource;
+    std::unordered_multimap<std::string, MapboxVectorStyleLayerRef> layersBySource;
 
-    VectorManager *vecManage;
-    WideVectorManager *wideVecManage;
-    MarkerManager *markerManage;
-    LabelManager *labelManage;
-    ComponentManager *compManage;
+    VectorManagerRef vecManage;
+    WideVectorManagerRef wideVecManage;
+    MarkerManagerRef markerManage;
+    LabelManagerRef labelManage;
+    ComponentManagerRef compManage;
     
     // ID's for the various programs
     SimpleIdentity screenMarkerProgramID;

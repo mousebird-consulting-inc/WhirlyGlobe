@@ -1,5 +1,4 @@
-/*
- *  Maply_jni.h
+/*  Maply_jni.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #ifndef Maply_JNI_h_
@@ -36,20 +34,24 @@
 template<typename T> class JavaClassInfo
 {
 public:
-	// Don't use this constructor
-	JavaClassInfo() { }
 	// Construct with environment and class
-	JavaClassInfo(JNIEnv *env,jclass inClass)
-		: theClass(NULL), nativeHandleField(NULL)
+	JavaClassInfo(JNIEnv *env,jclass inClass) :
+		theClass((jclass)env->NewGlobalRef(inClass)),
+		nativeHandleField(nullptr)
 	{
-		theClass = (jclass)env->NewGlobalRef(inClass);
 		initMethodID = env->GetMethodID(theClass, "<init>", "()V");
+	}
+	virtual ~JavaClassInfo() {
+	    if (theClass) {
+	        wkLogLevel(Warn, "JavaClassInfo not cleaned up");
+	    }
 	}
 
 	// Clear references to JNI data
 	virtual void clear(JNIEnv *env)
 	{
 		env->DeleteGlobalRef(theClass);
+		theClass = nullptr;
 	}
 
 	// Make an object of the type and point it to the C++ object given
@@ -70,7 +72,7 @@ public:
 	}
 
 	// Return the field ID for the handle we use
-	jfieldID getHandleField(JNIEnv *env,jobject obj)
+	jfieldID getHandleField(JNIEnv *env)
 	{
 		if (!nativeHandleField)
 		{
@@ -84,11 +86,17 @@ public:
 	{
 		if (!obj)
 		{
-			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null object handle in getHandle().");
-			return NULL;
+			// wkLog doesn't work from here? why?
+			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Null object handle in getHandle() for '%s'", typeid(T).name());
+			return nullptr;
 		}
-	    jlong handle = env->GetLongField(obj, getHandleField(env, obj));
+	    jlong handle = env->GetLongField(obj, getHandleField(env));
 	    return reinterpret_cast<T *>(handle);
+	}
+
+	static T* get(JNIEnv *env,jobject obj)
+	{
+		return getClassInfo()->getObject(env,obj);
 	}
 
 	// Set the handle for a Java wrapper to its C++ object
@@ -100,13 +108,13 @@ public:
 			return;
 		}
 	    jlong handle = reinterpret_cast<jlong>(t);
-	    env->SetLongField(obj, getHandleField(env, obj), handle);
+	    env->SetLongField(obj, getHandleField(env), handle);
 	}
 
 	// Clear the handle out of a Java wrapper object
 	void clearHandle(JNIEnv *env, jobject obj)
 	{
-	    env->SetLongField(obj, getHandleField(env, obj), 0);
+	    env->SetLongField(obj, getHandleField(env), 0);
 	}
 
 	// Just one class info object for the whole class
@@ -141,9 +149,11 @@ public:
 	}
     
     // Return the Java class
-    jclass getClass() { return theClass; }
+    jclass getClass() const { return theClass; }
 
 protected:
+	JavaClassInfo() = default;
+
 	jclass theClass;
 	jfieldID nativeHandleField;
 	jmethodID initMethodID;
@@ -162,23 +172,21 @@ private:
         env->DeleteLocalRef(intLocalClass);
 	}
 
-public:
-	// Don't use this constructor
-	JavaIntegerClassInfo() { }
+    ~JavaIntegerClassInfo()
+    {
+        // We don't expect this because this should only be used by static instances
+        wkLogLevel(Warn, "Global ref not cleaned up");
+    }
 
+public:
 	// Make an Integer with the given value
-	jobject makeInteger(JNIEnv *env,int iVal)
-	{
-	    return env->NewObject(integerClass, integerClassInitID, iVal);
-	}
+	jobject makeInteger(JNIEnv *env,int iVal) { return env->NewObject(integerClass, integerClassInitID, iVal); }
+	static jobject make(JNIEnv *env,int iVal) { return getClassInfo(env)->makeInteger(env,iVal); }
 
 	// Return the value of an Integer object
-	int getInteger(JNIEnv *env,jobject intObj)
-	{
-		return env->CallIntMethod(intObj,integerGetID);
-	}
+	int getInteger(JNIEnv *env,jobject intObj) { return env->CallIntMethod(intObj,integerGetID); }
+	static int get(JNIEnv *env,jobject intObj) { return getClassInfo(env)->getInteger(env,intObj); }
 
-	static JavaIntegerClassInfo *classInfoObj;
 	static JavaIntegerClassInfo *getClassInfo(JNIEnv *env)
 	{
 		if (!classInfoObj)
@@ -189,6 +197,8 @@ public:
 protected:
 	jclass integerClass;
 	jmethodID integerClassInitID,integerGetID;
+
+	static JavaIntegerClassInfo *classInfoObj;
 };
 
 // Wrapper for creating Java Long objects
@@ -204,23 +214,22 @@ private:
         env->DeleteLocalRef(longLocalClass);
 	}
 
+    ~JavaLongClassInfo()
+    {
+        // We don't expect this because this should only be used by static instances
+        wkLogLevel(Warn, "Global ref not cleaned up");
+    }
+
 public:
-	// Don't use this constructor
-	JavaLongClassInfo() { }
 
 	// Make an Integer with the given value
-	jobject makeLong(JNIEnv *env,long long lVal)
-	{
-	    return env->NewObject(longClass, longClassInitID, lVal);
-	}
+	jobject makeLong(JNIEnv *env,long long lVal) { return env->NewObject(longClass, longClassInitID, lVal); }
+	static jobject make(JNIEnv *env,long long lVal) { return getClassInfo(env)->makeLong(env,lVal); }
 
 	// Return the value of an Integer object
-	int getLong(JNIEnv *env,jobject longObj)
-	{
-		return env->CallLongMethod(longObj,longGetID);
-	}
+	int getLong(JNIEnv *env,jobject longObj) { return env->CallLongMethod(longObj,longGetID); }
+	static int get(JNIEnv *env,jobject longObj) { return getClassInfo(env)->getLong(env,longObj); }
 
-	static JavaLongClassInfo *classInfoObj;
 	static JavaLongClassInfo *getClassInfo(JNIEnv *env)
 	{
 		if (!classInfoObj)
@@ -231,6 +240,8 @@ public:
 protected:
 	jclass longClass;
 	jmethodID longClassInitID,longGetID;
+
+	static JavaLongClassInfo *classInfoObj;
 };
 
 // Wrapper for creating Java Double objects
@@ -242,20 +253,25 @@ private:
 	    jclass doubleLocalClass = env->FindClass("java/lang/Double");
 	    doubleClass = (jclass)env->NewGlobalRef(doubleLocalClass);
 	    doubleClassInitID = env->GetMethodID(doubleClass, "<init>", "(D)V");
+		doubleGetID = env->GetMethodID(doubleClass,"doubleValue","()D");
         env->DeleteLocalRef(doubleLocalClass);
 	}
 
+	~JavaDoubleClassInfo()
+    {
+	    // We don't expect this because this should only be used by static instances
+	    wkLogLevel(Warn, "Global ref not cleaned up");
+    }
+
 public:
-	// Don't use this constructor
-	JavaDoubleClassInfo() { }
-
 	// Make a Double with the given value
-	jobject makeDouble(JNIEnv *env,int iVal)
-	{
-	    return env->NewObject(doubleClass, doubleClassInitID, iVal);
-	}
+	jobject makeDouble(JNIEnv *env,int iVal) { return env->NewObject(doubleClass, doubleClassInitID, iVal); }
+	static jobject make(JNIEnv *env,int iVal) { return getClassInfo(env)->makeDouble(env,iVal); }
 
-	static JavaDoubleClassInfo *classInfoObj;
+	// Return the value of an Double object
+	double getDouble(JNIEnv *env,jobject dblObj) { return env->CallDoubleMethod(dblObj,doubleGetID); }
+	static double get(JNIEnv *env,jobject dblObj) { return getClassInfo(env)->getDouble(env,dblObj); }
+
 	static JavaDoubleClassInfo *getClassInfo(JNIEnv *env)
 	{
 		if (!classInfoObj)
@@ -266,6 +282,8 @@ public:
 protected:
 	jclass doubleClass;
 	jmethodID doubleClassInitID;
+	jmethodID doubleGetID;
+	static JavaDoubleClassInfo *classInfoObj;
 };
 
 // Wrapper for HashMap
@@ -281,11 +299,24 @@ private:
         env->DeleteLocalRef(localMapClass);
 	}
 
+    ~JavaHashMapInfo()
+    {
+		// singleton pattern, so we don't expect this except at process stop
+	    if (mapClass) {
+            wkLogLevel(Warn, "Global ref not cleaned up");
+        }
+    }
+
 public:
 	// Create a new hash map
-	jobject makeHashMap(JNIEnv *env)
-	{
-		return env->NewObject(mapClass, mapInitMethodID, 1);
+	jobject makeHashMap(JNIEnv *env) { return env->NewObject(mapClass, mapInitMethodID, 1); }
+	static jobject make(JNIEnv *env) { return getClassInfo(env)->makeHashMap(env); }
+
+	void teardown(JNIEnv *env) {
+		if (mapClass) {
+			env->DeleteGlobalRef(mapClass);
+			mapClass = nullptr;
+		}
 	}
 
 	// Add an object to an existing hash map
@@ -294,7 +325,6 @@ public:
 		env->CallObjectMethod(hashMap, putMethodID, key, val);
 	}
 
-	static JavaHashMapInfo *classInfoObj;
 	static JavaHashMapInfo *getClassInfo(JNIEnv *env)
 	{
 		if (!classInfoObj)
@@ -306,6 +336,7 @@ protected:
 	jclass mapClass;
 	jmethodID mapInitMethodID;
 	jmethodID putMethodID;
+	static JavaHashMapInfo *classInfoObj;
 };
 
 // Wrapper for List
@@ -325,28 +356,32 @@ private:
         env->DeleteLocalRef(localListClass);
 	}
 
+	~JavaListInfo()
+    {
+		// singleton pattern, so we don't expect this except at process stop
+		if (iterClass || listClass) {
+			wkLogLevel(Warn, "JavaListInfo not cleaned up");
+		}
+    }
+
 public:
 	// Return the iterator for a given list object
-	jobject getIter(JNIEnv *env,jobject listObj)
-	{
-		return env->CallObjectMethod(listObj,literMethodID);
-	}
+	jobject getIter(JNIEnv *env,jobject listObj) const { return env->CallObjectMethod(listObj,literMethodID); }
 
 	// See if there's a next object
-	bool hasNext(JNIEnv *env,jobject listObj,jobject iterObj)
-	{
-		return env->CallBooleanMethod(iterObj, hasNextID);
-	}
+	bool hasNext(JNIEnv *env,jobject listObj,jobject iterObj) const { return env->CallBooleanMethod(iterObj, hasNextID); }
 
 	// Get the next object with an iterator
-	jobject getNext(JNIEnv *env,jobject listObj,jobject iterObj)
-	{
-		return env->CallObjectMethod(iterObj, nextID);
+	jobject getNext(JNIEnv *env,jobject listObj,jobject iterObj) { return env->CallObjectMethod(iterObj, nextID); }
+
+	void teardown(JNIEnv *env) {
+		if (iterClass) {
+			env->DeleteGlobalRef(iterClass);
+			env->DeleteGlobalRef(listClass);
+			iterClass = nullptr;
+			listClass = nullptr;
+		}
 	}
-
-public:
-
-	static JavaListInfo *classInfoObj;
 	static JavaListInfo *getClassInfo(JNIEnv *env)
 	{
 		if (!classInfoObj)
@@ -357,22 +392,30 @@ public:
 protected:
 	jclass listClass,iterClass;
 	jmethodID literMethodID,hasNextID,nextID;
+	static JavaListInfo *classInfoObj;
 };
 
 // Wrapper for Java string.  Destructor releases.
-class JavaString
+// These are not meant to be long-lived, and should not be composed into other objects.
+struct JavaString
 {
-public:
     // Construct with the string we want to wrap
-    // Only allocate these on the heap.
-    JavaString(JNIEnv *env,jstring &str);
-    
+    JavaString(JNIEnv *env,jstring str);
+    JavaString(const JavaString &other) = delete;
+    JavaString(JavaString &&other) noexcept;
+
     // This cleans up the reference.
     ~JavaString();
-    
-    JNIEnv *env;
-    jstring &str;
-    const char *cStr;
+
+    operator const char*() const { return cStr; }
+    operator bool() const { return cStr != nullptr; }
+
+    const char *getCString() const { return cStr; }
+
+private:
+	const char *cStr;
+	JNIEnv *env;
+	jstring str;
 };
 
 // Wrapper for Java boolean array.  Destructor cleans up.
@@ -444,15 +487,26 @@ public:
  * Used to iterate over the elements of an object array.
  * This cleans up the previous object when you get the next
  * and cleans up the last one on destruction.
+ *
+ * Retains the JNIEnv, and so must not be held across JNI calls.
  */
 class JavaObjectArrayHelper
 {
 public:
 	JavaObjectArrayHelper(JNIEnv *env,jobjectArray objArray);
+	JavaObjectArrayHelper(const JavaObjectArrayHelper &) = delete;
 	~JavaObjectArrayHelper();
 
+	JavaObjectArrayHelper& operator=(const JavaObjectArrayHelper&) = delete;
+
 	// Total number of objects
-	int numObjects();
+	int numObjects() const { return count; }
+
+	operator bool() const { return count > 0; }
+
+	bool hasNextObject() const { return nextIndex < count; }
+
+	jobject getCurrentObject() const { return curObj; }
 
 	// Return the next object, if there is one.  NULL otherwise.
 	jobject getNextObject();
@@ -461,7 +515,7 @@ protected:
 	JNIEnv *env;
 	jobjectArray objArray;
 	int count;
-	int which;
+	int nextIndex;
 	jobject curObj;
 };
 
@@ -502,14 +556,15 @@ void ConvertLongArrayToSet(JNIEnv *env,jlongArray &longArray,std::set<WhirlyKit:
 void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::string> &strVec);
 
 // Return a Java long array
-jlongArray BuildLongArray(JNIEnv *env,std::vector<WhirlyKit::SimpleIdentity> &longVec);
+jlongArray BuildLongArray(JNIEnv *env,const std::vector<WhirlyKit::SimpleIdentity> &longVec);
 // Return a Java double array
-jdoubleArray BuildDoubleArray(JNIEnv *env,std::vector<double> &doubleVec);
+jdoubleArray BuildDoubleArray(JNIEnv *env,const std::vector<double> &doubleVec);
 // Return a Java int array
-jintArray BuildIntArray(JNIEnv *env,std::vector<int> &longVec);
+jintArray BuildIntArray(JNIEnv *env,const std::vector<int> &longVec);
 // Return a new Java object array
-jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,std::vector<jobject> &objVec);
+jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,jobject singleObj);
+jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,const std::vector<jobject> &objVec);
 // Return new Java string array
-jobjectArray BuildStringArray(JNIEnv *env,std::vector<std::string> &objVec);
+jobjectArray BuildStringArray(JNIEnv *env,const std::vector<std::string> &objVec);
 
 #endif /* Maply_JNI_h_ */

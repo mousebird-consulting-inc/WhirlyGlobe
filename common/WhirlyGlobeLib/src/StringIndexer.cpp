@@ -1,9 +1,8 @@
-/*
- *  StringIndexer.mm
+/*  StringIndexer.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/18.
- *  Copyright 2011-2019 Saildrone Inc
+ *  Copyright 2011-2021 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "StringIndexer.h"
@@ -23,41 +21,38 @@
 #import "Identifiable.h"
 
 namespace WhirlyKit {
-    
-StringIndexer &StringIndexer::getInstance()
+
+StringIndexer StringIndexer::instance;
+
+StringIndexer::StringIndexer() : stringToIdent(500)
 {
-    static StringIndexer instance;
-    
-    return instance;
+    identToString.reserve(500);
 }
 
 StringIdentity StringIndexer::getStringID(const std::string &str)
 {
     StringIndexer &index = getInstance();
-    
+
+    // todo: upgradeable shared mutex would be perfect here
     std::lock_guard<std::mutex> lock(index.mutex);
-    
-    auto it = index.stringToIdent.find(str);
+
+    const auto it = index.stringToIdent.find(str);
     if (it != index.stringToIdent.end())
         return it->second;
-    
-    int strID = index.identToString.size();
+
+    const int strID = index.identToString.size();
     index.identToString.push_back(str);
     index.stringToIdent[str] = strID;
-    
     return strID;
 }
 
 std::string StringIndexer::getString(StringIdentity strID)
 {
-    StringIndexer &index = getInstance();
-    
+    const StringIndexer &index = getInstance();
+
     std::lock_guard<std::mutex> lock(index.mutex);
-    
-    if (strID >= index.identToString.size())
-        return "";
-    
-    return index.identToString[strID];
+
+    return (strID < index.identToString.size()) ? index.identToString[strID] : std::string();
 }
  
 // Note: This is from OpenGL.  Doesn't hold anymore on iOS
@@ -102,6 +97,8 @@ StringIdentity u_uprightNameID;
 StringIdentity u_activerotNameID;
 StringIdentity a_rotNameID;
 StringIdentity a_dirNameID;
+StringIdentity a_maskNameID;
+StringIdentity a_maskNameIDs[WhirlyKitMaxMasks];
 StringIdentity a_texCoordNameID;
 StringIdentity u_w2NameID;
 StringIdentity u_Realw2NameID;
@@ -119,12 +116,8 @@ StringIdentity a_instanceColorNameID;
 StringIdentity a_modelDirNameID;
 
 // Turn the string names into IDs, but just once
-static bool stringsSetup = false;
-void SetupDrawableStrings()
+static void SetupDrawableStringsOnce()
 {
-    if (stringsSetup)
-        return;
-    
     for (unsigned int ii=0;ii<8;ii++) {
         std::string baseMapName = "s_baseMap" + std::to_string(ii);
         baseMapNameIDs[ii] = StringIndexer::getStringID(baseMapName);
@@ -155,7 +148,7 @@ void SetupDrawableStrings()
     materialDiffuseNameID = StringIndexer::getStringID("material.diffuse");
     materialSpecularNameID = StringIndexer::getStringID("material.specular");
     materialSpecularExponentNameID = StringIndexer::getStringID("material.specular_exponent");
-    
+
     mvpMatrixNameID = StringIndexer::getStringID("u_mvpMatrix");
     mvpInvMatrixNameID = StringIndexer::getStringID("u_mvpInvMatrix");
     mvMatrixNameID = StringIndexer::getStringID("u_mvMatrix");
@@ -179,6 +172,11 @@ void SetupDrawableStrings()
     u_activerotNameID = StringIndexer::getStringID("u_activerot");
     a_rotNameID = StringIndexer::getStringID("a_rot");
     a_dirNameID = StringIndexer::getStringID("a_dir");
+    a_maskNameID = StringIndexer::getStringID("a_maskID");
+    for (unsigned int index=0;index<WhirlyKitMaxMasks;index++) {
+        sprintf(name,"a_maskID%d",index);
+        a_maskNameIDs[index] = StringIndexer::getStringID(name);
+    }
     a_texCoordNameID = StringIndexer::getStringID("a_texCoord");
     u_w2NameID = StringIndexer::getStringID("u_w2");
     u_Realw2NameID = StringIndexer::getStringID("u_real_w2");
@@ -194,7 +192,11 @@ void SetupDrawableStrings()
     a_useInstanceColorNameID = StringIndexer::getStringID("a_useInstanceColor");
     a_instanceColorNameID = StringIndexer::getStringID("a_instanceColor");
     a_modelDirNameID = StringIndexer::getStringID("a_modelDir");
-
-    stringsSetup = true;
 }
+static std::once_flag stringsSetup;
+void SetupDrawableStrings()
+{
+    std::call_once(stringsSetup, SetupDrawableStringsOnce);
+}
+
 }

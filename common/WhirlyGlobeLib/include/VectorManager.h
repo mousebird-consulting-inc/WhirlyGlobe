@@ -67,7 +67,8 @@ public:
     
     VectorInfo();
     VectorInfo(const Dictionary &dict);
-    
+    virtual ~VectorInfo() = default;
+
     // Convert contents to a string for debugging
     virtual std::string toString();
     
@@ -116,8 +117,8 @@ public:
     void enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &changes);
     
 protected:
-    std::mutex vectorLock;
     VectorSceneRepSet vectorReps;
 };
+typedef std::shared_ptr<VectorManager> VectorManagerRef;
 
 }

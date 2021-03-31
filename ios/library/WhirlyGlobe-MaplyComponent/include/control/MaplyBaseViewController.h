@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -235,6 +235,8 @@
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
  |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
  |kMaplyClusterGroup|NSNumber|If set, the screen markers will be clustered together according to the given group ID.  Off by default, but 0 is the default cluster.|
 
     
@@ -284,7 +286,9 @@
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
  
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -330,7 +334,9 @@
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyEnableStart|NSNumber|If set, this controls when the resulting objects will be activated.|
  |kMaplyEnableEnd|NSNumber|If set, this controls when the resulting objects will be deactivated.|
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
@@ -373,8 +379,9 @@
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's off by default, meaning that the geometry will draw on top of anything (respecting the kMaplyDrawPriority).|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -418,8 +425,9 @@
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
 
- 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -453,8 +461,9 @@
  |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
 
- 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -488,8 +497,9 @@
  |kMaplyViewableCenterZ|MaplyCoordinate3dWrapper|When evaulating min/max viewer distance, we'll use this center Z coordinate.|
  |kMaplyDrawPriority|NSNumber|Geometry is sorted by this value before being drawn.  This ensures that some objects can come out on top of others.  By default this is kMaplyVectorDrawPriorityDefault.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
 
- 
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -516,8 +526,9 @@
  |:--|:---|:----------|
  |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -537,8 +548,9 @@
  |:--|:---|:----------|
  |kMaplySelectable|NSNumber boolean|Off by default.  When enabled, the vector feature will be selectable by a user.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -573,8 +585,9 @@
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that the geometry can be occluded by things drawn first.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -612,8 +625,9 @@
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
  |kMaplyShader|NSString|If set, this is the name of the MaplyShader to use when rendering the sticker(s).|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @param threadMode MaplyThreadAny is preferred and will use another thread, thus not blocking the one you're on.  MaplyThreadCurrent will make the changes immediately, blocking this thread.
  
  
@@ -765,8 +779,9 @@
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
-  
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
@@ -798,8 +813,9 @@
  |kMaplyZBufferRead|NSNumber boolean|If set this geometry will respect the z buffer.  It's on by default, meaning that it can be occluded by geometry coming before it.|
  |kMaplyZBufferWrite|NSNumber boolean|If set this geometry will write to the z buffer.  That means following geometry that reads the z buffer will be occluded.  This is off by default.|
  |kMaplyEnable|NSNumber boolean|On by default, but if off then the feature exists, but is not turned on.  It can be enabled with enableObjects:|
- 
- 
+ |kMaplyUUID|NSString|Unique ID to match up alternate representations of the same element.|
+ |kMaplyRepresentation|NSString|Name of the representation presented by this object.|
+
     @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
   */
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
@@ -1126,8 +1142,85 @@
     @param theObjs The objects to enable.
     
     @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
- */
+*/
 - (void)enableObjects:(NSArray *__nonnull)theObjs mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param uuids Array of NSString, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+    @param uuids Array of NSString, the UUIDs to update
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param uuids Array of NSString, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for the matching UUIDs by specifying the UUIDs directly.
+
+    @param uuids Array of NSString, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                  ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
+                     mode:(MaplyThreadMode)threadMode;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
+
+/**
+    Set the representation to use for the UUIDs of the given objects.
+
+    @param objects Array of ComponentObject, the UUIDs to update
+    @param repName The representation value to apply, nil to return to the default
+    @param fallbackRepName The representation to use if there are no matches
+    @param threadMode For MaplyThreadAny we'll do the enable on another thread.  For MaplyThreadCurrent we'll block the current thread to finish the enable.  MaplyThreadAny is preferred.
+*/
+- (void)setRepresentation:(NSString *__nullable)repName
+          fallbackRepName:(NSString *__nullable)fallbackRepName
+                ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects
+                     mode:(MaplyThreadMode)threadMode;
 
 /**
     Pass a uniform block through to a shader.  Only for Metal.
@@ -1354,7 +1447,28 @@
     
     @param useCourse Use location services course information as fallback if heading unavailable
  */
-- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate useHeading:(bool)useHeading useCourse:(bool)useCourse simulate:(bool)simulate;
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse;
+
+/**
+    Start location tracking
+    
+    @param delegate The MaplyLocationTrackerDelegate for receiving location event callbacks
+    
+    @param simulator The MaplyLocationSimulatorDelegate for producing  locations
+ 
+    @param simInterval The time interval on which to update
+
+    @param useHeading Use location services heading information (requires physical magnetometer)
+    
+    @param useCourse Use location services course information as fallback if heading unavailable
+ */
+- (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *__nullable)delegate
+                                simulator:(NSObject<MaplyLocationSimulatorDelegate> *__nullable)simulator
+                              simInterval:(NSTimeInterval)simInterval
+                               useHeading:(bool)useHeading
+                                useCourse:(bool)useCourse;
 
 /**
  Return the current location tracker, if there is one.

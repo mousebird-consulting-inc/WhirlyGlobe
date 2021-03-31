@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleLine.h
+/*  MapboxVectorStyleLine.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleSetC.h"
@@ -33,7 +31,7 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 class MapboxVectorLineLayout
 {
 public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
     MapboxVectorLineCap cap;
     MapboxVectorLineJoin join;
@@ -47,11 +45,12 @@ public:
 class MapboxVectorLinePaint
 {
 public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
     MapboxTransDoubleRef opacity;
     MapboxTransColorRef color;
     MapboxTransDoubleRef width;
+    MapboxTransDoubleRef offset;
     std::string pattern;
     std::vector<double> lineDashArray;
 };
@@ -63,13 +62,16 @@ public:
     MapboxVectorLayerLine(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
     virtual bool parse(PlatformThreadInfo *inst,
-                       DictionaryRef styleEntry,
-                       MapboxVectorStyleLayerRef refLayer,
-                       int drawPriority);
+                       const DictionaryRef &styleEntry,
+                       const MapboxVectorStyleLayerRef &refLayer,
+                       int drawPriority) override;
     
-    virtual void buildObjects(PlatformThreadInfo *inst,std::vector<VectorObjectRef> &vecObjs,VectorTileDataRef tileInfo);
+    virtual void buildObjects(PlatformThreadInfo *inst,
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc) override;
     
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
     
 public:
     MapboxVectorLineLayout layout;
@@ -84,6 +86,9 @@ public:
     double totLen;
     double fade;
     SimpleIdentity filledLineTexID;
+
+    std::string uuidField;      // UUID field for markers/labels (from style settings)
+    std::string repUUIDField;   // UUID field for representations (from style layers)
 };
 
 }

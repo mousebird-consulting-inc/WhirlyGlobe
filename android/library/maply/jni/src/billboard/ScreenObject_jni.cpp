@@ -1,9 +1,8 @@
-/*
- *  ScreenObject_jni.cpp
+/*  ScreenObject_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,26 +14,25 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 #import "Billboard_jni.h"
 #import "Geometry_jni.h"
 #import "com_mousebird_maply_ScreenObject.h"
 #import <android/bitmap.h>
 
-template<> ScreenObjectClassInfo *ScreenObjectClassInfo::classInfoObj = NULL;
+template<> ScreenObjectClassInfo *ScreenObjectClassInfo::classInfoObj = nullptr;
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_nativeInit
-(JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_nativeInit(JNIEnv *env, jclass cls)
 {
     ScreenObjectClassInfo::getClassInfo(env, cls);
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_initialise
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_initialise(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -50,8 +48,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_initialise
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_dispose
-(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_dispose(JNIEnv *env, jobject obj)
 {
     try
     {
@@ -71,6 +69,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_dispose
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addPoly
 (JNIEnv *env, jobject obj, jobject polyObj)
 {
@@ -91,6 +90,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addPoly
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addString
         (JNIEnv *env, jobject obj, jobject stringObj)
 {
@@ -111,6 +111,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addString
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
         (JNIEnv *env, jobject obj, jlong texID, jfloat r, jfloat g, jfloat b, jfloat a, jfloat width, jfloat height)
 {
@@ -148,17 +149,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addTextureNative
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addScreenObject
         (JNIEnv *env, jobject obj, jobject screenObj)
 {
     try
     {
         ScreenObjectClassInfo *classInfo = ScreenObjectClassInfo::getClassInfo();
-        ScreenObject *inst = classInfo->getObject(env, obj);
-        ScreenObject *newScreen = classInfo->getObject(env, screenObj);
-        if (!inst || !newScreen)
-            return;
-        inst = newScreen;
+        if (auto inst = classInfo->getObject(env, obj))
+        if (auto newScreen = classInfo->getObject(env, screenObj))
+        {
+            inst->polys.insert(inst->polys.end(), newScreen->polys.begin(), newScreen->polys.end());
+            inst->strings.insert(inst->strings.end(), newScreen->strings.begin(), newScreen->strings.end());
+        }
     }
     catch (...)
     {
@@ -166,6 +169,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_addScreenObject
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_getSizeNative
         (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
 {
@@ -206,8 +210,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_getSizeNative
     }
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_transform
-(JNIEnv *env, jobject obj, jobject matObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ScreenObject_transform(JNIEnv *env, jobject obj, jobject matObj)
 {
     try
     {

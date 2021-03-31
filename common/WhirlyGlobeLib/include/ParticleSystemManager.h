@@ -117,8 +117,8 @@ public:
     void setUniformBlock(const SimpleIDSet &partSysIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);
 
 protected:
-    std::mutex partSysLock;
     ParticleSystemSceneRepSet sceneReps;
 };
+typedef std::shared_ptr<ParticleSystemManager> ParticleSystemManagerRef;
     
 }

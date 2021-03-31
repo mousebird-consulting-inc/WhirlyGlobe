@@ -191,9 +191,9 @@ bool VectorParseFeature(ShapeSet &shapes,NSDictionary *jsonDict)
     
     // Apply the attributes if there are any
     if ([prop isKindOfClass:[NSDictionary class]])
-        for (ShapeSet::iterator it = shapes.begin(); it != shapes.end(); ++it) {
-            iosMutableDictionary *dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:prop]);
-            (*it)->setAttrDict(MutableDictionaryRef(dict));
+        for (auto shape : shapes) {
+            auto dict = new iosMutableDictionary([NSMutableDictionary dictionaryWithDictionary:prop]);
+            shape->setAttrDict(MutableDictionaryRef(dict));
         }
     
     // Apply the identity if there is one
@@ -231,6 +231,19 @@ bool VectorParseGeoJSON(ShapeSet &shapes,NSDictionary *jsonDict)
             else
                 return false;
         }
+    } else if (![type compare:@"Feature"]) {
+        ShapeSet featShapes;
+        if (VectorParseFeature(featShapes,jsonDict))
+            shapes.insert(featShapes.begin(),featShapes.end());
+        else
+            return false;
+    } else {
+        // Sometimes they just include geometry
+        ShapeSet rawShapes;
+        if (VectorParseGeometry(rawShapes,jsonDict))
+            shapes.insert(rawShapes.begin(),rawShapes.end());
+        else
+            return false;
     }
     
     return true;

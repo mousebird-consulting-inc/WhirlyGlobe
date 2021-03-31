@@ -4,8 +4,11 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileOptions {
-        sourceCompatibility 1.8
-        targetCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
     }
     signingConfigs {
         config {
@@ -18,7 +21,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.mousebirdconsulting.autotester"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"

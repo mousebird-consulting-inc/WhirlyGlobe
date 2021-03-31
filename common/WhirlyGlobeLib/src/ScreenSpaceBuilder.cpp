@@ -27,9 +27,9 @@ namespace WhirlyKit
 ScreenSpaceBuilder::DrawableState::DrawableState()
     : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
     enable(true), startEnable(0.0), endEnable(0.0),
-    drawPriority(0), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
+    drawPriority(0), renderTargetID(EmptyIdentity), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
     zoomSlot(-1), minZoomVis(DrawVisibleInvalid), maxZoomVis(DrawVisibleInvalid),
-    motion(false), rotation(false), keepUpright(false)
+    motion(false), rotation(false), keepUpright(false), hasMask(false)
 {
 }
     
@@ -43,6 +43,8 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return progID < that.progID;
     if (drawPriority != that.drawPriority)
         return drawPriority < that.drawPriority;
+    if (renderTargetID != that.renderTargetID)
+        return renderTargetID < that.renderTargetID;
     if (minVis != that.minVis)
         return  minVis < that.minVis;
     if (maxVis != that.maxVis)
@@ -69,6 +71,8 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return rotation < that.rotation;
     if (keepUpright != that.keepUpright)
         return keepUpright < that.keepUpright;
+    if (hasMask != that.hasMask)
+        return hasMask < that.hasMask;
     if (vertexAttrs != that.vertexAttrs)
         return vertexAttrs < that.vertexAttrs;
     SimpleIdentity opacityExp0 = opacityExp ? opacityExp->getId() : EmptyIdentity,
@@ -95,7 +99,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     : state(state), center(0,0,0)
 {
     locDraw = render->makeScreenSpaceDrawableBuilder("ScreenSpace Builder");
-    locDraw->Init(state.motion,state.rotation);
+    locDraw->ScreenSpaceInit(state.motion,state.rotation,state.hasMask);
     locDraw->setType(Triangles);
     // A max of two textures per
     for (unsigned int ii=0;ii<state.texIDs.size() && ii<2;ii++)
@@ -103,6 +107,8 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     locDraw->setProgram(state.progID);
     locDraw->setDrawOrder(state.drawOrder);
     locDraw->setDrawPriority(state.drawPriority);
+    if (state.renderTargetID != EmptyIdentity)
+        locDraw->setRenderTarget(state.renderTargetID);
     locDraw->setFade(state.fadeDown, state.fadeUp);
     locDraw->setVisibleRange(state.minVis, state.maxVis);
     locDraw->setZoomInfo(state.zoomSlot, state.minZoomVis, state.maxZoomVis);
@@ -219,6 +225,11 @@ void ScreenSpaceBuilder::setDrawPriority(int drawPriority)
     curState.drawPriority = drawPriority;
 }
 
+void ScreenSpaceBuilder::setRenderTarget(SimpleIdentity renderTargetID)
+{
+    curState.renderTargetID = renderTargetID;
+}
+
 void ScreenSpaceBuilder::setVisibility(float minVis,float maxVis)
 {
     curState.minVis = minVis;
@@ -331,7 +342,7 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
     {
         ScreenSpaceObject &ssObj = screenObjects[ii];
         
-        addScreenObject(ssObj);
+        addScreenObject(ssObj,ssObj.worldLoc,ssObj.geometry);
     }
 }
     
@@ -344,29 +355,41 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &scre
     {
         ScreenSpaceObject *ssObj = screenObjects[ii];
         
-        addScreenObject(*ssObj);
+        addScreenObject(*ssObj, ssObj->worldLoc, ssObj->geometry);
     }
 }
 
-void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj)
+void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
+                                         const Point3d &worldLoc,
+                                         const std::vector<ScreenSpaceConvexGeometry> &geoms,
+                                         const std::vector<Eigen::Matrix3d> *places)
 {
-    for (unsigned int ii=0;ii<ssObj.geometry.size();ii++)
+    for (unsigned int ii=0;ii<geoms.size();ii++)
     {
-        const ScreenSpaceObject::ConvexGeometry &geom = ssObj.geometry[ii];
+        ScreenSpaceConvexGeometry geom = geoms[ii];
+        // Apply a matrix to the geometry for a given version of the placement
+        if (places) {
+            for (auto &pt: geom.coords) {
+                auto pt2d = (*places)[ii] * Point3d(pt.x(),pt.y(),1.0);
+                pt = Point2d(pt2d.x(),pt2d.y());
+            }
+        }
         DrawableState state = ssObj.state;
         state.texIDs = geom.texIDs;
         if (geom.progID != EmptyIdentity)
             state.progID = geom.progID;
         if (geom.drawPriority > -1)
             state.drawPriority = geom.drawPriority;
+        if (geom.renderTargetID != EmptyIdentity)
+            state.renderTargetID = geom.renderTargetID;
         state.enable = ssObj.enable;
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
         VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
-        DrawableWrapRef drawWrap = findOrAddDrawWrap(state,(int)geom.coords.size(),(int)(geom.coords.size()-2),ssObj.worldLoc);
+        DrawableWrapRef drawWrap = findOrAddDrawWrap(state,(int)geom.coords.size(),(int)(geom.coords.size()-2),worldLoc);
         
         // May need to adjust things based on time
-        Point3d startLoc3d = ssObj.worldLoc;
+        Point3d startLoc3d = worldLoc;
         Point3f dir(0,0,0);
         if (state.motion)
         {
@@ -424,8 +447,8 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
     draws.clear();
 }
     
-ScreenSpaceObject::ScreenSpaceObject::ConvexGeometry::ConvexGeometry()
-    : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1)
+ScreenSpaceConvexGeometry::ScreenSpaceConvexGeometry()
+    : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1), renderTargetID(EmptyIdentity)
     , drawOrder(BaseInfo::DrawOrderTiles)
 {
 }
@@ -526,6 +549,11 @@ void ScreenSpaceObject::setDrawPriority(int drawPriority)
     state.drawPriority = drawPriority;
 }
 
+void ScreenSpaceObject::setRenderTarget(SimpleIdentity renderTargetID)
+{
+    state.renderTargetID = renderTargetID;
+}
+
 void ScreenSpaceObject::setKeepUpright(bool inKeepUpright)
 {
     keepUpright = inKeepUpright;
@@ -558,11 +586,16 @@ void ScreenSpaceObject::setOrderBy(long inOrderBy)
     orderBy = inOrderBy;
 }
 
-void ScreenSpaceObject::addGeometry(const ConvexGeometry &geom)
+void ScreenSpaceObject::addGeometry(const ScreenSpaceConvexGeometry &geom)
 {
     geometry.push_back(geom);
 }
-    
+
+void ScreenSpaceObject::addGeometry(const std::vector<ScreenSpaceConvexGeometry> &geom)
+{
+    geometry.insert(geometry.end(), geom.begin(), geom.end());
+}
+
 SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
 {
     for (auto geom : geometry)

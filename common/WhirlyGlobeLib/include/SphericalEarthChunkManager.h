@@ -74,6 +74,7 @@ public:
     
     SphericalChunkInfo();
     SphericalChunkInfo(const Dictionary &);
+    virtual ~SphericalChunkInfo() = default;
 
     RGBAColor color;
     bool doEdgeMatching;
@@ -171,9 +172,9 @@ public:
     void processRequests(ChangeSet &changes);
     
 protected:
-    std::mutex repLock;
     ChunkRepSet chunkReps;
     int borderTexel;
 };
+typedef std::shared_ptr<SphericalChunkManager> SphericalChunkManagerRef;
 
 }

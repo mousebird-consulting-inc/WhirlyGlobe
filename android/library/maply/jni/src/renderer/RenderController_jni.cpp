@@ -378,7 +378,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		if (!renderer)
 			return;
 
-        Snapshot_AndroidRef snapshot(new Snapshot_Android());
+        auto snapshot = std::make_shared<Snapshot_Android>();
 		renderer->addSnapshotDelegate(snapshot);
 
 		renderer->forceDrawNextFrame();
@@ -416,12 +416,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 			{
 				for(int j=0; j<width; j++)
 				{
-					int pix=b[i*width+j];
-					int pr = pix & 0xff;
-					int pg = (pix>>8) & 0xff;
-					int pb = (pix>>16) & 0xff;
-					int pa = (pix>>24) & 0xff;
-					bt[(height-k-1)*width+j] = (pa << 24) | (pb << 16) | (pg << 8) | pr;
+					const unsigned pix=b[i*width+j];
+					const unsigned pr = pix & 0xffU;
+					const unsigned pg = (pix>>8U) & 0xffU;
+					const unsigned pb = (pix>>16U) & 0xffU;
+					const unsigned pa = (pix>>24U) & 0xffU;
+					bt[(height-k-1)*width+j] = (pa << 24U) | (pb << 16U) | (pg << 8U) | pr;
 				}
 			}
 //			memmove(bitmapPixels,snapshot->data->getRawData(),snapshot->data->getLen());
@@ -455,7 +455,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges
                 renderer->extraFrameCount = 4;
             } else {
                 // No changes, make sure we don't have extra frames to draw
-                changes = renderer->extraFrameCount > 0;;
+                changes = renderer->extraFrameCount > 0;
             }
         }
 

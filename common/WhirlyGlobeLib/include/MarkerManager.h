@@ -46,10 +46,10 @@ public:
     ~MarkerSceneRep() { };
 
     // Clear the contents out of the scene
-    void clearContents(SelectionManager *selectManager,LayoutManager *layoutManager,ChangeSet &changes,TimeInterval when);
+    void clearContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,ChangeSet &changes,TimeInterval when);
     
     // Enable/disable marker related features
-    void enableContents(SelectionManager *selectManager,LayoutManager *layoutManager,bool enable,ChangeSet &changes);
+    void enableContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,bool enable,ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
@@ -65,7 +65,8 @@ class MarkerInfo : public BaseInfo
 public:
     MarkerInfo(bool screenObject);
     MarkerInfo(const Dictionary &,bool screenObject);
-    
+    virtual ~MarkerInfo() = default;
+
     RGBAColor color;
     bool screenObject;
     float width,height;
@@ -138,6 +139,11 @@ public:
     long orderBy;
     /// Passed through the system as a unique identifier
     std::string uniqueID;
+    
+    // If set, we'll draw an outline to the mask target
+    WhirlyKit::SimpleIdentity maskID;
+    WhirlyKit::SimpleIdentity maskRenderTargetID;
+
     /// A list of vertex attributes to apply to the marker
     SingleVertexAttributeSet vertexAttrs;
 
@@ -169,9 +175,11 @@ public:
     virtual void setScene(Scene *inScene);
     
 protected:
-    std::mutex markerLock;
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
+    /// We route the mask polygons to this program, if there are any
+    SimpleIdentity maskProgID;
 };
+typedef std::shared_ptr<MarkerManager> MarkerManagerRef;
 
 }
