@@ -36,13 +36,13 @@ static void appendExceptionTraceMessages(
     }
 
     // Get the array of StackTraceElements.
-    const jobjectArray frames = (jobjectArray)env->CallObjectMethod(ex, throwable_getStackTrace);
+    const auto frames = (jobjectArray)env->CallObjectMethod(ex, throwable_getStackTrace);
 
     // Add Throwable.toString() before descending
     // stack trace messages.
     if (frames)
     {
-        if (const jstring msg_obj = (jstring)env->CallObjectMethod(ex, throwable_toString))
+        if (const auto msg_obj = (jstring)env->CallObjectMethod(ex, throwable_toString))
         {
             if (const char* msg_str = env->GetStringUTFChars(msg_obj, nullptr))
             {
@@ -58,11 +58,11 @@ static void appendExceptionTraceMessages(
     for (jsize i = 0; i < frames_length; i++)
     {
         // Get the string returned from the 'toString()' method of the next frame and append it to the error message.
-        if (const jobject frame = env->GetObjectArrayElement(frames, i))
+        if (const auto frame = env->GetObjectArrayElement(frames, i))
         {
-            if (const jstring msg_obj = (jstring) env->CallObjectMethod(frame, frame_toString))
+            if (const auto msg_obj = (jstring) env->CallObjectMethod(frame, frame_toString))
             {
-                if (const char *msg_str = env->GetStringUTFChars(msg_obj, 0))
+                if (const char* msg_str = env->GetStringUTFChars(msg_obj, nullptr))
                 {
                     msg << "\n    ";
                     msg << msg_str;
@@ -75,9 +75,9 @@ static void appendExceptionTraceMessages(
     }
 
     // If ot has a cause then append the stack trace messages from the cause.
-    if (0 != frames)
+    if (frames)
     {
-        if (jthrowable cause = (jthrowable)env->CallObjectMethod(ex, throwable_getCause))
+        if (auto cause = (jthrowable)env->CallObjectMethod(ex, throwable_getCause))
         {
             appendExceptionTraceMessages(env, msg, cause, throwable_getCause,
                                          throwable_getStackTrace, throwable_toString,
@@ -89,6 +89,14 @@ static jmethodID mid_throwable_getCause = nullptr;
 static jmethodID mid_throwable_getStackTrace = nullptr;
 static jmethodID mid_throwable_toString = nullptr;
 static jmethodID mid_frame_toString = nullptr;
+
+static jthrowable makeThrowable(JNIEnv* env)
+{
+    auto tc = env->FindClass("java/lang/Throwable");
+    auto ctor = env->GetMethodID(tc, "<init>", "()V");
+    return (jthrowable)env->NewObject(tc,ctor);
+}
+
 void appendExceptionTraceMessages(JNIEnv* env, std::ostringstream& msg, jthrowable ex)
 {
     if (!mid_throwable_getCause)
@@ -113,17 +121,32 @@ std::string getExceptionTraceMessages(JNIEnv* env, jthrowable ex)
     return ss.str();
 }
 
+void logJVMException(JNIEnv* env, jthrowable throwable, const char* where, android_LogPriority priority)
+{
+    const auto trace = getExceptionTraceMessages(env, throwable);
+    __android_log_print(priority, "Maply", where ? "Exception in %s:\n%s" : "%s%s",
+                        where ? where : "", trace.c_str());
+}
+
 bool logAndClearJVMException(JNIEnv* env, const char* where, android_LogPriority priority)
 {
     if (auto ex = env->ExceptionOccurred())
     {
         env->ExceptionClear();
-        const auto trace = getExceptionTraceMessages(env, ex);
-        __android_log_print(priority, "Maply", "Exception in %s:\n%s",
-                            where ? where : "?", trace.c_str());
+        logJVMException(env,ex,where,priority);
         return true;
     }
     return false;
+}
+
+void logStackTrace(JNIEnv* env, const char* where, android_LogPriority priority)
+{
+    logJVMException(env,makeThrowable(env),where,priority);
+}
+
+std::string getStackTrace(JNIEnv* env)
+{
+    return getExceptionTraceMessages(env, makeThrowable(env));
 }
 
 }
