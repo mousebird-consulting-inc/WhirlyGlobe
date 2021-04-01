@@ -125,7 +125,7 @@ public:
     /// Add a single screen space object
     void addScreenObject(const ScreenSpaceObject &screenObject,
                          const Point3d &worldLoc,
-                         const std::vector<ScreenSpaceConvexGeometry> &geoms,
+                         const std::vector<ScreenSpaceConvexGeometry> *geoms,
                          const std::vector<Eigen::Matrix3d> *places = nullptr);
     
     /// Return the drawables constructed.  Caller responsible for deletion.
@@ -178,20 +178,22 @@ protected:
 class ScreenSpaceConvexGeometry
 {
 public:
-    ScreenSpaceConvexGeometry();
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    
+    ScreenSpaceConvexGeometry() = default;
     
     /// Texture ID used for just this object
     std::vector<SimpleIdentity> texIDs;
     /// Program ID used to render this geometry
-    SimpleIdentity progID;
+    SimpleIdentity progID = EmptyIdentity;
     /// Color for the geometry
-    RGBAColor color;
+    RGBAColor color = RGBAColor::white();
     /// Draw order
-    int64_t drawOrder;
+    int64_t drawOrder = BaseInfo::DrawOrderTiles;
     /// Draw priority
-    int drawPriority;
+    int drawPriority = -1;
     /// Render target
-    SimpleIdentity renderTargetID;
+    SimpleIdentity renderTargetID = EmptyIdentity;
     /// Vertex attributes applied to this piece of geometry
     SingleVertexAttributeSet vertexAttrs;
     
@@ -247,7 +249,7 @@ public:
     
     void addGeometry(const ScreenSpaceConvexGeometry &geom);
     void addGeometry(const std::vector<ScreenSpaceConvexGeometry> &geom);
-    std::vector<ScreenSpaceConvexGeometry> getGeometry() const { return geometry; }
+    const std::vector<ScreenSpaceConvexGeometry> *getGeometry() const { return &geometry; }
     
     // Get a program ID either from the drawable state or geometry
     SimpleIdentity getTypicalProgramID();
