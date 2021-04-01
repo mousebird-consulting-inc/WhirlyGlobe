@@ -25,6 +25,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static com.mousebird.maply.RenderController.EmptyIdentity;
+
 /**
  * Fill in this protocol to provide images when individual markers/labels are clustered.
  * <p>
@@ -68,10 +70,11 @@ public class ClusterGenerator
     {
         ClusterInfo clusterInfo = new ClusterInfo(num);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);
-
-        currentTextures.add(newGroup.tex.texID);
-
-        return newGroup.tex.texID;
+        if (newGroup != null) {
+            currentTextures.add(newGroup.tex.texID);
+            return newGroup.tex.texID;
+        }
+        return EmptyIdentity;
     }
 
     /**

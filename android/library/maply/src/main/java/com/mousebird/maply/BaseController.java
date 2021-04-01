@@ -1,3 +1,20 @@
+/*
+ * BaseController.java
+ * AutoTesterAndroid.maply
+ *
+ * Created by Steve Gifford
+ * Copyright © 2011-2021 mousebird consulting, inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed
+ * under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+ * CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package com.mousebird.maply;
 
 import android.app.Activity;
@@ -20,7 +37,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +78,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Listener to receive the screenshot in an asynchronous way.
 	*/
 	public interface ScreenshotListener {
-		public void onScreenshotResult(Bitmap screenshot);
+		void onScreenshotResult(Bitmap screenshot);
 	}
 
 	/**
@@ -476,7 +492,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			String bundleName = pInfo.packageName;
 			String bundleBuild = "unknown";
 			String bundleVersion = pInfo.versionName;
-			String osversion = "Android " + Build.VERSION.RELEASE.toString();
+			String osversion = "Android " + Build.VERSION.RELEASE;
 			String model = Build.MANUFACTURER + " " + Build.MODEL;
 			String wgMaplyVersion = "3.0";
 			String json = String.format(
@@ -620,10 +636,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				sampleLayer.isShuttingDown = true;
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
-			ArrayList<LayerThread> layerThreadsToRemove = null;
+			ArrayList<LayerThread> layerThreadsToRemove;
 			if (layerThreads != null) {
 				synchronized (layerThreads) {
-					layerThreadsToRemove = new ArrayList<LayerThread>(layerThreads);
+					layerThreadsToRemove = new ArrayList<>(layerThreads);
 				}
 				for (LayerThread layerThread : layerThreadsToRemove)
 					layerThread.shutdown();
@@ -895,7 +911,21 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			baseLayerThread.addLayer(layoutLayer);
 
 			// Add a default cluster generator
-			addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(255, 255, 165, 0)}, 0, new Point2d(64, 64), this, activity));
+			BasicClusterGenerator generator = new BasicClusterGenerator(
+					new int[]{
+							Color.argb(192, 32, 224, 0),
+							Color.argb(255, 64, 192, 0),
+							Color.argb(255, 128, 128, 0),
+							Color.argb(255, 168, 96, 0),
+							Color.argb(255, 192, 64, 0),
+							Color.argb(255, 255, 0, 0),
+					},
+					0, new Point2d(64, 64), this, activity);
+			generator.cacheBitmaps(true);
+			generator.setExponentBase(2.5);
+			generator.setTextColor(Color.argb(255,224,224,224));
+			generator.setLayoutSize(new Point2d(70,70));
+			addClusterGenerator(generator);
 
 			// Run any outstanding runnables
 			if (surfaceTasks != null) {
@@ -1434,7 +1464,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public ComponentObject addWideVector(VectorObject vec,WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
 	{
-		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+		ArrayList<VectorObject> vecObjs = new ArrayList<>();
 		vecObjs.add(vec);
 
 		return addWideVectors(vecObjs,wideVecInfo,mode);
@@ -1465,7 +1495,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public ComponentObject addLoftedPoly(final VectorObject vec,final LoftedPolyInfo loftInfo,RenderController.ThreadMode mode)
 	{
-		ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+		ArrayList<VectorObject> vecObjs = new ArrayList<>();
 		vecObjs.add(vec);
 		return addLoftedPolys(vecObjs,loftInfo,mode);
 	}
@@ -1499,7 +1529,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 
-		ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+		ArrayList<ScreenMarker> markers = new ArrayList<>();
 		markers.add(marker);
 		return addScreenMarkers(markers,markerInfo,mode);
 	}
@@ -1542,7 +1572,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 
-		ArrayList<Marker> markers = new ArrayList<Marker>();
+		ArrayList<Marker> markers = new ArrayList<>();
 		markers.add(marker);
 		return addMarkers(markers,markerInfo,mode);
 	}
@@ -1626,7 +1656,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 
-		List<Points> ptList = new ArrayList<Points>();
+		List<Points> ptList = new ArrayList<>();
 		ptList.add(pts);
 
 		return addPoints(ptList,geomInfo,mode);
@@ -1797,7 +1827,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
 	public void removeTexture(final MaplyTexture tex,RenderController.ThreadMode mode)
 	{
-        ArrayList<MaplyTexture> texs = new ArrayList<MaplyTexture>();
+        ArrayList<MaplyTexture> texs = new ArrayList<>();
         texs.add(tex);
         removeTextures(texs,mode);
 	}
@@ -2015,7 +2045,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return;
 
-		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		ArrayList<ComponentObject> compObjs = new ArrayList<>();
 		compObjs.add(compObj);
 
 		enableObjects(compObjs, mode);
@@ -2032,7 +2062,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (compObj == null)
 			return;
 
-		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		ArrayList<ComponentObject> compObjs = new ArrayList<>();
 		compObjs.add(compObj);
 		removeObjects(compObjs, mode);
 	}
@@ -2241,7 +2271,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		setEGLContext(glContext);
 
-		float widths[] = new float[2];
+		float[] widths = new float[2];
 		GLES20.glGetFloatv(GLES20.GL_ALIASED_LINE_WIDTH_RANGE, widths, 0);
 
 		setEGLContext(null);

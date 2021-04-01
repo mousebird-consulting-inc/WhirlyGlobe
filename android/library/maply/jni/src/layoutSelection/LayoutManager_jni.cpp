@@ -23,6 +23,7 @@
 #import "Renderer_jni.h"
 #import "com_mousebird_maply_LayoutManager.h"
 #import "WhirlyGlobe.h"
+#import <Exceptions_jni.h>
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -201,6 +202,14 @@ public:
 
         // The texture gets created on the Java side, so we'll just use the ID
         const long texID = env->CallLongMethod(clusterGenerator.clusterObj, clusterGenerator.makeClusterGroupJNIJava, layoutObjects.size());
+        if (logAndClearJVMException(env,"makeClusterGroup"))
+        {
+            return;
+        }
+        if (texID == EmptyIdentity)
+        {
+            __android_log_print(ANDROID_LOG_WARN, "Maply", "No tex from makeClusterGroup");
+        }
         
         const Point2d size = clusterGenerator.layoutSize;
         
@@ -208,13 +217,13 @@ public:
         ScreenSpaceConvexGeometry smGeom;
         smGeom.progID = progID;
         smGeom.coords.push_back(Point2d(- size.x()/2.0,-size.y()/2.0));
-        smGeom.texCoords.push_back(TexCoord(0,1));
+        smGeom.texCoords.emplace_back(0,1);
         smGeom.coords.push_back(Point2d(size.x()/2.0,-size.y()/2.0));
-        smGeom.texCoords.push_back(TexCoord(1,1));
+        smGeom.texCoords.emplace_back(1,1);
         smGeom.coords.push_back(Point2d(size.x()/2.0,size.y()/2.0));
-        smGeom.texCoords.push_back(TexCoord(1,0));
+        smGeom.texCoords.emplace_back(1,0);
         smGeom.coords.push_back(Point2d(-size.x()/2.0,size.y()/2.0));
-        smGeom.texCoords.push_back(TexCoord(0,0));
+        smGeom.texCoords.emplace_back(0,0);
         smGeom.color = RGBAColor(255,255,255,255);
         smGeom.texIDs.push_back(texID);
         

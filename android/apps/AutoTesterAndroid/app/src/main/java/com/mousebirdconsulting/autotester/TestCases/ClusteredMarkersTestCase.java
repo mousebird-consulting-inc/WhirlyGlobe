@@ -36,6 +36,7 @@ import com.mousebird.maply.RenderController;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,15 +70,24 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
         return true;
     }
 
-    Point2d pos = Point2d.FromDegrees(-3.6704803, 40.5023056);
+    final Point2d pos = Point2d.FromDegrees(-3.6704803, 40.5023056);
 
     private void insertClusteredMarkers(List<VectorObject> vectors, BaseController inController) {
-        Point2d size = new Point2d(32, 32);
-        List<ScreenMarker> markers = new ArrayList<>(vectors.size());
-        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
-        MaplyTexture tex = inController.addTexture(icon,new RenderController.TextureSettings(), RenderController.ThreadMode.ThreadCurrent);
+        final Point2d size = new Point2d(32, 32);
+        final List<ScreenMarker> markers = new ArrayList<>(vectors.size());
+        final Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
+        final MaplyTexture tex = inController.addTexture(icon,new RenderController.TextureSettings(), RenderController.ThreadMode.ThreadCurrent);
 
-//        inController.addClusterGenerator(new BasicClusterGenerator(new int[]{Color.argb(165, 255, 255, 0)}, 1, new Point2d(64, 64), inController, inController.getActivity()));
+        boolean custom = false; // split into two test cases?
+        BasicClusterGenerator generator = custom ? new BasicClusterGenerator(
+                new int[]{
+                        Color.argb(165, 255, 255, 0)
+                },
+                1, new Point2d(64, 64),
+                inController, inController.getActivity()) : null;
+        if (generator != null) {
+            inController.addClusterGenerator(generator);
+        }
 
         for (VectorObject v : vectors) {
             // Note: Increase this to test capacity
@@ -96,9 +106,20 @@ public class ClusteredMarkersTestCase extends MaplyTestCase {
 
         MarkerInfo info = new MarkerInfo();
         //info.setLayoutImportance(1.f);
-//        info.setClusterGroup(1);
+        info.setClusterGroup(1);
         info.setClusterGroup(0);
 
         inController.addScreenMarkers(markers, info, RenderController.ThreadMode.ThreadAny);
+
+        if (generator != null) {
+            inController.addPostSurfaceRunnable(() -> {
+                try {
+                    generator.setTextColor(Color.GREEN);
+                    // That wasn't supposed to work!
+                    throw new RuntimeException("failed");
+                } catch (InvalidParameterException ignored) {
+                }
+            });
+        }
     }
 }
