@@ -42,7 +42,7 @@ public:
     
     /// Calculate the next point along the line given the distance
     /// Or return false if there wasn't anything left
-    bool nextPoint(double distance,Point2f *retPt,Point2f *norm,bool savePos=true);
+    bool nextPoint(double distance,Point2f *retPt=nullptr,Point2f *norm=nullptr,bool savePos=true);
     
 protected:
     VectorRing pts;

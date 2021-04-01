@@ -20,6 +20,7 @@
 
 #import "ScreenSpaceBuilder.h"
 #import "ScreenSpaceDrawableBuilder.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -342,7 +343,7 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
     {
         ScreenSpaceObject &ssObj = screenObjects[ii];
         
-        addScreenObject(ssObj,ssObj.worldLoc,ssObj.geometry);
+        addScreenObject(ssObj,ssObj.worldLoc,&ssObj.geometry);
     }
 }
     
@@ -355,22 +356,23 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &scre
     {
         ScreenSpaceObject *ssObj = screenObjects[ii];
         
-        addScreenObject(*ssObj, ssObj->worldLoc, ssObj->geometry);
+        addScreenObject(*ssObj, ssObj->worldLoc, &ssObj->geometry);
     }
 }
 
 void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
                                          const Point3d &worldLoc,
-                                         const std::vector<ScreenSpaceConvexGeometry> &geoms,
+                                         const std::vector<ScreenSpaceConvexGeometry> *geoms,
                                          const std::vector<Eigen::Matrix3d> *places)
 {
-    for (unsigned int ii=0;ii<geoms.size();ii++)
+    for (unsigned int ii=0;ii<geoms->size();ii++)
     {
-        ScreenSpaceConvexGeometry geom = geoms[ii];
+        ScreenSpaceConvexGeometry geom = geoms->at(ii);
         // Apply a matrix to the geometry for a given version of the placement
         if (places) {
+            Eigen::Matrix3d placeMat = places->at(ii);
             for (auto &pt: geom.coords) {
-                auto pt2d = (*places)[ii] * Point3d(pt.x(),pt.y(),1.0);
+                Point3d pt2d = placeMat * Point3d(pt.x(),pt.y(),1.0);
                 pt = Point2d(pt2d.x(),pt2d.y());
             }
         }
@@ -411,8 +413,9 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
             {
                 Point3f dir3f(dir.x(),dir.y(),dir.z());
                 drawWrap->addVertex(coordAdapter,scale,startLoc, &dir3f, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
-            } else
+            } else {
                 drawWrap->addVertex(coordAdapter,scale,startLoc, NULL, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
+            }
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
@@ -446,13 +449,7 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
     }
     draws.clear();
 }
-    
-ScreenSpaceConvexGeometry::ScreenSpaceConvexGeometry()
-    : progID(EmptyIdentity), color(255,255,255,255), drawPriority(-1), renderTargetID(EmptyIdentity)
-    , drawOrder(BaseInfo::DrawOrderTiles)
-{
-}
-    
+        
 ScreenSpaceObject::ScreenSpaceObject()
     : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0.0), endTime(0.0), offset(0,0), rotation(0), keepUpright(false), orderBy(-1)
 {
