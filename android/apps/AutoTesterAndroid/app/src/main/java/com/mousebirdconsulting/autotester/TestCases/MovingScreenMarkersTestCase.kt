@@ -98,8 +98,8 @@ public class MovingScreenMarkersTestCase : MaplyTestCase {
 
         val markers = pts.indices.map {
             ScreenMovingMarker().apply {
-                duration = duration
-                period = duration / 2
+                duration = this@MovingScreenMarkersTestCase.duration
+                period = this@MovingScreenMarkersTestCase.duration / 2
                 loc = pts[it]
                 endLoc = pts[(it + 1) % pts.size]
                 size = Point2d(32.0, 32.0)
