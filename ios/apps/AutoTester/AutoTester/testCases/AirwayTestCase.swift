@@ -121,7 +121,7 @@ class AirwayTestCase: MaplyTestCase {
             var labels: [MaplyScreenLabel] = []
             var lines: [MaplyVectorObject] = []
             for seg in segments {
-                var include = true
+                let include = true
 //                if let highVal = seg.attributes?["US_HIGH"] as? Int {
 //                    if highVal > 0 {
 //                        include = true

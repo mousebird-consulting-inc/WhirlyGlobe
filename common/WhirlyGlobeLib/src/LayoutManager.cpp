@@ -650,7 +650,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     std::vector<Point3d> layoutModelInstances;
 
                     auto runs = textBuilder.getScreenVecs();
-                    unsigned int ri=0;
+//                    unsigned int ri=0;
                     for (auto run: runs) {
 //                        wkLog("Run %d",ri++);
                         
