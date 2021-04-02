@@ -70,7 +70,7 @@ public class LoaderReturn
      */
     public native int getFrame();
 
-    private ArrayList<byte[]> tileData = new ArrayList<byte[]>();
+    private final ArrayList<byte[]> tileData = new ArrayList<>();
 
     /**
      * Data returned from a tile request.  Unparsed.
@@ -108,6 +108,11 @@ public class LoaderReturn
      * Return the generation this LoaderReturn has been given.
      */
     public native int getGeneration();
+
+    /**
+     * Return true if the load has been canceled
+     */
+    public native boolean isCanceled();
 
     /**
      * Merge in the given changes requests to be handled upstream.

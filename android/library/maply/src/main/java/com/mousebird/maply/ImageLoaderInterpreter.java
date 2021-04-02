@@ -74,6 +74,9 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
 
         byte[][] images = loadReturn.getTileData();
         for (byte[] image : images) {
+            if (loadReturn.isCanceled()) {
+                return;
+            }
             Bitmap bm = BitmapFactory.decodeByteArray(image,0, image.length,options);
             if (bm != null)
                 loadReturn.addBitmap(bm);
