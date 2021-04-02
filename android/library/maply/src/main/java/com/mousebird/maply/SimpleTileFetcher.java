@@ -288,7 +288,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
             Runnable task = tasks.remove();
             LayerThread workThread = theControl.getWorkingThread();
             if (workThread != null) {
-                theControl.getWorkingThread().addTask(task);
+                workThread.addTask(task);
                 numParsing++;
             } else {
                 valid = false;
