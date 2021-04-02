@@ -245,6 +245,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			// Not sure why this would ever happen
 		}
 
+		for (final Layer layer : layers)
+			layer.isShuttingDown = true;
+
 		// Run the shutdowns on the thread itself
 		addTask(new Runnable() {
 			@Override

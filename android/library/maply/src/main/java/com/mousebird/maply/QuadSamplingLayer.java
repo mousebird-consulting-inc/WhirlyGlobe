@@ -96,8 +96,6 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
         layerThread.addChanges(changes);
     }
 
-    boolean isShuttingDown = false;
-
     public void shutdown()
     {
         isShuttingDown = true;

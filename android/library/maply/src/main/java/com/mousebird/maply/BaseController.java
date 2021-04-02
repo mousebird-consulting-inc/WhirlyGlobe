@@ -225,6 +225,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public LayerThread getWorkingThread()
 	{
+		if (workerThreads == null)
+			return null;
+
 		// The first one is for use by the toolkit
 		int numAvailable = workerThreads.size();
 

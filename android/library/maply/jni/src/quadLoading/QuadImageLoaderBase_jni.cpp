@@ -95,7 +95,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setColor
         if (!loader)
             return;
         RGBAColor color(red*255,green*255,blue*255,alpha*255);
-        (*loader)->setColor(color,(changeSet->get()));
+        (*loader)->setColor(color,changeSet ? changeSet->get() : nullptr);
     }
     catch (...)
     {
