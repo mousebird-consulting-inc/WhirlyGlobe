@@ -250,6 +250,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Return the thread that OpenGLES runs on.
+	 */
+	public Thread getRenderThread()
+	{
+		RendererWrapper wrap = renderWrapper;
+		if (wrap == null)
+			return null;
+		return wrap.renderThread;
+	}
+
+
+	/**
 	 * These are settings passed on construction.  We need these
 	 * immediately at startup to create the right internal structures.
 	 */
