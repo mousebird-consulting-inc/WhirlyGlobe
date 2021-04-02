@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleFill.h
+/*  MapboxVectorStyleFill.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleSetC.h"
@@ -54,7 +52,11 @@ public:
                               const Dictionary *desc) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
-    
+
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        return paint.color ? paint.color->colorForZoom(zoom) : RGBAColor::clear();
+    }
+
 public:
     MapboxVectorFillPaint paint;
     SimpleIdentity arealShaderID;

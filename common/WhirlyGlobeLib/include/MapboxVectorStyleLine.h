@@ -72,7 +72,11 @@ public:
                               const Dictionary *desc) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
-    
+
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        return paint.color ? paint.color->colorForZoom(zoom) : RGBAColor::clear();
+    }
+
 public:
     MapboxVectorLineLayout layout;
     MapboxVectorLinePaint paint;

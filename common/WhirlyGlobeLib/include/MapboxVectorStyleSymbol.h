@@ -109,7 +109,19 @@ public:
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
-public:
+    virtual std::string getLegendText(float zoom) const override {
+        if (layout.iconImageField) {
+            const auto text = layout.iconImageField->textForZoom(zoom);
+            if (text.valid && !text.chunks.empty()) {
+                return text.chunks[0].str;
+            }
+        }
+        return std::string();
+    }
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        return paint.textColor ? paint.textColor->colorForZoom(zoom) : RGBAColor::clear();
+    }
+
     std::string breakUpText(PlatformThreadInfo *inst,
                             const std::string &text,
                             double textMaxWidth,

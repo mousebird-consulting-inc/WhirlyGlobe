@@ -152,11 +152,14 @@ typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 class VectorStyleImpl
 {
 public:
-    VectorStyleImpl() { }
-    virtual ~VectorStyleImpl() { }
+    VectorStyleImpl() = default;
+    virtual ~VectorStyleImpl() = default;
 
     virtual std::string getIdent() const { return std::string(); }
     virtual std::string getType() const { return std::string(); }
+    virtual std::string getLegendText(float zoom) const { return std::string(); }
+    virtual RGBAColor getLegendColor(float zoom) const { return RGBAColor::clear(); }
+    virtual std::string getRepresentation() const { return std::string(); }
 
     /// Unique Identifier for this style
     virtual long long getUuid(PlatformThreadInfo *inst) = 0;
