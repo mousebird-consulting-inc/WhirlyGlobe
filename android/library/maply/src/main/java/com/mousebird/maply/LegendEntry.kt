@@ -21,4 +21,4 @@ import android.graphics.Bitmap
 class LegendEntry(
     val name: String,
     val image: Bitmap?,
-    val entries: Sequence<LegendEntry>)
+    val entries: Collection<LegendEntry>)

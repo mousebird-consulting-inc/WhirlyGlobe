@@ -87,7 +87,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     ) {
         // Fault in the ComponentObject native implementation.
         // Because the first time it can be called in this case is C++ side
-        val testObj = ComponentObject()
+        @Suppress("UNUSED_VARIABLE") val testObj = ComponentObject()
 
         control = WeakReference(inControl)
         settings = inSettings ?: VectorStyleSettings()
@@ -101,7 +101,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
                 try {
                     sources.add(Source(key, sourcesDict.getDict(key), this))
                 } catch (e: Exception) {
-                    Log.w(javaClass.simpleName, "Error while adding source '" + key + "' : " + e.message)
+                    Log.w("Maply", "Error while adding source '$key'",e)
                 }
             }
         }
@@ -125,7 +125,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
 
     // Return a label info
-    // Called from JNI
+    @Suppress("unused") // called from JNI
     fun labelInfoForFont(fontName: String, fontSize: Float): LabelInfo {
         labelInfoMap[SizedTypeface(fontName, fontSize)]?.let { return it }
 
@@ -160,7 +160,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
 
     // Calculate text width based on the typeface
-    // Called from JNI
+    @Suppress("unused") // called from JNI
     fun calculateTextWidth(text: String, labelInfo: LabelInfo): Double {
         val paint = Paint()
         paint.textSize = labelInfo.fontSize
@@ -170,11 +170,14 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return (bounds.right - bounds.left).toDouble()
     }
 
-    fun makeCircleTexture(inRadius: Double,
-                          fillColor: Int,
-                          strokeColor: Int,
-                          inStrokeWidth: Float,
-            /* out */ circleSize: Point2d?): Long /*Identity*/ {
+    @Suppress("unused") // called from JNI
+    fun makeCircleTexture(
+        inRadius: Double,
+        fillColor: Int,
+        strokeColor: Int,
+        inStrokeWidth: Float,
+        /* out */ circleSize: Point2d?
+    ): Long /*Identity*/ {
         val control = control?.get() ?: return EmptyIdentity
 
         // We want the texture a bit bigger than specified
@@ -215,6 +218,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return tex?.texID ?: EmptyIdentity
     }
 
+    @Suppress("unused") // called from JNI
     fun makeLineTexture(comp: DoubleArray): Long /*Identity*/ {
 //        NSMutableArray *dashComp = [NSMutableArray array];
 //        for (double comp: inComp)
@@ -273,15 +277,18 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             }
 
             if (group?.isNotEmpty() == true) {
-                groupMap[group] = groupMap[group]?.also {
-                    LegendEntry(it.name, it.image, it.entries.plus(LegendEntry(name, bitmap, emptySequence())))
+                groupMap[group] = groupMap[group]?.let {
+                    LegendEntry(
+                        it.name, it.image, it.entries.plus(
+                            LegendEntry(name,bitmap,emptyList())))
                 } ?: run {
-                    val newEntry = LegendEntry(group, bitmap, emptySequence())
+                    val newEntry = LegendEntry(group,null,listOf(
+                        LegendEntry(name,bitmap,emptyList())))
                     legend.add(newEntry)
                     newEntry
                 }
             } else {
-                legend.add(LegendEntry(name, bitmap, emptySequence()))
+                legend.add(LegendEntry(name, bitmap, emptyList()))
             }
         }
 
@@ -312,11 +319,18 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
         image.eraseColor(Color.TRANSPARENT)
         val canvas = Canvas(image)
+        if (text?.isNotEmpty() == true) {
+            // todo: get sprite
+        } // else {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.HINTING_ON).or(Paint.SUBPIXEL_TEXT_FLAG))
+        paint.color = color
         paint.typeface = Typeface.create("Arial", Typeface.BOLD)
         paint.textSize = (size.height - 2 * legendBorderSize).toFloat()
-        paint.color = color
-        canvas.drawText("T",legendBorderSize.toFloat(),legendBorderSize.toFloat(),paint)
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText("T",
+            size.width / 2f + legendBorderSize.toFloat(),
+            (size.height - paint.descent() - paint.ascent())/2f,
+            paint)
         if (legendBorderSize > 0) {
             paint.style = Paint.Style.STROKE
             paint.strokeWidth = legendBorderSize.toFloat()
