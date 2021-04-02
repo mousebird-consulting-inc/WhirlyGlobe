@@ -596,29 +596,31 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         // Let the caller know on a random thread because parsing may take a while
         // Has to be a worker thread because we need an OpenGL context
         LayerThread backThread = theControl.getWorkingThread();
-        backThread.addTask(() -> {
-            if (!valid)
-                return;
+        if (backThread != null) {
+            backThread.addTask(() -> {
+                if (!valid)
+                    return;
 
-            if (debugMode)
-                Log.d("RemoteTileFetcher","Returning fetch: " + tile.fetchInfo.urlReq);
+                if (debugMode)
+                    Log.d("RemoteTileFetcher", "Returning fetch: " + tile.fetchInfo.urlReq);
 
-            if (error == null) {
-                writeToCache(tile,data);
-                tile.request.callback.success(tile.request, data);
-            } else
-                tile.request.callback.failure(tile.request,error.toString());
+                if (error == null) {
+                    writeToCache(tile, data);
+                    tile.request.callback.success(tile.request, data);
+                } else
+                    tile.request.callback.failure(tile.request, error.toString());
 
-            if (!valid)
-                return;
+                if (!valid)
+                    return;
 
-            // Now get rid of the tile and kick off a new request
-            Handler handler = new Handler(getLooper());
-            handler.post(() -> {
-                finishTile(tile);
-                scheduleLoading();
+                // Now get rid of the tile and kick off a new request
+                Handler handler = new Handler(getLooper());
+                handler.post(() -> {
+                    finishTile(tile);
+                    scheduleLoading();
+                });
             });
-        });
+        }
     }
 
     // Write to the local cache.  Called on a random thread.

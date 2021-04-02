@@ -184,7 +184,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	}
 
 	// Used to shut down cleaning without cutting off outstanding work threads
-	private boolean isShuttingDown = false;
+	public boolean isShuttingDown = false;
 	private Semaphore workLock = new Semaphore(1, true);
 	private int numActiveWorkers = 0;
 
@@ -226,6 +226,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
+//		Log.d("Maply", "LayerThread.shutdown()");
+
 		final Semaphore endLock = new Semaphore(0, true);
 		isShuttingDown = true;
 
@@ -245,24 +247,33 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			// Not sure why this would ever happen
 		}
 
+		if (layers != null) {
+			for (final Layer layer : layers)
+				layer.isShuttingDown = true;
+		}
+
 		// Run the shutdowns on the thread itself
 		addTask(new Runnable() {
 			@Override
 			public void run() {
 				EGL10 egl = (EGL10) EGLContext.getEGL();
 
-				ArrayList<Layer> layersToRemove = null;
-				synchronized (layers) {
-					layersToRemove = new ArrayList<Layer>(layers);
-				}
-				for (final Layer layer : layersToRemove) {
-					layer.shutdown();
+				if (layers != null) {
+					ArrayList<Layer> layersToRemove = null;
+					synchronized (layers) {
+						layersToRemove = new ArrayList<Layer>(layers);
+					}
+					for (final Layer layer : layersToRemove) {
+						layer.shutdown();
+					}
 				}
 
 				valid = false;
 				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 
-				layers.clear();
+				if (layers != null) {
+					layers.clear();
+				}
 				endLock.release();
 
 				try {
@@ -280,6 +291,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					return;
 		} catch (Exception e) {
 		}
+
+//		Log.d("Maply", "LayerThread.shutdown() done waiting");
 
 		EGL10 egl = (EGL10) EGLContext.getEGL();
 		if (surface != null) {
@@ -352,6 +365,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		if (changes == null || newChanges == null)
 			return;
 
+		if (isShuttingDown)
+			return;
+
 		final LayerThread layerThread = this;
 
 		synchronized(this)
@@ -366,6 +382,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					@Override
 					public void run()
 					{
+						if (isShuttingDown)
+							return;
+
 						// Do a pre-scene flush callback on the layers
 						for (Layer layer : layers)
 							layer.preSceneFlush(layerThread);

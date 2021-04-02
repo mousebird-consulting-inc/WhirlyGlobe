@@ -98,6 +98,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// Set when we're not in the process of shutting down
 	protected boolean running = false;
 
+	/**
+	 * Returns whether the controller is running.  Might not have started, might be shutdown.
+	 */
+	public boolean isRunning() {
+		return running;
+	}
+
 	// Implements the GL renderer protocol
 	protected RendererWrapper renderWrapper;
 
@@ -169,8 +176,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	protected com.mousebird.maply.View view = null;
 
 	// Layer thread we use for data manipulation
-	ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
-	ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
+	final ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
+	final ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
 		
 	// Bounding box we're allowed to move within
 	Point2d viewBounds[] = null;
@@ -225,16 +232,21 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public LayerThread getWorkingThread()
 	{
-		// The first one is for use by the toolkit
-		int numAvailable = workerThreads.size();
-
-		if (numAvailable == 0)
+		if (workerThreads == null)
 			return null;
 
-		if (numAvailable == 1)
-			return workerThreads.get(0);
+		synchronized (workerThreads) {
+			// The first one is for use by the toolkit
+			int numAvailable = workerThreads.size();
 
-		return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+			if (numAvailable == 0)
+				return null;
+
+			if (numAvailable == 1)
+				return workerThreads.get(0);
+
+			return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+		}
 	}
 
 	/**
@@ -625,6 +637,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public void shutdown()
 	{
+//		Log.d("Maply", "BaseController: Shutdown");
+
 		startupAborted = true;
 		synchronized (this) {
 			running = false;
@@ -636,17 +650,23 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				sampleLayer.isShuttingDown = true;
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
-			ArrayList<LayerThread> layerThreadsToRemove;
+			ArrayList<LayerThread> layerThreadsToRemove = new ArrayList<LayerThread>();
 			if (layerThreads != null) {
 				synchronized (layerThreads) {
-					layerThreadsToRemove = new ArrayList<>(layerThreads);
-				}
-				for (LayerThread layerThread : layerThreadsToRemove)
-					layerThread.shutdown();
-				synchronized (layerThreads) {
+					layerThreadsToRemove.addAll(layerThreads);
 					layerThreads.clear();
 				}
 			}
+			if (workerThreads != null) {
+				synchronized (workerThreads) {
+					layerThreadsToRemove.addAll(workerThreads);
+					workerThreads.clear();
+				}
+			}
+			for (LayerThread layerThread : layerThreadsToRemove)
+				layerThread.shutdown();
+
+//			Log.d("Maply", "BaseController: LayerThreads shutdown");
 
 			// Shut down the tile fetchers
 			for (RemoteTileFetcher tileFetcher : tileFetchers)
@@ -716,9 +736,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			coordAdapter = null;
 			scene = null;
 			view = null;
-			// Using this as a sync object, so not a great idea
-//			layerThreads = null;
-			workerThreads = null;
 
 			activity = null;
 			tempBackground = null;
@@ -973,9 +990,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// Register the shaders
 			renderControl.setupShadersNative();
 
-			// Create the working threads
-			for (int ii = 0; ii < numWorkingThreads; ii++)
-				workerThreads.add(makeLayerThread(false));
+			synchronized (workerThreads) {
+				// Create the working threads
+				for (int ii = 0; ii < numWorkingThreads; ii++)
+					workerThreads.add(makeLayerThread(false));
+			}
 
 			rendererAttached = true;
 

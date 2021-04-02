@@ -96,10 +96,12 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
         layerThread.addChanges(changes);
     }
 
-    boolean isShuttingDown = false;
+    // Used for debugging
+//    public long ident = Identifiable.genID();
 
     public void shutdown()
     {
+//        Log.d("Maply", "QuadSamplingLayer: isShuttingDown + " + ident);
         isShuttingDown = true;
         ChangeSet changes = new ChangeSet();
         shutdownNative(changes);
@@ -112,24 +114,21 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
     /** --- View Updated Methods --- **/
     public void viewUpdated(final ViewState viewState)
     {
-        if (isShuttingDown)
+        if (isShuttingDown || layerThread.isShuttingDown)
             return;
 
         generation++;
         final int thisGeneration = generation;
 
         ChangeSet changes = new ChangeSet();
+//        Log.d("Maply", "QuadSamplingLayer: pre-viewUpdatedNative + " + ident);
+        if (!layerThread.startOfWork())
+            return;
         if (viewUpdatedNative(viewState,changes)) {
-            if (isShuttingDown)
-                return;
-
             // Have a few things left to process.  So come back in a bit and do them.
             layerThread.addDelayedTask(new Runnable() {
                 @Override
                 public void run() {
-                    if (isShuttingDown)
-                        return;
-
                     // If we've moved on, then cancel
                     if (thisGeneration < generation)
                         return;
@@ -138,6 +137,7 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
             },LayerThread.UpdatePeriod);
         }
         layerThread.addChanges(changes);
+        layerThread.endOfWork();;
     }
 
     // Called no more often than 1/10 of a second

@@ -104,22 +104,29 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      */
     public void setColor(final int color)
     {
-        if(samplingLayer.get() == null) {
+        QuadSamplingLayer sampleLayer = samplingLayer.get();
+
+        if(sampleLayer == null) {
             setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, null);
+            return;
         }
 
-        samplingLayer.get().layerThread.addTask(new Runnable() {
-            @Override
-            public void run() {
-                ChangeSet changes = new ChangeSet();
-                setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, changes);
-                BaseController control = getController();
-                if (control != null && control.renderControl != null) {
-                    changes.process(control.renderControl, control.getScene());
-                    changes.dispose();
+        LayerThread layerThread = sampleLayer.layerThread;
+
+        if (layerThread != null) {
+            layerThread.addTask(new Runnable() {
+                @Override
+                public void run() {
+                    ChangeSet changes = new ChangeSet();
+                    setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, changes);
+                    BaseController control = getController();
+                    if (control != null && control.renderControl != null) {
+                        changes.process(control.renderControl, control.getScene());
+                        changes.dispose();
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     /**

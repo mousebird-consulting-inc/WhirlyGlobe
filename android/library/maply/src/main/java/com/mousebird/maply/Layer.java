@@ -64,4 +64,6 @@ public class Layer
 	public void shutdown()
 	{
 	}
+
+	boolean isShuttingDown = false;
 }
