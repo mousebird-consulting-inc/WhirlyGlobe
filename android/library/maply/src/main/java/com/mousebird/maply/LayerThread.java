@@ -352,6 +352,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		if (changes == null || newChanges == null)
 			return;
 
+		if (isShuttingDown)
+			return;
+
 		final LayerThread layerThread = this;
 
 		synchronized(this)
@@ -366,6 +369,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					@Override
 					public void run()
 					{
+						if (isShuttingDown)
+							return;
+
 						// Do a pre-scene flush callback on the layers
 						for (Layer layer : layers)
 							layer.preSceneFlush(layerThread);
