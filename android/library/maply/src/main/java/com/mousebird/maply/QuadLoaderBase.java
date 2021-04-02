@@ -424,7 +424,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         ChangeSet changes = new ChangeSet();
         loadReturn.deleteComponentObjects(theControl.renderControl,theControl.renderControl.componentManager,changes);
 
-        changes.process(theControl.renderControl,theControl.scene);
+        if (theControl.running)
+            changes.process(theControl.renderControl,theControl.scene);
     }
 
     /**
