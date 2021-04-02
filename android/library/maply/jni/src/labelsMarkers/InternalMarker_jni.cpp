@@ -136,6 +136,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setAnimationRange
 		{
 			marker->startTime = startTime;
 			marker->endTime = endTime;
+			if (startTime < endTime)
+			{
+				marker->hasMotion = true;
+			}
         }
 	}
 	catch (...)

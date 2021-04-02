@@ -568,6 +568,9 @@ public class RenderController implements RenderControllerInterface
                 }
 
                 InternalMarker intMarker = new InternalMarker(marker,now);
+                if (marker.duration > 0) {
+                    intMarker.setAnimationRange(now,now+marker.duration);
+                }
                 if (marker.image != null) {
                     long texID = texManager.addTexture(marker.image, scene, changes);
                     if (texID != EmptyIdentity)
