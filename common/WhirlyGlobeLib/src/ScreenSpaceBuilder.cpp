@@ -123,7 +123,7 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
     locDraw->setOnOff(state.enable);
     if (state.startEnable != state.endEnable)
         locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
-    
+
     // If we've got more than one texture ID and a period, we need a tweaker
     if (state.texIDs.size() > 1 && state.period != 0.0)
     {
@@ -384,6 +384,8 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
             state.drawPriority = geom.drawPriority;
         if (geom.renderTargetID != EmptyIdentity)
             state.renderTargetID = geom.renderTargetID;
+        if (ssObj.startTime < ssObj.endTime)
+            state.motion = true;
         state.enable = ssObj.enable;
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
@@ -393,12 +395,12 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
         // May need to adjust things based on time
         Point3d startLoc3d = worldLoc;
         Point3f dir(0,0,0);
-        if (state.motion)
+        if (state.motion && ssObj.startTime < ssObj.endTime)
         {
-            double dur = ssObj.endTime - ssObj.startTime;
+            const double dur = ssObj.endTime - ssObj.startTime;
             Point3d dir3d = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
             // May need to knock the start back a bit
-            double dt = drawWrap->locDraw->getStartTime() - ssObj.startTime;
+            const double dt = drawWrap->locDraw->getStartTime() - ssObj.startTime;
             startLoc3d = dir3d * dt + startLoc3d;
             dir = Point3f(dir3d.x(),dir3d.y(),dir3d.z());
         }

@@ -300,6 +300,8 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
     return status == GL_TRUE;
 }
 
+#define DUMP_UNIFORMS 0
+
 // Construct the program, compile and link
 ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
     : lightsLastUpdated(0.0)
@@ -381,13 +383,16 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     char thingName[1024];
     for (unsigned int ii=0;ii<numUniform;ii++)
     {
-        std::shared_ptr<OpenGLESUniform> uni(new OpenGLESUniform());
+        auto uni = std::make_shared<OpenGLESUniform>();
         GLint bufLen;
         thingName[0] = 0;
-        glGetActiveUniform(program, ii, 1023, &bufLen, &uni->size, &uni->type, thingName);
+        glGetActiveUniform(program, ii, sizeof(thingName)-1, &bufLen, &uni->size, &uni->type, thingName);
         uni->nameID = StringIndexer::getStringID(thingName);
         uni->index = glGetUniformLocation(program, thingName);
         uniforms[uni->nameID] = uni;
+#if DUMP_UNIFORMS
+        wkLog("%s Uniform %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numUniform, uni->nameID, uni->index, thingName);
+#endif
     }
     CheckGLError("ProgramGLES: glGetActiveUniform");
 
@@ -396,13 +401,16 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &numAttr);
     for (unsigned int ii=0;ii<numAttr;ii++)
     {
-        std::shared_ptr<OpenGLESAttribute> attr(new OpenGLESAttribute());
+        auto attr = std::make_shared<OpenGLESAttribute>();
         GLint bufLen;
         thingName[0] = 0;
-        glGetActiveAttrib(program, ii, 1023, &bufLen, &attr->size, &attr->type, thingName);
+        glGetActiveAttrib(program, ii, sizeof(thingName)-1, &bufLen, &attr->size, &attr->type, thingName);
         attr->index = glGetAttribLocation(program, thingName);
         attr->nameID = StringIndexer::getStringID(thingName);
         attrs[attr->nameID] = attr;
+#if DUMP_UNIFORMS
+        wkLog("%s Attribute %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numAttr, attr->nameID, attr->index, thingName);
+#endif
     }
     CheckGLError("ProgramGLES: glGetActiveAttrib");
 }

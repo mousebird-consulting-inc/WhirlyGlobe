@@ -54,8 +54,8 @@ public:
 
     virtual DrawableTweakerRef makeTweaker() const override;
 
-    virtual void setupTweaker(BasicDrawable &draw) const override { BasicDrawableBuilder::setupTweaker(draw); }
-    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override { BasicDrawableBuilderGLES::setupTweaker(inTweaker); }
+    virtual void setupTweaker(BasicDrawable &draw) const override;
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
 };
 
 }

@@ -1006,18 +1006,20 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             // Just moved into a cluster
             if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
             {
-//                ClusterEntry *cluster = &clusters[layoutObj->newCluster];
-//                ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
-//                
-//                // Animate from the old position to the new cluster position
-//                ScreenSpaceObject animObj = layoutObj->obj;
-//                animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-//                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-//                animObj.state.progID = params.motionShaderID;
-//                for (auto &geom : animObj.geometry)
-//                    geom.progID = params.motionShaderID;
-//                ssBuild.addScreenObject(animObj);
-            } else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
+                ClusterEntry *cluster = &clusters[layoutObj->newCluster];
+                ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
+
+                // Animate from the old position to the new cluster position
+                ScreenSpaceObject animObj = layoutObj->obj;
+                animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+                animObj.setFade(curTime, curTime+params.markerAnimationTime);
+                animObj.state.progID = params.motionShaderID;
+                for (auto &geom : animObj.geometry)
+                    geom.progID = params.motionShaderID;
+                ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+            }
+            else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
             {
                 // Just moved out of a cluster
                 ClusterEntry *oldCluster = nullptr;
@@ -1034,6 +1036,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
                 animObj.worldLoc = oldCluster->layoutObj.worldLoc;
                 animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+                animObj.setFade(curTime+params.markerAnimationTime,curTime);
                 animObj.state.progID = params.motionShaderID;
                 //animObj.setDrawOrder(?)
                 for (auto &geom : animObj.geometry)
@@ -1041,7 +1044,6 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
                 
                 // And hold off on adding it
-                // todo: slicing, is this ok?
                 ScreenSpaceObject shortObj = layoutObj->obj;
                 //shortObj.setDrawOrder(?)
                 shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
