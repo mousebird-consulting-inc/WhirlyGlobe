@@ -126,20 +126,22 @@ class CartoTestCase : MaplyTestCase {
 
         // Parse the GeoJSON coming back and turn it into geometry
         override fun dataForTile(loadReturn: LoaderReturn, loader: QuadLoaderBase) {
-            if (!(loadReturn is ObjectLoaderReturn))
+            if (loadReturn !is ObjectLoaderReturn)
                 return
 
-            val data = loadReturn.firstData
-            if (data == null)
-                return
+            val data = loadReturn.firstData ?: return
+ 
+            if (loadReturn.isCanceled) return
 
             val geojson = String(data)
             val vecObj = VectorObject()
             vecObj.fromGeoJSON(geojson)
-
+    
+            if (loadReturn.isCanceled) return
+            
             val vc = loader.controller
-            loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoFill,RenderControllerInterface.ThreadMode.ThreadCurrent))
-            loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoOutline,RenderControllerInterface.ThreadMode.ThreadCurrent))
+            loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoFill,ThreadMode.ThreadCurrent))
+            loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoOutline,ThreadMode.ThreadCurrent))
         }
     }
 }
