@@ -176,8 +176,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	protected com.mousebird.maply.View view = null;
 
 	// Layer thread we use for data manipulation
-	ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
-	ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
+	final ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
+	final ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
 		
 	// Bounding box we're allowed to move within
 	Point2d viewBounds[] = null;
@@ -736,9 +736,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			coordAdapter = null;
 			scene = null;
 			view = null;
-			// Using this as a sync object, so not a great idea
-//			layerThreads = null;
-//			workerThreads = null;
 
 			activity = null;
 			tempBackground = null;
