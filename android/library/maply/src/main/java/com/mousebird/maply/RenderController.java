@@ -1174,9 +1174,13 @@ public class RenderController implements RenderControllerInterface
             // Have to set the shader ID if it's not already
             if (info.getShaderID() == 0) {
                 // TODO: Share these constants with the c++ code
-                String shaderName = (info.getOrient() == BillboardInfo.Orient.Eye) ? "billboardorienteye" : "billboardorientground";
+                String shaderName = (info.getOrient() == BillboardInfo.Orient.Eye) ? Shader.BillboardEyeShader : Shader.BillboardGroundShader;
                 Shader shader = getShader(shaderName);
-                info.setShaderID(shader.getID());
+                if (shader != null) {
+                    info.setShaderID(shader.getID());
+                } else {
+                    Log.w("Maply", "Billboard shader not found");
+                }
             }
 
             for (Billboard bill : bills) {
