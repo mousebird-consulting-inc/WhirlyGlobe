@@ -50,9 +50,9 @@ class AirwayTestCase: MaplyTestCase {
     
     let buildPointMarkers = true
     let buildPointLabels = false
-    let buildAirways = false
-    let buildAirspaces = true
-    let buildLineLabels = true
+    let buildAirways = true
+    let buildAirspaces = false
+    let buildLineLabels = false
     let buildCenterLabels = false
     
     func setupAirways(_ viewC: MaplyBaseViewController) {
@@ -160,7 +160,7 @@ class AirwayTestCase: MaplyTestCase {
                 }
             }
 
-            viewC.addWideVectors(lines, desc: [kMaplyVecWidth: 2.0,
+            viewC.addWideVectors(lines, desc: [kMaplyVecWidth: 4.0,
                                                kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                                   kMaplyColor: UIColor.blue],
                                  mode: .any)

@@ -822,7 +822,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert;
-    
+
     int whichVert = (vert.index >> 16) & 0xffff;
     int whichPoly = vert.index & 0xffff;
 
@@ -832,6 +832,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     VertexTriWideVecInstance inst[4];
     inst[1] = wideVecInsts[instanceID];
     instValid[1] = true;
+    outVert.maskIDs[0] = inst[1].mask0;
+    outVert.maskIDs[1] = inst[1].mask1;
     if (inst[1].prev != -1) {
         inst[0] = wideVecInsts[inst[1].prev];
         instValid[0] = true;
@@ -978,6 +980,17 @@ fragment float4 fragmentTri_wideVecPerf(
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
+    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
+            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
+    }
+
     return vert.color;
 }
 

@@ -694,6 +694,9 @@ using namespace Eigen;
     if (Program *prog = scene->findProgramByName(MaplyDefaultWideVectorShader)) {
         scene->addChangeRequest(new ShaderAddTextureReq(prog->getId(),0,maskTex.texID,0));
     }
+    if (Program *prog = scene->findProgramByName(MaplyWideVectorPerformanceShader)) {
+        scene->addChangeRequest(new ShaderAddTextureReq(prog->getId(),0,maskTex.texID,0));
+    }
 }
 
 - (void)stopMaskTarget
