@@ -37,7 +37,7 @@ public class BillboardInfo extends BaseInfo {
     /**
      * Billboard is oriented toward the eye or tied to the ground.
      */
-    enum Orient {Eye,Ground}
+    public enum Orient {Eye,Ground}
 
     /**
      * Set the color used by the geometry.
@@ -60,6 +60,7 @@ public class BillboardInfo extends BaseInfo {
      */
     public void setOrient(Orient orient)
     {
+        this.orient = orient;
         setOrientNative(orient.ordinal());
     }
 
