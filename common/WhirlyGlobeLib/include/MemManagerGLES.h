@@ -1,9 +1,8 @@
-/*
- *  MemManagerGLES.h
+/*  MemManagerGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WrapperGLES.h"
@@ -42,7 +40,7 @@ namespace WhirlyKit
 class OpenGLMemManager
 {
 public:
-    OpenGLMemManager();
+    OpenGLMemManager() = default;
     ~OpenGLMemManager();
     
     /// Pick a buffer ID off the list or ask OpenGL for one

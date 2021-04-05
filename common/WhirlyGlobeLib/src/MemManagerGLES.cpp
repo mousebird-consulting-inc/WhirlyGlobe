@@ -1,9 +1,8 @@
-/*
- *  MemManagerGLES.cpp
+/*  MemManagerGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MemManagerGLES.h"
@@ -26,29 +24,28 @@
 
 namespace WhirlyKit
 {
-    
-RenderSetupInfoGLES::RenderSetupInfoGLES()
-    : memManager(NULL)
-{
-    minZres = 0.0;
-    glesVersion = 3;
-}
-    
-RenderSetupInfoGLES::RenderSetupInfoGLES(Scene *inScene)
-{
-    SceneGLES *scene = (SceneGLES *)inScene;
-    
-    minZres = 0.0;
-    glesVersion = 3;
-    memManager = scene->getMemManager();
-}
 
-OpenGLMemManager::OpenGLMemManager()
+RenderSetupInfoGLES::RenderSetupInfoGLES() :
+    memManager(nullptr),
+    minZres(0.0),
+    glesVersion(3)
 {
+}
+    
+RenderSetupInfoGLES::RenderSetupInfoGLES(Scene *inScene) : RenderSetupInfoGLES()
+{
+    auto scene = (SceneGLES *)inScene;
+    memManager = scene->getMemManager();
 }
 
 OpenGLMemManager::~OpenGLMemManager()
 {
+    std::unique_lock<std::mutex> lock(idLock, std::try_to_lock);
+    if (!lock.owns_lock())
+    {
+        wkLogLevel(Error,"OpenGL Memory Manager destroyed while locked");
+        assert(!"OpenGL Memory Manager destroyed while locked");
+    }
 }
 
 GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
@@ -58,20 +55,18 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
         std::lock_guard<std::mutex> guardLock(idLock);
         if (buffIDs.empty())
         {
-            GLuint newAlloc[WhirlyKitOpenGLMemCacheAllocUnit];
-            glGenBuffers(WhirlyKitOpenGLMemCacheAllocUnit, newAlloc);
-            CheckGLError("OpenGLMemManager::getBufferID() glGenBuffers");
-            for (unsigned int ii=0;ii<WhirlyKitOpenGLMemCacheAllocUnit;ii++)
+            constexpr auto count = WhirlyKitOpenGLMemCacheAllocUnit;
+            GLuint newAlloc[count] = {0};
+            glGenBuffers(count, newAlloc);
+            if (CheckGLError("OpenGLMemManager::getBufferID() glGenBuffers"))
             {
-                buffIDs.insert(newAlloc[ii]);
-                
-                //                wkLogLevel(Debug,"Added buffer %d",newAlloc[ii]);
+                buffIDs.insert(&newAlloc[0], &newAlloc[count]);
             }
         }
         
         if (!buffIDs.empty())
         {
-            std::set<GLuint>::iterator it = buffIDs.begin();
+            auto it = buffIDs.begin();
             which = *it;
             buffIDs.erase(it);
         }
@@ -81,7 +76,7 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
     {
         glBindBuffer(GL_ARRAY_BUFFER, which);
         CheckGLError("OpenGLMemManager::getBufferID() glBindBuffer");
-        glBufferData(GL_ARRAY_BUFFER, size, NULL, drawType);
+        glBufferData(GL_ARRAY_BUFFER, size, nullptr, drawType);
         CheckGLError("OpenGLMemManager::getBufferID() glBufferData");
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         CheckGLError("OpenGLMemManager::getBufferID() glBindBuffer");
@@ -105,7 +100,7 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
         
         // Clear out the data to save memory
         glBindBuffer(GL_ARRAY_BUFFER, bufID);
-        glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         buffIDs.insert(bufID);
         
@@ -121,17 +116,13 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
 void OpenGLMemManager::clearBufferIDs()
 {
     std::lock_guard<std::mutex> guardLock(idLock);
-    
-    std::vector<GLuint> toRemove;
-    toRemove.reserve(buffIDs.size());
-    for (std::set<GLuint>::iterator it = buffIDs.begin();
-         it != buffIDs.end(); ++it) {
-        toRemove.push_back(*it);
-        //        wkLogLevel(Debug,"Deleting buffer %d",*it);
-    }
-    if (!toRemove.empty())
+
+    if (!buffIDs.empty())
+    {
+        const std::vector<GLuint> toRemove(buffIDs.begin(), buffIDs.end());
         glDeleteBuffers((GLsizei)toRemove.size(), &toRemove[0]);
-    buffIDs.clear();
+        buffIDs.clear();
+    }
 }
 
 GLuint OpenGLMemManager::getTexID()
@@ -140,16 +131,19 @@ GLuint OpenGLMemManager::getTexID()
     
     if (texIDs.empty())
     {
-        GLuint newAlloc[WhirlyKitOpenGLMemCacheAllocUnit];
-        glGenTextures(WhirlyKitOpenGLMemCacheAllocUnit, newAlloc);
-        for (unsigned int ii=0;ii<WhirlyKitOpenGLMemCacheAllocUnit;ii++)
-            texIDs.insert(newAlloc[ii]);
+        constexpr auto count = WhirlyKitOpenGLMemCacheAllocUnit;
+        GLuint newAlloc[count] = {0};
+        glGenTextures(count, newAlloc);
+        if (CheckGLError("OpenGLMemManager::getTexID glGenTextures"))
+        {
+            texIDs.insert(&newAlloc[0], &newAlloc[count]);
+        }
     }
     
     GLuint which = 0;
     if (!texIDs.empty())
     {
-        std::set<GLuint>::iterator it = texIDs.begin();
+        auto it = texIDs.begin();
         which = *it;
         texIDs.erase(it);
     }
@@ -160,12 +154,11 @@ GLuint OpenGLMemManager::getTexID()
 void OpenGLMemManager::removeTexID(GLuint texID)
 {
     bool doClear = false;
-    
-    
+
     // Clear out the texture data first
     glBindTexture(GL_TEXTURE_2D, texID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
     {
         std::lock_guard<std::mutex> guardLock(idLock);
         texIDs.insert(texID);
@@ -182,15 +175,13 @@ void OpenGLMemManager::removeTexID(GLuint texID)
 void OpenGLMemManager::clearTextureIDs()
 {
     std::lock_guard<std::mutex> guardLock(idLock);
-    
-    std::vector<GLuint> toRemove;
-    toRemove.reserve(texIDs.size());
-    for (std::set<GLuint>::iterator it = texIDs.begin();
-         it != texIDs.end(); ++it)
-        toRemove.push_back(*it);
-    if (!toRemove.empty())
+
+    if (!texIDs.empty())
+    {
+        const std::vector<GLuint> toRemove(texIDs.begin(), texIDs.end());
         glDeleteTextures((GLsizei)toRemove.size(), &toRemove[0]);
-    texIDs.clear();
+        texIDs.clear();
+    }
 }
 
 void OpenGLMemManager::dumpStats()
