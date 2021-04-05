@@ -1254,7 +1254,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 	}
 
-	ArrayList<QuadSamplingLayer> samplingLayers = new ArrayList<QuadSamplingLayer>();
+	final ArrayList<QuadSamplingLayer> samplingLayers = new ArrayList<>();
 
 	/**
 	 * Look for a sampling layer that matches the parameters given.
@@ -1275,11 +1275,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (theLayer == null) {
 			// Set up the sampling layer
 			theLayer = new QuadSamplingLayer(this,params);
-			samplingLayers.add(theLayer);
 
 			// On its own layer thread
 			LayerThread layerThread = makeLayerThread(true);
+			if (layerThread == null) {
+				return null;
+			}
+
 			theLayer.layerThread = layerThread;
+			samplingLayers.add(theLayer);
 			layerThread.addLayer(theLayer);
 		}
 
