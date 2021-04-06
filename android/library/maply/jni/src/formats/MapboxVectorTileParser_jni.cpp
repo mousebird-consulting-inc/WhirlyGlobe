@@ -106,7 +106,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_setLocalC
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
-    (JNIEnv *env, jobject obj, jbyteArray data, jobject vecTileDataObj)
+    (JNIEnv *env, jobject obj, jbyteArray data, jobject vecTileDataObj, jobject cancelObj)
 {
     try
     {
@@ -115,10 +115,25 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
         if (!inst || !tileData)
             return false;
 
+        std::function<bool()> cancelFn = [=](){return false;};
+
         // Notify the style delegate of the new environment so it can make Java calls if need be
         const auto style = inst->getStyleDelegate();
         if (const auto theStyleDelegate = dynamic_cast<MapboxVectorStyleSetImpl_Android*>(style.get())) {
             theStyleDelegate->setupMethods(env);
+            if (cancelObj && theStyleDelegate->atomicBoolGetMethod)
+            {
+                cancelFn = [=](){return env->CallBooleanMethod(cancelObj,theStyleDelegate->atomicBoolGetMethod);};
+            }
+        } else if (cancelObj) {
+            // The atomic bool class could theoretically be unloaded between calls, if no instances
+            // exist, so we can't store the ID statically.  We don't have a good place to keep it other
+            // than MapboxVectorStyleSetImpl_Android, so look it up once per cancel-able parse call.
+            if (auto cls = env->FindClass("java/util/concurrent/atomic/AtomicBoolean"))
+            if (auto method = env->GetMethodID(cls, "get", "()Z"))
+            {
+                cancelFn = [=](){return env->CallBooleanMethod(cancelObj,method);};
+            }
         }
 
         // Need a pointer to this JNIEnv for low level parsing callbacks
@@ -126,19 +141,20 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
 
         // Copy data into a temporary buffer (must we?)
         const int len = env->GetArrayLength(data);
-        jbyte *rawData = env->GetByteArrayElements(data,NULL);
         bool ret = false;
-        try {
-            RawDataWrapper rawDataWrap(rawData, len, false);
-            ret = inst->parse(&platformInfo, &rawDataWrap, (*tileData).get(), NULL);
-        } catch (...) {
-            // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
-            if (rawData) {
-                env->ReleaseByteArrayElements(data, rawData, JNI_ABORT);
+        if (jbyte *rawData = env->GetByteArrayElements(data,nullptr))
+        {
+            try
+            {
+                RawDataWrapper rawDataWrap(rawData, len, false);
+                ret = inst->parse(&platformInfo,&rawDataWrap,&**tileData,cancelFn);
             }
-            throw;
-        }
-        if (rawData) {
+            catch (...)
+            {
+                // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
+                env->ReleaseByteArrayElements(data, rawData, JNI_ABORT);
+                throw;
+            }
             env->ReleaseByteArrayElements(data, rawData, JNI_ABORT);
         }
 

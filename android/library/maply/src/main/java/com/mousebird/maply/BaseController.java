@@ -885,6 +885,25 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
     }
 
+	/**
+	 * Add a runnable to be executed after the OpenGL surface is created.
+	 * If the runnable would be run immediately, delay it by delayMillisec instead.
+	 */
+	public void addPostSurfaceRunnable(Runnable run,long delayMillisec)
+	{
+		boolean runNow = false;
+		synchronized (this) {
+			if (rendererAttached)
+				runNow = true;
+			else
+				postSurfaceRunnables.add(run);
+		}
+		if (runNow) {
+			Handler handler = new Handler(activity.getMainLooper());
+			handler.postDelayed(run,delayMillisec);
+		}
+	}
+
 	int displayRate = 2;
 
 	/**

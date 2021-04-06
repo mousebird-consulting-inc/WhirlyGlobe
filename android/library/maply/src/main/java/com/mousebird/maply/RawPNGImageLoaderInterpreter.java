@@ -19,8 +19,12 @@ public class RawPNGImageLoaderInterpreter implements LoaderInterpreter {
      */
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader) {
         byte[][] images = loadReturn.getTileData();
-        for (byte[] image : images)
-            dataForTileNative(image,loadReturn);
+        for (byte[] image : images) {
+            if (loadReturn.isCanceled()) {
+                return;
+            }
+            dataForTileNative(image, loadReturn);
+        }
     }
 
     /**

@@ -1,9 +1,8 @@
-/*
- *  QuadImageFrameLoader.cpp
+/*  QuadImageFrameLoader.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadImageFrameLoader.h"
@@ -67,6 +65,10 @@ void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
 
 void QIFFrameAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
+    if (loadReturnRef) {
+        loadReturnRef->clear();
+        loadReturnRef.reset();
+    }
     for (auto texID : texIDs)
         changes.push_back(new RemTextureReq(texID));
     texIDs.clear();
@@ -389,38 +391,39 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     // In single frame mode with multiple sources, we have to mark the rest of the frames done
     if (loader->getMode() == QuadImageFrameLoader::SingleFrame && frames.size() > 1) {
         std::vector<Texture *> emptyTex;
-        for (auto frame: frames) {
-            if (frame->getState() == QIFFrameAsset::Loading)
-                frame->loadSuccess(threadInfo, loader, emptyTex);
+        for (auto f: frames) {
+            if (f->getState() == QIFFrameAsset::Loading) {
+                f->loadSuccess(threadInfo, loader, emptyTex);
+            }
         }
     }
     
     if (!texs.empty()) {
         for (auto tex : texs)
             changes.push_back(new AddTextureReq(tex));
-    } else
-        changes.push_back(NULL);
+    } else {
+        changes.push_back(nullptr);
+    }
     
     return true;
 }
     
 void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,QuadFrameInfoRef frameInfo,const RawDataRef &data)
 {
-    auto frame = findFrameFor(frameInfo);
-    if (frame)
+    if (auto frame = findFrameFor(frameInfo))
         frame->setLoadReturn(data);
 }
 
 // A single frame failed to load
-void QIFTileAsset::frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes) {
+void QIFTileAsset::frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes)
+{
     if (frames.size() > 0 && (loadReturn->frame->frameIndex < 0 || loadReturn->frame->frameIndex >= frames.size()))
     {
         wkLogLevel(Warn,"MaplyQuadImageFrameLoader: Got frame back outside of range.");
         return;
     }
     
-    auto frame = findFrameFor(loadReturn->frame);
-    if (frame)
+    if (auto frame = findFrameFor(loadReturn->frame))
         frame->loadFailed(threadInfo,loader);
 }
     
@@ -544,19 +547,12 @@ QIFRenderState::QIFRenderState(int numFocus,int numFrames)
 
 bool QIFRenderState::hasUpdate(const std::vector<double> &curFrames)
 {
-    // Current frame moved
-    if (curFrames != lastCurFrames)
-        return true;
-    
-    // We got an update from the layer thread
-    if (lastUpdate > lastRenderTime)
-        return true;
-    
-    return false;
+    // Current frame moved or we got an update from the layer thread
+    return (curFrames != lastCurFrames || lastUpdate > lastRenderTime);
 }
 
 // Update what the scene is looking at.  Ideally not every frame.
-void QIFRenderState::updateScene(Scene *scene,
+void QIFRenderState::updateScene(Scene *,
                                  const std::vector<double> &curFrames,
                                  TimeInterval now,
                                  bool flipY,
@@ -910,11 +906,8 @@ void QuadImageFrameLoader::setDrawPriorityPerLevel(int newPrior)
     drawPriorityPerLevel = newPrior;
 }
     
-void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *threadInfo,int focusID,double inCurFrame)
+void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *,int focusID,double inCurFrame)
 {
-    if (curFrames[focusID] == inCurFrame)
-        return;
-    
     curFrames[focusID] = inCurFrame;
 }
     
@@ -1288,7 +1281,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
         auto tileID = tileIt.first;
         auto tile = tileIt.second;
         
-        QIFTileStateRef tileState(new QIFTileState(numFrames,tileID));
+        auto tileState = std::make_shared<QIFTileState>(numFrames,tileID);
         tileState->instanceDrawIDs = tile->instanceDrawIDs;
         tileState->enable = tile->getShouldEnable();
         tileState->compObjs = tile->getCompObjs();
@@ -1352,11 +1345,7 @@ void QuadImageFrameLoader::buildRenderState(ChangeSet &changes)
 
 const std::set<QuadFrameInfoRef> QuadImageFrameLoader::getActiveFrames()
 {
-    std::set<QuadFrameInfoRef> activeFrames;
-    for (auto frame : frames)
-        activeFrames.insert(frame);
-    
-    return activeFrames;
+    return std::set<QuadFrameInfoRef>(frames.begin(), frames.end());
 }
 
 
@@ -1598,19 +1587,17 @@ void QuadImageFrameLoader::makeStats()
     Stats newStats;
     
     newStats.numTiles = tiles.size();
-    int numFrames = getNumFrames();
+    const int numFrames = getNumFrames();
     newStats.frameStats.resize(numFrames);
-    for (auto it : tiles) {
-        auto tileID = it.first;
-        auto tile = it.second;
+    for (const auto it : tiles) {
+        //auto tileID = it.first;
+        const auto tile = it.second;
         
         for (int frameID = 0;frameID<numFrames;frameID++) {
-            auto frame = tile->getFrame(frameID);
-            if (frame) {
+            if (auto frame = tile->getFrame(frameID)) {
                 auto &frameStat = newStats.frameStats[frameID];
                 switch (frame->getState()) {
                     case QIFFrameAsset::Empty:
-                        break;
                     case QIFFrameAsset::Loaded:
                         break;
                     case QIFFrameAsset::Loading:
@@ -1691,14 +1678,12 @@ bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,Quad
         tile->mergeLoadedFrame(this,frame,data);
         
         // We need to put all the various data pieces into the load return for processing
-        if (tile->allFramesLoaded()) {
-            tile->getLoadedData(allData);
-            return true;
+        if (!tile->allFramesLoaded()) {
+            return false;
         }
-        
-        return false;
+        tile->getLoadedData(allData);
     }
-    
+
     return true;
 }
 

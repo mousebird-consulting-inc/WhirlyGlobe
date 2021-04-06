@@ -1,9 +1,8 @@
-/*
- *  QuadLoaderBase.java
+/*  QuadLoaderBase.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -207,6 +205,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         return null;
     }
 
+    /**
+     * Attach a LoaderReturn to the frame assets
+     */
+    public native void setLoadReturn(LoaderReturn loadReturn);
+
     protected boolean isShuttingDown = false;
 
     /**
@@ -338,8 +341,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                     final LoaderReturn loadReturn = makeLoaderReturn();
                     loadReturn.setTileID(tileX, tileY, tileLevel);
                     loadReturn.setFrame(getFrameID(fFrame),fFrame);
+
                     if (data != null)
                         loadReturn.addTileData(data);
+
+                    loaderBase.setLoadReturn(loadReturn);
 
                     // We're on an AsyncTask in the background here, so do the loading
                     if (loadInterp != null)

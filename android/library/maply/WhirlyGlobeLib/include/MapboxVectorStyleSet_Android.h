@@ -68,11 +68,12 @@ public:
     void cleanup(JNIEnv *env);
 
 public:
-    jobject thisObj;
-    jmethodID makeLabelInfoMethod;
-    jmethodID calculateTextWidthMethod;
-    jmethodID makeCircleTextureMethod;
-    jmethodID makeLineTextureMethod;
+    jobject thisObj = nullptr;
+    jmethodID makeLabelInfoMethod = nullptr;
+    jmethodID calculateTextWidthMethod = nullptr;
+    jmethodID makeCircleTextureMethod = nullptr;
+    jmethodID makeLineTextureMethod = nullptr;
+    jmethodID atomicBoolGetMethod = nullptr;
 
     // Map fontName/size to Java-side labelInfo objects
     std::map<std::pair<std::string, float>, LabelInfoAndroidRef> labelInfos;

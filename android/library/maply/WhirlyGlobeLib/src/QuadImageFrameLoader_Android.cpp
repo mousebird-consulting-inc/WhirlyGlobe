@@ -1,9 +1,8 @@
-/*
- *  QuadImageFrameLoader_Android.cpp
+/*  QuadImageFrameLoader_Android.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadImageFrameLoader_Android.h"
@@ -33,7 +31,7 @@ QIFBatchOps_Android::~QIFBatchOps_Android()
 {
 }
 
-QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo)
+QIFFrameAsset_Android::QIFFrameAsset_Android(PlatformInfo_Android *,QuadFrameInfoRef frameInfo)
 : QIFFrameAsset(frameInfo)
 {
 }
@@ -110,7 +108,7 @@ void QIFFrameAsset_Android::loadFailed(PlatformThreadInfo *threadInfo,QuadImageF
     clearRequestJava((PlatformInfo_Android *) threadInfo,(QuadImageFrameLoader_Android *)loader);
 }
 
-QIFTileAsset_Android::QIFTileAsset_Android(PlatformInfo_Android *threadInfo,const QuadTreeNew::ImportantNode &ident)
+QIFTileAsset_Android::QIFTileAsset_Android(PlatformInfo_Android *,const QuadTreeNew::ImportantNode &ident)
         : QIFTileAsset(ident)
 {
 }
