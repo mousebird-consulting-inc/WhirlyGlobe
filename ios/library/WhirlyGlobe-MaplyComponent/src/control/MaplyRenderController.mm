@@ -439,6 +439,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addScreenMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([markers count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addScreenMarkers:markers desc:desc mode:threadMode];
     }
@@ -447,6 +450,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addMarkers:(NSArray *__nonnull)markers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([markers count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addMarkers:markers desc:desc mode:threadMode];
     }
@@ -455,6 +461,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addScreenLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([labels count] == 0)
+        return nil;
+    
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addScreenLabels:labels desc:desc mode:threadMode];
     }
@@ -463,6 +472,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addLabels:(NSArray *__nonnull)labels desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([labels count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addLabels:labels desc:desc mode:threadMode];
     }
@@ -471,6 +483,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([vectors count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addVectors:vectors desc:desc mode:threadMode];
     }
@@ -479,6 +494,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)instanceVectors:(MaplyComponentObject *__nonnull)baseObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if (!baseObj)
+        return nil;
+    
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer instanceVectors:baseObj desc:desc mode:threadMode];
     }
@@ -487,6 +505,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addWideVectors:(NSArray *__nonnull)vectors desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([vectors count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addWideVectors:vectors desc:desc mode:threadMode];
     }
@@ -495,6 +516,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([modelInstances count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addModelInstances:modelInstances desc:desc mode:threadMode];
     }
@@ -503,6 +527,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addGeometry:(NSArray *__nonnull)geom desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([geom count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addGeometry:geom desc:desc mode:threadMode];
     }
@@ -511,6 +538,9 @@ using namespace Eigen;
 
 - (void)changeVector:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if (!compObj)
+        return;
+
     if (auto wr = WorkRegion(interactLayer)) {
         [interactLayer changeVectors:compObj desc:desc mode:threadMode];
     }
@@ -518,6 +548,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([shapes count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addShapes:shapes desc:desc mode:threadMode];
     }
@@ -526,6 +559,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addStickers:(NSArray *__nonnull)stickers desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([stickers count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addStickers:stickers desc:desc mode:threadMode];
     }
@@ -534,6 +570,9 @@ using namespace Eigen;
 
 - (void)changeSticker:(MaplyComponentObject *__nonnull)compObj desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if (!compObj)
+        return;
+
     if (auto wr = WorkRegion(interactLayer)) {
         [interactLayer changeSticker:compObj desc:desc mode:threadMode];
     }
@@ -541,6 +580,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addBillboards:(NSArray *__nonnull)billboards desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([billboards count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addBillboards:billboards desc:desc mode:threadMode];
     }
@@ -549,6 +591,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *)addParticleSystem:(MaplyParticleSystem *)partSys desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
+    if (!partSys)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addParticleSystem:partSys desc:desc mode:threadMode];
     }
@@ -557,6 +602,9 @@ using namespace Eigen;
 
 - (void)changeParticleSystem:(MaplyComponentObject *__nonnull)compObj renderTarget:(MaplyRenderTarget *__nullable)target
 {
+    if (!compObj)
+        return;
+
     if ([NSThread currentThread] != mainThread) {
         NSLog(@"MaplyBaseViewController: changeParticleSystem:renderTarget: must be called on main thread");
         return;
@@ -579,6 +627,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addLoftedPolys:(NSArray *__nonnull)polys desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([polys count] == 0)
+        return nil;
+    
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addLoftedPolys:polys desc:desc mode:threadMode];
     }
@@ -587,6 +638,9 @@ using namespace Eigen;
 
 - (MaplyComponentObject *__nullable)addPoints:(NSArray * __nonnull)points desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if ([points count] == 0)
+        return nil;
+
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addPoints:points desc:desc mode:threadMode];
     }
@@ -595,6 +649,9 @@ using namespace Eigen;
 
 - (MaplyTexture *__nullable)addTexture:(UIImage *__nonnull)image desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
 {
+    if (!image)
+        return nil;
+    
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addTexture:image desc:desc mode:threadMode];
     }
@@ -603,6 +660,9 @@ using namespace Eigen;
 
 - (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
 {
+    if (!tex)
+        return nil;
+    
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
     }
@@ -623,6 +683,9 @@ using namespace Eigen;
 
 - (void)removeTextures:(NSArray *__nonnull)textures mode:(MaplyThreadMode)threadMode
 {
+    if ([textures count] == 0)
+        return;
+
     if (auto wr = WorkRegion(interactLayer)) {
         [interactLayer removeTextures:textures mode:threadMode];
     }
