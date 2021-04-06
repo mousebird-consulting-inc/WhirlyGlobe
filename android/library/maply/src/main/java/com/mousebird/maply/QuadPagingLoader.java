@@ -55,7 +55,7 @@ public class QuadPagingLoader extends QuadLoaderBase {
      * @param inInterp The loader interpreter takes input data (if any) per tile and turns it into visual objects
      * @param control The globe or map controller we're adding objects to.
      */
-    public QuadPagingLoader(final SamplingParams params,TileInfoNew inTileInfos[],LoaderInterpreter inInterp,BaseController control)
+    public QuadPagingLoader(final SamplingParams params,TileInfoNew[] inTileInfos,LoaderInterpreter inInterp,BaseController control)
     {
         super(control, params, 1, Mode.Object);
 

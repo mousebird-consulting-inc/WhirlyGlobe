@@ -123,6 +123,10 @@ public:
     /// Returns false on failure or cancellation.
     virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool);
 
+    /// Parse the vector tile and return a list of vectors.
+    /// Returns false on failure or cancellation.
+    virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, std::function<bool()> cancelFn);
+
     /// The subclass calls the appropriate style to build component objects
     ///  which are then returned in the VectorTileData
     virtual void buildForStyle(PlatformThreadInfo *styleInst,

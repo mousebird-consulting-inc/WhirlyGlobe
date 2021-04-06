@@ -19,19 +19,14 @@
 package com.mousebird.maply;
 
 import android.graphics.Bitmap;
-import android.graphics.Color;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipEntry;
-
-import javax.microedition.khronos.egl.EGL10;
-import javax.microedition.khronos.egl.EGLContext;
 
 /**
  * The Mapbox Vector (Tile) Interpreter parses raw vector tile data
@@ -109,6 +104,32 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 WGS84_a_2 * Math.log((1.0 + Math.sin(pt.getY())) / (1.0 - Math.sin(pt.getY()))));
     }
 
+    private final long cancelCheckMillisec = 100;
+
+    /**
+     * Manages a value we can pass down to JNI to signal it to cancel in the middle of a tile parse.
+     */
+    private static class ParserCancellationChecker implements Runnable {
+        public final AtomicBoolean cancelFlag = new AtomicBoolean(false);
+        public ParserCancellationChecker(LoaderReturn loadReturn,WeakReference<BaseController> vc,long interval) {
+            this.vc = vc;
+            this.loadReturn = loadReturn;
+            this.interval = interval;
+        }
+        public void cancel() { cancelFlag.set(true); }
+        @Override public void run() {
+            BaseController theVC = vc.get();
+            if (loadReturn.isCanceled() || theVC == null) {
+                cancelFlag.set(true);
+            } else if (theVC != null && !cancelFlag.get()) {
+                theVC.addPostSurfaceRunnable(this,interval);
+            }
+        }
+        private final LoaderReturn loadReturn;
+        private final WeakReference<BaseController> vc;
+        private final long interval;
+    }
+
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
         if (styleGen != null) styleGen.setZoomSlot(loader.getZoomSlot());
@@ -131,6 +152,9 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
                 byte[] buffer = new byte[1024];
                 for (int count; (count = in.read(buffer)) != -1; ) {
+                    if (loadReturn.isCanceled()) {
+                        return;
+                    }
                     bout.write(buffer, 0, count);
                 }
 
@@ -153,21 +177,37 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             } catch (IOException ignore){}
         }
 
+        BaseController theVC = vc.get();
+        if (theVC == null) {
+            return;
+        }
+
         // Don't let the sampling layer shut down while we're working
         QuadSamplingLayer samplingLayer = loader.samplingLayer.get();
         if (samplingLayer == null || !samplingLayer.layerThread.startOfWork())
             return;
 
-        try {
+        try {   // ensure endOfWork is called
             // Parse the data into vectors
             // This will skip layers we don't care about
             TileID tileID = loadReturn.getTileID();
             Mbr locBounds = loader.geoBoundsForTile(tileID);
             locBounds.ll = toMerc(locBounds.ll);
             locBounds.ur = toMerc(locBounds.ur);
+
             VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
-            parser.parseData(data, tileData);
-            BaseController theVC = vc.get();
+            {
+                ParserCancellationChecker cancelCheck = new ParserCancellationChecker(loadReturn, vc, cancelCheckMillisec);
+                theVC.addPostSurfaceRunnable(cancelCheck, cancelCheckMillisec);
+                try {
+                    if (!parser.parseData(data, tileData, cancelCheck.cancelFlag) || loadReturn.isCanceled()) {
+                        return;
+                    }
+                } finally {
+                    cancelCheck.cancel();
+                }
+            }
+
             ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
             if (theVC != null) {
                 ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
@@ -176,8 +216,13 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 loadReturn.mergeChanges(tileData.getChangeSet());
             }
 
+            if (loadReturn.isCanceled()) {
+                return;
+            }
+
             // If we have a tile renderer, draw the data into that
             Bitmap tileBitmap = null;
+            // multiple checks and synchronization are ok, tileRender is never set to null
             if (tileRender != null) {
                 synchronized (tileRender) {
                     tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
@@ -188,7 +233,19 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                     // We need to use a specific context that comes with the tile renderer
                     RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
                     tileRender.setEGLContext(null);
-                    imageParser.parseData(data, imageTileData);
+
+                    {
+                        ParserCancellationChecker cancelCheck = new ParserCancellationChecker(loadReturn, vc, cancelCheckMillisec);
+                        theVC.addPostSurfaceRunnable(cancelCheck, cancelCheckMillisec);
+                        try {
+                            if (!imageParser.parseData(data, imageTileData, cancelCheck.cancelFlag) || loadReturn.isCanceled()) {
+                                return;
+                            }
+                        } finally {
+                            cancelCheck.cancel();
+                        }
+                    }
+
                     ChangeSet changes = imageTileData.getChangeSet();
                     changes.process(tileRender, tileRender.getScene());
                     changes.dispose();
@@ -202,6 +259,10 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                     // It would have been set up by our own renderer for us on a specific thread
                     theVC.renderControl.setEGLContext(cInfo);
                 }
+            }
+
+            if (loadReturn.isCanceled()) {
+                return;
             }
 
             // Sort out overlays if they're there
@@ -224,6 +285,10 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 }
 
                 regObjs = minusOvls.toArray(new ComponentObject[1]);
+            }
+
+            if (loadReturn.isCanceled()) {
+                return;
             }
 
             // Merge the results into the loadReturn

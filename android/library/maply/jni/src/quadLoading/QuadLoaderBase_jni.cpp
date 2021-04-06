@@ -251,6 +251,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
     }
 }
 
+//public native void setLoadReturn(long frameID,LoaderReturn loadReturn);
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setLoadReturn
+        (JNIEnv *env, jobject obj, jobject loadReturnObj)
+{
+    try
+    {
+        if (const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj))
+        if (const auto loader = *loaderPtr)
+        if (const auto loadReturnPtr = LoaderReturnClassInfo::get(env,loadReturnObj))
+        if (const auto loadReturn = *loadReturnPtr)
+        {
+            loader->setLoadReturnRef(loadReturn->ident,loadReturn->frame,loadReturn);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::setLoadReturn()");
+    }
+}
+
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
         (JNIEnv *env, jobject obj, jobject loadRetObj, jobject changeObj)
