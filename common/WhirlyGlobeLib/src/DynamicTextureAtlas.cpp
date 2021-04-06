@@ -174,6 +174,12 @@ void DynamicTextureClearRegion::execute(Scene *scene,SceneRenderer *renderer,Vie
         dynTex->addRegionToClear(region);
     }
 }
+
+DynamicTextureAddRegion::~DynamicTextureAddRegion()
+{
+    if (!wasRun)
+        wkLogLevel(Error,"DynamicTextureAddRegion deleted without being run.");
+}
     
 void DynamicTextureAddRegion::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
@@ -182,7 +188,9 @@ void DynamicTextureAddRegion::execute(Scene *scene,SceneRenderer *renderer,View 
     if (dynTex)
     {
         dynTex->addTextureData(startX, startY, width, height, data);
-    }    
+    } else
+        wkLogLevel(Warn,"Tried to add texture data to dynamic texture that doesn't exist.");
+    wasRun = true;
 }
    
 DynamicTextureAtlas::TextureRegion::TextureRegion()
@@ -204,7 +212,7 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 
     
 DynamicTextureAtlas::DynamicTextureAtlas(const std::string &name,int texSize,int cellSize,TextureType format,int imageDepth,bool mainThreadMerge)
-    : name(name), texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(imageDepth>1), interpType(TexInterpLinear)
+    : name(name), texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(false), interpType(TexInterpLinear)
 {
     if (mainThreadMerge || MainThreadMerge)
     {
@@ -317,7 +325,10 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
         }
         for (unsigned int ii=0;ii<dynTexVec->size();ii++)
         {
-            changes.push_back(new AddTextureReq(dynTexVec->at(ii)));
+            // We need this texture added ASAP
+            // Otherwise another thread that may be trying to use it can outrun us
+            sceneRender->scene->addChangeRequest(new AddTextureReq(dynTexVec->at(ii)));
+//            changes.push_back(new AddTextureReq(dynTexVec->at(ii)));
         }
     }
     

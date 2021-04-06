@@ -137,11 +137,13 @@ class DynamicTextureAddRegion : public ChangeRequest
 public:
     DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data)
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
+    ~DynamicTextureAddRegion();
 
     /// Add the region.  Never call this.
     void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
     
 protected:
+    bool wasRun = false;
     SimpleIdentity texId;
     int startX,startY,width,height;
     RawDataRef data;
