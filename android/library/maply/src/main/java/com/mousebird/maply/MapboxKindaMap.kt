@@ -54,6 +54,7 @@ open class MapboxKindaMap(
     var offlineRender: RenderController? = null
     var lineScale = 0.0
     var textScale = 0.0
+    var maxConcurrentLoad: Int? = null
 
     /* If set, we build an image/vector hybrid where the polygons go into
      *  the image layer and the linears and points are represented as vectors
@@ -200,7 +201,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(resolvedURL)
                 if (cacheUrl.toString().startsWith("file:")) {
-                    val file = Paths.get(cacheUrl.toURI()).toFile();
+                    val file = Paths.get(cacheUrl.toURI()).toFile()
                     FileInputStream(file).use {
                         val json = it.bufferedReader().readText()
                         if (json.isNotEmpty()) {
@@ -270,7 +271,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(url)
                 if (cacheUrl.toString().startsWith("file:")) {
-                    val file = Paths.get(cacheUrl.toURI()).toFile();
+                    val file = Paths.get(cacheUrl.toURI()).toFile()
                     FileInputStream(file).use {
                         val json = it.bufferedReader().readText()
                         if (json.isNotEmpty()) {
@@ -343,6 +344,7 @@ open class MapboxKindaMap(
         val localFetchers = ArrayList<MBTileFetcher>()
         localMBTiles?.forEach { item ->
             val fetcher = MBTileFetcher(theControl,item)
+            maxConcurrentLoad?.let { fetcher.maxParsing = it }
             localFetchers.add(fetcher)
             fetcher.tileInfo?.also {
                 tileInfos.add(it)
