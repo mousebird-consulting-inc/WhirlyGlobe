@@ -114,6 +114,9 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         setArealShaderNative(shader.id)
     }
 
+    // Return true if the stylesheet contains a background style layer
+    external fun hasBackgroundStyle(): Boolean
+
     // Calculate an appropriate background color given the zoom level
     override fun backgroundColorForZoom(zoom: Double): Int {
         return backgroundColorForZoomNative(zoom)
