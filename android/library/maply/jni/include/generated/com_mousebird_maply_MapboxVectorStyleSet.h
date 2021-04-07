@@ -17,6 +17,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealSha
 
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    hasBackgroundStyle
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_hasBackgroundStyle
+        (JNIEnv *env, jobject obj);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    backgroundColorForZoomNative
  * Signature: (D)I
  */

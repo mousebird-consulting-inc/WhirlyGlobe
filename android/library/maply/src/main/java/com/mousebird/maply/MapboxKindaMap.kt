@@ -361,12 +361,15 @@ open class MapboxKindaMap(
         } else {
             startSimpleLoader(sampleParams, tileInfos, localFetchers)
         }
-    
-        (control.get() as? MapController)?.let { mc ->
-            // Set the background clear to the color at level 0
-            // TODO: Make this change by level
-            styleSheetVector?.backgroundColorForZoom(0.0)?.let {
-                mc.setClearColor(it)
+
+        // If the stylesheet has a background layer, use it to set the clear color
+        styleSheetVector?.let { ss ->
+            (control.get() as? MapController)?.let { mc ->
+                if (ss.hasBackgroundStyle()) {
+                    // Set the background clear to the color at level 0
+                    // TODO: Make this change by level
+                    mc.setClearColor(ss.backgroundColorForZoom(0.0))
+                }
             }
         }
 

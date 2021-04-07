@@ -96,8 +96,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::dispose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::dispose()");
     }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_hasBackgroundStyle
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto inst = MapboxVectorStyleSetClassInfo::get(env,obj))
+        {
+            PlatformInfo_Android platformInfo(env);
+            if (const auto style = (*inst)->backgroundStyle(&platformInfo))
+            {
+                return true;
+            }
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::hasBackgroundStyle()");
+    }
+    return false;
 }
 
 extern "C"
@@ -121,7 +143,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::backgroundColorForZoomNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::backgroundColorForZoomNative()");
     }
 
     return 0;
@@ -189,6 +211,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealSha
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::setArealShaderNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::setArealShaderNative()");
     }
 }
