@@ -26,6 +26,7 @@ import android.util.Log;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -626,10 +627,16 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // Write to the local cache.  Called on a random thread.
     protected void writeToCache(TileInfo tile,byte[] data)
     {
-        if (tile.fetchInfo.cacheFile == null)
+        File cacheFile = tile.fetchInfo.cacheFile;
+        if (cacheFile == null)
             return;
 
-        try (OutputStream fOut = new FileOutputStream(tile.fetchInfo.cacheFile)) {
+        File parent = cacheFile.getParentFile();
+        if (!parent.isDirectory() && !parent.mkdirs()) {
+            return;
+        }
+
+        try (OutputStream fOut = new FileOutputStream(cacheFile)) {
             fOut.write(data);
         } catch (Exception e) {
             Log.w("RemoteTileFetcher", "Failed to write cache", e);
