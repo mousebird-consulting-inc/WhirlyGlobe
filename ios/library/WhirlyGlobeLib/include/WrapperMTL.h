@@ -23,6 +23,7 @@
 #import "ChangeRequest.h"
 #import "baseInfo.h"
 #import "DefaultShadersMTL.h"
+#import <unordered_set>
 
 namespace WhirlyKit
 {
@@ -50,10 +51,8 @@ void CopyIntoMtlFloat4(simd::float4 &dest,const float vals[4]);
 class BufferEntryMTL {
 public:
     BufferEntryMTL();
-    BufferEntryMTL(const BufferEntryMTL &that);
     bool operator == (const BufferEntryMTL &that);
     void clear();
-    BufferEntryMTL & operator = (const BufferEntryMTL &that);
     
     bool valid;            // Manipulating functions will set this
     id<MTLHeap> heap;      // Set if this is in a heap
@@ -111,15 +110,15 @@ public:
     void clear();
     
 protected:
-    std::set< id<MTLHeap> > heaps;
-    std::set< id<MTLBuffer> > buffers;
-    std::set< id<MTLTexture> > textures;
+    NSMutableSet< id<MTLHeap> > *heaps;
+    NSMutableSet< id<MTLBuffer> > *buffers;
+    NSMutableSet< id<MTLTexture> > *textures;
     
     bool trackHolds;
     
     // We're just hanging on to these till the end of the frame
-    std::set< id<MTLBuffer> > buffersToHold;
-    std::set< id<MTLTexture> > texturesToHold;
+    NSMutableSet< id<MTLBuffer> > *buffersToHold;
+    NSMutableSet< id<MTLTexture> > *texturesToHold;
 };
 typedef std::shared_ptr<ResourceRefsMTL> ResourceRefsMTLRef;
 
@@ -162,6 +161,9 @@ public:
     // If false, we'll allocate individual buffers
     static const bool UseHeaps;
     
+    // Update the amount of space on the various heaps
+    void updateHeaps();
+    
     // Allocate a buffer of the given type and size
     // It may be an entry in a heap, it might not.
     // The BufferEntryMTLRef will track it
@@ -174,14 +176,32 @@ public:
     TextureEntryMTL newTextureWithDescriptor(MTLTextureDescriptor *desc,size_t size);
 
 protected:
-    id<MTLHeap> findHeap(HeapType heapType,size_t &size);
-    id<MTLHeap> findTextureHeap(MTLTextureDescriptor *desc,size_t size);
-
+    // Info about a single heap
+    class HeapInfo
+    {
+    public:
+        size_t maxAvailSize;
+        id<MTLHeap> heap;
+    };
+    typedef std::shared_ptr<HeapInfo> HeapInfoRef;
+    
+    typedef struct {
+        bool operator() (const HeapInfoRef &a, const HeapInfoRef &b) const {
+            if (a->maxAvailSize == b->maxAvailSize)
+                return a->heap < b->heap;
+            return a->maxAvailSize < b->maxAvailSize;
+        }
+    } HeapGroupSorter;
+    
+    // Group of heaps sorted by max available size
     class HeapGroup
     {
     public:
-        std::vector<id<MTLHeap> > heaps;
+        std::set<HeapInfoRef, HeapGroupSorter> heaps;
     };
+    
+    HeapInfoRef findHeap(HeapType heapType,size_t &size);
+    HeapInfoRef findTextureHeap(MTLTextureDescriptor *desc,size_t size);
 
     std::mutex lock;
     std::mutex texLock;

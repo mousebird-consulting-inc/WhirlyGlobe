@@ -1006,6 +1006,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     if (teardownInfo) {
         teardownInfo.reset();
     }
+    
+    setupInfo.heapManage.updateHeaps();
 }
 
 void SceneRendererMTL::shutdown()
