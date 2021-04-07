@@ -90,9 +90,6 @@ public:
     // Drawables sorted into groups for drawing
     // For Metal we have specialized versions
     std::vector<DrawGroupMTLRef> drawGroups;
-    
-    // This keeps us from stomping on the previous frame's uniforms
-    id<MTLFence> lastRenderFence;
 };
 typedef std::shared_ptr<RenderTargetContainerMTL> RenderTargetContainerMTLRef;
 
@@ -207,6 +204,10 @@ public:
     std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;
     dispatch_queue_t releaseQueue;
     
+    // This keeps us from stomping on the previous frame's uniforms
+    int lastRenderNo;
+    id<MTLEvent> renderEvent;
+
 private:
     const std::shared_ptr<bool> _isShuttingDown;
 };

@@ -80,8 +80,8 @@ RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
-    : setupInfo(mtlDevice,mtlLibrary)
-    , _isShuttingDown(std::make_shared<bool>(false))
+    : setupInfo(mtlDevice,mtlLibrary),
+    _isShuttingDown(std::make_shared<bool>(false)), lastRenderNo(0), renderEvent(nil)
 {
     offscreenBlendEnable = false;
     indirectRender = false;
@@ -674,6 +674,10 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfos.push_back(offFrameInfo);
     }
     
+    // Keeps us from stomping on the last frame's uniforms
+    if (renderEvent == nil)
+        renderEvent = [mtlDevice newEvent];
+    
     // Workgroups force us to draw things in order
     for (auto &workGroup : workGroups) {
         if (perfInterval > 0)
@@ -700,15 +704,19 @@ void SceneRendererMTL::render(TimeInterval duration,
             baseFrameInfo.renderTarget = renderTarget.get();
 
             // Each render target needs its own buffer and command queue
+            if (lastCmdBuff) {
+                [lastCmdBuff commit];
+                lastCmdBuff = nil;
+            }
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-            
+
+            // Keeps us from stomping on the last frame's uniforms
+            if (lastRenderNo > 0)
+                [cmdBuff encodeWaitForEvent:renderEvent value:lastRenderNo];
+
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
             id<MTLFence> preProcessFence = [mtlDevice newFence];
             id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-
-            // Keeps us from stomping on the last frame's uniforms
-            if (targetContainerMTL->lastRenderFence)
-                [bltEncode waitForFence:targetContainerMTL->lastRenderFence];
 
             // Resources used by this container
             ResourceRefsMTL resources;
@@ -757,9 +765,6 @@ void SceneRendererMTL::render(TimeInterval duration,
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
             
-            // Triggered after rendering is finished
-            id<MTLFence> renderFence = [mtlDevice newFence];
-
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
             // If not, then we run some program over it multiple times
             // TODO: Make the reduce operation more explicit
@@ -908,15 +913,9 @@ void SceneRendererMTL::render(TimeInterval duration,
                     }
                 }
 
-                // Notify anyone waiting that this frame is complete
-                if (level == numLevels-1) {
-                    [cmdEncode updateFence:renderFence afterStages:MTLRenderStageFragment];
-                    targetContainerMTL->lastRenderFence = renderFence;
-                }
-                
                 [cmdEncode endEncoding];
             }
-            
+
             // Some render targets like to do extra work on their images
             renderTarget->addPostProcessing(mtlDevice,cmdBuff);
 
@@ -925,7 +924,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
             }
-            lastCmdBuff = cmdBuff;
 
             // Capture shutdown signal in case `this` is destroyed before the blocks below execute.
             // This isn't 100% because we could still be destroyed while the blocks are executing,
@@ -969,18 +967,28 @@ void SceneRendererMTL::render(TimeInterval duration,
                     });
                 });
             }];
+            lastCmdBuff = cmdBuff;
 
-            [cmdBuff commit];
-            
             // This happens for offline rendering and we want to wait until the render finishes to return it
-            if (!drawGetter)
+            if (!drawGetter) {
+                [cmdBuff commit];
                 [cmdBuff waitUntilCompleted];
+                lastCmdBuff = nil;
+            }
         }
                 
         if (perfInterval > 0)
             perfTimer.stopTiming("Work Group: " + workGroup->name);
     }
-        
+    
+    // Notify anyone waiting that this frame is complete
+    if (lastCmdBuff) {
+        [lastCmdBuff encodeSignalEvent:renderEvent value:lastRenderNo+1];
+        [lastCmdBuff commit];
+        lastCmdBuff = nil;
+    }
+    lastRenderNo++;
+
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
     
