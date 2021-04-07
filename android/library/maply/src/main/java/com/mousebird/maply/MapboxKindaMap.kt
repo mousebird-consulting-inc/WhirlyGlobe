@@ -233,7 +233,7 @@ open class MapboxKindaMap(
                     response.body()?.let { body ->
                         val bytes = body.bytes()
                         if (bytes.isNotEmpty()) {
-                            styleSheetJSON = bytes.decodeToString()
+                            styleSheetJSON = String(bytes)
                             cacheFile(theStyleURL, bytes)
                             processStyleSheet()
                         }
@@ -298,7 +298,7 @@ open class MapboxKindaMap(
                     response.body()?.let { body ->
                         val bytes = body.bytes()
                         if (bytes.isNotEmpty()) {
-                            val json = bytes.decodeToString()
+                            val json = String(bytes)
                             if (json.isNotEmpty()) {
                                 processStylesheetJson(source, json)
                                 cacheFile(Uri.parse(url.toString()), bytes)
