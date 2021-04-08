@@ -65,10 +65,11 @@ void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
 
 void QIFFrameAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
-    if (loadReturnRef) {
-        loadReturnRef->clear();
-        loadReturnRef.reset();
-    }
+
+    // Drop the reference to the loader return, its cancel flag can no longer be set.
+    // Note that we do not clear out its contents, they may still be needed to clean up.
+    loadReturnRef.reset();
+
     for (auto texID : texIDs)
         changes.push_back(new RemTextureReq(texID));
     texIDs.clear();
