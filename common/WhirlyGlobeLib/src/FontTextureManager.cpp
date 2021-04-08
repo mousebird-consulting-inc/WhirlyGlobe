@@ -18,6 +18,7 @@
 
 #import "FontTextureManager.h"
 #import "WhirlyVector.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -60,7 +61,7 @@ FontManager::GlyphInfo *FontManager::addGlyph(WKGlyph glyph,SubTexture subTex,co
     info->textureOffset = textureOffset;
     info->subTex = subTex;
     glyphs.insert(info);
-    
+
     return info;
 }
 
@@ -94,6 +95,8 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
             glyphInfo->refCount--;
             if (glyphInfo->refCount <= 0)
             {
+//                wkLogLevel(Info,"Glyph removed: fm = %d, glyph = %d",(int)getId(),(int)theGlyph);
+
                 if (toRemove.empty())
                 {
                     toRemove.reserve(usedGlyphs.size());
@@ -188,12 +191,16 @@ void FontTextureManager::removeString(PlatformThreadInfo *inst, SimpleIdentity d
         // And possibly remove some sub textures
         for (const auto &ii : texRemove)
         {
+//            wkLogLevel(Info,"Texture removed for glyph");
+
             texAtlas->removeTexture(ii, changes, when);
         }
 
         // Also see if we're done with the font
         if (fm->refCount <= 0)
         {
+//            wkLogLevel(Info,"Font removed: fm = %d,",(int)fm->getId());
+
             fm->teardown(inst);
             fontManagers.erase(fmIt);
         }

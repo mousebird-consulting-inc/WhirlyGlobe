@@ -310,8 +310,6 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
             dynTexVec->push_back(dynTex);
             dynTex->createInRenderer(sceneRender->getRenderSetupInfo());
         }
-        // Unfortunately, we have to flush here or run the risk of no one else seeing our texture
-//        glFlush();
 
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
         textures.insert(dynTexVec);
@@ -347,7 +345,7 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
             //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
             // Make the main thread do the merge
             if (MainThreadMerge || mainThreadMerge)
-                changes.push_back(new DynamicTextureAddRegion(dynTex->getId(),
+                sceneRender->scene->addChangeRequest(new DynamicTextureAddRegion(dynTex->getId(),
                                                               texRegion.region.sx * cellSize, texRegion.region.sy * cellSize, tex->getWidth(), tex->getHeight(),
                                                               tex->processData()));
             else

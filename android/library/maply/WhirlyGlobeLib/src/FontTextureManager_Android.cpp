@@ -214,6 +214,7 @@ DrawableString *FontTextureManager_Android::addString(
 						{
 							wkLogLevel(Error, "Failed to add glyph texture for %d/%c in %s", glyph, glyph, fm->fontName.c_str());
 						}
+//						wkLogLevel(Info,"Glyph added: fm = %d, glyph = %d",(int)fm->getId(),(int)glyph);
 					}
 					catch (...)
 					{
@@ -305,6 +306,8 @@ FontTextureManager_Android::FontManager_AndroidRef FontTextureManager_Android::f
 	fm->outlineColor = labelInfo.outlineColor;
 	fm->outlineSize = labelInfo.outlineSize;
 	fontManagers[fm->getId()] = fm;
+
+//	wkLogLevel(Info,"Font added: fm = %d,",(int)fm->getId());
 
 	return fm;
 }
