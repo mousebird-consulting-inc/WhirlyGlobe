@@ -56,6 +56,10 @@ public:
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc) override;
 
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        return paint.color ? paint.color->colorForZoom(zoom) : RGBAColor::clear();
+    }
+
 public:
     /// Controls how the background looks.
     MapboxVectorBackgroundPaint paint;

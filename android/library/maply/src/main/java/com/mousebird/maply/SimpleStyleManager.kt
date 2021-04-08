@@ -354,7 +354,7 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
             Shared.imageCache[cacheKey]?.let { return it }
         }
 
-        var image = loadImageCached(name) ?: return null
+        val image = loadImageCached(name) ?: return null
     
         val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
         bitmap.eraseColor(Color.TRANSPARENT)
@@ -509,27 +509,30 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
         return (s == "1" || s.toLowerCase(Locale.ROOT) == "true")
     }
     
-    @ColorInt private fun parseColor(s: String?, a: Int = 255): Int? {
-        if (s == null || s.isEmpty()) return null
-        try {
-            val c = (if (s[0] == '#') s.substring(1) else s).toInt(16)
-            if (s.length < 5) {
-                // handle short colors
-                val r = c.and(0xF00)
-                val g = c.and(0x0F0)
-                val b = c.and(0x00F)
-                return r.shl(12)   // R__ => R_____
-                    .or(r.shl(8))  // R__ => _R____
-                    .or(g.shl(8))  // _G_ => __G___
-                    .or(g.shl(4))  // _G_ => ___G__
-                    .or(b.shl(4))  // __B => ____B_
-                    .or(b)                  // __B => _____B
-                    .or(a.and(255).shl(24)) // alpha = 1
+    companion object {
+        @ColorInt
+        fun parseColor(s: String?, a: Int = 255): Int? {
+            if (s == null || s.isEmpty()) return null
+            try {
+                val c = (if (s[0] == '#') s.substring(1) else s).toInt(16)
+                if (s.length < 5) {
+                    // handle short colors
+                    val r = c.and(0xF00)
+                    val g = c.and(0x0F0)
+                    val b = c.and(0x00F)
+                    return r.shl(12)   // R__ => R_____
+                            .or(r.shl(8))  // R__ => _R____
+                            .or(g.shl(8))  // _G_ => __G___
+                            .or(g.shl(4))  // _G_ => ___G__
+                            .or(b.shl(4))  // __B => ____B_
+                            .or(b)                  // __B => _____B
+                            .or(a.and(255).shl(24)) // alpha = 1
+                }
+                // regular color, already in the correct order for @ColorInt, add alpha and we're done
+                return c.or(a.and(255).shl(24))
+            } catch (e: java.lang.NumberFormatException) {
+                return null
             }
-            // regular color, already in the correct order for @ColorInt, add alpha and we're done
-            return c.or(a.and(255).shl(24))
-        } catch (e: java.lang.NumberFormatException) {
-            return null
         }
     }
     

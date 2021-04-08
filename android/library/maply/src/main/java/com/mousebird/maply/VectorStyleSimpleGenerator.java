@@ -7,7 +7,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by sjg on 6/2/16.
@@ -17,7 +16,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     /**
      * Base class for our vector style implementations.
      */
-    public abstract class VectorStyleSimple implements VectorStyle
+    public abstract static class VectorStyleSimple implements VectorStyle
     {
         long uuid = 0;
 
@@ -37,19 +36,16 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public String getCategory()
-        {
-            return null;
-        }
+        public String getIdent() { return null; }
+
+        @Override
+        public String getCategory() { return null; }
 
         /**
          * Set if this geometry is additive (e.g. sticks around) rather than being replaced.
          */
         @Override
-        public boolean geomIsAdditive()
-        {
-            return false;
-        }
+        public boolean geomIsAdditive() { return false; }
     }
 
     // Note: This should be ThreadCurrent
@@ -74,9 +70,9 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public void buildObjects(VectorObject vecObjs[], VectorTileData tileData, RenderControllerInterface controller)
+        public void buildObjects(VectorObject[] vecObjs, VectorTileData tileData, RenderControllerInterface controller)
         {
-            ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+            ArrayList<ScreenLabel> labels = new ArrayList<>();
             for (VectorObject point : vecObjs)
             {
                 // Note: Do we need to split here
@@ -117,7 +113,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
+        public void buildObjects(VectorObject[] vecObjs, VectorTileData tileData, RenderControllerInterface controller)
         {
             VectorInfo vecInfo = new VectorInfo();
 //            vecInfo.disposeAfterUse = true;
@@ -127,7 +123,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             vecInfo.setDrawPriority(drawPriority);
             vecInfo.setEnable(false);
 
-            ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
+            ComponentObject compObj = controller.addVectors(new ArrayList<>(Arrays.asList(vecObjs)),vecInfo,threadMode);
             tileData.addComponentObject(compObj);
         }
     }
@@ -148,7 +144,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
         }
 
         @Override
-        public void buildObjects(VectorObject vecObjs[],VectorTileData tileData,RenderControllerInterface controller)
+        public void buildObjects(VectorObject[] vecObjs, VectorTileData tileData, RenderControllerInterface controller)
         {
             // TODO: Sort by layer name and take layer order into account for the drawPriority
 //            Integer layerOrder = attrs.getInt("layer_order");
@@ -163,20 +159,20 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
             for (VectorObject vecObj: vecObjs)
                 vecObj.setSelectable(true);
 
-            ComponentObject compObj = controller.addVectors(new ArrayList<VectorObject>(Arrays.asList(vecObjs)),vecInfo,threadMode);
+            ComponentObject compObj = controller.addVectors(new ArrayList<>(Arrays.asList(vecObjs)),vecInfo,threadMode);
             tileData.addComponentObject(compObj);
         }
     }
 
     WeakReference<RenderControllerInterface> controller;
-    HashMap<Long,VectorStyleSimple> stylesByUUID = new HashMap<Long,VectorStyleSimple>();
+    HashMap<Long,VectorStyleSimple> stylesByUUID = new HashMap<>();
 
     // One style per geometry type, but we'll tweak it a little based on layer name
     VectorStyleSimple pointStyle,lineStyle,polyStyle;
 
     public VectorStyleSimpleGenerator(RenderControllerInterface inControl)
     {
-        controller = new WeakReference<RenderControllerInterface>(inControl);
+        controller = new WeakReference<>(inControl);
         pointStyle = new VectorStyleSimplePoint(LabelInfo.LabelPriorityDefault);
         stylesByUUID.put(pointStyle.getUuid(),pointStyle);
         lineStyle = new VectorStyleSimpleLinear(VectorInfo.VectorPriorityDefault);
@@ -226,8 +222,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     @Override
     public VectorStyle styleForUUID(long uuid,RenderControllerInterface controller)
     {
-        VectorStyle style = stylesByUUID.get(uuid);
-        return style;
+        return stylesByUUID.get(uuid);
     }
 
     @Override
@@ -237,9 +232,7 @@ public class VectorStyleSimpleGenerator implements VectorStyleInterface
     }
 
     @Override
-    public int backgroundColorForZoom(double zoom) {
-        return Color.BLACK;
-    }
+    public int backgroundColorForZoom(double zoom) { return Color.BLACK; }
 
     @Override
     public int getZoomSlot() { return -1; }

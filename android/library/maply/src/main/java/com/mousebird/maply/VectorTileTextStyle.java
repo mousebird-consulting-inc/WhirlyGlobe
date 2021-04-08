@@ -31,16 +31,18 @@ import java.util.regex.Pattern;
  */
 public class VectorTileTextStyle extends VectorTileStyle {
 
-    private LabelInfo labelInfo;
-    private String textField;
-    private Point2d offset;
+    private final LabelInfo labelInfo;
+    private final String textField;
+    private final Point2d offset;
 
     public enum Placement {Point, Line};
 
     private Placement placement = Placement.Point;
 
-    public VectorTileTextStyle(LabelInfo labelInfo, Placement placement, Point2d offset, String textField, VectorStyleSettings settings, RenderControllerInterface viewC) {
-        super(viewC);
+    public VectorTileTextStyle(String ident,String category,LabelInfo labelInfo,
+                               Placement placement,Point2d offset,String textField,
+                               VectorStyleSettings settings,RenderControllerInterface viewC) {
+        super(ident,category,viewC);
 
         this.labelInfo = labelInfo;
         this.placement = placement;
