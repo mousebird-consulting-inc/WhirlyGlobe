@@ -73,6 +73,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setLoadReturn
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    clearLoadReturn
+ * Signature: (Lcom/mousebird/maply/LoaderReturn;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_clearLoadReturn
+        (JNIEnv *env, jobject obj, jobject loadReturnObj);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    mergeLoaderReturn
  * Signature: (Lcom/mousebird/maply/LoaderReturn;Lcom/mousebird/maply/ChangeSet;)V
  */

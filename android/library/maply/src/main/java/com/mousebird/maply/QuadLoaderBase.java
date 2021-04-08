@@ -206,9 +206,15 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     }
 
     /**
-     * Attach a LoaderReturn to the frame assets
+     * Attach a LoaderReturn to the frame assets.
+     * Required for cancellation to be notated on the loader return.
      */
     public native void setLoadReturn(LoaderReturn loadReturn);
+
+    /**
+     * Detach a LoaderReturn from the frame assets
+     */
+    public native void clearLoadReturn(LoaderReturn loadReturn);
 
     protected boolean isShuttingDown = false;
 
@@ -353,19 +359,20 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
                     // Merge the data back in on the sampling layer's thread
                     final QuadSamplingLayer layer = getSamplingLayer();
-                    if (layer != null && !layer.isShuttingDown && !isShuttingDown) {
+                    if (layer != null && !layer.isShuttingDown && !isShuttingDown && !loadReturn.isCanceled()) {
                         layer.layerThread.addTask(() -> {
-                            if (loadInterp != null && !isShuttingDown) {
+                            if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
                                 ChangeSet changes = new ChangeSet();
                                 mergeLoaderReturn(loadReturn, changes);
                                 layer.layerThread.addChanges(changes);
-                                loadReturn.dispose();
                             } else {
                                 cleanupLoadedData(holdControl, loadReturn);
                             }
+                            loadReturn.dispose();
                         });
                     } else {
                         cleanupLoadedData(holdControl,loadReturn);
+                        loadReturn.dispose();
                     }
                 }
 
