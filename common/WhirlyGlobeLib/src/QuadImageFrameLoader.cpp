@@ -1589,7 +1589,7 @@ void QuadImageFrameLoader::makeStats()
     newStats.numTiles = tiles.size();
     const int numFrames = getNumFrames();
     newStats.frameStats.resize(numFrames);
-    for (const auto it : tiles) {
+    for (const auto &it : tiles) {
         //auto tileID = it.first;
         const auto tile = it.second;
         

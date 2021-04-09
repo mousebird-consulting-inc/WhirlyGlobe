@@ -332,6 +332,47 @@ typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
     
 typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
+void LayoutManager::addDebugOutput(const Point2dVector &pts,
+                                   WhirlyGlobe::GlobeViewState *globeViewState,
+                                   Maply::MapViewState *mapViewState,
+                                   const Point2f &frameBufferSize,
+                                   ChangeSet &changes)
+{
+    ShapeSet dispShapes;
+    auto coordAdapt = globeViewState ? globeViewState->coordAdapter : mapViewState->coordAdapter;
+    auto coordSys = coordAdapt->getCoordSystem();
+    VectorLinearRef lin = VectorLinear::createLinear();
+
+    for (unsigned oi=0;oi<pts.size()+1;oi++) {
+        const Point2d &pt = pts[oi%pts.size()];
+        if (globeViewState) {
+            Point3d modelPt;
+            if (globeViewState->pointOnSphereFromScreen(Point2f(pt.x(),pt.y()), globeViewState->fullMatrices[0], frameBufferSize, modelPt, false)) {
+                GeoCoord geoPt = coordSys->localToGeographic(coordAdapt->displayToLocal(modelPt));
+                lin->pts.push_back(Point2f(geoPt.x(),geoPt.y()));
+            }
+        } else {
+            Point3d modelPt;
+            if (mapViewState->pointOnPlaneFromScreen(Point2f(pt.x(),pt.y()), mapViewState->fullMatrices[0], frameBufferSize, modelPt, false)) {
+                GeoCoord geoPt = coordSys->localToGeographic(coordAdapt->displayToLocal(modelPt));
+                lin->pts.push_back(Point2f(geoPt.x(),geoPt.y()));
+            }
+        }
+    }
+    
+    // Turn them back into vectors to debug
+    VectorInfo vecInfo;
+    vecInfo.color = RGBAColor::black();
+    vecInfo.lineWidth = 4.0;
+    vecInfo.drawPriority = 10000000;
+    vecInfo.programID = vecProgID;
+    
+    dispShapes.insert(lin);
+    SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
+    if (vecId != EmptyIdentity)
+        debugVecIDs.insert(vecId);
+}
+
 // Do the actual layout logic.  We'll modify the offset and on value in place.
 bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                    const ViewStateRef &viewState,
@@ -869,7 +910,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                         objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
                                         break;
                                 }
-                                
+                                        
                                 // Rotate the rectangle
                                 if (screenRot == 0.0)
                                 {
@@ -878,11 +919,15 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,-layoutSpan.y()*resScale);
                                     objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y()*resScale);
                                 } else {
+                                    float flip = 1.0;
+#ifdef __ANDROID__
+                                    flip = -1.0;
+#endif
                                     Point2d center(objPt.x(),objPt.y());
-                                    objPts[0] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg;
-                                    objPts[1] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                                    objPts[2] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),-layoutSpan.y());
-                                    objPts[3] = Point2d(objOffset.x(),-objOffset.y()) + layoutOrg + Point2d(0.0,-layoutSpan.y());
+                                    objPts[0] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg;
+                                    objPts[1] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
+                                    objPts[2] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),-layoutSpan.y());
+                                    objPts[3] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg + Point2d(0.0,-layoutSpan.y());
                                     for (unsigned int oi=0;oi<4;oi++)
                                     {
                                         Point2d &thisObjPt = objPts[oi];
@@ -891,6 +936,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     }
                                 }
                                 
+                                // Debugging visual output
+//                                addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,changes);
+
 //                            wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
 //                            wkLogLevel(Debug, "Layout Pts");
 //                            for (unsigned int xx=0;xx<objPts.size();xx++)

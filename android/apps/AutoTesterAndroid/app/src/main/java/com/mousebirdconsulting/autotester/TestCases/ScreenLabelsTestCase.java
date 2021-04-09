@@ -52,13 +52,19 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		return true;
 	}
 
-	// Make a screen label at a given location (in degrees)
 	ScreenLabel makeLabel(double lon,double lat,String text,float importance)
+	{
+		return makeLabel(lon,lat,text,importance,0.0f);
+	}
+
+	// Make a screen label at a given location (in degrees)
+	ScreenLabel makeLabel(double lon,double lat,String text,float importance, float rot)
 	{
 		ScreenLabel label = new ScreenLabel();
 		label.loc = Point2d.FromDegrees(lon,lat);
 		label.text = text;
 		label.layoutImportance = importance;
+		label.rotation = rot;
 
 		return label;
 	}
@@ -116,7 +122,7 @@ public class ScreenLabelsTestCase extends MaplyTestCase {
 		}
 
 		// Toss in a few with explicit diacritics
-		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f));
+		labels.add(makeLabel(-74.075833, 4.4, "Bogotá", 2.f, (float)Math.PI/4.0f));
 		labels.add(makeLabel(-74.075833, 4.598056, "Bogotá2", 2.f));
 		labels.add(makeLabel(6.0219, 47.2431, "Besançon", 2.f));
 		labels.add(makeLabel(4.361, 43.838, "Nîmes", 2.f));

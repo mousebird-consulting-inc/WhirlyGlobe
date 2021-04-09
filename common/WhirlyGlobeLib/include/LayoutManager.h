@@ -232,6 +232,12 @@ protected:
                         std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
                         ChangeSet &changes);
     
+    void addDebugOutput(const Point2dVector &pts,
+                        WhirlyGlobe::GlobeViewState *globeViewState,
+                        Maply::MapViewState *mapViewState,
+                        const Point2f &frameBufferSize,
+                        ChangeSet &changes);
+    
     VectorManagerRef vecManage;
     
     /// If non-zero the maximum number of objects we'll display at once
