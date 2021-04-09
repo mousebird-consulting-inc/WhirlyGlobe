@@ -17,6 +17,38 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealSha
 
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    stylesForFeature
+ * Signature: (Lcom/mousebird/maply/AttrDictionary;Lcom/mousebird/maply/TileID;Ljava/lang/String;Lcom/mousebird/maply/RenderControllerInterface;)[Lcom/mousebird/maply/VectorStyle;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_stylesForFeature
+        (JNIEnv *, jobject, jobject attrs, jobject tileID, jstring featureName, jobject control);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    allStyles
+ * Signature: ()[Lcom/mousebird/maply/VectorStyle;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_allStyles
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    layerShouldDisplay
+ * Signature: (Ljava/lang/String;Lcom/mousebird/maply/TileID;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_layerShouldDisplay
+(JNIEnv *, jobject, jstring name, jobject tileID);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    styleForUUID
+ * Signature: (JLcom/mousebird/maply/RenderControllerInterface;)Lcom/mousebird/maply/VectorStyle;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_styleForUUID
+        (JNIEnv *, jobject, jlong uuid, jobject control);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    hasBackgroundStyle
  * Signature: ()Z
  */
@@ -46,6 +78,14 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getZoomSlot
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setZoomSlot
   (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    getStyleInfo
+ * Signature: ()[Lcom/mousebird/maply/AttrDictionary;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getStyleInfo
+        (JNIEnv *, jobject, jfloat zoom);
 
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet

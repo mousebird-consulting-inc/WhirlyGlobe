@@ -19,8 +19,10 @@
 package com.mousebird.maply
 
 import android.graphics.*
-import android.util.DisplayMetrics
-import android.util.Log
+import android.util.*
+import androidx.annotation.ColorInt
+import androidx.core.util.component1
+import androidx.core.util.component2
 import com.mousebird.maply.RenderController.EmptyIdentity
 import java.lang.ref.WeakReference
 import java.util.*
@@ -36,10 +38,10 @@ import kotlin.math.ceil
 class MapboxVectorStyleSet : VectorStyleInterface {
 
     constructor(
-        styleJSON: String?,
-        inSettings: VectorStyleSettings,
-        inDisplayMetrics: DisplayMetrics,
-        inControl: RenderControllerInterface
+            styleJSON: String?,
+            inSettings: VectorStyleSettings,
+            inDisplayMetrics: DisplayMetrics,
+            inControl: RenderControllerInterface
     ) {
         val styleDict = AttrDictionary()
         require(styleDict.parseFromJSON(styleJSON)) { "Bad JSON for style sheet in MapboxVectorStyleSet" }
@@ -48,10 +50,10 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
     // Construct with the JSON data from a string
     constructor(
-        styleDict: AttrDictionary,
-        inSettings: VectorStyleSettings,
-        inDisplayMetrics: DisplayMetrics,
-        inControl: RenderControllerInterface
+            styleDict: AttrDictionary,
+            inSettings: VectorStyleSettings,
+            inDisplayMetrics: DisplayMetrics,
+            inControl: RenderControllerInterface
     ) {
         combinedInit(styleDict, inSettings, inDisplayMetrics, inControl)
     }
@@ -78,14 +80,14 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
     // Used by both constructors
     private fun combinedInit(
-        styleDict: AttrDictionary,
-        inSettings: VectorStyleSettings?,
-        inDisplayMetrics: DisplayMetrics,
-        inControl: RenderControllerInterface
+            styleDict: AttrDictionary,
+            inSettings: VectorStyleSettings?,
+            inDisplayMetrics: DisplayMetrics,
+            inControl: RenderControllerInterface
     ) {
         // Fault in the ComponentObject native implementation.
         // Because the first time it can be called in this case is C++ side
-        val testObj = ComponentObject()
+        @Suppress("UNUSED_VARIABLE") val testObj = ComponentObject()
 
         control = WeakReference(inControl)
         settings = inSettings ?: VectorStyleSettings()
@@ -99,7 +101,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
                 try {
                     sources.add(Source(key, sourcesDict.getDict(key), this))
                 } catch (e: Exception) {
-                    Log.w(javaClass.simpleName, "Error while adding source '" + key + "' : " + e.message)
+                    Log.w("Maply", "Error while adding source '$key'",e)
                 }
             }
         }
@@ -123,7 +125,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
 
     // Return a label info
-    // Called from JNI
+    @Suppress("unused") // called from JNI
     fun labelInfoForFont(fontName: String, fontSize: Float): LabelInfo {
         labelInfoMap[SizedTypeface(fontName, fontSize)]?.let { return it }
 
@@ -158,7 +160,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
 
     // Calculate text width based on the typeface
-    // Called from JNI
+    @Suppress("unused") // called from JNI
     fun calculateTextWidth(text: String, labelInfo: LabelInfo): Double {
         val paint = Paint()
         paint.textSize = labelInfo.fontSize
@@ -168,11 +170,14 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return (bounds.right - bounds.left).toDouble()
     }
 
-    fun makeCircleTexture(inRadius: Double,
-                          fillColor: Int,
-                          strokeColor: Int,
-                          inStrokeWidth: Float,
-                          /* out */ circleSize: Point2d?): Long /*Identity*/ {
+    @Suppress("unused") // called from JNI
+    fun makeCircleTexture(
+        inRadius: Double,
+        fillColor: Int,
+        strokeColor: Int,
+        inStrokeWidth: Float,
+        /* out */ circleSize: Point2d?
+    ): Long /*Identity*/ {
         val control = control?.get() ?: return EmptyIdentity
 
         // We want the texture a bit bigger than specified
@@ -197,13 +202,13 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         if (strokeWidth > 0) {
             paint.style = Paint.Style.FILL
             paint.color = strokeColor
-            canvas.drawCircle(size/2.0f,size/2.0f,(radius+strokeWidth).toFloat(),paint)
+            canvas.drawCircle(size / 2.0f, size / 2.0f, (radius + strokeWidth).toFloat(), paint)
         }
         
         // Inner circle
         paint.style = Paint.Style.FILL
         paint.color = fillColor
-        canvas.drawCircle(size/2.0f,size/2.0f, radius.toFloat(),paint)
+        canvas.drawCircle(size / 2.0f, size / 2.0f, radius.toFloat(), paint)
 
         val texSettings = RenderControllerInterface.TextureSettings().apply {
             filterType = RenderControllerInterface.TextureSettings.FilterType.FilterLinear
@@ -213,6 +218,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return tex?.texID ?: EmptyIdentity
     }
 
+    @Suppress("unused") // called from JNI
     fun makeLineTexture(comp: DoubleArray): Long /*Identity*/ {
 //        NSMutableArray *dashComp = [NSMutableArray array];
 //        for (double comp: inComp)
@@ -231,6 +237,138 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 //        return tex.texID;
         return EmptyIdentity
     }
+
+    @ColorInt var legendBorderColor = Color.BLACK
+    var legendBorderSize = 1
+
+    /**
+     * Returns a dictionary containing a flexible legend for the layers contained in this style.
+     * Each layer is rendered as a representative image at the given size.  Layer names that start
+     * with the same "<name>_" will be grouped together in the hierarchy if the group parameter is
+     * set.  Otherwise they'll be flat
+     */
+    fun getLayerLegend(imageSize: Size, useGroups: Boolean): Collection<LegendEntry>? {
+        val styles = getStyleInfo(0.0f) ?: return null
+
+        val legend = ArrayList<LegendEntry>(styles.size)
+        val groupMap = HashMap<String, LegendEntry>()
+        
+        for (style in styles) {
+            // If the style has a representation value, it's an alternate version of another style,
+            // e.g., "selected", so ignore it.
+            if (style.getString("representation")?.isNotEmpty() == true) {
+                continue
+            }
+
+            val ident = style.getString("ident") ?: continue
+            val (group, name) = if (useGroups) parseIdent(ident) else Pair(null, ident)
+
+            val color = style.getString("legendColor")?.let {
+                SimpleStyleManager.parseColor(it)
+            } ?: Color.TRANSPARENT
+            
+            val bitmap = when (style.getString("type")) {
+                "background" -> getSolidImage(imageSize, color)
+                "symbol" -> getSymbolImage(imageSize, color, style.getString("legendText"))
+                "circle" -> getCircleImage(imageSize, color)
+                "line" -> getLineImage(imageSize, color)
+                "fill" -> getSolidImage(imageSize, color)
+                else -> null
+            }
+
+            if (group?.isNotEmpty() == true) {
+                groupMap[group] = groupMap[group]?.let {
+                    LegendEntry(
+                        it.name, it.image, it.entries.plus(
+                            LegendEntry(name,bitmap,emptyList())))
+                } ?: run {
+                    val newEntry = LegendEntry(group,null,listOf(
+                        LegendEntry(name,bitmap,emptyList())))
+                    legend.add(newEntry)
+                    newEntry
+                }
+            } else {
+                legend.add(LegendEntry(name, bitmap, emptyList()))
+            }
+        }
+
+        return legend
+    }
+
+    private fun parseIdent(ident: String): Pair<String?, String> {
+        // todo: are we handling leading underscores correctly?
+        val items = ident.split('_', limit = 2)
+        return if (items.size > 1)  Pair(items[0], items[1]) else Pair(null, items[0])
+    }
+
+    private fun getSolidImage(size: Size, @ColorInt color: Int): Bitmap? {
+        val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        image.eraseColor(color)
+        if (legendBorderSize > 0) {
+            val canvas = Canvas(image)
+            val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = legendBorderSize.toFloat()
+            paint.color = legendBorderColor
+            canvas.drawRect(Rect(0, 0, size.width, size.height), paint)
+        }
+        return image
+    }
+    
+    private fun getSymbolImage(size: Size, @ColorInt color: Int, text: String?): Bitmap? {
+        val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        image.eraseColor(Color.TRANSPARENT)
+        val canvas = Canvas(image)
+        if (text?.isNotEmpty() == true) {
+            // todo: get sprite
+        } // else {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.HINTING_ON).or(Paint.SUBPIXEL_TEXT_FLAG))
+        paint.color = color
+        paint.typeface = Typeface.create("Arial", Typeface.BOLD)
+        paint.textSize = (size.height - 2 * legendBorderSize).toFloat()
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText("T",
+            size.width / 2f + legendBorderSize.toFloat(),
+            (size.height - paint.descent() - paint.ascent())/2f,
+            paint)
+        if (legendBorderSize > 0) {
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = legendBorderSize.toFloat()
+            paint.color = legendBorderColor
+            canvas.drawRect(Rect(0, 0, size.width, size.height), paint)
+        }
+        return image
+    }
+    
+    private fun getLineImage(size: Size, @ColorInt color: Int): Bitmap? {
+        val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        image.eraseColor(Color.TRANSPARENT)
+        val canvas = Canvas(image)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.style = Paint.Style.STROKE
+        paint.strokeWidth = (size.width / 10f).coerceAtLeast(1f)
+        paint.color = color
+        canvas.drawLine(0f, size.height.toFloat(), size.width.toFloat(),0f,paint)
+        // no border?
+        return image
+    }
+    
+    private fun getCircleImage(size: Size, @ColorInt color: Int): Bitmap? {
+        val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        image.eraseColor(Color.TRANSPARENT)
+        val canvas = Canvas(image)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.style = Paint.Style.FILL
+        paint.color = color
+        canvas.drawOval(RectF(0f,0f, size.width.toFloat(), size.height.toFloat()),paint)
+        if (legendBorderSize > 0) {
+            paint.style = Paint.Style.STROKE
+            paint.strokeWidth = legendBorderSize.toFloat()
+            paint.color = legendBorderColor
+            canvas.drawOval(RectF(0f, 0f, size.width.toFloat(), size.height.toFloat()), paint)
+        }
+        return image
+    }
     
     enum class SourceType {
         Vector, Raster
@@ -238,7 +376,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
     // Source for vector tile (or raster) data
     inner class Source internal constructor(// Name as it appears in the file
-        var name: String, styleEntry: AttrDictionary, styleSet: MapboxVectorStyleSet?
+            var name: String, styleEntry: AttrDictionary, styleSet: MapboxVectorStyleSet?
     ) {
         // Either vector or raster at present
         var type: SourceType? = null
@@ -268,30 +406,17 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
 
     /**
-     * These are actually implemented on the C++ side, which communicates
-     * with itself.  But we need to here to appear to be using the standard
-     * interface.
+     * These are actually implemented on the C++ side, which communicates with itself.
+     * But we need to here to appear to be using the standard interface.
      */
-    override fun stylesForFeature(
-        attrs: AttrDictionary,
-        tileID: TileID,
-        layerName: String,
-        controller: RenderControllerInterface
-    ): Array<VectorStyle>? {
-        return null
-    }
-
-    override fun allStyles(): Array<VectorStyle>? {
-        return null
-    }
-
-    override fun layerShouldDisplay(layerName: String, tileID: TileID): Boolean {
-        return false
-    }
-
-    override fun styleForUUID(uuid: Long, controller: RenderControllerInterface): VectorStyle? {
-        return null
-    }
+    external override fun stylesForFeature(
+            attrs: AttrDictionary,
+            tileID: TileID,
+            layerName: String,
+            controller: RenderControllerInterface): Array<VectorStyle>?
+    external override fun allStyles(): Array<VectorStyle>?
+    external override fun layerShouldDisplay(layerName: String, tileID: TileID): Boolean
+    external override fun styleForUUID(uuid: Long, controller: RenderControllerInterface): VectorStyle?
 
     /**
      * Get the zoom slot, or -1
@@ -349,11 +474,14 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
     private external fun setArealShaderNative(shaderID: Long)
     private external fun backgroundColorForZoomNative(zoom: Double): Int
+    
+    private external fun getStyleInfo(zoom: Float): Array<AttrDictionary>?
+    
     private external fun initialise(
-        scene: Scene?,
-        coordSystem: CoordSystem?,
-        settings: VectorStyleSettings?,
-        styleDict: AttrDictionary?
+            scene: Scene?,
+            coordSystem: CoordSystem?,
+            settings: VectorStyleSettings?,
+            styleDict: AttrDictionary?
     )
 
     external fun dispose()

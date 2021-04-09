@@ -67,6 +67,12 @@ public:
 
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        if (paint.fillColor) return *paint.fillColor;
+        if (paint.strokeColor) return *paint.strokeColor;
+        return RGBAColor::clear();
+    }
+
 public:
     MapboxVectorCirclePaint paint;
     

@@ -154,15 +154,17 @@ public:
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
     /// Convert to a 32 bit integer (ala Android)
-    int asInt() const { return a << 24 | r << 16 | g << 8 | b; }
-    
+    int asInt() const { return asARGBInt(); }
+    int asARGBInt() const { return a << 24 | r << 16 | g << 8 | b; }
+
     /// Returns as a 4 component array of unsigned chars
     void asUChar4(unsigned char *ret) const { ret[0] = r; ret[1] = g; ret[2] = b; ret[3] = a; }
 
     Eigen::Vector4f asRGBAVecF() const { return {r/255.f,g/255.f,b/255.f,a/255.f}; }
 
     bool operator == (const RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
-//    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+    bool operator != (const RGBAColor &that) const { return (r != that.r || g != that.g || b != that.b || a != that.a); }
+
     RGBAColor operator * (float alpha) const { return RGBAColor(r*alpha,g*alpha,b*alpha,a*alpha); }
 	
 	unsigned char r,g,b,a;

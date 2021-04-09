@@ -251,24 +251,49 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
     }
 }
 
-//public native void setLoadReturn(long frameID,LoaderReturn loadReturn);
+static void setLoadReturnRef(JNIEnv *env, jobject obj, jobject loadReturnObj,bool clear)
+{
+    if (const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj))
+    {
+        if (const auto loader = *loaderPtr)
+        {
+            if (const auto loadReturnPtr = LoaderReturnClassInfo::get(env,loadReturnObj))
+            {
+                if (const auto loadReturn = *loadReturnPtr)
+                {
+                    const auto ptr = clear ? nullptr : loadReturn;
+                    loader->setLoadReturnRef(loadReturn->ident,loadReturn->frame,ptr);
+                }
+            }
+        }
+    }
+}
+
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setLoadReturn
         (JNIEnv *env, jobject obj, jobject loadReturnObj)
 {
     try
     {
-        if (const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj))
-        if (const auto loader = *loaderPtr)
-        if (const auto loadReturnPtr = LoaderReturnClassInfo::get(env,loadReturnObj))
-        if (const auto loadReturn = *loadReturnPtr)
-        {
-            loader->setLoadReturnRef(loadReturn->ident,loadReturn->frame,loadReturn);
-        }
+        setLoadReturnRef(env,obj,loadReturnObj,false);
     }
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::setLoadReturn()");
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_clearLoadReturn
+        (JNIEnv *env, jobject obj, jobject loadReturnObj)
+{
+    try
+    {
+        setLoadReturnRef(env,obj,loadReturnObj,true);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::clearLoadReturn()");
     }
 }
 
@@ -283,17 +308,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
             return;
         }
 
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadRetObj);
-        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        auto loaderPtr = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        auto loader = loaderPtr ? *loaderPtr : nullptr;
+        auto loadReturnPtr = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadRetObj);
+        auto loadReturn = loadReturnPtr ? *loadReturnPtr : nullptr;
+        auto changesPtr = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        auto changes = changesPtr ? *changesPtr : nullptr;
         if (!loader || !loadReturn || !changes)
             return;
+
+        // Move the change requests
+        changes->insert(changes->end(),loadReturn->changes.begin(),loadReturn->changes.end());
+        loadReturn->changes.clear();
+
+        // Merge the objects
         PlatformInfo_Android platformInfo(env);
-        (*changes)->insert((*changes)->end(),(*loadReturn)->changes.begin(),(*loadReturn)->changes.end());
-        (*loadReturn)->changes.clear();
-        (*loader)->mergeLoadedTile(&platformInfo,loadReturn->get(),*(changes->get()));
+        loader->mergeLoadedTile(&platformInfo,loadReturn.get(),*changes);
+        loadReturn->clear();
+
+        // Detach the loader return from the frame
+        loader->setLoadReturnRef(loadReturn->ident,loadReturn->frame,nullptr);
+
+        // Destroy the loader return root reference
         LoaderReturnClassInfo::getClassInfo()->clearHandle(env,loadRetObj);
-        delete loadReturn;
+        delete loadReturnPtr;
     }
     catch (...)
     {

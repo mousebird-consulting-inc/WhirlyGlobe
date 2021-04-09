@@ -551,7 +551,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
             for (auto &obj : clusterHelper.simpleObjects)
                 if (obj.parentObject < 0)
                 {
-                    layoutObjs.push_back(LayoutObjectContainer(obj.objEntry));
+                    layoutObjs.emplace_back(obj.objEntry);
                     obj.objEntry->newEnable = true;
                     obj.objEntry->newCluster = -1;
                 }

@@ -52,7 +52,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
             settings = std::make_shared<VectorStyleSettingsImpl>(1.0);
         }
 
-        auto inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,(*coordSystem).get(),settings));
+        auto inst = new MapboxVectorStyleSetImpl_AndroidRef(
+                new MapboxVectorStyleSetImpl_Android(scene,coordSystem->get(),settings));
 
         // Need a pointer to this JNIEnv for low level parsing callbacks
         PlatformInfo_Android threadInst(env);
@@ -149,6 +150,87 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
     return 0;
 }
 
+extern "C"
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_stylesForFeature
+        (JNIEnv *, jobject, jobject attrs, jobject tileID, jstring featureName, jobject control)
+{
+    try
+    {
+        // not implemented
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::stylesForFeature()");
+    }
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_allStyles
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+//        const auto styleInfo = VectorStyleClassInfo::getClassInfo();
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (const auto styleSet = styleSetRef ? *styleSetRef : nullptr)
+        {
+            PlatformInfo_Android inst(env);
+            const auto styles = styleSet->allStyles(&inst);
+
+//            std::vector<jobject> styleObjs;
+//            styleObjs.reserve(styles.size());
+//            for (const auto &style : styles)
+//            {
+//                auto styleObj = styleInfo->makeWrapperObject(env,new VectorStyleImpl_AndroidRef(style));
+//                styleObjs.push_back(MakeComponentObjectWrapper(env, styleInfo, styleObj));
+//            }
+//
+//            jobjectArray retArray = BuildObjectArray(env, styleInfo->getClass(), styleObjs);
+//            for (auto objRef : styleObjs)
+//            {
+//                env->DeleteLocalRef(objRef);
+//            }
+//
+//            return retArray;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::allStyles()");
+    }
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_layerShouldDisplay
+        (JNIEnv *, jobject, jstring name, jobject tileID)
+{
+    try
+    {
+        // not implemented
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::layerShouldDisplay()");
+    }
+    return false;
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_styleForUUID
+        (JNIEnv *, jobject, jlong uuid, jobject control)
+{
+    try
+    {
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::styleForUUID()");
+    }
+    return nullptr;
+}
+
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    getZoomSlot
@@ -213,4 +295,55 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealSha
     {
         __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::setArealShaderNative()");
     }
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getStyleInfo
+        (JNIEnv *env, jobject obj, jfloat zoom)
+{
+    try
+    {
+        const auto attrDictInfo = AttrDictClassInfo::getClassInfo();
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (const auto styleSet = styleSetRef ? *styleSetRef : nullptr)
+        {
+            PlatformInfo_Android inst(env);
+            const auto styles = styleSet->allStyles(&inst);
+
+            std::vector<jobject> results;
+            results.reserve(styles.size());
+            for (const auto &style : styles)
+            {
+                auto dict = std::make_unique<MutableDictionary_Android>();
+                dict->setString("type", style->getType());
+                dict->setString("ident", style->getIdent());
+                dict->setString("representation", style->getRepresentation());
+                const auto text = style->getLegendText(zoom);
+                if (!text.empty())
+                {
+                    dict->setString("legendText", style->getLegendText(zoom));
+                }
+                auto const color = style->getLegendColor(zoom);
+                if (color != RGBAColor::clear())
+                {
+                    dict->setInt("legendColor", color.asARGBInt());
+                }
+                auto dictObj = attrDictInfo->makeWrapperObject(env, new MutableDictionary_AndroidRef(dict.release()));
+                results.push_back(dictObj);
+            }
+
+            auto retArray = BuildObjectArray(env, attrDictInfo->getClass(), results);
+            for (auto &objRef : results)
+            {
+                env->DeleteLocalRef(objRef);
+            }
+
+            return retArray;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::allStyles()");
+    }
+    return nullptr;
 }

@@ -1,9 +1,8 @@
-/*
- *  SLDSymbolizer.java
+/*  SLDSymbolizer.java
  *  WhirlyGlobeLib
  *
  *  Created by Ranen Ghosh on 3/14/17.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply.sld.sldsymbolizers;
 
@@ -49,8 +47,8 @@ import android.util.Log;
 /**
  *
  * Base class for Symbolizer elements
- * @see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
- * @see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
+ * see http://schemas.opengis.net/se/1.1.0/Symbolizer.xsd for SLD v1.1.0
+ * see http://schemas.opengis.net/sld/1.0.0/StyledLayerDescriptor.xsd for SLD v1.0.0
  */
 public abstract class SLDSymbolizer {
 
@@ -106,26 +104,17 @@ public abstract class SLDSymbolizer {
                     continue;
 
                 if (name.equals("stroke")) {
-                    try {
-                        strokeColor = Integer.valueOf(Color.parseColor(value));
-                    } finally {
-                    }
+                    strokeColor = Color.parseColor(value);
 
                 } else if (name.equals("stroke-width") && SLDParseHelper.isStringNumeric(value)) {
-                    try {
-                        float strokeWidth = Double.valueOf(value).floatValue();
-                        if (useWideVectors)
-                            wideVectorInfo.setLineWidth(strokeWidth);
-                        else
-                            vectorInfo.setLineWidth(strokeWidth);
-                    } finally {
-                    }
+                    float strokeWidth = Double.valueOf(value).floatValue();
+                    if (useWideVectors)
+                        wideVectorInfo.setLineWidth(strokeWidth);
+                    else
+                        vectorInfo.setLineWidth(strokeWidth);
 
                 } else if (name.equals("stroke-opacity") || name.equals("opacity")) {
-                    try {
-                        strokeOpacity = Float.valueOf(value);
-                    } finally {
-                    }
+                    strokeOpacity = Float.valueOf(value);
 
                 } else if (name.equals("stroke-dasharray")) {
                     dashArray = value;
@@ -136,9 +125,9 @@ public abstract class SLDSymbolizer {
         }
 
         if (strokeColor != null) {
-            int color = strokeColor.intValue();
+            int color = strokeColor;
             if (strokeOpacity != null)
-                color = Color.argb(Math.round(strokeOpacity.floatValue()*255.f), Color.red(color), Color.green(color), Color.blue(color));
+                color = Color.argb(Math.round(strokeOpacity *255.f), Color.red(color), Color.green(color), Color.blue(color));
 
             if (useWideVectors)
                 wideVectorInfo.setColor(color);
@@ -151,21 +140,18 @@ public abstract class SLDSymbolizer {
             double repeatLength = 4.0;
             if (dashArray != null) {
                 String[] componentStrings = dashArray.split(",");
-                List<Integer> componentNumbers = new ArrayList<Integer>();
+                List<Integer> componentNumbers = new ArrayList<>();
                 for (String s : componentStrings) {
-                    try {
-                        Integer i = Integer.valueOf(s);
-                        componentNumbers.add(i);
-                    } finally {
-                    }
+                    Integer i = Integer.valueOf(s);
+                    componentNumbers.add(i);
                 }
                 if (componentNumbers.size() > 0) {
                     int[] pattern = new int[componentNumbers.size()];
                     repeatLength = 0.0;
                     int which = 0;
                     for (Integer ival : componentNumbers) {
-                        pattern[which] = ival.intValue();
-                        repeatLength += (double)ival.intValue();
+                        pattern[which] = ival;
+                        repeatLength += (double) ival;
                         which++;
                     }
                     texBuild.setPattern(pattern);
@@ -184,8 +170,7 @@ public abstract class SLDSymbolizer {
         }
 
         baseInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + RenderController.FeatureDrawPriorityBase);
-        VectorTileLineStyle vectorTileLineStyle = new VectorTileLineStyle(baseInfo, vectorStyleSettings, viewC);
-        return vectorTileLineStyle;
+        return new VectorTileLineStyle(null,null,baseInfo, vectorStyleSettings, viewC);
 
     }
 
@@ -197,23 +182,19 @@ public abstract class SLDSymbolizer {
                 continue;
             }
 
-            if (xpp.getName().equals("ExternalGraphic")) {
-
-                parseMarkOrExternalGraphic(xpp, graphicParams, symbolizerParams);
-
-            } else if (xpp.getName().equals("Mark")) {
-
-                parseMarkOrExternalGraphic(xpp, graphicParams, symbolizerParams);
-
-            } else if (xpp.getName().equals("Size")) {
-
-                String size = SLDParseHelper.stringForLiteralInNode(xpp);
-                if (size != null && SLDParseHelper.isStringNumeric(size)) {
-                    double d = Double.valueOf(size).doubleValue();
-                    graphicParams.setWidth(Integer.valueOf((int)d));
-                    graphicParams.setHeight(Integer.valueOf((int)d));
-                }
-
+            switch (xpp.getName()) {
+                case "ExternalGraphic":
+                case "Mark":
+                    parseMarkOrExternalGraphic(xpp, graphicParams, symbolizerParams);
+                    break;
+                case "Size":
+                    String size = SLDParseHelper.stringForLiteralInNode(xpp);
+                    if (size != null && SLDParseHelper.isStringNumeric(size)) {
+                        double d = Double.parseDouble(size);
+                        graphicParams.setWidth((int) d);
+                        graphicParams.setHeight((int) d);
+                    }
+                    break;
             }
         }
 
@@ -297,14 +278,13 @@ public abstract class SLDSymbolizer {
 
                         if (name != null && value != null) {
                             if (isFill)
-                                graphicParams.setFillColor(Integer.valueOf(Color.parseColor(value)));
+                                graphicParams.setFillColor(Color.parseColor(value));
                             else
-                                graphicParams.setStrokeColor(Integer.valueOf(Color.parseColor(value)));
+                                graphicParams.setStrokeColor(Color.parseColor(value));
                         }
                     } else
                         SLDParseHelper.skip(xpp);
                 }
-
             }
         }
         if ((wellKnownName == null) &&

@@ -15,21 +15,23 @@ public class VectorStyleWrapper {
     // Consolidate the vector styles in a way that makes it easier for the JNI side to handle
     VectorStyleWrapper(VectorStyleInterface vectorStyleSet,RenderControllerInterface control) {
         this.vectorStyleSet = vectorStyleSet;
-        this.control = new WeakReference<RenderControllerInterface>(control);
+        this.control = new WeakReference<>(control);
 
         VectorStyle[] styles = vectorStyleSet.allStyles();
 
-        long ids[] = new long[styles.length];
-        String categories[] = new String[styles.length];
-        boolean geomAdds[] = new boolean[styles.length];
+        long[] ids = new long[styles.length];
+        String[] categories = new String[styles.length];
+        String[] idents = new String[styles.length];
+        boolean[] geomAdds = new boolean[styles.length];
         for (int ii=0;ii<styles.length;ii++) {
             VectorStyle style = styles[ii];
             ids[ii] = style.getUuid();
+            idents[ii] = style.getIdent();
             categories[ii] = style.getCategory();
             geomAdds[ii] = style.geomIsAdditive();
         }
 
-        initialise(ids,categories,geomAdds);
+        initialise(ids,categories,geomAdds,idents);
     }
 
     // Called from the JNI side to get a list of styles to apply for a given feature
@@ -48,7 +50,7 @@ public class VectorStyleWrapper {
     }
 
     // Called from the JNI side to build objects for a certain style
-    public void buildObjects(long styleID,VectorObject vecObjs[], VectorTileData tileData) {
+    public void buildObjects(long styleID, VectorObject[] vecObjs, VectorTileData tileData) {
         if (control.get() == null)
             return;
 
@@ -80,7 +82,7 @@ public class VectorStyleWrapper {
         nativeInit();
     }
     private static native void nativeInit();
-    native void initialise(long uuids[],String categories[],boolean[] geomAdditive);
+    native void initialise(long[] uuids,String[] categories,boolean[] geomAdditive,String[] idents);
     native void dispose();
 
     private long nativeHandle;

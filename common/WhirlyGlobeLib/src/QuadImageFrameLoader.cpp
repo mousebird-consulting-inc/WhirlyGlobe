@@ -65,10 +65,11 @@ void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
 
 void QIFFrameAsset::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) {
     state = Empty;
-    if (loadReturnRef) {
-        loadReturnRef->clear();
-        loadReturnRef.reset();
-    }
+
+    // Drop the reference to the loader return, its cancel flag can no longer be set.
+    // Note that we do not clear out its contents, they may still be needed to clean up.
+    loadReturnRef.reset();
+
     for (auto texID : texIDs)
         changes.push_back(new RemTextureReq(texID));
     texIDs.clear();
@@ -1087,17 +1088,22 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
         wkLogLevel(Debug, "MaplyQuadImageLoader: Merging data from tile %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
 
     QuadTreeNew::Node ident(loadReturn->ident);
-    auto it = tiles.find(ident);
+    const auto it = tiles.find(ident);
+    const auto tile = (it != tiles.end()) ? it->second : nullptr;
+
     // Tile disappeared in the mean time, so drop it
-    if (it == tiles.end() || loadReturn->hasError) {
-        if (debugMode)
-            wkLogLevel(Debug,"MaplyQuadImageLoader: Failed to load tile before it was erased %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
+    if (!tile || loadReturn->hasError || loadReturn->cancel)
+    {
+        if (debugMode) {
+            wkLogLevel(Debug, "MaplyQuadImageLoader: "
+                       "Failed to load tile before it was erased %d: (%d,%d) (%stile,%serror,%scanceled)",
+                       loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
+                       tile ? "" : "no ", loadReturn->hasError ? "" : "no ",loadReturn->cancel ? "" : "not ");
+        }
         failed = true;
     }
     
-    ImageTileRef image;
     std::vector<Texture *> texs;
-
     if (!failed) {
         // Build the texture(s)
         for (auto image : loadReturn->images) {
@@ -1119,14 +1125,13 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
             // In object mode, we might not get anything, but it's not a failure
             failed = loadReturn->hasError;
         } else {
-            // In the images modes we need, ya know, and image
+            // In the images modes we need, ya know, an image
             failed = texs.empty();
         }
     }
 
     // If there is a tile, then notify it
-    if (it != tiles.end()) {
-        auto tile = it->second;
+    if (tile) {
         if (failed) {
             tile->frameFailed(threadInfo, this, loadReturn, changes);
         } else {
@@ -1147,8 +1152,7 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
         for (auto compObj : loadReturn->ovlCompObjs)
             compObjs.insert(compObj->getId());
         compManager->removeComponentObjects(threadInfo, compObjs, changes);
-        loadReturn->compObjs.clear();
-        loadReturn->ovlCompObjs.clear();
+        loadReturn->clear();
     }
 }
     
