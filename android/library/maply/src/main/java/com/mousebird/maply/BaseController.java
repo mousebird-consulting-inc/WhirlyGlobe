@@ -898,6 +898,16 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 	}
 
+	/**
+	 * Add a runnable to be run on the OpenGL thread before the next frame.
+	 * If repeat is set, we'll run this every frame.  Otherwise just once.
+	 */
+	public void addFrameRunnable(boolean preFrame,boolean repeat,Runnable run)
+	{
+		if (renderWrapper != null)
+			renderWrapper.addFrameRunnable(preFrame,repeat,run);
+	}
+
 	private int displayRate = 2;
 
 	/**

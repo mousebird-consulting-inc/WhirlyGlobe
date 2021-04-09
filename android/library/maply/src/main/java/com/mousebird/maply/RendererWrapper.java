@@ -26,6 +26,7 @@ import android.os.Build;
 
 import java.lang.ref.WeakReference;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +93,11 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 
 	public void shutdown()
 	{
+		preFrameRuns = null;
+		singlePreFrameRuns = null;
+		postFrameRuns = null;
+		singlePostFrameRuns = null;
+
 		if (maplyRender != null) {
 			maplyRender.get().dispose();
 			maplyRender = null;
@@ -124,10 +130,54 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 	int frameCount = 0;
 	Semaphore renderLock = new Semaphore(1,true);
 	boolean firstFrame = true;
-	
+
+	private ArrayList<Runnable> preFrameRuns = new ArrayList<Runnable>();
+	private ArrayList<Runnable> singlePreFrameRuns = new ArrayList<Runnable>();
+	private ArrayList<Runnable> postFrameRuns = new ArrayList<Runnable>();
+	private ArrayList<Runnable> singlePostFrameRuns = new ArrayList<Runnable>();
+
+	/**
+	 * Add a runnable to the queue for pre or post frame render callbacks.
+	 * If repeat is set, we'll keep it around for next frame too.
+	 */
+	public void addFrameRunnable(boolean preFrame,boolean repeat,Runnable run)
+	{
+		if (preFrame) {
+			if (repeat) {
+				synchronized (preFrameRuns) {
+					preFrameRuns.add(run);
+				}
+			} else {
+				synchronized (singlePreFrameRuns) {
+					singlePreFrameRuns.add(run);
+				}
+			}
+		} else {
+			if (repeat) {
+				synchronized (postFrameRuns) {
+					postFrameRuns.add(run);
+				}
+			} else {
+				synchronized (singlePostFrameRuns) {
+					singlePostFrameRuns.add(run);
+				}
+			}
+		}
+	}
+
 	@Override
 	public void onDrawFrame(GL10 gl)
 	{
+		synchronized (singlePreFrameRuns) {
+			for (Runnable run: singlePreFrameRuns)
+				run.run();
+			singlePreFrameRuns.clear();
+		}
+		synchronized (preFrameRuns) {
+			for (Runnable run: preFrameRuns)
+				run.run();
+		}
+
 		// This is a hack to eliminate a flash we see at the beginning
 		// It's a blank view on top of our view, which we get rid of when we
 		//  actually draw something there.
@@ -170,6 +220,16 @@ class RendererWrapper implements GLSurfaceView.Renderer, GLTextureView.Renderer
 		}
 
 		renderLock.release();
+
+		synchronized (singlePostFrameRuns) {
+			for (Runnable run: singlePostFrameRuns)
+				run.run();
+			singlePostFrameRuns.clear();
+		}
+		synchronized (postFrameRuns) {
+			for (Runnable run: postFrameRuns)
+				run.run();
+		}
 	}
 
 	private Bitmap getPixels(int x, int y, int w, int h, GL10 gl)

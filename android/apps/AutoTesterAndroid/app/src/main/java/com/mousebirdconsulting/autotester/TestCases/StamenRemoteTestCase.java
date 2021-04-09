@@ -22,6 +22,7 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Handler;
+import android.util.Log;
 
 import com.mousebird.maply.BaseController;
 import com.mousebird.maply.GlobeController;
@@ -91,6 +92,14 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		globeVC.setClearColor(Color.RED);
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 //		globeVC.setZoomLimits(0.0,1.0);
+
+		globeVC.addFrameRunnable(true, false, new Runnable() {
+			@Override
+			public void run() {
+				Log.d("Maply", "Hello from the render thread");
+			}
+		});
+
 		return true;
 	}
 
