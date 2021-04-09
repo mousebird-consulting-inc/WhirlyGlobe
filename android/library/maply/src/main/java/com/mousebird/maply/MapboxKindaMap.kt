@@ -1,8 +1,10 @@
 package com.mousebird.maply
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Looper
+import android.util.DisplayMetrics
 import android.util.Log
 import androidx.core.net.toFile
 import okhttp3.Call
@@ -112,6 +114,9 @@ open class MapboxKindaMap(
      * 1024^2 is good for vector tiles, 256^2 is good for image tiles
      */
     var minImportance = 1024.0 * 1024.0
+
+    private val displayMetrics: DisplayMetrics get() =
+        control.get()?.activity?.resources?.displayMetrics ?: Resources.getSystem().displayMetrics
 
     // Information about the sources as we fetch them
     private fun addTask(task: Call) {
@@ -255,7 +260,7 @@ open class MapboxKindaMap(
         if (theControl == null || (styleURL == null && styleSheetJSON == null))
             return
         val client = theControl.getHttpClient()
-        styleSheet = MapboxVectorStyleSet(styleSheetJSON, styleSettings, theControl.activity.resources.displayMetrics, theControl)
+        styleSheet = MapboxVectorStyleSet(styleSheetJSON, styleSettings, displayMetrics, theControl)
 
         // Fetch what we need to for the sources
         val sources = if (fetchSources) styleSheet?.sources else null
@@ -415,8 +420,7 @@ open class MapboxKindaMap(
             parseFromJSON(styleSheetJSON)
         }
 
-        val metrics = control.activity.resources.displayMetrics
-        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, metrics, control)
+        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
 
         mapboxInterp = MapboxVectorInterpreter(styleSheetVector, control)
         loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
@@ -479,7 +483,7 @@ open class MapboxKindaMap(
                 }
             }
             imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
-            styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, control.activity.resources.displayMetrics, offlineRender).also {
+            styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, displayMetrics, offlineRender).also {
                 offlineRender.setClearColor(it.backgroundColorForZoom(0.0))
             }
         }
@@ -501,8 +505,7 @@ open class MapboxKindaMap(
             }
             vectorStyleDict.setArray("layers", newVectorLayers.toTypedArray())
         }
-        val metrics = control.activity.resources.displayMetrics
-        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, metrics, control)
+        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
 
         mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
             MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, control)

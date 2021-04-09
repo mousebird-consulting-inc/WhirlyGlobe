@@ -1,5 +1,4 @@
-/*
- *  MaplyController.java
+/*  MaplyController.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -26,6 +24,10 @@ import android.opengl.GLSurfaceView;
 import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
+
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -55,11 +57,11 @@ public class MapController extends BaseController implements View.OnTouchListene
 		/**
 		 * Coordinate system to use for the map.
 		 */
-		public CoordSystem coordSys = null;
+		public @Nullable CoordSystem coordSys = null;
 		/**
 		 * Center of the coordinate system.
 		 */
-		public Point3d displayCenter = null;
+		public @Nullable Point3d displayCenter = null;
 		/**
 		 * Clear color to use for the background.
 		 */
@@ -72,7 +74,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 *
 	 * @param mainActivity The activity this is part of.
      */
-	public MapController(Activity mainActivity,Settings settings)
+	public MapController(@Nullable Activity mainActivity, @NotNull Settings settings)
 	{
 		super(mainActivity,settings);
 
@@ -112,7 +114,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	 * coordinate system.
 	 *
      */
-	public MapController(Activity mainActivity)
+	public MapController(@NotNull Activity mainActivity)
 	{
 		super(mainActivity,null);
 
@@ -157,13 +159,8 @@ public class MapController extends BaseController implements View.OnTouchListene
 			gestureHandler = new MapGestureHandler(this,baseView);
 		}
 
-		addPostSurfaceRunnable(new Runnable() {
-			@Override
-			public void run() {
-				// No lights for the map by default
-				clearLights();
-			}
-		});
+		// No lights for the map by default
+		addPostSurfaceRunnable(this::clearLights);
 	}
 	
 	@Override public void shutdown()
@@ -310,12 +307,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 	public void setZoomLimits(final double inMin,final double inMax)
 	{
 		if (gestureHandler == null) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					setZoomLimits(inMin,inMax);
-				}
-			});
+			addPostSurfaceRunnable(() -> setZoomLimits(inMin,inMax));
 			return;
 		}
 
@@ -393,12 +385,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 			return;
 
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					setPositionGeo(x,y,z);
-				}
-			});
+			addPostSurfaceRunnable(() -> setPositionGeo(x,y,z));
 			return;
 		}
 
@@ -465,8 +452,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 
 	/**
 	 * Animate to a new view position
-	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
-	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param loc Horizontal location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
 	 * @param rot Map rotation in radians
 	 * @param howLong Time (in seconds) to animate.
@@ -489,12 +475,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 			return;
 
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					animatePositionGeo(targetGeoLoc,rot,howLong);
-				}
-			});
+			addPostSurfaceRunnable(() -> animatePositionGeo(targetGeoLoc,rot,howLong));
 			return;
 		}
 
@@ -529,12 +510,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 			return;
 
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					animatePositionGeo(targetGeoLoc,offset,targetRot,howLong);
-				}
-			});
+			addPostSurfaceRunnable(() -> animatePositionGeo(targetGeoLoc,offset,targetRot,howLong));
 			return;
 		}
 
@@ -585,12 +561,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 			return;
 
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					setHeading(heading);
-				}
-			});
+			addPostSurfaceRunnable(() -> setHeading(heading));
 			return;
 		}
 
@@ -664,7 +635,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		 * @param loc The location they tapped on.  This is in radians.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-		public void userDidSelect(MapController mapControl,SelectedObject[] selObjs,Point2d loc,Point2d screenLoc);
+		void userDidSelect(MapController mapControl,SelectedObject[] selObjs,Point2d loc,Point2d screenLoc);
 		
 		/**
 		 * The user tapped somewhere, but not on a selectable object.
@@ -673,7 +644,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		 * @param loc The location they tapped on.  This is in radians.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-		public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc);
+		void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc);
 
 		/**
 		 * The user long pressed somewhere, either on a selectable object or nor
@@ -682,7 +653,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		 * @param loc The location they tapped on.  This is in radians.
          * @param screenLoc The location on the OpenGL surface.
          */
-		public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc);
+		void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc);
 
 		/**
 		 * Called when the map first starts moving.
@@ -690,7 +661,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		 * @param mapControl The map controller this is associated with.
 		 * @param userMotion Set if the motion was caused by a gesture.
 		 */
-		public void mapDidStartMoving(MapController mapControl, boolean userMotion);
+		void mapDidStartMoving(MapController mapControl, boolean userMotion);
 
 		/**
 		 * Called when the map stops moving.
@@ -699,7 +670,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land anywhere valid.
 		 * @param userMotion Set if the motion was caused by a gesture.
 		 */
-		public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion);
+		void mapDidStopMoving(MapController mapControl, Point3d[] corners, boolean userMotion);
 
 		/**
 		 * Called for every single visible frame of movement.  Be careful what you do in here.
@@ -708,7 +679,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land anywhere valid.
 		 * @param userMotion Set if the motion was caused by a gesture.
 		 */
-		public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion);
+		void mapDidMove(MapController mapControl, Point3d[] corners, boolean userMotion);
 	}
 
 	/**
@@ -731,7 +702,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 				geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
 //			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
+			SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
 
 			if (selObjs != null) {
 				if (geoPt != null)
@@ -748,7 +719,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 
 	/**
 	 * Called by the gesture handler to let us know the user long pressed somewhere
-	 * @param screenLoc
+	 * @param screenLoc Screen coordinates of the press
      */
     public void processLongPress(Point2d screenLoc) {
 
@@ -763,7 +734,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 				geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
 //			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
+			SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
 
 			gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
 		}
@@ -829,7 +800,7 @@ public class MapController extends BaseController implements View.OnTouchListene
         
         if (gestureDelegate != null)
         {
-            Point3d corners[] = getVisibleCorners();
+            Point3d[] corners = getVisibleCorners();
             gestureDelegate.mapDidStopMoving(this,corners,userMotion);
         }
     }
@@ -843,7 +814,7 @@ public class MapController extends BaseController implements View.OnTouchListene
         if (mapView != null) {
             double newUpdateTime = mapView.getLastUpdatedTime();
             if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
-                Point3d corners[] = getVisibleCorners();
+                Point3d[] corners = getVisibleCorners();
                 gestureDelegate.mapDidMove(this, corners, false);
                 lastViewUpdate = newUpdateTime;
             }
@@ -860,33 +831,37 @@ public class MapController extends BaseController implements View.OnTouchListene
     /**
      * Calculate visible corners for what's currently being seen.
      * If the eye point is too high, expect null corners.
-     * @return
+     * @return Array of coordinates
      */
     public Point3d[] getVisibleCorners()
     {
 		if (!running || mapView == null)
 			return null;
 
-        Point2d screenCorners[] = new Point2d[4];
-        Point2d frameSize = renderControl.frameSize;
-        screenCorners[0] = new Point2d(0.0, 0.0);
-        screenCorners[1] = new Point2d(frameSize.getX(), 0.0);
-        screenCorners[2] = new Point2d(frameSize.getX(), frameSize.getY());
-        screenCorners[3] = new Point2d(0.0, frameSize.getY());
+		final Point2d frameSize = renderControl.frameSize;
+        final Point2d[] screenCorners = new Point2d[]{
+			new Point2d(0.0, 0.0),
+			new Point2d(frameSize.getX(), 0.0),
+			new Point2d(frameSize.getX(), frameSize.getY()),
+			new Point2d(0.0, frameSize.getY())
+        };
         
-        Matrix4d modelMat = mapView.calcModelViewMatrix();
+        final Matrix4d modelMat = mapView.calcModelViewMatrix();
         
-        Point3d retCorners[] = new Point3d[4];
-        CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
+        final CoordSystemDisplayAdapter coordAdapter = mapView.getCoordAdapter();
         if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
-				renderControl.frameSize == null)
-            return retCorners;
-        CoordSystem coordSys = coordAdapter.getCoordSystem();
-        if (coordSys == null)
-            return retCorners;
+				renderControl.frameSize == null) {
+			return null;
+		}
+        final CoordSystem coordSys = coordAdapter.getCoordSystem();
+        if (coordSys == null) {
+			return null;
+		}
+
+		final Point3d[] retCorners = new Point3d[4];
         for (int ii=0;ii<4;ii++)
         {
-			Point3d planePt = mapView.pointOnPlaneFromScreen(screenCorners[ii],modelMat,frameSize,false);
+			final Point3d planePt = mapView.pointOnPlaneFromScreen(screenCorners[ii],modelMat,frameSize,false);
             if (planePt != null)
                 retCorners[ii] = coordSys.localToGeographic(coordAdapter.displayToLocal(planePt));
         }

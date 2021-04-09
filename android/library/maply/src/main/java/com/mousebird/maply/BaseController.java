@@ -1,5 +1,4 @@
-/*
- * BaseController.java
+/* BaseController.java
  * AutoTesterAndroid.maply
  *
  * Created by Steve Gifford
@@ -36,6 +35,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -69,10 +72,10 @@ import okhttp3.Response;
 public class BaseController implements RenderController.TaskManager, RenderControllerInterface
 {
 	// This may be a GLSurfaceView or a GLTextureView
-	View baseView = null;
-	public Activity activity = null;
-    public OkHttpClient httpClient;
+	protected @Nullable View baseView = null;
 
+	public @Nullable Activity activity;
+    public @Nullable OkHttpClient httpClient;
 
 	/**
 	 * Listener to receive the screenshot in an asynchronous way.
@@ -93,7 +96,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * If set, we'll explicitly call dispose on any objects that were
 	 * being kept around for selection.
 	 */
-	private boolean disposeAfterRemoval = false;
+	//private boolean disposeAfterRemoval = false;
 	
 	// Set when we're not in the process of shutting down
 	protected boolean running = false;
@@ -106,18 +109,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	// Implements the GL renderer protocol
-	protected RendererWrapper renderWrapper;
+	protected @Nullable RendererWrapper renderWrapper;
 
 	// Coordinate system to display conversion
-	protected CoordSystemDisplayAdapter coordAdapter;
+	protected @Nullable CoordSystemDisplayAdapter coordAdapter;
 	
 	// Scene stores the objects
-	public Scene scene = null;
+	public @Nullable Scene scene = null;
 
     /**
      * Return the current scene.  Only for sure within the library.
      */
-    public Scene getScene()
+    public @Nullable Scene getScene()
     {
         return scene;
     }
@@ -125,7 +128,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Return the current coordinate system.
 	 */
-	public CoordSystem getCoordSystem() { return (coordAdapter != null) ? coordAdapter.coordSys : null; }
+	public @Nullable CoordSystem getCoordSystem() { return (coordAdapter != null) ? coordAdapter.coordSys : null; }
 
 	public void takeScreenshot(ScreenshotListener listener)
 	{
@@ -173,22 +176,20 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 	
 	// MapView defines how we're looking at the data
-	protected com.mousebird.maply.View view = null;
+	protected @Nullable com.mousebird.maply.View view = null;
 
 	// Layer thread we use for data manipulation
-	final ArrayList<LayerThread> layerThreads = new ArrayList<LayerThread>();
-	final ArrayList<LayerThread> workerThreads = new ArrayList<LayerThread>();
+	protected final @NotNull ArrayList<LayerThread> layerThreads = new ArrayList<>();
+	protected final @NotNull ArrayList<LayerThread> workerThreads = new ArrayList<>();
 		
 	// Bounding box we're allowed to move within
-	Point2d viewBounds[] = null;
+	protected @Nullable Point2d[] viewBounds = null;
 	
 	/**
 	 * Returns the layer thread we used for processing requests.
 	 */
 	public LayerThread getLayerThread()
 	{
-		if (layerThreads == null)
-			return null;
 		synchronized (layerThreads) {
 			if (layerThreads.size() == 0)
 				return null;
@@ -310,15 +311,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		return useTextureView;
 	}
 
-	boolean libraryLoaded = false;
-	int numWorkingThreads = 8;
-	int width = 0;
-	int height = 0;
+	private boolean libraryLoaded;
+	private int numWorkingThreads = 8;
+	private int width = 0;
+	private int height = 0;
 
 	/**
 	 * The render controller handles marshalling objects and the actual run loop.
 	 */
-	public RenderController renderControl = null;
+	public RenderController renderControl;
 
 	/**
 	 * The underlying render controller.  Only get this if you know what it does.
@@ -344,8 +345,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * callbacks.
 	 * <p>
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
+	 * @param settings The controller settings
 	 */
-	public BaseController(Activity mainActivity,Settings settings)
+	public BaseController(@Nullable Activity mainActivity,Settings settings)
 	{
 		// Note: Can't pull this one in anymore in Android Studio.  Hopefully not still necessary
 //		System.loadLibrary("gnustl_shared");
@@ -354,27 +356,25 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		System.loadLibrary(loadLibraryName);
 		libraryLoaded = true;
 
-		// These are objects that can potentially be created on the C++ side
-		//  before we create them on the Java side.  So we need to make sure their
-		//  nativeInit is called.
-		ComponentObject initObj = new ComponentObject();
-		CoordSystem initCoordSys = new CoordSystem();
-		VectorTileData initVecData = new VectorTileData();
-		Point2d initPt2d = new Point2d();
-		Point3d initPt3d = new Point3d();
-		Point4d initPt4d = new Point4d();
-		Matrix3d initMat3d = new Matrix3d();
-		Matrix4d initMat4d = new Matrix4d();
-		Quaternion initQuat = new Quaternion();
-		SelectedObject initSelObj = new SelectedObject();
-		ImageTile initImgTile = new ImageTile();
-		QIFBatchOps initBatchOps = new QIFBatchOps();
-		QIFFrameAsset initFrameAsset = new QIFFrameAsset();
-		Shader initShader = new Shader();
-		ChangeSet initChangeSet = new ChangeSet();
-		AttrDictionary initDict = new AttrDictionary();
-		AttrDictionaryEntry initEntry = new AttrDictionaryEntry();
-		VectorObject initVecObj = new VectorObject();
+		// These are objects that can potentially be created on the C++ side before we create
+		//  them on the Java side.  So we need to make sure their nativeInit is called.
+		@SuppressWarnings({"unused","RedundantSuppression"})
+		Object[] objs = new Object[]{
+			new ComponentObject(),
+			new CoordSystem(),
+			new VectorTileData(),
+			new Point2d(), 	new Point3d(), new Point4d(),
+			new Matrix3d(), new Matrix4d(), new Quaternion(),
+			new SelectedObject(),
+			new ImageTile(),
+			new QIFBatchOps(),
+			new QIFFrameAsset(),
+			new Shader(),
+			new ChangeSet(),
+			new AttrDictionary(),
+			new AttrDictionaryEntry(),
+			new VectorObject()
+		};
 
 		activity = mainActivity;
 		if (settings != null) {
@@ -536,11 +536,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			OkHttpClient client = new OkHttpClient();
 			client.newCall(request).enqueue(new Callback() {
 				@Override
-				public void onFailure(Call call, IOException e) {
+				public void onFailure(@NotNull Call call, @NotNull IOException e) {
 				}
 
 				@Override
-				public void onResponse(Call call, Response response) throws IOException {
+				public void onResponse(@NotNull Call call, @NotNull Response response) {
 					// We got a response, so save that in prefs
 					if (activity != null) {
 						SharedPreferences prefs = activity.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
@@ -629,7 +629,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Return the main content view used to represent the Maply Control.
 	 */
-	public View getContentView()
+	public @Nullable View getContentView()
 	{
 		return baseView;
 	}
@@ -663,7 +663,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				sampleLayer.isShuttingDown = true;
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
-			ArrayList<LayerThread> layerThreadsToRemove = new ArrayList<LayerThread>();
+			ArrayList<LayerThread> layerThreadsToRemove = new ArrayList<>();
 			if (layerThreads != null) {
 				synchronized (layerThreads) {
 					layerThreadsToRemove.addAll(layerThreads);
@@ -709,14 +709,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				renderControl.shutdown();
 
 			// Shut down the contexts
-			EGL10 egl = (EGL10) EGLContext.getEGL();
-			if (glContexts != null) {
+			final EGL10 egl = (EGL10) EGLContext.getEGL();
+			synchronized (glContexts) {
 				for (ContextInfo context : glContexts) {
 					egl.eglDestroySurface(renderControl.display, context.eglSurface);
 					egl.eglDestroyContext(renderControl.display, context.eglContext);
 				}
-				glContexts = null;
-
+				glContexts.clear();
 			}
 
 			// And the main one
@@ -754,25 +753,23 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			tempBackground = null;
 		}
 	}
-	
-	ArrayList<Runnable> surfaceTasks = new ArrayList<Runnable>();
+
+	// Set null after startup
+	private @Nullable ArrayList<Runnable> surfaceTasks = new ArrayList<>();
 	
 	// Metronome thread used to time the renderer
-	protected MetroThread metroThread;
+	protected @Nullable MetroThread metroThread;
 
     // Note: Why isn't this in EGL10?
     static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 
-	ArrayList<ContextInfo> glContexts = new ArrayList<ContextInfo>();
-	ContextInfo glContext = null;
+	final @NotNull ArrayList<ContextInfo> glContexts = new ArrayList<>();
+	private @Nullable ContextInfo glContext = null;
 
 	// Are we on the GL rendering thread
 	boolean isOnGLThread()
 	{
-		if (Thread.currentThread() == renderWrapper.renderThread)
-			return true;
-
-		return false;
+		return Thread.currentThread() == renderWrapper.renderThread;
 	}
 
 	// Are we are on one of our known layer threads?
@@ -792,10 +789,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// We expect these to be running on various threads
 	public ContextInfo setupTempContext(RenderController.ThreadMode threadMode)
 	{
-		// There's already a context, so just stick with that
-		EGL10 egl = (EGL10) EGLContext.getEGL();
-		ContextInfo retContext = null;
-
 		// The main thread has its own context we use
 		if (Looper.myLooper() == Looper.getMainLooper()) {
 			setEGLContext(null);
@@ -804,6 +797,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// We're on a known layer thread, which has a well known context so do nothing
 			return null;
 		} else {
+			final EGL10 egl = (EGL10) EGLContext.getEGL();
+			ContextInfo retContext;
 			synchronized (glContexts)
 			{
 				// See if we need to create a new context/surface
@@ -832,9 +827,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			}
 
 			setEGLContext(retContext);
+			return retContext;
 		}
-
-		return retContext;
 	}
 
 	public void clearTempContext(ContextInfo cInfo)
@@ -842,8 +836,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (cInfo == null)
 			return;
 
-		synchronized (glContexts)
-		{
+		synchronized (glContexts) {
 			if (cInfo != glContext) {
 				EGL10 egl = (EGL10) EGLContext.getEGL();
 //				GLES20.glFlush();
@@ -858,7 +851,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	boolean rendererAttached = false;
-    ArrayList<Runnable> postSurfaceRunnables = new ArrayList<Runnable>();
+    final @NotNull ArrayList<Runnable> postSurfaceRunnables = new ArrayList<>();
 
 	/**
 	 * Set if the renderer is set up and running.
@@ -905,7 +898,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 	}
 
-	int displayRate = 2;
+	private int displayRate = 2;
 
 	/**
 	 * Set the display rate for the GL render.
@@ -929,10 +922,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	// Set if they shut things down before the surface was attached
-	boolean startupAborted = false;
+	private boolean startupAborted = false;
 
 	// Layout layer runs periodically to poke the layout manager
-	LayoutLayer layoutLayer = null;
+	private @Nullable LayoutLayer layoutLayer = null;
 
 	// Called by the render wrapper when the surface is created.
 	// Can't start doing anything until that happens
@@ -952,15 +945,16 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			renderControl.setPerfInterval(perfInterval);
 
 			// Kick off the layout layer
-			layoutLayer = new LayoutLayer(this, renderControl.layoutManager);
-			LayerThread baseLayerThread = null;
+			final LayerThread baseLayerThread;
 			synchronized (layerThreads) {
 				baseLayerThread = layerThreads.get(0);
 			}
+
+			layoutLayer = new LayoutLayer(this, renderControl.layoutManager);
 			baseLayerThread.addLayer(layoutLayer);
 
 			// Add a default cluster generator
-			BasicClusterGenerator generator = new BasicClusterGenerator(
+			final BasicClusterGenerator generator = new BasicClusterGenerator(
 					new int[]{
 							Color.argb(192, 32, 224, 0),
 							Color.argb(255, 64, 192, 0),
@@ -982,6 +976,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					Handler handler = new Handler(activity.getMainLooper());
 					handler.post(run);
 				}
+				surfaceTasks.clear();
 				surfaceTasks = null;
 			}
 
@@ -996,11 +991,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			metroThread.setRenderer(renderControl);
 
 			// Make our own context that we can use on the main thread
-			EGL10 egl = (EGL10) EGLContext.getEGL();
+			final EGL10 egl = (EGL10) EGLContext.getEGL();
 			int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
 			glContext = new ContextInfo();
 			glContext.eglContext = egl.eglCreateContext(renderControl.display, renderControl.config, renderControl.context, attrib_list);
-			int[] surface_attrs =
+			final int[] surface_attrs =
 					{
 							EGL10.EGL_WIDTH, 32,
 							EGL10.EGL_HEIGHT, 32,
@@ -1032,13 +1027,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			// Call the post surface setup callbacks
 			for (final Runnable theRunnable : postSurfaceRunnables) {
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						// If they shut things down right here, we have to check
-						if (running)
-							theRunnable.run();
-					}
+				activity.runOnUiThread(() -> {
+					// If they shut things down right here, we have to check
+					if (running)
+						theRunnable.run();
 				});
 			}
 			postSurfaceRunnables.clear();
@@ -1057,7 +1049,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (renderWrapper == null || renderWrapper.maplyRender == null || renderControl.display == null)
 			return false;
 
-		EGL10 egl = (EGL10) EGLContext.getEGL();
+		final EGL10 egl = (EGL10) EGLContext.getEGL();
         if (cInfo != null)
         {
             if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
@@ -1066,9 +1058,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
             }
 
             return true;
-        } else {
-			if (renderWrapper != null && renderWrapper.maplyRender != null && renderControl.display != null)
-				egl.eglMakeCurrent(renderControl.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+        } else if (renderWrapper != null && renderWrapper.maplyRender != null && renderControl.display != null) {
+			egl.eglMakeCurrent(renderControl.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 		}
 
         return false;
@@ -1098,33 +1089,29 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
-	 * Set the viewport the user is allowed to move within.  These are lat/lon coordinates
-	 * in radians.
+	 * Set the viewport the user is allowed to move within.
+	 * These are lat/lon coordinates in radians.
+	 *
 	 * @param ll Lower left corner.
 	 * @param ur Upper right corner.
 	 */
 	public void setViewExtents(final Point2d ll,final Point2d ur)
 	{
 		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					setViewExtents(ll,ur);
-				}
-			});
+			addPostSurfaceRunnable(() -> setViewExtents(ll,ur));
 			return;
 		}
 
 		CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
-		if (coordAdapter == null)
-			return;
-		CoordSystem coordSys = coordAdapter.getCoordSystem();
-		
-		viewBounds = new Point2d[4];
-		viewBounds[0] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(),ll.getY(),0.0))).toPoint2d();
-		viewBounds[1] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ll.getY(),0.0))).toPoint2d();
-		viewBounds[2] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(),ur.getY(),0.0))).toPoint2d();
-		viewBounds[3] = coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(),ur.getY(),0.0))).toPoint2d();
+		if (coordAdapter != null) {
+			final CoordSystem coordSys = coordAdapter.getCoordSystem();
+			viewBounds = new Point2d[]{
+					coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(), ll.getY(), 0.0))).toPoint2d(),
+					coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(), ll.getY(), 0.0))).toPoint2d(),
+					coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ur.getX(), ur.getY(), 0.0))).toPoint2d(),
+					coordAdapter.localToDisplay(coordSys.geographicToLocal(new Point3d(ll.getX(), ur.getY(), 0.0))).toPoint2d()
+			};
+		}
 	}
 
 	/**
@@ -1141,7 +1128,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return false;
-		Point2d frameSize = renderControl.frameSize;
+
+		final Point2d frameSize = renderControl.frameSize;
 
 		return coordAdapter.screenPointFromGeoBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
 				inX,inY,inZ,outX,outY);
@@ -1156,17 +1144,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return false;
-		Point2d frameSize = renderControl.frameSize;
+
+		final Point2d frameSize = renderControl.frameSize;
 
 		return coordAdapter.geoPointFromScreenBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
 				inX,inY,outX,outY);
 	}
 
-	int perfInterval = 0;
+	private int perfInterval = 0;
 	/**
 	 * Report performance stats in the console ever few frames.
 	 * Setting this to zero turns it off.
-	 * @param inPerfInterval
+	 * @param inPerfInterval seconds between performance reports
 	 */
 	public void setPerfInterval(int inPerfInterval)
 	{
@@ -1233,12 +1222,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public void addLayer(final Layer layer)
 	{
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					addLayer(layer);
-				}
-			});
+			addPostSurfaceRunnable(() -> addLayer(layer));
 			return;
 		}
 
@@ -1257,12 +1241,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public void removeLayer(final Layer layer)
 	{
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					removeLayer(layer);
-				}
-			});
+			addPostSurfaceRunnable(() -> removeLayer(layer));
 			return;
 		}
 
@@ -1274,7 +1253,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 	}
 
-	final ArrayList<QuadSamplingLayer> samplingLayers = new ArrayList<>();
+	private @NotNull final ArrayList<QuadSamplingLayer> samplingLayers = new ArrayList<>();
 
 	/**
 	 * Look for a sampling layer that matches the parameters given.
@@ -1309,20 +1288,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 		// Do the addClient on the layer thread
 		final QuadSamplingLayer delayLayer = theLayer;
-		theLayer.layerThread.addTask(new Runnable() {
-			@Override
-			public void run() {
-				delayLayer.addClient(user);
-			}
-		});
+		theLayer.layerThread.addTask(() -> delayLayer.addClient(user));
 
 		return theLayer;
 	}
 
 	/**
 	 * Release the given sampling layer
-	 * @param samplingLayer
-	 * @param user
+	 * @param samplingLayer The layer
+	 * @param user The previously attached client
 	 */
 	public void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
 	{
@@ -1330,33 +1304,27 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return;
 
 		// Do the remove client on the layer thread
-		samplingLayer.layerThread.addTask(new Runnable() {
-			@Override
-			public void run() {
-				samplingLayer.removeClient(user);
+		samplingLayer.layerThread.addTask(() -> {
+			samplingLayer.removeClient(user);
 
-				// Get rid of the sampling layer too
-				if (samplingLayer.getNumClients() == 0) {
-					// But that has to be done on the main thread
-					if (samplingLayer.control.get() != null) {
-						Handler handler = new Handler(samplingLayer.control.get().activity.getMainLooper());
-						handler.post(new Runnable() {
-							@Override
-							public void run() {
-								// Someone maybe started using it
-								if (samplingLayer.getNumClients() == 0) {
-									removeLayerThread(samplingLayer.layerThread);
-									samplingLayers.remove(samplingLayer);
-								}
-							}
-						});
-					}
+			// Get rid of the sampling layer too
+			if (samplingLayer.getNumClients() == 0) {
+				// But that has to be done on the main thread
+				if (samplingLayer.control.get() != null) {
+					Handler handler = new Handler(samplingLayer.control.get().activity.getMainLooper());
+					handler.post(() -> {
+						// Someone maybe started using it
+						if (samplingLayer.getNumClients() == 0) {
+							removeLayerThread(samplingLayer.layerThread);
+							samplingLayers.remove(samplingLayer);
+						}
+					});
 				}
 			}
 		});
 	}
 
-	ArrayList<RemoteTileFetcher> tileFetchers = new ArrayList<RemoteTileFetcher>();
+	ArrayList<RemoteTileFetcher> tileFetchers = new ArrayList<>();
 
 	/**
 	 * Either returns a RemoteTileFetcher with the given name or
@@ -1365,8 +1333,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public RemoteTileFetcher addTileFetcher(String name)
 	{
 		for (RemoteTileFetcher tileFetcher : tileFetchers) {
-			if (tileFetcher.getFetcherName() == name)
+			if (tileFetcher.getFetcherName().equals(name)) {
 				return tileFetcher;
+			}
 		}
 
 		RemoteTileFetcher tileFetcher = new RemoteTileFetcher(this,name);
@@ -1388,16 +1357,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return;
 
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					addTask(run,mode);
-				}
-			});
+			addPostSurfaceRunnable(() -> addTask(run,mode));
 			return;
 		}
 
-		LayerThread baseLayerThread = null;
+		final LayerThread baseLayerThread;
 		synchronized (layerThreads) {
 			baseLayerThread = layerThreads.get(0);
 		}
@@ -1431,7 +1395,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
     public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo,RenderController.ThreadMode mode)
     {
-        ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>();
+        ArrayList<VectorObject> vecObjs = new ArrayList<>();
         vecObjs.add(vec);
         return addVectors(vecObjs,vecInfo,mode);
     }
@@ -1704,7 +1668,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param pts The points to add.
 	 * @param geomInfo Parameters to set things up with.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
-	 * @return This represents the geometry points for later modifictation or deletion.
+	 * @return This represents the geometry points for later modification or deletion.
 	 */
 	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
 	{
@@ -1742,7 +1706,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 		// Ask the selection manager
 		ViewState theViewState = view.makeViewState(renderControl);
-		SelectedObject selManObjs[] = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState, frameLoc);
+		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState, frameLoc);
 		if (selManObjs != null)
 			renderControl.componentManager.remapSelectableObjects(selManObjs);
 		theViewState.dispose();
@@ -1786,7 +1750,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 		
-		ArrayList<ScreenLabel> labels = new ArrayList<ScreenLabel>();
+		ArrayList<ScreenLabel> labels = new ArrayList<>();
 		labels.add(label);
 		return addScreenLabels(labels,labelInfo,mode);
 	}
@@ -1957,12 +1921,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
     public void addShaderProgram(final Shader shader)
     {
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					addShaderProgram(shader);
-				}
-			});
+			addPostSurfaceRunnable(() -> addShaderProgram(shader));
 			return;
 		}
 
@@ -1993,12 +1952,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public void addActiveObject(final ActiveObject activeObject)
 	{
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					addActiveObject(activeObject);
-				}
-			});
+			addPostSurfaceRunnable(() -> addActiveObject(activeObject));
 			return;
 		}
 
@@ -2011,12 +1965,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public void addActiveObjectAtStart(final ActiveObject activeObject) {
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					addActiveObjectAtStart(activeObject);
-				}
-			});
+			addPostSurfaceRunnable(() -> addActiveObjectAtStart(activeObject));
 			return;
 		}
 
@@ -2029,12 +1978,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	public void removeActiveObject(final ActiveObject activeObject)
 	{
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					removeActiveObject(activeObject);
-				}
-			});
+			addPostSurfaceRunnable(() -> removeActiveObject(activeObject));
 			return;
 		}
 
@@ -2068,7 +2012,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return;
 
-		ArrayList<ComponentObject> compObjs = new ArrayList<ComponentObject>();
+		ArrayList<ComponentObject> compObjs = new ArrayList<>();
 		compObjs.add(compObj);
 
 		disableObjects(compObjs, mode);
@@ -2161,19 +2105,16 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		final ComponentObject compObj = renderControl.componentManager.makeComponentObject();
 		final ChangeSet changes = new ChangeSet();
 
-		Runnable run = new Runnable() {
-			@Override
-			public void run() {
-				long particleSystemID = renderControl.particleSystemManager.addParticleSystem(particleSystem, changes);
-				if (particleSystemID != RenderController.EmptyIdentity) {
-					compObj.addParticleSystemID(particleSystemID);
-				}
-				renderControl.componentManager.addComponentObject(compObj, changes);
-				if (scene != null) {
-					changes.process(renderControl, scene);
-					changes.dispose();
-				}
+		Runnable run = () -> {
+			final long particleSystemID = renderControl.particleSystemManager.addParticleSystem(particleSystem, changes);
+			if (particleSystemID != RenderController.EmptyIdentity) {
+				compObj.addParticleSystemID(particleSystemID);
 			}
+			renderControl.componentManager.addComponentObject(compObj, changes);
+			if (scene != null) {
+				changes.process(renderControl, scene);
+			}
+			changes.dispose();
 		};
 
 		addTask(run, mode);
@@ -2191,16 +2132,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return;
 
 		if (particleBatch.isValid()) {
-			Runnable run = new Runnable() {
-				@Override
-				public void run() {
-					ChangeSet changes = new ChangeSet();
-					renderControl.particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
-					if (scene != null) {
-						changes.process(renderControl, scene);
-						changes.dispose();
-					}
+			Runnable run = () -> {
+				ChangeSet changes = new ChangeSet();
+				renderControl.particleSystemManager.addParticleBatch(particleBatch.partSys.getID(), particleBatch,changes);
+				if (scene != null) {
+					changes.process(renderControl, scene);
 				}
+				changes.dispose();
 			};
 			addTask(run, mode);
 		}
@@ -2239,12 +2177,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
 	public void addLight(final Light light) {
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					addLight(light);
-				}
-			});
+			addPostSurfaceRunnable(() -> addLight(light));
 			return;
 		}
 
@@ -2257,12 +2190,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
 	public void removeLight(final Light light) {
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					removeLight(light);
-				}
-			});
+			addPostSurfaceRunnable(() -> removeLight(light));
 			return;
 		}
 
@@ -2275,17 +2203,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * There are a default set of lights, so you'll want to do this before adding your own.
 	 */
 	public void clearLights() {
-		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					clearLights();
-				}
-			});
-			return;
+		if (rendererAttached) {
+			renderControl.clearLights();
+		} else {
+			addPostSurfaceRunnable(this::clearLights);
 		}
-
-		renderControl.clearLights();
 	}
 
 	/**
@@ -2295,12 +2217,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public void resetLights() {
 		if (!rendererAttached) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					if (running)
-						resetLights();
-				}
+			addPostSurfaceRunnable(() -> {
+				if (running)
+					resetLights();
 			});
 			return;
 		}
