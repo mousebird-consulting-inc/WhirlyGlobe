@@ -518,7 +518,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			String bundleVersion = pInfo.versionName;
 			String osversion = "Android " + Build.VERSION.RELEASE;
 			String model = Build.MANUFACTURER + " " + Build.MODEL;
-			String wgMaplyVersion = "3.0";
+			String wgMaplyVersion = "3.2";
 			String json = String.format(
 					"{ \"userid\":\"%s\", \"bundleid\":\"%s\", \"bundlename\":\"%s\", \"bundlebuild\":\"%s\", \"bundleversion\":\"%s\", \"osversion\":\"%s\", \"model\":\"%s\", \"wgmaplyversion\":\"%s\" }",
 					userID, bundleID, bundleName, bundleBuild, bundleVersion, osversion, model, wgMaplyVersion);
