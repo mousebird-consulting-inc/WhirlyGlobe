@@ -361,17 +361,29 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                     final QuadSamplingLayer layer = getSamplingLayer();
                     if (layer != null && !layer.isShuttingDown && !isShuttingDown && !loadReturn.isCanceled()) {
                         layer.layerThread.addTask(() -> {
-                            if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
-                                ChangeSet changes = new ChangeSet();
-                                mergeLoaderReturn(loadReturn, changes);
-                                layer.layerThread.addChanges(changes);
-                            } else {
-                                cleanupLoadedData(holdControl, loadReturn);
+                            if (layer.layerThread.startOfWork()) {
+                                try {
+                                    if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
+                                        ChangeSet changes = new ChangeSet();
+                                        mergeLoaderReturn(loadReturn, changes);
+                                        layer.layerThread.addChanges(changes);
+                                    } else {
+                                        cleanupLoadedData(holdControl, loadReturn);
+                                    }
+                                } finally {
+                                    layer.layerThread.endOfWork();
+                                }
                             }
                             loadReturn.dispose();
                         });
                     } else {
-                        cleanupLoadedData(holdControl,loadReturn);
+                        if (layer.layerThread.startOfWork()) {
+                            try {
+                                cleanupLoadedData(holdControl, loadReturn);
+                            } finally {
+                                layer.layerThread.endOfWork();
+                            }
+                        }
                         loadReturn.dispose();
                     }
                 }
