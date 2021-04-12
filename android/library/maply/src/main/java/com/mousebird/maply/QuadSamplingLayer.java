@@ -1,9 +1,8 @@
-/*
- *  QuadSamplingLayer.cpp
+/*  QuadSamplingLayer.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -24,7 +22,6 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 /**
  * The Quad Sampling Layer runs a quad tree which determines what
@@ -137,7 +134,7 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
             },LayerThread.UpdatePeriod);
         }
         layerThread.addChanges(changes);
-        layerThread.endOfWork();;
+        layerThread.endOfWork();
     }
 
     // Called no more often than 1/10 of a second
