@@ -169,7 +169,8 @@ public:
     virtual void buildObjects(PlatformThreadInfo *_Nullable inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileData,
-                              const Dictionary *_Nullable desc) override;
+                              const Dictionary *_Nullable desc,
+                              const CancelFunction &) override;
 
 protected:
     NSObject<MaplyRenderControllerProtocol> *_Nullable  __weak viewC;

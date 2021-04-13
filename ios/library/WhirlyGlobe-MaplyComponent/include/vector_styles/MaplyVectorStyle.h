@@ -147,6 +147,13 @@
                viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
                 desc:(NSDictionary * _Nullable)desc;
 
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)desc
+            cancelFn:(bool(^__nullable)(void))cancelFn;
+
 @end
 
 #ifdef __cplusplus

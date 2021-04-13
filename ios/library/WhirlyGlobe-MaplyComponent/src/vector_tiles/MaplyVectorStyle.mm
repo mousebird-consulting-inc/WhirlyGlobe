@@ -295,12 +295,22 @@ using namespace WhirlyKit;
                viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC
                 desc:(NSDictionary *_Nullable)desc
 {
+    [self buildObjects:vecObjs forTile:tileData viewC:viewC desc:desc cancelFn:nil];
+}
+
+- (void)buildObjects:(NSArray *_Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *_Nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC
+                desc:(NSDictionary *_Nullable)desc
+            cancelFn:(bool(^)(void))cancelFn
+{
     std::vector<VectorObjectRef> localVecObjs;
     for (MaplyVectorObject *vecObj in vecObjs)
         localVecObjs.push_back(vecObj->vObj);
 
     auto lDesc = desc ? iosMutableDictionary(desc) : iosMutableDictionary();
-    vectorStyle->buildObjects(nullptr, localVecObjs, tileData->data, &lDesc);
+    vectorStyle->buildObjects(nullptr, localVecObjs, tileData->data, &lDesc,
+                              [=](auto){return cancelFn && cancelFn();});
 }
 
 @end
