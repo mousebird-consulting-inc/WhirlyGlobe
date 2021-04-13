@@ -126,9 +126,17 @@ Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts)
 
 void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes)
 {
+    render(threadInfo,labels,changes,[](auto){return false;});
+}
+
+void LabelRenderer::render(PlatformThreadInfo *threadInfo,
+                           const std::vector<SingleLabel *> &labels,
+                           ChangeSet &changes,
+                           const std::function<bool(PlatformThreadInfo*)>& cancelFn)
+{
     const TimeInterval curTime = scene->getCurrentTime();
 
-    for (auto label : labels)
+    for (const auto label : labels)
     {
         const RGBAColor theBackColor = labelInfo->backColor;
         const RGBAColor theShadowColor = labelInfo->shadowColor;
@@ -142,6 +150,15 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,const std::vector<Sing
         // We also need the real line height back (because it's in the font)
         float lineHeight = 0.0;
         const auto drawStrs = label->generateDrawableStrings(threadInfo,labelInfo,fontTexManager,lineHeight,changes);
+
+        if (cancelFn(threadInfo))
+        {
+            for (auto drawStr : drawStrs)
+            {
+                delete drawStr;
+            }
+            return;
+        }
 
         // Calculate total draw and layout MBRs
         Mbr drawMbr, layoutMbr;

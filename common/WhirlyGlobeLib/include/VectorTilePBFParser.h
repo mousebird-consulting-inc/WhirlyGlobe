@@ -43,6 +43,8 @@ typedef std::shared_ptr<VectorObject> VectorObjectRef;
 class VectorTilePBFParser
 {
 public:
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+
     VectorTilePBFParser(
         VectorTileData *tileData,
         VectorStyleDelegateImpl* styleData,
@@ -53,7 +55,7 @@ public:
         bool localCoords = false,
         bool parseAll = false,
         std::vector<VectorObjectRef>* keepVectors = nullptr,
-        std::function<bool()> isCancelled = [](){return false;});
+        CancelFunction isCancelled = [](auto){return false;});
 
     bool parse(const uint8_t* data, size_t length);
 
@@ -148,7 +150,7 @@ private:
     // Parsing methods
     inline bool processTags(const MutableDictionaryCRef &attributes, size_t tagIdx, size_t geomIdx, const Feature &feature);
     inline bool checkStyles(SimpleIDUSet& styleIDs, const MutableDictionaryCRef &attributes, const std::string &layerName);
-    inline void parseLineString(const uint32_t *geometry, size_t geomCount, ShapeSet& shapes);
+    inline void parseLineString(const uint32_t *geometry, size_t geomCount, ShapeSet& shapes) const;
     inline bool parsePolygon(const uint32_t *geometry, size_t geomCount, VectorAreal& shape);
     inline bool parsePoints(const uint32_t *geometry, size_t geomCount, VectorPoints& shape);
     inline void addFeature(const VectorObjectRef &vecObj, const SimpleIDUSet &styleIDs);
@@ -192,7 +194,7 @@ private:
     const bool _localCoords;
     const bool _parseAll;
     std::vector<VectorObjectRef>* _keepVectors = nullptr;
-    std::function<bool()> _checkCancelled;
+    CancelFunction _checkCancelled;
 
     // State used during parsing
     const MbrD _bbox;
@@ -216,7 +218,7 @@ private:
     bool _wasCancelled = false;
 
     // Constants
-    static constexpr int CmdBits = 3;
+    static constexpr uint32_t CmdBits = 3U;
     static constexpr int TileSize = 256;
     static constexpr double MAX_EXTENT = 20037508.342789244;
 };

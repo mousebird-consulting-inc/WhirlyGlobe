@@ -85,7 +85,8 @@ void MapboxVectorLayerCircle::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            const std::vector<VectorObjectRef> &vecObjs,
                                            const VectorTileDataRef &tileInfo,
-                                           const Dictionary *desc)
+                                           const Dictionary *desc,
+                                           const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if ((!visible  && (representation.empty() || repUUIDField.empty())) || circleTexID == EmptyIdentity)
@@ -118,6 +119,10 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     const auto emptyVal = std::make_pair(MarkerPtrVec(), VecObjRefVec());
     for (const auto &vecObj : vecObjs)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
         if (vecObj->getVectorType() != VectorPointType)
         {
             continue;
@@ -168,6 +173,11 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
     for (const auto &kvp : markersByUUID)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
+
         const auto &uuid = kvp.first;
         const auto &markers = kvp.second.first;
         const auto &markerObjs = kvp.second.second;

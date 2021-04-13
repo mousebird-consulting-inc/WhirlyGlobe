@@ -51,8 +51,11 @@ public:
     virtual bool geomAdditive(PlatformThreadInfo *inst) override;
 
     /// Construct objects related to this style based on the input data.
-    virtual void buildObjects(PlatformThreadInfo *inst, const std::vector<VectorObjectRef> &vecObjs,
-                              const VectorTileDataRef &tileInfo, const Dictionary *desc) override;
+    virtual void buildObjects(PlatformThreadInfo *inst,
+                              const std::vector<VectorObjectRef> &vecObjs,
+                              const VectorTileDataRef &tileInfo,
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) override;
 
 protected:
     SimpleIdentity uuid;  // ID of this style on the Java side
@@ -100,9 +103,14 @@ public:
     /// Called by the dispose on the JNI side
     void shutdown(PlatformThreadInfo *inst);
 
-public:
-    void buildObjects(PlatformThreadInfo *inst,SimpleIdentity styleID,const std::vector<VectorObjectRef> &vecObjs,
-                      const VectorTileDataRef &tileInfo, __unused const Dictionary *desc);
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+
+    void buildObjects(PlatformThreadInfo *inst,
+                      SimpleIdentity styleID,
+                      const std::vector<VectorObjectRef> &vecObjs,
+                      const VectorTileDataRef &tileInfo,
+                      __unused const Dictionary *desc,
+                      const CancelFunction &cancelFn);
 
 protected:
 

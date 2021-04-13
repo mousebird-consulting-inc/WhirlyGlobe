@@ -1,4 +1,3 @@
-#include <climits>
 /*  VectorStyleSet_Android.cpp
  *  WhirlyGlobeLib
  *
@@ -17,10 +16,11 @@
  *  limitations under the License.
  */
 
-#include "../include/VectorStyleSet_Android.h"
+#import "../include/VectorStyleSet_Android.h"
 #import "Maply_jni.h"
 #import "Formats_jni.h"
 #import "Vectors_jni.h"
+#import <climits>
 
 namespace WhirlyKit
 {
@@ -67,11 +67,14 @@ bool VectorStyleImpl_Android::geomAdditive(PlatformThreadInfo *inst)
     return entry && entry->geomAdditive;
 }
 
-void VectorStyleImpl_Android::buildObjects(PlatformThreadInfo *inst, const std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &tileInfo, const Dictionary *desc)
+void VectorStyleImpl_Android::buildObjects(PlatformThreadInfo *inst,
+                                           const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc,
+                                           const CancelFunction &cancelFn)
 {
     // Pass through to the parent object, since we're just a wrapper
-    styleSet->buildObjects(inst,uuid,vecObjs,tileInfo,desc);
+    styleSet->buildObjects(inst,uuid,vecObjs,tileInfo,desc,cancelFn);
 }
 
 VectorStyleSetWrapper_Android::VectorStyleSetWrapper_Android(PlatformThreadInfo *platformInfo,
@@ -192,10 +195,11 @@ RGBAColorRef VectorStyleSetWrapper_Android::backgroundColor(PlatformThreadInfo *
 static const int VecBatchSize = 500;
 
 void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInfo,
-        SimpleIdentity styleID,
-        const std::vector<VectorObjectRef> &vecObjs,
-        const VectorTileDataRef &tileInfo,
-        __unused const Dictionary *desc)
+                                                 SimpleIdentity styleID,
+                                                 const std::vector<VectorObjectRef> &vecObjs,
+                                                 const VectorTileDataRef &tileInfo,
+                                                 __unused const Dictionary *desc,
+                                                 const CancelFunction &cancelFn)
 {
     auto threadInfo = (PlatformInfo_Android *)platformInfo;
 
@@ -203,6 +207,11 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
 
     for (unsigned int ii=0;ii<vecObjs.size();ii+=VecBatchSize)
     {
+        if (cancelFn(platformInfo))
+        {
+            break;
+        }
+
         // Make wrapper objects for the vectors and the tile data
         std::vector<jobject> vecObjVec;
         vecObjVec.reserve(VecBatchSize);
@@ -213,10 +222,21 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
             jobject newObj = MakeVectorObject(threadInfo->env,vecObj);
             vecObjVec.push_back(newObj);
         }
+
+        if (cancelFn(platformInfo))
+        {
+            break;
+        }
+
         jobject vecObjArray = BuildObjectArray(threadInfo->env,VectorObjectClassInfo::getClassInfo()->getClass(),vecObjVec);
         // Tear down our object wrappers
         for (auto vecObj: vecObjVec)
             threadInfo->env->DeleteLocalRef(vecObj);
+
+        if (cancelFn(platformInfo))
+        {
+            break;
+        }
 
         threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);
         threadInfo->env->DeleteLocalRef(vecObjArray);

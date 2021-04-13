@@ -123,16 +123,22 @@ public:
     /// Returns false on failure or cancellation.
     virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool);
 
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+
     /// Parse the vector tile and return a list of vectors.
     /// Returns false on failure or cancellation.
-    virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, std::function<bool()> cancelFn);
+    virtual bool parse(PlatformThreadInfo *styleInst,
+                       RawData *rawData,
+                       VectorTileData *tileData,
+                       const CancelFunction &cancelFn);
 
     /// The subclass calls the appropriate style to build component objects
     ///  which are then returned in the VectorTileData
     virtual void buildForStyle(PlatformThreadInfo *styleInst,
                                long long styleID,
                                const std::vector<VectorObjectRef> &vecObjs,
-                               const VectorTileDataRef &data);
+                               const VectorTileDataRef &data,
+                               const CancelFunction &cancelFn);
 
     /// Set the name of the uuid field.
     /// When present, the value is set as the kMaplyUUID attribute on generated objects

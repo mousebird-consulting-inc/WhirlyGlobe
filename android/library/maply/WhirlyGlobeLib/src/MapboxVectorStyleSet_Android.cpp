@@ -44,11 +44,6 @@ void MapboxVectorStyleSetImpl_Android::setupMethods(JNIEnv *env)
         calculateTextWidthMethod = env->GetMethodID(thisClass,"calculateTextWidth","(Ljava/lang/String;Lcom/mousebird/maply/LabelInfo;)D");
         makeCircleTextureMethod  = env->GetMethodID(thisClass,"makeCircleTexture", "(DIIFLcom/mousebird/maply/Point2d;)J");
         makeLineTextureMethod    = env->GetMethodID(thisClass,"makeLineTexture",   "([D)J");
-
-        if (auto cls = env->FindClass("java/util/concurrent/atomic/AtomicBoolean"))
-        {
-            atomicBoolGetMethod = env->GetMethodID(cls, "get", "()Z");
-        }
     }
 }
 

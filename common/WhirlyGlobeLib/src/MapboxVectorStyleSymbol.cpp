@@ -1,5 +1,4 @@
-/*
- *  MapboxVectorStyleSymbol.cpp
+/*  MapboxVectorStyleSymbol.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleSymbol.h"
@@ -27,11 +25,11 @@
 namespace WhirlyKit
 {
 
-static const char * const placementVals[] = {"point","line",NULL};
-static const char * const transformVals[] = {"none","uppercase","lowercase",NULL};
-static const char * const anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",NULL};
+static const char * const placementVals[] = {"point","line",nullptr};
+static const char * const transformVals[] = {"none","uppercase","lowercase",nullptr};
+static const char * const anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",nullptr};
 
-static const char * const justifyVals[] = {"center","left","right",NULL};
+static const char * const justifyVals[] = {"center","left","right",nullptr};
 
 bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
                                      MapboxVectorStyleSetImpl *styleSet,
@@ -47,15 +45,15 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     if (styleEntry)
         textFontArray = styleEntry->getArray("text-font");
     if (!textFontArray.empty()) {
-        for (int ii=0;ii<textFontArray.size();ii++) {
-            const std::string &textField = textFontArray[ii]->getString();
+        for (auto & ii : textFontArray) {
+            const std::string &textField = ii->getString();
             if (!textField.empty())
                 textFontNames.push_back(textField);
         }
     } else {
         // These are the default fonts
-        textFontNames.push_back("Open Sans Regular");
-        textFontNames.push_back("Arial Unicode MS Regular");
+        textFontNames.emplace_back("Open Sans Regular");
+        textFontNames.emplace_back("Arial Unicode MS Regular");
     }
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
@@ -80,7 +78,7 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     return true;
 }
 
-bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *inst,
+bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     const DictionaryRef &styleEntry)
 {
@@ -142,14 +140,24 @@ std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,
     std::string soFar,retStr,testStr;
     soFar.reserve(text.size());
     retStr.reserve(text.size() + 5);
-    for (auto chunk : chunks) {
-        if (soFar.empty()) {
+    for (const auto& chunk : chunks)
+    {
+        if (soFar.empty())
+        {
             soFar = chunk;
             continue;
         }
         
         // Try the string with the next chunk
-        testStr = soFar.empty() ? chunk : soFar + " " + chunk;
+        if (soFar.empty())
+        {
+            testStr = chunk;
+        }
+        else
+        {
+            testStr.reserve(soFar.size()+chunk.size()+1);
+            testStr.assign(soFar).append(" ").append(chunk);
+        }
         const double width = styleSet->calculateTextWidth(inst,labelInfo,testStr);
         
         // Flush out what we have so far and start with this new chunk
@@ -157,7 +165,7 @@ std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,
             if (soFar.empty())
                 soFar = testStr;
 
-            if (retStr.size() > 0) {
+            if (!retStr.empty()) {
                 retStr += '\n';
             }
             retStr.append(soFar);
@@ -167,7 +175,7 @@ std::string MapboxVectorLayerSymbol::breakUpText(PlatformThreadInfo *inst,
             soFar = testStr;
         }
     }
-    if (retStr.size() > 0)
+    if (!retStr.empty())
         retStr += '\n';
     retStr.append(soFar);
 
@@ -181,8 +189,8 @@ static float calcStringHash(const std::string &str)
 
     float val = 0.0;
     for (int ii=0;ii<len;ii++)
-        val += str[ii] / 256.0;
-    val /= len;
+        val += str[ii];
+    val /= len * 256.0f;
     
     return val;
 }
@@ -300,7 +308,7 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     return label;
 }
 
-std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *inst,
+std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo *,
                                                              const Point2f &pt,
                                                              const MutableDictionaryRef &attrs,
                                                              const VectorTileDataRef &tileInfo)
@@ -355,7 +363,7 @@ using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
 using VecObjRefVec = std::vector<VectorObjectRef>;
 using LabelRefVec = std::vector<SingleLabelRef>;
 using MarkersByUUIDMap = std::unordered_map<std::string,std::tuple<MarkerPtrVec,VecObjRefVec,LabelRefVec>>;
-static const auto emptyMapValue = std::make_tuple(MarkerPtrVec(),VecObjRefVec(),LabelRefVec());
+static const auto emptyMapValue = std::make_tuple(MarkerPtrVec(),VecObjRefVec(),LabelRefVec()); //NOLINT
 
 static std::tuple<MarkerPtrVec*, VecObjRefVec*, LabelRefVec*> Lookup(const std::string &uuid, MarkersByUUIDMap &map)
 {
@@ -368,7 +376,8 @@ static std::tuple<MarkerPtrVec*, VecObjRefVec*, LabelRefVec*> Lookup(const std::
 void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                            const std::vector<VectorObjectRef> &vecObjs,
                                            const VectorTileDataRef &tileInfo,
-                                           const Dictionary *desc)
+                                           const Dictionary *desc,
+                                           const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if (!visible && (representation.empty() || repUUIDField.empty()))
@@ -378,12 +387,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     const auto zoomLevel = tileInfo->ident.level;
 
-    using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
-    using VecObjRefVec = std::vector<VectorObjectRef>;
-    using LabelRefVec = std::vector<SingleLabelRef>;
     auto const capacity = vecObjs.size() * 5;  // ?
     std::unordered_map<std::string,std::tuple<MarkerPtrVec,VecObjRefVec,LabelRefVec>> markersByUUID(capacity);
-    const auto emptyMapValue = std::make_tuple(MarkerPtrVec(),VecObjRefVec(),LabelRefVec());
 
     // Render at the max size and then scale dynamically
     double textSize = layout.textSize->maxVal() * layout.globalTextScale;
@@ -416,7 +421,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     // We'll try for one color for the whole thing
     // Note: To fix this we need to blast the text apart into pieces
-    const auto textColor = styleSet->resolveColor(paint.textColor, NULL, zoomLevel, MBResolveColorOpacityReplaceAlpha);
+    const auto textColor = styleSet->resolveColor(paint.textColor, nullptr, zoomLevel, MBResolveColorOpacityReplaceAlpha);
     if (textColor)
     {
         labelInfo->textColor = *textColor;
@@ -426,9 +431,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     labelInfo->scaleExp = layout.textSize->expression();
     if (labelInfo->scaleExp)
     {
-        for (unsigned int ii=0;ii<labelInfo->scaleExp->stopOutputs.size();ii++)
+        for (float &stopOutput : labelInfo->scaleExp->stopOutputs)
         {
-            labelInfo->scaleExp->stopOutputs[ii] /= textSize;
+            stopOutput /= textSize;
         }
     }
 
@@ -478,8 +483,12 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                                    layout.textOffsetY ? (layout.textOffsetY->valForZoom(zoomLevel) * -textSize) : 0.0);
 
     std::vector<std::unique_ptr<Marker>> markerOwner;
-    for (auto vecObj : vecObjs)
+    for (const auto& vecObj : vecObjs)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
         const auto vecType = vecObj->getVectorType();
         switch (vecType)
         {
@@ -581,7 +590,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         {
                             if (layout.placement == MBPlaceLine)
                             {
-                                label->rotation = -1 * rot + M_PI/2.0;
+                                label->rotation = (float)(-rot + M_PI/2.0);
                                 if (label->rotation > M_PI_2 || label->rotation < -M_PI_2)
                                 {
                                     label->rotation += M_PI;
@@ -670,6 +679,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     for (auto &kvp : markersByUUID)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
+
         const auto& uuid = kvp.first;
         const auto& markers = std::get<0>(kvp.second);
         const auto& vecObjs = std::get<1>(kvp.second);
@@ -687,6 +701,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             const auto count = std::min(markers.size(), vecObjs.size());
             for (auto i = (size_t)0; i < count; ++i)
             {
+                if ((i % 100) == 0 && cancelFn(inst))
+                {
+                    return;
+                }
+
                 auto *marker = markers[i];
                 const auto &vecObj = vecObjs[i];
 
@@ -700,9 +719,14 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
         if (!labels.empty())
         {
-            if (const auto labelID = styleSet->labelManage->addLabels(inst, labels, *labelInfo, tileInfo->changes))
+            if (const auto labelID = styleSet->labelManage->addLabels(inst, labels, *labelInfo, tileInfo->changes, cancelFn))
             {
                 compObj->labelIDs.insert(labelID);
+            }
+
+            if (cancelFn(inst))
+            {
+                return;
             }
         }
 
@@ -711,6 +735,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             if (const auto markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes))
             {
                 compObj->markerIDs.insert(markerID);
+            }
+
+            if (cancelFn(inst))
+            {
+                return;
             }
         }
         

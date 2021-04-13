@@ -178,7 +178,7 @@ void DynamicTextureClearRegion::execute(Scene *scene,SceneRenderer *renderer,Vie
 DynamicTextureAddRegion::~DynamicTextureAddRegion()
 {
     if (!wasRun)
-        wkLogLevel(Error,"DynamicTextureAddRegion deleted without being run.");
+        wkLogLevel(Warn,"DynamicTextureAddRegion deleted without being run.");
 }
     
 void DynamicTextureAddRegion::execute(Scene *scene,SceneRenderer *renderer,View *view)

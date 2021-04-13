@@ -709,20 +709,26 @@ bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
 void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
                                       const std::vector<VectorObjectRef> &vecObjs,
                                       const VectorTileDataRef &tileInfo,
-                                      const Dictionary *desc)
+                                      const Dictionary *desc,
+                                      const CancelFunction &cancelFn)
 {
     if (auto tileData = [[MaplyVectorTileData alloc] init])
     {
         tileData->data = tileInfo;
 
         NSMutableArray *vecArray = [NSMutableArray array];
-        for (VectorObjectRef vecObj: vecObjs)
+        for (auto &vecObj: vecObjs)
         {
             if (auto mVecObj = [[MaplyVectorObject alloc] init])
             {
                 mVecObj->vObj = vecObj;
                 [vecArray addObject:mVecObj];
             }
+        }
+
+        if (cancelFn(inst))
+        {
+            return;
         }
 
         NSDictionary* nsDesc = nil;
@@ -734,6 +740,7 @@ void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
         {
             nsDesc = [NSMutableDictionary fromDictionaryCPointer:desc];
         }
+
         [style buildObjects:vecArray forTile:tileData viewC:viewC desc:nsDesc];
     }
 }

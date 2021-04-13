@@ -152,6 +152,12 @@ public:
 
     /// Renders the labels into a big texture and stores the resulting info
     void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);
+
+    /// Renders the labels into a big texture and stores the resulting info
+    void render(PlatformThreadInfo *threadInfo,
+                const std::vector<SingleLabel *> &labels,
+                ChangeSet &changes,
+                const std::function<bool(PlatformThreadInfo*)>& cancelFn);
 };
 
 }

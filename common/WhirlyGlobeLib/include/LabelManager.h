@@ -118,6 +118,16 @@ public:
                              const std::vector<SingleLabelRef> &labels,
                              const LabelInfo &desc,ChangeSet &changes);
 
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,
+                             const std::vector<SingleLabelRef> &labels,
+                             const LabelInfo &desc,ChangeSet &changes,
+                             const CancelFunction& cancelFn);
+    SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,
+                             const std::vector<SingleLabel *> &labels,
+                             const LabelInfo &desc,ChangeSet &changes,
+                             const CancelFunction& cancelFn);
+
     /// Change visual attributes (just the visibility range)
     void changeLabel(PlatformThreadInfo *threadInfo,
                      SimpleIdentity labelID,

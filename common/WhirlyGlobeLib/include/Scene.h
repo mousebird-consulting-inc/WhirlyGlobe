@@ -351,7 +351,7 @@ public:
 //    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
     
     // Return all the drawables in a list.  Only call this on the main thread.
-    const std::vector<Drawable *> getDrawables() const;
+    std::vector<Drawable *> getDrawables() const;
     
     // Used for offline frame by frame rendering
     void setCurrentTime(TimeInterval newTime);
@@ -462,14 +462,14 @@ protected:
     
     /// Managers for various functionality
     std::map<std::string,SceneManagerRef> managers;
-                
+
     /// Lock for accessing programs
     mutable std::mutex programLock;
-                    
+
     // Sampling layers will set these to talk to shaders
     mutable std::mutex zoomSlotLock;
-    float zoomSlots[MaplyMaxZoomSlots];
-    
+    float zoomSlots[MaplyMaxZoomSlots] = {};
+
 protected:
     
     // If time is being set externally

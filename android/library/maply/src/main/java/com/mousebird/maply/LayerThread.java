@@ -185,7 +185,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 	// Used to shut down cleaning without cutting off outstanding work threads
 	public boolean isShuttingDown = false;
-	private Semaphore workLock = new Semaphore(1, true);
+	private final Semaphore workLock = new Semaphore(1, true);
 	private int numActiveWorkers = 0;
 
 	// Something is requesting a lock on shutting down while working

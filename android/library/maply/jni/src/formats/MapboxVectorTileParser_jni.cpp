@@ -20,6 +20,7 @@
 #import <Geometry_jni.h>
 #import <Vectors_jni.h>
 #import <Components_jni.h>
+#import <QuadLoading_jni.h>
 #import "WhirlyGlobe_Android.h"
 #import "com_mousebird_maply_MapboxVectorTileParser.h"
 
@@ -104,40 +105,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_setLocalC
     }
 }
 
+static bool noCancel(PlatformThreadInfo*) { return false; }
+
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
-    (JNIEnv *env, jobject obj, jbyteArray data, jobject vecTileDataObj, jobject cancelObj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseData
+    (JNIEnv *env, jobject obj, jbyteArray data, jobject vecTileDataObj, jobject loadRetObj)
 {
     try
     {
-        MapboxVectorTileParser *inst = MapboxVectorTileParserClassInfo::getClassInfo()->getObject(env,obj);
-        VectorTileDataRef *tileData = VectorTileDataClassInfo::getClassInfo()->getObject(env,vecTileDataObj);
+        const auto inst = MapboxVectorTileParserClassInfo::get(env,obj);
+        const auto tileDataPtr = VectorTileDataClassInfo::get(env,vecTileDataObj);
+        const auto tileData = tileDataPtr ? *tileDataPtr : nullptr;
         if (!inst || !tileData)
+        {
             return false;
-
-        std::function<bool()> cancelFn = [=](){return false;};
-
-        // Notify the style delegate of the new environment so it can make Java calls if need be
-        const auto style = inst->getStyleDelegate();
-        if (const auto theStyleDelegate = dynamic_cast<MapboxVectorStyleSetImpl_Android*>(style.get())) {
-            theStyleDelegate->setupMethods(env);
-            if (cancelObj && theStyleDelegate->atomicBoolGetMethod)
-            {
-                cancelFn = [=](){return env->CallBooleanMethod(cancelObj,theStyleDelegate->atomicBoolGetMethod);};
-            }
-        } else if (cancelObj) {
-            // The atomic bool class could theoretically be unloaded between calls, if no instances
-            // exist, so we can't store the ID statically.  We don't have a good place to keep it other
-            // than MapboxVectorStyleSetImpl_Android, so look it up once per cancel-able parse call.
-            if (auto cls = env->FindClass("java/util/concurrent/atomic/AtomicBoolean"))
-            if (auto method = env->GetMethodID(cls, "get", "()Z"))
-            {
-                cancelFn = [=](){return env->CallBooleanMethod(cancelObj,method);};
-            }
         }
 
-        // Need a pointer to this JNIEnv for low level parsing callbacks
-        PlatformInfo_Android platformInfo(env);
+        const auto loadRetPtr = LoaderReturnClassInfo::get(env,loadRetObj);
+        const auto loadRet = (loadRetPtr && *loadRetPtr) ? loadRetPtr->get() : nullptr;
+
+        using CancelFunction = MapboxVectorTileParser::CancelFunction;
+        const CancelFunction loadRetCancel = [=](auto){return loadRet->cancel;};
+        const auto cancelFn = loadRet ? loadRetCancel : noCancel;
 
         // Copy data into a temporary buffer (must we?)
         const int len = env->GetArrayLength(data);
@@ -146,8 +135,11 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parse
         {
             try
             {
+                // Need a pointer to this JNIEnv for low level parsing callbacks
+                PlatformInfo_Android platformInfo(env);
+
                 RawDataWrapper rawDataWrap(rawData, len, false);
-                ret = inst->parse(&platformInfo,&rawDataWrap,&**tileData,cancelFn);
+                ret = inst->parse(&platformInfo,&rawDataWrap,tileData.get(),cancelFn);
             }
             catch (...)
             {

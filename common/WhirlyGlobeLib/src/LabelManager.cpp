@@ -56,24 +56,42 @@ LabelManager::LabelManager()
     : textureAtlasSize(LabelTextureAtlasSizeDefault), maskProgID(EmptyIdentity)
 {
 }
-    
+
 SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
                                        const std::vector<SingleLabelRef> &labels,
                                        const LabelInfo &desc,ChangeSet &changes)
 {
+    return addLabels(threadInfo,labels,desc,changes,[](auto){return false;});
+}
+
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabelRef> &labels,
+                                       const LabelInfo &desc,ChangeSet &changes,
+                                       const CancelFunction& cancelFn)
+{
     std::vector<SingleLabel *> unwrapLabels;
     unwrapLabels.reserve(labels.size());
-    for (auto label: labels)
+    for (const auto& label: labels)
     {
         unwrapLabels.push_back(label.get());
     }
     
-    return addLabels(threadInfo,unwrapLabels, desc, changes);
+    return addLabels(threadInfo,unwrapLabels, desc, changes, cancelFn);
 }
-    
+
 SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
                                        const std::vector<SingleLabel *> &labels,
                                        const LabelInfo &labelInfo,ChangeSet &changes)
+{
+    return addLabels(threadInfo,labels,labelInfo,changes,[](auto){return false;});
+}
+
+static constexpr int cancelCheckBatch = 50;
+
+SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
+                                       const std::vector<SingleLabel *> &labels,
+                                       const LabelInfo &labelInfo,ChangeSet &changes,
+                                       const CancelFunction& cancelFn)
 {
     const auto fontTexManager = scene->getFontTextureManager();
 
@@ -96,7 +114,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nullptr);
     labelRenderer.scale = renderer->getScale();
    
-    labelRenderer.render(threadInfo, labels, changes);
+    labelRenderer.render(threadInfo, labels, changes, cancelFn);
     
     changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
 
@@ -105,8 +123,13 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     {
         auto coordAdapter = scene->getCoordAdapter();
         ScreenSpaceBuilder ssBuild(renderer, coordAdapter, renderer->getScale());
+        int n = 0;
         for (auto & screenObject : labelRenderer.screenObjects)
         {
+            if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
+            {
+                return EmptyIdentity;
+            }
             ssBuild.addScreenObject(screenObject,screenObject.getWorldLoc(),screenObject.getGeometry());
         }
         ssBuild.flushChanges(changes, labelRep->drawIDs);
@@ -117,7 +140,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     {
         if (!labelRenderer.layoutObjects.empty())
         {
-            for (auto & layoutObject : labelRenderer.layoutObjects)
+            for (const auto &layoutObject : labelRenderer.layoutObjects)
             {
                 labelRep->layoutIDs.insert(layoutObject.getId());
             }
@@ -128,8 +151,13 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     // Pass on selection data
     if (const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager))
     {
+        int n = 0;
         for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
         {
+            if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
+            {
+                return EmptyIdentity;
+            }
             auto &selectables2D = labelRenderer.selectables2D;
             RectSelectable2D &sel = selectables2D[ii];
             selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
@@ -137,6 +165,10 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
         }
         for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
         {
+            if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
+            {
+                return EmptyIdentity;
+            }
             auto &movingSelectables2D = labelRenderer.movingSelectables2D;
             auto &sel = movingSelectables2D[ii];
             selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,sel.startTime,sel.endTime,sel.pts,sel.minVis,sel.maxVis,sel.enable);
@@ -144,6 +176,10 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
         {
+            if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
+            {
+                return EmptyIdentity;
+            }
             auto &selectables3D = labelRenderer.selectables3D;
             auto &sel = selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);

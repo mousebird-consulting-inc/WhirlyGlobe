@@ -171,11 +171,14 @@ public:
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
     virtual bool geomAdditive(PlatformThreadInfo *inst) = 0;
 
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
-                              const Dictionary *desc) = 0;
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) = 0;
 };
 
 }

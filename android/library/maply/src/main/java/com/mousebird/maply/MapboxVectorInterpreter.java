@@ -104,32 +104,6 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 WGS84_a_2 * Math.log((1.0 + Math.sin(pt.getY())) / (1.0 - Math.sin(pt.getY()))));
     }
 
-    private final long cancelCheckMillisec = 100;
-
-    /**
-     * Manages a value we can pass down to JNI to signal it to cancel in the middle of a tile parse.
-     */
-    private static class ParserCancellationChecker implements Runnable {
-        public final AtomicBoolean cancelFlag = new AtomicBoolean(false);
-        public ParserCancellationChecker(LoaderReturn loadReturn,WeakReference<BaseController> vc,long interval) {
-            this.vc = vc;
-            this.loadReturn = loadReturn;
-            this.interval = interval;
-        }
-        public void cancel() { cancelFlag.set(true); }
-        @Override public void run() {
-            BaseController theVC = vc.get();
-            if (loadReturn.isCanceled() || theVC == null) {
-                cancelFlag.set(true);
-            } else if (theVC != null && !cancelFlag.get()) {
-                theVC.addPostSurfaceRunnable(this,interval);
-            }
-        }
-        private final LoaderReturn loadReturn;
-        private final WeakReference<BaseController> vc;
-        private final long interval;
-    }
-
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
         if (styleGen != null) styleGen.setZoomSlot(loader.getZoomSlot());
@@ -196,16 +170,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             locBounds.ur = toMerc(locBounds.ur);
 
             VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
-            {
-                ParserCancellationChecker cancelCheck = new ParserCancellationChecker(loadReturn, vc, cancelCheckMillisec);
-                theVC.addPostSurfaceRunnable(cancelCheck, cancelCheckMillisec);
-                try {
-                    if (!parser.parseData(data, tileData, cancelCheck.cancelFlag) || loadReturn.isCanceled()) {
-                        return;
-                    }
-                } finally {
-                    cancelCheck.cancel();
-                }
+            if (!parser.parseData(data, tileData, loadReturn) || loadReturn.isCanceled()) {
+                return;
             }
 
             ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
@@ -234,16 +200,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                     RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
                     tileRender.setEGLContext(null);
 
-                    {
-                        ParserCancellationChecker cancelCheck = new ParserCancellationChecker(loadReturn, vc, cancelCheckMillisec);
-                        theVC.addPostSurfaceRunnable(cancelCheck, cancelCheckMillisec);
-                        try {
-                            if (!imageParser.parseData(data, imageTileData, cancelCheck.cancelFlag) || loadReturn.isCanceled()) {
-                                return;
-                            }
-                        } finally {
-                            cancelCheck.cancel();
-                        }
+                    if (!imageParser.parseData(data, imageTileData, loadReturn) || loadReturn.isCanceled()) {
+                        return;
                     }
 
                     ChangeSet changes = imageTileData.getChangeSet();
