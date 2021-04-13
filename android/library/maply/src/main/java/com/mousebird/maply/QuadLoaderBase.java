@@ -338,40 +338,59 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
                 public void success(TileFetchRequest fetchRequest, byte[] data) {
-                    LoaderInterpreter theLoadInterp = loadInterp;
+                    final LoaderInterpreter theLoadInterp = loadInterp;
+                    final QuadSamplingLayer layer = getSamplingLayer();
 
-                    if (loadInterp == null)
+                    if (loadInterp == null || layer == null || isShuttingDown || layer.isShuttingDown) {
                         return;
+                    }
 
                     // Build a loader return object, fill in the data and then parse it
                     final LoaderReturn loadReturn = makeLoaderReturn();
                     loadReturn.setTileID(tileX, tileY, tileLevel);
                     loadReturn.setFrame(getFrameID(fFrame),fFrame);
 
-                    if (data != null)
+                    if (data != null) {
                         loadReturn.addTileData(data);
+                    }
 
                     loaderBase.setLoadReturn(loadReturn);
 
                     // We're on an AsyncTask in the background here, so do the loading
-                    if (loadInterp != null)
-                        theLoadInterp.dataForTile(loadReturn,loaderBase);
+                    if (loadInterp != null && layer != null && layer.layerThread.startOfWork()) {
+                        try {
+                            theLoadInterp.dataForTile(loadReturn, loaderBase);
+                        } finally {
+                            layer.layerThread.endOfWork();
+                        }
+                    }
 
                     // Merge the data back in on the sampling layer's thread
-                    final QuadSamplingLayer layer = getSamplingLayer();
-                    if (layer != null && !layer.isShuttingDown && !isShuttingDown && !loadReturn.isCanceled()) {
+                    if (!isShuttingDown && !layer.isShuttingDown && !loadReturn.isCanceled()) {
                         layer.layerThread.addTask(() -> {
-                            if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
-                                ChangeSet changes = new ChangeSet();
-                                mergeLoaderReturn(loadReturn, changes);
-                                layer.layerThread.addChanges(changes);
-                            } else {
-                                cleanupLoadedData(holdControl, loadReturn);
+                            if (layer.layerThread.startOfWork()) {
+                                try {
+                                    if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
+                                        ChangeSet changes = new ChangeSet();
+                                        mergeLoaderReturn(loadReturn, changes);
+                                        layer.layerThread.addChanges(changes);
+                                    } else {
+                                        cleanupLoadedData(holdControl, loadReturn);
+                                    }
+                                } finally {
+                                    layer.layerThread.endOfWork();
+                                }
                             }
                             loadReturn.dispose();
                         });
                     } else {
-                        cleanupLoadedData(holdControl,loadReturn);
+                        if (layer.layerThread.startOfWork()) {
+                            try {
+                                cleanupLoadedData(holdControl, loadReturn);
+                            } finally {
+                                layer.layerThread.endOfWork();
+                            }
+                        }
                         loadReturn.dispose();
                     }
                 }
