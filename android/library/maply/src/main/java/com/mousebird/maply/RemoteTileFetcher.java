@@ -458,6 +458,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // On a random thread, perhaps
     protected void finishedLoading(final TileInfo inTile, final Response response, final Exception inE,final double fetchStartTile)
     {
+        if (response == null) {
+            return;
+        }
         if (!valid) {
             response.close();
             return;
