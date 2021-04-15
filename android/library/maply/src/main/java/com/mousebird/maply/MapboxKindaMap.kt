@@ -526,11 +526,10 @@ open class MapboxKindaMap(
             setBaseDrawPriority(styleSettings.baseDrawPriority)
             setDrawPriorityPerLevel(styleSettings.drawPriorityPerLevel)
             setLoaderInterpreter(mapboxInterp)
-            val fetcher = localFetchers.firstOrNull() ?:
+            setTileFetcher(localFetchers.firstOrNull() ?:
                 RemoteTileFetcher(control,"Remote Tile Fetcher").apply {
                     setDebugMode(false)
-                }
-            setTileFetcher(fetcher)
+                })
             setDebugMode(false)
         }
     }

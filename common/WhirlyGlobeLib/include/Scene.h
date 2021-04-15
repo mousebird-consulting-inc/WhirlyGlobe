@@ -303,8 +303,11 @@ public:
     DrawableRef getDrawable(SimpleIdentity drawId) const;
 
     /// Remove a drawable from the scene
-    virtual void remDrawable(DrawableRef drawable);
-    
+    virtual void remDrawable(const DrawableRef &drawable);
+
+    /// Remove a drawable from the scene
+    virtual void remDrawable(SimpleIdentity id);
+
     /// Add a fully formed texture
     virtual void addTexture(TextureBaseRef texRef);
     
