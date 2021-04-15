@@ -266,7 +266,7 @@ void Scene::addActiveModel(ActiveModelRef activeModel)
     activeModels.back()->startWithScene(this);
 }
 
-void Scene::removeActiveModel(const ActiveModelRef &activeModel)
+void Scene::removeActiveModel(PlatformThreadInfo *threadInfo, const ActiveModelRef &activeModel)
 {
     int which = 0;
 
@@ -278,7 +278,7 @@ void Scene::removeActiveModel(const ActiveModelRef &activeModel)
     }
     if (which < activeModels.size()) {
         activeModels.erase(activeModels.begin() + which);
-        activeModel->teardown();
+        activeModel->teardown(threadInfo);
     }
 }
 

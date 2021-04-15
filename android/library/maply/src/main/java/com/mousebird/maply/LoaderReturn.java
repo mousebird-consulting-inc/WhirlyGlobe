@@ -43,6 +43,11 @@ public class LoaderReturn
     public native void setTileID(int tileX,int tileY,int tileLevel);
 
     /**
+     * Set the tile ID at creation.
+     */
+    public void setTileID(TileID tileID) { setTileID(tileID.x, tileID.y, tileID.level); }
+
+    /**
      * Frames have unique 64 bit IDs as well as their location in the frame array.
      */
     public native void setFrame(long frameID,int frameIndex);

@@ -30,7 +30,7 @@ public:
     {
     }
     
-    virtual bool hasUpdate() {
+    virtual bool hasUpdate() const override {
         return [activeObject hasUpdate];
     }
     

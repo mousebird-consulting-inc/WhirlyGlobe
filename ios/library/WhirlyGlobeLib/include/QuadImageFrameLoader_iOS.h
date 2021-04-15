@@ -92,11 +92,14 @@ public:
         
     // Fetch the tile frames.  Just fetch them all for now if frameToLoad is set to -1
     // Otherwise, just fetch the specified frame
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,
+                               const QuadFrameInfoRef &frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *loader) override;
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,
+                                            const QuadFrameInfoRef &frameInfo,
+                                            QuadImageFrameLoader *loader) override;
 };
     
 // iOS version of the QuadFrameLoader

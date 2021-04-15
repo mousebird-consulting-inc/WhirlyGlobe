@@ -270,7 +270,7 @@ ViewPlacementManager *ViewPlacementActiveModel::getManager()
 void ViewPlacementActiveModel::startWithScene(Scene *scene) {
 }
 
-bool ViewPlacementActiveModel::hasUpdate() {
+bool ViewPlacementActiveModel::hasUpdate() const {
     return manager.getChangedSinceUpdate();
 }
 

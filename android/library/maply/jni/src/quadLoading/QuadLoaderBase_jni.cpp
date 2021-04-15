@@ -53,11 +53,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
         PlatformInfo_Android platformInfo(env);
         auto loader = new QuadImageFrameLoader_AndroidRef(
                 new QuadImageFrameLoader_Android(&platformInfo,*params,numFrames,(QuadImageFrameLoader::Mode)mode));
-        (*loader)->frameLoaderObj = env->NewGlobalRef(obj);
+        (*loader)->setFrameLoaderObj(env->NewGlobalRef(obj));
         (*loader)->setFlipY(true);
         info->setHandle(env, obj, loader);
     } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::initialise()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::initialise()");
     }
 }
 
@@ -67,38 +67,32 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose(JNIEnv *env, jobject obj)
 {
     try {
-        QuadImageFrameLoaderClassInfo *info = QuadImageFrameLoaderClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            QuadImageFrameLoader_AndroidRef *loader = info->getObject(env,obj);
-            if (!loader)
-                return;
-            if ((*loader)->frameLoaderObj) {
-                env->DeleteGlobalRef((*loader)->frameLoaderObj);
-                (*loader)->frameLoaderObj = nullptr;
-            }
-            delete loader;
+        const auto info = QuadImageFrameLoaderClassInfo::getClassInfo();
 
-            info->clearHandle(env, obj);
-        }
-
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::dispose()");
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        const auto loader = info->getObject(env,obj);
+        delete loader;
+        info->clearHandle(env, obj);
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::dispose()");
     }
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY(JNIEnv *env, jobject obj, jboolean flipY)
 {
-    try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        if (!loader)
-            return;
-        (*loader)->setFlipY(flipY);
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setFlipY(flipY);
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::setFlipY()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::setFlipY()");
     }
 }
 
@@ -113,24 +107,42 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY(JNIE
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::getFlipY()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getFlipY()");
     }
 
     return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode(JNIEnv *env, jobject obj, jboolean debugMode)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getDebugMode(JNIEnv *env, jobject obj)
 {
-    try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        if (!loader)
-            return;
-        (*loader)->setDebugMode(debugMode);
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getDebugMode();
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::setDebugMode()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getDebugMode()");
+    }
+    return false;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode(JNIEnv *env, jobject obj, jboolean debugMode)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setDebugMode(debugMode);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::setDebugMode()");
     }
 }
 
@@ -172,7 +184,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileN
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::geoBoundsForTileNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::geoBoundsForTileNative()");
     }
 }
 
@@ -198,7 +210,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_boundsForTileNati
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::boundsForTileNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::boundsForTileNative()");
     }
 }
 
@@ -224,7 +236,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForT
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::displayCenterForTileNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::displayCenterForTileNative()");
     }
 }
 
@@ -232,22 +244,26 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
         (JNIEnv *env, jobject obj, jobject changeObj)
 {
-    try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
-        if (!loader || !changes)
-            return;
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            if (const auto changes = ChangeSetClassInfo::get(env,changeObj))
+            {
+                PlatformInfo_Android platformInfo(env);
+                if ((*loader)->getMode() == QuadImageFrameLoader::Mode::MultiFrame)
+                {
+                    (*loader)->getController()->getScene()->removeActiveModel(&platformInfo,*loader);
+                }
 
-        if (loader->get()->getMode() == QuadImageFrameLoader::Mode::MultiFrame) {
-            loader->get()->getController()->getScene()->removeActiveModel(*loader);
+                (*loader)->cleanup(&platformInfo,**changes);
+                (*loader)->teardown(&platformInfo);
+            }
         }
-
-        PlatformInfo_Android platformInfo(env);
-        (*loader)->cleanup(&platformInfo,*(changes->get()));
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::cleanupNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::cleanupNative()");
     }
 }
 
@@ -279,7 +295,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setLoadReturn
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::setLoadReturn()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::setLoadReturn()");
     }
 }
 
@@ -293,7 +309,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_clearLoadReturn
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::clearLoadReturn()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::clearLoadReturn()");
     }
 }
 
@@ -335,7 +351,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::mergeLoaderReturn()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::mergeLoaderReturn()");
     }
 }
 
@@ -359,7 +375,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::samplingLayerConnectNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::samplingLayerConnectNative()");
     }
 }
 
@@ -379,7 +395,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
     }
 }
 
@@ -397,7 +413,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::getFrameID()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getFrameID()");
     }
 
     return 0;
@@ -415,7 +431,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration(JNI
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadLoaderBase::getGeneration()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getGeneration()");
     }
 
     return 0;
@@ -455,24 +471,21 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadNative
     Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative(env, obj, changeSetObj, nullptr);
 }
 
-/*
- * Class:     com_mousebird_maply_QuadLoaderBase
- * Method:    reloadAreaNative
- * Signature: (Lcom/mousebird/maply/ChangeSet;[Lcom/mousebird/maply/Mbr;)V
- */
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
         (JNIEnv *env, jobject obj, jobject changeSetObj, jobjectArray mbrArrayObj)
 {
     try
     {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+        auto loader = QuadImageFrameLoaderClassInfo::get(env,obj);
+        auto changeSet = ChangeSetClassInfo::get(env,changeSetObj);
         if (!loader || !changeSet)
             return;
 
+        JavaObjectArrayHelper mbrObjs(env, mbrArrayObj);
         std::vector<Mbr> mbrs;
-        for (JavaObjectArrayHelper mbrObjs(env, mbrArrayObj); mbrObjs.getNextObject(); )
+        mbrs.reserve(mbrObjs.numObjects());
+        while (mbrObjs.getNextObject())
         {
             const auto llObj = env->GetObjectField(mbrObjs.getCurrentObject(), llID);
             const auto urObj = env->GetObjectField(mbrObjs.getCurrentObject(), urID);
@@ -499,4 +512,43 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
     {
         __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::reloadAreaNative()");
     }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoading
+        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID)
+{
+    try
+    {
+        const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj);
+        if (const auto loader = loaderPtr ? *loaderPtr : nullptr)
+        {
+            const auto tileID = loader->getTileID(env, identObj);
+            return loader->isFrameLoading(tileID,frameID);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::isFrameLoading()");
+    }
+    return false;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFrame
+        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID, jbyteArray rawData, jobjectArray rawDataArray)
+{
+    try
+    {
+        const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj);
+        if (const auto loader = loaderPtr ? *loaderPtr : nullptr)
+        {
+            const auto tileID = loader->getTileID(env, identObj);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::mergeLoadedFrame()");
+    }
+    return false;
 }
