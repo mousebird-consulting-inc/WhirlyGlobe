@@ -42,12 +42,12 @@ public class QuadImageLoader extends QuadImageLoaderBase
      */
     public QuadImageLoader(final SamplingParams params,TileInfoNew tileInfo,BaseController control)
     {
-        this(params,new TileInfoNew[]{tileInfo},control);
+        this(params,new TileInfoNew[]{tileInfo},control,Mode.SingleFrame);
     }
 
-    public QuadImageLoader(final SamplingParams params,TileInfoNew[] tileInfo,BaseController control)
+    public QuadImageLoader(final SamplingParams params,TileInfoNew[] tileInfo,BaseController control,Mode mode)
     {
-        super(control, params, tileInfo.length);
+        super(control, params, tileInfo.length,mode);
 
         tileInfos = tileInfo;
         valid = true;

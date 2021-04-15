@@ -24,6 +24,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 /**
@@ -377,8 +378,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             return;
         }
 
-        // mergeFetchRequest
-
         final long frameID = getFrameID(frame);
         if (!isFrameLoading(tileID,frame,frameID)) {
             if (getDebugMode()) {
@@ -387,12 +386,23 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             }
         }
 
+        ArrayList<byte[]> allData = new ArrayList<>();
+        if (!mergeLoadedFrame(tileID, frame, frameID, data, allData))
+        {
+            // The other fetch will handle it
+            return;
+        }
+
         // Build a loader return object, fill in the data and then parse it
         final LoaderReturn loadReturn = makeLoaderReturn();
         loadReturn.setTileID(tileID);
         loadReturn.setFrame(frameID,frame);
 
-        if (data != null) {
+        // In this mode we need to adjust the loader return to contain everything at once
+        if (getModeNative() == Mode.SingleFrame.ordinal() && getNumFrames() > 1) {
+            data = null;    // Our data has been subsumed into allData
+            loadReturn.addTileData(allData);
+        } else if (data != null) {
             loadReturn.addTileData(data);
         }
 
@@ -526,9 +536,18 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     protected native boolean isFrameLoading(TileID tileID, int frameIndex, long frameID);
 
     protected native boolean mergeLoadedFrame(TileID tileID, int frameIndex, long frameID,
-                                              byte[] rawData, byte[][] allRawData);
+                                              byte[] rawData, ArrayList<byte[]> allRawData);
 
     public native int getZoomSlot();
+
+    public native int getNumFrames();
+
+    public Mode getMode() {
+        final int n = getModeNative();
+        return (n >= 0 && n < modes.length) ? modes[n] : Mode.Object;
+    }
+    protected native int getModeNative();
+    protected final Mode[] modes = new Mode[]{Mode.SingleFrame,Mode.MultiFrame,Mode.Object};
 
     public void finalize()
     {

@@ -132,6 +132,9 @@ public:
     jfieldID tileIDY;
     jfieldID tileIDLevel;
 
+    jobject arrayListRef;
+    jmethodID arrayListAdd;
+
 private:
     int numFrames;
     jobject frameLoaderObj;

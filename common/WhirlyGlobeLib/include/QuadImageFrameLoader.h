@@ -80,7 +80,7 @@ public:
     virtual void loadSkipped();
 
     // Store the raw data for use later
-    virtual void setLoadReturn(const RawDataRef &data);
+    virtual void setLoadReturn(RawDataRef data);
     
     // Store the data used by the interpreter for processing
     virtual void setLoadReturnRef(const QuadLoaderReturnRef &loadReturnRef);
@@ -223,10 +223,10 @@ public:
     virtual void frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
     
     // Keep track of the load return data (just for single frame + multiple source mode)
-    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,SimpleIdentity frameID,const RawDataRef &data);
+    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,SimpleIdentity frameID, RawDataRef data);
 
     // Keep track of the load return data (just for single frame + multiple source mode)
-    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,const QuadFrameInfoRef &frameInfo,const RawDataRef &data);
+    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,const QuadFrameInfoRef &frameInfo, RawDataRef data);
 
     // Return all the low level data (and reset it) if we're in that mode
     virtual void getLoadedData(std::vector<RawDataRef> &allData);
@@ -522,10 +522,17 @@ public:
     /// Called when the data for a frame comes back
     /// Returns true if that tile is ready for merging
     bool mergeLoadedFrame(const QuadTreeIdentifier &ident,
-                          const QuadFrameInfoRef &frameInfo,
-                          const RawDataRef &data,
+                          SimpleIdentity tileID,
+                          RawDataRef data,
                           std::vector<RawDataRef> &allData);
-    
+
+    /// Called when the data for a frame comes back
+    /// Returns true if that tile is ready for merging
+    bool mergeLoadedFrame(const QuadTreeIdentifier &ident,
+                          const QuadFrameInfoRef &frameInfo,
+                          RawDataRef data,
+                          std::vector<RawDataRef> &allData);
+
     /// Builds the render state *and* send it over to the main thread via the scene changes
     virtual void buildRenderState(ChangeSet &changes);
 

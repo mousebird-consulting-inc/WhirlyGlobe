@@ -90,9 +90,9 @@ void QIFFrameAsset::loadSkipped()
     state = Loaded;
 }
 
-void QIFFrameAsset::setLoadReturn(const RawDataRef &data)
+void QIFFrameAsset::setLoadReturn(RawDataRef data)
 {
-    loadReturn = data;
+    loadReturn = std::move(data);
     loadReturnSet = true;
 }
 
@@ -371,19 +371,19 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     return true;
 }
 
-void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,SimpleIdentity id,const RawDataRef &data)
+void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,SimpleIdentity id,RawDataRef data)
 {
     if (auto frame = findFrameFor(id))
     {
-        frame->setLoadReturn(data);
+        frame->setLoadReturn(std::move(data));
     }
 }
 
-void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,const QuadFrameInfoRef &frameInfo,const RawDataRef &data)
+void QIFTileAsset::mergeLoadedFrame(QuadImageFrameLoader *loader,const QuadFrameInfoRef &frameInfo, RawDataRef data)
 {
     if (frameInfo)
     {
-        mergeLoadedFrame(loader, frameInfo->getId(), data);
+        mergeLoadedFrame(loader, frameInfo->getId(), std::move(data));
     }
 }
 
@@ -1534,20 +1534,33 @@ void QuadImageFrameLoader::setLoadReturnRef(const QuadTreeIdentifier &ident,cons
         it->second->setLoadReturnRef(frame,loadReturnRef);
     }
 }
-    
-bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident, const QuadFrameInfoRef &frame, const RawDataRef &data,std::vector<RawDataRef> &allData)
+
+bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,
+                                            const QuadFrameInfoRef &frame,
+                                            RawDataRef data,
+                                            std::vector<RawDataRef> &allData)
+{
+    return mergeLoadedFrame(ident, frame->getId(), std::move(data), allData);
+}
+
+bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,
+                                            SimpleIdentity frameID,
+                                            RawDataRef data,
+                                            std::vector<RawDataRef> &allData)
 {
     changesSinceLastFlush = true;
 
     auto it = tiles.find(ident);
-    if (it == tiles.end()) {
+    if (it == tiles.end())
+    {
         return false;
     }
     const auto &tile = it->second;
 
     // Single frame mode with multiple sources is the only case where we keep the data
-    if (mode == SingleFrame && getNumFrames() > 1) {
-        tile->mergeLoadedFrame(this,frame,data);
+    if (mode == SingleFrame && getNumFrames() > 1)
+    {
+        tile->mergeLoadedFrame(this, frameID, std::move(data));
         
         // We need to put all the various data pieces into the load return for processing
         if (!tile->allFramesLoaded()) {

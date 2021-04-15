@@ -195,6 +195,12 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android 
         tileIDLevel = env->GetFieldID(tileIDClass,"level","I");
     }
 
+    if (jclass arrayListClass = env->FindClass("java/util/ArrayList"))
+    {
+        arrayListRef = env->NewGlobalRef(arrayListClass);
+        arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
+    }
+
     frames.resize(numFrames);
     // TODO: Shouldn't we be creating Android side objects for this?
     for (unsigned int ii=0;ii!=numFrames;ii++) {
@@ -225,6 +231,11 @@ void QuadImageFrameLoader_Android::teardown(PlatformThreadInfo *threadInfo)
     {
         env->DeleteGlobalRef(tileIDRef);
         tileIDRef = nullptr;
+    }
+    if (arrayListRef)
+    {
+        env->DeleteGlobalRef(arrayListRef);
+        arrayListRef = nullptr;
     }
 }
 

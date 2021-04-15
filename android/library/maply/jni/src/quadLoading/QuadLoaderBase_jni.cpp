@@ -437,11 +437,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration(JNI
     return 0;
 }
 
-/*
- * Class:     com_mousebird_maply_QuadLoaderBase
- * Method:    getZoomSlot
- * Signature: ()I
- */
 extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getZoomSlot(JNIEnv *env, jobject obj)
 {
@@ -458,10 +453,29 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getZoomSlot(JNIEn
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getGeneration()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getZoomSlot()");
     }
 
     return -1;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getNumFrames(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        const auto ptr = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
+        if (const auto inst = ptr ? *ptr : nullptr)
+        {
+            return inst->getNumFrames();
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getNumFrames()");
+    }
+
+    return 0;
 }
 
 extern "C"
@@ -515,6 +529,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
 }
 
 extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getModeNative(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj);
+        if (const auto loader = loaderPtr ? *loaderPtr : nullptr)
+        {
+            return loader->getMode();
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getModeNative()");
+    }
+    return -1;
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoading
         (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID)
 {
@@ -536,7 +568,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoadin
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFrame
-        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID, jbyteArray rawData, jobjectArray rawDataArray)
+        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID, jbyteArray rawData, jobject rawDataArray)
 {
     try
     {
@@ -544,6 +576,40 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFr
         if (const auto loader = loaderPtr ? *loaderPtr : nullptr)
         {
             const auto tileID = loader->getTileID(env, identObj);
+
+            const int rawDataSize = env->GetArrayLength(rawData);
+            jboolean isCopy = false;
+            if (const auto rawBytes = (jbyte*)env->GetPrimitiveArrayCritical(rawData, &isCopy))
+            {
+                try
+                {
+                    auto dataWrapper = std::make_shared<RawDataWrapper>(rawBytes, rawDataSize, /*free=*/false);
+                    std::vector<RawDataRef> allData;
+                    const auto res = loader->mergeLoadedFrame(tileID, frameID, std::move(dataWrapper), allData);
+                    env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
+
+                    for (const auto &data : allData)
+                    {
+                        if (const auto newArray = env->NewByteArray((int)data->getLen()))
+                        {
+                            env->SetByteArrayRegion(newArray, 0, (int)data->getLen(), (jbyte*)data->getRawData());
+                            env->CallBooleanMethod(rawDataArray, loader->arrayListAdd, newArray);
+                            env->DeleteLocalRef(newArray);
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
+                    return res;
+                }
+                catch (...)
+                {
+                    // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
+                    env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
+                    throw;
+                }
+            }
         }
     }
     catch (...)

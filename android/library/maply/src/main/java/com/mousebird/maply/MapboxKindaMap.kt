@@ -522,7 +522,7 @@ open class MapboxKindaMap(
             stop()
         }
 
-        loader = QuadImageLoader(sampleParams, tileInfos.toTypedArray(), control).apply {
+        loader = QuadImageLoader(sampleParams, tileInfos.toTypedArray(), control, QuadLoaderBase.Mode.SingleFrame).apply {
             setBaseDrawPriority(styleSettings.baseDrawPriority)
             setDrawPriorityPerLevel(styleSettings.drawPriorityPerLevel)
             setLoaderInterpreter(mapboxInterp)
