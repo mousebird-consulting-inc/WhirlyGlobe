@@ -107,6 +107,7 @@ void BasicDrawableBuilderGLES::setupTweaker(const DrawableTweakerRef &inTweaker)
 {
     if (auto tweaker = std::dynamic_pointer_cast<BasicDrawableTweaker>(inTweaker))
     {
+        tweaker->color = basicDraw->color;
         tweaker->colorExp = colorExp;
         tweaker->opacityExp = opacityExp;
     }

@@ -317,6 +317,7 @@ void BasicDrawableBuilder::setColor(RGBAColor inColor)
     {
         basicDraw->vertexAttributes[basicDraw->colorEntry]->setDefaultColor(color);
     }
+    basicDraw->color = color;
 }
 
 void BasicDrawableBuilder::setColor(const unsigned char color[])
