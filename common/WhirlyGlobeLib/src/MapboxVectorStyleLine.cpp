@@ -123,7 +123,8 @@ void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          const std::vector<VectorObjectRef> &inVecObjs,
                                          const VectorTileDataRef &tileInfo,
-                                         const Dictionary *desc)
+                                         const Dictionary *desc,
+                                         const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if (!visible && (representation.empty() || repUUIDField.empty()))
@@ -236,6 +237,10 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         {
             continue;
         }
+        if (cancelFn(inst))
+        {
+            return;
+        }
 
         const auto attrs = vecObj->getAttributes();
         const auto uuid = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
@@ -250,6 +255,11 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 
     for (const auto &kvp : shapesByUUID)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
+
         const auto &uuid = kvp.first;
         const auto &shapes = kvp.second;
 

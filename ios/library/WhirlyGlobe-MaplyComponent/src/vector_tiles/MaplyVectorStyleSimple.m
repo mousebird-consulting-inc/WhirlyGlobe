@@ -1,10 +1,20 @@
-//
-//  MaplyVectorStyleSimple.m
-//  WhirlyGlobe-MaplyComponent
-//
-//  Created by Steve Gifford on 3/15/16.
-//
-//
+/*  MaplyVectorStyleSimple.m
+ *  WhirlyGlobe-MaplyComponent
+ *
+ *  Created by Steve Gifford on 3/15/16.
+ *  Copyright 2011-2021 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 
 #import "vector_styles/MaplyVectorStyleSimple.h"
 #import "visual_objects/MaplyScreenLabel.h"
@@ -130,6 +140,15 @@
 {
 }
 
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)desc
+            cancelFn:(bool(^__nullable)(void))cancelFn
+{
+}
+
 @end
 
 @implementation MaplyVectorStyleSimplePolygon
@@ -149,6 +168,16 @@
              forTile:(MaplyVectorTileData *)tileInfo
                viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
                 desc:(NSDictionary * _Nullable)extraDesc
+{
+    [self buildObjects:vecObjs forTile:tileInfo viewC:viewC desc:extraDesc cancelFn:nil];
+}
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
+            cancelFn:(bool(^__nullable)(void))cancelFn
 {
     NSMutableArray *tessObjs = [NSMutableArray array];
     for (MaplyVectorObject *vecObj in vecObjs)
@@ -190,6 +219,16 @@
              forTile:(MaplyVectorTileData *)tileInfo
                viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
                 desc:(NSDictionary * _Nullable)extraDesc
+{
+    [self buildObjects:vecObjs forTile:tileInfo viewC:viewC desc:extraDesc cancelFn:nil];
+}
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
+            cancelFn:(bool(^__nullable)(void))cancelFn
 {
     NSMutableArray *labels = [NSMutableArray array];
     
@@ -245,6 +284,16 @@
              forTile:(MaplyVectorTileData *)tileInfo
                viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
                 desc:(NSDictionary * _Nullable)extraDesc
+{
+    [self buildObjects:vecObjs forTile:tileInfo viewC:viewC desc:extraDesc cancelFn:nil];
+}
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileInfo
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
+            cancelFn:(bool(^__nullable)(void))cancelFn
 {
     NSDictionary *desc = @{
         kMaplyColor: _color,

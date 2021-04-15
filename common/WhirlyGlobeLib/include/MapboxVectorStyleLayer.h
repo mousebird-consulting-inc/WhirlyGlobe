@@ -68,7 +68,8 @@ public:
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
-                              const Dictionary *desc) override = 0;
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) override = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);

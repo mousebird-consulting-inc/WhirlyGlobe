@@ -1,9 +1,8 @@
-/*
- *  MaplyVectorPolygonStyle.mm
+/*  MaplyVectorPolygonStyle.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "control/WhirlyGlobeViewController.h"
@@ -100,9 +98,19 @@
 }
 
 - (void)buildObjects:(NSArray *)vecObjs
-             forTile:(MaplyVectorTileData *)tileData
+             forTile:(MaplyVectorTileData *)tileInfo
                viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
                 desc:(NSDictionary * _Nullable)extraDesc
+{
+    [self buildObjects:vecObjs forTile:tileInfo viewC:viewC desc:extraDesc cancelFn:nil];
+}
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)extraDesc
+            cancelFn:(bool(^__nullable)(void))cancelFn
 {
     MaplyComponentObject *baseObj = nil;
     NSMutableArray *compObjs = [NSMutableArray array];

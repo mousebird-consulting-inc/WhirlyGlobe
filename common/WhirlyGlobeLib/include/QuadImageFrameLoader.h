@@ -32,8 +32,8 @@ class QuadImageFrameLoader;
 class QIFBatchOps
 {
 public:
-    QIFBatchOps();
-    virtual ~QIFBatchOps();
+    QIFBatchOps() = default;
+    virtual ~QIFBatchOps() = default;
 
     // Tiles we deleted for callback later
     std::vector<QuadTreeIdentifier> deletes;
@@ -46,13 +46,13 @@ public:
     typedef enum {Empty,Loaded,Loading} State;
     
     QIFFrameAsset(QuadFrameInfoRef frameInfo);
-    virtual ~QIFFrameAsset();
+    virtual ~QIFFrameAsset() = default;
     
     // What the frame is doing
     State getState();
     
     // Load priority
-    int getPriority();
+    int getPriority() const;
     
     // Texture ID (if loaded)
     const std::vector<SimpleIdentity> &getTexIDs();
@@ -124,13 +124,13 @@ class QIFTileAsset
 public:
     QIFTileAsset(const QuadTreeNew::ImportantNode &ident);
     void setupFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int numFrames);
-    virtual ~QIFTileAsset();
+    virtual ~QIFTileAsset() = default;
     
     typedef enum {Waiting,Active} State;
     
     State getState();
     
-    bool getShouldEnable();
+    bool getShouldEnable() const;
     void setShouldEnable(bool newVal);
     
     QuadTreeNew::ImportantNode getIdent();
@@ -293,7 +293,7 @@ public:
     // Number of tiles at the lowest level loaded for each frame
     std::vector<bool> topTilesLoaded;
     
-    bool hasUpdate(const std::vector<double> &curFrames);
+    bool hasUpdate(const std::vector<double> &curFrames) const;
     
     std::vector<double> lastCurFrames;
     TimeInterval lastRenderTime;
@@ -318,20 +318,20 @@ public:
     typedef enum {SingleFrame,MultiFrame,Object} Mode;
     
     QuadImageFrameLoader(const SamplingParams &params,Mode);
-    virtual ~QuadImageFrameLoader();
+    virtual ~QuadImageFrameLoader() = default;
     
     /// Add a focus
     void addFocus();
     
     /// Number of focus points (usually 1)
-    int getNumFocus();
+    int getNumFocus() const;
 
     /// Loading mode we're currently supporting
     Mode getMode();
     
     /// If set, we'll see way too much output
     void setDebugMode(bool newMode);
-    bool getDebugMode();
+    bool getDebugMode() const;
     
     typedef enum {Broad,Narrow} LoadMode;
     
@@ -340,7 +340,7 @@ public:
     LoadMode getLoadMode();
     
     /// True if there's loading going on, false if it's settled
-    bool getLoadingStatus();
+    bool getLoadingStatus() const;
     
     // Calculate the load priority for a given tile, respecting the rules
     int calcLoadPriority(const QuadTreeNew::ImportantNode &ident,int frame);
@@ -402,7 +402,7 @@ public:
     void setFlipY(bool newFlip);
     
     // Need to know how we're loading the tiles to calculate the render state
-    bool getFlipY();
+    bool getFlipY() const;
     
     /// Number of frames we're representing
     virtual int getNumFrames();
@@ -414,7 +414,7 @@ public:
     virtual void setFrames(const std::vector<QuadFrameInfoRef> &newFrames);
     
     /// Current generation of the loader (used for reload lagging)
-    int getGeneration();
+    int getGeneration() const;
     
     /// Reload the given frame (or everything)
     virtual void reload(PlatformThreadInfo *threadInfo,int frame, ChangeSet &changes);
@@ -526,7 +526,7 @@ public:
 
 protected:
     // Return a set of the active frames
-    virtual const std::set<QuadFrameInfoRef> getActiveFrames();
+    std::set<QuadFrameInfoRef> getActiveFrames();
 
     void updateLoadingStatus();
 

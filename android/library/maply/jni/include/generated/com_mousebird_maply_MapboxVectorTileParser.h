@@ -15,12 +15,13 @@ extern "C" {
 #define com_mousebird_maply_MapboxVectorTileParser_GeomTypeLineString 2L
 #undef com_mousebird_maply_MapboxVectorTileParser_GeomTypePolygon
 #define com_mousebird_maply_MapboxVectorTileParser_GeomTypePolygon 3L
+
 /*
  * Class:     com_mousebird_maply_MapboxVectorTileParser
- * Method:    parseDataNative
- * Signature: ([BLcom/mousebird/maply/VectorTileData;Ljava/util/concurrent/atomic/AtomicBoolean;)Z
+ * Method:    parseData
+ * Signature: ([BLcom/mousebird/maply/VectorTileData;Lcom/mousebird/maply/LoaderReturn;)Z
  */
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseDataNative
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorTileParser_parseData
   (JNIEnv *, jobject, jbyteArray, jobject, jobject);
 
 /*

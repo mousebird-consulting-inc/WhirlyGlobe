@@ -73,7 +73,6 @@ public:
     jmethodID calculateTextWidthMethod = nullptr;
     jmethodID makeCircleTextureMethod = nullptr;
     jmethodID makeLineTextureMethod = nullptr;
-    jmethodID atomicBoolGetMethod = nullptr;
 
     // Map fontName/size to Java-side labelInfo objects
     std::map<std::pair<std::string, float>, LabelInfoAndroidRef> labelInfos;

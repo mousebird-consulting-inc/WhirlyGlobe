@@ -70,10 +70,11 @@ SceneRenderer *SceneManager::getSceneRenderer() const
     return renderer;
 }
 
-Scene::Scene(CoordSystemDisplayAdapter *adapter)
-    : setupInfo(nullptr)
-    , currentTime(0.0)
-    , coordAdapter(adapter)
+Scene::Scene(CoordSystemDisplayAdapter *adapter) :
+    setupInfo(nullptr),
+    currentTime(0.0),
+    coordAdapter(adapter),
+    overlapMargin(0.0)
 {
     SetupDrawableStrings();
     
@@ -105,28 +106,44 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter)
     addManager(kWKGeometryManager, std::make_shared<GeometryManager>());
     // Components (groups of things)
     addManager(kWKComponentManager, MakeComponentManager());
-    
-    overlapMargin = 0.0;
+
+    std::fill(&zoomSlots[0], &zoomSlots[sizeof(zoomSlots)/sizeof(zoomSlots[0])], MAXFLOAT);
+
     baseTime = TimeGetCurrent();
-    
-    for (unsigned int ii=0;ii<MaplyMaxZoomSlots;ii++)
-        zoomSlots[ii] = MAXFLOAT;
 }
 
 Scene::~Scene()
 {
 //    wkLogLevel(Verbose,"Shutting down scene");
-    
+
+#if DEBUG
+    const std::unique_lock<std::mutex> locks[] = {
+            std::unique_lock<std::mutex>(coordAdapterLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(drawablesLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(textureLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(changeRequestLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(subTexLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(managerLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(programLock, std::try_to_lock),
+            std::unique_lock<std::mutex>(zoomSlotLock, std::try_to_lock),
+    };
+    const auto lockCount = sizeof(locks)/sizeof(locks[0]);
+    if (!std::all_of(&locks[0],&locks[lockCount],[](const auto &l){return l.owns_lock();}))
+    {
+        assert(!"Scene destroyed while locked");
+    }
+#endif
+
     textures.clear();
     
     managers.clear();
     
     auto theChangeRequests = changeRequests;
     changeRequests.clear();
-    for (unsigned int ii=0;ii<theChangeRequests.size();ii++)
+    for (auto & theChangeRequest : theChangeRequests)
     {
         // Note: Tear down change requests?
-        delete theChangeRequests[ii];
+        delete theChangeRequest;
     }
     
     activeModels.clear();
@@ -252,7 +269,7 @@ void Scene::removeActiveModel(const ActiveModelRef &activeModel)
 {
     int which = 0;
 
-    for (auto theModel : activeModels) {
+    for (const auto& theModel : activeModels) {
         if (theModel == activeModel) {
             break;
         }
@@ -272,12 +289,13 @@ TextureBaseRef Scene::getTexture(SimpleIdentity texId) const
     return (it != textures.end()) ? it->second : TextureBaseRef();
 }
 
-const std::vector<Drawable *> Scene::getDrawables() const
+std::vector<Drawable *> Scene::getDrawables() const
 {
     std::vector<Drawable *> retDraws;
+    retDraws.reserve(drawables.size());
     
     std::lock_guard<std::mutex> guardLock(drawablesLock);
-    for (auto it : drawables) {
+    for (const auto& it : drawables) {
         retDraws.push_back(it.second.get());
     }
     
@@ -293,8 +311,8 @@ void Scene::markProgramsUnchanged()
 {
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    for (auto it: programs) {
-        auto prog = it.second;
+    for (const auto& it: programs) {
+        auto &prog = it.second;
         prog->changed = false;
     }
 }
@@ -309,19 +327,19 @@ TimeInterval Scene::getBaseTime() const
     return baseTime;
 }
     
-int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
+int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,__unused TimeInterval now)
 {
     ChangeSet preRequests;
 
     {
         std::lock_guard<std::mutex> guardLock(changeRequestLock);
         // Just doing the ones that require a pre-process
-        for (unsigned int ii=0;ii<changeRequests.size();ii++)
+        for (auto &changeRequest : changeRequests)
         {
-            ChangeRequest *req = changeRequests[ii];
+            ChangeRequest *req = changeRequest;
             if (req && req->needPreExecute()) {
                 preRequests.push_back(req);
-                changeRequests[ii] = NULL;
+                changeRequest = nullptr;
             }
         }
     }
@@ -355,9 +373,8 @@ int Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInte
         changeRequests.push_back(req);
     }
     
-    for (unsigned int ii=0;ii<changeRequests.size();ii++)
+    for (auto req : changeRequests)
     {
-        ChangeRequest *req = changeRequests[ii];
         if (req) {
             req->execute(this,renderer,view);
             delete req;
@@ -372,26 +389,24 @@ int Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInte
 bool Scene::hasChanges(TimeInterval now) const
 {
     bool changes = false;
-    if (changeRequestLock.try_lock())
+    std::unique_lock<std::mutex> lock(changeRequestLock,std::try_to_lock);
+    if (lock.owns_lock())
     {
         changes = !changeRequests.empty();
         
-        if (!changes)
-            if (timedChangeRequests.size() > 0)
-                changes = now >= (*timedChangeRequests.begin())->when;
+        if (!changes && !timedChangeRequests.empty())
+            changes = now >= (*timedChangeRequests.begin())->when;
 
-        changeRequestLock.unlock();
+        lock.unlock();
     }
     
     // How about the active models?
-    bool activeModelsUpdates = false;
-    for (auto model : activeModels)
+    for (const auto& model : activeModels)
         if (model->hasUpdate()) {
-            //activeModelsUpdates = true;
             return true;
         }
     
-    return changes || activeModelsUpdates;
+    return changes;
 }
 
 // Add a single sub texture map
@@ -412,7 +427,7 @@ void Scene::removeSubTexture(SimpleIdentity subTexID)
 {
     std::lock_guard<std::mutex> guardLock(subTexLock);
     SubTexture dumbTex(subTexID);
-    SubTextureSet::iterator it = subTextureMap.find(dumbTex);
+    auto it = subTextureMap.find(dumbTex);
     if (it != subTextureMap.end())
         subTextureMap.erase(it);
 }
@@ -454,7 +469,7 @@ void Scene::addDrawable(DrawableRef draw)
 {
     std::lock_guard<std::mutex> guardLock(drawablesLock);
 
-    drawables[draw->getId()] = draw;
+    drawables[draw->getId()] = std::move(draw);
 }
     
 void Scene::remDrawable(DrawableRef draw)
@@ -470,7 +485,7 @@ void Scene::addTexture(TextureBaseRef texRef)
 {
     std::lock_guard<std::mutex> guardLock(textureLock);
     
-    textures[texRef->getId()] = texRef;
+    textures[texRef->getId()] = std::move(texRef);
 }
 
 bool Scene::removeTexture(SimpleIdentity texID)
@@ -503,7 +518,7 @@ Program *Scene::getProgram(SimpleIdentity progId)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    Program *prog = NULL;
+    Program *prog = nullptr;
     auto it = programs.find(progId);
     if (it != programs.end())
         prog = it->second.get();
@@ -515,7 +530,7 @@ Program *Scene::findProgramByName(const std::string &name)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
     
-    Program *prog = NULL;
+    Program *prog = nullptr;
     for (auto it = programs.rbegin(); it != programs.rend(); ++it) {
         if (it->second->getName() == name)
         {
@@ -536,7 +551,7 @@ void Scene::addProgram(ProgramRef prog)
 
     std::lock_guard<std::mutex> guardLock(programLock);
 
-    programs[prog->getId()] = prog;
+    programs[prog->getId()] = std::move(prog);
 }
 
 void Scene::removeProgram(SimpleIdentity progId,const RenderTeardownInfoRef & /*teardown*/)
@@ -545,7 +560,7 @@ void Scene::removeProgram(SimpleIdentity progId,const RenderTeardownInfoRef & /*
 
     auto it = programs.find(progId);
     if (it != programs.end()) {
-        it->second->teardownForRenderer(setupInfo,this,NULL);
+        it->second->teardownForRenderer(setupInfo,this,nullptr);
         programs.erase(it);
     }
 }
@@ -585,7 +600,7 @@ float Scene::getZoomSlotValue(int zoomSlot) const
 {
     std::lock_guard<std::mutex> guardLock(zoomSlotLock);
 
-    return (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots) ? 0.0 : zoomSlots[zoomSlot];
+    return (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots) ? 0.0f : zoomSlots[zoomSlot];
 }
 
 void Scene::copyZoomSlots(float *dest)
@@ -709,7 +724,7 @@ void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
     scene->removeProgram(programId,renderer->teardownInfo);
 }
     
-RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(newFunc)
+RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(std::move(newFunc))
 {
 }
 

@@ -77,7 +77,8 @@ void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
                                          const std::vector<VectorObjectRef> &vecObjs,
                                          const VectorTileDataRef &tileInfo,
-                                         const Dictionary *desc)
+                                         const Dictionary *desc,
+                                         const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if (!visible /*&& representation.empty()*/)
@@ -97,7 +98,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
 
     // Gather all the areal features for fill and/or outline
     std::vector<VectorShapeRef> shapes;
-    for (auto vecObj : vecObjs)
+    for (const auto& vecObj : vecObjs)
     {
         if (vecObj->getVectorType() == VectorArealType)
         {
@@ -112,6 +113,10 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         std::vector<VectorShapeRef> tessShapes;
         for (const auto &it : shapes)
         {
+            if (cancelFn(inst))
+            {
+                return;
+            }
             if (const auto ar = dynamic_cast<VectorAreal*>(it.get()))
             {
                 const auto trisRef = VectorTriangles::createTriangles();

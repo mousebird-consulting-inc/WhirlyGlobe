@@ -217,6 +217,9 @@ using namespace WhirlyKit;
     const auto __strong vc = loader.viewC;
     NSArray<id> *tileData = [loadReturn getTileData];
     for (unsigned int ii=0;ii<[tileData count];ii++) {
+        if (loadReturn.isCancelled) {
+            return;
+        }
         NSData *inData = [tileData objectAtIndex:ii];
         if (![inData isKindOfClass:[NSData class]])
             continue;

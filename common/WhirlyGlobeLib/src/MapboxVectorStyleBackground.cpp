@@ -66,7 +66,8 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
 void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                const std::vector<VectorObjectRef> &vecObjs,
                                                const VectorTileDataRef &tileInfo,
-                                               const Dictionary *desc)
+                                               const Dictionary *desc,
+                                               const CancelFunction &)
 {
     const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
     

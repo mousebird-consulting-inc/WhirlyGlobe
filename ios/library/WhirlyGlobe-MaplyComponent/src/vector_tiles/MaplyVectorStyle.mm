@@ -1,5 +1,4 @@
-/*
- *  MaplyVectorStyle.mm
+/*  MaplyVectorStyle.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "vector_tiles/MapboxVectorTiles.h"
@@ -295,12 +293,22 @@ using namespace WhirlyKit;
                viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC
                 desc:(NSDictionary *_Nullable)desc
 {
+    [self buildObjects:vecObjs forTile:tileData viewC:viewC desc:desc cancelFn:nil];
+}
+
+- (void)buildObjects:(NSArray *_Nonnull)vecObjs
+             forTile:(MaplyVectorTileData *_Nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC
+                desc:(NSDictionary *_Nullable)desc
+            cancelFn:(bool(^)(void))cancelFn
+{
     std::vector<VectorObjectRef> localVecObjs;
     for (MaplyVectorObject *vecObj in vecObjs)
         localVecObjs.push_back(vecObj->vObj);
 
     auto lDesc = desc ? iosMutableDictionary(desc) : iosMutableDictionary();
-    vectorStyle->buildObjects(nullptr, localVecObjs, tileData->data, &lDesc);
+    vectorStyle->buildObjects(nullptr, localVecObjs, tileData->data, &lDesc,
+                              [=](auto){return cancelFn && cancelFn();});
 }
 
 @end
@@ -709,20 +717,26 @@ bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)
 void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
                                       const std::vector<VectorObjectRef> &vecObjs,
                                       const VectorTileDataRef &tileInfo,
-                                      const Dictionary *desc)
+                                      const Dictionary *desc,
+                                      const CancelFunction &cancelFn)
 {
     if (auto tileData = [[MaplyVectorTileData alloc] init])
     {
         tileData->data = tileInfo;
 
         NSMutableArray *vecArray = [NSMutableArray array];
-        for (VectorObjectRef vecObj: vecObjs)
+        for (auto &vecObj: vecObjs)
         {
             if (auto mVecObj = [[MaplyVectorObject alloc] init])
             {
                 mVecObj->vObj = vecObj;
                 [vecArray addObject:mVecObj];
             }
+        }
+
+        if (cancelFn(inst))
+        {
+            return;
         }
 
         NSDictionary* nsDesc = nil;
@@ -734,7 +748,12 @@ void VectorStyleWrapper::buildObjects(PlatformThreadInfo *inst,
         {
             nsDesc = [NSMutableDictionary fromDictionaryCPointer:desc];
         }
-        [style buildObjects:vecArray forTile:tileData viewC:viewC desc:nsDesc];
+
+        [style buildObjects:vecArray
+                    forTile:tileData
+                      viewC:viewC
+                       desc:nsDesc
+                   cancelFn:^{return cancelFn(nullptr);}];
     }
 }
 

@@ -14,7 +14,6 @@ import okhttp3.Response
 import java.io.*
 import java.lang.ref.WeakReference
 import java.net.URL
-import java.nio.file.Paths
 import kotlin.collections.ArrayList
 
 /**
@@ -206,8 +205,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(resolvedURL)
                 if (cacheUrl.toString().startsWith("file:")) {
-                    val file = Paths.get(cacheUrl.toURI()).toFile()
-                    FileInputStream(file).use {
+                    FileInputStream(cacheUrl.file).use {
                         val json = it.bufferedReader().readText()
                         if (json.isNotEmpty()) {
                             styleSheetJSON = json
@@ -276,8 +274,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(url)
                 if (cacheUrl.toString().startsWith("file:")) {
-                    val file = Paths.get(cacheUrl.toURI()).toFile()
-                    FileInputStream(file).use {
+                    FileInputStream(cacheUrl.file).use {
                         val json = it.bufferedReader().readText()
                         if (json.isNotEmpty()) {
                             processStylesheetJson(source, json)
