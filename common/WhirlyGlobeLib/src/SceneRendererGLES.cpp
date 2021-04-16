@@ -115,7 +115,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
     // We need a texture to draw to in this case
     if (framebufferWidth > 0)
     {
-        TextureGLESRef framebufferTexGL = TextureGLESRef(new TextureGLES("Framebuffer Texture"));
+        auto framebufferTexGL = std::make_shared<TextureGLES>("Framebuffer Texture");
         framebufferTexGL->setWidth(framebufferWidth);
         framebufferTexGL->setHeight(framebufferHeight);
         framebufferTexGL->setIsEmptyTexture(true);
