@@ -56,6 +56,7 @@ double ScreenImportance(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSi
 @property (nonatomic,assign) std::vector<std::vector<WhirlyKit::Point3d> > &polys;
 /// Normals for the polygons
 @property (nonatomic,assign) std::vector<Eigen::Vector3d> &normals;
+@property (nonatomic,assign) WhirlyKit::Point3d bbox0,bbox1;
 
 /// Create a display solid, including height.
 + (WhirlyKitDisplaySolid *)displaySolidWithNodeIdent:(WhirlyKit::Quadtree::Identifier &)nodeIdent mbr:(WhirlyKit::Mbr)nodeMbr minZ:(float)minZ maxZ:(float)maxZ srcSystem:(WhirlyKit::CoordSystem *)srcSystem adapter:(WhirlyKit::CoordSystemDisplayAdapter *)coordAdapter;

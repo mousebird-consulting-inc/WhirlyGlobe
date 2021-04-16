@@ -586,7 +586,11 @@ typedef std::set<QuadPagingLoadedTile *,QuadPagingLoadedTileSorter> QuadPagingLo
                     // Nudge it by the screen importance so the bigger ones are loaded first
                     double screenImport = ScreenImportance(viewState, frameSize, viewState.eyeVec, 1, [coordSys getCoordSystem], scene->getCoordAdapter(), testMbr, ident, attrs);
                     
-                    import += screenImport / 1e10;
+                    // Use the screen importance as a secondary check.  We're not doing backface checking in TileIsOnScreen
+                    if (screenImport == 0.0)
+                        import = 0.0;
+                    else
+                        import += screenImport / 1e10;
                 }
             }
         }

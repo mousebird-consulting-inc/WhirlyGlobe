@@ -93,6 +93,8 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
     }
     
     // Build polygons out of those samples (in display space)
+    bool boundingBoxValid = false;
+    Point3d bbox0,bbox1;
     dispSolid.polys.reserve(numSamplesX*numSamplesY);
     for (int ix=0;ix<numSamplesX-1;ix++) {
         for (int iy=0;iy<numSamplesY-1;iy++) {
@@ -105,6 +107,21 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
             poly.push_back(dispPoints[iy*numSamplesX+(ix+1)]);
             dispSolid.polys.push_back(poly);
             
+            // Update bounding box
+            for (auto pt: poly) {
+                if (!boundingBoxValid) {
+                    bbox0 = pt;  bbox1 = pt;
+                    boundingBoxValid = true;
+                } else {
+                    bbox0.x() = std::min(pt.x(),bbox0.x());
+                    bbox0.y() = std::min(pt.y(),bbox0.y());
+                    bbox0.z() = std::min(pt.z(),bbox0.z());
+                    bbox1.x() = std::max(pt.x(),bbox1.x());
+                    bbox1.y() = std::max(pt.y(),bbox1.y());
+                    bbox1.z() = std::max(pt.z(),bbox1.z());
+                }
+            }
+
             // And a normal
             if (coordAdapter->isFlat())
                 dispSolid.normals.push_back(Vector3d(0,0,1));
@@ -118,6 +135,8 @@ int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,Co
             }
         }
     }
+    dispSolid.bbox0 = bbox0;
+    dispSolid.bbox1 = bbox1;
     
     return dispSolid;
 }
@@ -164,12 +183,10 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         }
         
         double screenArea = CalcLoopArea(screenPts);
-        if (std::isnan(screenArea))
-            screenArea = 0.0;
         // The polygon came out backwards, so toss it
-        if (screenArea <= 0.0)
+        if (!std::isfinite(screenArea) || screenArea <= 0.0)
             continue;
-        
+
         // Now project the screen points back into model space
         std::vector<Point3d> backPts;
         backPts.reserve(screenPts.size());
@@ -198,8 +215,8 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
 
 - (bool)isInside:(WhirlyKit::Point3d)pt
 {
-    // Note: Fix this.  This will do weird things when we're very close.
-    return false;
+    return _bbox0.x() <= pt.x() && _bbox0.y() <= pt.y() && _bbox0.z() <= pt.z() &&
+        pt.x() < _bbox1.x() && pt.y() < _bbox1.y() && pt.z() < _bbox1.z();
 }
 
 - (double)importanceForViewState:(WhirlyKitViewState *)viewState frameSize:(WhirlyKit::Point2f)frameSize;
@@ -244,8 +261,8 @@ double PolyImportance(const std::vector<Point3d> &poly,const Point3d &norm,Whirl
         for (unsigned int ii=0;ii<_polys.size();ii++)
         {
             const std::vector<Point3d> &poly = _polys[ii];
-            double origArea = PolygonArea(poly,_normals[ii]);
-            origArea = std::abs(origArea);
+//            double origArea = PolygonArea(poly,_normals[ii]);
+//            origArea = std::abs(origArea);
             
             std::vector<Eigen::Vector4d> pts;
             pts.reserve(poly.size());
