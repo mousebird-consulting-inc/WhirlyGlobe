@@ -258,14 +258,6 @@ void ViewPlacementManager::dumpStats()
 
 namespace WhirlyKit
 {
-ViewPlacementActiveModel::ViewPlacementActiveModel()
-{
-}
-
-ViewPlacementManager *ViewPlacementActiveModel::getManager()
-{
-    return &manager;
-}
 
 void ViewPlacementActiveModel::startWithScene(Scene *scene) {
 }
@@ -280,7 +272,7 @@ void ViewPlacementActiveModel::updateForFrame(RendererFrameInfo *frameInfo) {
 }
 
 /// Time to clean up your toys
-void ViewPlacementActiveModel::teardown() {
+void ViewPlacementActiveModel::teardown(PlatformThreadInfo *) {
 }
 
 }

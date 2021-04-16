@@ -32,8 +32,8 @@ namespace WhirlyKit {
 class ActiveModel : public Identifiable
 {
 public:
-    ActiveModel() { };
-    virtual ~ActiveModel() { };
+    ActiveModel() = default;
+    virtual ~ActiveModel() = default;
     
     /// Create the stuff you need to manipulate in the scene
     virtual void startWithScene(Scene *scene) { }

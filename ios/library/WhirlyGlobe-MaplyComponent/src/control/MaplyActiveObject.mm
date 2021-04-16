@@ -1,9 +1,8 @@
-/*
- *  MaplyActiveObject.mm
+/*  MaplyActiveObject.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/3/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyActiveObject_private.h"
@@ -26,7 +24,7 @@ namespace WhirlyKit {
 class ActiveModelInterface : public ActiveModel {
 public:
     ActiveModelInterface(MaplyActiveObject *activeObject)
-    : activeObject(activeObject)
+        : activeObject(activeObject)
     {
     }
     
@@ -34,11 +32,11 @@ public:
         return [activeObject hasUpdate];
     }
     
-    virtual void updateForFrame(RendererFrameInfo *frameInfo) {
+    virtual void updateForFrame(RendererFrameInfo *frameInfo) override {
         [activeObject updateForFrame:frameInfo];
     }
     
-    virtual void teardown() {
+    virtual void teardown(PlatformThreadInfo *) override {
         [activeObject teardown];
     }
     
@@ -77,7 +75,7 @@ using namespace WhirlyKit;
 - (void)removeFromScene
 {
     if (activeInter)
-        scene->removeActiveModel(activeInter);
+        scene->removeActiveModel(nullptr, activeInter);
 }
 
 - (void)startWithScene:(WhirlyKit::Scene *)inScene
