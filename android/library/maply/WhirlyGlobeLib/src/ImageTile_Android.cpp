@@ -85,7 +85,7 @@ Texture *ImageTile_Android::buildTexture()
     if (tex)
         return tex;
 
-    if (type == MaplyImgTypeNone)
+    if (type == MaplyImgTypeNone || !rawData)
         return nullptr;
 
     int destWidth = targetWidth;

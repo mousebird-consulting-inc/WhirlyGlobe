@@ -392,7 +392,7 @@ open class MapboxKindaMap(
 
         // Image/vector hybrids draw the polygons into a background image
         if (imageVectorHybrid) {
-            startHybridLoader(params, tileInfos, localFetchers)
+            startHybridLoader(params, tileInfos)
         } else {
             startSimpleLoader(params, tileInfos, localFetchers)
         }
