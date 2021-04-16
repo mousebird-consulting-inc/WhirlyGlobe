@@ -353,10 +353,16 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     
     // In single frame mode with multiple sources, we have to mark the rest of the frames done
     if (loader->getMode() == QuadImageFrameLoader::SingleFrame && frames.size() > 1) {
-        std::vector<Texture *> emptyTex;
-        for (const auto& f: frames) {
-            if (f->getState() == QIFFrameAsset::Loading) {
-                f->loadSuccess(threadInfo, loader, emptyTex);
+        for (size_t i = 0; i < frames.size(); ++i) {
+            const auto &iFrame = frames[i];
+            // updateRenderState only looks at frame index zero for texture IDs, so
+            // make sure that any textures we came up with get added to that frame.
+            if (i == 0 && !texs.empty() &&
+                frame->getFrameInfo() && frame->getFrameInfo()->frameIndex > 0) {
+                iFrame->loadSuccess(threadInfo, loader, texs);
+            } else if (iFrame->getState() == QIFFrameAsset::Loading) {
+                std::vector<Texture*> noTex;
+                iFrame->loadSuccess(threadInfo, loader, noTex);
             }
         }
     }
@@ -968,8 +974,6 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
 {
     changesSinceLastFlush = true;
 
-    bool failed = false;
-    
     if (debugMode)
         wkLogLevel(Debug, "MaplyQuadImageLoader: Merging data from tile %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
 
@@ -978,22 +982,19 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     const auto tile = (it != tiles.end()) ? it->second : nullptr;
 
     // Tile disappeared in the mean time, so drop it
-    if (!tile || loadReturn->hasError || loadReturn->cancel)
-    {
-        if (debugMode) {
-            wkLogLevel(Debug, "MaplyQuadImageLoader: "
-                       "Failed to load tile before it was erased %d: (%d,%d) (%stile,%serror,%scanceled)",
-                       loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
-                       tile ? "" : "no ", loadReturn->hasError ? "" : "no ",loadReturn->cancel ? "" : "not ");
-        }
-        failed = true;
+    bool failed = (!tile || loadReturn->hasError || loadReturn->cancel);
+    if (failed && debugMode) {
+        wkLogLevel(Debug, "MaplyQuadImageLoader: "
+                   "Failed to load tile before it was erased %d: (%d,%d) (%stile,%serror,%scanceled)",
+                   loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
+                   tile ? "" : "no ", loadReturn->hasError ? "" : "no ",loadReturn->cancel ? "" : "not ");
     }
     
     std::vector<Texture *> texs;
     if (!failed) {
         // Build the texture(s)
         for (const auto& image : loadReturn->images) {
-            LoadedTileNewRef loadedTile = builder->getLoadedTile(ident);
+            //const auto loadedTile = builder->getLoadedTile(ident);
             if (image) {
                 Texture *tex = image->buildTexture();
                 image->clearTexture();
@@ -1003,9 +1004,7 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
                 }
             }
         }
-    }
 
-    if (!failed) {
         // Failure depends on what mode we're in
         if (mode == Object) {
             // In object mode, we might not get anything, but it's not a failure
