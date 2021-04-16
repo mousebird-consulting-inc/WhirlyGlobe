@@ -386,18 +386,23 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             return;
         }
 
-        ArrayList<byte[]> allData = new ArrayList<>();
+        ArrayList<byte[]> allData = null;
         final boolean merge = getModeNative() == Mode.SingleFrame.ordinal() && getNumFrames() > 1;
-        if (merge && !mergeLoadedFrame(tileID, frameID, data, allData))
-        {
-            // Another fetch will handle it
-            return;
+        if (merge) {
+            allData = new ArrayList<>();
+            if (!mergeLoadedFrame(tileID, frameID, data, allData)) {
+                // Another fetch will handle it
+                return;
+            }
         }
 
         // Build a loader return object, fill in the data and then parse it
         final LoaderReturn loadReturn = makeLoaderReturn();
         loadReturn.setTileID(tileID);
         loadReturn.setFrame(frameID,frame);
+
+        // Attach the loader return to the frame, enabling cancellation, etc.
+        setLoadReturn(loadReturn);
 
         // In this mode we need to adjust the loader return to contain everything at once
         if (merge) {
@@ -406,8 +411,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         } else if (data != null) {
             loadReturn.addTileData(data);
         }
-
-        setLoadReturn(loadReturn);
 
         // We're on an AsyncTask in the background here, so do the loading
         if (loadInterp != null && layer != null && layer.layerThread.startOfWork()) {

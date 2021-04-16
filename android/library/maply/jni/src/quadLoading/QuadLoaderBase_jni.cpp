@@ -575,13 +575,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFr
     {
         const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj);
         const auto loader = loaderPtr ? *loaderPtr : nullptr;
-        if (!loader)
+        if (!loader || !rawData)
         {
             return false;
         }
 
-        const auto tileID = loader->getTileID(env, identObj);
-
+        // Get the raw bytes, not making a copy, if possible, since we're going to
+        // copy it anyway.  Note that the critical section must be exited as soon as
+        // possible and no JNI calls calls or blocking may be executed while it is open.
         const int rawDataSize = env->GetArrayLength(rawData);
         jboolean isCopy = false;
         if (auto rawBytes = (jbyte*)env->GetPrimitiveArrayCritical(rawData, &isCopy))
@@ -592,12 +593,18 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFr
                 // completes the frame.
                 auto dataWrapper = std::make_shared<RawDataWrapper>(new jbyte[rawDataSize], rawDataSize, /*free=*/true);
                 memcpy((jbyte*)dataWrapper->getRawData(), rawBytes, rawDataSize);
-                env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
-                rawBytes = nullptr;
+                env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT); // do not copy back
+                rawBytes = nullptr; // cleanup complete, don't repeat on exception
 
+                const auto tileID = loader->getTileID(env, identObj);
+
+                // Do the merge.  If we're not the last fetch needed for the frame, this will
+                // store the data, if we are, it will produce all the results for the frame.
+                // todo: could we just use a `RawData` type that holds on to the array jobject?
                 std::vector<RawDataRef> allData;
                 const auto res = loader->mergeLoadedFrame(tileID, frameID, std::move(dataWrapper), allData);
 
+                // Copy any produced data back to the caller's array
                 for (const auto &data : allData)
                 {
                     const auto len = (jsize)data->getLen();
