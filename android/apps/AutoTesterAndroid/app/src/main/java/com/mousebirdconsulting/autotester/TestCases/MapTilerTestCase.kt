@@ -30,6 +30,11 @@ open class MapTilerTestCase : MaplyTestCase
         val scale = min(dpi.x,dpi.y) / 225
         
         getStyleJson(whichMap)?.let { json ->
+            loader?.shutdown()
+            loader = null
+            map?.stop()
+            map = null
+            
             val settings = VectorStyleSettings(scale).apply {
                 baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault + 1000
                 drawPriorityPerLevel = 100
@@ -42,20 +47,11 @@ open class MapTilerTestCase : MaplyTestCase
                 setup(this)
                 start()
             }
-        }
-
-        // Set up an overlay with the same importance showing the
-        // tile boundaries, for debugging/troubleshooting purposes
-        map?.let {
-            // Describes how to break down the space
-            val params = SamplingParams().apply {
-                minZoom = 1
-                maxZoom = 20
-                singleLevel = true
-                minImportance = it.minImportance
-                coordSystem = SphericalMercatorCoordSystem()
+            map?.postSetup = {
+                // Set up an overlay with the same parameters showing the
+                // tile boundaries, for debugging/troubleshooting purposes
+                loader = QuadPagingLoader(it.sampleParams, OvlDebugImageLoaderInterpreter(), control)
             }
-            loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
         }
     }
 
@@ -83,9 +79,6 @@ open class MapTilerTestCase : MaplyTestCase
     }
 
     private fun switchMaps() {
-        loader = null
-        map?.stop()
-        map = null
         currentMap = (currentMap + 1) % getMaps().size
         baseViewC?.let { setupLoader(it, currentMap) }
     }

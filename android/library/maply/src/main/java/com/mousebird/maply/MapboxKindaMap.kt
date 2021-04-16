@@ -113,7 +113,9 @@ open class MapboxKindaMap(
      * 1024^2 is good for vector tiles, 256^2 is good for image tiles
      */
     var minImportance = 1024.0 * 1024.0
-
+    
+    var sampleParams: SamplingParams? = null; private set
+    
     private val displayMetrics: DisplayMetrics get() =
         control.get()?.activity?.resources?.displayMetrics ?: Resources.getSystem().displayMetrics
 
@@ -368,28 +370,31 @@ open class MapboxKindaMap(
         styleSettings.textScale = if (textScale > 0) textScale else minImportance / (768.0 * 768.0) / 2
 
         // Parameters describing how we want a globe broken down
-        val sampleParams = SamplingParams()
-        sampleParams.coordSystem = SphericalMercatorCoordSystem()
-        sampleParams.minImportance = minImportance
-        sampleParams.singleLevel = true
-        sampleParams.coverPoles = (theControl is GlobeController)
-        sampleParams.edgeMatching = (theControl is GlobeController)
-        sampleParams.minZoom = minZoom
-        sampleParams.maxZoom = maxZoom
+        val params = SamplingParams().also {
+            it.coordSystem = SphericalMercatorCoordSystem()
+            it.minImportance = minImportance
+            it.singleLevel = true
+            it.coverPoles = (theControl is GlobeController)
+            it.edgeMatching = (theControl is GlobeController)
+            it.minZoom = minZoom
+            it.maxZoom = maxZoom
+        }
+        sampleParams = params
+        
         //sampleParams.reportedMaxZoom = 24
         // If we don't have a solid under-layer for each tile, we can't really
         //  keep level 0 around all the time
         if (!backgroundAllPolys) {
-            sampleParams.setForceMinLevel(false)
+            params.setForceMinLevel(false)
         } else {
-            sampleParams.minImportanceTop = 0.0
+            params.minImportanceTop = 0.0
         }
 
         // Image/vector hybrids draw the polygons into a background image
         if (imageVectorHybrid) {
-            startHybridLoader(sampleParams, tileInfos)
+            startHybridLoader(params, tileInfos, localFetchers)
         } else {
-            startSimpleLoader(sampleParams, tileInfos, localFetchers)
+            startSimpleLoader(params, tileInfos, localFetchers)
         }
 
         // If the stylesheet has a background layer, use it to set the clear color
