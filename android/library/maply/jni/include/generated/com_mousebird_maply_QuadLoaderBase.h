@@ -157,7 +157,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getModeNative
  * Signature: (Lcom/mousebird/maply/TileID;IL)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoading
-        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID);
+        (JNIEnv *env, jobject obj, jobject identObj, jlong frameID);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
@@ -165,7 +165,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoadin
  * Signature: (Lcom/mousebird/maply/TileID;IJ[BLjava/util/ArrayList;)Z
  */
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFrame
-        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID, jbyteArray rawData, jobject rawDataArray);
+        (JNIEnv *env, jobject obj, jobject identObj, jlong frameID, jbyteArray rawData, jobject rawDataArray);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase

@@ -30,11 +30,18 @@ extern void appendExceptionTraceMessages(JNIEnv* env, std::ostringstream& msg, j
 /// The exception must be cleared with env.ExceptionClear() first.
 extern std::string getExceptionTraceMessages(JNIEnv* env, jthrowable ex);
 
-extern void logJVMException(JNIEnv* env, jthrowable throwable, const char* where, android_LogPriority priority);
+extern void logJVMException(JNIEnv* env,
+                            jthrowable throwable,
+                            const char* where = nullptr,
+                            android_LogPriority priority = ANDROID_LOG_ERROR);
 
-extern bool logAndClearJVMException(JNIEnv* env, const char* where, android_LogPriority = ANDROID_LOG_ERROR);
+extern bool logAndClearJVMException(JNIEnv* env,
+                                    const char* where = nullptr,
+                                    android_LogPriority = ANDROID_LOG_ERROR);
 
-extern bool logStackTrace(JNIEnv* env, const char* where, android_LogPriority = ANDROID_LOG_ERROR);
+extern bool logStackTrace(JNIEnv* env,
+                          const char* where = nullptr,
+                          android_LogPriority = ANDROID_LOG_ERROR);
 
 extern std::string getStackTrace(JNIEnv* env);
 

@@ -405,9 +405,9 @@ void QIFTileAsset::getLoadedData(std::vector<RawDataRef> &allData)
     for (const auto& frame : frames) {
         if (frame->hasLoadReturn()) {
             if (auto loadReturn = frame->getLoadReturn())
-                allData.push_back(std::move(loadReturn));
+                allData.emplace_back(std::move(loadReturn));
+            frame->clearLoadReturn();
         }
-        frame->clearLoadReturn();
     }
 }
     

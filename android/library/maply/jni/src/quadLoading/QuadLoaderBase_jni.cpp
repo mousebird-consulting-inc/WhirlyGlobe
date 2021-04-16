@@ -20,6 +20,7 @@
 #import "Geometry_jni.h"
 #import "Scene_jni.h"
 #import "com_mousebird_maply_QuadLoaderBase.h"
+#import <Exceptions_jni.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -548,7 +549,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getModeNative(JNI
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoading
-        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID)
+        (JNIEnv *env, jobject obj, jobject identObj, jlong frameID)
 {
     try
     {
@@ -568,48 +569,70 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoadin
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFrame
-        (JNIEnv *env, jobject obj, jobject identObj, jint frameIndex, jlong frameID, jbyteArray rawData, jobject rawDataArray)
+        (JNIEnv *env, jobject obj, jobject identObj, jlong frameID, jbyteArray rawData, jobject rawDataArray)
 {
     try
     {
         const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj);
-        if (const auto loader = loaderPtr ? *loaderPtr : nullptr)
+        const auto loader = loaderPtr ? *loaderPtr : nullptr;
+        if (!loader)
         {
-            const auto tileID = loader->getTileID(env, identObj);
+            return false;
+        }
 
-            const int rawDataSize = env->GetArrayLength(rawData);
-            jboolean isCopy = false;
-            if (const auto rawBytes = (jbyte*)env->GetPrimitiveArrayCritical(rawData, &isCopy))
+        const auto tileID = loader->getTileID(env, identObj);
+
+        const int rawDataSize = env->GetArrayLength(rawData);
+        jboolean isCopy = false;
+        if (auto rawBytes = (jbyte*)env->GetPrimitiveArrayCritical(rawData, &isCopy))
+        {
+            try
             {
-                try
-                {
-                    auto dataWrapper = std::make_shared<RawDataWrapper>(rawBytes, rawDataSize, /*free=*/false);
-                    std::vector<RawDataRef> allData;
-                    const auto res = loader->mergeLoadedFrame(tileID, frameID, std::move(dataWrapper), allData);
-                    env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
+                // We need to make a copy because this data may be held over until a later load
+                // completes the frame.
+                auto dataWrapper = std::make_shared<RawDataWrapper>(new jbyte[rawDataSize], rawDataSize, /*free=*/true);
+                memcpy((jbyte*)dataWrapper->getRawData(), rawBytes, rawDataSize);
+                env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
+                rawBytes = nullptr;
 
-                    for (const auto &data : allData)
+                std::vector<RawDataRef> allData;
+                const auto res = loader->mergeLoadedFrame(tileID, frameID, std::move(dataWrapper), allData);
+
+                for (const auto &data : allData)
+                {
+                    const auto len = (jsize)data->getLen();
+                    if (const auto newArray = env->NewByteArray(len))
                     {
-                        if (const auto newArray = env->NewByteArray((int)data->getLen()))
-                        {
-                            env->SetByteArrayRegion(newArray, 0, (int)data->getLen(), (jbyte*)data->getRawData());
-                            env->CallBooleanMethod(rawDataArray, loader->arrayListAdd, newArray);
-                            env->DeleteLocalRef(newArray);
-                        }
-                        else
-                        {
-                            return false;
-                        }
+                        env->SetByteArrayRegion(newArray, 0, len, (jbyte*)data->getRawData());
+                        env->CallBooleanMethod(rawDataArray, loader->arrayListAdd, newArray);
+                        env->DeleteLocalRef(newArray);
                     }
-                    return res;
+                    else
+                    {
+                        __android_log_print(ANDROID_LOG_WARN, "Maply",
+                                            "QuadLoaderBase::mergeLoadedFrame failed to create byte array");
+                        logAndClearJVMException(env);
+                        return false;
+                    }
                 }
-                catch (...)
+                return res;
+            }
+            catch (...)
+            {
+                if (rawBytes)
                 {
                     // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
                     env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
-                    throw;
+                    logAndClearJVMException(env);
                 }
+                throw;
             }
+        }
+        else
+        {
+            __android_log_print(ANDROID_LOG_WARN, "Maply",
+                                "QuadLoaderBase::mergeLoadedFrame failed to get input bytes");
+            logAndClearJVMException(env);
         }
     }
     catch (...)

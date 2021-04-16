@@ -187,6 +187,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 if (loadReturn.isCanceled()) {
                     return;
                 }
+                loadReturn.errorString = "Decode Failed";
                 continue;
             }
 

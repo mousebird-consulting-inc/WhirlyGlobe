@@ -331,6 +331,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         int frame = 0;
         for (TileInfoNew tileInfo : tileInfos) {
             final int fFrame = frame;
+            final long frameID = getFrameID(frame);
             //final int dispFrame = tileInfos.length > 1 ? frame : -1;
 
             // Put together a fetch request for, you know, fetching
@@ -340,7 +341,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
                 public void success(TileFetchRequest fetchRequest, byte[] data) {
-                    fetchSuccess(fetchRequest, tileID, fFrame, data);
+                    fetchSuccess(fetchRequest, tileID, fFrame, frameID, data);
                 }
                 @Override
                 public void failure(TileFetchRequest fetchRequest, String errorStr) {
@@ -370,7 +371,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
-    private void fetchSuccess(TileFetchRequest fetchRequest, TileID tileID, int frame, byte[] data) {
+    private void fetchSuccess(TileFetchRequest fetchRequest, TileID tileID, int frame, long frameID, byte[] data) {
         final LoaderInterpreter theLoadInterp = loadInterp;
         final QuadSamplingLayer layer = getSamplingLayer();
 
@@ -378,18 +379,18 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             return;
         }
 
-        final long frameID = getFrameID(frame);
-        if (!isFrameLoading(tileID,frame,frameID)) {
+        if (!isFrameLoading(tileID,frameID)) {
             if (getDebugMode()) {
-                Log.d(getClass().getSimpleName(), "Dropping fetched frame for " + tileID);
-                return;
+                Log.d("Maply", "Dropping fetched frame for " + tileID);
             }
+            return;
         }
 
         ArrayList<byte[]> allData = new ArrayList<>();
-        if (!mergeLoadedFrame(tileID, frame, frameID, data, allData))
+        final boolean merge = getModeNative() == Mode.SingleFrame.ordinal() && getNumFrames() > 1;
+        if (merge && !mergeLoadedFrame(tileID, frameID, data, allData))
         {
-            // The other fetch will handle it
+            // Another fetch will handle it
             return;
         }
 
@@ -399,8 +400,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         loadReturn.setFrame(frameID,frame);
 
         // In this mode we need to adjust the loader return to contain everything at once
-        if (getModeNative() == Mode.SingleFrame.ordinal() && getNumFrames() > 1) {
-            data = null;    // Our data has been subsumed into allData
+        if (merge) {
+            // Our data has been subsumed into allData
             loadReturn.addTileData(allData);
         } else if (data != null) {
             loadReturn.addTileData(data);
@@ -533,9 +534,9 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     protected native void reloadAreaNative(ChangeSet changes,Mbr[] areas);
 
-    protected native boolean isFrameLoading(TileID tileID, int frameIndex, long frameID);
+    protected native boolean isFrameLoading(TileID tileID, long frameID);
 
-    protected native boolean mergeLoadedFrame(TileID tileID, int frameIndex, long frameID,
+    protected native boolean mergeLoadedFrame(TileID tileID, long frameID,
                                               byte[] rawData, ArrayList<byte[]> allRawData);
 
     public native int getZoomSlot();
