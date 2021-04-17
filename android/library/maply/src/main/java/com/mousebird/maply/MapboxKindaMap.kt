@@ -370,11 +370,18 @@ open class MapboxKindaMap(
             return
         }
 
+        val metrics = displayMetrics
+        val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
+        val defLineScale = dpi / 185.0
+        val defTextScale = dpi / 650.0
+
+        Log.w("MKM", "$dpi $defLineScale/$defTextScale ${minImportance / (512.0 * 512.0) / 2}/${minImportance / (768.0 * 768.0) / 2}");
+
         // Adjustment for loading (512 vs 1024 or so)
-        styleSettings.lineScale = if (lineScale > 0) lineScale else minImportance / (512.0 * 512.0) / 2
+        styleSettings.lineScale = if (lineScale > 0) lineScale else defLineScale
 
         // Similar adjustment for text
-        styleSettings.textScale = if (textScale > 0) textScale else minImportance / (768.0 * 768.0) / 2
+        styleSettings.textScale = if (textScale > 0) textScale else defTextScale
 
         // Parameters describing how we want a globe broken down
         val params = SamplingParams().also {
