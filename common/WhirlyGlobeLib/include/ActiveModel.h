@@ -1,9 +1,8 @@
-/*
- *  ActiveModel.h
+/*  ActiveModel.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 8/16/11.
- *  Copyright 2012-2019 mousebird consulting.
+ *  Copyright 2012-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <map>
@@ -34,21 +32,21 @@ namespace WhirlyKit {
 class ActiveModel : public Identifiable
 {
 public:
-    ActiveModel() { };
-    virtual ~ActiveModel() { };
+    ActiveModel() = default;
+    virtual ~ActiveModel() = default;
     
     /// Create the stuff you need to manipulate in the scene
     virtual void startWithScene(Scene *scene) { }
 
     /// Return true if you have an update that needs to be processed.
     /// Return false if you don't, otherwise we'll be constantly rendering.
-    virtual bool hasUpdate() { return false; }
+    virtual bool hasUpdate() const { return false; }
 
     /// Update your stuff for display, but be quick!
     virtual void updateForFrame(RendererFrameInfo *frameInfo) { }
 
     /// Time to clean up your toys
-    virtual void teardown() { }
+    virtual void teardown(PlatformThreadInfo*) { }
 };
     
 typedef std::shared_ptr<ActiveModel> ActiveModelRef;

@@ -32,27 +32,28 @@ namespace WhirlyKit
 class QuadSamplingController : public QuadDataStructure, public QuadTileBuilderDelegate
 {
 public:
-    QuadSamplingController();
-    virtual ~QuadSamplingController();
+    QuadSamplingController() = default;
+    virtual ~QuadSamplingController() = default;
     
     // Number of clients using this sampler
-    int getNumClients();
+    int getNumClients() const { return builderDelegates.size(); }
     
     // Return the Display Controller we're using
-    QuadDisplayControllerNewRef getDisplayControl();
+    QuadDisplayControllerNewRef getDisplayControl() const { return displayControl; }
     
     // Return the builder we're using
-    QuadTileBuilderRef getBuilder() { return builder; }
+    QuadTileBuilderRef getBuilder() const { return builder; }
     
     // Add a new builder delegate to watch tile related events
     // Returns true if we need to notify the delegate
-    bool addBuilderDelegate(PlatformThreadInfo *threadInfo,QuadTileBuilderDelegateRef delegate);
+    bool addBuilderDelegate(PlatformThreadInfo *, QuadTileBuilderDelegateRef delegate);
     
     // Remove the given builder delegate that was watching tile related events
-    void removeBuilderDelegate(PlatformThreadInfo *threadInfo,QuadTileBuilderDelegateRef delegate);
+    void removeBuilderDelegate(PlatformThreadInfo *, const QuadTileBuilderDelegateRef &delegate);
 
     // Called right before we start using the controller
     void start(const SamplingParams &params,Scene *scene,SceneRenderer *renderer);
+
     // Unhook everything and shut it down
     void stop();
     
@@ -62,82 +63,82 @@ public:
     /// **** QuadDataStructure methods ****
     
     /// Return the coordinate system we're working in
-    virtual CoordSystem *getCoordSystem();
+    virtual CoordSystem *getCoordSystem() const override { return params.coordSys.get(); }
     
     /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
-    virtual Mbr getTotalExtents();
+    virtual Mbr getTotalExtents() const override { return params.coordBounds; }
     
     /// Bounding box of data you actually want to display.  In local coordinate system.
     /// Unless you're being clever, make this the same as totalExtents.
-    virtual Mbr getValidExtents();
+    virtual Mbr getValidExtents() const override;
     
     /// Return the minimum quad tree zoom level (usually 0)
-    virtual int getMinZoom();
+    virtual int getMinZoom() const override { return params.minZoom; }
     
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
-    virtual int getMaxZoom();
+    virtual int getMaxZoom() const override { return params.maxZoom; }
     
     /// Max zoom level we want reportable (beyond the loaded max zoom)
-    virtual int getReportedMaxZoom();
+    virtual int getReportedMaxZoom() const override { return params.reportedMaxZoom; }
     
     /// Return an importance value for the given tile
     virtual double importanceForTile(const QuadTreeIdentifier &ident,
                                      const Mbr &mbr,
-                                     ViewStateRef viewState,
-                                     const Point2f &frameSize);
+                                     const ViewStateRef &viewState,
+                                     const Point2f &frameSize) override;
     
     /// Called when the view state changes.  If you're caching info, do it here.
-    virtual void newViewState(ViewStateRef viewState);
+    virtual void newViewState(ViewStateRef viewState) override;
     
     /// Return true if the tile is visible, false otherwise
     virtual bool visibilityForTile(const QuadTreeIdentifier &ident,
                                    const Mbr &mbr,
-                                   ViewStateRef viewState,
-                                   const Point2f &frameSize);
+                                   const ViewStateRef &viewState,
+                                   const Point2f &frameSize) override;
     
     /// **** QuadTileBuilderDelegate methods ****
 
     /// Called when the builder first starts up.  Keep this around if you need it.
-    virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control);
+    virtual void setBuilder(QuadTileBuilder *inBuilder, QuadDisplayControllerNew *control) override;
     
     /// Before we tell the delegate to unload tiles, see if they want to keep them around
     /// Returns the tiles we want to preserve after all
-    virtual QuadTreeNew::NodeSet builderUnloadCheck(QuadTileBuilder *builder,
+    virtual QuadTreeNew::NodeSet builderUnloadCheck(QuadTileBuilder *inBuilder,
                                                     const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
                                                     const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
-                                                    int targetLevel);
+                                                    int targetLevel) override;
     
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
     virtual void builderLoad(PlatformThreadInfo *threadInfo,
-                             QuadTileBuilder *builder,
+                             QuadTileBuilder *inBuilder,
                              const WhirlyKit::TileBuilderDelegateInfo &updates,
-                             ChangeSet &changes);
+                             ChangeSet &changes) override;
     
     /// Called right before the layer thread flushes all its current changes
-    virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes);
+    virtual void builderPreSceneFlush(QuadTileBuilder *inBuilder, ChangeSet &changes) override;
     
     /// Shutdown called on the layer thread if you have stuff to clean up
-    virtual void builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes);
+    virtual void builderShutdown(PlatformThreadInfo *threadInfo, QuadTileBuilder *inBuilder, ChangeSet &changes) override;
 
     /// Quick loading status check
-    virtual bool builderIsLoading();
+    virtual bool builderIsLoading() const override;
 
 protected:
-    bool debugMode;
+    bool debugMode = false;
 
-    std::mutex lock;
+    mutable std::mutex lock;
     
     SamplingParams params;
     QuadDisplayControllerNewRef displayControl;
 
-    WhirlyKit::Scene *scene;
-    SceneRenderer *renderer;
+    WhirlyKit::Scene *scene = nullptr;
+    SceneRenderer *renderer = nullptr;
 
     QuadTileBuilderRef builder;
     std::vector<QuadTileBuilderDelegateRef> builderDelegates;
     
-    bool builderStarted;
-    bool valid;
+    bool builderStarted = false;
+    bool valid = true;
 };
     
 }

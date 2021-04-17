@@ -24,14 +24,6 @@
 namespace WhirlyKit
 {
     
-QuadDataStructure::QuadDataStructure()
-{
-}
-
-QuadDataStructure::~QuadDataStructure()
-{
-}
-
 QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer)
     : dataStructure(dataStructure), loader(loader), renderer(renderer), zoomSlot(-1), QuadTreeNew(MbrD(dataStructure->getTotalExtents()),dataStructure->getMinZoom(),dataStructure->getMaxZoom())
 {
@@ -200,7 +192,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
     } else {
         newNodes = calcCoverageImportance(minImportancePerLevel,maxTiles,true, maxRejectedImport);
         // Just take the highest level as target
-        for (auto node : newNodes)
+        for (const auto &node : newNodes)
             targetLevel = std::max(targetLevel,node.level);
     }
     double maxRatio = targetLevel >= maxLevel ? 0.0 : maxRejectedImport[targetLevel+1];
@@ -215,19 +207,19 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
     
     // Need a version of new and old that has no importance values, since those change
     QuadTreeNew::NodeSet testNewNodes;
-    for (auto node : newNodes)
+    for (const auto &node : newNodes)
         testNewNodes.insert(node);
     QuadTreeNew::NodeSet testCurrentNodes;
-    for (auto node : currentNodes)
+    for (const auto &node : currentNodes)
         testCurrentNodes.insert(node);
     
     // Nodes to remove
-    for (auto node : currentNodes)
+    for (const auto &node : currentNodes)
         if (testNewNodes.find(node) == testNewNodes.end())
             toRemove.insert(node);
     
     // Nodes to add and nodes to update importance for
-    for (auto node : newNodes)
+    for (const auto &node : newNodes)
         if (testCurrentNodes.find(node) == testCurrentNodes.end())
             toAdd.insert(node);
         else
@@ -236,10 +228,10 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
     QuadTreeNew::NodeSet removesToKeep;
     removesToKeep = loader->quadLoaderUpdate(threadInfo, toAdd, toRemove, toUpdate, targetLevel, changes);
     
-    bool needsDelayCheck = !removesToKeep.empty();
+    const bool needsDelayCheck = !removesToKeep.empty();
     
     currentNodes = newNodes;
-    for (auto node : removesToKeep) {
+    for (const auto &node : removesToKeep) {
         currentNodes.insert(QuadTreeNew::ImportantNode(node,0.0));
     }
     
@@ -252,7 +244,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
         std::vector<double> maxRejectedImport(reportedMaxZoom+1,0.0);
         std::tie(testTargetLevel,testNodes) = calcCoverageVisible(reportedMinImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImport);
         maxLevel = oldMaxLevel;
-        maxRatio = testTargetLevel >= maxRejectedImport.size() ? 0.0 : maxRejectedImport[testTargetLevel+1];
+        maxRatio = (testTargetLevel >= maxRejectedImport.size()) ? 0.0 : maxRejectedImport[testTargetLevel+1];
     }
 
     // We take the largest importance for a tile beyond the one we're loading and use

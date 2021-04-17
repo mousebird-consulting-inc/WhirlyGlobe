@@ -1,9 +1,8 @@
-/*
- *  QuadTileBuilder.h
+/*  QuadTileBuilder.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/29/18.
- *  Copyright 2012-2018 Saildrone Inc
+ *  Copyright 2012-2021 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadDisplayControllerNew.h"
@@ -45,8 +43,8 @@ public:
 class QuadTileBuilderDelegate : public Identifiable
 {
 public:
-    QuadTileBuilderDelegate();
-    virtual ~QuadTileBuilderDelegate();
+    QuadTileBuilderDelegate() = default;
+    virtual ~QuadTileBuilderDelegate() = default;
     
     /// Called when the builder first starts up.  Keep this around if you need it.
     virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control) = 0;
@@ -61,8 +59,8 @@ public:
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
     virtual void builderLoad(PlatformThreadInfo *threadInfo,
                              QuadTileBuilder *builder,
-                           const WhirlyKit::TileBuilderDelegateInfo &updates,
-                           ChangeSet &changes) = 0;
+                             const WhirlyKit::TileBuilderDelegateInfo &updates,
+                             ChangeSet &changes) = 0;
     
     /// Called right before the layer thread flushes all its current changes
     virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes) = 0;
@@ -71,7 +69,7 @@ public:
     virtual void builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes) = 0;
     
     /// Simple status check.  Is this builder in the process of loading something?
-    virtual bool builderIsLoading() = 0;
+    virtual bool builderIsLoading() const = 0;
 };
     
 typedef std::shared_ptr<QuadTileBuilderDelegate> QuadTileBuilderDelegateRef;
@@ -83,7 +81,7 @@ class QuadTileBuilder : public QuadLoaderNew
 {
 public:
     QuadTileBuilder(CoordSystemRef coordSys,QuadTileBuilderDelegate *delegate);
-    virtual ~QuadTileBuilder();
+    virtual ~QuadTileBuilder() = default;
     
     // Return a tile, if there is one
     LoadedTileNewRef getLoadedTile(const QuadTreeNew::Node &ident);
@@ -92,7 +90,7 @@ public:
     TileBuilderDelegateInfo getLoadingState();
 
     // Coordinate system we're building the tiles in
-    CoordSystemRef getCoordSystem();
+    CoordSystemRef getCoordSystem() const { return geomManage.coordSys; }
     
     // If set, we'll actually build geometry for the drawables
     // The generic quad paging case doesn't use this

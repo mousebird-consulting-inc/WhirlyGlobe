@@ -303,8 +303,11 @@ public:
     DrawableRef getDrawable(SimpleIdentity drawId) const;
 
     /// Remove a drawable from the scene
-    virtual void remDrawable(DrawableRef drawable);
-    
+    virtual void remDrawable(const DrawableRef &drawable);
+
+    /// Remove a drawable from the scene
+    virtual void remDrawable(SimpleIdentity id);
+
     /// Add a fully formed texture
     virtual void addTexture(TextureBaseRef texRef);
     
@@ -344,7 +347,7 @@ public:
     void addActiveModel(ActiveModelRef);
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
-    void removeActiveModel(const ActiveModelRef &);
+    void removeActiveModel(PlatformThreadInfo *, const ActiveModelRef &);
     
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.

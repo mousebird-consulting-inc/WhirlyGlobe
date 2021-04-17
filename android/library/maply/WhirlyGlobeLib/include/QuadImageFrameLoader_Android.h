@@ -79,11 +79,12 @@ public:
     virtual ~QIFTileAsset_Android();
 
     // Fetch the tile frames.  Just fetch them all for now.
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,
+                               const QuadFrameInfoRef &frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *) override;
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,const QuadFrameInfoRef &frameInfo,QuadImageFrameLoader *) override;
 };
 
 // Android version of the QuadFrameLoader
@@ -96,7 +97,12 @@ public:
     virtual ~QuadImageFrameLoader_Android();
 
     /// Number of frames we're representing
-    virtual int getNumFrames() override;
+    virtual int getNumFrames() const override { return numFrames; }
+
+    jobject getFrameLoaderObj() const { return frameLoaderObj; }
+    void setFrameLoaderObj(jobject obj) { frameLoaderObj = obj; }
+
+    virtual void teardown(PlatformThreadInfo*) override;
 
     // Construct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
@@ -105,13 +111,11 @@ public:
     // Process whatever ops we batched up during the load phase
     virtual void processBatchOps(PlatformThreadInfo *threadInfo,QIFBatchOps *) override;
 
+    QuadTreeIdentifier getTileID(JNIEnv* env, jobject tileIDObj) const;
+
 public:
     // Make an Android specific tile/frame assets
     virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) override;
-
-    int numFrames;
-
-    jobject frameLoaderObj;
 
     // QuadLoaderBase methods
     jmethodID processBatchOpsMethod;
@@ -122,6 +126,18 @@ public:
     jmethodID updateFrameMethod;
     jmethodID clearFrameMethod;
     jmethodID clearRequestMethod;
+
+    jobject tileIDRef;
+    jfieldID tileIDX;
+    jfieldID tileIDY;
+    jfieldID tileIDLevel;
+
+    jobject arrayListRef;
+    jmethodID arrayListAdd;
+
+private:
+    int numFrames;
+    jobject frameLoaderObj;
 };
 
 typedef std::shared_ptr<QuadImageFrameLoader_Android> QuadImageFrameLoader_AndroidRef;

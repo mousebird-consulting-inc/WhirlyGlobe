@@ -123,13 +123,18 @@ QIFTileAsset_ios::~QIFTileAsset_ios()
 {
 }
     
-QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *loader)
+QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo,
+                                                  const QuadFrameInfoRef &frameInfo,
+                                                  QuadImageFrameLoader *loader)
 {
-    auto frameAsset = QIFFrameAssetRef(new QIFFrameAsset_ios(frameInfo));
-    return frameAsset;
+    return std::make_shared<QIFFrameAsset_ios>(frameInfo);
 }
-    
-void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps,ChangeSet &changes)
+
+void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,
+                                     QuadImageFrameLoader *inLoader,
+                                     const QuadFrameInfoRef &frameToLoad,
+                                     QIFBatchOps *inBatchOps,
+                                     ChangeSet &changes)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
@@ -216,7 +221,7 @@ QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(PlatformThreadInfo *thre
     return tileAsset;
 }
     
-int QuadImageFrameLoader_ios::getNumFrames()
+int QuadImageFrameLoader_ios::getNumFrames() const
 {
     return [frameInfos count];
 }

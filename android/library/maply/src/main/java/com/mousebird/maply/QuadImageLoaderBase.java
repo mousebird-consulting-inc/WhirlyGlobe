@@ -46,8 +46,12 @@ public class QuadImageLoaderBase extends QuadLoaderBase
 
     protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames)
     {
-        super(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
+        this(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
+    }
 
+    protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames,Mode mode)
+    {
+        super(control,params,numFrames,mode);
         setBaseDrawPriority(BaseDrawPriorityDefault);
         setDrawPriorityPerLevel(DrawPriorityPerLevelDefault);
     }

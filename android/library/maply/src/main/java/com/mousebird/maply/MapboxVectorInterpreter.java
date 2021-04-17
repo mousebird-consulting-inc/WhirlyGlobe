@@ -19,14 +19,21 @@
 package com.mousebird.maply;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 /**
  * The Mapbox Vector (Tile) Interpreter parses raw vector tile data
@@ -104,62 +111,105 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 WGS84_a_2 * Math.log((1.0 + Math.sin(pt.getY())) / (1.0 - Math.sin(pt.getY()))));
     }
 
-    public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
-    {
-        if (styleGen != null) styleGen.setZoomSlot(loader.getZoomSlot());
-        if (imageStyleGen != null) imageStyleGen.setZoomSlot(loader.getZoomSlot());
+    private interface StreamMaker {
+        FilterInputStream make(InputStream rawStream, int length) throws IOException;
+    }
 
-        byte[] data = loadReturn.getFirstData();
-        if (data == null)
-            return;
-
-        GZIPInputStream in = null;
+    /**
+     * Try decoding the data using the specified filter stream, return it as-is if anything goes wrong
+     */
+    private byte[] decodeStream(byte[] data, LoaderReturn loadReturn, StreamMaker maker) {
+        FilterInputStream in = null;
         ByteArrayOutputStream bout = null;
         ByteArrayInputStream bin = null;
         try {
             // Unzip if it's compressed
             bin = new ByteArrayInputStream(data);
-            in = new GZIPInputStream(bin, data.length);
+            in = maker.make(bin, data.length);
             // Bail as soon as possible if there's a problem
             if (in.available() != 0) {
                 bout = new ByteArrayOutputStream(data.length * 2);
 
                 byte[] buffer = new byte[1024];
-                for (int count; (count = in.read(buffer)) != -1; ) {
+                for (int count; (count = in.read(buffer)) != 0; ) {
                     if (loadReturn.isCanceled()) {
-                        return;
+                        return null;
+                    }
+                    if (count < 1) {
+                        break;
                     }
                     bout.write(buffer, 0, count);
                 }
-
-                data = bout.toByteArray();
+                return bout.toByteArray();
             }
-        } catch (Exception ex) {
-            // We'll try the raw data if we can't decompress it
+        } catch (Exception ignored) {
+            // No good, try something else
         }  finally  {
             // Clean everything up in the opposite order they were created.
-            if (bout != null) try {
-                bout.close ();
-            } catch (IOException ignore){}
-
-            if (in != null) try {
-                in.close ();
-            } catch (IOException ignore){}
-
-            if (bin != null) try {
-                bin.close ();
-            } catch (IOException ignore){}
+            if (bout != null) try { bout.close (); } catch (IOException ignore){}
+            if (in != null) try { in.close (); } catch (IOException ignore){}
+            if (bin != null) try { bin.close (); } catch (IOException ignore){}
         }
+        return data;
+    }
 
+    /**
+     * Decode compressed data, or return it as-is if not decode-able
+     */
+    private byte[] decodeStream(byte[] data, LoaderReturn loadReturn) {
+        if (data.length > 2) {
+            if (data[0] == (byte)0x1F && data[1] == (byte)0x8B) {
+                return decodeStream(data, loadReturn, GZIPInputStream::new);
+            } else if (data[0] == (byte)0x78) {
+                return decodeStream(data, loadReturn, (b,len) -> new InflaterInputStream(b));
+            }
+        }
+        return data;
+    }
+
+    public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
+    {
         BaseController theVC = vc.get();
         if (theVC == null) {
             return;
         }
 
+        if (styleGen != null) styleGen.setZoomSlot(loader.getZoomSlot());
+        if (imageStyleGen != null) imageStyleGen.setZoomSlot(loader.getZoomSlot());
+
+        ArrayList<Bitmap> images = new ArrayList<>();
+        ArrayList<byte[]> pbfData = new ArrayList<>();
+        for (byte[] data : loadReturn.getTileData())
+        {
+            // Decode compressed data
+            data = decodeStream(data, loadReturn);
+            if (data == null || data.length < 1) {
+                if (loadReturn.isCanceled()) {
+                    return;
+                }
+                loadReturn.errorString = "Decode Failed";
+                continue;
+            }
+
+            // See if it's an image
+            Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
+            if (image != null) {
+                images.add(image);
+            } else {
+                pbfData.add(data);
+            }
+        }
+
+        if (images.isEmpty() && pbfData.isEmpty()) {
+            loadReturn.errorString = "No usable data";
+            return;
+        }
+
         // Don't let the sampling layer shut down while we're working
         QuadSamplingLayer samplingLayer = loader.samplingLayer.get();
-        if (samplingLayer == null || !samplingLayer.layerThread.startOfWork())
+        if (samplingLayer == null || !samplingLayer.layerThread.startOfWork()) {
             return;
+        }
 
         try {   // ensure endOfWork is called
             // Parse the data into vectors
@@ -170,17 +220,24 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             locBounds.ur = toMerc(locBounds.ur);
 
             VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
-            if (!parser.parseData(data, tileData, loadReturn) || loadReturn.isCanceled()) {
-                return;
+
+            for (byte[] data : pbfData) {
+                if (!parser.parseData(data, tileData, loadReturn) || loadReturn.isCanceled()) {
+                    if (loadReturn.isCanceled()) {
+                        return;
+                    } else {
+                        Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
+                    }
+                }
             }
 
             ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
-            if (theVC != null) {
-                ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
-                if (thisOvjObjs != null)
-                    Collections.addAll(ovlObjs, thisOvjObjs);
-                loadReturn.mergeChanges(tileData.getChangeSet());
+            ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
+            if (thisOvjObjs != null) {
+                Collections.addAll(ovlObjs, thisOvjObjs);
             }
+
+            loadReturn.mergeChanges(tileData.getChangeSet());
 
             if (loadReturn.isCanceled()) {
                 return;
@@ -200,8 +257,14 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                     RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
                     tileRender.setEGLContext(null);
 
-                    if (!imageParser.parseData(data, imageTileData, loadReturn) || loadReturn.isCanceled()) {
-                        return;
+                    for (byte[] data : pbfData) {
+                        if (!imageParser.parseData(data, imageTileData, loadReturn) || loadReturn.isCanceled()) {
+                            if (loadReturn.isCanceled()) {
+                                return;
+                            } else {
+                                Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
+                            }
+                        }
                     }
 
                     ChangeSet changes = imageTileData.getChangeSet();
@@ -250,40 +313,40 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             }
 
             // Merge the results into the loadReturn
-            if (objectLoader != null) {
-                ObjectLoaderReturn objLoadReturn = (ObjectLoaderReturn) loadReturn;
-                if (!ovlObjs.isEmpty())
-                    objLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
-                objLoadReturn.addComponentObjects(regObjs);
-            } else if (imageLoader != null) {
-                ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn) loadReturn;
-                if (!ovlObjs.isEmpty())
-                    imgLoadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
-                imgLoadReturn.addComponentObjects(regObjs);
+            if (!ovlObjs.isEmpty()) {
+                loadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
+            }
+            loadReturn.addComponentObjects(regObjs);
+
+            if (loadReturn instanceof ImageLoaderReturn) {
+                ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn)loadReturn;
+
                 if (tileBitmap != null) {
-                    imgLoadReturn.addBitmap(tileBitmap);
-                } else if (imgLoadReturn.getImages().length == 0) {
+                    images.add(tileBitmap);
+                } else if (images.isEmpty()) {
                     // Make a single color background image
                     // We have to do this each time because it can change per level
                     final int bgColor = styleGen.backgroundColorForZoom(tileID.level);
 
                     // The color will be the same for all the tiles in a level, try to reuse it
-                    Bitmap img;
+                    final Bitmap image;
                     synchronized (backgroundLock) {
                         if (lastBackground != null && lastBackgroundColor == bgColor) {
-                            img = lastBackground;
+                            image = lastBackground;
                         } else {
-                            img = Bitmap.createBitmap(BackImageSize, BackImageSize, Bitmap.Config.ARGB_8888);
-                            img.eraseColor(bgColor);
-                            lastBackground = img;
+                            image = Bitmap.createBitmap(BackImageSize, BackImageSize, Bitmap.Config.ARGB_8888);
+                            image.eraseColor(bgColor);
+                            lastBackground = image;
                             lastBackgroundColor = bgColor;
                         }
                     }
+                    images.add(image);
+                }
 
-                    ImageTile tile = new ImageTile(img);
+                for (Bitmap image : images) {
+                    ImageTile tile = new ImageTile(image);
                     // We're on a background thread, so set up the texture now
                     tile.preprocessTexture();
-
                     imgLoadReturn.addImageTile(tile);
                 }
             }

@@ -1,9 +1,8 @@
-/*
- *  RawData.h
+/*  RawData.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/15/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <ctime>
@@ -32,8 +30,8 @@ namespace WhirlyKit
 class RawData
 {
 public:
-    RawData();
-    virtual ~RawData();
+    RawData() = default;
+    virtual ~RawData() = default;
     // Return a pointer to the raw data we're keeping
     virtual const unsigned char *getRawData() const = 0;
     // Length of the buffer
@@ -49,16 +47,22 @@ class RawDataWrapper : public RawData
 {
 public:
     RawDataWrapper(const void *data,unsigned long dataLen,bool freeWhenDone);
+    // If the data should be freed using something other than `::operator delete[](char*)`
+    RawDataWrapper(const void *data,unsigned long dataLen,std::function<void(const void*)> freer);
+    RawDataWrapper(const RawDataWrapper &) = delete;
+    RawDataWrapper(RawDataWrapper &&) noexcept;
     virtual ~RawDataWrapper();
+
     // Return a pointer to the raw data we're keeping
-    virtual const unsigned char *getRawData() const;
+    virtual const unsigned char *getRawData() const override { return data; }
+
     // Length of the raw data collected thus far
-    unsigned long getLen() const;
+    unsigned long getLen() const override { return len; }
     
 protected:
-    bool freeWhenDone;
     const unsigned char *data;
     unsigned int len;
+    std::function<void(const void*)> freeFunc;
 };
 typedef std::shared_ptr<RawDataWrapper> RawDataWrapperRef;
     
@@ -67,10 +71,10 @@ class RawDataReader
 {
 public:
     RawDataReader(const RawData *);
-    virtual ~RawDataReader() { }
+    virtual ~RawDataReader() = default;
     
     // True if we've reached the end of the buffer
-    bool done();
+    bool done() const;
     
     // Read an integer
     bool getInt(int &val);
@@ -94,16 +98,16 @@ RawDataWrapper *RawDataFromFile(FILE *fp,unsigned int dataLen);
 class MutableRawData : public RawData
 {
 public:
-    MutableRawData();
+    MutableRawData() = default;
     // Make a copy of the data and store it
     MutableRawData(void *data,unsigned int size);
     // Allocate the given space
     MutableRawData(unsigned int size);
-    virtual ~MutableRawData();
+    virtual ~MutableRawData() = default;
     // Return a pointer to the raw data we're keeping
-    virtual const unsigned char *getRawData() const;
+    virtual const unsigned char *getRawData() const override;
     // Length of the raw data collected thus far
-    virtual unsigned long getLen() const;
+    virtual unsigned long getLen() const override { return data.size(); }
 
     // Add an integer
     virtual void addInt(int iVal);

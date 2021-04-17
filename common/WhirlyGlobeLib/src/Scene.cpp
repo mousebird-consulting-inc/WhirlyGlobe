@@ -74,7 +74,8 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter) :
     setupInfo(nullptr),
     currentTime(0.0),
     coordAdapter(adapter),
-    overlapMargin(0.0)
+    overlapMargin(0.0),
+    textures(100)
 {
     SetupDrawableStrings();
     
@@ -88,9 +89,9 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter) :
     addManager(kWKShapeManager, std::make_shared<ShapeManager>());
     // Marker manager handles 2D and 3D markers
     addManager(kWKMarkerManager, std::make_shared<MarkerManager>());
-    // Label manager handes 2D and 3D labels
+    // Label manager handles 2D and 3D labels
     addManager(kWKLabelManager, std::make_shared<LabelManager>());
-    // Vector manager handes vector features
+    // Vector manager handles vector features
     addManager(kWKVectorManager, std::make_shared<VectorManager>());
     // Chunk manager handles geographic chunks that cover a large chunk of the globe
     addManager(kWKSphericalChunkManager, std::make_shared<SphericalChunkManager>());
@@ -265,7 +266,7 @@ void Scene::addActiveModel(ActiveModelRef activeModel)
     activeModels.back()->startWithScene(this);
 }
 
-void Scene::removeActiveModel(const ActiveModelRef &activeModel)
+void Scene::removeActiveModel(PlatformThreadInfo *threadInfo, const ActiveModelRef &activeModel)
 {
     int which = 0;
 
@@ -277,7 +278,7 @@ void Scene::removeActiveModel(const ActiveModelRef &activeModel)
     }
     if (which < activeModels.size()) {
         activeModels.erase(activeModels.begin() + which);
-        activeModel->teardown();
+        activeModel->teardown(threadInfo);
     }
 }
 
@@ -472,11 +473,16 @@ void Scene::addDrawable(DrawableRef draw)
     drawables[draw->getId()] = std::move(draw);
 }
     
-void Scene::remDrawable(DrawableRef draw)
+void Scene::remDrawable(const DrawableRef &draw)
+{
+    remDrawable(draw->getId());
+}
+
+void Scene::remDrawable(SimpleIdentity id)
 {
     std::lock_guard<std::mutex> guardLock(drawablesLock);
 
-    auto it = drawables.find(draw->getId());
+    const auto it = drawables.find(id);
     if (it != drawables.end())
         drawables.erase(it);
 }
@@ -492,7 +498,7 @@ bool Scene::removeTexture(SimpleIdentity texID)
 {
     std::lock_guard<std::mutex> guardLock(textureLock);
     
-    auto it = textures.find(texID);
+    const auto it = textures.find(texID);
     if (it != textures.end()) {
         textures.erase(it);
         return true;
