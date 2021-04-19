@@ -19,6 +19,7 @@
 package com.mousebird.maply;
 
 import android.os.Handler;
+import android.os.Looper;
 
 /**
  * The Quad Image Loader is for paging image pyramids local or remote.
@@ -52,7 +53,7 @@ public class QuadImageLoader extends QuadImageLoaderBase
         tileInfos = tileInfo;
         valid = true;
 
-        new Handler(control.getActivity().getMainLooper()).post(() -> {
+        new Handler(Looper.getMainLooper()).post(() -> {
             if (valid) {
                 delayedInit(params);
             }
