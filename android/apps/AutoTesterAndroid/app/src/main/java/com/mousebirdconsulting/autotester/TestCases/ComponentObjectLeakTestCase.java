@@ -1,9 +1,8 @@
-/*
- *  QuadParticleSystemTestCase.java
+/*  ComponentObjectLeakTestCase.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebirdconsulting.autotester.TestCases;
 
@@ -39,51 +37,72 @@ import java.util.ArrayList;
 
 public class ComponentObjectLeakTestCase extends MaplyTestCase {
 
-    private static final int COUNT = 100;
+    private static final int COUNT = 200;
+    private static final int ITERATIONS = 5000;
 
     public ComponentObjectLeakTestCase(Activity activity) {
-        super(activity);
-        setTestName("ComponentObject Leak Test");
-        setDelay(2000);
-        this.implementation = TestExecutionImplementation.Both;
+        super(activity, "ComponentObject Leak Test");
+        setDelay(2);
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
-        baseView.setUpWithGlobe(globeVC);
-
-        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
-
-        for (int i = 0; i < COUNT; i++) {
-            addAndRemove(globeVC, COUNT, icon);
-        }
-
+        baseCase = new StamenRemoteTestCase(getActivity());
+        baseCase.setUpWithGlobe(globeVC);
+        globeVC.setPositionGeo(0.5, 0.5, 1);
+        addAndRemove(COUNT, ITERATIONS);
         return true;
     }
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
-        baseView.setUpWithMap(mapVC);
-
-        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
-        for (int i = 0; i < COUNT; i++) {
-            addAndRemove(mapVC, COUNT, icon);
-        }
-
+        baseCase = new StamenRemoteTestCase(getActivity());
+        baseCase.setUpWithMap(mapVC);
+        mapVC.setPositionGeo(0.5, 0.5, 1);
+        addAndRemove(COUNT, ITERATIONS);
         return true;
     }
 
-    private void addAndRemove(BaseController viewC, int count,Bitmap image) {
+    @Override
+    public void shutdown() {
+        stop = true;
+        if (baseCase != null) {
+            baseCase.shutdown();
+            baseCase = null;
+        }
+        super.shutdown();
+    }
+
+    private void addAndRemove(int count, int iterations) {
+        stop = false;
+        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
+        addAndRemove(count, iterations, icon);
+    }
+
+    private void addAndRemove(int count, int iterations, Bitmap image) {
+        BaseController viewC = controller;
+        if (iterations > 0 && viewC != null && !stop) {
+            viewC.addPostSurfaceRunnable(() -> {
+                addAndRemove(count, image);
+                addAndRemove(count, iterations - 1, image);
+            }, 1);
+        }
+    }
+
+    private void addAndRemove(int count, Bitmap image) {
+        BaseController viewC = controller;
+        if (viewC == null) {
+            return;
+        }
+
         MarkerInfo markerInfo = new MarkerInfo();
 //        markerInfo.setMinVis(0.f);
 //        markerInfo.setMaxVis(1.f);
 //        markerInfo.setColor(1);
         markerInfo.setDrawPriority(100100);
 
-        ArrayList<ComponentObject> markers = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
+        ArrayList<ComponentObject> markers = new ArrayList<>(count);
+        for (int i = 0; i < count && !stop; i++) {
             ScreenMarker marker = new ScreenMarker();
             marker.image = image;
             marker.loc = new Point2d(Math.random(), Math.random());
@@ -92,10 +111,11 @@ public class ComponentObjectLeakTestCase extends MaplyTestCase {
             markers.add(componentObject);
         }
 
-        for (int i = 0; i< count; i++) {
+        for (int i = 0; i < count && !stop; i++) {
             viewC.removeObject(markers.get(i), RenderController.ThreadMode.ThreadAny);
         }
-
-        markers.clear();
     }
+
+    boolean stop = false;
+    MaplyTestCase baseCase = null;
 }

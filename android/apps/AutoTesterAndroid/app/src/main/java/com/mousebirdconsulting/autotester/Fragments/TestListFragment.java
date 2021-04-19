@@ -110,14 +110,9 @@ public class TestListFragment extends Fragment {
 			testCases.add(new OpenMapTilesHybridTestCase(a));
 			testCases.add(new CartoTestCase(a));
 			testCases.add(new ShapesTestCase(a));
-			// Extruded Model (Arrows)
-			// Models
 //			testCases.add(new MaplyStarModelTestCase(a));
 			testCases.add(new FindHeightTestCase(a));
-			// Animating Position
-
 //			testCases.add(new GestureFeedbackTestCase(a));
-//			testCases.add(new ComponentObjectLeakTestCase(a));
 //			testCases.add(new LightingTestCase(a));
 			testCases.add(new BillboardTestCase(a));
 //			testCases.add(new CoordConversionTestCase(a));
@@ -131,6 +126,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new LocationTrackingRealTestCase(a));
 			testCases.add(new LocationTrackingSimTestCase(a));
 			testCases.add(new GlobeRotationTestCase(a));
+			testCases.add(new ComponentObjectLeakTestCase(a));
 		}
 
 		public void downloadResources() {

@@ -87,18 +87,18 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	}
 
 	@Override
-	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
+	public boolean setUpWithGlobe(GlobeController globeVC) {
 		setupImageLoader(ConfigOptions.TestType.GlobeTest,globeVC);
 		globeVC.setClearColor(Color.RED);
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 //		globeVC.setZoomLimits(0.0,1.0);
 
-		globeVC.addFrameRunnable(true, false, new Runnable() {
-			@Override
-			public void run() {
-				Log.d("Maply", "Hello from the render thread");
-			}
-		});
+		//globeVC.addFrameRunnable(true, false, new Runnable() {
+		//	@Override
+		//	public void run() {
+		//		Log.d("Maply", "Hello from the render thread");
+		//	}
+		//});
 
 		return true;
 	}
