@@ -1,8 +1,7 @@
-/*
- *  MaplyQuadLoader.mm
+/*  MaplyQuadLoader.mm
  *
  *  Created by Steve Gifford on 2/12/19.
- *  Copyright 2012-2019 Saildrone Inc
+ *  Copyright 2012-2021 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +13,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadTileBuilder.h"
@@ -34,7 +32,7 @@ using namespace WhirlyKit;
 - (id)initWithLoader:(MaplyQuadLoaderBase *)loader
 {
     self = [super init];
-    
+
     loadReturn = std::make_shared<QuadLoaderReturn>(loader->loader->getGeneration());
     viewC = loader.viewC;
     
@@ -101,6 +99,10 @@ using namespace WhirlyKit;
 @end
 
 @implementation MaplyQuadLoaderBase
+{
+    NSMutableSet<MaplyLoaderReturn*> *pendingReturns;
+    std::mutex pendingReturnsLock;
+}
 
 - (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
@@ -109,12 +111,22 @@ using namespace WhirlyKit;
     _viewC = inViewC;
     _numSimultaneousTiles = 8;
     
+    pendingReturns = [NSMutableSet new];
+
     return self;
 }
 
 - (bool)delayedInit
 {
     return true;
+}
+
+- (void)dealloc
+{
+    if ([pendingReturns count])
+    {
+        wkLog("MaplyQuadLoaderBase - LoaderReturns not cleaned up");
+    }
 }
 
 - (bool)isLoading
@@ -260,7 +272,7 @@ using namespace WhirlyKit;
     
     ChangeSet changes;
     loader->setTileInfos(tileInfos);
-    loader->reload(NULL,-1,changes);
+    loader->reload(nullptr,-1,changes);
     [thread addChangeRequests:changes];
 }
 
@@ -277,7 +289,7 @@ using namespace WhirlyKit;
     
     ChangeSet changes;
     loadInterp = interp;
-    loader->reload(NULL,-1,changes);
+    loader->reload(nullptr,-1,changes);
     [thread addChangeRequests:changes];
 }
 
@@ -329,7 +341,7 @@ using namespace WhirlyKit;
         return;
     }
 
-    loader->updatePriorities(NULL);
+    loader->updatePriorities(nullptr);
 }
 
 // Called on a random dispatch queue
@@ -465,6 +477,14 @@ using namespace WhirlyKit;
                 if (!thread || [thread isCancelled]) {
                     [self cleanupLoadedData:loadReturn];
                 } else {
+                    // Objects in this LoaderReturn have already been added to the base controller.
+                    // If the layer thread is stopped between now and when the perform occurs, those
+                    // objects will not be cleaned up by mergeLoadedTile(), and need to be cleaned up
+                    // in shutdown() instead.
+                    {
+                        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+                        [self->pendingReturns addObject:loadReturn];
+                    }
                     [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
                 }
             };
@@ -492,6 +512,13 @@ using namespace WhirlyKit;
 - (void)mergeLoadedTile:(MaplyLoaderReturn *)loadReturn
 {
     const auto __strong thread = samplingLayer.layerThread;
+
+    // This object will be cleaned up
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        [self->pendingReturns removeObject:loadReturn];
+    }
+
     if (!loader || !thread || !valid) {
         [self cleanupLoadedData:loadReturn];
         return;
@@ -502,17 +529,27 @@ using namespace WhirlyKit;
         [thread addChangeRequests:loadReturn->loadReturn->changes];
         loadReturn->loadReturn->changes.clear();
     }
-    loader->mergeLoadedTile(NULL,loadReturn->loadReturn.get(),changes);
+    loader->mergeLoadedTile(nullptr,loadReturn->loadReturn.get(),changes);
 
-    loader->setLoadReturnRef(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,NULL);
+    loader->setLoadReturnRef(loadReturn->loadReturn->ident,loadReturn->loadReturn->frame,nullptr);
 
     [thread addChangeRequests:changes];
 }
 
 - (void)cleanup
 {
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        if (auto __strong viewC = _viewC) {
+            for (MaplyLoaderReturn *loadReturn in pendingReturns) {
+                [self cleanupLoadedData:loadReturn];
+            }
+        }
+        [pendingReturns removeAllObjects];
+    }
+
     ChangeSet changes;
-    loader->cleanup(NULL,changes);
+    loader->cleanup(nullptr,changes);
 
     if (!changes.empty()) {
         const auto __strong thread = samplingLayer.layerThread;
