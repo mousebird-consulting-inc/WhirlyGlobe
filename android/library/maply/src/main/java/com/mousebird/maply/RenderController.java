@@ -349,6 +349,9 @@ public class RenderController implements RenderControllerInterface
 
     public void shutdown()
     {
+        // signal to end any outstanding async tasks
+        running = false;
+
         // Kill the shaders here because they don't do well being finalized
         for (Shader shader : shaders)
             shader.dispose();
@@ -479,7 +482,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -489,6 +491,9 @@ public class RenderController implements RenderControllerInterface
             ArrayList<InternalMarker> intMarkers = new ArrayList<>(markers.size());
             for (ScreenMarker marker : markers)
             {
+                if (!running) {
+                    return;
+                }
                 if (marker.loc == null)
                 {
                     Log.d("Maply","Missing location for marker.  Skipping.");
@@ -537,7 +542,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -551,7 +556,6 @@ public class RenderController implements RenderControllerInterface
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -561,6 +565,10 @@ public class RenderController implements RenderControllerInterface
             ArrayList<InternalMarker> intMarkers = new ArrayList<>(markers.size());
             for (ScreenMovingMarker marker : markers)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (marker.loc == null)
                 {
                     Log.d("Maply","Missing location for marker.  Skipping.");
@@ -609,7 +617,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -628,7 +636,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -638,6 +645,10 @@ public class RenderController implements RenderControllerInterface
             ArrayList<InternalMarker> intMarkers = new ArrayList<>(markers.size());
             for (Marker marker : markers)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (marker.loc == null)
                 {
                     Log.d("Maply","Missing location for marker.  Skipping.");
@@ -680,7 +691,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -699,7 +710,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
         final LabelManager labelManager = this.labelManager;
 
         // Do the actual work on the layer thread
@@ -710,6 +720,10 @@ public class RenderController implements RenderControllerInterface
             ArrayList<InternalLabel> intLabels = new ArrayList<>(labels.size());
             for (ScreenLabel label : labels)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (label.text != null && label.text.length() > 0) {
                     InternalLabel intLabel = new InternalLabel(label,labelInfo);
                     intLabels.add(intLabel);
@@ -738,7 +752,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -758,7 +772,6 @@ public class RenderController implements RenderControllerInterface
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
-        final RenderController renderControl = this;
         final LabelManager labelManager = this.labelManager;
 
         // Do the actual work on the layer thread
@@ -768,6 +781,10 @@ public class RenderController implements RenderControllerInterface
             // Convert to the internal representation for the engine
             ArrayList<InternalLabel> intLabels = new ArrayList<>(labels.size());
             for (ScreenMovingLabel label : labels) {
+                if (!running) {
+                    return;
+                }
+
                 if (label.text != null && label.text.length() > 0) {
                     InternalLabel intLabel = new InternalLabel(label,labelInfo,now);
                     intLabels.add(intLabel);
@@ -796,7 +813,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -816,7 +833,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -831,6 +847,10 @@ public class RenderController implements RenderControllerInterface
             // Keep track of this one for selection
             for (VectorObject vecObj : vecs)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (vecObj.getSelectable()) {
                     compObj.addVector(vecObj);
                     componentManager.addSelectableObject(vecObj.ident, vecObj, compObj);
@@ -846,7 +866,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -867,7 +887,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addLoftedPolys(final List<VectorObject> vecs, final LoftedPolyInfo loftInfo, final ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -896,7 +915,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -913,7 +932,6 @@ public class RenderController implements RenderControllerInterface
     {
         if (vecObj == null)
             return;
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -922,7 +940,7 @@ public class RenderController implements RenderControllerInterface
             long[] vecIDs = vecObj.getVectorIDs();
             if (vecIDs != null) {
                 vecManager.changeVectors(vecIDs, vecInfo, changes);
-                renderControl.processChangeSet(changes);
+                processChangeSet(changes);
             }
         }, mode);
     }
@@ -938,7 +956,6 @@ public class RenderController implements RenderControllerInterface
             return null;
 
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -954,7 +971,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -978,7 +995,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1008,7 +1024,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1029,7 +1045,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1037,6 +1052,10 @@ public class RenderController implements RenderControllerInterface
             ChangeSet changes = new ChangeSet();
 
             for (long vecID : inCompObj.getWideVectorIDs()) {
+                if (!running) {
+                    return;
+                }
+
                 long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
 
                 if (instID != EmptyIdentity)
@@ -1044,7 +1063,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1065,7 +1084,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final ChangeSet changes = new ChangeSet();
-        final RenderController renderControl = this;
 
         taskMan.addTask(() -> {
             long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
@@ -1074,6 +1092,10 @@ public class RenderController implements RenderControllerInterface
 
             for (Shape shape : shapes) {
                 if (shape.isSelectable()) {
+                    if (!running) {
+                        return;
+                    }
+
                     componentManager.addSelectableObject(shape.getSelectID(), shape, compObj);
                 }
             }
@@ -1085,7 +1107,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1103,7 +1125,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1123,7 +1144,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1140,7 +1161,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1148,12 +1168,16 @@ public class RenderController implements RenderControllerInterface
 
             long[] stickerIDs = stickerObj.getStickerIDs();
             if (stickerIDs != null && stickerIDs.length > 0) {
-                for (long stickerID : stickerIDs)
+                for (long stickerID : stickerIDs) {
+                    if (!running) {
+                        return;
+                    }
                     stickerManager.changeSticker(stickerID, stickerInfo, changes);
+                }
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1165,7 +1189,6 @@ public class RenderController implements RenderControllerInterface
      */
     public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1184,6 +1207,9 @@ public class RenderController implements RenderControllerInterface
             }
 
             for (Billboard bill : bills) {
+                if (!running) {
+                    return;
+                }
                 // Convert to display space
                 Point3d center = bill.getCenter();
                 Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(new Point3d(center.getX(),center.getY(),0.0));
@@ -1212,7 +1238,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, threadMode);
 
         return compObj;
@@ -1229,7 +1255,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1237,6 +1262,9 @@ public class RenderController implements RenderControllerInterface
 
             // Stickers are added one at a time for some reason
             for (Points pts: ptList) {
+                if (!running) {
+                    return;
+                }
                 //Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
                 long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
 
@@ -1252,7 +1280,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1269,7 +1297,6 @@ public class RenderController implements RenderControllerInterface
         final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
         texture.texID = rawTex.getID();
-        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         taskMan.addTask(() -> {
@@ -1278,7 +1305,7 @@ public class RenderController implements RenderControllerInterface
             rawTex.setBitmap(image,settings.imageFormat.ordinal());
             rawTex.setSettings(settings.wrapU,settings.wrapV);
             changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return texture;
@@ -1293,14 +1320,13 @@ public class RenderController implements RenderControllerInterface
     public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
-        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
             texture.texID = rawTex.getID();
             changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return texture;
@@ -1321,7 +1347,6 @@ public class RenderController implements RenderControllerInterface
         texture.texID = rawTex.getID();
         texture.width = width;
         texture.height = height;
-        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         taskMan.addTask(() -> {
@@ -1330,7 +1355,7 @@ public class RenderController implements RenderControllerInterface
             rawTex.setSize(width,height);
             rawTex.setIsEmpty(true);
             changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return texture;
@@ -1343,8 +1368,6 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
     {
-        final RenderController renderControl = this;
-
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
@@ -1352,7 +1375,7 @@ public class RenderController implements RenderControllerInterface
             for (MaplyTexture tex : texs) {
                 changes.removeTexture(tex.texID);
             }
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1373,8 +1396,6 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
     {
-        final RenderController renderControl = this;
-
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
@@ -1383,7 +1404,7 @@ public class RenderController implements RenderControllerInterface
                 changes.removeTexture(texID);
             }
 
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1425,12 +1446,10 @@ public class RenderController implements RenderControllerInterface
      */
     public void clearRenderTarget(final RenderTarget renderTarget, ThreadMode mode)
     {
-        final RenderController renderControl = this;
-
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
             changes.clearRenderTarget(renderTarget.renderTargetID);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1448,7 +1467,6 @@ public class RenderController implements RenderControllerInterface
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[0]);
-        final RenderController renderControl = this;
 
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
@@ -1457,7 +1475,7 @@ public class RenderController implements RenderControllerInterface
                     componentManager.enableComponentObject(compObj, false, changes);
                 }
             }
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1488,8 +1506,6 @@ public class RenderController implements RenderControllerInterface
         if (compObjs == null || compObjs.length == 0)
             return;
 
-        final RenderController renderControl = this;
-
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
             for (ComponentObject compObj : compObjs) {
@@ -1497,7 +1513,7 @@ public class RenderController implements RenderControllerInterface
                     componentManager.enableComponentObject(compObj, true, changes);
                 }
             }
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1527,13 +1543,11 @@ public class RenderController implements RenderControllerInterface
         if (compObjs == null || compObjs.length == 0)
             return;
 
-        final RenderController renderControl = this;
-
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
             componentManager.removeComponentObjects(compObjs,changes,disposeAfterRemoval);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1694,7 +1708,7 @@ public class RenderController implements RenderControllerInterface
     public void processChangeSet(ChangeSet changes)
     {
         if (changes != null) {
-            if (scene != null) {
+            if (scene != null && running) {
                 changes.process(this, scene);
             }
             changes.dispose();
@@ -1732,6 +1746,8 @@ public class RenderController implements RenderControllerInterface
 
         return bitmap;
     }
+
+    private boolean running = true;
 
     public native void setScene(Scene scene);
     public native void setupShadersNative();
