@@ -1,6 +1,8 @@
 package com.mousebirdconsulting.autotester.Framework;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -21,6 +23,8 @@ import com.mousebird.maply.SelectedObject;
 import com.mousebirdconsulting.autotester.ConfigOptions;
 import com.mousebirdconsulting.autotester.R;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.io.DataInputStream;
 import java.io.File;
@@ -447,4 +451,53 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 
 	public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
 	{}
+
+	/**
+	 * Write a resource file to a local directory where it can be modified or opened for random-access.
+	 * @param assetFile The name of the asset file
+	 * @param localDirName The directory in which to place the file, created if necessary
+	 * @param localFileName The name of the file to write
+	 * @return A File representing the resulting file, or null
+	 */
+	protected File copyAssetFile(String assetFile, String localDirName, String localFileName) {
+		return copyAssetFile(getActivity(), assetFile, localDirName, localFileName);
+	}
+
+	/**
+	 * Write a resource file to a local directory where it can be modified or opened for random-access.
+	 * @param assetFile The name of the asset file
+	 * @param localDirName The directory in which to place the file, created if necessary
+	 * @param localFileName The name of the file to write
+	 * @return A File representing the resulting file, or null
+	 */
+	protected static File copyAssetFile(Activity activity, String assetFile, String localDirName, String localFileName) {
+		if (activity == null) {
+			return null;
+		}
+
+		ContextWrapper wrapper = new ContextWrapper(activity);
+		File localDir =  wrapper.getDir(localDirName, Context.MODE_PRIVATE);
+		if (localDir == null) {
+			return null;
+		}
+
+		File outFile = new File(localDir, localFileName);
+		if (outFile.exists()) {
+			return outFile;
+		}
+
+		try (InputStream is = activity.getAssets().open(assetFile);
+			 OutputStream os = new FileOutputStream(outFile)) {
+			byte[] mBuffer = new byte[1024];
+			for (int length; (length = is.read(mBuffer)) > 0; ) {
+				os.write(mBuffer, 0, length);
+			}
+			return outFile;
+		} catch (Exception ex) {
+			Log.w("Maply", "Failed to extract asset " + assetFile);
+			return null;
+		}
+
+	}
+
 }

@@ -1,21 +1,20 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
-import android.content.Context;
-import android.os.Looper;
 
+import com.mousebird.maply.BaseController;
 import com.mousebird.maply.CoordSystem;
 import com.mousebird.maply.GlobeController;
+import com.mousebird.maply.ImageLoaderInterpreter;
 import com.mousebird.maply.MapController;
-import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
+import com.mousebird.maply.OvlDebugImageLoaderInterpreter;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.Proj4CoordSystem;
+import com.mousebird.maply.QuadImageLoader;
+import com.mousebird.maply.SamplingParams;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
 
 /**
  * Created by sjg on 2/13/16.
@@ -23,40 +22,17 @@ import java.io.InputStream;
 public class CustomBNGTileSource extends MaplyTestCase
 {
     public CustomBNGTileSource(Activity activity) {
-        super(activity);
-        this.setTestName("British National Grid");
-        this.setDelay(2000);
-        this.implementation = TestExecutionImplementation.Both;
-    }
-
-    public static String getFilePathFromAssets(String assetFilePath, Context context) {
-        File file = new File(context.getCacheDir() + assetFilePath);
-
-        // Copy file from assets if not already in cache directory
-        if (!file.exists()) {
-            try {
-                InputStream inputStream = context.getAssets().open(assetFilePath);
-                int bufferSize = 4 * 1024;
-                byte[] buffer = new byte[bufferSize];
-                inputStream.read(buffer);
-                inputStream.close();
-
-                FileOutputStream fileOutputStream = new FileOutputStream(file);
-                fileOutputStream.write(buffer);
-                fileOutputStream.close();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        return file.getPath();
+        super(activity, "British National Grid");
+        this.setDelay(2);
     }
 
     // Put together a British National Grid system
     static public CoordSystem MakeBNGCoordSystem(Activity activity, boolean displayVersion)
     {
-//        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=" + outFileName + ",null" + " +units=m +no_defs";
-        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs";
+        File bngFile = copyAssetFile(activity, "bng/OSTN02_NTv2.gsb", "bng", "OSTN02_NTv2.gsb");
+        String gridRef = " +nadgrids=" + bngFile;
+
+        String projStr = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs" + gridRef;
         Proj4CoordSystem coordSys = new Proj4CoordSystem(projStr);
 
         // Set the bounding box for validity.  It assumes it can go everywhere by default
@@ -80,33 +56,40 @@ public class CustomBNGTileSource extends MaplyTestCase
         return coordSys;
     }
 
-    // TODO: Put this back
-    /*
-    public QuadImageTileLayer makeTestLayer(MaplyBaseController viewC)
+    public static QuadImageLoader makeTestLoader(Activity activity, BaseController viewC, boolean displayVersion)
     {
-        CoordSystem bngCoordSystem = MakeBNGCoordSystem(getActivity(),false);
+        CoordSystem bngCoordSystem = MakeBNGCoordSystem(activity, displayVersion);
 
-        TestImageSource tileSource = new TestImageSource(Looper.getMainLooper(),0,14);
-        tileSource.alpha = 128;
+        SamplingParams params = new SamplingParams();
+        params.setCoordSystem(bngCoordSystem);
+        params.setCoverPoles(false);
+        params.setEdgeMatching(false);
+        params.setMinZoom(0);
+        params.setMaxZoom(10);
+        //params.setMinImportance(256 * 256);
 
-        QuadImageTileLayer baseLayer = new QuadImageTileLayer(viewC, bngCoordSystem, tileSource);
-        baseLayer.setCoverPoles(false);
-        baseLayer.setHandleEdges(false);
-        baseLayer.setDrawPriority(1000);
-        baseLayer.setImportanceScale(4.f);
+        QuadImageLoader loader = new QuadImageLoader(params,null,viewC);
+        loader.setBaseDrawPriority(1000);
+        //loader.setLoaderInterpreter(new ImageLoaderInterpreter());
 
-        return baseLayer;
+        OvlDebugImageLoaderInterpreter interp = new OvlDebugImageLoaderInterpreter();
+        interp.setParentInterpreter(new ImageLoaderInterpreter());
+        loader.setLoaderInterpreter(interp);
+
+        //baseLayer.setImportanceScale(4.f);
+        //Mbr bounds = bngCoordSystem.getBounds();
+        //viewC.setViewExtents(bounds.ll, bounds.ur);
+
+        return loader;
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception
     {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
-        baseView.setUpWithGlobe(globeVC);
+        baseCase = new StamenRemoteTestCase(getActivity());
+        baseCase.setUpWithGlobe(globeVC);
 
-        QuadImageTileLayer layer = makeTestLayer(globeVC);
-        if (layer != null)
-            globeVC.addLayer(layer);
+        loader = makeTestLoader(getActivity(), globeVC,true);
 
         Point2d pt = Point2d.FromDegrees(-0.1275, 51.507222);
         globeVC.setPositionGeo(pt.getX(), pt.getY(), 0.4);
@@ -117,18 +100,29 @@ public class CustomBNGTileSource extends MaplyTestCase
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception
     {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
-        baseView.setUpWithMap(mapVC);
+        baseCase = new StamenRemoteTestCase(getActivity());
+        baseCase.setUpWithMap(mapVC);
 
-        QuadImageTileLayer layer = makeTestLayer(mapVC);
-        if (layer != null)
-            mapVC.addLayer(layer);
-
+        loader = makeTestLoader(getActivity(), mapVC,true);
 
         Point2d pt = Point2d.FromDegrees(-0.1275, 51.507222);
         mapVC.setPositionGeo(pt.getX(), pt.getY(), 0.4);
 
         return true;
     }
-*/
+
+    @Override
+    public void shutdown() {
+        if (loader != null) {
+            loader.shutdown();
+            loader = null;
+        }
+        if (baseCase != null) {
+            baseCase.shutdown();
+        }
+        super.shutdown();
+    }
+
+    private MaplyTestCase baseCase = null;
+    private QuadImageLoader loader = null;
 }
