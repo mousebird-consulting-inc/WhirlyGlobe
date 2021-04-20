@@ -369,7 +369,7 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		testName = value;
 	}
 
-	public void setDelay(int value) {
+	public final void setDelay(int value) {
 		delay = value;
 	}
 
