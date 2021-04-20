@@ -183,6 +183,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.opacityExp = paint.opacity->expression();
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.color = *color;
+            vecInfo.zoomSlot = styleSet->zoomSlot;
             vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
             vecInfo.drawOrder = tileInfo->tileNumber();
 
