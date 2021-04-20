@@ -385,10 +385,11 @@ open class MapboxKindaMap(
             it.edgeMatching = (theControl is GlobeController)
             it.minZoom = minZoom
             it.maxZoom = maxZoom
+            // Let the reported zoom go beyond the maximum
+            it.reportedMaxZoom = 24
         }
         sampleParams = params
-        
-        //sampleParams.reportedMaxZoom = 24
+
         // If we don't have a solid under-layer for each tile, we can't really
         //  keep level 0 around all the time
         if (!backgroundAllPolys) {
