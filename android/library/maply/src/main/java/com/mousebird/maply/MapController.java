@@ -20,6 +20,7 @@ package com.mousebird.maply;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.opengl.GLSurfaceView;
 import android.view.Choreographer;
 import android.view.MotionEvent;
@@ -104,9 +105,10 @@ public class MapController extends BaseController implements View.OnTouchListene
 		setupTheRest(genCoordAdapter,clearColor);
 
 		// Set up the bounds
-		Point3d ll = new Point3d(),ur = new Point3d();
-		coordAdapter.getBounds(ll,ur);
-		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
+		Point2d ll = new Point2d();
+		Point2d ur = new Point2d();
+		coordAdapter.getGeoBounds(ll,ur);
+		setViewExtents(ll, ur);
 	}
 
 	/**
@@ -126,12 +128,14 @@ public class MapController extends BaseController implements View.OnTouchListene
 		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()),clearColor);
 
 		// Set up the bounds
-		Point3d ll = new Point3d(),ur = new Point3d();
-		coordAdapter.getBounds(ll,ur);
-		// Allow E/W wraping
-		ll.setValue(Float.MAX_VALUE, ll.getY(), ll.getZ());
-		ur.setValue(-Float.MAX_VALUE, ur.getY(), ur.getZ());
-		setViewExtents(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
+		if (coordAdapter != null) {
+			Point3d ll = new Point3d(), ur = new Point3d();
+			coordAdapter.getBounds(ll, ur);
+			// Allow E/W wraping
+			ll.setValue(Float.MAX_VALUE, ll.getY(), ll.getZ());
+			ur.setValue(-Float.MAX_VALUE, ur.getY(), ur.getZ());
+			setViewExtents(new Point2d(ll.getX(), ll.getY()), new Point2d(ur.getX(), ur.getY()));
+		}
 	}
 
 	protected void setupTheRest(CoordSystemDisplayAdapter inCoordAdapter,int clearColor)
@@ -371,6 +375,25 @@ public class MapController extends BaseController implements View.OnTouchListene
 		} while (true);
 		
 		return maxHeight;
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 */
+	public void setPositionGeo(final Point2d pt,final double z)
+	{
+		setPositionGeo(pt.getX(), pt.getY(), z);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
+	 */
+	public void setPositionGeo(final Point3d pt)
+	{
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ());
 	}
 
 	/**
@@ -728,15 +751,15 @@ public class MapController extends BaseController implements View.OnTouchListene
 
 		if (gestureDelegate != null)
 		{
-			Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
+			final Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
 			Point3d geoPt = null;
 			if (localPt != null)
 				geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
-
-//			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
-
-			gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
+			if (geoPt != null) {
+				//Object selObj = this.getObjectAtScreenLoc(screenLoc);
+				final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
+				gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
+			}
 		}
 
 	}
@@ -744,9 +767,9 @@ public class MapController extends BaseController implements View.OnTouchListene
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {
+		view.performClick();
 		if (running & gestureHandler != null)
 			return gestureHandler.onTouch(view, e);
-
 		return false;
 	}
 

@@ -1,9 +1,8 @@
-/*
- *  GlobeController.java
+/*  GlobeController.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,22 +14,17 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
-
-import static android.R.attr.x;
-import static android.R.attr.y;
 
 /**
  * The GlobeController is the main object in the Maply library when using a 3D globe.  
@@ -498,6 +492,25 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		viewState.tilt = globeView.getTilt();
 
 		return viewState;
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 */
+	public void setPositionGeo(final Point2d pt,final double z)
+	{
+		setPositionGeo(pt.getX(), pt.getY(), z);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
+	 */
+	public void setPositionGeo(final Point3d pt)
+	{
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ());
 	}
 
 	/**
