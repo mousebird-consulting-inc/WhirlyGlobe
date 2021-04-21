@@ -127,7 +127,13 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             }
         }
 
-        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
+        MBResolveColorType resolveMode = MBResolveColorOpacityComposeAlpha;
+#ifdef __ANDROID__
+        // On Android we need to run the math later, so don't premultiply
+        if (!paint.color->isExpression() && !paint.opacity->isExpression())
+            resolveMode = MBResolveColorOpacityMultiply;
+#endif
+        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode))
         {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;

@@ -125,7 +125,7 @@ public:
     
     // True if this is an expression, rather than a constant
     bool isExpression();
-    
+
     // Build the expression, if this has stops
     FloatExpressionInfoRef expression();
 
@@ -155,7 +155,10 @@ public:
 
     // Return a color for the given zoom level
     RGBAColor colorForZoom(double zoom);
-    
+
+    // Check if we've got an expression or it's going to be a constant
+    bool isExpression() const;
+
     // Build the expression, if this has stops
     ColorExpressionInfoRef expression();
     
