@@ -1,9 +1,8 @@
-/*
- *  CoordSystem.mm
+/*  CoordSystem.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/14/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Platform.h"
@@ -34,8 +32,8 @@ Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f 
         return inCoord;
     
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
-    Point3f geoCPt = inSystem->localToGeocentric(inCoord);
-    Point3f outPt = outSystem->geocentricToLocal(geoCPt);
+    const Point3f geoCPt = inSystem->localToGeocentric(inCoord);
+    const Point3f outPt = outSystem->geocentricToLocal(geoCPt);
     return outPt;
 }
 
@@ -46,81 +44,68 @@ Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3
         return inCoord;
     
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
-    Point3d geoCPt = inSystem->localToGeocentric(inCoord);
-    Point3d outPt = outSystem->geocentricToLocal(geoCPt);
+    const Point3d geoCPt = inSystem->localToGeocentric(inCoord);
+    const Point3d outPt = outSystem->geocentricToLocal(geoCPt);
     return outPt;
 }
 
-DelayedDeletable::~DelayedDeletable()
-{
-}
-    
-CoordSystem::CoordSystem()
-{
-}
-    
-CoordSystem::~CoordSystem()
-{
-}    
-    
-GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &inCenter,const Point3d &inScale)
-    : CoordSystemDisplayAdapter(coordSys,inCenter), ll(ll), ur(ur), coordSys(coordSys)
+GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,
+                                                                   const Point3d &inCenter,const Point3d &inScale) :
+    CoordSystemDisplayAdapter(coordSys,inCenter),
+    ll(ll), ur(ur),
+    coordSys(coordSys)
 {
     scale = inScale;
     center = inCenter;
-    dispLL = localToDisplay(ll);
-    dispUR = localToDisplay(ur);
+    dispLL = localToDisplay(ll);    //NOLINT derived virtual methods not called
+    dispUR = localToDisplay(ur);    //NOLINT
     geoLL = coordSys->localToGeographicD(ll);
     geoUR = coordSys->localToGeographicD(ur);
 }
 
-GeneralCoordSystemDisplayAdapter::~GeneralCoordSystemDisplayAdapter()
-{
-}
-
-bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR)
+bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR) const
 {
     outLL = Point3f(ll.x(),ll.y(),ll.z());
     outUR = Point3f(ur.x(),ur.y(),ur.z());
     return true;
 }
     
-bool GeneralCoordSystemDisplayAdapter::getDisplayBounds(Point3d &ll,Point3d &ur)
+bool GeneralCoordSystemDisplayAdapter::getDisplayBounds(Point3d &inLL,Point3d &inUR) const
 {
-    ll = dispLL;
-    ur = dispUR;
+    inLL = dispLL;
+    inUR = dispUR;
     return true;
 }
     
-bool GeneralCoordSystemDisplayAdapter::getGeoBounds(Point2d &ll,Point2d &ur)
+bool GeneralCoordSystemDisplayAdapter::getGeoBounds(Point2d &inLL,Point2d &inUR) const
 {
-    ll = geoLL;
-    ur = geoUR;
+    inLL = geoLL;
+    inUR = geoUR;
     return true;
 }
     
-WhirlyKit::Point3f GeneralCoordSystemDisplayAdapter::localToDisplay(WhirlyKit::Point3f localPt)
+Point3f GeneralCoordSystemDisplayAdapter::localToDisplay(Point3f localPt) const
 {
-    Point3f dispPt = Point3f(localPt.x()*scale.x(),localPt.y()*scale.y(),localPt.z()*scale.z())-Point3f(center.x(),center.y(),center.z());
-    return dispPt;
+    return Point3f(localPt.x()*scale.x(),localPt.y()*scale.y(),localPt.z()*scale.z()) -
+            Point3f(center.x(),center.y(),center.z());
 }
 
-WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::localToDisplay(WhirlyKit::Point3d localPt)
+Point3d GeneralCoordSystemDisplayAdapter::localToDisplay(Point3d localPt) const
 {
-    Point3d dispPt = Point3d(localPt.x()*scale.x(),localPt.y()*scale.y(),localPt.z()*scale.z())-center;
-    return dispPt;
+    return Point3d(localPt.x()*scale.x(),localPt.y()*scale.y(),localPt.z()*scale.z()) -
+            center;
 }
     
-WhirlyKit::Point3f GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::Point3f dispPt)
+Point3f GeneralCoordSystemDisplayAdapter::displayToLocal(Point3f dispPt) const
 {
-    Point3f localPt = Point3f(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z())+Point3f(center.x(),center.y(),center.z());
-    return localPt;
+    return Point3f(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z()) +
+            Point3f(center.x(),center.y(),center.z());
 }
 
-WhirlyKit::Point3d GeneralCoordSystemDisplayAdapter::displayToLocal(WhirlyKit::Point3d dispPt)
+Point3d GeneralCoordSystemDisplayAdapter::displayToLocal(Point3d dispPt) const
 {
-    Point3d localPt = Point3d(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z())+center;
-    return localPt;
+    return Point3d(dispPt.x()/scale.x(),dispPt.y()/scale.y(),dispPt.z()/scale.z()) +
+            center;
 }
-    
+
 }
