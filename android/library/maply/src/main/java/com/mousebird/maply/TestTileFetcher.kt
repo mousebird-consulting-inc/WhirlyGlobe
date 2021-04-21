@@ -56,22 +56,11 @@ class TestTileFetcher(
             return TestTileFetchInfo(tileID)
         }
     }
-    
-    /**
-     * The tile info is used by the quad paging logic to figure out
-     * min/max zoom level and such.
-     */
-    //private val tileInfo: TestTileInfo by lazy { TestTileInfo(minZoom, maxZoom) }
-    
+
     /**
      * No remote URLs to track, so we just keep the tile ID.
      */
     internal class TestTileFetchInfo(var tileID: TileID)
-    
-    /**
-     * Wrapper around the fetch request so we can prioritize loads.
-     */
-    //internal inner class TileInfo(var fetchInfo: TestTileFetchInfo)
     
     /**
      * Name of this tile fetcher.  Used for coordinating tile sources.
@@ -123,7 +112,8 @@ class TestTileFetcher(
                     Paint().let { paint ->
                         paint.style = Paint.Style.STROKE
                         paint.color = Color.WHITE
-                        canvas.drawRect(2f, 2f, (width - 2).toFloat(), (height - 2).toFloat(), paint)
+                        //canvas.drawRect(2f, 2f, (width - 2).toFloat(), (height - 2).toFloat(), paint)
+                        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
                         canvas.drawText(text, (width - textWidth) / 2f, height / 2f, paint)
                     }
                 }
