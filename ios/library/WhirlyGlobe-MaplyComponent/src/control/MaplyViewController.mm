@@ -326,21 +326,22 @@ public:
 {
     if (_coordSys)
     {
-        MaplyCoordinate ll,ur;
-        [_coordSys getBoundsLL:&ll ur:&ur];
-        const Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        const auto bbox = [_coordSys getBounds];
+        const auto ll3d = Point3d(bbox.ll.x, bbox.ll.y, 0);
+        const auto ur3d = Point3d(bbox.ur.x, bbox.ur.y, 0);
+        const auto diff = ur3d - ll3d;
+        const auto center3d = Point3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
         // May need to scale this to the space we're expecting
-        double scaleFactor = 1.0;
-        if (std::abs(ur.x-ll.x) > 10.0 || std::abs(ur.y-ll.y) > 10.0)
-        {
-            const Point3d diff = ur3d - ll3d;
-            scaleFactor = 4.0/std::max(diff.x(),diff.y());
-        }
-        const Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-        coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>([_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
-                                                                          Point3d(scaleFactor,scaleFactor,scaleFactor));
+        const auto scaleFactor = (std::abs(diff.x()) > 10.0 || std::abs(diff.y()) > 10.0) ?
+                                    4.0/std::max(diff.x(),diff.y()) : 1.0;
+        coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(
+              [_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
+              Point3d(scaleFactor,scaleFactor,1));
     } else {
-        coordAdapter = CoordSystemDisplayAdapterRef(new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0)));
+        const auto originLon = 0.0;
+        const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
+        const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
+        coordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
     }
     
     mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
