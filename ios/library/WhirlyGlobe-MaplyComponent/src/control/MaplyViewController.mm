@@ -328,22 +328,22 @@ public:
     {
         MaplyCoordinate ll,ur;
         [_coordSys getBoundsLL:&ll ur:&ur];
-        Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        const Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
         // May need to scale this to the space we're expecting
         double scaleFactor = 1.0;
         if (std::abs(ur.x-ll.x) > 10.0 || std::abs(ur.y-ll.y) > 10.0)
         {
-            Point3d diff = ur3d - ll3d;
+            const Point3d diff = ur3d - ll3d;
             scaleFactor = 4.0/std::max(diff.x(),diff.y());
         }
-        Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-        GeneralCoordSystemDisplayAdapter *genCoordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,Point3d(scaleFactor,scaleFactor,scaleFactor));
-        coordAdapter = CoordSystemDisplayAdapterRef(genCoordAdapter);
+        const Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
+        coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>([_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
+                                                                          Point3d(scaleFactor,scaleFactor,scaleFactor));
     } else {
         coordAdapter = CoordSystemDisplayAdapterRef(new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0)));
     }
     
-    mapView = Maply::MapView_iOSRef(new Maply::MapView_iOS(coordAdapter.get()));
+    mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
     mapView->continuousZoom = true;
     mapView->setWrap(_viewWrap);
     mapView->addWatcher(&animWrapper);
@@ -365,8 +365,9 @@ public:
     
     allowRepositionForAnnnotations = false;
     
-    Point3f ll,ur;
-    coordAdapter->getBounds(ll, ur);
+    Point2d ll(0,0),ur(0,0);
+    coordAdapter->getGeoBounds(ll, ur);
+
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
 
@@ -420,7 +421,10 @@ public:
         touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:wrapView mapView:mapView.get()];
     }
 
-    [self setViewExtentsLL:boundLL ur:boundUR];
+    if (boundLL.x != boundUR.x || boundLL.y != boundUR.y)
+    {
+        [self setViewExtentsLL:boundLL ur:boundUR];
+    }
 }
 
 - (void)handleLongPress:(UIGestureRecognizer*)sender {
@@ -436,8 +440,8 @@ public:
     if (!coordAdapter)
         return;
 
-    Point3f ll,ur;
-    coordAdapter->getBounds(ll, ur);
+    Point2d ll(0,0),ur(0,0);
+    coordAdapter->getGeoBounds(ll, ur);
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
     
@@ -447,7 +451,11 @@ public:
         boundLL.x = -MAXFLOAT;
         boundUR.x = MAXFLOAT;
     }
-    [self setViewExtentsLL:boundLL ur:boundUR];
+
+    if (boundLL.x != boundUR.x || boundLL.y != boundUR.y)
+    {
+        [self setViewExtentsLL:boundLL ur:boundUR];
+    }
     
     mapView->setWrap(_viewWrap);
 }
