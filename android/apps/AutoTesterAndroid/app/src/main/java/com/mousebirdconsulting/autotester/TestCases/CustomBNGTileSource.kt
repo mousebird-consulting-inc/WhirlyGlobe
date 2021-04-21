@@ -21,6 +21,7 @@ import android.app.Activity
 import com.mousebird.maply.*
 import com.mousebird.maply.TestTileFetcher.TestTileInfo
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
+import kotlin.math.log10
 
 open class CustomBNGTileSource : MaplyTestCase {
     constructor(activity: Activity?) :
@@ -43,7 +44,8 @@ open class CustomBNGTileSource : MaplyTestCase {
         val bound = geoBound(makeBNGCoordSystem(activity, false))
         val middle = bound.middle()
         val h = globeVC.findHeightToViewBounds(bound, middle)
-        globeVC.setPositionGeo(middle, h)
+        globeVC.setPositionGeo(middle, h/2)
+        globeVC.animatePositionGeo(middle, h*1.1, 0.0, 1.0)
 
         return true
     }
@@ -60,7 +62,8 @@ open class CustomBNGTileSource : MaplyTestCase {
         val bound = geoBound(makeBNGCoordSystem(activity, false))
         val middle = bound.middle()
         val h = mapVC.findHeightToViewBounds(bound, middle)
-        mapVC.setPositionGeo(middle, h)
+        mapVC.setPositionGeo(middle, h/2)
+        mapVC.animatePositionGeo(middle, h*1.1, 0.0, 1.0)
 
         return true
     }
@@ -98,14 +101,13 @@ open class CustomBNGTileSource : MaplyTestCase {
             it.addPoint(Point2d(671196.3657, 1230275.0454))
         }
         
-        // Now expand it out so we can see the whole of the UK
+        // Expand when setting the view bound so we can see the whole UK and the edge of the tile set
         if (displayVersion) {
-            // Note: There may be a center/offset problem with the bounds.  Made them bigger to compensate
-            val spanX = bound.ur.x - bound.ll.x
-            val spanY = bound.ur.y - bound.ll.y
-            val extra = 1.5
-            bound.addPoint(Point2d(-extra * spanX, -extra * spanY))
-            bound.addPoint(Point2d(extra * spanX, extra * spanY))
+            val extra = 0.25
+            val extraX = extra * (bound.ur.x - bound.ll.x)
+            val extraY = extra * (bound.ur.y - bound.ll.y)
+            bound.addPoint(Point2d(bound.ll.x - extraX, bound.ll.y - extraY))
+            bound.addPoint(Point2d(bound.ur.x + extraX, bound.ur.y + extraY))
         }
 
         return Proj4CoordSystem(projStr).apply {
