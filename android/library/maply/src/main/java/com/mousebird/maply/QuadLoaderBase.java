@@ -109,8 +109,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public Mbr geoBoundsForTile(TileID tileID)
     {
-        Mbr mbr = new Mbr();
-        mbr.initialize();
+        Mbr mbr = new Mbr(new Point2d(),new Point2d());
         geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
         return mbr;
     }
@@ -129,10 +128,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     @SuppressWarnings({"unused", "RedundantSuppression"})
     public Mbr boundsForTile(TileID tileID)
     {
-        Mbr mbr = new Mbr();
-        mbr.initialize();
+        Mbr mbr = new Mbr(new Point2d(),new Point2d());
         boundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
-
         return mbr;
     }
 

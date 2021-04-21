@@ -459,21 +459,20 @@ void BBox::asPoints(Point3dVector &pts) const
 
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
 {
-    Eigen::Quaterniond ret;
-    
-    Vector3d v0 = a.normalized();
-    Vector3d v1 = b.normalized();
-    double c = v0.dot(v1);
+    const Vector3d v0 = a.normalized();
+    const Vector3d v1 = b.normalized();
+    const double c = v0.dot(v1);
     
     // The trick here is that we've taken out the checks against
     //  1 (vectors are nearly identical) and -1
-    
-    Vector3d axis = v0.cross(v1);
-    double s = sqrt((1.f+c)*2.f);
-    double invs = 1.f/s;
+
+    const Vector3d axis = v0.cross(v1);
+    const double s = sqrt((1.f+c)*2.f);
+    const double invs = 1.f/s;
+
+    Eigen::Quaterniond ret;
     ret.vec() = axis * invs;
     ret.w() = s * 0.5f;
-    
     return ret;
 }
 
