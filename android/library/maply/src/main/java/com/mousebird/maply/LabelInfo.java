@@ -141,6 +141,13 @@ public class LabelInfo extends BaseInfo
 		updateLineHeight();
 	}
 
+	/**
+	 * Size of point as measured in the font.
+	 */
+	native void setFontPointSize(float size);
+
+	native float getFontPointSize();
+
 	native void setFontSizeNative(float size);
 
 	public float getFontSize() {

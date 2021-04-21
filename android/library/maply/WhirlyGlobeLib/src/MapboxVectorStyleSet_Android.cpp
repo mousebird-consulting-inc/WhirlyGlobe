@@ -150,7 +150,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
         }
 
         jstring jFontNameStr = inst->env->NewStringUTF(fontNames[0].c_str());
-        jobject labelInfo = inst->env->CallObjectMethod(thisObj, makeLabelInfoMethod, jFontNameStr, 2.0 * fontSize);
+        jobject labelInfo = inst->env->CallObjectMethod(thisObj, makeLabelInfoMethod, jFontNameStr, fontSize);
         logAndClearJVMException(inst->env, "labelInfoForFont");
         inst->env->DeleteLocalRef(jFontNameStr);
 

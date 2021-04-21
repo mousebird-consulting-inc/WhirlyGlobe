@@ -372,8 +372,8 @@ open class MapboxKindaMap(
 
         val metrics = displayMetrics
         val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
-        val defLineScale = dpi / 185.0
-        val defTextScale = dpi / 650.0
+        val defLineScale = dpi / 230.0
+        val defTextScale = dpi / 230.0
 
         Log.w("MKM", "$dpi $defLineScale/$defTextScale ${minImportance / (512.0 * 512.0) / 2}/${minImportance / (768.0 * 768.0) / 2}");
 

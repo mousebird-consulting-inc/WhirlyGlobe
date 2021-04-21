@@ -152,8 +152,11 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
         val labelInfo = LabelInfo()
         labelInfo.typeface = typefaceMap.putIfAbsent(fontName, typeface) ?: typeface
+        // We scale the font size up double
         labelInfo.setFontSize(fontSize)
         labelInfo.fontName = fontName
+        // TODO: See if we could get this from the typeface
+        labelInfo.fontPointSize = 32.0f;
 
         // Same with the size-specific label info
         return labelInfoMap.putIfAbsent(SizedTypeface(fontName, fontSize), labelInfo) ?: labelInfo

@@ -11,6 +11,8 @@ public class VectorStyleSettings {
 
     public VectorStyleSettings() {
         this(1.0);
+        setBaseDrawPriority(QuadImageLoaderBase.BaseDrawPriorityDefault + 1000);
+        setDrawPriorityPerLevel(100);
     }
     public VectorStyleSettings(double scale) {
         initialise(scale);
