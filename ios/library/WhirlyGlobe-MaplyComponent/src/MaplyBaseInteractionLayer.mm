@@ -767,19 +767,27 @@ public:
     ThreadChangeSet::iterator it = perThreadChanges.find(changes);
     if (it != perThreadChanges.end())
     {
-        EAGLContext *tmpContext = [self setupTempContext:MaplyThreadCurrent];
-
         ThreadChanges theseChanges = *it;
-        // Process the setupGL on this thread rather than making the main thread do it
-        if (currentThread != [NSThread mainThread])
-            for (auto &change : theseChanges.changes) {
-                if (change)
-                    change->setupGL(glSetupInfo, scene->getMemManager());
-            }
-        scene->addChangeRequests(theseChanges.changes);
+
+        // If this is one of our layer threads, let's just flush this out through its change set
+        if ([currentThread isKindOfClass:[WhirlyKitLayerThread class]]) {
+            WhirlyKitLayerThread *theLayerThread = (WhirlyKitLayerThread *)currentThread;
+            [theLayerThread addChangeRequests:theseChanges.changes];
+        } else {
+            EAGLContext *tmpContext =  [self setupTempContext:MaplyThreadCurrent];
+                    
+            // Process the setupGL on this thread rather than making the main thread do it
+            if (currentThread != [NSThread mainThread])
+                for (auto &change : theseChanges.changes) {
+                    if (change)
+                        change->setupGL(glSetupInfo, scene->getMemManager());
+                }
+            scene->addChangeRequests(theseChanges.changes);
+            
+            [self clearTempContext:tmpContext];
+        }
+
         perThreadChanges.erase(it);
-        
-        [self clearTempContext:tmpContext];
     }
 
     pthread_mutex_unlock(&changeLock);
