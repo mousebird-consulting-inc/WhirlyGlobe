@@ -61,7 +61,7 @@ class TestTileImageFetcher : NSObject, MaplyTileFetcher {
         guard let info = request.fetchInfo as? TestTileFetchInfo else { return nil; }
         let tileID = info.tileID
         return UIGraphicsImageRenderer(size: CGSize(width: tileSize, height: tileSize)).image { ctx in
-            let color = colors[Int(info.tileID.level) % colors.count]//.withAlphaComponent(CGFloat(Float(alpha) / 255.0))
+            let color = colors[Int(info.tileID.level) % colors.count]
             ctx.cgContext.setFillColor(color.cgColor)
             ctx.cgContext.setStrokeColor(UIColor.white.cgColor)
             ctx.cgContext.setAlpha(CGFloat(Float(alpha) / 255))

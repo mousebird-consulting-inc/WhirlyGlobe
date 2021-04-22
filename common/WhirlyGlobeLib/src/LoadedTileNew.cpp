@@ -1,9 +1,8 @@
-/*
- *  LoadedTileNew.mm
+/*  LoadedTileNew.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/18.
- *  Copyright 2011-2019 Saildrone Inc.
+ *  Copyright 2011-2021 Saildrone Inc.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LoadedTileNew.h"
@@ -26,9 +24,9 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
+
 TileGeomSettings::TileGeomSettings()
-    : buildGeom(true), useTileCenters(true), color(RGBAColor(255,255,255,255)),
+    : buildGeom(true), useTileCenters(true), color(RGBAColor::white()),
       programID(0), sampleX(10), sampleY(10), topSampleX(10), topSampleY(10),
       minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
       baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false),
@@ -44,21 +42,22 @@ LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD 
     
 bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
 {
-    MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
+    const MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
 
     // Make sure this overlaps the area we care about
     return geomManage->mbr.inside(theMbr.mid());
 }
 
-void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes)
+void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,const TileGeomSettings &geomSettings,ChangeSet &changes)
 {
     enabled = true;
-    MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
-    
+
     // Don't bother to actually build the geometry in this case
     if (!geomSettings.buildGeom)
         return;
-    
+
+    MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
+
     // Scale texture coordinates if we're clipping this tile
     Point2d texScale(1.0,1.0);
     const Point2d texOffset(0.0,0.0);   // Note: Not using this
@@ -78,9 +77,10 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         texScale.y() = (geomManage->mbr.ur().y()-theMbr.ll().y())/(theMbr.ur().y()-theMbr.ll().y());
         theMbr.ur().y() = geomManage->mbr.ur().y();
     }
-    
+
     // Calculate a center for the tile
     CoordSystem *sceneCoordSys = geomManage->coordAdapter->getCoordSystem();
+
     const Point3d ll = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ll().x(),theMbr.ll().y(),0.0))));
     const Point3d ur = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ur().x(),theMbr.ur().y(),0.0))));
     Point3d dispCenter = (ll+ur)/2.0;
@@ -113,10 +113,10 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         sphereTessY = 1;
     }
     
-    // Unit size of each tesselation in spherical mercator
+    // Unit size of each tessellation in spherical mercator
     const Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
-    // Texture increment for each tesselation
+    // Texture increment for each tessellation
     const TexCoord texIncr(1.0/(float)sphereTessX * texScale.x(),1.0/(float)sphereTessY * texScale.y());
     
     // We need the corners in geographic for the cullable
@@ -138,7 +138,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
 
     std::vector<BasicDrawableBuilderRef> drawables;
     drawables.push_back(chunk);
-    drawInfo.push_back(DrawableInfo(DrawableGeom,chunk->getDrawableID(),chunk->getDrawablePriority(),drawOrder));
+    drawInfo.emplace_back(DrawableGeom,chunk->getDrawableID(),chunk->getDrawablePriority(),drawOrder);
     if (geomSettings.useTileCenters)
         chunk->setMatrix(&transMat);
 
@@ -227,7 +227,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 
                 locs[iy*(sphereTessX+1)+ix] = loc3D;
                 
-                // Do the texture coordinate seperately
+                // Do the texture coordinate separately
                 const TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
                 texCoords[iy*(sphereTessX+1)+ix] = texCoord;
             }
@@ -275,11 +275,11 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         if (geomManage->buildSkirts && !geomManage->coordAdapter->isFlat())
         {
             // We'll set up and fill in the drawable
-            auto skirtChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew SkirtChunk");
+            const auto skirtChunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew SkirtChunk");
             drawables.push_back(skirtChunk);
             if (geomSettings.useTileCenters)
                 skirtChunk->setMatrix(&transMat);
-            // We hardwire this to appear after the atmosphere.  A bit hacky.
+            // We hard-wire this to appear after the atmosphere.  A bit hacky.
             skirtChunk->setupTexCoordEntry(0, 0);
             skirtChunk->setDrawOrder(drawOrder);
             skirtChunk->setDrawPriority(11);
@@ -291,7 +291,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             skirtChunk->setRequestZBuffer(true);
             skirtChunk->setProgram(geomSettings.programID);
             skirtChunk->setOnOff(false);
-            drawInfo.push_back(DrawableInfo(DrawableSkirt,skirtChunk->getDrawableID(),skirtChunk->getDrawablePriority(),drawOrder));
+            drawInfo.emplace_back(DrawableSkirt,skirtChunk->getDrawableID(),skirtChunk->getDrawablePriority(),drawOrder);
 
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
@@ -301,6 +301,8 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             // Bottom skirt
             Point3dVector skirtLocs;
             std::vector<TexCoord> skirtTexCoords;
+            skirtLocs.reserve(sphereTessX);
+            skirtTexCoords.reserve(sphereTessX);
             for (unsigned int ix=0;ix<=sphereTessX;ix++)
             {
                 skirtLocs.push_back(locs[ix]);
@@ -423,13 +425,16 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             }
         }
     }
-    
-    for (auto draw : drawables) {
+
+    changes.reserve(changes.size() + drawables.size());
+    for (const auto &draw : drawables) {
         changes.push_back(new AddDrawableReq(draw->getDrawable()));
     }
 }
     
-void LoadedTileNew::buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter)
+void LoadedTileNew::buildSkirt(const BasicDrawableBuilderRef &draw,const Point3dVector &pts,
+                               const std::vector<TexCoord> &texCoords,double skirtFactor,
+                               bool haveElev,const Point3d &theCenter)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -451,13 +456,13 @@ void LoadedTileNew::buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,
         cornerTex[3] = texCoords[ii];
         
         // Toss in the points, but point the normal up
-        int base = draw->getNumPoints();
+        const int base = draw->getNumPoints();
         for (unsigned int jj=0;jj<4;jj++)
         {
             draw->addPoint(Point3d(corners[jj]-theCenter));
-            Point3d norm = (pts[ii]+pts[ii+1])/2.f;
+            const Point3d norm = (pts[ii]+pts[ii+1])/2.f;
             draw->addNormal(norm);
-            TexCoord texCoord = cornerTex[jj];
+            const TexCoord texCoord = cornerTex[jj];
             draw->addTexCoord(-1,texCoord);
         }
         
@@ -467,50 +472,63 @@ void LoadedTileNew::buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,
     }
 }
     
-void LoadedTileNew::enable(TileGeomSettings &geomSettings,ChangeSet &changes)
+void LoadedTileNew::enable(const TileGeomSettings &geomSettings,ChangeSet &changes)
 {
-    if (geomSettings.enableGeom && !enabled)
-        for (auto di : drawInfo) {
+    if (geomSettings.enableGeom && !enabled) {
+        changes.reserve(changes.size() + drawInfo.size());
+
+        for (const auto &di : drawInfo) {
             changes.push_back(new OnOffChangeRequest(di.drawID,true));
         }
+    }
     enabled = true;
 }
 
-void LoadedTileNew::disable(TileGeomSettings &geomSettings,ChangeSet &changes)
+void LoadedTileNew::disable(const TileGeomSettings &geomSettings,ChangeSet &changes)
 {
-    if (geomSettings.enableGeom && enabled)
-        for (auto di : drawInfo) {
+    if (geomSettings.enableGeom && enabled) {
+        changes.reserve(changes.size() + drawInfo.size());
+
+        for (const auto &di : drawInfo) {
             changes.push_back(new OnOffChangeRequest(di.drawID,false));
         }
+    }
     enabled = false;
 }
     
 void LoadedTileNew::removeDrawables(ChangeSet &changes)
 {
-    for (auto di : drawInfo) {
+    changes.reserve(changes.size() + drawInfo.size());
+
+    for (const auto &di : drawInfo) {
         changes.push_back(new RemDrawableReq(di.drawID));
     }
 }
 
-TileGeomManager::TileGeomManager()
-: sceneRender(NULL), quadTree(NULL), coordAdapter(NULL), coverPoles(false),
+TileGeomManager::TileGeomManager() :
+    sceneRender(nullptr), quadTree(nullptr),
+    coordAdapter(nullptr), coverPoles(false),
     useNorthPoleColor(false), northPoleColor(255,255,255,255),
     useSouthPoleColor(false), southPoleColor(255,255,255,255),
     buildSkirts(false)
 {
 }
-    
-void TileGeomManager::setup(SceneRenderer *inSceneRender,TileGeomSettings &geomSettings,QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,CoordSystemRef inCoordSys,MbrD inMbr)
+
+void TileGeomManager::setup(SceneRenderer *inSceneRender,TileGeomSettings &geomSettings,
+                            QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,
+                            CoordSystemRef inCoordSys,MbrD inMbr)
 {
     sceneRender = inSceneRender;
     settings = geomSettings;
     quadTree = inQuadTree;
     coordAdapter = inCoordAdapter;
-    coordSys = inCoordSys;
+    coordSys = std::move(inCoordSys);
     mbr = inMbr;
 }
     
-TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::ImportantNodeSet &addTiles,const QuadTreeNew::NodeSet &removeTiles,ChangeSet &changes)
+TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(
+        const QuadTreeNew::ImportantNodeSet &addTiles,
+        const QuadTreeNew::NodeSet &removeTiles,ChangeSet &changes)
 {
     NodeChanges nodeChanges;
 
@@ -528,8 +546,8 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
         const auto it = tileMap.find(ident);
         if (it == tileMap.end()) {
             // Add a new one
-            MbrD mbr = quadTree->generateMbrForNode(ident);
-            LoadedTileNewRef tile = std::make_shared<LoadedTileNew>(ident,mbr);
+            const MbrD nodeMbr = quadTree->generateMbrForNode(ident);
+            const auto tile = std::make_shared<LoadedTileNew>(ident, nodeMbr);
             if (tile->isValidSpatial(this))
             {
                 tile->makeDrawables(sceneRender,this,settings,changes);
@@ -546,8 +564,8 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(const QuadTreeNew::
 
 void TileGeomManager::cleanup(ChangeSet &changes)
 {
-    for (auto tileInst: tileMap) {
-        auto tile = tileInst.second;
+    for (const auto &tileInst: tileMap) {
+        const auto &tile = tileInst.second;
         tile->removeDrawables(changes);
     }
     
@@ -557,11 +575,12 @@ void TileGeomManager::cleanup(ChangeSet &changes)
 std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeSet &tiles)
 {
     std::vector<LoadedTileNewRef> retTiles;
-    
-    for (auto ident: tiles) {
-        auto it = tileMap.find(ident);
+    retTiles.reserve(tiles.size());
+
+    for (const auto &ident: tiles) {
+        const auto it = tileMap.find(ident);
         if (it != tileMap.end()) {
-            auto tile = it->second;
+            const auto &tile = it->second;
             retTiles.push_back(tile);
         }
     }
@@ -572,8 +591,9 @@ std::vector<LoadedTileNewRef> TileGeomManager::getTiles(const QuadTreeNew::NodeS
 LoadedTileVec TileGeomManager::getAllTiles()
 {
     LoadedTileVec retTiles;
-    
-    for (auto tile: tileMap) {
+    retTiles.reserve(tileMap.size());
+
+    for (const auto &tile: tileMap) {
         retTiles.push_back(tile.second);
     }
     
@@ -582,11 +602,8 @@ LoadedTileVec TileGeomManager::getAllTiles()
     
 LoadedTileNewRef TileGeomManager::getTile(const QuadTreeNew::Node &ident)
 {
-    auto it = tileMap.find(ident);
-    if (it != tileMap.end())
-        return it->second;
-    
-    return LoadedTileNewRef();
+    const auto it = tileMap.find(ident);
+    return (it != tileMap.end()) ? it->second : LoadedTileNewRef();
 }
     
 void TileGeomManager::updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes)
@@ -595,9 +612,9 @@ void TileGeomManager::updateParents(ChangeSet &changes,LoadedTileVec &enabledNod
     if (settings.singleLevel)
         return;
     
-    for (auto entry : tileMap) {
-        auto ident = entry.first;
-        auto tile = entry.second;
+    for (const auto &entry : tileMap) {
+        const auto ident = entry.first;
+        const auto tile = entry.second;
         
         if (ident.level < quadTree->maxLevel-1) {
             bool childPresent = false;

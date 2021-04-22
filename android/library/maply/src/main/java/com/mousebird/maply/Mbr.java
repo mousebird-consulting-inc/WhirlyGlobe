@@ -50,6 +50,7 @@ public class Mbr
 
 	/**
 	 * Construct with the lower left and upper right coordinates.
+	 * The points provided are copied.
 	 * 
 	 * @param inLL Lower left corner of the bounding box.
 	 * @param inUR Upper right corner of the bounding box.
@@ -57,20 +58,33 @@ public class Mbr
 	public Mbr(Point2d inLL,Point2d inUR)
 	{
 		// Make copies
-		ll = new Point2d(inLL);
-		ur = new Point2d(inUR);
+		if (inLL != null) {
+			ll = new Point2d(inLL);
+		}
+		if (inUR != null) {
+			ur = new Point2d(inUR);
+		}
+	}
+
+	/**
+	 * Construct with the lower left and upper right coordinates.
+	 *
+	 * @param llx X coordinate of the lower-left corner
+	 * @param lly Y coordinate of the lower-left corner
+	 * @param urx X coordinate of the upper-right corner
+	 * @param ury Y coordinate of the upper-right corner
+	 */
+	public Mbr(double llx, double lly, double urx, double ury)
+	{
+		ll = new Point2d(llx, lly);
+		ur = new Point2d(urx, ury);
 	}
 
 	/**
 	 * Copy Construct
 	 */
-	public Mbr(Mbr other)
-	{
-		if (other != null && other.isValid()) {
-			// Make copies
-			ll = new Point2d(other.ll);
-			ur = new Point2d(other.ur);
-		}
+	public Mbr(Mbr other) {
+		this((other != null) ? other.ll : null, (other != null) ? other.ur : null);
 	}
 
 

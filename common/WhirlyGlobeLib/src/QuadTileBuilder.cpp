@@ -144,7 +144,7 @@ void QuadTileBuilder::setController(QuadDisplayControllerNew *inControl)
 {
     QuadLoaderNew::setController(inControl);
     
-    MbrD mbr = MbrD(control->getDataStructure()->getValidExtents());
+    const MbrD mbr = MbrD(control->getDataStructure()->getValidExtents());
     geomManage.setup(inControl->getRenderer(),geomSettings,control, control->getScene()->getCoordAdapter(),geomManage.coordSys,mbr);
     
     delegate->setBuilder(this,control);
