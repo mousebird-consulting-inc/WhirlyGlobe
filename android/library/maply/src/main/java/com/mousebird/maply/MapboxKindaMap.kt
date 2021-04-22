@@ -55,7 +55,7 @@ open class MapboxKindaMap(
     var offlineRender: RenderController? = null
     var lineScale = 0.0
     var textScale = 0.0
-    val markerScale = 0.0
+    var markerScale = 0.0
     var maxConcurrentLoad: Int? = null
 
     /* If set, we build an image/vector hybrid where the polygons go into
@@ -371,22 +371,14 @@ open class MapboxKindaMap(
             return
         }
 
-        val metrics = displayMetrics
-        val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
-        val defLineScale = dpi / 230.0
-        val defTextScale = dpi / 150.0
-        val defMarkerScale = dpi / 150.0
-
-        Log.w("MKM", "$dpi $defLineScale/$defTextScale ${minImportance / (512.0 * 512.0) / 2}/${minImportance / (768.0 * 768.0) / 2}");
-
         // Adjustment for loading (512 vs 1024 or so)
-        styleSettings.lineScale = if (lineScale > 0) lineScale else defLineScale
+        styleSettings.lineScale = lineScale
 
         // Similar adjustment for text
-        styleSettings.textScale = if (textScale > 0) textScale else defTextScale
+        styleSettings.textScale = textScale
 
         // And let's not forget markers and circles
-        styleSettings.markerScale = if (markerScale > 0) markerScale else defMarkerScale
+        styleSettings.markerScale = markerScale
 
         // Parameters describing how we want a globe broken down
         val params = SamplingParams().also {
@@ -579,4 +571,12 @@ open class MapboxKindaMap(
     private val outstandingFetches = ArrayList<Call?>()
     private val cacheNamePattern = Regex("[|?*<\":>+\\[\\]\\\\/]")
     private var finished = false
+
+    init {
+        val metrics = displayMetrics
+        val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
+        lineScale = dpi / 230.0
+        textScale = dpi / 150.0
+        markerScale = dpi / 150.0
+    }
 }
