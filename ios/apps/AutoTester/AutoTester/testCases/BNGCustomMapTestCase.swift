@@ -18,12 +18,23 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-        baseCase = GeographyClassTestCase()
-        baseCase?.setUpWithMap(mapVC)
-		createBritishNationalOverlayLocal(mapVC, maplyMap: true)
-		mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
-		mapVC.setZoomLimitsMin(0.1, max: 4.0)
+        baseCase.setUpWithMap(mapVC)
+		createBritishNationalOverlayLocal(mapVC)
+
+        let bound = geoBound(Self.buildBritishNationalGrid(false))
+        let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
+                                     y: (bound.ll.y + bound.ur.y) / 2.0)
+        let h = mapVC.findHeight(toViewBounds: bound, pos: middle)
+        mapVC.setPosition(middle, height: h/3)
+        mapVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
 	}
+
+    public func geoBound(_ coordSys: MaplyCoordinateSystem) -> MaplyBoundingBox {
+        var ll = MaplyCoordinate()
+        var ur = MaplyCoordinate()
+        coordSys.getBoundsLL(&ll, ur: &ur)
+        return MaplyBoundingBox(ll: ll, ur: ur)
+    }
 
 	override func customCoordSystem() -> MaplyCoordinateSystem? {
 		return Self.buildBritishNationalGrid(true)
@@ -35,14 +46,13 @@ class BNGCustomMapTestCase: MaplyTestCase {
         imageLoader = nil
         imageFetcher?.shutdown()
         imageFetcher = nil
-        baseCase?.stop()
-        baseCase = nil
+        baseCase.stop()
         super.stop()
     }
 
 	static func buildBritishNationalGrid(_ display: Bool) -> MaplyCoordinateSystem {
 		let gsb = Bundle.main.path(forResource: "OSTN02_NTv2", ofType: "gsb")
-		let proj4Str = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +nadgrids=\(gsb!) +units=m +no_defs"
+		let proj4Str = "+proj=tmerc +lat_0=49 +lon_0=-2 +k=0.9996012717 +x_0=400000 +y_0=-100000 +ellps=airy +units=m +no_defs +nadgrids=\(gsb!)"
 		let coordSys = MaplyProj4CoordSystem(string: proj4Str)
 		var bbox = MaplyBoundingBox()
 		bbox.ll.x = 1393.0196
@@ -50,7 +60,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
 		bbox.ur.x = 671196.3657
 		bbox.ur.y = 1230275.0454
 		if display {
-            let extra = Float(0.25)
+            let extra = Float(0.5)
 			let extraX = extra * (bbox.ur.x - bbox.ll.x)
             let extraY = extra * (bbox.ur.y - bbox.ll.y)
 			bbox.ll.x -= extraX
@@ -64,7 +74,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	}
 
 
-	func createBritishNationalOverlayLocal(_ baseViewC: MaplyBaseViewController, maplyMap: Bool) {
+	func createBritishNationalOverlayLocal(_ baseViewC: MaplyBaseViewController) {
         let bngCoordSys = Self.buildBritishNationalGrid(false)
 
         // Parameters describing how we want the tiles broken down
@@ -73,8 +83,9 @@ class BNGCustomMapTestCase: MaplyTestCase {
         sampleParams.coverPoles = false
         sampleParams.edgeMatching = false
         sampleParams.maxZoom = 10
+        sampleParams.minZoom = 0
         sampleParams.singleLevel = true
-        
+
         let tileInfo = TestTileImageFetcher.TestTileInfo(minZoom: sampleParams.minZoom,
                                                          maxZoom: sampleParams.maxZoom)
 
@@ -87,6 +98,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
                                                 viewC: baseViewC) else { return }
         loader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
         loader.setTileFetcher(fetcher)
+        loader.debugMode = true
         imageLoader = loader
 
         //    debugInterp = MaplyOvlDebugImageLoaderInterpreter(viewC: baseViewC)
@@ -94,7 +106,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
         //    imageLoader.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault+1000
 	}
 
-    var baseCase: MaplyTestCase?
+    var baseCase = GeographyClassTestCase()
     var imageLoader: MaplyQuadImageLoader?
     var imageFetcher: MaplyTileFetcher?
     var debugInterp: MaplyOvlDebugImageLoaderInterpreter?

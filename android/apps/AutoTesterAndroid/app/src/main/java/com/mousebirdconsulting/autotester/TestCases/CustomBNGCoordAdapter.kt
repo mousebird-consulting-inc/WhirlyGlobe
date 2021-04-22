@@ -21,7 +21,7 @@ import android.app.Activity
 import com.mousebird.maply.MapController
 
 class CustomBNGCoordAdapter(activity: Activity?) :
-        CustomBNGTileSource(activity, "British National Grid Custom Map", TestExecutionImplementation.Both) {
+        CustomBNGTileSource(activity, "British National Grid Custom Map", TestExecutionImplementation.Map) {
 
     override fun makeMapController(): MapController {
         val bngCoordSys = makeBNGCoordSystem(activity, true)

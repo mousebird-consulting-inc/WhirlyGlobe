@@ -17,30 +17,29 @@ class BNGTestCase: MaplyTestCase {
 	}
 
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
-        baseCase = GeographyClassTestCase()
-        bngCase = BNGCustomMapTestCase()
-		baseCase?.setUpWithMap(mapVC)
-		bngCase?.createBritishNationalOverlayLocal(mapVC, maplyMap: true)
-		mapVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
+        baseCase.setUpWithMap(mapVC)
+        bngCase.setUpWithMap(mapVC)
 	}
 	
 	override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
-        baseCase = GeographyClassTestCase()
-        bngCase = BNGCustomMapTestCase()
-		baseCase?.setUpWithGlobe(globeVC)
-		bngCase?.createBritishNationalOverlayLocal(globeVC, maplyMap: false)
-        globeVC.setPosition(MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height: 0.3)
-        //globeVC.clearColor = UIColor(red: 0.8, green: 0.8, blue: 0.8, alpha: 1.0)
+        baseCase.setUpWithGlobe(globeVC)
+
+        bngCase.createBritishNationalOverlayLocal(globeVC)
+
+        let bound = bngCase.geoBound(BNGCustomMapTestCase.buildBritishNationalGrid(false))
+        let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
+                                     y: (bound.ll.y + bound.ur.y) / 2.0)
+        let h = globeVC.findHeight(toViewBounds: bound, pos: middle)
+        globeVC.setPosition(middle, height: h/3)
+        globeVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
 	}
 
     override func stop() {
-        bngCase?.stop()
-        bngCase = nil
-        baseCase?.stop()
-        baseCase = nil
+        bngCase.stop()
+        baseCase.stop()
         super.stop()
     }
 
-    var baseCase: MaplyTestCase?
-    var bngCase: BNGCustomMapTestCase?
+    var baseCase = GeographyClassTestCase()
+    var bngCase = BNGCustomMapTestCase()
 }

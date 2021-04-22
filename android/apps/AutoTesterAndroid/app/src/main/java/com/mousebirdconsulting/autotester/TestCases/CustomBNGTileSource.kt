@@ -35,7 +35,6 @@ open class CustomBNGTileSource : MaplyTestCase {
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         baseCase = GeographyClass(activity).also {
-        //baseCase = StamenRemoteTestCase(activity).also {
             it.setUpWithGlobe(globeVC)
         }
 
@@ -53,7 +52,6 @@ open class CustomBNGTileSource : MaplyTestCase {
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
         baseCase = GeographyClass(activity).also {
-        //baseCase = StamenRemoteTestCase(activity).also {
             it.setUpWithMap(mapVC)
         }
 
@@ -62,8 +60,8 @@ open class CustomBNGTileSource : MaplyTestCase {
         val bound = geoBound(makeBNGCoordSystem(activity, false))
         val middle = bound.middle()
         val h = mapVC.findHeightToViewBounds(bound, middle)
-        mapVC.setPositionGeo(middle, h/2)
-        mapVC.animatePositionGeo(middle, h*1.1, 0.0, 1.0)
+        mapVC.setPositionGeo(middle, h/3)
+        mapVC.animatePositionGeo(middle, h, 0.0, 1.0)
 
         return true
     }
@@ -103,7 +101,7 @@ open class CustomBNGTileSource : MaplyTestCase {
         
         // Expand when setting the view bound so we can see the whole UK and the edge of the tile set
         if (displayVersion) {
-            val extra = 0.25
+            val extra = 0.5
             val extraX = extra * (bound.ur.x - bound.ll.x)
             val extraY = extra * (bound.ur.y - bound.ll.y)
             bound.addPoint(Point2d(bound.ll.x - extraX, bound.ll.y - extraY))
@@ -133,6 +131,7 @@ open class CustomBNGTileSource : MaplyTestCase {
                 alpha = 96
                 start() // todo: does the loader clean this up?
             }
+            debugMode = false
             // Additional tile boundaries for troubleshooting
             //setLoaderInterpreter(OvlDebugImageLoaderInterpreter().apply {
             //    setParentInterpreter(ImageLoaderInterpreter())
