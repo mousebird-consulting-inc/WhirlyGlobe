@@ -35,7 +35,9 @@ public class SamplingParams
      */
     public void setCoordSystem(CoordSystem coordSystem)
     {
-        setCoordSystemNative(coordSystem,coordSystem.ll,coordSystem.ur);
+        // Note: bound coords are in projected coordinates, not geographic
+        final Mbr bounds = coordSystem.getBounds();
+        setCoordSystemNative(coordSystem, new Point3d(bounds.ll,0),new Point3d(bounds.ur,0));
     }
 
     protected native void setCoordSystemNative(CoordSystem coordSystem,Point3d ll,Point3d ur);
