@@ -373,7 +373,7 @@ open class MapboxKindaMap(
         val metrics = displayMetrics
         val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
         val defLineScale = dpi / 230.0
-        val defTextScale = dpi / 230.0
+        val defTextScale = dpi / 150.0
 
         Log.w("MKM", "$dpi $defLineScale/$defTextScale ${minImportance / (512.0 * 512.0) / 2}/${minImportance / (768.0 * 768.0) / 2}");
 
@@ -393,7 +393,7 @@ open class MapboxKindaMap(
             it.minZoom = minZoom
             it.maxZoom = maxZoom
             // Let the reported zoom go beyond the maximum
-            it.reportedMaxZoom = 24
+            it.reportedMaxZoom = 21
         }
         sampleParams = params
 
