@@ -348,6 +348,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     loader->setDebugMode(self.debugMode);
 
     samplingLayer = [[vc getRenderControl] findSamplingLayer:params forUser:self->loader];
+    samplingLayer.debugMode = self.debugMode;
     // Do this again in case they changed them
     loader->setSamplingParams(params);
     
