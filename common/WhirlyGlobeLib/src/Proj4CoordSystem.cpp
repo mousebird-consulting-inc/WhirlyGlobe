@@ -1,4 +1,4 @@
-/*  Proj4CoordSystem.mm
+/*  Proj4CoordSystem.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/10/15.
@@ -20,6 +20,8 @@
 #import "Proj4CoordSystem.h"
 #import "GlobeMath.h"
 #import "proj_api.h"
+
+#define PJ_ERR_BOUNDS -14   // boring out-of-bounds error
 
 namespace WhirlyKit
 {
@@ -43,21 +45,42 @@ Proj4CoordSystem::~Proj4CoordSystem()
 GeoCoord Proj4CoordSystem::localToGeographic(Point3f pt) const
 {
     double x = pt.x(),y = pt.y(),z = pt.z();
-    pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::localToGeographic error (%d) converting to geographic %f,%f,%f",
+                       result,pt.x(),pt.y(),pt.z());
+        }
+        return {0,0};
+    }
     return GeoCoord(x,y);
 }
 
 GeoCoord Proj4CoordSystem::localToGeographic(Point3d pt) const
 {
     double x = pt.x(),y = pt.y(),z = pt.z();
-    pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::localToGeographic error (%d) converting to geographic %f,%f,%f",
+                       result,pt.x(),pt.y(),pt.z());
+        }
+        return {0,0};
+    }
     return GeoCoord(x,y);
 }
 
 Point2d Proj4CoordSystem::localToGeographicD(Point3d pt) const
 {
     double x = pt.x(),y = pt.y(),z = pt.z();
-    pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::localToGeographicD error (%d) converting to geographic %f,%f,%f",
+                       result,pt.x(),pt.y(),pt.z());
+        }
+        return {0,0};
+    }
     return {x,y};
 }
 
@@ -65,16 +88,27 @@ Point2d Proj4CoordSystem::localToGeographicD(Point3d pt) const
 Point3f Proj4CoordSystem::geographicToLocal(GeoCoord geo) const
 {
     double x = geo.x(),y = geo.y(),z = 0.0;
-    pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::geographicToLocal error (%d) converting from geographic %f,%f",
+                       result,geo.x(),geo.y());
+        }
+        return {0,0,0};
+    }
     return {x,y,z};
 }
 
 Point3d Proj4CoordSystem::geographicToLocal3d(GeoCoord geo) const
 {
     double x = geo.x(),y = geo.y(),z = 0.0;
-    if (pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z))
-    {
-        wkLogLevel(Error,"Proj4CoordSystem::geographicToLocal3d error converting to local");
+    const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::geographicToLocal3d error (%d) converting from geographic %f,%f",
+                       result,geo.x(),geo.y());
+        }
+        return {0,0,0};
     }
     return {x,y,z};
 }
@@ -82,7 +116,14 @@ Point3d Proj4CoordSystem::geographicToLocal3d(GeoCoord geo) const
 Point3d Proj4CoordSystem::geographicToLocal(Point2d geo) const
 {
     double x = geo.x(),y = geo.y(),z = 0.0;
-    pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::geographicToLocal error (%d) converting from geographic %f,%f",
+                       result,geo.x(),geo.y());
+        }
+        return {0,0,0};
+    }
     return {x,y,z};
 }
 
@@ -90,14 +131,28 @@ Point3d Proj4CoordSystem::geographicToLocal(Point2d geo) const
 Point3f Proj4CoordSystem::localToGeocentric(Point3f localPt) const
 {
     double x = localPt.x(),y = localPt.y(),z = localPt.z();
-    pj_transform(pj, pj_geocentric, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj, pj_geocentric, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::localToGeocentric error (%d) converting to geocentric %f,%f,%f",
+                       result,localPt.x(),localPt.y(),localPt.z());
+        }
+        return {0,0,0};
+    }
     return {x,y,z};
 }
 
 Point3d Proj4CoordSystem::localToGeocentric(Point3d localPt) const
 {
     double x = localPt.x(),y = localPt.y(),z = localPt.z();
-    pj_transform(pj, pj_geocentric, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj, pj_geocentric, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::localToGeocentric error (%d) converting to geocentric %f,%f,%f",
+                       result,localPt.x(),localPt.y(),localPt.z());
+        }
+        return {0,0,0};
+    }
     return {x,y,z};
 }
 
@@ -105,14 +160,28 @@ Point3d Proj4CoordSystem::localToGeocentric(Point3d localPt) const
 Point3f Proj4CoordSystem::geocentricToLocal(Point3f geocPt) const
 {
     double x = geocPt.x(),y = geocPt.y(),z = geocPt.z();
-    pj_transform(pj_geocentric, pj, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj_geocentric, pj, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::geocentricToLocal error (%d) converting from geocentric %f,%f,%f",
+                       result,geocPt.x(),geocPt.y(),geocPt.z());
+        }
+        return {0,0,0};
+    }
     return {x,y,z};
 }
 
 Point3d Proj4CoordSystem::geocentricToLocal(Point3d geocPt) const
 {
     double x = geocPt.x(),y = geocPt.y(),z = geocPt.z();
-    pj_transform(pj_geocentric, pj, 1, 1, &x, &y, &z);
+    const auto result = pj_transform(pj_geocentric, pj, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::geocentricToLocal error (%d) converting from geocentric %f,%f,%f",
+                       result,geocPt.x(),geocPt.y(),geocPt.z());
+        }
+        return {0,0,0};
+    }
     return {x,y,z};
 }
 
