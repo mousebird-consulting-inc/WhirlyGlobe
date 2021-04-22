@@ -55,6 +55,7 @@ open class MapboxKindaMap(
     var offlineRender: RenderController? = null
     var lineScale = 0.0
     var textScale = 0.0
+    val markerScale = 0.0
     var maxConcurrentLoad: Int? = null
 
     /* If set, we build an image/vector hybrid where the polygons go into
@@ -66,7 +67,7 @@ open class MapboxKindaMap(
     /* If set, we'll sort all polygons into the background.
      * Works well zoomed out, less enticing zoomed in.
      */
-    var backgroundAllPolys = true
+    var backgroundAllPolys = false
 
     /**
      * If set, we'll fetch and use the sources from the style sheet.
@@ -374,6 +375,7 @@ open class MapboxKindaMap(
         val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
         val defLineScale = dpi / 230.0
         val defTextScale = dpi / 150.0
+        val defMarkerScale = dpi / 150.0
 
         Log.w("MKM", "$dpi $defLineScale/$defTextScale ${minImportance / (512.0 * 512.0) / 2}/${minImportance / (768.0 * 768.0) / 2}");
 
@@ -382,6 +384,9 @@ open class MapboxKindaMap(
 
         // Similar adjustment for text
         styleSettings.textScale = if (textScale > 0) textScale else defTextScale
+
+        // And let's not forget markers and circles
+        styleSettings.markerScale = if (markerScale > 0) markerScale else defMarkerScale
 
         // Parameters describing how we want a globe broken down
         val params = SamplingParams().also {
