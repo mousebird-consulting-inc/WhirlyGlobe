@@ -58,6 +58,9 @@ open class MapboxKindaMap(
     var markerScale = 0.0
     var maxConcurrentLoad: Int? = null
 
+    // These are run after a successful load of all the style sheet pieces
+    var postLoadRunnables = ArrayList<Runnable>()
+
     /* If set, we build an image/vector hybrid where the polygons go into
      *  the image layer and the linears and points are represented as vectors
      * Otherwise, it's all put in a PagingLayer as vectors.  This is better for an overlay.
@@ -436,6 +439,11 @@ open class MapboxKindaMap(
 
         styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
 
+        // Called after we've parsed the style sheet (again)
+        postLoadRunnables.forEach {
+            it.run()
+        }
+
         mapboxInterp = MapboxVectorInterpreter(styleSheetVector, control)
         loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
             it.flipY = false
@@ -504,6 +512,11 @@ open class MapboxKindaMap(
 
         val vectorStyleDict = AttrDictionary()
         vectorStyleDict.parseFromJSON(styleSheetJSON)
+
+        // Called after we've parsed the style sheet (again)
+        postLoadRunnables.forEach {
+            it.run()
+        }
 
         // The polygons only go into the background in this case
         if (backgroundAllPolys) {

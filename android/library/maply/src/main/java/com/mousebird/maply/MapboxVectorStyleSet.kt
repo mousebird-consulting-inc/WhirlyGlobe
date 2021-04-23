@@ -282,16 +282,16 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             if (group?.isNotEmpty() == true) {
                 groupMap[group] = groupMap[group]?.let {
                     LegendEntry(
-                        it.name, it.image, it.entries.plus(
-                            LegendEntry(name,bitmap,emptyList())))
+                        it.name, it.ident, it.image, it.entries.plus(
+                            LegendEntry(name,ident,bitmap,emptyList())))
                 } ?: run {
-                    val newEntry = LegendEntry(group,null,listOf(
-                        LegendEntry(name,bitmap,emptyList())))
+                    val newEntry = LegendEntry(group,ident,null,listOf(
+                        LegendEntry(name,ident,bitmap,emptyList())))
                     legend.add(newEntry)
                     newEntry
                 }
             } else {
-                legend.add(LegendEntry(name, bitmap, emptyList()))
+                legend.add(LegendEntry(name, ident, bitmap, emptyList()))
             }
         }
 
@@ -372,7 +372,10 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         }
         return image
     }
-    
+
+    // Set a named layer visible or invisible
+    public external fun setLayerVisible(layerName: String, visible: Boolean)
+
     enum class SourceType {
         Vector, Raster
     }
