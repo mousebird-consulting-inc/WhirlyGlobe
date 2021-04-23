@@ -4,7 +4,7 @@ import android.app.Activity
 import android.graphics.Color
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
-import okio.Okio
+import okio.*
 import java.nio.charset.Charset
 
 class LoftedPolyTestCase : MaplyTestCase {
@@ -15,11 +15,15 @@ class LoftedPolyTestCase : MaplyTestCase {
     }
 
     fun addLoftedPolysSpain(vc: BaseController) {
-        val stream = getActivity().assets.open("country_json_50m/ESP.geojson")
-        val json = Okio.buffer(Okio.source(stream)).readUtf8()
+        val json = activity.assets.open("country_json_50m/ESP.geojson").use { stream ->
+            stream.source().use { source ->
+                source.buffer().use { buffer ->
+                    buffer.readUtf8()
+                }
+            }
+        }
 
-        val vecObj = VectorObject()
-        vecObj.fromGeoJSON(json)
+        val vecObj = VectorObject.createFromGeoJSON(json)
 
         val loftInfo = LoftedPolyInfo()
         loftInfo.setHeight(0.01)

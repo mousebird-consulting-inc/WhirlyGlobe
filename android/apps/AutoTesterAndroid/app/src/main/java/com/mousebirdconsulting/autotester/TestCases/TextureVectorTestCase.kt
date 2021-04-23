@@ -26,7 +26,7 @@ import android.util.Log
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import com.mousebirdconsulting.autotester.R
-import okio.Okio
+import okio.*
 import java.lang.Exception
 import java.nio.charset.Charset
 import java.util.*
@@ -54,35 +54,36 @@ class TextureVectorTestCase(activity: Activity) : MaplyTestCase(activity, "Textu
         for (path in paths.take(20)) {
             try {
                 assetMgr.open("country_json_50m/$path").use { stream ->
-                    Okio.source(stream).use { source ->
-                        Okio.buffer(source).use { buffer ->
-                            VectorObject.createFromGeoJSON(buffer.readUtf8())?.let { vecObj ->
-                                vecObj.selectable = true
-                                
-                                // Work through each individual loop
-                                for (thisVecObj in vecObj) {
-                                    val loopObj = thisVecObj.deepCopy()
-                    
-                                    // Center of the texture application
-                                    val center = loopObj.center()
-                                    val attrs = loopObj.attributes
-                                    attrs.setDouble("veccenterx", center.x)
-                                    attrs.setDouble("veccentery", center.y)
-    
-                                    var thisClipGridLon = ClipGridSize
-                                    if (isGlobe) {
-                                        // We adjust the grid clipping size based on the latitude
-                                        // This helps a lot near the poles.  Otherwise we're way oversampling
-                                        if (abs(center.x) > 60.0 / 180.0 * PI)
-                                            thisClipGridLon *= 4.0
-                                        else if (abs(center.y) > 45.0 / 180.0 * PI)
-                                            thisClipGridLon *= 2.0;
+                    val json = stream.source().use { source ->
+                        source.buffer().use { buffer ->
+                            buffer.readUtf8()
+                        }
+                    }
+                    VectorObject.createFromGeoJSON(json)?.let { vecObj ->
+                        vecObj.selectable = true
                         
-                                    }
-                                    loopObj.clipToGrid(Point2d(thisClipGridLon, ClipGridSize))?.tesselate()?.let {
-                                        tessObjs.add(it)
-                                    }
-                                }
+                        // Work through each individual loop
+                        for (thisVecObj in vecObj) {
+                            val loopObj = thisVecObj.deepCopy()
+            
+                            // Center of the texture application
+                            val center = loopObj.center()
+                            val attrs = loopObj.attributes
+                            attrs.setDouble("veccenterx", center.x)
+                            attrs.setDouble("veccentery", center.y)
+
+                            var thisClipGridLon = ClipGridSize
+                            if (isGlobe) {
+                                // We adjust the grid clipping size based on the latitude
+                                // This helps a lot near the poles.  Otherwise we're way oversampling
+                                if (abs(center.x) > 60.0 / 180.0 * PI)
+                                    thisClipGridLon *= 4.0
+                                else if (abs(center.y) > 45.0 / 180.0 * PI)
+                                    thisClipGridLon *= 2.0;
+                
+                            }
+                            loopObj.clipToGrid(Point2d(thisClipGridLon, ClipGridSize))?.tesselate()?.let {
+                                tessObjs.add(it)
                             }
                         }
                     }
