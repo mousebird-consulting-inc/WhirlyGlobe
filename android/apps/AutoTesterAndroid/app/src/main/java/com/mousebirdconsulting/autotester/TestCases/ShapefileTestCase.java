@@ -65,9 +65,13 @@ public class ShapefileTestCase extends MaplyTestCase
 
         Mbr bbox = addShapeFile(globeVC);
         if (bbox != null) {
-            Point2d center = bbox.middle();
-            double height = globeVC.findHeightToViewBounds(bbox, center);
-            globeVC.animatePositionGeo(center.getX(),center.getY(),height,2.0);
+            final Point2d center = bbox.middle();
+            // note: this doesn't work because something about the controller isn't sufficiently initialized
+            //double height = globeVC.findHeightToViewBounds(bbox, center);
+            globeVC.addPostSurfaceRunnable(() -> {
+                double height = globeVC.findHeightToViewBounds(bbox, center);
+                globeVC.animatePositionGeo(center.getX(),center.getY(),height,2.0);
+            });
         }
 
         return true;
