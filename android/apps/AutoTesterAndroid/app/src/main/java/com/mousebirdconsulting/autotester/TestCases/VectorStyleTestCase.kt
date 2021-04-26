@@ -27,7 +27,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import java.io.File
 import android.content.ContextWrapper
 import android.graphics.Color
-import okio.Okio
+import okio.*
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.charset.Charset
@@ -45,11 +45,15 @@ class VectorStyleTestCase : MaplyTestCase {
     }
 
     fun setupOverlay(control: BaseController) {
-        val stream = getActivity().assets.open("country_json_50m/USA.geojson")
-        val json = Okio.buffer(Okio.source(stream)).readUtf8()
+        val json = activity.assets.open("country_json_50m/USA.geojson").use { stream ->
+            stream.source().use { source ->
+                source.buffer().use { buffer ->
+                    buffer.readUtf8()
+                }
+            }
+        }
 
-        val vecObj = VectorObject()
-        vecObj.fromGeoJSON(json)
+        val vecObj = VectorObject.createFromGeoJSON(json)
 
         val styleGen = VectorStyleSimpleGenerator(control)
         VectorStyleProcessor.UseStyle(arrayOf(vecObj),styleGen,control)

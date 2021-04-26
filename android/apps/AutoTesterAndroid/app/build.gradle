@@ -39,6 +39,9 @@ android {
             jniDebuggable true
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -47,7 +50,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.0.0'
     implementation 'com.google.android.material:material:1.0.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 }
 repositories {
     mavenCentral()
