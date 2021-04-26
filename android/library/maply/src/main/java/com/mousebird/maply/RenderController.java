@@ -329,7 +329,18 @@ public class RenderController implements RenderControllerInterface
             final EGLConfig[] configs = new EGLConfig[1];
             final int[] numConfigs = new int[] { 0 };
             if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs)) {
-                Log.e("Maply", "Unable to configure OpenGL ES for offline rendering: " + Integer.toHexString(egl.eglGetError()));
+                // "If [EGL_OPENGL_ES3_BIT_KHR] is passed into eglChooseConfig and the implementation
+                //  supports only an older version of the extension, an EGL_BAD_ATTRIBUTE error should
+                //  be generated. Since no matching configs will be found, a robustly-written application
+                //  will fail (or fall back to an ES 2.0 rendering path) at this point.
+                attribList[9] = EGL14.EGL_OPENGL_ES2_BIT;
+                if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs)) {
+                    Log.e("Maply", "Unable to configure OpenGL ES for offline rendering: " + Integer.toHexString(egl.eglGetError()));
+                }
+                else {
+                    //todo: flag that we only have ES2 support somewhere
+                    config = configs[0];
+                }
             } else {
                 config = configs[0];
             }
