@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple Maply bounding box.  The coordinates will be in a particular
@@ -98,23 +99,16 @@ public class Mbr
      */
 	@Override public boolean equals(Object thatObj)
 	{
-		if (this == thatObj) return true;
+		if (this == thatObj) {
+			return true;
+		}
 		if (thatObj instanceof Mbr) {
 			Mbr that = (Mbr) thatObj;
-
-			if (ll == null || ur == null || that.ll == null || that.ur == null) {
-				// Empty boxes are equal, partially empty ones are not regardless of their contents
-				return (ll == null && ur == null && that.ll == null && that.ur == null);
-			}
-
-			return ll.getX() == that.ll.getX() &&
-			       ll.getY() == that.ll.getY() &&
-			       ur.getX() == that.ur.getX() &&
-			       ur.getY() == that.ur.getY();
+			return Objects.equals(ll, that.ll) && Objects.equals(ur, that.ur);
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Add a point to the bounding box, expanding the extents.
 	 *
@@ -126,16 +120,16 @@ public class Mbr
 			ll = new Point2d(pt);
 		else
 		{
-			double ll_x = Math.min(pt.getX(),ll.getX());
-			double ll_y = Math.min(pt.getY(),ll.getY());
+			final double ll_x = Math.min(pt.getX(),ll.getX());
+			final double ll_y = Math.min(pt.getY(),ll.getY());
 			ll.setValue(ll_x, ll_y);
 		}
 		if (ur == null)
 			ur = new Point2d(pt);
 		else 
 		{
-			double ur_x = Math.max(pt.getX(),ur.getX());
-			double ur_y = Math.max(pt.getY(),ur.getY());
+			final double ur_x = Math.max(pt.getX(),ur.getX());
+			final double ur_y = Math.max(pt.getY(),ur.getY());
 			ur.setValue(ur_x, ur_y);
 		}
 	}
