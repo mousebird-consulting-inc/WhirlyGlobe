@@ -99,7 +99,6 @@ protected:
     LayoutObject *layoutObj;
 
     Point3dVector pts;
-    bool isClosed;
     
     std::vector<VectorRing> runs;
 };
