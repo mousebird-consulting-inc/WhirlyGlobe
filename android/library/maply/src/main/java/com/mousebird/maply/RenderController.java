@@ -23,6 +23,7 @@ import android.opengl.EGLExt;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +116,11 @@ public class RenderController implements RenderControllerInterface
         offlineMode = true;
         frameSize = new Point2d(width,height);
         setConfig(baseControl, null);
+
+        if (config == null) {
+            // eglCreateContext will fail, so fail early with a more helpful message
+            throw new InvalidParameterException("No OpenGL ES configuration was selected");
+        }
 
         // Set up our own EGL context for offline work
         EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -306,20 +312,24 @@ public class RenderController implements RenderControllerInterface
 
         // If we didn't pass in one, we're in offline mode and need to make one
         if (inConfig == null) {
-            int[] attribList = {
+            // current display produces EGL_BAD_DISPLAY (depending on the thread context?)
+            display = egl.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+
+            final int[] attribList = {
                     EGL14.EGL_RED_SIZE, 8,
                     EGL14.EGL_GREEN_SIZE, 8,
                     EGL14.EGL_BLUE_SIZE, 8,
                     EGL14.EGL_ALPHA_SIZE, 8,
-                    EGL14.EGL_DEPTH_SIZE, 16,
-                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT, EGLExt.EGL_OPENGL_ES3_BIT_KHR,
+                    //EGL14.EGL_DEPTH_SIZE, 16, // we don't need a depth buffer for offline mode
+                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT | EGLExt.EGL_OPENGL_ES3_BIT_KHR,
+                    EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
                     EGL14.EGL_NONE
             };
-            EGLConfig[] configs = new EGLConfig[1];
-            int[] numConfigs = new int[1];
-            if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs))
-            {
-                Log.e("Maply", "Unable set set up OpenGL ES for offline rendering.");
+
+            final EGLConfig[] configs = new EGLConfig[1];
+            final int[] numConfigs = new int[] { 0 };
+            if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs)) {
+                Log.e("Maply", "Unable to configure OpenGL ES for offline rendering: " + Integer.toHexString(egl.eglGetError()));
             } else {
                 config = configs[0];
             }
