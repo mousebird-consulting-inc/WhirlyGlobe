@@ -347,6 +347,13 @@ public class RenderController implements RenderControllerInterface
         } else {
             config = inConfig;
         }
+
+        if (display == null || context == null || config == null) {
+            Log.w("Maply", "RenderController::setConfig failed to set" +
+                            ((display == null) ? " display" : "") +
+                            ((context == null) ? " context" : "") +
+                            ((config == null) ? " config" : ""));
+        }
     }
 
     // Managers are thread safe objects for handling adding and removing types of data
@@ -1704,7 +1711,7 @@ public class RenderController implements RenderControllerInterface
         if (cInfo != null)
         {
             if (!egl.eglMakeCurrent(display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.d("Maply", "Failed to make current context.");
+                Log.d("Maply", "Failed to make current context:" + Integer.toHexString(egl.eglGetError()));
                 return false;
             }
 

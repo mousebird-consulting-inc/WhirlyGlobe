@@ -1063,7 +1063,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
         if (cInfo != null)
         {
             if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.d("Maply", "Failed to make current context.");
+                Log.d("Maply", "Failed to make current context: " + Integer.toHexString(egl.eglGetError()));
                 return false;
             }
 
