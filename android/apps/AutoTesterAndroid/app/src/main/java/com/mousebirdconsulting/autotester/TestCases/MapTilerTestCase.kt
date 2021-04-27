@@ -5,7 +5,7 @@ import android.net.Uri
 import android.util.Log
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
-import okio.Okio
+import okio.*
 import java.io.IOException
 import kotlin.math.min
 
@@ -54,7 +54,13 @@ open class MapTilerTestCase : MaplyTestCase
         getMaps().elementAt(whichMap)?.let {
             Log.i(javaClass.name, "Loading $it")
             try {
-                Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
+                activity.assets.open(it).use { stream ->
+                    stream.source().use { source ->
+                        source.buffer().use { buffer ->
+                            buffer.readUtf8()
+                        }
+                    }
+                }
             } catch (e: IOException) {
                 Log.w(javaClass.simpleName, "Failed to load style $it", e)
                 return null

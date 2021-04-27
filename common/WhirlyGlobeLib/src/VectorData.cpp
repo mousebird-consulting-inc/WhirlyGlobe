@@ -1,9 +1,8 @@
-/*
- *  VectorData.mm
+/*  VectorData.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <string>
@@ -238,7 +236,7 @@ void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool
         subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
     }
 }
-            
+
 // Great circle version
 void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
@@ -260,11 +258,12 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
 {
     if (!adapter || inPts.empty())
         return;
+    const auto coordSys = adapter->getCoordSystem();
     if (inPts.size() < 2)
     {
         const Point2f &p0 = inPts[0];
-        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
-        outPts.push_back(dp0);        
+        Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+        outPts.push_back(dp0);
         return;
     }
     
@@ -272,18 +271,17 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
-        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+        Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         if (adapter && !adapter->isFlat())
            dp0 = dp0.normalized() * (1.0 + surfOffset);
-        Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
+        Point3d dp1 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
         if (adapter && !adapter->isFlat())
            dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
         subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
-    }    
+    }
 }
 
-    
 VectorShape::VectorShape()
 {
     attrDict = MutableDictionaryMake();

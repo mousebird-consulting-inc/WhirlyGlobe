@@ -239,7 +239,7 @@ open class MapboxKindaMap(
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
                         if (!finished) {
-                            it.body()?.use { body ->
+                            it.body?.use { body ->
                                 val bytes = body.bytes()
                                 if (bytes.isNotEmpty()) {
                                     styleSheetJSON = String(bytes)
@@ -306,7 +306,7 @@ open class MapboxKindaMap(
                 }
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
-                        it.body()?.use { body ->
+                        it.body?.use { body ->
                             val bytes = body.bytes()
                             if (bytes.isNotEmpty()) {
                                 Log.d("MapboxKindaMap",

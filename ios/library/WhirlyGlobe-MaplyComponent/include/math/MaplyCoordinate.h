@@ -215,8 +215,19 @@ MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon,double degLat);
     @return A 2D MaplyCoordinateD in radians (if representing a lon/lat value).
   */
 MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c);
+
+/**
+    Construct a MaplyCoordinate with a MaplyCoordinateD.
     
-/** 
+    This function constructs a MaplyCoordinate with the component values of the input MaplyCoordinateD.
+    
+    @param c The input MaplyCoordinateD value.
+    
+    @return A 2D MaplyCoordinate in radians (if representing a lon/lat value).
+  */
+MaplyCoordinate MaplyCoordinateMakeWithMaplyCoordinateD(MaplyCoordinateD c);
+
+/**
     Construct a MaplyCoordinat3d from the values given.
     
     @param x The x value, or longitude in radians if we're making geo coordinates.

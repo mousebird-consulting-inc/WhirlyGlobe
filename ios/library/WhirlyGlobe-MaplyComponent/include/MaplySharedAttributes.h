@@ -271,6 +271,8 @@ extern NSString* const kMaplySubdivEpsilon;
 extern NSString* const kMaplySubdivType;
 /// Subdivide the vector edges along a great circle
 extern NSString* const kMaplySubdivGreatCircle;
+/// Subdivide the vector edges along a great circle with ellipsoidal math
+extern NSString* const kMaplySubdivGreatCirclePrecise;
 /// Subdivide into a fixed number of segmenets
 extern NSString* const kMaplySubdivStatic;
 /// Subdivide the vectors edges along lat/lon

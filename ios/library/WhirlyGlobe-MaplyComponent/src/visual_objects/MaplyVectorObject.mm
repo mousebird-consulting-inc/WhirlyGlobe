@@ -164,8 +164,9 @@ using namespace WhirlyGlobe;
         vObj = std::make_shared<VectorObject>();
 
         VectorLinearRef lin = VectorLinear::createLinear();
+        lin->pts.reserve(numCoords);
         for (unsigned int ii=0;ii<numCoords;ii++)
-            lin->pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
+            lin->pts.emplace_back(coords[ii].x,coords[ii].y);
         auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
         lin->setAttrDict(dict);
         lin->initGeoMbr();
@@ -186,8 +187,9 @@ using namespace WhirlyGlobe;
 
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
+        pts.reserve(numCoords);
         for (unsigned int ii=0;ii<numCoords;ii++)
-            pts.push_back(GeoCoord(coords[ii].x,coords[ii].y));
+            pts.emplace_back(coords[ii].x,coords[ii].y);
         areal->loops.push_back(pts);
         auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
         areal->setAttrDict(dict);
@@ -212,8 +214,9 @@ using namespace WhirlyGlobe;
 
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
+        pts.reserve([coords count]);
         for (unsigned int ii=0;ii<[coords count];ii+=2)
-            pts.push_back(GeoCoord([[coords objectAtIndex:ii] doubleValue],[[coords objectAtIndex:ii+1] doubleValue]));
+            pts.emplace_back([[coords objectAtIndex:ii] doubleValue],[[coords objectAtIndex:ii+1] doubleValue]);
         areal->loops.push_back(pts);
         auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
         areal->setAttrDict(dict);
@@ -730,6 +733,16 @@ using namespace WhirlyGlobe;
 - (void)subdivideToGlobeGreatCircle:(float)epsilon
 {
     vObj->subdivideToGlobeGreatCircle(epsilon);
+}
+
+- (void)subdivideToFlatGreatCirclePrecise:(float)epsilon
+{
+    vObj->subdivideToFlatGreatCirclePrecise(epsilon);
+}
+
+- (void)subdivideToGlobeGreatCirclePrecise:(float)epsilon
+{
+    vObj->subdivideToGlobeGreatCirclePrecise(epsilon);
 }
 
 - (MaplyVectorObject *)linearsToAreals
