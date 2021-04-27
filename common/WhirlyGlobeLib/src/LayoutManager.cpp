@@ -709,8 +709,13 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                         for (unsigned int ini=0;ini<textInstance;ini++) {
 //                            wkLog(" Text Instance %d",ini);
                             
+                            // Check the normal right in the middle
+                            Point2f normAtMid;
+                            if (!walk.nextPoint(textLen/2.0, nullptr, &normAtMid, false))
+                                continue;
+                            
                             // Start with an initial offset
-                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr))
+                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr, true))
                                 continue;
 
                             std::vector<Eigen::Matrix3d> layoutMats;
@@ -729,7 +734,15 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                             // Walk through the individual glyphs
                             bool failed = false;
-                            for (unsigned int ig=0;ig<layoutObj->obj.geometry.size();ig++) {
+                            int gStart = 0, gEnd = layoutObj->obj.geometry.size()-1, gIncr = 1;
+                            bool flipped = false;
+                            // If it's upside down, then run it backwards
+                            if (normAtMid.y() < 0.0) {
+                                flipped = true;
+                                gStart = gEnd;  gEnd = 0;  gIncr = -1;
+                            }
+
+                            for (int ig=gStart;gIncr > 0 ? ig<=gEnd : ig>=gEnd;ig+=gIncr) {
                                 const auto &geom = layoutObj->obj.geometry[ig];
                                 Mbr glyphMbr(geom.coords);
                                 Point2f span = glyphMbr.span();
@@ -747,18 +760,20 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 
                                 // Don't forget the space between glyphs
                                 if (ig < layoutObj->obj.geometry.size()-1) {
+                                    float padX = 0.0;
                                     Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
-                                    float padX = glyphNextMbr.ll().x() - glyphMbr.ur().x();
+                                    padX = abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
+
                                     if (!walk.nextPoint(padX, nullptr, nullptr)) {
                                         failed = true;
                                         break;
                                     }
                                 }
-                                
+
                                 // Translate the glyph into that position
                                 Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
                                                                   (worldScreenPt.y()-centerPt.y())/2.0));
-                                double ang = -1.0 * (atan2(norm.y(),norm.x()) - M_PI/2.0);
+                                double ang = -1.0 * (atan2(norm.y(),norm.x()) - M_PI/2.0 + (flipped ? M_PI : 0.0));
                                 Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
                                 Matrix3d screenRotMat = Matrix3d::Identity();
                                 for (unsigned ix=0;ix<2;ix++)
@@ -767,7 +782,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
                                 Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
                                 Matrix3d testMat = screenRotMat * scaleMat * transOrigin.matrix();
-                                layoutMats.push_back(overlapMat);
+                                if (flipped)
+                                    layoutMats.insert(layoutMats.begin(),overlapMat);
+                                else
+                                    layoutMats.push_back(overlapMat);
 
                                 // Check for overlap
                                 Point2dVector objPts;  objPts.reserve(4);
