@@ -262,6 +262,39 @@ public class VectorObject implements Iterable<VectorObject>
 	private native boolean subdivideToFlatGreatCircleNative(VectorObject retVecObj,double epsilon);
 
 	/**
+	 Subdivide the edges in this feature to a given tolerance, using ellipsoidal math.
+
+	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon
+	 using a great circle route.  The epsilon is in display coordinates (radius = 1.0).
+	 */
+	public VectorObject subdivideToGlobeGreatCirclePrecise(double epsilon)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!subdivideToGlobeGreatCirclePreciseNative(retVecObj,epsilon))
+			return null;
+
+		return retVecObj;
+	}
+
+	private native boolean subdivideToGlobeGreatCirclePreciseNative(VectorObject retVecObj,double epsilon);
+
+	/**
+	 Subdivide the edges in this feature to a given tolerance, using ellipsoidal math.
+
+	 This version samples a great circle to display on a flat map.
+	 */
+	public VectorObject subdivideToFlatGreatCirclePrecise(double epsilon)
+	{
+		VectorObject retVecObj = new VectorObject();
+		if (!subdivideToFlatGreatCirclePreciseNative(retVecObj,epsilon))
+			return null;
+
+		return retVecObj;
+	}
+
+	private native boolean subdivideToFlatGreatCirclePreciseNative(VectorObject retVecObj,double epsilon);
+
+	/**
 	 * Tesselate the areal features and return a new vector object.
 	 */
 	public VectorObject tesselate()
