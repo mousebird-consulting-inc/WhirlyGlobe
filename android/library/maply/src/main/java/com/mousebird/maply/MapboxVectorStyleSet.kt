@@ -266,9 +266,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             val ident = style.getString("ident") ?: continue
             val (group, name) = if (useGroups) parseIdent(ident) else Pair(null, ident)
 
-            val color = style.getString("legendColor")?.let {
-                SimpleStyleManager.parseColor(it)
-            } ?: Color.TRANSPARENT
+            val color = style.getInt("legendColor")?: Color.TRANSPARENT
             
             val bitmap = when (style.getString("type")) {
                 "background" -> getSolidImage(imageSize, color)
