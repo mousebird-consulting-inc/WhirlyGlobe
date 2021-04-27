@@ -1634,22 +1634,23 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         if (vectorInfo.subdivEps != 0.0)
         {
             const float eps = vectorInfo.subdivEps;
-            NSString *subdivType = inDesc[kMaplySubdivType];
-            const bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
-            const bool grid = ![subdivType compare:kMaplySubdivGrid];
-            const bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
+            const NSString *subdivType = inDesc[kMaplySubdivType];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
-            if (greatCircle)
+            if (![subdivType compare:kMaplySubdivGreatCirclePrecise])
+            {
+                [newVecObj subdivideToGlobeGreatCirclePrecise:eps];
+            }
+            else if (![subdivType compare:kMaplySubdivGreatCircle])
             {
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             }
-            else if (grid)
+            else if (![subdivType compare:kMaplySubdivGrid])
             {
                 // The manager has to handle this one
             }
-            else if (staticSubdiv)
+            else if (![subdivType compare:kMaplySubdivStatic])
             {
                 // Note: Fill this in
             }
@@ -1765,21 +1766,22 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         {
             const float eps = vectorInfo.subdivEps;
             const NSString *subdivType = inDesc[kMaplySubdivType];
-            const bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
-            const bool grid = ![subdivType compare:kMaplySubdivGrid];
-            const bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
-            if (greatCircle)
+            if (![subdivType compare:kMaplySubdivGreatCirclePrecise])
+            {
+                [newVecObj subdivideToGlobeGreatCirclePrecise:eps];
+            }
+            else if (![subdivType compare:kMaplySubdivGreatCircle])
             {
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             }
-            else if (grid)
+            else if (![subdivType compare:kMaplySubdivGrid])
             {
                 // The manager has to handle this one
             }
-            else if (staticSubdiv)
+            else if (![subdivType compare:kMaplySubdivStatic])
             {
                 // Note: Fill this in
             }
