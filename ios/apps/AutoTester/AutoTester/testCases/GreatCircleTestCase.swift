@@ -316,7 +316,7 @@ class GreatCircleTestCase: MaplyTestCase {
                 v3.subdivide(toFlatGreatCircle:0.001)
             }
 
-            var desc = [
+            let desc = [
                 kMaplyColor: UIColor.white,
                 kMaplyEnable: true,
                 kMaplyVecWidth: 6.0,

@@ -895,6 +895,7 @@ static void SubdivideEdgesToSurfaceGCGeo(const VectorRing &inPts,VectorRing &out
     }
 }
 
+#if 0
 static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,VectorRing &outPts2D,bool closed,
                                          CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
                                          float eps,float surfOffset=0,int minPts=0)
@@ -907,6 +908,7 @@ static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,VectorRing &o
     }
     SubdivideEdgesToSurfaceGCGeo(inPts2D,outPts2D,closed,adapter,coordSys,eps,surfOffset,minPts);
 }
+#endif
 
 static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,Point3dVector &outPts,bool closed,
                                          CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
@@ -1053,11 +1055,13 @@ static void SubdivideGeoLib(const VectorRing &inPts, VectorRing &outPts, double 
     SubdivideGeoLib(inPts.begin(), inPts.end(), std::back_inserter(outPts), maxDistMeters);
 }
 
+#if 0
 static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing &outPts, double maxDistMeters)
 {
     outPts.reserve(outPts.size() + inPts.size() * 10);
     SubdivideGeoLib(make3to2(inPts.begin()), make3to2(inPts.end()), std::back_inserter(outPts), maxDistMeters);
 }
+#endif
 
 static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing3d &outPts, double maxDistMeters)
 {
@@ -1087,6 +1091,7 @@ void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDispl
             {
                 // See if they cross the edge of a wraparound coordinate system
                 // Note: Only works for spherical mercator, most likely
+                lin->pts.clear();
                 fixEdges(outPts2D,lin->pts);
             } else {
                 lin->pts = outPts2D;
