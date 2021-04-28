@@ -63,6 +63,16 @@ class GreatCircleTestCase: MaplyTestCase {
             } else {
                 v0.subdivide(toFlatGreatCirclePrecise: 0.01)
             }
+            
+            // Drop a marker right in the middle
+            let inv = GeoLibCalcInverseF(x, y)
+            let midPt = GeoLibCalcDirectF(x, inv.azimuth1, inv.distance / 2.0)
+            let marker = MaplyScreenMarker()
+            marker.image = UIImage(named: "alcohol-shop-24@2x")
+            marker.loc = midPt
+            marker.size = CGSize(width: 64.0, height: 64.0)
+            marker.selectable = true;
+            marker.layoutImportance = MAXFLOAT;
 
             let desc = [
                 kMaplyColor: UIColor.black,
@@ -72,6 +82,9 @@ class GreatCircleTestCase: MaplyTestCase {
             ] as [String : Any]
 
             if let obj = viewC.addWideVectors([v0], desc:desc) {
+                compObjs.append(obj)
+            }
+            if let obj = viewC.addScreenMarkers([marker], desc: nil) {
                 compObjs.append(obj)
             }
         }

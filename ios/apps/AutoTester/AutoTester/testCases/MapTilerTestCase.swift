@@ -130,6 +130,8 @@ class MapTilerTestCase: MaplyTestCase {
         mapVC.rotateGestureThreshold = 15;
 
         runProgram(mapVC)
+        
+        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-100, 40.0), height: 1.5, time: 0.1)
     }
     
     override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {

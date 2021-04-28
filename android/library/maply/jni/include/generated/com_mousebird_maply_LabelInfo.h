@@ -57,6 +57,22 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_LabelInfo_getTypeface
 
 /*
  * Class:     com_mousebird_maply_LabelInfo
+ * Method:    setFontPointSize
+ * Signature: (F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelInfo_setFontPointSize
+  (JNIEnv *, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
+ * Method:    getFontPointSize
+ * Signature: ()F
+ */
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_LabelInfo_getFontPointSize
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LabelInfo
  * Method:    setFontSizeNative
  * Signature: (F)V
  */

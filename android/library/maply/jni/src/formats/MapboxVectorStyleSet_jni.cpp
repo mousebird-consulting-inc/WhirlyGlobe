@@ -347,3 +347,26 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_get
     }
     return nullptr;
 }
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setLayerVisible
+        (JNIEnv *env, jobject obj, jstring layerNameJava, jboolean visible)
+{
+    try
+    {
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (!styleSetRef)
+            return;
+
+        JavaString layerName(env,layerNameJava);
+        for (auto &layer : (*styleSetRef)->layers) {
+            if (layer->ident == layerName.getCString()) {
+                layer->visible = visible;
+            }
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::setLayerVisible()");
+    }
+}

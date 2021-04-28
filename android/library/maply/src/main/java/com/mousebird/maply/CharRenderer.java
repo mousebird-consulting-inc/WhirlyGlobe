@@ -45,12 +45,14 @@ class CharRenderer
 	{		
 	}
 
+	static float FontSizeScale = 2.0f;
+
 	// called from C++ code
 	Glyph renderChar(int charInt,LabelInfo labelInfo,float fontSize)
 	{
 		Paint textFillPaint = new Paint();
 		String str = new String(Character.toChars(charInt));
-		textFillPaint.setTextSize(fontSize);
+		textFillPaint.setTextSize(fontSize * FontSizeScale);
 		int textColor = labelInfo.getTextColor();
 		textFillPaint.setColor(textColor);
 		textFillPaint.setAntiAlias(true);
@@ -69,7 +71,7 @@ class CharRenderer
 
 		//paint for outline
 		Paint textOutlinePaint = null;
-		int outlineSize = (int)(labelInfo.getOutlineSize());
+		int outlineSize = (int)(labelInfo.getOutlineSize() * FontSizeScale);
 		if(outlineSize > 0) {
 			textOutlinePaint = new Paint(textFillPaint);
 			textOutlinePaint.setStyle(Paint.Style.STROKE);

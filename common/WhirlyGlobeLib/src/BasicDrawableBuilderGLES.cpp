@@ -39,6 +39,7 @@ void BasicDrawableTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo 
                 const auto a = (uint8_t) (255.0f * opacityExp->evaluate(zoom, 1.0f));
                 c = RGBAColor::FromInt((int)(((uint32_t)c.asInt() & 0x00FFFFFFU) | ((uint32_t)a << 24U)));
             }
+            c.r *= c.a/255.0;  c.g *= c.a/255.0;  c.b *= c.a/255.0;
             draw->setOverrideColor(c);
             return;
         }

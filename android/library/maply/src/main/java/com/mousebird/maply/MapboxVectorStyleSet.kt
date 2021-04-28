@@ -152,8 +152,11 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
         val labelInfo = LabelInfo()
         labelInfo.typeface = typefaceMap.putIfAbsent(fontName, typeface) ?: typeface
+        // We scale the font size up double
         labelInfo.setFontSize(fontSize)
         labelInfo.fontName = fontName
+        // TODO: See if we could get this from the typeface
+        labelInfo.fontPointSize = 32.0f;
 
         // Same with the size-specific label info
         return labelInfoMap.putIfAbsent(SizedTypeface(fontName, fontSize), labelInfo) ?: labelInfo
@@ -263,9 +266,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             val ident = style.getString("ident") ?: continue
             val (group, name) = if (useGroups) parseIdent(ident) else Pair(null, ident)
 
-            val color = style.getString("legendColor")?.let {
-                SimpleStyleManager.parseColor(it)
-            } ?: Color.TRANSPARENT
+            val color = style.getInt("legendColor")?: Color.TRANSPARENT
             
             val bitmap = when (style.getString("type")) {
                 "background" -> getSolidImage(imageSize, color)
@@ -279,16 +280,16 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             if (group?.isNotEmpty() == true) {
                 groupMap[group] = groupMap[group]?.let {
                     LegendEntry(
-                        it.name, it.image, it.entries.plus(
-                            LegendEntry(name,bitmap,emptyList())))
+                        it.name, it.ident, it.image, it.entries.plus(
+                            LegendEntry(name,ident,bitmap,emptyList())))
                 } ?: run {
-                    val newEntry = LegendEntry(group,null,listOf(
-                        LegendEntry(name,bitmap,emptyList())))
+                    val newEntry = LegendEntry(group,ident,null,listOf(
+                        LegendEntry(name,ident,bitmap,emptyList())))
                     legend.add(newEntry)
                     newEntry
                 }
             } else {
-                legend.add(LegendEntry(name, bitmap, emptyList()))
+                legend.add(LegendEntry(name, ident, bitmap, emptyList()))
             }
         }
 
@@ -369,7 +370,10 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         }
         return image
     }
-    
+
+    // Set a named layer visible or invisible
+    public external fun setLayerVisible(layerName: String, visible: Boolean)
+
     enum class SourceType {
         Vector, Raster
     }

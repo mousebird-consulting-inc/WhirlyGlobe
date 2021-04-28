@@ -348,6 +348,11 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
     return theColor;
 }
 
+bool MapboxTransColor::isExpression() const
+{
+    return stops.get() != nullptr;
+}
+
 ColorExpressionInfoRef MapboxTransColor::expression()
 {
     if (!stops)
