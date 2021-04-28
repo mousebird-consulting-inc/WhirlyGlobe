@@ -1,9 +1,8 @@
-/*
- *  WhirlyVector.cpp
+/*  WhirlyVector.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/25/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyVector.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -232,7 +231,7 @@ bool MbrD::overlaps(const MbrD &that) const
         (that.pt_ll.x() <= pt_ll.x() && pt_ur.x() <= that.pt_ur.x() &&
          pt_ll.y() <= that.pt_ll.y() && that.pt_ur.y() <= pt_ur.y()))
         return true;
-    
+
     return false;
 }
 
@@ -430,26 +429,28 @@ void BBox::addPoints(const Point3dVector &pts)
     
 void BBox::asPoints(Point3fVector &pts) const
 {
-    pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ll.z()));
-    pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ll.z()));
-    pts.push_back(Point3f(pt_ur.x(),pt_ur.y(),pt_ll.z()));
-    pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ll.z()));
-    pts.push_back(Point3f(pt_ll.x(),pt_ll.y(),pt_ur.z()));
-    pts.push_back(Point3f(pt_ur.x(),pt_ll.y(),pt_ur.z()));
-    pts.push_back(Point3f(pt_ur.x(),pt_ur.y(),pt_ur.z()));
-    pts.push_back(Point3f(pt_ll.x(),pt_ur.y(),pt_ur.z()));
+    pts.reserve(pts.size() + 8);
+    pts.emplace_back(pt_ll.x(),pt_ll.y(),pt_ll.z());
+    pts.emplace_back(pt_ur.x(),pt_ll.y(),pt_ll.z());
+    pts.emplace_back(pt_ur.x(),pt_ur.y(),pt_ll.z());
+    pts.emplace_back(pt_ll.x(),pt_ur.y(),pt_ll.z());
+    pts.emplace_back(pt_ll.x(),pt_ll.y(),pt_ur.z());
+    pts.emplace_back(pt_ur.x(),pt_ll.y(),pt_ur.z());
+    pts.emplace_back(pt_ur.x(),pt_ur.y(),pt_ur.z());
+    pts.emplace_back(pt_ll.x(),pt_ur.y(),pt_ur.z());
 }
 
 void BBox::asPoints(Point3dVector &pts) const
 {
-    pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ll.z()));
-    pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ll.z()));
-    pts.push_back(Point3d(pt_ur.x(),pt_ur.y(),pt_ll.z()));
-    pts.push_back(Point3d(pt_ll.x(),pt_ur.y(),pt_ll.z()));
-    pts.push_back(Point3d(pt_ll.x(),pt_ll.y(),pt_ur.z()));
-    pts.push_back(Point3d(pt_ur.x(),pt_ll.y(),pt_ur.z()));
-    pts.push_back(Point3d(pt_ur.x(),pt_ur.y(),pt_ur.z()));
-    pts.push_back(Point3d(pt_ll.x(),pt_ur.y(),pt_ur.z()));
+    pts.reserve(pts.size() + 8);
+    pts.emplace_back(pt_ll.x(),pt_ll.y(),pt_ll.z());
+    pts.emplace_back(pt_ur.x(),pt_ll.y(),pt_ll.z());
+    pts.emplace_back(pt_ur.x(),pt_ur.y(),pt_ll.z());
+    pts.emplace_back(pt_ll.x(),pt_ur.y(),pt_ll.z());
+    pts.emplace_back(pt_ll.x(),pt_ll.y(),pt_ur.z());
+    pts.emplace_back(pt_ur.x(),pt_ll.y(),pt_ur.z());
+    pts.emplace_back(pt_ur.x(),pt_ur.y(),pt_ur.z());
+    pts.emplace_back(pt_ll.x(),pt_ur.y(),pt_ur.z());
 }
 
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
@@ -461,72 +462,60 @@ Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
     // The trick here is that we've taken out the checks against
     //  1 (vectors are nearly identical) and -1
 
+    if (c < -0.9999999)
+    {
+        wkLogLevel(Verbose, "QuatFromTwoVectors on opposite vectors");
+    }
+
     const Vector3d axis = v0.cross(v1);
-    const double s = sqrt((1.f+c)*2.f);
-    const double invs = 1.f/s;
+    const double s = sqrt((1+c)*2);
 
     Eigen::Quaterniond ret;
-    ret.vec() = axis * invs;
-    ret.w() = s * 0.5f;
+    ret.vec() = (s != 0) ? (axis / s) : axis;
+    ret.w() = s * 0.5;
+
     return ret;
 }
 
 /// Convert a 4f matrix to a 4d matrix
 Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat)
 {
-    Matrix4d outMat;
-    for (unsigned int ii=0;ii<16;ii++)
-        outMat.data()[ii] = inMat.data()[ii];
-    
-    return outMat;
+    return inMat.cast<double>();
 }
-    
+
 Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat)
 {
-    Matrix4f outMat;
-    for (unsigned int ii=0;ii<16;ii++)
-        outMat.data()[ii] = inMat.data()[ii];
-    
-    return outMat;
+    return inMat.cast<float>();
 }
 
 /// Floats to doubles
 Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec)
 {
-    return Vector2d(inVec.x(),inVec.y());
+    return inVec.cast<double>();
 }
     
 /// Doubles to floats
 Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec)
 {
-    return Vector2f(inVec.x(),inVec.y());
+    return inVec.cast<float>();
 }
 
 /// Floats to doubles
 Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec)
 {
-    Vector3d outVec;
-    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();
-    
-    return outVec;
+    return inVec.cast<double>();
 }
 
 // Double to floats
 Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec)
 {
-    Vector3f outVec;
-    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();
-    
-    return outVec;
+    return inVec.cast<float>();
 }
-    
+
 /// Floats to doubles
 Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec)
 {
-    Vector4d outVec;
-    outVec.x() = inVec.x();  outVec.y() = inVec.y();  outVec.z() = inVec.z();  outVec.w() = inVec.w();
-    
-    return outVec;    
+    return inVec.cast<double>();
 }
 
 

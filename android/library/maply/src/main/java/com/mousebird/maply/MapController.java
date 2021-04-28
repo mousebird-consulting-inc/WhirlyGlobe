@@ -604,6 +604,37 @@ public class MapController extends BaseController implements View.OnTouchListene
 	}
 
 	/**
+	 * Return the current height
+	 */
+	public double getHeight()
+	{
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
+			return 0.0;
+
+		Point3d loc = mapView.getLoc();
+		return (loc != null) ? loc.getZ() : 0.0;
+	}
+
+	/**
+	 * Set the current height in display units
+	 */
+	public void setHeight(final double height)
+	{
+		if (!running || mapView == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
+			return;
+
+		if (!rendererAttached) {
+			addPostSurfaceRunnable(() -> setHeight(height));
+			return;
+		}
+
+		Point3d curLoc = mapView.getLoc();
+		if (curLoc != null) {
+			mapView.setLoc(new Point3d(curLoc.getX(), curLoc.getY(), height), true);
+		}
+	}
+
+	/**
 	 * If set we'll allow the user to rotate.
 	 * If not, we'll keep north up at all times.
      */

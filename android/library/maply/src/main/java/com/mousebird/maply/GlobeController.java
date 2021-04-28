@@ -494,18 +494,35 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
 	 */
-	public void setPositionGeo(final Point2d pt,final double z)
-	{
-		setPositionGeo(pt.getX(), pt.getY(), z);
+	public void setPositionGeo(final Point2d pt,final double z) {
+		setPositionGeo(pt.getX(), pt.getY(), z, null);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param heading New heading in radians
+	 */
+	public void setPositionGeo(final Point2d pt,final double z,double heading) {
+		setPositionGeo(pt.getX(), pt.getY(), z, heading);
 	}
 
 	/**
 	 * Set the current view position.
 	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
 	 */
-	public void setPositionGeo(final Point3d pt)
-	{
-		setPositionGeo(pt.getX(), pt.getY(), pt.getZ());
+	public void setPositionGeo(final Point3d pt) {
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ(), null);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
+	 * @param heading New heading in radians
+	 */
+	public void setPositionGeo(final Point3d pt,double heading) {
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ(), heading);
 	}
 
 	/**
@@ -514,24 +531,31 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
 	 */
-	public void setPositionGeo(final double x,final double y,final double z)
-	{
-		if (!isCompletelySetup())
-			return;
+	public void setPositionGeo(final double x,final double y,final double z) {
+		setPositionGeo(x,y,z,null);
+	}
 
+	/**
+	 * Set the current view position.
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param heading New heading in radians
+	 */
+	public void setPositionGeo(final double x,final double y,final double z,final Double heading) {
 		if (!isCompletelySetup()) {
-			addPostSurfaceRunnable(new Runnable() {
-				@Override
-				public void run() {
-					setPositionGeo(x,y,z);
-				}
-			});
+			if (!rendererAttached) {
+				addPostSurfaceRunnable(() -> setPositionGeo(x, y, z, heading));
+			}
 			return;
 		}
 
 		globeView.cancelAnimation();
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		globeView.setLoc(new Point3d(geoCoord.getX(),geoCoord.getY(),z));
+		if (heading != null) {
+			globeView.setHeading(heading);
+		}
 	}
 
 	/**
@@ -591,12 +615,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	{
 		if (!isCompletelySetup()) {
 			if (!rendererAttached) {
-				addPostSurfaceRunnable(new Runnable() {
-					@Override
-					public void run() {
-						animatePositionGeo(x, y, z, howLong);
-					}
-				});
+				addPostSurfaceRunnable(() -> animatePositionGeo(x, y, z, howLong));
 			}
 			return;
 		}
@@ -647,12 +666,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	{
 		if (!isCompletelySetup()) {
 			if (!rendererAttached) {
-				addPostSurfaceRunnable(new Runnable() {
-					@Override
-					public void run() {
-						animatePositionGeo(targetGeoLoc,offset,hdg,howLong);
-					}
-				});
+				addPostSurfaceRunnable(() -> animatePositionGeo(targetGeoLoc,offset,hdg,howLong));
 			}
 			return;
 		}
@@ -704,10 +718,35 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		}
 	}
 
-	public void setHeading(final double heading)
-	{
-		if (!isCompletelySetup())
+	/**
+	 * Get the current height
+	 */
+	public double getHeight() {
+		return isCompletelySetup() ? globeView.getHeight() : 0.0;
+	}
+
+	/**
+	 * Set the view height, display units
+	 */
+	public void setHeight(final double height) {
+		if (!isCompletelySetup()) {
+			if (!rendererAttached) {
+				addPostSurfaceRunnable(() -> setHeight(height));
+			}
 			return;
+		}
+
+		globeView.cancelAnimation();
+		globeView.setHeight(height);
+	}
+
+	public void setHeading(final double heading) {
+		if (!isCompletelySetup()) {
+			if (!rendererAttached) {
+				addPostSurfaceRunnable(() -> setHeading(heading));
+			}
+			return;
+		}
 
 		globeView.cancelAnimation();
 		globeView.setHeading(heading);
@@ -719,13 +758,17 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * @param autoRotateInterval Wait this number of seconds after user interaction to auto rotate.
 	 * @param autoRotateDegrees Rotate this number of degrees (not radians) per second.
      */
-	public void setAutoRotate(float autoRotateInterval,float autoRotateDegrees)
-	{
-		if (!isCompletelySetup())
+	public void setAutoRotate(float autoRotateInterval,float autoRotateDegrees) {
+		if (!isCompletelySetup()) {
+			if (!rendererAttached) {
+				addPostSurfaceRunnable(() -> setAutoRotate(autoRotateInterval,autoRotateDegrees));
+			}
 			return;
+		}
 
-		if (gestureHandler != null)
-			gestureHandler.setAutoRotate(autoRotateInterval,autoRotateDegrees);
+		if (gestureHandler != null) {
+			gestureHandler.setAutoRotate(autoRotateInterval, autoRotateDegrees);
+		}
 	}
 	
 	// Gesture handler
