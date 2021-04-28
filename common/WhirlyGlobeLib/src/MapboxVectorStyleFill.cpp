@@ -127,7 +127,13 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             }
         }
 
-        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
+        MBResolveColorType resolveMode = MBResolveColorOpacityComposeAlpha;
+#ifdef __ANDROID__
+        // On Android we need to run the math later, so don't premultiply
+        if (!paint.color->isExpression() && !paint.opacity->isExpression())
+            resolveMode = MBResolveColorOpacityMultiply;
+#endif
+        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode))
         {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;
@@ -183,6 +189,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.opacityExp = paint.opacity->expression();
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.color = *color;
+            vecInfo.zoomSlot = styleSet->zoomSlot;
             vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
             vecInfo.drawOrder = tileInfo->tileNumber();
 

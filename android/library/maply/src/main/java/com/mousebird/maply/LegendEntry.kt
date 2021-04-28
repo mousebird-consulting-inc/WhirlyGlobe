@@ -20,5 +20,21 @@ import android.graphics.Bitmap
 
 class LegendEntry(
     val name: String,
+    val ident: String?,
     val image: Bitmap?,
-    val entries: Collection<LegendEntry>)
+    val entries: Collection<LegendEntry>
+    ) {
+
+    override fun toString(): String {
+        return printString("")
+    }
+
+    fun printString(indent: String): String {
+        var retStr =  "$indent name = $name\n"
+        entries.forEach {
+            retStr += it.printString(indent + " ") + "\n"
+        }
+
+        return retStr
+    }
+}

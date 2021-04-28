@@ -193,6 +193,23 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlat
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    subdivideToGlobeGreatCirclePreciseNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlobeGreatCirclePreciseNative
+        (JNIEnv *, jobject, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
+ * Method:    subdivideToFlatGreatCirclePreciseNative
+ * Signature: (Lcom/mousebird/maply/VectorObject;D)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlatGreatCirclePreciseNative
+        (JNIEnv *, jobject, jobject, jdouble);
+
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    tesselateNative
  * Signature: (Lcom/mousebird/maply/VectorObject;)Z
  */

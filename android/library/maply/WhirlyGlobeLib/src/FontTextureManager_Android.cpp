@@ -26,7 +26,8 @@
 namespace WhirlyKit
 {
 
-static const float BogusFontScale = 1.0f;
+// There's a constant on the Java side correspond go this as well
+static const float BogusFontScale = 2.0f;
 
 FontTextureManager_Android::FontManager_Android::FontManager_Android(PlatformThreadInfo *inst,jobject inTypefaceObj) :
 	typefaceObj(((PlatformInfo_Android*)inst)->env->NewGlobalRef(inTypefaceObj))
@@ -242,8 +243,8 @@ DrawableString *FontTextureManager_Android::addString(
         {
             // Now we make a rectangle that covers the glyph in its texture atlas
             DrawableString::Rect rect;
-            const Point2f offset(offsetX,-glyphInfo->offset.y());
-            const float scale = 1.0/BogusFontScale;
+			const float scale = 1.0/BogusFontScale;
+            const Point2f offset(offsetX,-glyphInfo->offset.y()*scale);
 
             // Note: was -1,-1
             rect.pts[0] = Point2f(glyphInfo->offset.x()*scale-glyphInfo->textureOffset.x()*scale,glyphInfo->offset.y()*scale-glyphInfo->textureOffset.y()*scale)+offset;
@@ -259,7 +260,7 @@ DrawableString *FontTextureManager_Android::addString(
 
             glyphsUsed.insert(glyphInfo->glyph);
 
-            offsetX += glyphInfo->size.x();
+            offsetX += glyphInfo->size.x() / BogusFontScale;
         }
     }
 

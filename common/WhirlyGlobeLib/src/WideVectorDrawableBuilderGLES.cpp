@@ -48,6 +48,8 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         c.w() = opacityExp->evaluate(zoom, 1.0f);
     }
 
+    // Multiply the alpha through, otherwise you just get the max color
+    c[0] *= c[3];  c[1] *= c[3];  c[2] *= c[3];
     const RGBAColor newC = RGBAColor::FromUnitFloats(&c[0]);
     basicDraw->setOverrideColor(newC);
 

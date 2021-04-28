@@ -924,10 +924,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     flip = -1.0;
 #endif
                                     Point2d center(objPt.x(),objPt.y());
-                                    objPts[0] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg;
-                                    objPts[1] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),0.0);
-                                    objPts[2] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg + Point2d(layoutSpan.x(),-layoutSpan.y());
-                                    objPts[3] = Point2d(objOffset.x(),flip*-objOffset.y()) + layoutOrg + Point2d(0.0,-layoutSpan.y());
+                                    objPts[0] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y());
+                                    objPts[1] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y()) + Point2d(layoutSpan.x(),0.0);
+                                    objPts[2] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y()) + Point2d(layoutSpan.x(),flip*layoutSpan.y());
+                                    objPts[3] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y()) + Point2d(0.0,flip*layoutSpan.y());
                                     for (unsigned int oi=0;oi<4;oi++)
                                     {
                                         Point2d &thisObjPt = objPts[oi];

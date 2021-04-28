@@ -1,9 +1,8 @@
-/*
- *  VectorObject.cpp
+/*  VectorObject.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/17/11.
- *  Copyright 2011-2013 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "VectorObject.h"
@@ -27,6 +25,7 @@
 #import "WhirlyKitLog.h"
 #import "GlobeView.h"
 #import "MaplyView.h"
+#import "GeographicLib/Geodesic.hpp"
 
 namespace WhirlyKit
 {
@@ -846,22 +845,28 @@ void VectorObject::subdivideToGlobe(float epsilon)
 {
     FakeGeocentricDisplayAdapter adapter;
     
+    VectorRing outPts;
+    VectorRing3d outPts3;
     for (const auto &shapeRef : shapes)
     {
         const auto shape = shapeRef.get();
         if (const auto lin = dynamic_cast<VectorLinear*>(shape))
         {
-            VectorRing outPts;
+            outPts.clear();
             SubdivideEdgesToSurface(lin->pts, outPts, false, &adapter, epsilon);
             lin->pts = outPts;
-        } else if (const auto lin3d = dynamic_cast<VectorLinear3d*>(shape)) {
-            VectorRing3d outPts;
-            SubdivideEdgesToSurface(lin3d->pts, outPts, false, &adapter, epsilon);
-            lin3d->pts = outPts;
-        } else if (const auto ar = dynamic_cast<VectorAreal*>(shape)) {
+        }
+        else if (const auto lin3d = dynamic_cast<VectorLinear3d*>(shape))
+        {
+            outPts3.clear();
+            SubdivideEdgesToSurface(lin3d->pts, outPts3, false, &adapter, epsilon);
+            lin3d->pts = outPts3;
+        }
+        else if (const auto ar = dynamic_cast<VectorAreal*>(shape))
+        {
             for (unsigned int ii=0;ii<ar->loops.size();ii++)
             {
-                VectorRing outPts;
+                outPts.clear();
                 SubdivideEdgesToSurface(ar->loops[ii], outPts, true, &adapter, epsilon);
                 ar->loops[ii] = outPts;
             }
@@ -869,73 +874,247 @@ void VectorObject::subdivideToGlobe(float epsilon)
     }
 }
 
-void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool edgeMode)
+// SubdivideEdgesToSurfaceGC and convert back to geographic
+static void SubdivideEdgesToSurfaceGCGeo(const VectorRing &inPts,VectorRing &outPts2D,bool closed,
+                                         CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
+                                         float eps,float surfOffset=0,int minPts=0)
+{
+    Point3dVector outPts;
+    outPts.reserve(std::max(20, 3 * minPts));
+    SubdivideEdgesToSurfaceGC(inPts,outPts,closed,adapter,eps,surfOffset,minPts);
+
+    outPts2D.resize(outPts.size());
+    for (unsigned int ii=0;ii<outPts.size();ii++)
+    {
+        outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
+    }
+    if (!inPts.empty())
+    {
+        outPts2D.front() = inPts.front();
+        outPts2D.back() = inPts.back();
+    }
+}
+
+#if 0
+static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,VectorRing &outPts2D,bool closed,
+                                         CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
+                                         float eps,float surfOffset=0,int minPts=0)
+{
+    VectorRing inPts2D;
+    inPts2D.reserve(inPts.size());
+    for (const auto &p : inPts)
+    {
+        inPts2D.emplace_back(p.x(),p.y());
+    }
+    SubdivideEdgesToSurfaceGCGeo(inPts2D,outPts2D,closed,adapter,coordSys,eps,surfOffset,minPts);
+}
+#endif
+
+static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,Point3dVector &outPts,bool closed,
+                                         CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
+                                         float eps,float surfOffset=0,int minPts=0)
+{
+    VectorRing inPts2D;
+    inPts2D.reserve(inPts.size());
+    for (const auto &p : inPts)
+    {
+        inPts2D.emplace_back(p.x(),p.y());
+    }
+    VectorRing outPts2d;
+    outPts2d.resize(inPts.size() * 3);
+    SubdivideEdgesToSurfaceGCGeo(inPts2D,outPts2d,closed,adapter,coordSys,eps,surfOffset,minPts);
+    outPts.reserve(outPts.size() + outPts2d.size());
+    for (const auto &p : outPts2d)
+    {
+        outPts.emplace_back(p.x(), p.y(), 0.0);
+    }
+}
+
+static void fixEdges(const VectorRing& outPts2D, VectorRing& offsetPts2D)
+{
+    // See if they cross the edge of a wraparound coordinate system
+    // Note: Only works for spherical mercator, most likely
+    offsetPts2D.resize(outPts2D.size());
+    double xOff = 0.0;
+    for (unsigned int ii=0;ii<outPts2D.size()-1;ii++)
+    {
+        offsetPts2D[ii] = Point2f(outPts2D[ii].x()+xOff,outPts2D[ii].y());
+        if (std::abs(outPts2D[ii].x() - outPts2D[ii+1].x()) > 1.1*M_PI)
+        {
+            if (outPts2D[ii].x() < 0.0)
+                xOff -= 2*M_PI;
+            else
+                xOff += 2*M_PI;
+        }
+    }
+    offsetPts2D.back() = outPts2D.back() + Point2f(xOff,0.0);
+}
+
+static const GeographicLib::Geodesic &wgs84Geodesic = GeographicLib::Geodesic::WGS84();
+
+static std::pair<double,double> CalcInv(const Point2f &p1, const Point2f &p2)
+{
+    const auto lat1 = WhirlyKit::RadToDeg(p1.y());
+    const auto lon1 = WhirlyKit::RadToDeg(p1.x());
+    const auto lat2 = WhirlyKit::RadToDeg(p2.y());
+    const auto lon2 = WhirlyKit::RadToDeg(p2.x());
+    double dist = 0.0, az1 = 0.0, az2 = 0.0;
+    wgs84Geodesic.Inverse(lat1, lon1, lat2, lon2, dist, az1, az2);
+    return std::make_pair(dist,WhirlyKit::DegToRad(az1));
+}
+
+static std::pair<bool,Point2f> CalcDirect(const Point2f &origin, double az, double dist)
+{
+    const auto lat1 = WhirlyKit::RadToDeg(origin.y());
+    const auto lon1 = WhirlyKit::RadToDeg(origin.x());
+    const auto azDeg = WhirlyKit::RadToDeg(az);
+
+    double lat2 = 0.0, lon2 = 0.0;
+    const auto res = wgs84Geodesic.Direct(lat1, lon1, azDeg, dist, lat2, lon2);
+
+    return std::make_pair(std::isfinite(res),
+                          Point2f((float)WhirlyKit::DegToRad(lon2),
+                                  (float)WhirlyKit::DegToRad(lat2)));
+}
+
+template <typename Tin,typename Tout>
+static void SubdivideGeoLib(Tin beg, Tin end, Tout out, double maxDistMeters)
+{
+    const auto count = std::distance(beg, end);
+    if (count < 2)
+    {
+        if (beg != end)
+        {
+            // special case for one point
+            *out++ = *beg;
+        }
+        return;
+    }
+    while (beg != end)
+    {
+        const auto next = std::next(beg);
+        if (next == end)
+        {
+            *out++ = *beg;
+            break;
+        }
+        const auto &p0 = *beg;
+        const auto &p1 = *next;
+        ++beg;
+        *out++ = p0;
+
+        double dist,az;
+        std::tie(dist,az) = CalcInv(p0,p1);
+
+        if (dist > maxDistMeters)
+        {
+            const auto segs = (int)std::ceil(dist / maxDistMeters);
+            const auto segLen = dist / segs;
+            Point2f outPt;
+            bool valid;
+            for (int i = 1; i < segs; ++i)
+            {
+                std::tie(valid,outPt) = CalcDirect(p0,az,segLen * i);
+                if (valid)
+                {
+                    *out++ = outPt;
+                }
+            }
+        }
+    }
+}
+
+template <typename T> struct Adapt3dTo2f : std::vector<Point2f>::const_iterator
+{
+    Adapt3dTo2f(T i) : _i(i) {}
+    Adapt3dTo2f(const Adapt3dTo2f &i) : _i(i._i) {}
+    Point2f operator*() const { return Point2f(_i->x(),_i->y()); }
+    Adapt3dTo2f& operator++() { ++_i; return *this; }
+    Adapt3dTo2f operator++(int) { auto x = *this; ++_i; return x; }
+    bool operator==(const Adapt3dTo2f &other) const { return _i == other._i; }
+    bool operator!=(const Adapt3dTo2f &other) const { return _i != other._i; }
+    T _i;
+};
+template <typename T> struct Adapt2fTo3d
+{
+    Adapt2fTo3d(T i) : _i(i) {}
+    Adapt2fTo3d& operator*() { return *this; }
+    Adapt2fTo3d& operator++() { ++_i; return this; }
+    Adapt2fTo3d operator++(int) { auto x = *this; ++_i; return x; }
+    Adapt2fTo3d& operator=(const Point2f &p) { _i.operator=(Point3d(p.x(),p.y(),0.0)); return *this; }
+    bool operator==(const Adapt2fTo3d &other) const { return _i == other._i; }
+    bool operator!=(const Adapt2fTo3d &other) const { return _i != other._i; }
+    T _i;
+};
+template <typename T> Adapt3dTo2f<T> make3to2(T iter) { return Adapt3dTo2f<T>(iter); }
+template <typename T> Adapt2fTo3d<T> make2to3(T iter) { return Adapt2fTo3d<T>(iter); }
+
+static void SubdivideGeoLib(const VectorRing &inPts, VectorRing &outPts, double maxDistMeters)
+{
+    outPts.reserve(outPts.size() + inPts.size() * 10);
+    SubdivideGeoLib(inPts.begin(), inPts.end(), std::back_inserter(outPts), maxDistMeters);
+}
+
+#if 0
+static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing &outPts, double maxDistMeters)
+{
+    outPts.reserve(outPts.size() + inPts.size() * 10);
+    SubdivideGeoLib(make3to2(inPts.begin()), make3to2(inPts.end()), std::back_inserter(outPts), maxDistMeters);
+}
+#endif
+
+static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing3d &outPts, double maxDistMeters)
+{
+    outPts.reserve(outPts.size() + inPts.size() * 10);
+    SubdivideGeoLib(make3to2(inPts.begin()), make3to2(inPts.end()), make2to3(std::back_inserter(outPts)), maxDistMeters);
+}
+
+void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool useGeoLib,bool edgeMode)
 {
     CoordSystem *coordSys = adapter->getCoordSystem();
-    
+
+    const auto geoDist = useGeoLib ? epsilon * wgs84Geodesic.EquatorialRadius() : 0.0;
+
     for (const auto &shapeRef : shapes)
     {
         const auto shape = shapeRef.get();
         if (const auto lin = dynamic_cast<VectorLinear*>(shape))
         {
-            VectorRing3d outPts;
-            outPts.reserve(10);
-            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
-            
             VectorRing outPts2D;
-            outPts2D.resize(outPts.size());
-            for (unsigned int ii=0;ii<outPts.size();ii++)
-                outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
-            if (lin->pts.size() > 0)
-            {
-                outPts2D.front() = lin->pts.front();
-                outPts2D.back() = lin->pts.back();
+            if (useGeoLib) {
+                SubdivideGeoLib(lin->pts,outPts2D,geoDist);
+            } else {
+                SubdivideEdgesToSurfaceGCGeo(lin->pts,outPts2D,false,adapter,coordSys,epsilon);
             }
-            
-            if (edgeMode && outPts.size() > 1)
+
+            if (edgeMode && outPts2D.size() > 1)
             {
                 // See if they cross the edge of a wraparound coordinate system
                 // Note: Only works for spherical mercator, most likely
-                VectorRing offsetPts2D(outPts2D.size());
-                double xOff = 0.0;
-                for (unsigned int ii=0;ii<outPts2D.size()-1;ii++)
-                {
-                    offsetPts2D[ii] = Point2f(outPts2D[ii].x()+xOff,outPts2D[ii].y());
-                    if (std::abs(outPts2D[ii].x() - outPts2D[ii+1].x()) > 1.1*M_PI)
-                    {
-                        if (outPts2D[ii].x() < 0.0)
-                            xOff -= 2*M_PI;
-                        else
-                            xOff += 2*M_PI;
-                    }
-                }
-                offsetPts2D.back() = outPts2D.back() + Point2f(xOff,0.0);
-                lin->pts = offsetPts2D;
-            } else
+                lin->pts.clear();
+                fixEdges(outPts2D,lin->pts);
+            } else {
                 lin->pts = outPts2D;
+            }
         } else if (const auto lin3d = dynamic_cast<VectorLinear3d*>(shape)) {
             VectorRing3d outPts;
-            outPts.reserve(10);
-            SubdivideEdgesToSurfaceGC(lin->pts, outPts, false, adapter, epsilon);
-            for (unsigned int ii=0;ii<outPts.size();ii++)
-            {
-                Point3d locPt = adapter->displayToLocal(outPts[ii]);
-                GeoCoord outPt = coordSys->localToGeographic(locPt);
-                outPts[ii] = Point3d(outPt.x(),outPt.y(),0.0);
+            if (useGeoLib) {
+                SubdivideGeoLib(lin3d->pts, outPts, geoDist);
+            } else {
+                SubdivideEdgesToSurfaceGCGeo(lin3d->pts, outPts, false, adapter, coordSys, epsilon);
             }
             lin3d->pts = outPts;
         } else if (const auto ar = dynamic_cast<VectorAreal*>(shape)) {
+            VectorRing outPts;
             for (unsigned int ii=0;ii<ar->loops.size();ii++)
             {
-                VectorRing3d outPts;
-                outPts.reserve(10);
-                SubdivideEdgesToSurfaceGC(ar->loops[ii], outPts, true, adapter, epsilon);
-                
-                VectorRing outPts2D;
-                outPts2D.resize(outPts.size());
-                for (unsigned int ii=0;ii<outPts.size();ii++)
-                outPts2D[ii] = coordSys->localToGeographic(adapter->displayToLocal(outPts[ii]));
-                ar->loops[ii] = outPts2D;
+                outPts.clear();
+                if (useGeoLib) {
+                    SubdivideGeoLib(ar->loops[ii], outPts, geoDist);
+                } else {
+                    SubdivideEdgesToSurfaceGCGeo(ar->loops[ii], outPts, true, adapter, coordSys, epsilon);
+                }
+                ar->loops[ii] = outPts;
             }
         }
     }
@@ -945,14 +1124,26 @@ void VectorObject::subdivideToGlobeGreatCircle(float epsilon)
 {
     FakeGeocentricDisplayAdapter adapter;
     
-    subdivideToInternal(epsilon,&adapter,true);
+    subdivideToInternal(epsilon,&adapter,false,true);
 }
     
 void VectorObject::subdivideToFlatGreatCircle(float epsilon)
 {
     FakeGeocentricDisplayAdapter adapter;
     
-    subdivideToInternal(epsilon,&adapter,false);
+    subdivideToInternal(epsilon,&adapter,false,false);
+}
+
+void VectorObject::subdivideToGlobeGreatCirclePrecise(float epsilon)
+{
+    FakeGeocentricDisplayAdapter adapter;
+    subdivideToInternal(epsilon,&adapter,true,true);
+}
+    
+void VectorObject::subdivideToFlatGreatCirclePrecise(float epsilon)
+{
+    FakeGeocentricDisplayAdapter adapter;
+    subdivideToInternal(epsilon,&adapter,true,false);
 }
 
 VectorObjectRef VectorObject::linearsToAreals() const

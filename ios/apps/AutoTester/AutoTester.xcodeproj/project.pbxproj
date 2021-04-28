@@ -119,7 +119,6 @@
 		2BD914BE256F1C8D00E724A8 /* icon_152.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BD914BC256F1C8D00E724A8 /* icon_152.png */; };
 		2BD914E8256F1F8A00E724A8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2BD914E7256F1F8A00E724A8 /* Assets.xcassets */; };
 		2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */; };
-		2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */; };
 		2BF29B8C24D2268200553963 /* LegendViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF29B8B24D2268200553963 /* LegendViewController.storyboard */; };
 		2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF29B8E24D226B000553963 /* LegendViewController.swift */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
@@ -131,6 +130,7 @@
 		31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */; };
 		3183380F25A67CD8005FEF70 /* RepresentationsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */; };
 		31D3287C262FADF100456B93 /* TestTileImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */; };
+		31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
@@ -727,8 +727,6 @@
 		2BD914E7256F1F8A00E724A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtrudedModelTestCase.h; sourceTree = "<group>"; };
 		2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtrudedModelTestCase.m; sourceTree = "<group>"; };
-		2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GreatCircleTestCase.h; sourceTree = "<group>"; };
-		2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GreatCircleTestCase.m; sourceTree = "<group>"; };
 		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../../library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2BF29B8B24D2268200553963 /* LegendViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LegendViewController.storyboard; sourceTree = "<group>"; };
 		2BF29B8E24D226B000553963 /* LegendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendViewController.swift; sourceTree = "<group>"; };
@@ -744,6 +742,7 @@
 		3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RepresentationsTestCase.mm; sourceTree = "<group>"; };
 		3183380E25A67CD8005FEF70 /* RepresentationsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepresentationsTestCase.h; sourceTree = "<group>"; };
 		31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTileImageFetcher.swift; sourceTree = "<group>"; };
+		31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatCircleTestCase.swift; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
 		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
@@ -1376,8 +1375,7 @@
 				2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */,
 				2B4B30A72395E0DE00854073 /* GlyphProblemTestCase.h */,
 				2B4B30A62395E0DE00854073 /* GlyphProblemTestCase.m */,
-				2BDEB3121C9391EB003259B3 /* GreatCircleTestCase.h */,
-				2BDEB3131C9391EB003259B3 /* GreatCircleTestCase.m */,
+				31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */,
 				2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */,
 				8820852A1DC81051008F8E76 /* Issue721TestCase.swift */,
 				E5679F421CB72DE800369A15 /* LabelAnimationTestCase.h */,
@@ -2629,7 +2627,6 @@
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
-				2BDEB3141C9391EB003259B3 /* GreatCircleTestCase.m in Sources */,
 				2BD358F31DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift in Sources */,
 				316B5CFE260A58A8000B4F15 /* MapTilerCircleTestCase.swift in Sources */,
 				2B4B30AE2395E0DE00854073 /* MapTilerTestCase.swift in Sources */,
@@ -2662,6 +2659,7 @@
 				2BBCE41C2220A4170013E158 /* PagingLayerTestCase.m in Sources */,
 				2B4B30AB2395E0DE00854073 /* StartupShutdownTestCase.swift in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
+				31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */,
 				2B4B30AA2395E0DE00854073 /* MapboxTestCase.swift in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
 				2B753DE221EEB7F900DE98BA /* StarsSunTestCase.swift in Sources */,

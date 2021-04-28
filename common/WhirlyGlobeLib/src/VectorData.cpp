@@ -268,10 +268,11 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
 {
     if (!adapter || inPts.empty())
         return;
+    const auto coordSys = adapter->getCoordSystem();
     if (inPts.size() < 2)
     {
         const Point2f &p0 = inPts[0];
-        const Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+        const Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         outPts.push_back(dp0);
         return;
     }
@@ -281,10 +282,10 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
-        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+        Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         if (adapter && !adapter->isFlat())
            dp0 = dp0.normalized() * (1.0 + surfOffset);
-        Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
+        Point3d dp1 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
         if (adapter && !adapter->isFlat())
            dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
@@ -292,7 +293,6 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
     }
 }
 
-    
 VectorShape::VectorShape()
 {
     attrDict = MutableDictionaryMake();

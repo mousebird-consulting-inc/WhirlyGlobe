@@ -55,7 +55,11 @@ open class MapboxKindaMap(
     var offlineRender: RenderController? = null
     var lineScale = 0.0
     var textScale = 0.0
+    var markerScale = 0.0
     var maxConcurrentLoad: Int? = null
+
+    // These are run after a successful load of all the style sheet pieces
+    var postLoadRunnables = ArrayList<Runnable>()
 
     /* If set, we build an image/vector hybrid where the polygons go into
      *  the image layer and the linears and points are represented as vectors
@@ -66,7 +70,7 @@ open class MapboxKindaMap(
     /* If set, we'll sort all polygons into the background.
      * Works well zoomed out, less enticing zoomed in.
      */
-    var backgroundAllPolys = true
+    var backgroundAllPolys = false
 
     /**
      * If set, we'll fetch and use the sources from the style sheet.
@@ -371,10 +375,13 @@ open class MapboxKindaMap(
         }
 
         // Adjustment for loading (512 vs 1024 or so)
-        styleSettings.lineScale = if (lineScale > 0) lineScale else minImportance / (512.0 * 512.0) / 2
+        styleSettings.lineScale = lineScale
 
         // Similar adjustment for text
-        styleSettings.textScale = if (textScale > 0) textScale else minImportance / (768.0 * 768.0) / 2
+        styleSettings.textScale = textScale
+
+        // And let's not forget markers and circles
+        styleSettings.markerScale = markerScale
 
         // Parameters describing how we want a globe broken down
         val params = SamplingParams().also {
@@ -385,10 +392,11 @@ open class MapboxKindaMap(
             it.edgeMatching = (theControl is GlobeController)
             it.minZoom = minZoom
             it.maxZoom = maxZoom
+            // Let the reported zoom go beyond the maximum
+            it.reportedMaxZoom = 21
         }
         sampleParams = params
-        
-        //sampleParams.reportedMaxZoom = 24
+
         // If we don't have a solid under-layer for each tile, we can't really
         //  keep level 0 around all the time
         if (!backgroundAllPolys) {
@@ -430,6 +438,11 @@ open class MapboxKindaMap(
         }
 
         styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
+
+        // Called after we've parsed the style sheet (again)
+        postLoadRunnables.forEach {
+            it.run()
+        }
 
         mapboxInterp = MapboxVectorInterpreter(styleSheetVector, control)
         loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
@@ -500,6 +513,11 @@ open class MapboxKindaMap(
         val vectorStyleDict = AttrDictionary()
         vectorStyleDict.parseFromJSON(styleSheetJSON)
 
+        // Called after we've parsed the style sheet (again)
+        postLoadRunnables.forEach {
+            it.run()
+        }
+
         // The polygons only go into the background in this case
         if (backgroundAllPolys) {
             val vectorLayers = vectorStyleDict.getArray("layers")
@@ -566,4 +584,12 @@ open class MapboxKindaMap(
     private val outstandingFetches = ArrayList<Call?>()
     private val cacheNamePattern = Regex("[|?*<\":>+\\[\\]\\\\/]")
     private var finished = false
+
+    init {
+        val metrics = displayMetrics
+        val dpi = (metrics.xdpi + metrics.ydpi) / 2.0
+        lineScale = dpi / 230.0
+        textScale = dpi / 150.0
+        markerScale = dpi / 150.0
+    }
 }

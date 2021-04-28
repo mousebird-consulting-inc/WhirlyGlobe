@@ -68,6 +68,18 @@ public class SamplingParams
     public native int getMaxZoom();
 
     /**
+     * We may want to calculate zoom levels beyond what we actually load.
+     * Useful for zoom scaled features and enable/disable based on zoom
+     */
+    public native void setReportedMaxZoom(int maxZoom);
+
+    /**
+     * We may want to calculate zoom levels beyond what we actually load.
+     * Useful for zoom scaled features and enable/disable based on zoom
+     */
+    public native int getReportedMaxZoom();
+
+    /**
      * Maximum number of tiles to display at once.
      * The system will back off to a lower level of detail or do a hard stop
      * on loading to meet this criteria.
