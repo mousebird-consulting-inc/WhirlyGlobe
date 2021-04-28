@@ -12,10 +12,10 @@ android {
     }
     signingConfigs {
         config {
-            keyAlias 'key0'
-            keyPassword 'foofoo'
-            storeFile file('/Users/sjg/dev/WhirlyGlobe/android/apps/AutoTesterAndroid/foo.keystore')
-            storePassword 'foofoo'
+            keyAlias System.getenv('BITRISEIO_ANDROID_KEYSTORE_ALIAS')
+            keyPassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD')
+            storeFile file('../keystore')    // downloaded from BITRISEIO_ANDROID_KEYSTORE_URL
+            storePassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PASSWORD')
         }
     }
     compileSdkVersion 28
