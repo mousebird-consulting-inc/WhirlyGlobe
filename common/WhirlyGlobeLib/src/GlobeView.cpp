@@ -1,9 +1,8 @@
-/*
- *  GlobeView.mm
+/*  GlobeView.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Platform.h"
@@ -342,29 +340,23 @@ bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d 
 Point2f GlobeView::pointOnScreenFromSphere(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4d modelTrans = *transform;
-    Matrix4d modelMat = modelTrans;
-    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
-    screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
+    Vector4d screenPt = *transform * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+    if (screenPt.w() != 0)
+    {
+        screenPt /= screenPt.w();
+    }
 
     // Intersection with near gives us the same plane as the screen 
-    Point3d ray;
-    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
-    ray *= -nearPlane/ray.z();
+    const Vector4d ray = screenPt * -nearPlane/screenPt.z();
 
     // Now we need to scale that to the frame
     Point2d ll,ur;
     double near,far;
     calcFrustumWidth(frameSize.x(),frameSize.y(),ll,ur,near,far);
-    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
-    v = 1.0 - v;
-    
-    Point2f retPt;
-    retPt.x() = u * frameSize.x();
-    retPt.y() = v * frameSize.y();
-    
-    return retPt;
+    const double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
+    const double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+
+    return { u * frameSize.x(), (1.0 - v) * frameSize.y() };
 }
 
 // Calculate the Z buffer resolution

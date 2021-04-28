@@ -1,9 +1,8 @@
-/*
- *  Mbr.java
+/*  Mbr.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,14 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
 
-import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A simple Maply bounding box.  The coordinates will be in a particular
@@ -45,32 +46,51 @@ public class Mbr
 	 */
 	public Mbr()
 	{
-		initialize();
+		// do not initialize ll/ur
 	}
 
 	/**
-	 * We don't create the points by default, but we may need them.
-	 */
-	public void initialize()
-	{
-		ll = new Point2d();
-		ur = new Point2d();
-	}
-	
-	/**
 	 * Construct with the lower left and upper right coordinates.
+	 * The points provided are copied.
 	 * 
 	 * @param inLL Lower left corner of the bounding box.
 	 * @param inUR Upper right corner of the bounding box.
 	 */
 	public Mbr(Point2d inLL,Point2d inUR)
-	{		
-		ll = new Point2d(inLL);
-		ur = new Point2d(inUR);
+	{
+		// Make copies
+		if (inLL != null) {
+			ll = new Point2d(inLL);
+		}
+		if (inUR != null) {
+			ur = new Point2d(inUR);
+		}
 	}
 
-	public String toString()
+	/**
+	 * Construct with the lower left and upper right coordinates.
+	 *
+	 * @param llx X coordinate of the lower-left corner
+	 * @param lly Y coordinate of the lower-left corner
+	 * @param urx X coordinate of the upper-right corner
+	 * @param ury Y coordinate of the upper-right corner
+	 */
+	public Mbr(double llx, double lly, double urx, double ury)
 	{
+		ll = new Point2d(llx, lly);
+		ur = new Point2d(urx, ury);
+	}
+
+	/**
+	 * Copy Construct
+	 */
+	public Mbr(Mbr other) {
+		this((other != null) ? other.ll : null, (other != null) ? other.ur : null);
+	}
+
+
+	@NotNull
+	public String toString() {
 		return "ll: " + ll + " ur: " + ur;
 	}
 
@@ -79,17 +99,16 @@ public class Mbr
      */
 	@Override public boolean equals(Object thatObj)
 	{
-		Mbr that = (Mbr)thatObj;
-
-		if (ll == null || ur == null || that.ll == null || that.ur == null)
-			return false;
-
-		boolean testA = ll.getX() == that.ll.getX() && ll.getY() == that.ll.getY();
-		boolean testB = ur.getX() == that.ur.getX() && ur.getY() == that.ur.getY();
-
-		return testA && testB;
+		if (this == thatObj) {
+			return true;
+		}
+		if (thatObj instanceof Mbr) {
+			Mbr that = (Mbr) thatObj;
+			return Objects.equals(ll, that.ll) && Objects.equals(ur, that.ur);
+		}
+		return false;
 	}
-	
+
 	/**
 	 * Add a point to the bounding box, expanding the extents.
 	 *
@@ -101,17 +120,17 @@ public class Mbr
 			ll = new Point2d(pt);
 		else
 		{
-			double ll_x = Math.min(pt.getX(),ll.getX());
-			double ll_y = Math.min(pt.getY(),ll.getY());
+			final double ll_x = Math.min(pt.getX(),ll.getX());
+			final double ll_y = Math.min(pt.getY(),ll.getY());
 			ll.setValue(ll_x, ll_y);
 		}
 		if (ur == null)
 			ur = new Point2d(pt);
 		else 
 		{
-			double ur_x = Math.max(pt.getX(),ur.getX());
-			double ur_y = Math.max(pt.getY(),ur.getY());
-			ur.setValue(ur_x, ur_y);			
+			final double ur_x = Math.max(pt.getX(),ur.getX());
+			final double ur_y = Math.max(pt.getY(),ur.getY());
+			ur.setValue(ur_x, ur_y);
 		}
 	}
 	
@@ -120,7 +139,7 @@ public class Mbr
 	 */
 	public Point2d span()
 	{
-		return new Point2d(ur.getX()-ll.getX(),ur.getY()-ll.getY());
+		return isValid() ? new Point2d(ur.getX()-ll.getX(),ur.getY()-ll.getY()) : null;
 	}
 	
 	/**
@@ -128,22 +147,23 @@ public class Mbr
 	 */
 	public Point2d middle()
 	{
-		return new Point2d((ur.getX()+ll.getX())/2.0,(ur.getY()+ll.getY())/2.0);
+		return isValid() ? new Point2d((ur.getX()+ll.getX())/2.0,(ur.getY()+ll.getY())/2.0) : null;
 	}
 	
 	public void expandByFraction(double bufferZone)
 	{
-		Point2d spanViewMbr = span();
-		ll.setValue(ll.getX()-spanViewMbr.getX()*bufferZone, ll.getY()-spanViewMbr.getY()*bufferZone);
-		ur.setValue(ur.getX()+spanViewMbr.getX()*bufferZone, ur.getY()+spanViewMbr.getY()*bufferZone);		
+		if (isValid()) {
+			final Point2d spanViewMbr = span();
+			ll.setValue(ll.getX() - spanViewMbr.getX() * bufferZone, ll.getY() - spanViewMbr.getY() * bufferZone);
+			ur.setValue(ur.getX() + spanViewMbr.getX() * bufferZone, ur.getY() + spanViewMbr.getY() * bufferZone);
+		}
 	}
 
-	/**
-	 * Check if the given point lies inside the bounding box or one of the edges.
-     */
-	public boolean insideOrOnEdge(Point2d pt)
+	public Mbr expandedByFraction(double bufferZone)
 	{
-		return ((ll.getX() <= pt.getX()) && (ll.getY() <= pt.getY()) && (pt.getX() <= ur.getX()) && (pt.getY() <= ur.getY()));
+		Mbr result = new Mbr(this);
+		result.expandedByFraction(bufferZone);
+		return result;
 	}
 
 	/**
@@ -151,45 +171,58 @@ public class Mbr
      */
 	public boolean overlaps(Mbr that)
 	{
-		// Basic inclusion cases
-		if ((that.insideOrOnEdge(ll) || that.insideOrOnEdge(ur) || that.insideOrOnEdge(new Point2d(ll.getX(),ur.getY())) || that.insideOrOnEdge(new Point2d(ur.getX(),ll.getY()))) ||
-				(insideOrOnEdge(that.ll) || insideOrOnEdge(that.ur) || insideOrOnEdge(new Point2d(that.ll.getX(),that.ur.getY())) || insideOrOnEdge(new Point2d(that.ur.getX(),that.ll.getY()))))
-			return true;
-
-		// Now for the skinny overlap cases
-		if ((that.ll.getX() <= ll.getX() && ur.getX() <= that.ur.getX() &&
-				ll.getY() <= that.ll.getY() && that.ur.getY() <= ur.getY()) ||
-				(ll.getX() <= that.ll.getX() && that.ur.getX() <= ur.getX() &&
-						that.ll.getY() <= ll.getY() && ur.getY() <= that.ur.getY()))
-			return true;
-		if ((ll.getX() <= that.ll.getX() && that.ur.getX() <= ur.getX() &&
-				that.ll.getY() <= ll.getY() && ur.getY() <= that.ur.getY()) ||
-				(that.ll.getX() <= ll.getX() && ur.getX() <= that.ur.getX() &&
-						ll.getY() <= that.ll.getY() && that.ur.getY() <= ur.getY()))
-			return true;
-
-		return false;
+		if (!isValid() || !that.isValid()) {
+			return false;
+		}
+		// todo: this could really use a unit test
+		return that.insideOrOnEdge(ll) ||
+		       that.insideOrOnEdge(ur) ||
+		       that.insideOrOnEdge(ll.getX(),ur.getY()) ||
+		       that.insideOrOnEdge(ur.getX(),ll.getY()) ||
+		       insideOrOnEdge(that.ll) ||
+		       insideOrOnEdge(that.ur) ||
+		       insideOrOnEdge(that.ll.getX(),that.ur.getY()) ||
+		       insideOrOnEdge(that.ur.getX(),that.ll.getY()) ||
+		       this.oneWayOverlap(that) ||
+		       that.oneWayOverlap(this);
 	}
-	
+
+	/**
+	 * Check if the given point lies inside the bounding box or one of the edges.
+	 */
+	protected boolean insideOrOnEdge(Point2d pt) {
+		return insideOrOnEdge(pt.getX(), pt.getY());
+	}
+
+	/**
+	 * Check if the given point lies inside the bounding box or one of the edges.
+	 */
+	protected boolean insideOrOnEdge(double x, double y) {
+		return ll.getX() <= x && ll.getY() <= y && x <= ur.getX() && y <= ur.getY();
+	}
+
+	protected boolean oneWayOverlap(Mbr that) {
+		return (that.ll.getX() <= ll.getX() &&
+		        ur.getX() <= that.ur.getX() &&
+		        ll.getY() <= that.ll.getY() &&
+		        that.ur.getY() <= ur.getY());
+	}
+
 	/**
 	 * Return a list of points corresponding to the corners of the MBR.
 	 */
 	public List<Point2d> asPoints()
 	{
-		ArrayList<Point2d> pts = new ArrayList<Point2d>();
-		pts.add(ll);
-		pts.add(new Point2d(ur.getX(),ll.getY()));
-		pts.add(ur);
-		pts.add(new Point2d(ll.getX(),ur.getY()));
-		
-		return pts;
+		return isValid() ?
+				Arrays.asList(ll, new Point2d(ur.getX(),ll.getY()),
+		                      ur, new Point2d(ll.getX(),ur.getY())) :
+				null;
 	}
 	
 	/**
 	 * True if the bounding box has been set.  False if it is uninitialized.
 	 */
-	public boolean isValid()
-	{
+	public boolean isValid() {
 		return ll != null && ur != null;
 	}
 }

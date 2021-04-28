@@ -36,13 +36,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_initialise(JNIEnv *env,
 {
     try
     {
-        auto mat = new Matrix3d();
-        *mat = Matrix3d::Identity();
+        auto mat = new Matrix3d(Matrix3d::Identity());
         Matrix3dClassInfo::getClassInfo()->setHandle(env,obj,mat);
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::initialise()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::initialise()");
     }
 }
 
@@ -63,7 +62,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix3d_dispose(JNIEnv *env, jo
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::dispose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::dispose()");
     }
 }
 
@@ -73,18 +72,15 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_inverse(JNIEnv *env,
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
-        Matrix3d *inst = classInfo->getObject(env,obj);
-        if (!inst)
-            return nullptr;
-        
-        Matrix3d matInv = inst->inverse();
-        return MakeMatrix3d(env,matInv);
+        if (Matrix3d *inst = classInfo->getObject(env,obj))
+        {
+            return MakeMatrix3d(env,inst->inverse());
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::inverse()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::inverse()");
     }
-    
     return nullptr;
 }
 
@@ -94,18 +90,15 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_transpose(JNIEnv *en
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
-        Matrix3d *inst = classInfo->getObject(env,obj);
-        if (!inst)
-            return nullptr;
-        
-        Matrix3d matTrans = inst->transpose();
-        return MakeMatrix3d(env,matTrans);
+        if (Matrix3d *inst = classInfo->getObject(env,obj))
+        {
+            return MakeMatrix3d(env,inst->transpose());
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::transpose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::transpose()");
     }
-    
     return nullptr;
 }
 
@@ -115,21 +108,19 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
     try
     {
         Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo();
-        Matrix3d *mat = classInfo->getObject(env,obj);
         Point3dClassInfo *ptClassInfo = Point3dClassInfo::getClassInfo();
-        Point3d *pt = ptClassInfo->getObject(env,ptObj);
-        if (!mat || !pt)
-            return nullptr;
-        
-        Point3d ret = (*mat) * (*pt);
-        
-        return MakePoint3d(env,ret);
+        if (Matrix3d *mat = classInfo->getObject(env,obj))
+        {
+            if (Point3d *pt = ptClassInfo->getObject(env,ptObj))
+            {
+                return MakePoint3d(env,(*mat) * (*pt));
+            }
+        }
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::multiply()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::multiply()");
     }
-    
     return nullptr;
 }
 
@@ -149,7 +140,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_multiply__Lcom_mouse
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::multiply()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::multiply()");
     }
     
     return nullptr;
@@ -160,16 +151,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_translate(JNIEnv *en
 {
     try
     {
-        //Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
-        
-        Affine2d trans(Eigen::Translation2d(x,y));
-        Matrix3d mat = trans.matrix();
-
-        return MakeMatrix3d(env,mat);
+        return MakeMatrix3d(env,Affine2d(Eigen::Translation2d(x,y)).matrix());
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::translateX()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::translateX()");
     }
     
     return nullptr;
@@ -180,16 +166,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix3d_scale(JNIEnv *env, j
 {
     try
     {
-        //Matrix3dClassInfo *classInfo = Matrix3dClassInfo::getClassInfo(env, cls);
-        
-        Affine2d trans(Eigen::Scaling(x,y));
-        Matrix3d mat = trans.matrix();
-        
-        return MakeMatrix3d(env,mat);
+        return MakeMatrix3d(env,Affine2d(Eigen::Scaling(x,y)).matrix());
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Matrix3d::scaleX()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::scaleX()");
     }
     
     return nullptr;

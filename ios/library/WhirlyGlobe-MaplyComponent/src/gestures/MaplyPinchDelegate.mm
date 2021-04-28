@@ -1,9 +1,8 @@
-/*
- *  MaplyPinchDelegateMap.h
+/*  MaplyPinchDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/MaplyPinchDelegate.h"
@@ -96,6 +94,7 @@ using namespace Maply;
                     (wrapView.frame.size.height/2.0) - screenOffset.y());
                 Point3d newCenterGeoPoint;
                 testMapView.pointOnPlaneFromScreen(newMapCenterPoint, &modelTrans, frameSizeScaled, &newLoc, true);
+                newLoc = self.mapView->coordAdapter->displayToLocal(newLoc);
                 newLoc.z() = newZ;
 
                 testMapView.setLoc(newLoc, false);

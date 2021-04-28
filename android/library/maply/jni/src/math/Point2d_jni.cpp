@@ -50,7 +50,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_initialise(JNIEnv *env, 
 {
 	try
 	{
-		auto pt = new Point2d();
+		auto pt = new Point2d(0, 0);
 		Point2dClassInfo::getClassInfo()->setHandle(env,obj,pt);
 	}
 	catch (...)
@@ -67,15 +67,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point2d_dispose(JNIEnv *env, job
 	try
 	{
 		Point2dClassInfo *classInfo = Point2dClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Point2d *inst = classInfo->getObject(env,obj);
-            if (!inst)
-                return;
-            delete inst;
-
-            classInfo->clearHandle(env,obj);
-        }
+		std::lock_guard<std::mutex> lock(disposeMutex);
+		Point2d *inst = classInfo->getObject(env,obj);
+		delete inst;
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{

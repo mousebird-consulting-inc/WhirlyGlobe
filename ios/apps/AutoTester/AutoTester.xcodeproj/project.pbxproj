@@ -1348,10 +1348,10 @@
 			children = (
 				2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */,
 				2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */,
+				2B6611E525D1C35D009D228F /* AirwayTestCase.swift */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
 				2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */,
 				E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */,
-				2B6611E525D1C35D009D228F /* AirwayTestCase.swift */,
 				2B1E85A522B44D5800AB7208 /* BillboardTestCase.swift */,
 				D84AA5931C1A1C9700413B76 /* BNGCustomMapTestCase.swift */,
 				D84AA5981C1A2B9800413B76 /* BNGTestCase.swift */,
@@ -1392,6 +1392,7 @@
 				2B4B30A32395E0DE00854073 /* MapboxTestCase.swift */,
 				88BF11471BCD3DA40002205E /* MaplyTestCase.h */,
 				88BF11481BCD3DA40002205E /* MaplyTestCase.m */,
+				316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */,
 				2B4B30A92395E0DE00854073 /* MapTilerTestCase.swift */,
 				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
 				D8F2FE2A1BE7CAD30058A310 /* MegaMarkersTestCase.h */,
@@ -1436,7 +1437,6 @@
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
 				E5679F441CB72DE800369A15 /* WMSTestCase.h */,
 				E5679F451CB72DE800369A15 /* WMSTestCase.m */,
-				316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -1470,6 +1470,7 @@
 				2BF29B8B24D2268200553963 /* LegendViewController.storyboard */,
 				2BF29B8E24D226B000553963 /* LegendViewController.swift */,
 				88BF115A1BCDA9530002205E /* testCases */,
+				31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */,
 			);
 			path = AutoTester;
 			sourceTree = "<group>";
@@ -2669,6 +2670,7 @@
 				2B60F4462452706200CF9339 /* VectorMBTilesTestCase.swift in Sources */,
 				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
+				31D3287C262FADF100456B93 /* TestTileImageFetcher.swift in Sources */,
 				2B753DDB21EEB41700DE98BA /* NASAGIBSTestCase.swift in Sources */,
 				2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */,
 				2B6611E625D1C35D009D228F /* AirwayTestCase.swift in Sources */,

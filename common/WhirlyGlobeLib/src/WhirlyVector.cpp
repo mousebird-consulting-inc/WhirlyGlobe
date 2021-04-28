@@ -120,13 +120,11 @@ Point2f Mbr::span() const
     return Point2f(pt_ur.x()-pt_ll.x(),pt_ur.y()-pt_ll.y());
 }
 
-    
 void Mbr::expand(const Mbr &that)
 {
     addPoint(that.pt_ll);
     addPoint(that.pt_ur);
 }
-
 
 void Mbr::expandByFraction(double bufferZone)
 {
@@ -136,33 +134,31 @@ void Mbr::expandByFraction(double bufferZone)
     pt_ur.x() = pt_ur.x()+spanViewMbr.x()*bufferZone;
     pt_ur.y() = pt_ur.y()+spanViewMbr.y()*bufferZone;
 }
-    
-    
+
 void Mbr::asPoints(Point2fVector &pts) const
 {
+    pts.reserve(pts.size() + 4);
     pts.push_back(pt_ll);
-    pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
+    pts.emplace_back(pt_ur.x(),pt_ll.y());
     pts.push_back(pt_ur);
-    pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
+    pts.emplace_back(pt_ll.x(),pt_ur.y());
 }
 
 void Mbr::asPoints(Point2dVector &pts) const
 {
-    pts.push_back(Point2d(pt_ll.x(),pt_ll.y()));
-    pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
-    pts.push_back(Point2d(pt_ur.x(),pt_ur.y()));
-    pts.push_back(Point2d(pt_ll.x(),pt_ur.y()));
+    pts.reserve(pts.size() + 4);
+    pts.emplace_back(pt_ll.x(),pt_ll.y());
+    pts.emplace_back(pt_ur.x(),pt_ll.y());
+    pts.emplace_back(pt_ur.x(),pt_ur.y());
+    pts.emplace_back(pt_ll.x(),pt_ur.y());
 }
-	
+
 Mbr Mbr::intersect(const Mbr &that) const
 {
-    Mbr out;
-    out.ll().x() = std::max(ll().x(),that.ll().x());
-    out.ll().y() = std::max(ll().y(),that.ll().y());
-    out.ur().x() = std::min(ur().x(),that.ur().x());
-    out.ur().y() = std::min(ur().y(),that.ur().y());
-        
-    return out;
+    return {
+        { std::max(ll().x(),that.ll().x()), std::max(ll().y(),that.ll().y()) },
+        { std::min(ur().x(),that.ur().x()), std::min(ur().y(),that.ur().y()) }
+    };
 }
 	
 MbrD::MbrD(const Point2dVector &pts)
@@ -270,29 +266,28 @@ void MbrD::expandByFraction(double bufferZone)
 
 void MbrD::asPoints(Point2fVector &pts) const
 {
-    pts.push_back(Point2f(pt_ll.x(),pt_ll.y()));
-    pts.push_back(Point2f(pt_ur.x(),pt_ll.y()));
-    pts.push_back(Point2f(pt_ur.x(),pt_ur.y()));
-    pts.push_back(Point2f(pt_ll.x(),pt_ur.y()));
+    pts.reserve(pts.size() + 4);
+    pts.emplace_back(pt_ll.x(),pt_ll.y());
+    pts.emplace_back(pt_ur.x(),pt_ll.y());
+    pts.emplace_back(pt_ur.x(),pt_ur.y());
+    pts.emplace_back(pt_ll.x(),pt_ur.y());
 }
 
 void MbrD::asPoints(Point2dVector &pts) const
 {
+    pts.reserve(pts.size() + 4);
     pts.push_back(pt_ll);
-    pts.push_back(Point2d(pt_ur.x(),pt_ll.y()));
+    pts.emplace_back(pt_ur.x(),pt_ll.y());
     pts.push_back(pt_ur);
-    pts.push_back(Point2d(pt_ll.x(),pt_ur.y()));
+    pts.emplace_back(pt_ll.x(),pt_ur.y());
 }
 
 MbrD MbrD::intersect(const MbrD &that) const
 {
-    MbrD out;
-    out.ll().x() = std::max(ll().x(),that.ll().x());
-    out.ll().y() = std::max(ll().y(),that.ll().y());
-    out.ur().x() = std::min(ur().x(),that.ur().x());
-    out.ur().y() = std::min(ur().y(),that.ur().y());
-    
-    return out;
+    return {
+        { std::max(ll().x(),that.ll().x()), std::max(ll().y(),that.ll().y()) },
+        { std::min(ur().x(),that.ur().x()), std::min(ur().y(),that.ur().y()) }
+    };
 }
     
 GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
@@ -459,21 +454,20 @@ void BBox::asPoints(Point3dVector &pts) const
 
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
 {
-    Eigen::Quaterniond ret;
-    
-    Vector3d v0 = a.normalized();
-    Vector3d v1 = b.normalized();
-    double c = v0.dot(v1);
+    const Vector3d v0 = a.normalized();
+    const Vector3d v1 = b.normalized();
+    const double c = v0.dot(v1);
     
     // The trick here is that we've taken out the checks against
     //  1 (vectors are nearly identical) and -1
-    
-    Vector3d axis = v0.cross(v1);
-    double s = sqrt((1.f+c)*2.f);
-    double invs = 1.f/s;
+
+    const Vector3d axis = v0.cross(v1);
+    const double s = sqrt((1.f+c)*2.f);
+    const double invs = 1.f/s;
+
+    Eigen::Quaterniond ret;
     ret.vec() = axis * invs;
     ret.w() = s * 0.5f;
-    
     return ret;
 }
 

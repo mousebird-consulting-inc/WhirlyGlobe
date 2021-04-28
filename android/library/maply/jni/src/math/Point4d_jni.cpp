@@ -1,9 +1,8 @@
-/*
- *  Point4d_jni.cpp
+/*  Point4d_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/21/15.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,18 +14,18 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
 #import "Geometry_jni.h"
 #import "WhirlyGlobe.h"
 
-template<> Point4dClassInfo *Point4dClassInfo::classInfoObj = NULL;
+template<> Point4dClassInfo *Point4dClassInfo::classInfoObj = nullptr;
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_nativeInit
   (JNIEnv *env, jclass cls)
 {
@@ -37,148 +36,141 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_nativeInit
 JNIEXPORT jobject JNICALL MakePoint4d(JNIEnv *env,const Point4d &pt)
 {
 	Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo(env,"com/mousebird/maply/Point4d");
-	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	jobject newObj = classInfo->makeWrapperObject(env,nullptr);
 	Point4d *inst = classInfo->getObject(env,newObj);
 	*inst = pt;
-
 	return newObj;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_initialise
-  (JNIEnv *env, jobject obj)
+	(JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-		Point4d *pt = new Point4d();
+		auto pt = new Point4d(0, 0, 0, 0);
 		classInfo->setHandle(env,obj,pt);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::initialise()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::initialise()");
 	}
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_dispose
-  (JNIEnv *env, jobject obj)
+	(JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Point4d *inst = classInfo->getObject(env,obj);
-            if (!inst)
-                return;
-            delete inst;
-
-            classInfo->clearHandle(env,obj);
-        }
+		std::lock_guard<std::mutex> lock(disposeMutex);
+		Point4d *inst = classInfo->getObject(env,obj);
+		delete inst;
+		classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::dispose()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::dispose()");
 	}
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getX
-  (JNIEnv *env, jobject obj)
+	(JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-		Point4d *pt = classInfo->getObject(env,obj);
-		if (!pt)
-			return 0.0;
-
-		return pt->x();
+		if (Point4d *pt = classInfo->getObject(env,obj))
+		{
+			return pt->x();
+		}
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getX()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::getX()");
 	}
-    
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getY
-  (JNIEnv *env, jobject obj)
+	(JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-		Point4d *pt = classInfo->getObject(env,obj);
-		if (!pt)
-			return 0.0;
-
-		return pt->y();
+		if (Point4d *pt = classInfo->getObject(env,obj))
+		{
+			return pt->y();
+		}
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getY()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::getY()");
 	}
-    
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getZ
-  (JNIEnv *env, jobject obj)
+	(JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-		Point4d *pt = classInfo->getObject(env,obj);
-		if (!pt)
-			return 0.0;
-
-		return pt->z();
+		if (Point4d *pt = classInfo->getObject(env,obj))
+		{
+			return pt->z();
+		}
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getZ()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::getZ()");
 	}
-    
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point4d_getW
-  (JNIEnv *env, jobject obj)
+	(JNIEnv *env, jobject obj)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-		Point4d *pt = classInfo->getObject(env,obj);
-		if (!pt)
-			return 0.0;
-
-		return pt->w();
+		if (Point4d *pt = classInfo->getObject(env,obj))
+		{
+			return pt->w();
+		}
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::getW()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::getW()");
 	}
-    
     return 0.0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point4d_setValue
-  (JNIEnv *env, jobject obj, jdouble x, jdouble y, jdouble z, jdouble w)
+	(JNIEnv *env, jobject obj, jdouble x, jdouble y, jdouble z, jdouble w)
 {
 	try
 	{
 		Point4dClassInfo *classInfo = Point4dClassInfo::getClassInfo();
-		Point4d *pt = classInfo->getObject(env,obj);
-		if (!pt)
-			return;
-		pt->x() = x;
-		pt->y() = y;
-		pt->z() = z;
-		pt->w() = w;
+		if (Point4d *pt = classInfo->getObject(env,obj))
+		{
+			pt->x() = x;
+			pt->y() = y;
+			pt->z() = z;
+			pt->w() = w;
+		}
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Point4d::setValue()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point4d::setValue()");
 	}
 }

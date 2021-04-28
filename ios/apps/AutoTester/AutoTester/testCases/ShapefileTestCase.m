@@ -35,7 +35,7 @@
 	NSLog(@"Adding vectors...");
 //    compObj = [baseViewC addVectors:@[vecObj] desc:@{kMaplyColor: [UIColor whiteColor]}];
     compObj = [baseViewC addWideVectors:@[vecObj] desc:@{kMaplyColor: [UIColor whiteColor],
-                                                         kMaplyVecWidth: @(20.0),
+                                                         kMaplyVecWidth: @(10.0),
                                                          kMaplyWideVecImpl: kMaplyWideVecImplPerf
     }];
 
@@ -47,7 +47,7 @@
     baseViewC = globeVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
-    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
+    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) height:0.3 heading:0 time:1.0];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{
@@ -61,7 +61,7 @@
     baseViewC = mapVC;
     baseCase = [[GeographyClassTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) height:0.3 time:1.0];
 
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
                    ^{

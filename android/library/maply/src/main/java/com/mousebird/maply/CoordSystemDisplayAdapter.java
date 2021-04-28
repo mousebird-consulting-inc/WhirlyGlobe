@@ -70,7 +70,15 @@ class CoordSystemDisplayAdapter
 	 * @param ur Upper right corner of bounding box.
 	 */
 	public native void getBounds(Point3d ll,Point3d ur);
-	
+
+	/**
+	 * Return the bounding box of the given display adapter in geographic coordinates.
+	 *
+	 * @param ll Lower left corner of the bounding box.
+	 * @param ur Upper right corner of bounding box.
+	 */
+	public native void getGeoBounds(Point2d ll,Point2d ur);
+
 	/**
 	 * The coordinate system we're using for local coordinates.  Display
 	 * coordinates are a scaled version of that in 2D and spherical for the globe.
