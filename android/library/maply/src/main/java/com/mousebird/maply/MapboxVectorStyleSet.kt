@@ -278,15 +278,13 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             }
 
             if (group?.isNotEmpty() == true) {
-                groupMap[group] = groupMap[group]?.let {
-                    LegendEntry(
-                        it.name, it.ident, it.image, it.entries.plus(
-                            LegendEntry(name,ident,bitmap,emptyList())))
+                groupMap[group]?.let {
+                    it.entries = it.entries.plus(LegendEntry(name,ident,bitmap,emptyList()))
                 } ?: run {
-                    val newEntry = LegendEntry(group,ident,null,listOf(
+                    val entry = LegendEntry(group,ident,null,listOf(
                         LegendEntry(name,ident,bitmap,emptyList())))
-                    legend.add(newEntry)
-                    newEntry
+                    groupMap[group] = entry
+                    legend.add(entry)
                 }
             } else {
                 legend.add(LegendEntry(name, ident, bitmap, emptyList()))
