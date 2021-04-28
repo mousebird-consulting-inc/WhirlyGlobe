@@ -369,6 +369,21 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return image
     }
 
+    private var spriteTex: MaplyTexture? = null
+    /**
+     * Add the sprites
+     */
+    public fun addSprites(spriteJSON: String, spriteSheet: Bitmap) {
+        val control = control?.get() ?: return
+
+        val spriteTex = control.addTexture(spriteSheet, RenderControllerInterface.TextureSettings(),
+                RenderControllerInterface.ThreadMode.ThreadCurrent) ?: return
+        this.spriteTex = spriteTex
+        addSpritesNative(spriteJSON, spriteTex.texID, spriteSheet.width, spriteSheet.height)
+    }
+
+    external fun addSpritesNative(spriteJSON: String, texID: Long, width: Int, height: Int): Boolean
+
     // Set a named layer visible or invisible
     public external fun setLayerVisible(layerName: String, visible: Boolean)
 
@@ -429,6 +444,18 @@ class MapboxVectorStyleSet : VectorStyleInterface {
      * Capture the zoom slot if you're going use it
      */
     external override fun setZoomSlot(inZoomSlot: Int)
+
+    /**
+     * Clean up resources associated with the vector style
+     */
+    public fun shutdown() {
+        val control = control?.get() ?: return
+
+        spriteTex = spriteTex?.let {
+            control.removeTexture(it, RenderControllerInterface.ThreadMode.ThreadAny)
+            null
+        }
+    }
 
     fun finalize() {
         dispose()

@@ -2,6 +2,7 @@ package com.mousebird.maply
 
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Looper
 import android.util.DisplayMetrics
@@ -48,7 +49,7 @@ open class MapboxKindaMap(
     var styleSheet: MapboxVectorStyleSet? = null
     var styleSheetImage: MapboxVectorStyleSet? = null
     var styleSheetVector: MapboxVectorStyleSet? = null
-    var spriteJSON: ByteArray? = null
+    var spriteJSON: String? = null
     var spritePNG: Bitmap? = null
     var mapboxInterp: MapboxVectorInterpreter? = null
     var loader: QuadLoaderBase? = null
@@ -324,6 +325,60 @@ open class MapboxKindaMap(
                 }
             })
         }
+
+        // Load the spread sheets
+        val spriteURL = styleSheet?.spriteURL
+        if (spriteURL != null) {
+            val spriteJSONurl = mapboxURLFor(Uri.parse(spriteURL + "@2x.json"))
+            val spritePNGurl = mapboxURLFor(Uri.parse(spriteURL + "@2x.png"))
+            val client = theControl.getHttpClient()
+            val task1 = client.newCall(Request.Builder().url(cacheResolve(spriteJSONurl).toString()).build())
+            addTask(task1)
+            task1.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.w("Maply", "Error fetching sprite sheet",e)
+                    stop()
+                }
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!finished) {
+                            it.body?.use { body ->
+                                val bytes = body.bytes()
+                                if (bytes.isNotEmpty()) {
+                                    spriteJSON = String(bytes)
+                                    cacheFile(spriteJSONurl, bytes)
+                                }
+                            }
+                        }
+                    }
+                    clearTask(task1)
+                    checkFinished()
+                }
+            })
+            val task2 = client.newCall(Request.Builder().url(cacheResolve(spritePNGurl).toString()).build())
+            addTask(task2)
+            task2.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.w("Maply", "Error fetching sprite image",e)
+                    stop()
+                }
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (!finished) {
+                            it.body?.use { body ->
+                                val bytes = body.bytes()
+                                if (bytes.isNotEmpty()) {
+                                    spritePNG = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                                    cacheFile(spritePNGurl, bytes)
+                                }
+                            }
+                        }
+                    }
+                    clearTask(task2)
+                    checkFinished()
+                }
+            })
+        }
     }
 
     private fun processStylesheetJson(source: MapboxVectorStyleSet.Source, json: String) {
@@ -439,6 +494,11 @@ open class MapboxKindaMap(
 
         styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
 
+        // Set up the sprite sheet
+        if (spriteJSON != null && spritePNG != null) {
+            styleSheetVector?.addSprites(spriteJSON!!,spritePNG!!)
+        }
+
         // Called after we've parsed the style sheet (again)
         postLoadRunnables.forEach {
             it.run()
@@ -534,6 +594,11 @@ open class MapboxKindaMap(
         }
         styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
 
+        // Set up the sprite sheet
+        if (spriteJSON != null && spritePNG != null) {
+            styleSheetVector?.addSprites(spriteJSON!!,spritePNG!!)
+        }
+
         mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
             MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, control)
         } else {
@@ -573,6 +638,10 @@ open class MapboxKindaMap(
             it?.cancel()
         }
         outstandingFetches.clear()
+
+        styleSheet?.shutdown()
+        styleSheetVector?.shutdown()
+        styleSheetImage?.shutdown()
 
         loader?.shutdown()
         loader = null

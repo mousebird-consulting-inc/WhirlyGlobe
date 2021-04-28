@@ -336,6 +336,8 @@ std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo 
     }
     
     const double size = layout.iconSize->valForZoom(tileInfo->ident.level);
+    markerSize.x() *= styleSet->tileStyleSettings->markerScale;
+    markerSize.y() *= styleSet->tileStyleSettings->markerScale;
     if (!layout.iconSize->isExpression())
     {
         markerSize.x() *= size;
