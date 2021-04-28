@@ -101,7 +101,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
                 try {
                     sources.add(Source(key, sourcesDict.getDict(key), this))
                 } catch (e: Exception) {
-                    Log.w("Maply", "Error while adding source '$key'",e)
+                    Log.w("Maply", "Error while adding source '$key'", e)
                 }
             }
         }
@@ -175,11 +175,11 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
     @Suppress("unused") // called from JNI
     fun makeCircleTexture(
-        inRadius: Double,
-        fillColor: Int,
-        strokeColor: Int,
-        inStrokeWidth: Float,
-        /* out */ circleSize: Point2d?
+            inRadius: Double,
+            fillColor: Int,
+            strokeColor: Int,
+            inStrokeWidth: Float,
+            /* out */ circleSize: Point2d?
     ): Long /*Identity*/ {
         val control = control?.get() ?: return EmptyIdentity
 
@@ -223,22 +223,53 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
     @Suppress("unused") // called from JNI
     fun makeLineTexture(comp: DoubleArray): Long /*Identity*/ {
-//        NSMutableArray *dashComp = [NSMutableArray array];
-//        for (double comp: inComp)
-//        [dashComp addObject:[NSNumber numberWithDouble:comp]];
-//
-//        MaplyLinearTextureBuilder *lineTexBuilder = [[MaplyLinearTextureBuilder alloc] init];
-//        [lineTexBuilder setPattern:dashComp];
-//        UIImage *lineImage = [lineTexBuilder makeImage];
-//        MaplyTexture *tex = [viewC addTexture:lineImage
-//                desc:@{kMaplyTexFormat: @(MaplyImageIntRGBA),
-//                       kMaplyTexWrapY: @(MaplyImageWrapY)
-//        }
-//        mode:MaplyThreadCurrent];
-//        textures.push_back(tex);
-//
-//        return tex.texID;
-        return EmptyIdentity
+        val control = control?.get() ?: return EmptyIdentity
+
+        // We want the texture a bit bigger than specified
+        val scale = (settings?.markerScale ?: 1.0) * 2.0
+
+        // Need to scale these elements to the texture size
+        var eleSum = 0.0
+        comp.forEach {
+            eleSum += it
+        }
+        val size = eleSum.toInt()
+        if (size == 0)
+            return EmptyIdentity;
+
+        val width = 1
+        val bitmap = Bitmap.createBitmap(width, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        bitmap.eraseColor(Color.TRANSPARENT)
+
+        val paint = Paint(Paint.FILTER_BITMAP_FLAG.or(Paint.ANTI_ALIAS_FLAG))
+        paint.style = Paint.Style.FILL_AND_STROKE
+        paint.color = Color.WHITE
+
+        // Work our way through the elements
+        var curY = 0
+        var onOrOff = true
+        comp.forEach {
+            val eleLen = it.toInt()
+            if (onOrOff) {
+                for (jj in 0..(eleLen-1)) {
+                    val startY = (curY+jj)/eleSum.toFloat() * size.toFloat()
+                    canvas.drawLine(0.0f, startY, width.toFloat(), startY+1.0f, paint)
+                }
+            }
+            onOrOff = !onOrOff
+            curY += eleLen
+        }
+
+        // Create and return a texture
+        // TODO: Are we releasing the texture somewhere?
+        val texSettings = RenderControllerInterface.TextureSettings().apply {
+            filterType = RenderControllerInterface.TextureSettings.FilterType.FilterLinear
+            imageFormat = RenderController.ImageFormat.MaplyImage4Layer8Bit
+            wrapV = true
+        }
+        val tex = control.addTexture(bitmap, texSettings, ThreadMode.ThreadCurrent)
+        return tex?.texID ?: EmptyIdentity
     }
 
     @ColorInt var legendBorderColor = Color.BLACK
@@ -279,10 +310,10 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
             if (group?.isNotEmpty() == true) {
                 groupMap[group]?.let {
-                    it.entries = it.entries.plus(LegendEntry(name,ident,bitmap,emptyList()))
+                    it.entries = it.entries.plus(LegendEntry(name, ident, bitmap, emptyList()))
                 } ?: run {
-                    val entry = LegendEntry(group,ident,null,listOf(
-                        LegendEntry(name,ident,bitmap,emptyList())))
+                    val entry = LegendEntry(group, ident, null, listOf(
+                            LegendEntry(name, ident, bitmap, emptyList())))
                     groupMap[group] = entry
                     legend.add(entry)
                 }
@@ -327,9 +358,9 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         paint.textSize = (size.height - 2 * legendBorderSize).toFloat()
         paint.textAlign = Paint.Align.CENTER
         canvas.drawText("T",
-            size.width / 2f + legendBorderSize.toFloat(),
-            (size.height - paint.descent() - paint.ascent())/2f,
-            paint)
+                size.width / 2f + legendBorderSize.toFloat(),
+                (size.height - paint.descent() - paint.ascent()) / 2f,
+                paint)
         if (legendBorderSize > 0) {
             paint.style = Paint.Style.STROKE
             paint.strokeWidth = legendBorderSize.toFloat()
@@ -347,7 +378,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = (size.width / 10f).coerceAtLeast(1f)
         paint.color = color
-        canvas.drawLine(0f, size.height.toFloat(), size.width.toFloat(),0f,paint)
+        canvas.drawLine(0f, size.height.toFloat(), size.width.toFloat(), 0f, paint)
         // no border?
         return image
     }
@@ -359,7 +390,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.style = Paint.Style.FILL
         paint.color = color
-        canvas.drawOval(RectF(0f,0f, size.width.toFloat(), size.height.toFloat()),paint)
+        canvas.drawOval(RectF(0f, 0f, size.width.toFloat(), size.height.toFloat()), paint)
         if (legendBorderSize > 0) {
             paint.style = Paint.Style.STROKE
             paint.strokeWidth = legendBorderSize.toFloat()
