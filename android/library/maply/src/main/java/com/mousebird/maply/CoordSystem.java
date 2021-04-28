@@ -56,16 +56,15 @@ public class CoordSystem
      */
 	public Mbr getBounds()
 	{
-		if (ll == null || ur == null)
-			return null;
-
-		Mbr mbr = new Mbr();
-		mbr.addPoint(new Point2d(ll.getX(),ll.getY()));
-		mbr.addPoint(new Point2d(ur.getX(),ur.getY()));
-
-		return mbr;
+		return isValid() ? new Mbr(ll.getX(),ll.getY(), ur.getX(),ur.getY()) : null;
 	}
 
+	/**
+	 * Returns true if the corner points are set and not identical
+	 */
+	public boolean isValid() {
+		return (ll != null && ur != null && ll.getX() < ur.getX());
+	}
 	/**
 	 * Set the bounding box for the coordinate system.
 	 * @param mbr

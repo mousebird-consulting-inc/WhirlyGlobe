@@ -33,6 +33,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getBou
 
 /*
  * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
+ * Method:    getGeoBounds
+ * Signature: (Lcom/mousebird/maply/Point2d;Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getGeoBounds
+  (JNIEnv *, jobject, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_CoordSystemDisplayAdapter
  * Method:    screenPointFromGeoBatch
  * Signature: (Lcom/mousebird/maply/View;II[D[D[D[D[D)Z
  */

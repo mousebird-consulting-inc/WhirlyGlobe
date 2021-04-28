@@ -1,8 +1,6 @@
 package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.ContextWrapper;
 import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
@@ -16,10 +14,6 @@ import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 /**
  * Created by sjg on 12/21/17.
@@ -35,29 +29,8 @@ public class ShapefileTestCase extends MaplyTestCase
     }
 
     // Copy a file out of the bundle
-    private File copyFile(String srcName, String destName) throws IOException {
-
-        ContextWrapper wrapper = new ContextWrapper(getActivity());
-        File destDir =  wrapper.getDir("sf_shapefile", Context.MODE_PRIVATE);
-
-        InputStream is = getActivity().getAssets().open(srcName);
-        File of = new File(destDir, destName);
-
-        if (of.exists()) {
-            return of;
-        }
-
-        OutputStream os = new FileOutputStream(of);
-        byte[] mBuffer = new byte[1024];
-        int length;
-        while ((length = is.read(mBuffer))>0) {
-            os.write(mBuffer, 0, length);
-        }
-        os.flush();
-        os.close();
-        is.close();
-
-        return of;
+    private File copyFile(String srcName, String destName) {
+        return copyAssetFile(srcName, "sf_shapefile", destName);
     }
 
     public Mbr addShapeFile(BaseController baseVC) {
@@ -92,16 +65,20 @@ public class ShapefileTestCase extends MaplyTestCase
 
         Mbr bbox = addShapeFile(globeVC);
         if (bbox != null) {
-            Point2d center = bbox.middle();
-            double height = globeVC.findHeightToViewBounds(bbox, center);
-            globeVC.animatePositionGeo(center.getX(),center.getY(),height,2.0);
+            final Point2d center = bbox.middle();
+            // note: this doesn't work because something about the controller isn't sufficiently initialized
+            //double height = globeVC.findHeightToViewBounds(bbox, center);
+            globeVC.addPostSurfaceRunnable(() -> {
+                double height = globeVC.findHeightToViewBounds(bbox, center);
+                globeVC.animatePositionGeo(center.getX(),center.getY(),height,2.0);
+            });
         }
 
         return true;
     }
 
     @Override
-    public boolean setUpWithMap(MapController mapVC) throws Exception {
+    public boolean setUpWithMap(MapController mapVC) {
         StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
         baseView.setUpWithMap(mapVC);
 

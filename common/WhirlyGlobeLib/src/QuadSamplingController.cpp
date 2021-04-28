@@ -28,13 +28,13 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     scene = inScene;
     renderer = inRenderer;
     
-    builder = QuadTileBuilderRef(new QuadTileBuilder(params.coordSys,this));
+    builder = std::make_shared<QuadTileBuilder>(params.coordSys,this);
     builder->setBuildGeom(params.generateGeom);
     builder->setCoverPoles(params.coverPoles);
     builder->setEdgeMatching(params.edgeMatching);
     builder->setSingleLevel(params.singleLevel);
     
-    displayControl = QuadDisplayControllerNewRef(new QuadDisplayControllerNew(this,builder.get(),renderer));
+    displayControl = std::make_shared<QuadDisplayControllerNew>(this,builder.get(),renderer);
     displayControl->setSingleLevel(params.singleLevel);
     displayControl->setKeepMinLevel(params.forceMinLevel,params.forceMinLevelHeight);
     displayControl->setLevelLoads(params.levelLoads);

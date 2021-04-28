@@ -1,9 +1,8 @@
-/*
- *  QuadDisplayControllerNew.h
+/*  QuadDisplayControllerNew.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/13/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadDisplayControllerNew.h"
@@ -24,8 +22,11 @@
 namespace WhirlyKit
 {
     
-QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer)
-    : dataStructure(dataStructure), loader(loader), renderer(renderer), zoomSlot(-1), QuadTreeNew(MbrD(dataStructure->getTotalExtents()),dataStructure->getMinZoom(),dataStructure->getMaxZoom())
+QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer) :
+    dataStructure(dataStructure), loader(loader),
+    renderer(renderer), zoomSlot(-1),
+    QuadTreeNew(MbrD(dataStructure->getTotalExtents()),
+    dataStructure->getMinZoom(),dataStructure->getMaxZoom())
 {
     coordSys = dataStructure->getCoordSystem();
     mbr = dataStructure->getValidExtents();
@@ -43,11 +44,7 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     lastTargetLevel = -1.0;
     lastTargetDecimal = -1.0;
 }
-    
-QuadDisplayControllerNew::~QuadDisplayControllerNew()
-{
-}
-    
+
 Scene *QuadDisplayControllerNew::getScene()
 {
     return scene;
@@ -68,7 +65,7 @@ CoordSystem *QuadDisplayControllerNew::getCoordSys()
     return coordSys;
 }
 
-int QuadDisplayControllerNew::getMaxTiles()
+int QuadDisplayControllerNew::getMaxTiles() const
 {
     return maxTiles;
 }
@@ -78,7 +75,7 @@ void QuadDisplayControllerNew::setMaxTiles(int newMaxTiles)
     maxTiles = newMaxTiles;
 }
     
-TimeInterval QuadDisplayControllerNew::getViewUpdatePeriod()
+TimeInterval QuadDisplayControllerNew::getViewUpdatePeriod() const
 {
     return viewUpdatePeriod;
 }
@@ -88,7 +85,7 @@ void QuadDisplayControllerNew::setViewUpdatePeriod(TimeInterval newVal)
     viewUpdatePeriod = newVal;
 }
     
-bool QuadDisplayControllerNew::getSingleLevel()
+bool QuadDisplayControllerNew::getSingleLevel() const
 {
     return singleLevel;
 }
@@ -104,7 +101,7 @@ void QuadDisplayControllerNew::setKeepMinLevel(bool newVal,double height)
     keepMinLevelHeight = height;
 }
 
-std::vector<int> QuadDisplayControllerNew::getLevelLoads()
+std::vector<int> QuadDisplayControllerNew::getLevelLoads() const
 {
     return levelLoads;
 }
@@ -114,7 +111,7 @@ void QuadDisplayControllerNew::setLevelLoads(const std::vector<int> &newLoads)
     levelLoads = newLoads;
 }
     
-std::vector<double> QuadDisplayControllerNew::getMinImportancePerLevel()
+std::vector<double> QuadDisplayControllerNew::getMinImportancePerLevel() const
 {
     return minImportancePerLevel;
 }
@@ -136,12 +133,12 @@ QuadDataStructure *QuadDisplayControllerNew::getDataStructure()
     return dataStructure;
 }
 
-ViewStateRef QuadDisplayControllerNew::getViewState()
+ViewStateRef QuadDisplayControllerNew::getViewState() const
 {
     return viewState;
 }
 
-int QuadDisplayControllerNew::getZoomSlot()
+int QuadDisplayControllerNew::getZoomSlot() const
 {
     return zoomSlot;
 }
@@ -156,10 +153,10 @@ void QuadDisplayControllerNew::stop(PlatformThreadInfo *threadInfo,ChangeSet &ch
 {
     scene->releaseZoomSlot(zoomSlot);
     loader->quadLoaderShutdown(threadInfo,changes);
-    dataStructure = NULL;
-    loader = NULL;
+    dataStructure = nullptr;
+    loader = nullptr;
     
-    scene = NULL;
+    scene = nullptr;
 }
     
 bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewStateRef inViewState,ChangeSet &changes)
@@ -241,10 +238,10 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewSta
         int oldMaxLevel = maxLevel;
         maxLevel = reportedMaxZoom;
         QuadTreeNew::ImportantNodeSet testNodes;
-        std::vector<double> maxRejectedImport(reportedMaxZoom+1,0.0);
-        std::tie(testTargetLevel,testNodes) = calcCoverageVisible(reportedMinImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImport);
+        std::vector<double> maxRejectedImportLocal(reportedMaxZoom + 1, 0.0);
+        std::tie(testTargetLevel,testNodes) = calcCoverageVisible(reportedMinImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImportLocal);
         maxLevel = oldMaxLevel;
-        maxRatio = (testTargetLevel >= maxRejectedImport.size()) ? 0.0 : maxRejectedImport[testTargetLevel+1];
+        maxRatio = (testTargetLevel >= maxRejectedImportLocal.size()) ? 0.0 : maxRejectedImportLocal[testTargetLevel + 1];
     }
 
     // We take the largest importance for a tile beyond the one we're loading and use
@@ -282,16 +279,16 @@ double QuadDisplayControllerNew::importance(const Node &node)
     QuadTreeIdentifier ident;
     ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
     Point2d ll,ur;
-    MbrD mbrD = generateMbrForNode(node);
-    Mbr mbr(mbrD);
+    const MbrD nodeMbrD = generateMbrForNode(node);
+    const Mbr nodeMbr(nodeMbrD);
     
     // Is this a valid tile?
-    if (!mbr.inside(mbr.mid())) {
+    if (!nodeMbr.inside(nodeMbr.mid())) {
         return -1.0;
     }
     
     // Note: Add back the mutable attributes?
-    return dataStructure->importanceForTile(ident, mbr, viewState, renderer->getFramebufferSize());
+    return dataStructure->importanceForTile(ident, nodeMbr, viewState, renderer->getFramebufferSize());
 }
 
 // Pure visibility check
@@ -299,16 +296,16 @@ bool QuadDisplayControllerNew::visible(const Node &node) {
     QuadTreeIdentifier ident;
     ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
     Point2d ll,ur;
-    MbrD mbrD = generateMbrForNode(node);
-    Mbr mbr(mbrD);
+    const MbrD nodeMbrD = generateMbrForNode(node);
+    const Mbr nodeMbr(nodeMbrD);
     
     // Is this a valid tile?
-    if (!mbr.inside(mbr.mid())) {
+    if (!nodeMbr.inside(nodeMbr.mid())) {
         return 0.0;
     }
     
     // Note: Add back the mutable attributes?
-    return dataStructure->visibilityForTile(ident, mbr, viewState, renderer->getFramebufferSize());
+    return dataStructure->visibilityForTile(ident, nodeMbr, viewState, renderer->getFramebufferSize());
 }
 
     

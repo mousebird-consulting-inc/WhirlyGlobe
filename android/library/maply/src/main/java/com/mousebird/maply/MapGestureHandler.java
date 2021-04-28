@@ -1,9 +1,8 @@
-/*
- *  GestureHandler.java
+/*  MapGestureHandler.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -105,13 +103,12 @@ public class MapGestureHandler
 		MapView thisMapView = mapView.clone();
 
 	    // The corners of the view should be within the bounds
-	    Point2d corners[] = new Point2d[4];
+	    Point2d[] corners = new Point2d[4];
 	    corners[0] = new Point2d(0,0);
 	    corners[1] = new Point2d(frameSize.getX(), 0.0);
 	    corners[2] = new Point2d(frameSize.getX(), frameSize.getY());
 	    corners[3] = new Point2d(0.0, frameSize.getY());
 
-		boolean isValid = false;
 		Point2d locOffset = new Point2d(0,0);
 		for (int tests=0;tests<4;tests++) {
 			Point3d testLoc = new Point3d(newLocalPos.getX()+locOffset.getX(),newLocalPos.getY()+locOffset.getY(),newLocalPos.getZ());
@@ -136,9 +133,7 @@ public class MapGestureHandler
 
 			if (checkOkay)
 			{
-				isValid = true;
 				newLocalPos.setValue(testLoc.getX(),testLoc.getY(),testLoc.getZ());
-
 				return true;
 			}
 		}
@@ -229,11 +224,12 @@ public class MapGestureHandler
 				GestureDetector.OnDoubleTapListener
 	{
 		MapController maplyControl;
+		MapView mapView;
 		public boolean isActive = false;
 		
-		GestureListener(MapController inMaplyControl)
-		{
+		GestureListener(MapController inMaplyControl) {
 			maplyControl = inMaplyControl;
+			mapView = maplyControl.mapView;
 		}
 		
 		Point2d startScreenPos = null;
@@ -247,9 +243,11 @@ public class MapGestureHandler
 
 			// Starting state for pan
 			startScreenPos = new Point2d(e.getX(),e.getY());
-			startTransform = maplyControl.mapView.calcModelViewMatrix();
-			startLoc = maplyControl.mapView.getLoc();
-			startOnPlane = maplyControl.mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, maplyControl.getViewSize(), false);
+			startTransform = mapView.calcModelViewMatrix();
+			final Point2d viewSize = maplyControl.getViewSize();
+			final Point2d viewCenter = viewSize.multiplyBy(0.5);
+			startLoc = mapView.pointOnPlaneFromScreen(viewCenter, startTransform, viewSize, false);
+			startOnPlane = mapView.pointOnPlaneFromScreen(startScreenPos, startTransform, viewSize, false);
 			isActive = true;
 			return true;
 		}
@@ -267,7 +265,7 @@ public class MapGestureHandler
 			Point2d newScreenPos = new Point2d(e2.getX(),e2.getY());
 			
 			// New state for pan
-			Point3d hit = maplyControl.mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.getViewSize(), false);
+			Point3d hit = mapView.pointOnPlaneFromScreen(newScreenPos, startTransform, maplyControl.getViewSize(), false);
 			if (hit != null)
 			{
 				Point3d newPos = new Point3d(startOnPlane.getX()-hit.getX()+startLoc.getX(),
@@ -276,14 +274,10 @@ public class MapGestureHandler
 				mapView.cancelAnimation();
 								
 				// If the point is within bounds, set it
-				Point3d locPos = newPos;
-				if (locPos == null)
-					return true;
-				if (withinBounds(mapView,maplyControl.getViewSize(),locPos,maplyControl.viewBounds)) {
-					maplyControl.mapView.setLoc(locPos);
+				Point3d locPos = mapView.coordAdapter.displayToLocal(newPos);
+				if (withinBounds(mapView, maplyControl.getViewSize(), locPos, maplyControl.viewBounds)) {
+					mapView.setLoc(locPos);
 				}
-				
-//				Log.d("Maply","New Pos = (" + newPos.getX() + "," + newPos.getY() + "," + newPos.getZ() + ")");
 			}
 			
 			return true;
@@ -308,25 +302,33 @@ public class MapGestureHandler
 			}
 
 			// Project the points into map space
-			Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
-			Point2d touch0 = new Point2d(e1.getX(),e1.getY());
-			Point2d touch1 = touch0.addTo(new Point2d(velocityX,velocityY));
-			Point2d viewSize = maplyControl.getViewSize();
-			Point3d pt0 = mapView.pointOnPlaneFromScreen(touch0, mapTransform, viewSize, false);
-			Point3d pt1 = mapView.pointOnPlaneFromScreen(touch1, mapTransform, viewSize, false);
-			
+			final Matrix4d mapTransform = maplyControl.mapView.calcModelViewMatrix();
+			final Point2d touch0 = new Point2d(e1.getX(),e1.getY());
+			final Point2d touch1 = touch0.addTo(new Point2d(velocityX,velocityY));
+			final Point2d viewSize = maplyControl.getViewSize();
+			final Point3d dpt0 = mapView.pointOnPlaneFromScreen(touch0, mapTransform, viewSize, false);
+			final Point3d dpt1 = mapView.pointOnPlaneFromScreen(touch1, mapTransform, viewSize, false);
+			final Point3d pt0 = mapView.coordAdapter.displayToLocal(dpt0);
+			final Point3d pt1 = mapView.coordAdapter.displayToLocal(dpt1);
+
 			// That gives us a direction in map space
 			Point3d dir = pt0.subtract(pt1);
 			dir.multiplyBy(-1.0);
-			double len = dir.length();
-			dir = dir.multiplyBy(1.0/len);
-			double modelVel = len / AnimMomentumTime;
+			final double len = dir.length();
+			dir = dir.multiplyBy((len == 0.0) ? 0.0 : 1.0/len);
+			final double modelVel = len / AnimMomentumTime;
 			
 			// Acceleration based on how far we want this to go
-			double accel = - modelVel / (AnimMomentumTime * AnimMomentumTime);
+			final double accel = - modelVel / (AnimMomentumTime * AnimMomentumTime);
 			
 			// Now kick off the animation
-			mapView.setAnimationDelegate(new MapAnimateTranslateMomentum(mapView, mapControl.renderWrapper.maplyRender.get(), modelVel, accel, dir, maplyControl.viewBounds));
+			final RendererWrapper renderWrap = maplyControl.renderWrapper;
+			if (renderWrap !=  null) {
+				final RenderController render = renderWrap.maplyRender.get();
+				if (render != null) {
+					mapView.setAnimationDelegate(new MapAnimateTranslateMomentum(mapView, render, modelVel, accel, dir, maplyControl.viewBounds));
+				}
+			}
 		
 			isActive = false;
 			
@@ -340,7 +342,7 @@ public class MapGestureHandler
 			if (sl == null || gl == null)
 				return;
 			if (!sl.isActive && gl.isActive && e.getPointerCount() == 1)
-				mapControl.processLongPress(new Point2d(e.getX(),e.getY()));
+				maplyControl.processLongPress(new Point2d(e.getX(),e.getY()));
 		}
 
 
@@ -371,7 +373,7 @@ public class MapGestureHandler
 				return true;
 			}
 
-			mapControl.processTap(new Point2d(e.getX(),e.getY()));
+			maplyControl.processTap(new Point2d(e.getX(),e.getY()));
 			return true;
 		}
 
@@ -400,7 +402,14 @@ public class MapGestureHandler
 			loc.setValue(locPt.getX(), locPt.getY(), newZ);
 			
 			// Now kick off the animation
-			mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender.get(), loc, (float) 0.1, maplyControl.viewBounds));
+			final RendererWrapper renderWrap = maplyControl.renderWrapper;
+			if (renderWrap !=  null) {
+				final RenderController render = renderWrap.maplyRender.get();
+				if (render != null) {
+					mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, render, loc, (float) 0.1, maplyControl.viewBounds));
+				}
+			}
+
 			isActive = false;
 			
 			return true;
@@ -477,7 +486,13 @@ public class MapGestureHandler
 					loc.setValue(loc.getX(), loc.getY(), newZ);
 
 					// Now kick off the animation
-					mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, mapControl.renderWrapper.maplyRender.get(), loc, (float) 0.1, mapControl.viewBounds));
+					final RendererWrapper renderWrap = mapControl.renderWrapper;
+					if (renderWrap !=  null) {
+						final RenderController render = renderWrap.maplyRender.get();
+						if (render != null) {
+							mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, render, loc, (float) 0.1, mapControl.viewBounds));
+						}
+					}
 
 					sl.isActive = false;
 					gl.isActive = false;

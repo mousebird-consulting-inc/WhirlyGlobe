@@ -1,9 +1,8 @@
-/*
- *  GlobeController.java
+/*  GlobeController.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,22 +14,17 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
 
 import java.util.List;
-
-import static android.R.attr.x;
-import static android.R.attr.y;
 
 /**
  * The GlobeController is the main object in the Maply library when using a 3D globe.  
@@ -274,7 +268,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	}
 
 	// Check if a given point and normal is facing away currently
-	double checkPointAndNormFacing(Point3d dispLoc,Point3d norm,Matrix4d mat,Matrix4d normMat)
+	static double checkPointAndNormFacing(Point3d dispLoc,Point3d norm,Matrix4d mat,Matrix4d normMat)
 	{
 		Point4d pt = mat.multiply(new Point4d(dispLoc.getX(),dispLoc.getY(),dispLoc.getZ(),1.0));
 		double x = pt.getX() / pt.getW();
@@ -284,9 +278,16 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		Point3d pt3d = new Point3d(-x,-y,-z);
 		return pt3d.dot(new Point3d(testDir.getX(),testDir.getY(),testDir.getZ()));
 	}
-	
+
 	// Convert a geo coord to a screen point
-	private Point2d screenPointFromGeo(GlobeView theGlobeView,Point2d geoCoord)
+	private Point2d screenPointFromGeo(GlobeView theGlobeView,Point2d geoCoord) {
+		RendererWrapper wrapper = renderWrapper;
+		RenderController render = (wrapper != null) ? wrapper.maplyRender.get() : null;
+		return (render != null) ? screenPointFromGeo(theGlobeView,geoCoord,render.frameSize) : null;
+	}
+
+	// Convert a geo coord to a screen point
+	private static Point2d screenPointFromGeo(GlobeView theGlobeView,Point2d geoCoord,Point2d frameSize)
 	{
 		CoordSystemDisplayAdapter coordAdapter = theGlobeView.getCoordAdapter();
 		CoordSystem coordSys = coordAdapter.getCoordSystem();
@@ -303,13 +304,13 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		if (checkPointAndNormFacing(dispPt,dispPt.normalized(),modelMat,modelNormalMat) < 0.0)
 			return null;
 
-		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, renderWrapper.maplyRender.get().frameSize);
+		return theGlobeView.pointOnScreenFromSphere(dispPt, modelMat, frameSize);
 	}
 
-	boolean checkCoverage(Mbr mbr,GlobeView theGlobeView,double height)
+	boolean checkCoverage(final Mbr mbr,final GlobeView theGlobeView,final double height)
 	{
-		Point2d centerLoc = mbr.middle();
-		Point3d localCoord = theGlobeView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
+		final Point2d centerLoc = mbr.middle();
+		final Point3d localCoord = theGlobeView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
 		theGlobeView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
 
 		List<Point2d> pts = mbr.asPoints();
@@ -333,49 +334,37 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * @param pos Center of the viewing area in geographic (radians).
 	 * @return Returns a height for the viewer.
 	 */
-	public double findHeightToViewBounds(Mbr mbr,Point2d pos)
+	public double findHeightToViewBounds(final Mbr mbr,final Point2d pos)
 	{
 		// We'll experiment on a copy of the map view
-		GlobeView newGlobeView = globeView.clone();
+		final GlobeView newGlobeView = globeView.clone();
 		newGlobeView.setLoc(new Point3d(pos.getX(),pos.getY(),2.0));
 
 		double minHeight = newGlobeView.minHeightAboveSurface();
 		double maxHeight = newGlobeView.maxHeightAboveSurface();
 
-		boolean minOnScreen = checkCoverage(mbr,newGlobeView,minHeight);
-		boolean maxOnScreen = checkCoverage(mbr,newGlobeView,maxHeight);
+		final boolean minOnScreen = checkCoverage(mbr,newGlobeView,minHeight);
+		final boolean maxOnScreen = checkCoverage(mbr,newGlobeView,maxHeight);
 
-		// No idea, just give up
-		if (!minOnScreen && !maxOnScreen)
-			return globeView.getHeight();
-
-		if (minOnScreen)
+		if (minOnScreen) {
+			// Fits when zoomed in to max, so that's the closest we can get
 			return minHeight;
+		} else if (!maxOnScreen) {
+			// Not visible at min or max so... what?
+			return globeView.getHeight();
+		}
 
 		// Do a binary search between the two heights
-		double minRange = 1e-5;
-		do
+		final double minRange = 1e-5;
+		while (minRange < maxHeight - minHeight)
 		{
-			double midHeight = (minHeight + maxHeight)/2.0;
-			boolean midOnScreen = checkCoverage(mbr,newGlobeView,midHeight);
-
-			if (!minOnScreen && midOnScreen)
-			{
+			final double midHeight = (minHeight + maxHeight)/2.0;
+			if (checkCoverage(mbr,newGlobeView,midHeight)) {
 				maxHeight = midHeight;
-				maxOnScreen = midOnScreen;
-			} else if (!midOnScreen && maxOnScreen)
-			{
-				checkCoverage(mbr,newGlobeView,midHeight);
-				minHeight = midHeight;
-				minOnScreen = midOnScreen;
 			} else {
-				// Shouldn't happen, but probably does
-				break;
+				minHeight = midHeight;
 			}
-
-			if (maxHeight-minHeight < minRange)
-				break;
-		} while (true);
+		}
 
 		return maxHeight;
 	}
@@ -498,6 +487,25 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		viewState.tilt = globeView.getTilt();
 
 		return viewState;
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 */
+	public void setPositionGeo(final Point2d pt,final double z)
+	{
+		setPositionGeo(pt.getX(), pt.getY(), z);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
+	 */
+	public void setPositionGeo(final Point3d pt)
+	{
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ());
 	}
 
 	/**

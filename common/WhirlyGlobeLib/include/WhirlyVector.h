@@ -203,7 +203,7 @@ public:
 	const Point2f &ur() const { return pt_ur; }
 	Point2f &ur() { return pt_ur; }
     /// Upper left corner
-    Point2f ul() { return Point2f(pt_ll.x(),pt_ur.y()); }
+    Point2f ul() const { return Point2f(pt_ll.x(),pt_ur.y()); }
     /// Middle
     const Point2f mid() const { return (pt_ll+pt_ur)/2.0; }
 

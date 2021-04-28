@@ -20,6 +20,7 @@
 
 package com.mousebird.maply;
 
+import android.graphics.Point;
 import android.widget.CompoundButton;
 
 import java.lang.reflect.Array;
@@ -65,7 +66,6 @@ public class VectorTileData
     public Mbr getBounds()
     {
         Mbr mbr = new Mbr();
-        mbr.initialize();
         getBoundsNative(mbr.ll,mbr.ur);
 
         return mbr;
@@ -78,10 +78,8 @@ public class VectorTileData
      */
     public Mbr getGeoBounds()
     {
-        Mbr mbr = new Mbr();
-        mbr.initialize();
+        Mbr mbr = new Mbr(new Point2d(),new Point2d());
         getBoundsNative(mbr.ll,mbr.ur);
-
         return mbr;
     }
 

@@ -153,7 +153,7 @@ public:
     void getTriangle(int which,VectorRing &ring);
     
     /// True if the given point is within one of the triangles
-    bool pointInside(GeoCoord coord);
+    bool pointInside(const GeoCoord &coord);
     
     // Bounding box in 2D
 	GeoMbr geoMbr;

@@ -1539,7 +1539,7 @@ bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,
                                             RawDataRef data,
                                             std::vector<RawDataRef> &allData)
 {
-    return mergeLoadedFrame(ident, frame->getId(), std::move(data), allData);
+    return frame && mergeLoadedFrame(ident, frame->getId(), std::move(data), allData);
 }
 
 bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,

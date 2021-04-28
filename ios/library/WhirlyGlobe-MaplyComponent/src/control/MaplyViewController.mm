@@ -326,24 +326,25 @@ public:
 {
     if (_coordSys)
     {
-        MaplyCoordinate ll,ur;
-        [_coordSys getBoundsLL:&ll ur:&ur];
-        Point3d ll3d(ll.x,ll.y,0.0),ur3d(ur.x,ur.y,0.0);
+        const auto bbox = [_coordSys getBounds];
+        const auto ll3d = Point3d(bbox.ll.x, bbox.ll.y, 0);
+        const auto ur3d = Point3d(bbox.ur.x, bbox.ur.y, 0);
+        const Point3d diff = ur3d - ll3d;
+        const auto center3d = Point3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
         // May need to scale this to the space we're expecting
-        double scaleFactor = 1.0;
-        if (std::abs(ur.x-ll.x) > 10.0 || std::abs(ur.y-ll.y) > 10.0)
-        {
-            Point3d diff = ur3d - ll3d;
-            scaleFactor = 4.0/std::max(diff.x(),diff.y());
-        }
-        Point3d center3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-        GeneralCoordSystemDisplayAdapter *genCoordAdapter = new GeneralCoordSystemDisplayAdapter([_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,Point3d(scaleFactor,scaleFactor,scaleFactor));
-        coordAdapter = CoordSystemDisplayAdapterRef(genCoordAdapter);
+        const auto scaleFactor = (std::abs(diff.x()) > 10.0 || std::abs(diff.y()) > 10.0) ?
+                                    4.0/std::max(diff.x(),diff.y()) : 1.0;
+        coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(
+              [_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
+              Point3d(scaleFactor,scaleFactor,1));
     } else {
-        coordAdapter = CoordSystemDisplayAdapterRef(new SphericalMercatorDisplayAdapter(0.0, GeoCoord::CoordFromDegrees(-180.0,-90.0), GeoCoord::CoordFromDegrees(180.0,90.0)));
+        const auto originLon = 0.0;
+        const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
+        const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
+        coordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
     }
     
-    mapView = Maply::MapView_iOSRef(new Maply::MapView_iOS(coordAdapter.get()));
+    mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
     mapView->continuousZoom = true;
     mapView->setWrap(_viewWrap);
     mapView->addWatcher(&animWrapper);
@@ -365,8 +366,9 @@ public:
     
     allowRepositionForAnnnotations = false;
     
-    Point3f ll,ur;
-    coordAdapter->getBounds(ll, ur);
+    Point2d ll(0,0),ur(0,0);
+    coordAdapter->getGeoBounds(ll, ur);
+
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
 
@@ -420,7 +422,10 @@ public:
         touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:wrapView mapView:mapView.get()];
     }
 
-    [self setViewExtentsLL:boundLL ur:boundUR];
+    if (boundLL.x != boundUR.x || boundLL.y != boundUR.y)
+    {
+        [self setViewExtentsLL:boundLL ur:boundUR];
+    }
 }
 
 - (void)handleLongPress:(UIGestureRecognizer*)sender {
@@ -436,8 +441,8 @@ public:
     if (!coordAdapter)
         return;
 
-    Point3f ll,ur;
-    coordAdapter->getBounds(ll, ur);
+    Point2d ll(0,0),ur(0,0);
+    coordAdapter->getGeoBounds(ll, ur);
     boundLL.x = ll.x();  boundLL.y = ll.y();
     boundUR.x = ur.x();  boundUR.y = ur.y();
     
@@ -447,7 +452,11 @@ public:
         boundLL.x = -MAXFLOAT;
         boundUR.x = MAXFLOAT;
     }
-    [self setViewExtentsLL:boundLL ur:boundUR];
+
+    if (boundLL.x != boundUR.x || boundLL.y != boundUR.y)
+    {
+        [self setViewExtentsLL:boundLL ur:boundUR];
+    }
     
     mapView->setWrap(_viewWrap);
 }
@@ -977,7 +986,7 @@ public:
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
-    Point3d loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+    Point3d loc = mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
     loc.z() = height;
 
     // Do a validity check and possibly adjust the center
@@ -1006,7 +1015,7 @@ public:
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView->getLoc();
-    GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(mapView->coordAdapter->displayToLocal(loc));
+    GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(loc);
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
 }
@@ -1032,11 +1041,14 @@ public:
     if (!renderControl)
         return;
     
-    Point3f loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(animState.pos.x, animState.pos.y)));
-    loc.z() = animState.height;
+    Point3d localLoc = mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x, animState.pos.y));
+    localLoc.z() = animState.height;
 
     if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
     {
+        Point3d displayLoc = mapView->coordAdapter->localToDisplay(localLoc);
+        displayLoc.z() = animState.height;
+
         Eigen::Matrix4d modelTrans = mapView->calcFullMatrix();
         Point3d hit;
         auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
@@ -1045,13 +1057,13 @@ public:
         {
             Point3d oldLoc = mapView->getLoc();
             Point3f diffLoc(hit.x()-oldLoc.x(),hit.y()-oldLoc.y(),0.0);
-            loc.x() -= diffLoc.x();
-            loc.y() -= diffLoc.y();
+            displayLoc.x() -= diffLoc.x();
+            displayLoc.y() -= diffLoc.y();
 
         }
+        localLoc = mapView->coordAdapter->displayToLocal(displayLoc);
     }
-    Point3d loc3d = loc.cast<double>();
-    mapView->setLoc(loc3d, false);
+    mapView->setLoc(localLoc, false);
     mapView->setRotAngle(-animState.heading, runViewUpdates);
 }
 
@@ -1237,26 +1249,28 @@ public:
 }
 
 // See if the given bounding box is all on screen
-- (bool)checkCoverage:(Mbr &)mbr mapView:(Maply::MapView *)theView height:(float)height margin:(const Point2d &)margin
+- (bool)checkCoverage:(const Mbr &)mbr mapView:(Maply::MapView *)theView height:(float)height margin:(const Point2d &)margin
 {
-    Point3d loc = mapView->getLoc();
-    Point3d testLoc = Point3d(loc.x(),loc.y(),height);
-    theView->setLoc(testLoc,false);
-    
-    CGRect frame = self.view.frame;
-    
-    MaplyCoordinate ul;
-    ul.x = mbr.ul().x();
-    ul.y = mbr.ul().y();
-    
-    MaplyCoordinate lr;
-    lr.x = mbr.lr().x();
-    lr.y = mbr.lr().y();
-    
-    CGPoint ulScreen = [self screenPointFromGeo:ul mapView:theView];
-    CGPoint lrScreen = [self screenPointFromGeo:lr mapView:theView];
-    
-    return std::abs(lrScreen.x - ulScreen.x) < (frame.size.width-2*margin.x()) && std::abs(lrScreen.y - ulScreen.y) < (frame.size.height-2*margin.y());
+    // Center the bound
+    const Point3d localMid = mapView->coordAdapter->getCoordSystem()->geographicToLocal(mbr.mid().cast<double>());
+    theView->setLoc(Point3d(localMid.x(),localMid.y(),height),false);
+
+    // Get the corners
+    Point2fVector pts;
+    mbr.asPoints(pts);
+
+    // Check each one
+    const CGRect &frame = self.view.frame;
+    for (const auto &pt : pts)
+    {
+        const CGPoint screenPt = [self screenPointFromGeo:{pt.x(),pt.y()} mapView:theView];
+        if (screenPt.x < -margin.x() || screenPt.x > frame.size.width + margin.x() ||
+            screenPt.y < -margin.y() || screenPt.y > frame.size.height + margin.y())
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
@@ -1268,17 +1282,24 @@ public:
 {
     const Point2d margin(marginX,marginY);
     
-    if (!mapView) {
+    if (!mapView)
+    {
         return 0;
     }
     Maply::MapView tempMapView(*mapView);
 
+    // Center the temporary view on the new center point at the current height
     const Point3d oldLoc = tempMapView.getLoc();
-    const Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
+    Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
+    if (_coordSys)
+    {
+        newLoc = _coordSys->coordSystem->geographicToLocal3d(GeoCoord(pos.x,pos.y));
+        newLoc.z() = oldLoc.z();
+    }
     tempMapView.setLoc(newLoc, false);
-    
-    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
-    
+
+    const Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
+
     float minHeight = tempMapView.minHeightAboveSurface();
     float maxHeight = tempMapView.maxHeightAboveSurface();
     if (pinchDelegate)
