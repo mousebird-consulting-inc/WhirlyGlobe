@@ -21,6 +21,7 @@
 #import "GlobeView.h"
 #import "WhirlyGeometry.h"
 #import "GlobeMath.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -31,7 +32,8 @@ namespace WhirlyGlobe
 GlobeView::GlobeView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 {
     coordAdapter = inCoordAdapter;
-    rotQuat = Eigen::AngleAxisd(0.0f,Vector3d(0.0f,0.0f,1.0f));
+    //rotQuat = Eigen::AngleAxisd(-M_PI_4,Vector3d(1,0,0));     // North pole at heading=0
+    rotQuat = Eigen::Quaterniond(-0.5, 0.5, 0.5, 0.5);  // lat=0 / lon=0 / heading=0
     coordAdapter = &fakeGeoC;
     defaultNearPlane = nearPlane;
     defaultFarPlane = farPlane;
@@ -76,7 +78,7 @@ void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat,bool updateWatchers)
     z = newRotQuat.coeffs().z();
     if (isnan(w) || isnan(x) || isnan(y) || isnan(z))
         return;
-    
+
     lastChangedTime = TimeGetCurrent();
     rotQuat = newRotQuat;
     if (updateWatchers)

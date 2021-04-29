@@ -1,5 +1,4 @@
-/*
- *  GlobeRotationTestCase.kt
+/*  GlobeRotationTestCase.kt
  *  WhirlyGlobeLib
  *
  *  Created by Tim Sylvester on 9 Feb 2021.
@@ -15,29 +14,33 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import com.mousebird.maply.GlobeController
+import com.mousebird.maply.MapController
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
-public class GlobeRotationTestCase : MaplyTestCase {
-
-    constructor(activity: Activity) : super(activity) {
-        testName = "Globe Rotation (#1286)"
-        implementation = TestExecutionImplementation.Globe
-
-        baseCase = VectorsTestCase(activity)
-    }
-
+class AnimationDelegateTestCase(activity: Activity) : MaplyTestCase(activity, "Animating Position", TestExecutionImplementation.Both) {
+    
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
         if (!baseCase.setUpWithGlobe(globeVC)) {
             return false
         }
-        globeVC?.animatePositionGeo(0.0, Math.PI/8, 0.75, 0.0, 0.5)
+        globeVC?.keepNorthUp = false
+        globeVC?.height = 1.0
+        globeVC?.animatePositionGeo(degToRad(-0.1275), degToRad(51.507222), 0.01, degToRad(45.0), 5.0)
+        return true
+    }
+    
+    override fun setUpWithMap(mapVC: MapController?): Boolean {
+        if (!baseCase.setUpWithMap(mapVC)) {
+            return false
+        }
+        mapVC?.height = 1.0
+        mapVC?.animatePositionGeo(degToRad(-0.1275), degToRad(51.507222), 0.01, degToRad(45.0), 5.0)
         return true
     }
 
@@ -46,5 +49,5 @@ public class GlobeRotationTestCase : MaplyTestCase {
         super.shutdown()
     }
 
-    private var baseCase: VectorsTestCase
+    private var baseCase = VectorsTestCase(activity)
 }

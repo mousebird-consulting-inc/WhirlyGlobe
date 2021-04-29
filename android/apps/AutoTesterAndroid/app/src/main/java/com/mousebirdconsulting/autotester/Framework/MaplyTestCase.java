@@ -500,4 +500,8 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 
 	}
 
+	protected static float radToDeg(float rad) { return (float)(rad * 180 / Math.PI); }
+	protected static float degToRad(float deg) { return (float)(deg * Math.PI / 180); }
+	protected static double radToDeg(double rad) { return rad * 180 / Math.PI; }
+	protected static double degToRad(double deg) { return deg * Math.PI / 180; }
 }

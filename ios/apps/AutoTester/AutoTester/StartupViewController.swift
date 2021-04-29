@@ -62,9 +62,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         StarsSunTestCase(),
 
 		FindHeightTestCase(),
-		FullAnimationTest(),
 		AnimationDelegateTestCase(),
-        GlobeRotationTestCase(),
 		LocationTrackingSimTestCase(),
 		LocationTrackingRealTestCase(),
         
