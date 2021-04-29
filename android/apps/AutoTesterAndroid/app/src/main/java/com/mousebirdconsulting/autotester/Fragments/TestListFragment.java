@@ -125,7 +125,7 @@ public class TestListFragment extends Fragment {
 //			testCases.add(new ArealTestCase(a));
 			testCases.add(new LocationTrackingRealTestCase(a));
 			testCases.add(new LocationTrackingSimTestCase(a));
-			testCases.add(new GlobeRotationTestCase(a));
+			testCases.add(new AnimationDelegateTestCase(a));
 			testCases.add(new ComponentObjectLeakTestCase(a));
 		}
 

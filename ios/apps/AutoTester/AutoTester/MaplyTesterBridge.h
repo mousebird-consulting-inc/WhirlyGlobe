@@ -27,7 +27,6 @@
 #import "LabelAnimationTestCase.h"
 #import "WMSTestCase.h"
 #import "FindHeightTestCase.h"
-#import "FullAnimationTest.h"
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
