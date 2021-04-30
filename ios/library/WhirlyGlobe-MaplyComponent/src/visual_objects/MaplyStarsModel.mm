@@ -49,7 +49,6 @@ typedef struct
     if (!fp)
         return nil;
 
-    // Mangitude x y z
     char line[1024] = {0};
     while (fgets(line, 1023, fp))
     {
@@ -61,7 +60,9 @@ typedef struct
             stars.resize(stars.size()-1);
         }
     }
-    
+
+    fclose(fp);
+
     return self;
 }
 
@@ -69,60 +70,6 @@ typedef struct
 {
     image = inImage;
 }
-
-static const char *shaderCode = R"(
-
-struct VertexIn {
-    packed_float3 a_position;
-    float         a_size;
-};
-
-struct VertexOut {
-    float4 computedPosition [[position]];
-    float4 color;
-};
-
-vertex VertexOut vert(constant VertexIn* vertex_array [[ buffer(0) ]],
-                      unsigned int vid [[ vertex_id ]]) {
-    VertexIn v = vertex_array[vid];
-    VertexOut outVertex = VertexOut();
-    outVertex.computedPosition = float4(v.a_position, 1.0);
-    outVertex.color = float4(1,1,1,1);
-    return outVertex;
-}
-
-//precision highp float;
-//uniform mat4  u_mvpMatrix;
-//uniform float u_radius;
-//attribute vec3 a_position;
-//attribute float a_size;
-//varying vec4 v_color;
-//void main()
-//{
-//   v_color = vec4(1.0,1.0,1.0,1.0);
-//   gl_PointSize = a_size;
-//   gl_Position = u_mvpMatrix * vec4(a_position * u_radius,1.0);
-//}
-
-fragment float4 frag(VertexOut interpolated [[stage_in]]) {
-  return float4(interpolated.color);
-}
-//precision highp float;
-//varying vec4      v_color;
-//void main() {
-//  gl_FragColor = v_color;
-//}
-
-fragment float4 fragTex(VertexOut interpolated [[stage_in]]) {
-  return float4(interpolated.color);
-}
-//precision highp float;
-//uniform sampler2D s_baseMap0;
-//varying vec4      v_color;
-//void main() {
-//  gl_FragColor = v_color * texture2D(s_baseMap0, gl_PointCoord);
-//}
-)";
 
 typedef struct
 {
@@ -142,18 +89,12 @@ typedef struct
     double jd = aaDate.Julian();
     double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
 
-    //id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
     const auto mtlLib = [inViewC getMetalLibrary];
-    MTLCompileOptions *mtlOpt = [[MTLCompileOptions alloc] init];
-    mtlOpt.fastMathEnabled = true;
-    //mtlOpt.preserveInvariance = true;
-    //mtlOpt.languageVersion =
-    NSError *mtlErr = nil;
     id<MTLFunction> vertexFunc = [mtlLib newFunctionWithName:@"vertStars"];
     id<MTLFunction> fragmentFunc = [mtlLib newFunctionWithName:@"fragmentStars"];
     if (!vertexFunc || !fragmentFunc)
     {
-        NSLog(@"Failed to create star model vertex library: %@", mtlErr);
+        NSLog(@"Failed to get star model shaders");
         return false;
     }
 
@@ -224,7 +165,7 @@ typedef struct
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
     
-    // batch object isn't populating its own data
+    // todo: batch object isn't populating its own data, do it here for now
     NSMutableData *batchData = [[NSMutableData alloc] initWithCapacity:posData.length + sizeData.length];
     [batchData appendData:posData];
     [batchData appendData:sizeData];
