@@ -1198,3 +1198,39 @@ vertex ProjVertexTriA vertexTri_billboard(
     return outVert;
 
 }
+
+
+// Stars shader.  Simple points
+struct VertexIn {
+    packed_float3 a_position;
+    float         a_size;
+};
+
+struct VertexOut {
+    float4 computedPosition [[position]];
+    float4 color;
+};
+
+vertex VertexOut vertStars(constant VertexIn* vertex_array [[ buffer(0) ]],
+                      unsigned int vid [[ vertex_id ]]) {
+    VertexIn v = vertex_array[vid];
+    VertexOut outVertex = VertexOut();
+    outVertex.computedPosition = float4(v.a_position, 1.0);
+    outVertex.color = float4(1,1,1,1);
+    return outVertex;
+}
+
+fragment float4 fragmentStars(ProjVertexTriB vert [[stage_in]],
+                                     constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+                                     constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                                     constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    int numTextures = TexturesBase(texArgs.texPresent);
+    
+    // Handle none, 1 or 2 textures
+    if (numTextures == 0) {
+        return vert.color;
+    } else {
+        return vert.color;
+    }
+}

@@ -143,15 +143,14 @@ typedef struct
     double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
 
     //id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
-    const auto mtlDev = inViewC.getRenderControl.getMetalDevice;
+    const auto mtlLib = [inViewC getMetalLibrary];
     MTLCompileOptions *mtlOpt = [[MTLCompileOptions alloc] init];
     mtlOpt.fastMathEnabled = true;
     //mtlOpt.preserveInvariance = true;
     //mtlOpt.languageVersion =
     NSError *mtlErr = nil;
-    id<MTLLibrary> shaderLib = [mtlDev newLibraryWithSource:@(shaderCode) options:mtlOpt error:&mtlErr];
-    id<MTLFunction> vertexFunc = [shaderLib newFunctionWithName:@("vert")];
-    id<MTLFunction> fragmentFunc = [shaderLib newFunctionWithName:@(image ? "fragTex" : "frag")];
+    id<MTLFunction> vertexFunc = [mtlLib newFunctionWithName:@"vertStars"];
+    id<MTLFunction> fragmentFunc = [mtlLib newFunctionWithName:@"fragmentStars"];
     if (!vertexFunc || !fragmentFunc)
     {
         NSLog(@"Failed to create star model vertex library: %@", mtlErr);
