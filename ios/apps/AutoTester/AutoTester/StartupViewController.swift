@@ -89,10 +89,17 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         if firstView {
             firstView = false;
             let env = ProcessInfo.processInfo.environment
+            let type = MaplyTestCaseImplementations.init(rawValue:UInt.init(env["START_TEST_TYPE"] ?? "") ?? MaplyTestCaseImplementations.globe.rawValue) // 2=globe, 4=map
             if let autoStartTest = env["START_TEST"], !autoStartTest.isEmpty {
                 if let test = tests.filter({ test -> Bool in return test.name == autoStartTest }).first {
                     self.lastInteractiveTestSelected = test
-                    test.startMap(self.navigationController!)
+                    if (type.contains(MaplyTestCaseImplementations.map) &&
+                            test.implementations.contains(MaplyTestCaseImplementations.map)) {
+                        test.startMap(self.navigationController!)
+                    } else if (type.contains(MaplyTestCaseImplementations.globe) &&
+                                test.implementations.contains(MaplyTestCaseImplementations.globe)) {
+                        test.startGlobe(self.navigationController!)
+                    }
                 }
             }
         }
