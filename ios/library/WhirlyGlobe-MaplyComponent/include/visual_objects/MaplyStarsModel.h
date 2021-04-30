@@ -49,7 +49,7 @@
     
     @param mode Thread mode to use when adding the geometry.
   */
-- (void)addToViewC:(WhirlyGlobeViewController *__nonnull)viewC date:(NSDate *__nonnull)date desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)mode;
+- (bool)addToViewC:(WhirlyGlobeViewController *__nonnull)viewC date:(NSDate *__nonnull)date desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)mode;
 
 /** 
     Remove star geometry from the registered view controller.

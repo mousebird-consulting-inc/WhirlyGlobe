@@ -1,9 +1,8 @@
-/*
- *  MaplyStarsModel.mm
+/*  MaplyStarsModel.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/4/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -28,8 +26,9 @@ using namespace WhirlyKit;
 
 typedef struct
 {
-    float mag;
-    float ra,dec;
+    float mag;  // atronomical magnitude (inverse brightness)
+    float ra;   // right ascension (angle measured eastward along the celestial equator)
+    float dec;  // declination (angle north or south of the celestial equator)
 } SingleStar;
 
 @implementation MaplyStarsModel
@@ -51,12 +50,16 @@ typedef struct
         return nil;
 
     // Mangitude x y z
-    char line[1024];
+    char line[1024] = {0};
     while (fgets(line, 1023, fp))
     {
         stars.resize(stars.size()+1);
         SingleStar &star = stars.back();
-        sscanf(line, "%f %f %f",&star.ra, &star.dec, &star.mag);
+        if (sscanf(line, "%f %f %f",&star.ra, &star.dec, &star.mag) != 3)
+        {
+            NSLog(@"Unrecognized: '%s'", line);
+            stars.resize(stars.size()-1);
+        }
     }
     
     return self;
@@ -67,54 +70,67 @@ typedef struct
     image = inImage;
 }
 
-//static const char *vertexShaderTriPoint = R"(
+static const char *shaderCode = R"(
+
+struct VertexIn {
+    packed_float3 a_position;
+    float         a_size;
+    packed_float4 a_color;
+};
+
+struct VertexOut {
+    float4 computedPosition [[position]];
+    float4 color;
+};
+
+vertex VertexOut vert(constant VertexIn* vertex_array [[ buffer(0) ]],
+                      unsigned int vid [[ vertex_id ]]) {
+    VertexIn v = vertex_array[vid];
+    VertexOut outVertex = VertexOut();
+    outVertex.computedPosition = float4(v.a_position, 1.0);
+    outVertex.color = v.a_color;
+    return outVertex;
+}
+
 //precision highp float;
-//
 //uniform mat4  u_mvpMatrix;
 //uniform float u_radius;
-//
 //attribute vec3 a_position;
 //attribute float a_size;
-//
 //varying vec4 v_color;
-//
 //void main()
 //{
 //   v_color = vec4(1.0,1.0,1.0,1.0);
 //   gl_PointSize = a_size;
 //   gl_Position = u_mvpMatrix * vec4(a_position * u_radius,1.0);
 //}
-//)";
-//
-//static const char *fragmentShaderTriPoint = R"(
+
+fragment float4 frag(VertexOut interpolated [[stage_in]]) {
+  return float4(interpolated.color);
+}
 //precision highp float;
-//
 //varying vec4      v_color;
-//
-//void main()
-//{
+//void main() {
 //  gl_FragColor = v_color;
 //}
-//)";
-//
-//static const char *fragmentShaderTexTriPoint = R"(
+
+fragment float4 fragTex(VertexOut interpolated [[stage_in]]) {
+  return float4(interpolated.color);
+}
 //precision highp float;
-//
 //uniform sampler2D s_baseMap0;
 //varying vec4      v_color;
-//
-//void main()
-//{
+//void main() {
 //  gl_FragColor = v_color * texture2D(s_baseMap0, gl_PointCoord);
 //}
-//)";
+)";
 
 typedef struct
 {
     float x,y,z;
 } SimpleVec3;
 
-- (void)addToViewC:(WhirlyGlobeViewController *)inViewC date:(NSDate *)date desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
+- (bool)addToViewC:(WhirlyGlobeViewController *)inViewC date:(NSDate *)date desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
 {
     viewC = inViewC;
     addedMode = mode;
@@ -127,13 +143,33 @@ typedef struct
     double jd = aaDate.Julian();
     double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
 
-    // Really simple shader
-    // TODO: Switch to Metal
-//    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
-    MaplyShader *shader = nil;
-    //[viewC addShaderProgram:shader];
-//    [shader setUniformFloatNamed:@"u_radius" val:6.0];
-    
+    //id<MTLDevice> mtlDevice = MTLCreateSystemDefaultDevice();
+    const auto mtlDev = inViewC.getRenderControl.getMetalDevice;
+    MTLCompileOptions *mtlOpt = [[MTLCompileOptions alloc] init];
+    mtlOpt.fastMathEnabled = true;
+    //mtlOpt.preserveInvariance = true;
+    //mtlOpt.languageVersion =
+    NSError *mtlErr = nil;
+    id<MTLLibrary> shaderLib = [mtlDev newLibraryWithSource:@(shaderCode) options:mtlOpt error:&mtlErr];
+    id<MTLFunction> vertexFunc = [shaderLib newFunctionWithName:@("vert")];
+    id<MTLFunction> fragmentFunc = [shaderLib newFunctionWithName:@(image ? "fragTex" : "frag")];
+    if (!vertexFunc || !fragmentFunc)
+    {
+        NSLog(@"Failed to create star model vertex library: %@", mtlErr);
+        return false;
+    }
+
+    MaplyShader *shader = [[MaplyShader alloc] initMetalWithName:@"Star Shader"
+                                                          vertex:vertexFunc
+                                                        fragment:fragmentFunc
+                                                           viewC:inViewC];
+    if (shader)
+    {
+        [inViewC addShaderProgram:shader];
+        //[shader setUniformBlock:<#(NSData * _Nonnull)#> buffer:<#(int)#>]
+        //[shader setUniformFloatNamed:@"u_radius" val:6.0];
+    }
+
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
     if (!desc[kMaplyDrawPriority])
         desc[kMaplyDrawPriority] = @(kMaplyStarsDrawPriorityDefault);
@@ -188,8 +224,9 @@ typedef struct
         if (mag < 0.0)
             mag = 0.0;
         *magPtr = mag;
-        
-        posPtr++;   magPtr++;
+
+        posPtr++;
+        magPtr++;
     }
 
     // Set up the particle batch
@@ -198,6 +235,7 @@ typedef struct
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
     [inViewC addParticleBatch:batch mode:mode];
+    return true;
 }
 
 - (void)removeFromViewC
