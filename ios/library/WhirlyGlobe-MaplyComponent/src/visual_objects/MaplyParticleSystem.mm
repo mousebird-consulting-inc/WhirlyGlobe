@@ -142,7 +142,11 @@ using namespace WhirlyKit;
             attrVals.attrID = attr.getId();
             attrVals.data = data;
             if ([data length] != attr.dataSize() * ps.batchSize)
+            {
+                wkLogLevel(Warn, "Batch size mismatch, %d != %d",
+                           data.length, attr.dataSize() * ps.batchSize);
                 return false;
+            }
             self.attrVals.push_back(attrVals);
             
             return true;

@@ -75,7 +75,6 @@ static const char *shaderCode = R"(
 struct VertexIn {
     packed_float3 a_position;
     float         a_size;
-    packed_float4 a_color;
 };
 
 struct VertexOut {
@@ -88,7 +87,7 @@ vertex VertexOut vert(constant VertexIn* vertex_array [[ buffer(0) ]],
     VertexIn v = vertex_array[vid];
     VertexOut outVertex = VertexOut();
     outVertex.computedPosition = float4(v.a_position, 1.0);
-    outVertex.color = v.a_color;
+    outVertex.color = float4(1,1,1,1);
     return outVertex;
 }
 
@@ -186,6 +185,7 @@ typedef struct
     partSys.batchSize = (int)stars.size();
     partSys.continuousUpdate = false;
     partSys.renderShader = shader;
+    partSys.vertexSize = sizeof(SimpleVec3)+sizeof(float); // ?
     if (starTex)
         [partSys addTexture:starTex];
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
@@ -199,33 +199,23 @@ typedef struct
 
     SimpleVec3 *posPtr = (SimpleVec3 *)[posData mutableBytes];
     float *magPtr = (float *)[sizeData mutableBytes];
-    for (unsigned int ii=0;ii<stars.size();ii++)
+    for (const auto &star : stars)
     {
-        SingleStar *star = &stars[ii];
-
-        // Convert the start from equatorial to a useable lon/lat
+        // Convert the star from equatorial to a useable lon/lat
         // Note: Should check this math
-        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra-15*siderealTime);
-        double starLat = CAACoordinateTransformation::DegreesToRadians(star->dec);
+        const double starLon = CAACoordinateTransformation::DegreesToRadians(star.ra-15*siderealTime);
+        const double starLat = CAACoordinateTransformation::DegreesToRadians(star.dec);
         
 //        NSLog(@"star lon, lat = (%f,%f)",starLon*180/M_PI,starLat*180/M_PI);
 
-//        Point3f pt;
-        double z = sin(starLat);
-        double rad = sqrt(1.0-z*z);
-        Point3d pt(rad*cos(starLon),rad*sin(starLon),z);
-        
-//        pt.x() = cos(starLon);
-//        pt.y() = sin(starLon);
-//        pt.z() = sin(starLat);
-//        pt.normalize();
-        posPtr->x = pt.x();  posPtr->y = pt.y();  posPtr->z = pt.z();
-        float mag = 6.0-star->mag;
-        if (mag < 0.0)
-            mag = 0.0;
-        *magPtr = mag;
-
+        const double z = sin(starLat);
+        const double rad = sqrt(1.0-z*z);
+        posPtr->x = rad*cos(starLon);
+        posPtr->y = rad*sin(starLon);
+        posPtr->z = z;
         posPtr++;
+
+        *magPtr = std::max(0.0f, 6.0f - star.mag);
         magPtr++;
     }
 
@@ -234,6 +224,13 @@ typedef struct
     batch.time = inViewC->renderControl->scene->getCurrentTime();
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
+    
+    // batch object isn't populating its own data
+    NSMutableData *batchData = [[NSMutableData alloc] initWithCapacity:posData.length + sizeData.length];
+    [batchData appendData:posData];
+    [batchData appendData:sizeData];
+    [batch addData:batchData];
+
     [inViewC addParticleBatch:batch mode:mode];
     return true;
 }
