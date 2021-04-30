@@ -1,17 +1,22 @@
 # Most of this borrowed from http://www.cocoanetics.com/2010/04/making-your-own-iphone-frameworks/
 
 #!/bin/bash
-# xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphonesimulator9.0 clean
-# xcodebuild -target WhirlyGlobe-MaplyComponent -scheme WhirlyGlobe-MaplyComponent -configuration Release -sdk iphoneos9.0 clean
-# xcodebuild -target WhirlyGlobe-MaplyComponent -configuration Debug -sdk iphonesimulator
 
 # Locations for build products
 BUILT_PRODUCTS_SIMULATOR=`xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphonesimulator -showBuildSettings OTHER_CFLAGS='-fembed-bitcode' | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*"`
-BUILT_PRODUCTS_IPHONEOS=`xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphoneos -showBuildSettings OTHER_CFLAGS='-fembed-bitcode' | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*"`
+echo Simulator products: $BUILT_PRODUCTS_SIMULATOR
 
-DEST="platform=iOS Simulator,name=iPad (8th generation)"
-xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration dddhive -sdk iphonesimulator -destination "$DEST" OTHER_CFLAGS='-fembed-bitcode' build
+BUILT_PRODUCTS_IPHONEOS=`xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Release -sdk iphoneos -showBuildSettings OTHER_CFLAGS='-fembed-bitcode' | grep -m 1 "BUILT_PRODUCTS_DIR" | grep -oEi "\/.*"`
+echo iPhoneOS products: $BUILT_PRODUCTS_IPHONEOS
+
+# simulator build disabled for now to stay under CI time limit
+#echo Building for simulator...
+#DEST="platform=iOS Simulator,name=iPad (8th generation)"
+#xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Archive -sdk iphonesimulator -destination "$DEST" OTHER_CFLAGS='-fembed-bitcode' build
+echo Building for iPhoneOS
 xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Archive -sdk iphoneos -DONLY_ACTIVE_ARCH=NO OTHER_CFLAGS='-fembed-bitcode'
+
+echo Constructing Framework...
 
 # name and build location
 PROJECT_NAME=WhirlyGlobeMaplyComponent
@@ -24,17 +29,14 @@ FRAMEWORK_CURRENT_VERSION=1
 FRAMEWORK_COMPATIBILITY_VERSION=1
 
 # Clean any existing framework that might be there
-if [ -d "$FRAMEWORK_BUILD_PATH" ]
-then
-echo "Framework: Cleaning framework..."
-rm -rf "$FRAMEWORK_BUILD_PATH"
+if [ -d "$FRAMEWORK_BUILD_PATH" ]; then
+    echo "Framework: Cleaning $FRAMEWORK_BUILD_PATH"
+    rm -rf "$FRAMEWORK_BUILD_PATH"
 fi
 
 # Build the canonical Framework bundle directory structure
-echo "Framework: Setting up directories..."
-rm -rf "$FRAMEWORK_DIR"
 FRAMEWORK_DIR=$FRAMEWORK_BUILD_PATH/$FRAMEWORK_NAME.framework
-mkdir -p $FRAMEWORK_DIR
+echo "Framework: Setting up directories in $FRAMEWORK_DIR"
 mkdir -p $FRAMEWORK_DIR/Headers
 mkdir -p $FRAMEWORK_DIR/Modules
 
