@@ -1,9 +1,8 @@
-/*
- *  MaplyParticleSystem.mm
+/*  MaplyParticleSystem.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/26/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyParticleSystem_private.h"
@@ -142,7 +140,11 @@ using namespace WhirlyKit;
             attrVals.attrID = attr.getId();
             attrVals.data = data;
             if ([data length] != attr.dataSize() * ps.batchSize)
+            {
+                wkLogLevel(Warn, "Batch size mismatch, %d != %d",
+                           data.length, attr.dataSize() * ps.batchSize);
                 return false;
+            }
             self.attrVals.push_back(attrVals);
             
             return true;

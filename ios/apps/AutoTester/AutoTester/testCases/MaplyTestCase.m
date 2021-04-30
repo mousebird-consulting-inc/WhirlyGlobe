@@ -13,6 +13,21 @@
 
 @implementation MaplyTestCase
 
+- (instancetype)init
+{
+    return self = [super init];
+}
+
+- (instancetype)initWithName:(NSString *_Nonnull)name supporting:(MaplyTestCaseImplementations)types
+{
+    if (self = [super init])
+    {
+        self.name = name;
+        self.implementations = types;
+    }
+    return self;
+}
+
 - (void)startGlobe:(UINavigationController *)nav
 {
     // create and prepare the controller

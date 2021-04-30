@@ -1,9 +1,8 @@
-/*
- *  MaplyMoon.mm
+/*  MaplyMoon.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/2/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "visual_objects/MaplyMoon.h"
@@ -47,9 +45,8 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    if (moon)
-        delete moon;
-    moon = NULL;
+    delete moon;
+    moon = nullptr;
 }
 
 - (MaplyCoordinate)asCoordinate
@@ -59,7 +56,18 @@ using namespace WhirlyKit;
 
 - (MaplyCoordinate3d)asPosition
 {
-    return MaplyCoordinate3dMake(moon->moonLon,moon->moonLat, 5.0);
+    const auto height = 385000000 / EarthRadius;
+    return MaplyCoordinate3dMake(moon->moonLon,moon->moonLat, height);
+}
+
+- (double)illuminatedFraction
+{
+    return moon ? moon->illuminatedFraction : 0;
+}
+
+- (double)phase
+{
+    return moon ? moon->phase : 0;
 }
 
 @end

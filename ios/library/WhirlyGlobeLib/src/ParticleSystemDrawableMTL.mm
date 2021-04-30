@@ -1,9 +1,8 @@
-/*
- *  ParticleSystemDrawableMTL.mm
+/*  ParticleSystemDrawableMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawableMTL.h"
@@ -43,8 +41,8 @@ void ParticleSystemDrawableMTL::addAttributeData(const RenderSetupInfo *setupInf
                                                  const RawDataRef &data,
                                                  const Batch &batch)
 {
-    size_t offset = batch.batchID*vertexSize*batchSize;
-    size_t size = vertexSize*batchSize;
+    const size_t offset = batch.batchID*vertexSize*batchSize;
+    const size_t size = vertexSize*batchSize;
     
     if (size != data->getLen()) {
         NSLog(@"Batch size doesn't match in addAttributeData()");

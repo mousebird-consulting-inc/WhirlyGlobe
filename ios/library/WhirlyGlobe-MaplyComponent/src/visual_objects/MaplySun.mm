@@ -1,9 +1,8 @@
-/*
- *  MaplySun.h
+/*  MaplySun.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/24/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <WhirlyGlobe_iOS.h>
@@ -45,9 +43,8 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    if (sun)
-        delete sun;
-    sun = NULL;
+    delete sun;
+    sun = nullptr;
 }
 
 - (MaplyCoordinate3d)getDirection
@@ -68,9 +65,10 @@ using namespace WhirlyKit;
     return sunLight;
 }
 
-- (MaplyCoordinate)asPosition
+- (MaplyCoordinate3d)asPosition
 {
-    return MaplyCoordinateMake(sun->sunLon,sun->sunLat);
+    const auto height = 149.6 * 1000000 * 1000 / EarthRadius;
+    return MaplyCoordinate3dMake(sun->sunLon,sun->sunLat, height);
 }
 
 @end
