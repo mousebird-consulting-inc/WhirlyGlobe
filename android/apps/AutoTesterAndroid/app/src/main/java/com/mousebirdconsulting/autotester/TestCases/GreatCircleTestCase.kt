@@ -43,11 +43,11 @@ class GreatCircleTestCase(activity: Activity) :
         buildGreatCircle(vc,
                 Point2d.FromDegrees(2.548, 49.010),
                 Point2d.FromDegrees(151.177, -33.946),
-                Color.RED, 30.0f, false, 0.01, 1000)
+                Color.RED, 30.0f, false, 0.005, 1000)
         buildGreatCircle(vc,
                 Point2d.FromDegrees(2.548, 49.010),
                 Point2d.FromDegrees(151.177, -33.946),
-                Color.BLACK, 20.0f, false, 0.1, 1001)
+                Color.BLACK, 20.0f, false, 0.0025, 1001)
         buildGreatCircle(vc,
                 Point2d.FromDegrees(2.548, 49.010),
                 Point2d.FromDegrees(151.177, -33.946),
