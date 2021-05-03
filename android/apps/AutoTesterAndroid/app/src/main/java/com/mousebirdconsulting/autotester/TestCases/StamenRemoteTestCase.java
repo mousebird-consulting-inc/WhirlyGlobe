@@ -38,11 +38,8 @@ import java.io.File;
 public class StamenRemoteTestCase extends MaplyTestCase {
 
 	public StamenRemoteTestCase(Activity activity) {
-		super(activity);
-
-		setTestName("Stamen Watercolor Remote");
+		super(activity, "Stamen Watercolor Remote", TestExecutionImplementation.Both);
 		setDelay(4);
-		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	private QuadImageLoader setupImageLoader(ConfigOptions.TestType testType, BaseController baseController) {
@@ -67,19 +64,17 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 		loader.setImageFormat(RenderController.ImageFormat.MaplyImageUShort565);
 
 		// Change the color and then change it back
-		final Handler handler = new Handler();
-		handler.postDelayed(() -> {
-			loader.setColor(Color.RED);
-			final Handler handler1 = new Handler();
-			handler1.postDelayed(() -> loader.setColor(Color.WHITE), 4000);
-		}, 4000);
+		new Handler().postDelayed(() -> {
+				loader.setColor(Color.RED);
+				new Handler().postDelayed(() -> loader.setColor(Color.WHITE), 4000);
+			}, 4000);
 
 		return loader;
 	}
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) {
-		setupImageLoader(ConfigOptions.TestType.GlobeTest,globeVC);
+		imageLoader = setupImageLoader(ConfigOptions.TestType.GlobeTest,globeVC);
 		//globeVC.setClearColor(Color.RED);
 		globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 //		globeVC.setZoomLimits(0.0,1.0);
@@ -97,10 +92,21 @@ public class StamenRemoteTestCase extends MaplyTestCase {
 	@Override
 	public boolean setUpWithMap(MapController mapVC)
 	{
-		setupImageLoader(ConfigOptions.TestType.MapTest,mapVC);
+		imageLoader = setupImageLoader(ConfigOptions.TestType.MapTest,mapVC);
 		mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
 		mapVC.setAllowRotateGesture(true);
 //		mapVC.setZoomLimits(0.0,1.0);
 		return true;
 	}
+
+	@Override
+	public void shutdown() {
+		if (imageLoader != null) {
+			imageLoader.shutdown();
+			imageLoader = null;
+		}
+		super.shutdown();
+	}
+
+	private QuadImageLoader imageLoader;
 }
