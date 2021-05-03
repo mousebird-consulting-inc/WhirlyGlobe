@@ -287,11 +287,11 @@ bool TileIsOnScreen(WhirlyKitViewState *viewState,WhirlyKit::Point2f frameSize,W
         if (dispSolid)
         attrs[@"DisplaySolid"] = dispSolid;
         else
-        attrs[@"DisplaySolid"] = [NSNull null];
+        attrs[@"DisplaySolid"] = [NSNull class];
     }
     
     // This means the tile is degenerate (as far as we're concerned)
-    if ([dispSolid isKindOfClass:[NSNull null]])
+    if ([dispSolid isKindOfClass:[NSNull class]])
         return false;
 
     return [dispSolid isOnScreenForViewState:viewState frameSize:frameSize];
