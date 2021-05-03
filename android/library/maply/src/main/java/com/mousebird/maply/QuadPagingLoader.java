@@ -63,6 +63,8 @@ public class QuadPagingLoader extends QuadLoaderBase {
         loadInterp = inInterp;
         valid = true;
 
+        if (control == null)
+            return;
         // Let them change settings before we kick things off
         Handler handler = new Handler(control.getActivity().getMainLooper());
         handler.post(new Runnable() {

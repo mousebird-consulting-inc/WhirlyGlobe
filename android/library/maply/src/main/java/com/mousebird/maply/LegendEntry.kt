@@ -22,7 +22,7 @@ class LegendEntry(
     val name: String,
     val ident: String?,
     val image: Bitmap?,
-    val entries: Collection<LegendEntry>
+    var entries: Collection<LegendEntry>
     ) {
 
     override fun toString(): String {

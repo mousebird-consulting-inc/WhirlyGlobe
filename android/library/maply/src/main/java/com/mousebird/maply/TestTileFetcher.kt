@@ -76,7 +76,7 @@ class TestTileFetcher(
         val looper = super.getLooper() ?: Looper.myLooper()
         for (request in requests) {
             (request.fetchInfo as? TestTileFetchInfo)?.let { fetchInfo ->
-                Handler(looper).post { startTileFetch(fetchInfo, request) }
+                Handler(looper!!).post { startTileFetch(fetchInfo, request) }
             }
         }
     }
