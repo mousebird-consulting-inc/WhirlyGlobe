@@ -23,7 +23,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -306,7 +305,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		renderer = null;
 		context = null;
 		surface = null;
-		watchers = null;
 	}
 	
 	// Add a layer.  These just run in our thread and do their own thing
@@ -458,7 +456,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		}
 	}
 	
-	ArrayList<ViewWatcher> watchers = new ArrayList<>();
+	final ArrayList<ViewWatcher> watchers = new ArrayList<>();
 
 	/**
 	 * Add an object that we'd like to track changes to the view as
@@ -469,17 +467,16 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	public void addWatcher(final ViewWatcherInterface watcher)
 	{
-		// Let's do this on the layer thread.  Because.
+		// Access to the watchers collection is synchronized by always being on the layer thread
 		addTask(() -> {
 			watchers.add(new ViewWatcher(watcher));
 
 			// Make sure an update gets through the system for this layer
 			// Note: Fix this
-			addTask(() -> {
-				// Make sure the watcher gets a callback
-				if (currentViewState != null)
-					updateWatchers(currentViewState,System.currentTimeMillis());
-			},true);
+			final ViewState viewState = currentViewState;
+			if (viewState != null) {
+				updateWatchers(viewState, System.currentTimeMillis());
+			}
 		});
 	}
 
@@ -489,9 +486,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	public void removeWatcher(final ViewWatcherInterface watcher)
 	{
-		// Let's do this on the layer thread.  Because.
+		// Access to the watchers collection is synchronized by always being on the layer thread
 		addTask(() -> {
-			for (final ViewWatcher theWatcher: watchers) {
+			for (final ViewWatcher theWatcher : watchers) {
 				if (theWatcher.watcher == watcher) {
 					watchers.remove(theWatcher);
 					break;
@@ -506,36 +503,41 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	
 	// Update the watchers themselves
 	void updateWatchers(final ViewState viewState,long now) {
-		viewUpdateLastCalled = now;
 		// Kick off a view update to the watchers on the layer thread
 		final LayerThread theLayerThread = this;
 		synchronized(this) {
+			if (now > viewUpdateLastCalled) {
+				viewUpdateLastCalled = now;
+			}
 			if (!viewUpdateScheduled) {
 				viewUpdateScheduled = true;
 				addTask(() -> {
+					if (!valid) {
+						return;
+					}
 					synchronized(theLayerThread) {
 						viewUpdateScheduled = false;
+						currentViewState = viewState;
 					}
-					currentViewState = viewState;
 					for (ViewWatcher watcher : watchers) {
 						watcher.watcher.viewUpdated(currentViewState);
 					}
 				},true);
 			}
-		}		
+		}
 	}
 	
 	Handler trailingHandle = null;
 	Runnable trailingRun = null;
 
-	// Schedule a lagging update (e.g. not too often, but no less than 100ms
+	// Schedule a lagging update (e.g. not too often, but no less than 100ms)
 	void scheduleLateUpdate(long delay)
 	{
-		if (!valid)
-			return;
-
 		synchronized(this)
 		{
+			if (!valid)
+				return;
+
 			if (trailingHandle != null)
 			{
 				trailingHandle.removeCallbacks(trailingRun);
@@ -549,20 +551,21 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				public void run()
 				{
 					final ViewState viewState = view.makeViewState(renderer);
-					long now = System.currentTimeMillis();
+					final long now = System.currentTimeMillis();
 					updateWatchers(viewState,now);
 
 					synchronized (this) {
 						trailingHandle = null;
 						trailingRun = null;
 					}
-				}				
+				}
 			};
 			
 			trailingHandle = addDelayedTask(trailingRun,delay);
 		}
 	}
-	
+
+	// Note: Hardwired to 1/10 second.  Lame.
 	public static long UpdatePeriod = 100;
 	
 	// Called when the view updates its information
@@ -572,17 +575,14 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			return;
 
 		final ViewState viewState = view.makeViewState(renderer);
-
-		long now = System.currentTimeMillis();
-
-		// Note: Hardwired to 1/10 second.  Lame.
-		long timeUntil = now - viewUpdateLastCalled;
-		if (timeUntil > UpdatePeriod)
-		{
-			updateWatchers(viewState,now);
-		} else {
-			// Note: Technically, should do the difference here
-			scheduleLateUpdate(UpdatePeriod);
+		if (viewState != null) {
+			final long now = System.currentTimeMillis();
+			final long timeUntil = now - viewUpdateLastCalled;
+			if (timeUntil >= UpdatePeriod) {
+				updateWatchers(viewState, now);
+			} else {
+				scheduleLateUpdate(UpdatePeriod - timeUntil);
+			}
 		}
 	}
 }
