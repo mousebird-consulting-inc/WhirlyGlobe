@@ -10,11 +10,11 @@ BUILT_PRODUCTS_IPHONEOS=`xcodebuild -target WhirlyGlobeMaplyComponent -scheme Wh
 echo iPhoneOS products: $BUILT_PRODUCTS_IPHONEOS
 
 # simulator build disabled for now to stay under CI time limit
-#echo Building for simulator...
-#DEST="platform=iOS Simulator,name=iPad (8th generation)"
+echo Building for simulator...
+DEST="platform=iOS Simulator,name=iPad (8th generation)"
 xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Archive -sdk iphonesimulator -destination "$DEST" OTHER_CFLAGS='-fembed-bitcode' build
 echo Building for iPhoneOS
-xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Archive -sdk iphoneos -DONLY_ACTIVE_ARCH=NO OTHER_CFLAGS='-fembed-bitcode'
+xcodebuild -target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent -configuration Archive -sdk iphoneos -DONLY_ACTIVE_ARCH=NO OTHER_CFLAGS='-fembed-bitcode' build
 
 echo Constructing Framework...
 
