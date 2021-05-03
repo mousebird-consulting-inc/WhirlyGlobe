@@ -785,6 +785,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		return false;
 	}
 
+	// How many contexts have we allocated for temporary work
+	public int numTempContextsCreated = 0;
+
 	// Make a temporary context for use within the base controller.
 	// We expect these to be running on various threads
 	public ContextInfo setupTempContext(RenderController.ThreadMode threadMode)
@@ -818,6 +821,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 									EGL10.EGL_NONE
 							};
 					retContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, surface_attrs);
+					numTempContextsCreated = numTempContextsCreated + 1;
 
 //					Log.d("Maply","Created context + " + retContext.eglContext.toString());
 				} else {
@@ -844,6 +848,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				if (!egl.eglMakeCurrent(renderControl.display, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT))
 				{
 					Log.d("Maply","Failed to clear context");
+					dumpFailureInfo("clearTempContext");
 				}
 				glContexts.add(cInfo);
 			}
@@ -1064,12 +1069,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
         {
             if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
                 Log.d("Maply", "Failed to make current context: " + Integer.toHexString(egl.eglGetError()));
+				dumpFailureInfo("setEGLConstext 1");
                 return false;
             }
 
             return true;
         } else if (renderWrapper != null && renderWrapper.maplyRender != null && renderControl.display != null) {
-			egl.eglMakeCurrent(renderControl.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+			if (!egl.eglMakeCurrent(renderControl.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT)) {
+				dumpFailureInfo("setEGLContext 2");
+			}
 		}
 
         return false;
@@ -1388,11 +1396,12 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			clearTempContext(tempContext);
 
-			if (oldContext != null)
+			if (oldContext != null && tempContext != null)
 			{
 				if (renderWrapper != null)
 					if (!egl.eglMakeCurrent(renderControl.display,oldDrawSurface,oldReadSurface,oldContext))
 					{
+						dumpFailureInfo("addTask oldContext");
 						Log.d("Maply","Failed to set context back to previous context.");
 					}
 			}
@@ -2299,5 +2308,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return false;
 
 		return renderControl.getOfflineMode();
+	}
+
+	public void dumpFailureInfo(String failureLocation) {
+		Log.e("Maply", "Context failure in: " + failureLocation);
+		Log.e("Maply", " Number of worker threads: " + workerThreads.size());
+		Log.e("Maply", " Number of layer threads: " + layerThreads.size());
+		Log.e("Maply", " Number of available contexts: " + glContexts.size());
+		Log.e("Maply", " Number of temp contexts allocated: " + numTempContextsCreated);
 	}
 }
