@@ -498,7 +498,7 @@ GeoCoord GeoMbr::mid() const
     const auto s = pt_ll.y();
     const auto e = pt_ur.x();
     const auto w = pt_ll.x();
-    if (w < e)
+    if (w <= e)
     {
         return { (e + w) / 2, (n + s) / 2 };
     }
