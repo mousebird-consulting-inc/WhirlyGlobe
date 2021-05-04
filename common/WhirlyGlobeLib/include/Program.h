@@ -46,7 +46,7 @@ public:
     virtual bool hasLights() const = 0;
     
     /// Return the name (for tracking purposes)
-    const std::string &getName() const;
+    virtual const std::string &getName() const;
     
     /// Tie a given texture ID to the given slot or nameID (depending on renderer)
     /// We have to set these up each time before drawing

@@ -1,9 +1,8 @@
-/*
- *  ProgramMTL.mm
+/*  ProgramMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <MetalKit/MetalKit.h>
@@ -47,18 +45,19 @@ ProgramMTL::~ProgramMTL()
 {
 }
 
-bool ProgramMTL::isValid()
+bool ProgramMTL::isValid() const
 {
     return valid;
 }
 
-bool ProgramMTL::hasLights()
+bool ProgramMTL::hasLights() const
 {
     // Lights are set up once for the renderer, so this makes no difference
     return true;
 }
 
-bool ProgramMTL::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
+bool ProgramMTL::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated,
+                           const Material *mat, const Eigen::Matrix4f &modelMat) const
 {
     // We don't do lights this way, so it's all good
     return true;
@@ -100,7 +99,7 @@ void ProgramMTL::clearTexture(SimpleIdentity texID)
     changed = true;
 }
 
-const std::string &ProgramMTL::getName()
+const std::string &ProgramMTL::getName() const
 { return name; }
 
 void ProgramMTL::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef inTeardown)
