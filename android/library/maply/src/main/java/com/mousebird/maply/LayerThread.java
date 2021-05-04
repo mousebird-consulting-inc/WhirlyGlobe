@@ -296,7 +296,8 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 		final EGL10 egl = (EGL10) EGLContext.getEGL();
 		if (surface != null) {
-			egl.eglDestroySurface(renderer.display, surface);
+			if (surface != EGL10.EGL_NO_SURFACE)
+				egl.eglDestroySurface(renderer.display, surface);
 			surface = null;
 		}
 		if (context != null) {
