@@ -235,6 +235,14 @@ public:
                 if (bufferA != bufferB)
                     return !bufferA;
             }
+            // Ensure a stable order among items with identical priority and z-buffering
+            const auto idA = a->getId();
+            const auto idB = b->getId();
+            if (idA == idB) {
+                // Different offsets of the same item
+                return (&conA < &conB);
+            }
+            return (idA < idB);
         }
         
         return a->getDrawPriority() < b->getDrawPriority();
