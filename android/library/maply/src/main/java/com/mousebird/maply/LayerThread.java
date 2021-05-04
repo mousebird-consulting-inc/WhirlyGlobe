@@ -269,7 +269,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			valid = false;
 			try {
 				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
-				renderer.dumpFailureInfo("LayerThread shutdown");
 			} catch (Exception ignored) {
 			}
 

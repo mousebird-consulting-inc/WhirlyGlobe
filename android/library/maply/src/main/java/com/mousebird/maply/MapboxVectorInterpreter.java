@@ -224,7 +224,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             for (byte[] data : pbfData) {
                 if (!parser.parseData(data, tileData, loadReturn) || loadReturn.isCanceled()) {
                     if (loadReturn.isCanceled()) {
-                        return;
+                        break;
                     } else {
                         Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
                     }
@@ -240,6 +240,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             loadReturn.mergeChanges(tileData.getChangeSet());
 
             if (loadReturn.isCanceled()) {
+                // We'll lose the component objects if we don't put them in here
+                loadReturn.addComponentObjects(tileData.getComponentObjects());
                 return;
             }
 
@@ -308,15 +310,15 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 regObjs = minusOvls.toArray(new ComponentObject[1]);
             }
 
-            if (loadReturn.isCanceled()) {
-                return;
-            }
-
             // Merge the results into the loadReturn
             if (!ovlObjs.isEmpty()) {
                 loadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[1]));
             }
             loadReturn.addComponentObjects(regObjs);
+
+            if (loadReturn.isCanceled()) {
+                return;
+            }
 
             if (loadReturn instanceof ImageLoaderReturn) {
                 ImageLoaderReturn imgLoadReturn = (ImageLoaderReturn)loadReturn;

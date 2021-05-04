@@ -260,7 +260,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                 }
 
                 clear(samplingLayer);
-                clear(control);
+//                clear(control);
 
                 tileFetcher = null;
             });
@@ -413,6 +413,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         if (loadInterp != null && layer != null && layer.layerThread.startOfWork()) {
             try {
                 theLoadInterp.dataForTile(loadReturn, this);
+
             } finally {
                 layer.layerThread.endOfWork();
             }

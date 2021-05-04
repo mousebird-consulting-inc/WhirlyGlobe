@@ -21,6 +21,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
+import android.os.Handler
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import java.io.File
@@ -108,6 +109,8 @@ class VectorMBTilesTestCase(activity: Activity) : MaplyTestCase(activity, "Vecto
         this.loader = loader
     }
 
+    var count = 0
+
     fun setupFranceVector(control: BaseController) {
         val mbTileFile = getFile("mbtiles", "mbtiles/France.mbtiles", "France.mbtiles")
         val fetcher = MBTileFetcher(control, mbTileFile)
@@ -142,9 +145,11 @@ class VectorMBTilesTestCase(activity: Activity) : MaplyTestCase(activity, "Vecto
 //
 //            val handler = Handler()
 //            handler.postDelayed({
-//                this.setupFranceVector(control)
-//            }, 1000)
-//        }, 500)
+//                count = count + 1
+//                if (count < 2)
+//                    this.setupFranceVector(control)
+//            }, 4000)
+//        }, 1500)
     }
 
     fun setupShapefile(control: BaseController) {
