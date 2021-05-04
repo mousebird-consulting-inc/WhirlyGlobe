@@ -70,29 +70,35 @@ public:
     virtual float calcZbufferRes();
     
     /// Generate the model view matrix for use by OpenGL.  Filled in by subclass.
-    virtual Eigen::Matrix4d calcModelMatrix();
+    virtual Eigen::Matrix4d calcModelMatrix() const;
     
     /// An optional matrix used to calculate where we're looking
     ///  as a second step from where we are
-    virtual Eigen::Matrix4d calcViewMatrix();
+    virtual Eigen::Matrix4d calcViewMatrix() const;
     
     /// Return the combination of model and view matrix
-    virtual Eigen::Matrix4d calcFullMatrix();
+    virtual Eigen::Matrix4d calcFullMatrix() const;
     
     /// Calculate the projection matrix, given the size of the frame buffer
-    virtual Eigen::Matrix4d calcProjectionMatrix(Point2f frameBufferSize,float margin);
+    virtual Eigen::Matrix4d calcProjectionMatrix(Point2f frameBufferSize,float margin) const;
     
     /// Return the nominal height above the surface of the data
-    virtual double heightAboveSurface();
-    
+    virtual double heightAboveSurface() const;
+
+    /// Minimum valid height above plane
+    virtual double minHeightAboveSurface() const { return 0; }
+
+    /// Maximum valid height above plane
+    virtual double maxHeightAboveSurface() const { return 0; }
+
     /// Calculate where the eye is in model coordinates
-    virtual Eigen::Vector3d eyePos();
+    virtual Eigen::Vector3d eyePos() const;
     
     /// Put together one or more offset matrices to express wrapping
-    virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX);
+    virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX) const;
 
     /// If we're wrapping, we may need a non-wrapped coordinate
-    WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt);
+    virtual WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt) const;
     
     /// From a screen point calculate the corresponding point in 3-space
     virtual WhirlyKit::Point3d pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip);
@@ -110,7 +116,7 @@ public:
     double currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude);
     
     /// Return the screen size in display coordinates
-    virtual WhirlyKit::Point2d screenSizeInDisplayCoords(WhirlyKit::Point2f &frameSize);
+    virtual WhirlyKit::Point2d screenSizeInDisplayCoords(const WhirlyKit::Point2f &frameSize);
     
     /// Generate a ViewState corresponding to this view
     virtual ViewStateRef makeViewState(SceneRenderer *renderer) = 0;
