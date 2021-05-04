@@ -359,12 +359,11 @@ Point3d ViewState::pointUnproject(Point2d screenPt,unsigned int frameWidth,unsig
 Point2f ViewState::pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4d modelMat = *transform;
-    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+    const Eigen::Matrix4d modelMat = *transform;
+    const Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     
     // Intersection with near gives us the same plane as the screen
-    Vector3d ray;
-    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
+    Vector3d ray = Point3d(screenPt.x(), screenPt.y(), screenPt.z()) / screenPt.w();
     ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame

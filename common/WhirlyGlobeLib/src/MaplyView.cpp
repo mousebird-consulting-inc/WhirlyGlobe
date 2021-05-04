@@ -249,16 +249,14 @@ Point2f MapView::pointOnScreenFromPlane(const Point3d &inWorldLoc,const Eigen::M
     Point3d worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
     
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4d modelTrans = *transform;
-    Matrix4d modelMat = modelTrans;
-    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
-    screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
-    
+    const Eigen::Matrix4d modelTrans = *transform;
+    const Matrix4d modelMat = modelTrans;
+    const Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+
     // Intersection with near gives us the same plane as the screen 
-    Point3d ray;
-    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
+    Point3d ray = Point3d(screenPt.x(), screenPt.y(), screenPt.z()) / screenPt.w();
     ray *= -nearPlane/ray.z();
-    
+
     // Now we need to scale that to the frame
     Point2d ll,ur;
     double near,far;
