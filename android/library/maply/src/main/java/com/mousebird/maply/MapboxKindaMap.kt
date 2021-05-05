@@ -666,7 +666,7 @@ open class MapboxKindaMap(
     
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
-            theControl.getActivity().runOnUiThread { stop() }
+            theControl.getActivity()?.runOnUiThread { stop() }
 
             return
         }

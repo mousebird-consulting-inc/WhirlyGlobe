@@ -1,9 +1,8 @@
-/*
- *  GlobeView.java
+/*  GlobeView.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/13/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
-import java.util.GregorianCalendar;
+import android.app.Activity;
 
 /**
  * The Globe View handles math related to user position and orientation.
@@ -30,12 +28,8 @@ import java.util.GregorianCalendar;
  */
 public class GlobeView extends View
 {
-	private GlobeView()
-	{
-	}
-
-	GlobeController control = null;
-	double lastUpdated = 0.0;
+	final GlobeController control;
+	//double lastUpdated = 0.0;
 
 	GlobeView(GlobeController inControl,CoordSystemDisplayAdapter inCoordAdapter)
 	{
@@ -70,7 +64,7 @@ public class GlobeView extends View
 	interface AnimationDelegate
 	{
 		// Called to update the view every frame
-		public void updateView(GlobeView view);
+		void updateView(GlobeView view);
 	}
 	
 	AnimationDelegate animationDelegate = null;
@@ -87,14 +81,11 @@ public class GlobeView extends View
 	{
 		animationDelegate = null;
 
-		control.activity.runOnUiThread(
-				new Runnable() {
-					@Override
-					public void run() {
-						control.handleStopMoving(false);
-					}
-				}
-		);
+		GlobeController theControl = control;
+		Activity activity = (theControl != null) ? theControl.getActivity() : null;
+		if (activity != null) {
+			activity.runOnUiThread(() -> theControl.handleStopMoving(false));
+		}
 	}
 	
 	// Called on the rendering thread right before we render
@@ -114,10 +105,7 @@ public class GlobeView extends View
 	@Override
 	public boolean isAnimating()
 	{
-		if (animationDelegate != null)
-			return true;
-
-		return false;
+		return animationDelegate != null;
 	}
 	
 	/**

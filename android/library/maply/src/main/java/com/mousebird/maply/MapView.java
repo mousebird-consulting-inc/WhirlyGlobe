@@ -1,9 +1,8 @@
-/*
- *  MapView.java
+/*  MapView.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
+
+import android.app.Activity;
 
 import java.lang.ref.WeakReference;
 
@@ -32,14 +32,15 @@ public class MapView extends View
 {	
 	protected MapView()
 	{
+		control = new WeakReference<>(null);
 	}
 
-	WeakReference<MapController> control;
-	double lastUpdated = 0.0;
+	protected final WeakReference<MapController> control;
+	//double lastUpdated = 0.0;
 	
 	MapView(MapController inControl,CoordSystemDisplayAdapter inCoordAdapter)
 	{
-		control = new WeakReference<MapController>(inControl);
+		control = new WeakReference<>(inControl);
 		coordAdapter = inCoordAdapter;
 		initialise(coordAdapter);
 	}
@@ -70,7 +71,7 @@ public class MapView extends View
 	interface AnimationDelegate
 	{
 		// Called to update the view every frame
-		public void updateView(MapView view);
+		void updateView(MapView view);
 	}
 	
 	AnimationDelegate animationDelegate = null;
@@ -92,16 +93,16 @@ public class MapView extends View
 			animationDelegate = null;
 		}
 
-		if (control.get() != null)
-			control.get().activity.runOnUiThread(
-					new Runnable() {
-						@Override
-						public void run() {
-							if (control.get() != null)
-								control.get().handleStopMoving(false);
-						}
-					}
-			);
+		MapController theControl = control.get();
+		Activity activity = (theControl != null) ? theControl.getActivity() : null;
+		if (activity != null) {
+			activity.runOnUiThread(() -> {
+				MapController theControl2 = control.get();
+				if (theControl2 != null) {
+					theControl2.handleStopMoving(false);
+				}
+			});
+		}
 	}
 	
 	// Called on the rendering thread right before we render

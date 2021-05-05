@@ -36,10 +36,10 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -69,12 +69,13 @@ import okhttp3.Response;
  * @author sjg
  *
  */
+@SuppressWarnings({"unused","UnusedReturnValue","RedundantSuppression"})
 public class BaseController implements RenderController.TaskManager, RenderControllerInterface
 {
 	// This may be a GLSurfaceView or a GLTextureView
 	protected @Nullable View baseView = null;
 
-	public @Nullable Activity activity;
+	private final @NotNull WeakReference<Activity> weakActivity;
     public @Nullable OkHttpClient httpClient;
 
 	/**
@@ -143,7 +144,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				surfaceView = (GLSurfaceView) baseView;
 			}
 
-			this.renderWrapper.takeScreenshot(listener, surfaceView);
+			RendererWrapper wrapper = renderWrapper;
+			if (wrapper != null) {
+				wrapper.takeScreenshot(listener, surfaceView);
+			}
 		}
 	}
 
@@ -159,16 +163,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// we may send its way
 			Dispatcher dispatch = httpClient.dispatcher();
 			try {
-				if (dispatch != null) {
-					ExecutorService service = dispatch.executorService();
-					if (service != null) {
-						ThreadPoolExecutor exec = (ThreadPoolExecutor) service;
-						exec.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
-					}
-				}
-			}
-			catch (Exception e)
-			{
+				ExecutorService service = dispatch.executorService();
+				ThreadPoolExecutor exec = (ThreadPoolExecutor) service;
+				exec.setRejectedExecutionHandler(new ThreadPoolExecutor.DiscardPolicy());
+			} catch (Exception e) {
 				Log.e("Maply","OkHttp discard policy change no longer working.");
 			}
 		}
@@ -205,8 +203,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * in Kotlin.
 	 */
 	public void addMainThreadTask(Runnable run) {
-		Handler handler = new Handler(activity.getMainLooper());
-		handler.post(run);
+		newMainLooperHandler().post(run);
 	}
 
 	/**
@@ -216,14 +213,20 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * in Kotlin.
 	 */
 	public void addMainThreadTaskAfter(double when,Runnable run) {
-		Handler handler = new Handler(activity.getMainLooper());
-		handler.postDelayed(run, (long)(when * 1000.0));
+		newMainLooperHandler().postDelayed(run, (long)(when * 1000.0));
 	}
 
 	/**
 	 * Activity for the whole app.
      */
-	public Activity getActivity() { return activity; }
+	@Nullable
+	public Activity getActivity() {
+		Activity activity = weakActivity.get();
+		if (activity == null && running) {
+			Log.w("Maply", "Activity destroyed, " + getClass().getSimpleName() + " not shut down");
+		}
+		return activity;
+	}
 
 	/**
 	 * Returns a layer thread you can do whatever you like on.  You don't have
@@ -233,9 +236,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public LayerThread getWorkingThread()
 	{
-		if (workerThreads == null)
-			return null;
-
 		synchronized (workerThreads) {
 			// The first one is for use by the toolkit
 			int numAvailable = workerThreads.size();
@@ -347,8 +347,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mainActivity Your main activity that we'll attach ourselves to.
 	 * @param settings The controller settings
 	 */
-	public BaseController(@Nullable Activity mainActivity,Settings settings)
+	public BaseController(@NotNull Activity mainActivity,@Nullable Settings settings)
 	{
+		weakActivity = new WeakReference<>(mainActivity);
+
 		// Note: Can't pull this one in anymore in Android Studio.  Hopefully not still necessary
 //		System.loadLibrary("gnustl_shared");
 		if (settings != null && settings.loadLibraryName != null)
@@ -376,7 +378,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			new VectorObject()
 		};
 
-		activity = mainActivity;
 		if (settings != null) {
 			useTextureView = !settings.useSurfaceView;
 			numWorkingThreads = settings.numWorkingThreads;
@@ -410,7 +411,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		synchronized (layerThreads) {
 			layerThreads.add(layerThread);
 		}
-		
+
+		Activity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
         ActivityManager activityManager = (ActivityManager) activity.getSystemService(Context.ACTIVITY_SERVICE);
         ConfigurationInfo configurationInfo = activityManager.getDeviceConfigurationInfo();
 
@@ -475,8 +480,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
         } else {
         	Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
         	return;
-        }   
-        
+        }
+
 		running = true;
 
 		startAnalytics();
@@ -485,6 +490,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// Kick off the analytics logic.
 	private void startAnalytics()
 	{
+		Activity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
+
 		SharedPreferences prefs = activity.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
 
 		// USER ID is a random string.  Only used for deconfliction.  No unique information here.
@@ -523,15 +533,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					"{ \"userid\":\"%s\", \"bundleid\":\"%s\", \"bundlename\":\"%s\", \"bundlebuild\":\"%s\", \"bundleversion\":\"%s\", \"osversion\":\"%s\", \"model\":\"%s\", \"wgmaplyversion\":\"%s\" }",
 					userID, bundleID, bundleName, bundleBuild, bundleVersion, osversion, model, wgMaplyVersion);
 
-			RequestBody body = RequestBody.create(MediaType.parse("application/json"),json);
-			if (body == null)
-				return;
 			Request request = new Request.Builder()
 					.url("http://analytics.mousebirdconsulting.com:8081/register")
-					.post(body)
+					.post(RequestBody.create(json, MediaType.parse("application/json")))
 					.build();
-			if (request == null)
-				return;
 
 			OkHttpClient client = new OkHttpClient();
 			client.newCall(request).enqueue(new Callback() {
@@ -541,9 +546,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 				@Override
 				public void onResponse(@NotNull Call call, @NotNull Response response) {
+					Activity activity2 = getActivity();
 					// We got a response, so save that in prefs
-					if (activity != null) {
-						SharedPreferences prefs = activity.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
+					if (activity2 != null) {
+						SharedPreferences prefs = activity2.getSharedPreferences("WGMaplyPrefs", Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
 						editor.putLong("wgmaplyanalytictime2", now);
 						editor.apply();
@@ -606,10 +612,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * display space.  For the globe, display space is based on a radius of 1.0.
 	 */
 
+	@Nullable
 	public Point3d displayCoord (Point3d localCoord, CoordSystem fromSystem)
 	{
-		Point3d loc3d = CoordSystem.CoordSystemConvert3d(fromSystem, coordAdapter.getCoordSystem(), localCoord);
-		return coordAdapter.localToDisplay(loc3d);
+		CoordSystemDisplayAdapter adapter = coordAdapter;
+		CoordSystem coordSystem = (adapter != null) ? adapter.getCoordSystem() : null;
+		Point3d loc3d = (fromSystem != null && coordSystem != null && localCoord != null) ?
+				CoordSystem.CoordSystemConvert3d(fromSystem, coordSystem, localCoord) : null;
+		return (loc3d != null) ? coordAdapter.localToDisplay(loc3d) : null;
 	}
 
 	/**
@@ -663,18 +673,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				sampleLayer.isShuttingDown = true;
 
 			//		Choreographer.getInstance().removeFrameCallback(this);
-			ArrayList<LayerThread> layerThreadsToRemove = new ArrayList<>();
-			if (layerThreads != null) {
-				synchronized (layerThreads) {
-					layerThreadsToRemove.addAll(layerThreads);
-					layerThreads.clear();
-				}
+			ArrayList<LayerThread> layerThreadsToRemove;
+			synchronized (layerThreads) {
+				layerThreadsToRemove = new ArrayList<>(layerThreads);
+				layerThreads.clear();
 			}
-			if (workerThreads != null) {
-				synchronized (workerThreads) {
-					layerThreadsToRemove.addAll(workerThreads);
-					workerThreads.clear();
-				}
+			synchronized (workerThreads) {
+				layerThreadsToRemove.addAll(workerThreads);
+				workerThreads.clear();
 			}
 			for (LayerThread layerThread : layerThreadsToRemove)
 				layerThread.shutdown();
@@ -733,8 +739,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			if (httpClient != null)
 			{
-				if (httpClient.dispatcher() != null && httpClient.dispatcher().executorService() != null)
+				try {
 					httpClient.dispatcher().executorService().shutdown();
+				} catch (Exception ignored) {
+				}
 				// Note: This code can't be run on the main thread, but now is not the time
 				//       to be spinning up an AsyncTask, so we just hope for the best
 //				if (httpClient.connectionPool() != null) {
@@ -748,8 +756,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			coordAdapter = null;
 			scene = null;
 			view = null;
-
-			activity = null;
 			tempBackground = null;
 		}
 	}
@@ -769,7 +775,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// Are we on the GL rendering thread
 	boolean isOnGLThread()
 	{
-		return Thread.currentThread() == renderWrapper.renderThread;
+		RendererWrapper wrapper = renderWrapper;
+		return wrapper != null && Thread.currentThread() == wrapper.renderThread;
 	}
 
 	// Are we are on one of our known layer threads?
@@ -879,8 +886,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				postSurfaceRunnables.add(run);
 		}
 		if (runNow) {
-			Handler handler = new Handler(activity.getMainLooper());
-			handler.post(run);
+			newMainLooperHandler().post(run);
 		}
     }
 
@@ -898,8 +904,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				postSurfaceRunnables.add(run);
 		}
 		if (runNow) {
-			Handler handler = new Handler(activity.getMainLooper());
-			handler.postDelayed(run,delayMillisec);
+			newMainLooperHandler().postDelayed(run,delayMillisec);
 		}
 	}
 
@@ -950,6 +955,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			if (startupAborted)
 				return;
 
+			Activity activity = getActivity();
+			if (activity == null) {
+				return;
+			}
+
 			synchronized (layerThreads) {
 				// Kick off the layer thread for background operations
 				for (LayerThread layerThread : layerThreads)
@@ -988,8 +998,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// Run any outstanding runnables
 			if (surfaceTasks != null) {
 				for (Runnable run : surfaceTasks) {
-					Handler handler = new Handler(activity.getMainLooper());
-					handler.post(run);
+					newMainLooperHandler().post(run);
 				}
 				surfaceTasks.clear();
 				surfaceTasks = null;
@@ -998,7 +1007,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			if (baseView instanceof GLSurfaceView) {
 				GLSurfaceView glSurfaceView = (GLSurfaceView) baseView;
 				glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-			} else {
+			} else if (baseView instanceof GLTextureView) {
 				GLTextureView glTextureView = (GLTextureView) baseView;
 				glTextureView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 			}
@@ -1142,15 +1151,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param outX X point on screen.  MAXFLOAT if this is behind the globe.
 	 * @param outY Y point on screen.  MAXFLOAT if this is behind the globe.
 	 */
-	public boolean screenPointFromGeoBatch(double[] inX,double[] inY,double[] inZ,double[] outX,double[] outY)
+	public boolean screenPointFromGeoBatch(double[] inX, double[] inY, double[] inZ, double[] outX, double[] outY)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null ||
+				renderControl == null || renderControl.frameSize == null) {
 			return false;
+		}
 
 		final Point2d frameSize = renderControl.frameSize;
 
-		return coordAdapter.screenPointFromGeoBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
-				inX,inY,inZ,outX,outY);
+		CoordSystemDisplayAdapter adapter = coordAdapter;
+		return adapter != null && adapter.screenPointFromGeoBatch(view,
+				(int)frameSize.getX(),(int)frameSize.getY(), inX,inY,inZ,outX,outY);
 	}
 
 	/**
@@ -1160,13 +1172,16 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public boolean geoPointFromScreenBatch(double[] inX,double[] inY,double[] outX,double[] outY)
 	{
-		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
+		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null ||
+				renderControl == null || renderControl.frameSize == null) {
 			return false;
+		}
 
 		final Point2d frameSize = renderControl.frameSize;
 
-		return coordAdapter.geoPointFromScreenBatch(view,(int)frameSize.getX(),(int)frameSize.getY(),
-				inX,inY,outX,outY);
+		CoordSystemDisplayAdapter adapter = coordAdapter;
+		return adapter != null && adapter.geoPointFromScreenBatch(view,
+				(int)frameSize.getX(),(int)frameSize.getY(), inX,inY,outX,outY);
 	}
 
 	private int perfInterval = 0;
@@ -1328,8 +1343,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// Get rid of the sampling layer too
 			if (samplingLayer.getNumClients() == 0) {
 				// But that has to be done on the main thread
-				if (samplingLayer.control.get() != null) {
-					Handler handler = new Handler(samplingLayer.control.get().activity.getMainLooper());
+				BaseController control = samplingLayer.control.get();
+				if (control != null) {
+					Activity activity = control.getActivity();
+					Looper looper = (activity != null) ? activity.getMainLooper() : null;
+					Handler handler = new Handler((looper != null) ? looper : Looper.getMainLooper());
 					handler.post(() -> {
 						// Someone maybe started using it
 						if (samplingLayer.getNumClients() == 0) {
@@ -1715,8 +1733,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// Returns all the objects near a point
 	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
 	{
-		if (renderWrapper == null)
+		com.mousebird.maply.View theView = view;
+		if (renderWrapper == null || theView == null) {
 			return null;
+		}
 
 		Point2d viewSize = getViewSize();
 		Point2d frameSize = renderControl.frameSize;
@@ -1724,17 +1744,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
 		// Ask the selection manager
-		ViewState theViewState = view.makeViewState(renderControl);
+		ViewState theViewState = theView.makeViewState(renderControl);
 		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState, frameLoc);
 		if (selManObjs != null)
 			renderControl.componentManager.remapSelectableObjects(selManObjs);
 		theViewState.dispose();
 
 		Point2d geoPt = geoPointFromScreen(screenLoc);
-		if (geoPt == null)
-			return null;
-
-		return selManObjs;
+		return (geoPt != null) ? selManObjs : null;
 	}
 
 	/**
@@ -1744,15 +1761,17 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	protected Object getObjectAtScreenLoc(Point2d screenLoc)
 	{
-		if (renderWrapper == null)
+		com.mousebird.maply.View theView = view;
+		if (renderWrapper == null || theView == null) {
 			return null;
+		}
 
 		Point2d viewSize = getViewSize();
 		Point2d frameSize = renderControl.frameSize;
 		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		long selectID = renderControl.selectionManager.pickObject(view.makeViewState(renderControl), frameLoc);
+		long selectID = renderControl.selectionManager.pickObject(theView.makeViewState(renderControl), frameLoc);
 		if (selectID != RenderController.EmptyIdentity)
 		{
 			return renderControl.componentManager.findObjectForSelectID(selectID);
@@ -2304,10 +2323,17 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * Never going to be true for this.
 	 */
 	public boolean getOfflineMode() {
-		if (renderControl != null)
-			return false;
+		RenderController rc = renderControl;
+		return rc != null && rc.getOfflineMode();
+	}
 
-		return renderControl.getOfflineMode();
+	private Looper getMainLooper() {
+		Activity act = getActivity();
+		Looper looper = (act != null) ? act.getMainLooper() : null;
+		return (looper != null) ? looper : Looper.getMainLooper();
+	}
+	private Handler newMainLooperHandler() {
+		return new Handler(getMainLooper());
 	}
 
 	public void dumpFailureInfo(String failureLocation) {
