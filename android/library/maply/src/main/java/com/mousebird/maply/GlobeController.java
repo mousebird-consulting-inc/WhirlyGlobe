@@ -24,6 +24,10 @@ import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 /**
@@ -40,6 +44,7 @@ import java.util.List;
  * @author sjg
  *
  */
+@SuppressWarnings({"unused","UnusedReturnValue","RedundantSuppression"})
 public class GlobeController extends BaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
 	/**
@@ -54,22 +59,22 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		public int clearColor = Color.BLACK;
 	}
 
-	public GlobeController(Activity mainActivity,Settings settings)
+	public GlobeController(@NotNull Activity mainActivity, @Nullable Settings settings)
 	{
-		super(mainActivity,settings);
+		super(mainActivity, settings);
 
-		Init(mainActivity,settings.clearColor);
+		final int clearColor = ((settings != null) ? settings : new Settings()).clearColor;
+		Init(clearColor);
 	}
-	Settings defaultSettings = new Settings();
 
-	public GlobeController(Activity mainActivity)
+	public GlobeController(@NotNull Activity mainActivity)
 	{
 		super(mainActivity,null);
 
-		Init(mainActivity,renderControl.clearColor);
+		Init(renderControl.clearColor);
 	}
 
-	protected void Init(Activity mainActivity,int clearColor)
+	protected void Init(int clearColor)
 	{
 		// Need a coordinate system to display conversion
 		// For now this just sets up spherical mercator
@@ -93,12 +98,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		}
 
 		// Set up some basic lights after we've started
-		this.addPostSurfaceRunnable(new Runnable() {
-			@Override
-			public void run() {
-				resetLights();
-			}
-		});
+		this.addPostSurfaceRunnable(this::resetLights);
 	}
 	
 	@Override public void shutdown()
@@ -206,10 +206,15 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	public Point2d geoPointFromScreen(Point2d screenPt)
 	{
 		CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		CoordSystem coordSys = (coordAdapter != null) ? coordAdapter.getCoordSystem() : null;
+		RendererWrapper wrapper = renderWrapper;
+		RenderController render = (renderWrapper != null) ? renderWrapper.maplyRender.get() : null;
+		if (coordSys == null || render == null) {
+			return null;
+		}
 
 		Matrix4d modelMat = globeView.calcModelViewMatrix();
-		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.get().frameSize, false);
+		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, render.frameSize, false);
 		if (dispPt == null)
 			return null;
 		Point3d localPt = coordAdapter.displayToLocal(dispPt);
@@ -231,12 +236,15 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	public Point3d modelPointFromScreen(Point2d screenPt)
 	{
 		CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-		CoordSystem coordSys = coordAdapter.getCoordSystem();
+		CoordSystem coordSys = (coordAdapter != null) ? coordAdapter.getCoordSystem() : null;
+		RendererWrapper wrapper = renderWrapper;
+		RenderController render = (renderWrapper != null) ? renderWrapper.maplyRender.get() : null;
+		if (coordSys == null || render == null) {
+			return null;
+		}
 
 		Matrix4d modelMat = globeView.calcModelViewMatrix();
-		Point3d dispPt = globeView.pointOnSphereFromScreen(screenPt, modelMat, renderWrapper.maplyRender.get().frameSize, false);
-
-		return dispPt;
+		return globeView.pointOnSphereFromScreen(screenPt, modelMat, render.frameSize, false);
 	}
 
 	
@@ -245,9 +253,15 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 */
 	public Mbr getCurrentViewGeo()
 	{
+		RendererWrapper wrapper = renderWrapper;
+		RenderController render = (renderWrapper != null) ? renderWrapper.maplyRender.get() : null;
+		if (render == null) {
+			return null;
+		}
+
 		Mbr geoMbr = new Mbr();
 
-		Point2d frameSize = renderWrapper.maplyRender.get().frameSize;
+		Point2d frameSize = render.frameSize;
 		Point2d pt = geoPointFromScreen(new Point2d(0,0));
 		if (pt == null) return null;
 		geoMbr.addPoint(pt);
@@ -309,12 +323,18 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 	boolean checkCoverage(final Mbr mbr,final GlobeView theGlobeView,final double height)
 	{
+		RendererWrapper wrapper = renderWrapper;
+		RenderController render = (renderWrapper != null) ? renderWrapper.maplyRender.get() : null;
+		if (render == null) {
+			return false;
+		}
+
 		final Point2d centerLoc = mbr.middle();
 		final Point3d localCoord = theGlobeView.coordAdapter.coordSys.geographicToLocal(new Point3d(centerLoc.getX(),centerLoc.getY(),0.0));
 		theGlobeView.setLoc(new Point3d(localCoord.getX(),localCoord.getY(),height));
 
 		List<Point2d> pts = mbr.asPoints();
-		Point2d frameSize = renderWrapper.maplyRender.get().frameSize;
+		Point2d frameSize = render.frameSize;
 		for (Point2d pt : pts)
 		{
 			Point2d screenPt = screenPointFromGeo(theGlobeView,pt);
@@ -356,8 +376,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 		// Do a binary search between the two heights
 		final double minRange = 1e-5;
-		while (minRange < maxHeight - minHeight)
-		{
+		while (minRange < maxHeight - minHeight) {
 			final double midHeight = (minHeight + maxHeight)/2.0;
 			if (checkCoverage(mbr,newGlobeView,midHeight)) {
 				maxHeight = midHeight;
@@ -381,27 +400,27 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		if (!running || view == null || renderWrapper == null || renderWrapper.maplyRender == null || renderControl.frameSize == null)
 			return size;
 
-		int[] frameSizeInt = getFrameBufferSize();
-		Point2d frameSize = new Point2d((double)frameSizeInt[0],(double)frameSizeInt[1]);
-		Point2d screenPt[] = new Point2d[3];
-		screenPt[0] = new Point2d(pt0.getX(),pt0.getY());
-		screenPt[1] = new Point2d(pt1.getX(),pt0.getY());
-		screenPt[2] = new Point2d(pt0.getX(),pt1.getY());
-		Point3d hits[] = new Point3d[3];
+		final int[] frameSizeInt = getFrameBufferSize();
+		final Point2d frameSize = new Point2d((double)frameSizeInt[0],(double)frameSizeInt[1]);
+		final Point2d[] screenPt = new Point2d[]{
+			new Point2d(pt0.getX(), pt0.getY()),
+			new Point2d(pt1.getX(), pt0.getY()),
+			new Point2d(pt0.getX(), pt1.getY()),
+		};
+		Point3d[] hits = new Point3d[3];
 		for (int ii=0;ii<3;ii++) {
-			Matrix4d transform = globeView.calcModelViewMatrix();
-			Point3d hit = globeView.pointOnSphereFromScreen(screenPt[ii], transform, frameSize, true);
+			final Matrix4d transform = globeView.calcModelViewMatrix();
+			final Point3d hit = globeView.pointOnSphereFromScreen(screenPt[ii], transform, frameSize, true);
 			if (hit == null)
 				return size;
 			hit.normalize();
 			hits[ii] = hit;
 		}
 
-		double da = hits[1].subtract(hits[0]).norm() * EarthRadius;
-		double db = hits[2].subtract(hits[0]).norm() * EarthRadius;
+		final double da = hits[1].subtract(hits[0]).norm() * EarthRadius;
+		final double db = hits[2].subtract(hits[0]).norm() * EarthRadius;
 
 		size.setValue(da,db);
-
 		return size;
 	}
 
@@ -409,7 +428,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * This encapulates the entire view state.  You can replicate all visual parameters with
 	 * set set of values.
 	 */
-	public class ViewState
+	public static class ViewState
 	{
 		/**
 		 * Heading from due north.  A value of MAX_VALUE means don't set it.
@@ -452,8 +471,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 		Point3d newPos = globeView.getLoc();
 		if (viewState.pos != null) {
-			Point3d localCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(viewState.pos.getX(), viewState.pos.getY(), 0.0));
-			newPos = localCoord;
+			newPos = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(viewState.pos.getX(), viewState.pos.getY(), 0.0));
 		}
 
 		double newHeight = globeView.getHeight();
@@ -706,7 +724,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 			Point3d northPole = newRotQuat.multiply(new Point3d(0,0,1)).normalized();
 			if (northPole.getY() != 0.0) {
 				// Not straight up, rotate it back to vertical.
-				Double angle = Math.atan(northPole.getX() / northPole.getY()) + ((northPole.getY() < 0) ? Math.PI : 0);
+				final double angle = Math.atan(northPole.getX() / northPole.getY()) + ((northPole.getY() < 0) ? Math.PI : 0);
 				newRotQuat = newRotQuat.multiply(new AngleAxis(angle, destPt));
 			}
 		}
@@ -790,7 +808,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		 * @param loc The location they tapped on.  This is in radians.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-        public void userDidSelect(GlobeController globeControl,SelectedObject selObjs[],Point2d loc,Point2d screenLoc);
+		void userDidSelect(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc);
 		
 		/**
 		 * The user tapped somewhere, but not on a selectable object.
@@ -799,7 +817,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		 * @param loc The location they tapped on.  This is in radians.  If null, then the user tapped outside the globe.
 		 * @param screenLoc The location on the OpenGL surface.
 		 */
-        public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc);
+		void userDidTap(GlobeController globeControl, Point2d loc, Point2d screenLoc);
 
 		/**
 		 * The user tapped outside of the globe.
@@ -807,7 +825,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		 * @param globeControl The maply controller this is associated with.
 		 * @param screenLoc The location on the OpenGL surface.
          */
-		public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc);
+		void userDidTapOutside(GlobeController globeControl, Point2d screenLoc);
 
 		/**
 		 * The user did long press somewhere, there might be an object
@@ -816,7 +834,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		 * @param loc The location they tapped on.  This is in radians.  If null, then the user tapped outside the globe.
          * @param screenLoc The location on the OpenGL surface.
          */
-        public void userDidLongPress(GlobeController globeControl, SelectedObject selObjs[], Point2d loc, Point2d screenLoc);
+		void userDidLongPress(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc);
 
         /**
          * Called when the globe first starts moving.
@@ -824,7 +842,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
          * @param globeControl The globe controller this is associated with.
          * @param userMotion Set if the motion was caused by a gesture.
          */
-        public void globeDidStartMoving(GlobeController globeControl, boolean userMotion);
+		void globeDidStartMoving(GlobeController globeControl, boolean userMotion);
 
         /**
          * Called when the globe stops moving.
@@ -833,7 +851,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
          * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land on the globe.
          * @param userMotion Set if the motion was caused by a gesture.
          */
-        public void globeDidStopMoving(GlobeController globeControl, Point3d corners[], boolean userMotion);
+		void globeDidStopMoving(GlobeController globeControl, Point3d[] corners, boolean userMotion);
 
 		/**
 		 * Called for every single visible frame of movement.  Be careful what you do in here.
@@ -842,7 +860,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		 * @param corners Corners of the viewport.  If one of them is null, that means it doesn't land on the globe.
 		 * @param userMotion Set if the motion was caused by a gesture.
          */
-		public void globeDidMove(GlobeController globeControl,Point3d corners[], boolean userMotion);
+		void globeDidMove(GlobeController globeControl, Point3d[] corners, boolean userMotion);
 	}
 
 	/**
@@ -870,7 +888,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 				geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
 
 //			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
+			SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
 
 			if (selObjs != null)
 			{
@@ -886,27 +904,27 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 
 	/**
-	 * Set the gesture delegate to fire callbacks when the user did long press somwhere
-	 * @param screenLoc
+	 * Set the gesture delegate to fire callbacks when the user did long press somewhere
+	 * @param screenLoc Screen point of the press
      */
     public void processLongPress(Point2d screenLoc)
 	{
 		if (!isCompletelySetup())
 			return;
 
-		Matrix4d globeTransform = globeView.calcModelViewMatrix();
-		Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderControl.frameSize, false);
-		if (loc == null)
+		final Matrix4d globeTransform = globeView.calcModelViewMatrix();
+		final Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderControl.frameSize, false);
+		if (loc == null) {
 			return;
-		Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
-		Point3d geoPt = null;
-		if (localPt != null)
-			geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
+		}
+		final Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
+		final Point3d geoPt = (localPt != null) ? globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt) : null;
 
 		if (gestureDelegate != null)
 		{
-			SelectedObject selObjs[] = this.getObjectsAtScreenLoc(screenLoc);
-			gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
+			final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
+			final Point2d pt2d = (geoPt != null) ? geoPt.toPoint2d() : null;
+			gestureDelegate.userDidLongPress(this, selObjs, pt2d, screenLoc);
 
 		}
 
@@ -972,7 +990,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 		if (gestureDelegate != null)
 		{
-			Point3d corners[] = getVisibleCorners();
+			Point3d[] corners = getVisibleCorners();
 			gestureDelegate.globeDidStopMoving(this,corners,userMotion);
 		}
 	}
@@ -986,7 +1004,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		if (globeView != null) {
 			double newUpdateTime = globeView.getLastUpdatedTime();
 			if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
-				Point3d corners[] = getVisibleCorners();
+				Point3d[] corners = getVisibleCorners();
 				gestureDelegate.globeDidMove(this, corners, false);
 				lastViewUpdate = newUpdateTime;
 			}
@@ -1003,35 +1021,36 @@ public class GlobeController extends BaseController implements View.OnTouchListe
     /**
 	 * Calculate visible corners for what's currently being seen.
 	 * If the eye point is too high, expect null corners.
-	 * @return
+	 * @return Array of points representing the corners, in clockwise order, or null on error.
      */
     public Point3d[] getVisibleCorners()
     {
 		if (!isCompletelySetup())
 			return null;
 
-        Point2d screenCorners[] = new Point2d[4];
-        Point2d frameSize = renderControl.frameSize;
-        screenCorners[0] = new Point2d(0.0, 0.0);
-        screenCorners[1] = new Point2d(frameSize.getX(), 0.0);
-        screenCorners[2] = new Point2d(frameSize.getX(), frameSize.getY());
-        screenCorners[3] = new Point2d(0.0, frameSize.getY());
+		final Point2d frameSize = renderControl.frameSize;
+		final Point2d[] screenCorners = new Point2d[]{
+			new Point2d(0.0, 0.0),
+			new Point2d(frameSize.getX(), 0.0),
+			new Point2d(frameSize.getX(), frameSize.getY()),
+			new Point2d(0.0, frameSize.getY()),
+        };
 
-        Matrix4d modelMat = globeView.calcModelViewMatrix();
+        final Matrix4d modelMat = globeView.calcModelViewMatrix();
+		final Point3d[] retCorners = new Point3d[4];
+		final CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
+		final CoordSystem coordSys = (coordAdapter != null) ? coordAdapter.getCoordSystem() : null;
+        if (coordSys == null || renderWrapper == null ||
+				renderWrapper.maplyRender == null || renderControl.frameSize == null) {
+			return retCorners;
+		}
 
-        Point3d retCorners[] = new Point3d[4];
-        CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-        if (coordAdapter == null || renderWrapper == null || renderWrapper.maplyRender == null ||
-				renderControl.frameSize == null)
-            return retCorners;
-        CoordSystem coordSys = coordAdapter.getCoordSystem();
-        if (coordSys == null)
-            return retCorners;
         for (int ii=0;ii<4;ii++)
         {
-            Point3d globePt = globeView.pointOnSphereFromScreen(screenCorners[ii],modelMat,frameSize,false);
-            if (globePt != null)
-                retCorners[ii] = coordSys.localToGeographic(coordAdapter.displayToLocal(globePt));
+            final Point3d globePt = globeView.pointOnSphereFromScreen(screenCorners[ii],modelMat,frameSize,false);
+            if (globePt != null) {
+				retCorners[ii] = coordSys.localToGeographic(coordAdapter.displayToLocal(globePt));
+			}
         }
 
         return retCorners;
