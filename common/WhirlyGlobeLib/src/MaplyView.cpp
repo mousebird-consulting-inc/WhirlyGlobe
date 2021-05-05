@@ -64,7 +64,7 @@ float MapView::calcZbufferRes()
     return delta;
 }
 
-Eigen::Matrix4d MapView::calcModelMatrix()
+Eigen::Matrix4d MapView::calcModelMatrix() const
 {
     Point3d scale = coordAdapter->getScale();
     Eigen::Affine3d trans(Eigen::Translation3d(-loc.x()*scale.x(),-loc.y()*scale.y(),-loc.z()*scale.z()));
@@ -73,13 +73,13 @@ Eigen::Matrix4d MapView::calcModelMatrix()
     return trans.matrix();
 }
 
-Eigen::Matrix4d MapView::calcViewMatrix()
+Eigen::Matrix4d MapView::calcViewMatrix() const
 {
     Eigen::Affine3d rot(Eigen::AngleAxisd(-rotAngle, Vector3d::UnitZ()).toRotationMatrix());
     return rot.matrix();
 }
 
-void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX)
+void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
 {
     Point3d scale = coordAdapter->getScale();
     
@@ -136,7 +136,7 @@ void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,con
     }
 }
 
-WhirlyKit::Point2f MapView::unwrapCoordinate(const WhirlyKit::Point2f &inPt)
+WhirlyKit::Point2f MapView::unwrapCoordinate(const WhirlyKit::Point2f &inPt) const
 {
     Point2f pt = inPt;
     
@@ -157,12 +157,12 @@ WhirlyKit::Point2f MapView::unwrapCoordinate(const WhirlyKit::Point2f &inPt)
     return pt;
 }
 
-double MapView::heightAboveSurface()
+double MapView::heightAboveSurface() const
 {
     return loc.z();
 }
 
-double MapView::minHeightAboveSurface()
+double MapView::minHeightAboveSurface() const
 {
     if (continuousZoom)
         return absoluteMinHeight;
@@ -170,7 +170,7 @@ double MapView::minHeightAboveSurface()
         return 1.01*nearPlane;
 }
 
-double MapView::maxHeightAboveSurface()
+double MapView::maxHeightAboveSurface() const
 {
     return defaultFarPlane - 1.0;
 }
@@ -212,7 +212,7 @@ void MapView::setRotAngle(double newRotAngle,bool runUpdates)
         runViewUpdates();
 }
 
-Eigen::Matrix4d MapView::calcFullMatrix()
+Eigen::Matrix4d MapView::calcFullMatrix() const
 {
     return calcViewMatrix() * calcModelMatrix();
 }
@@ -246,35 +246,28 @@ bool MapView::pointOnPlaneFromScreen(Point2f pt,const Eigen::Matrix4d *transform
 
 Point2f MapView::pointOnScreenFromPlane(const Point3d &inWorldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
-    Point3d worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
+    const Point3d worldLoc(inWorldLoc.x(),inWorldLoc.y(),inWorldLoc.z());
     
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4d modelTrans = *transform;
-    Matrix4d modelMat = modelTrans;
-    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
-    screenPt.x() /= screenPt.w();  screenPt.y() /= screenPt.w();  screenPt.z() /= screenPt.w();
-    
+    const Eigen::Matrix4d modelTrans = *transform;
+    const Matrix4d modelMat = modelTrans;
+    const Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+
     // Intersection with near gives us the same plane as the screen 
-    Point3d ray;
-    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
+    Point3d ray = Point3d(screenPt.x(), screenPt.y(), screenPt.z()) / screenPt.w();
     ray *= -nearPlane/ray.z();
-    
+
     // Now we need to scale that to the frame
     Point2d ll,ur;
     double near,far;
     calcFrustumWidth(frameSize.x(),frameSize.y(),ll,ur,near,far);
-    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
-    v = 1.0 - v;
-    
-    Point2f retPt;
-    retPt.x() = u * frameSize.x();
-    retPt.y() = v * frameSize.y();
-    
-    return retPt;    
+    const double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
+    const double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
+
+    return {u * frameSize.x(), (1 - v) * frameSize.y()};
 }
 
-Eigen::Vector3d MapView::eyePos()
+Eigen::Vector3d MapView::eyePos() const
 {
     Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
     
@@ -285,7 +278,7 @@ Eigen::Vector3d MapView::eyePos()
 /// Set the change delegate
 void MapView::setDelegate(MapViewAnimationDelegateRef inDelegate)
 {
-    delegate = inDelegate;
+    delegate = std::move(inDelegate);
 }
     
 MapViewAnimationDelegateRef MapView::getDelegate()
@@ -296,7 +289,7 @@ MapViewAnimationDelegateRef MapView::getDelegate()
 /// Called to cancel a running animation
 void MapView::cancelAnimation()
 {
-    delegate = NULL;
+    delegate.reset();
 }
 
 /// Renderer calls this every update.

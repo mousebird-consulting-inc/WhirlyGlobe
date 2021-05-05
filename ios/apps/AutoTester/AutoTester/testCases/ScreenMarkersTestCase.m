@@ -47,6 +47,7 @@
 - (void) insertMarker:(NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView
 {
     UIImage *alcohol = [UIImage imageNamed:@"alcohol-shop-24@2x"];
+    UIImage *airport = [UIImage imageNamed:@"airport-24@2x"];
     NSMutableArray *markers = [NSMutableArray array];
     for (MaplyVectorObject* object in arrayComp) {
 //        MaplyMovingScreenMarker *marker = [[MaplyMovingScreenMarker alloc] init];
@@ -59,11 +60,15 @@
 //        marker.layoutImportance = MAXFLOAT;
 
         MaplyScreenMarker *marker = [[MaplyScreenMarker alloc]init];
-        marker.image = alcohol;
+        marker.image = (markers.count % 2) ? alcohol : airport;
         marker.loc = object.center;
+        marker.size = CGSizeMake(32.0f, 32.0f);
         marker.userObject = object.attributes[@"title"];
         marker.selectable = true;
-        marker.layoutImportance = 1.0;
+
+        // Use layout for some and not others
+        marker.layoutImportance = (object.center.x < 0) ? 1.0 : MAXFLOAT;
+
         [markers addObject:marker];
     }
     self.markersObj = [theView addScreenMarkers:markers desc:nil];

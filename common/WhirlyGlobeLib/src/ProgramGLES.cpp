@@ -1,9 +1,8 @@
-/*
- *  ProgramGLES.mm
+/*  ProgramGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <string>
@@ -33,13 +31,14 @@ namespace WhirlyKit
     
 ProgramGLES::ProgramGLES()
     : lightsLastUpdated(0.0)
+    , program(0)
+    , vertShader(0)
+    , fragShader(0)
+    , attrs(10)
+    , uniforms(10)
 {
 }
-    
-ProgramGLES::~ProgramGLES()
-{
-}
-    
+
 bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 {
     OpenGLESUniform *uni = findUniform(nameID);
@@ -100,11 +99,11 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     
 bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex,int textureSlot)
 {
-    TextureBaseGLES *tex = dynamic_cast<TextureBaseGLES *>(inTex);
+    const auto tex = dynamic_cast<TextureBaseGLES *>(inTex);
     if (!tex)
         return false;
     
-    GLuint val = tex->getGLId();
+    const GLuint val = tex->getGLId();
     OpenGLESUniform *uni = findUniform(nameID);
     if (!uni)
         return false;
@@ -275,7 +274,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 {
     *shaderId = glCreateShader(shaderType);
     const GLchar *sourceCStr = shaderStr.c_str();
-    glShaderSource(*shaderId, 1, &sourceCStr, NULL);
+    glShaderSource(*shaderId, 1, &sourceCStr, nullptr);
     glCompileShader(*shaderId);
     
     GLint status;
@@ -287,10 +286,9 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
         glGetShaderiv(*shaderId, GL_INFO_LOG_LENGTH, &len);
         if (len > 0)
         {
-            GLchar *logStr = (GLchar *)malloc(len);
-            glGetShaderInfoLog(*shaderId, len, &len, logStr);
-            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),logStr);
-            free(logStr);
+            std::vector<char> logStr(len+1);
+            glGetShaderInfoLog(*shaderId, len, &len, &logStr[0]);
+            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),&logStr[0]);
         }
         
         glDeleteShader(*shaderId);
@@ -329,20 +327,26 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
 
     // Designate the varyings that we want out of the shader
     if (varying) {
-        GLchar **names = (GLchar **)malloc(sizeof(GLchar *)*varying->size());
-        for (unsigned int ii=0;ii<varying->size();ii++) {
-            const std::string &name = (*varying)[ii];
-            names[ii] = (GLchar *)malloc(sizeof(GLchar)*(name.size()+1));
-            strcpy(names[ii], name.c_str());
+        auto **names = (GLchar **)malloc(sizeof(GLchar *)*varying->size());
+        if (names) {
+            for (unsigned int ii = 0; ii < varying->size(); ii++) {
+                const std::string &name = (*varying)[ii];
+                names[ii] = (GLchar *) malloc(sizeof(GLchar) * (name.size() + 1));
+                if (names[ii]) {
+                    strcpy(names[ii], name.c_str());
+                }
+            }
+            glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
+
+            CheckGLError("ProgramGLES: Error setting up varyings in");
+
+            for (unsigned int ii = 0; ii < varying->size(); ii++) {
+                if (names[ii]) {
+                    free(names[ii]);
+                }
+            }
+            free(names);
         }
-        glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
-        
-        CheckGLError("ProgramGLES: Error setting up varyings in");
-        
-        for (unsigned int ii=0;ii<varying->size();ii++) {
-            free(names[ii]);
-        }
-        free(names);
     }
     
     // Now link it
@@ -357,10 +361,9 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
         if (len > 0)
         {
-            GLchar *logStr = (GLchar *)malloc(len);
-            glGetProgramInfoLog(program, len, &len, logStr);
-            wkLogLevel(Error,"Link error for shader program %s:\n%s",name.c_str(),logStr);
-            free(logStr);
+            std::vector<char> logStr(len+1);
+            glGetProgramInfoLog(program, len, &len, &logStr[0]);
+            wkLogLevel(Error,"Link error for shader program %s:\n%s",name.c_str(),&logStr[0]);
         }
         cleanUp();
         return;
@@ -420,7 +423,7 @@ void ProgramGLES::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *sc
     cleanUp();
 }
     
-// Clean up oustanding OpenGL resources
+// Clean up outstanding OpenGL resources
 void ProgramGLES::cleanUp()
 {
     if (program)
@@ -446,35 +449,35 @@ void ProgramGLES::cleanUp()
     attrs.clear();
 }
     
-bool ProgramGLES::isValid()
+bool ProgramGLES::isValid() const
 {
     return (program != 0);
 }
     
 
-OpenGLESUniform *ProgramGLES::findUniform(StringIdentity nameID)
+OpenGLESUniform *ProgramGLES::findUniform(StringIdentity nameID) const
 {
     auto it = uniforms.find(nameID);
     if (it == uniforms.end())
-        return NULL;
+        return nullptr;
     return it->second.get();
 }
 
-const OpenGLESAttribute *ProgramGLES::findAttribute(StringIdentity nameID)
+const OpenGLESAttribute *ProgramGLES::findAttribute(StringIdentity nameID) const
 {
     auto it = attrs.find(nameID);
     if (it == attrs.end())
-        return NULL;
+        return nullptr;
     return it->second.get();
 }
     
-bool ProgramGLES::hasLights()
+bool ProgramGLES::hasLights() const
 {
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
-    return lightAttr != NULL;
+    return lightAttr != nullptr;
 }
     
-bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat)
+bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, const Material *mat, const Eigen::Matrix4f &modelMat)
 {
     if (lightsLastUpdated >= lastUpdated)
         return false;
@@ -486,8 +489,8 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
     for (unsigned int ii=0;ii<numLights;ii++)
     {
         const DirectionalLight &light = lights[ii];
-        Eigen::Vector3f dir = light.pos.normalized();
-        Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
+        const Eigen::Vector3f dir = light.pos.normalized();
+        const Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
 
         setUniform(lightViewDependNameIDs[ii], (light.viewDependent ? 0.0f : 1.0f));
         setUniform(lightDirectionNameIDs[ii], dir);
@@ -503,10 +506,13 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
         return false;
     
     // Bind the material
-    setUniform(materialAmbientNameID, mat->ambient);
-    setUniform(materialDiffuseNameID, mat->diffuse);
-    setUniform(materialSpecularNameID, mat->specular);
-    setUniform(materialSpecularExponentNameID, mat->specularExponent);
+    if (mat)
+    {
+        setUniform(materialAmbientNameID, mat->ambient);
+        setUniform(materialDiffuseNameID, mat->diffuse);
+        setUniform(materialSpecularNameID, mat->specular);
+        setUniform(materialSpecularExponentNameID, mat->specularExponent);
+    }
 
     return lightsSet;
 }

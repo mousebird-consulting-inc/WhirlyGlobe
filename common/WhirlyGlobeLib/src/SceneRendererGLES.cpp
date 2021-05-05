@@ -208,7 +208,7 @@ class DrawListSortStruct2
 {
 public:
     DrawListSortStruct2() = delete;
-    DrawListSortStruct2(bool useZBuffer,RendererFrameInfo *frameInfo) : useZBuffer(useZBuffer), frameInfo(frameInfo)
+    DrawListSortStruct2(bool useZBuffer,const RendererFrameInfo *frameInfo) : useZBuffer(useZBuffer), frameInfo(frameInfo)
     {
     }
     DrawListSortStruct2(const DrawListSortStruct2 &that) = default;
@@ -216,7 +216,7 @@ public:
     {
         if (this != &that)
         {
-            useZBuffer= that.useZBuffer;
+            useZBuffer = that.useZBuffer;
             frameInfo = that.frameInfo;
         }
         return *this;
@@ -235,13 +235,21 @@ public:
                 if (bufferA != bufferB)
                     return !bufferA;
             }
+            // Ensure a stable order among items with identical priority and z-buffering
+            const auto idA = a->getId();
+            const auto idB = b->getId();
+            if (idA == idB) {
+                // Different offsets of the same item
+                return (&conA < &conB);
+            }
+            return (idA < idB);
         }
         
         return a->getDrawPriority() < b->getDrawPriority();
     }
     
     bool useZBuffer;
-    RendererFrameInfo *frameInfo;
+    const RendererFrameInfo *frameInfo;
 };
 
 void SceneRendererGLES::setExtraFrameMode(bool newMode)
@@ -265,7 +273,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         
     theView->animate();
     
-    TimeInterval now = scene->getCurrentTime();
+    const TimeInterval now = scene->getCurrentTime();
 
     lastDraw = now;
     
@@ -284,26 +292,26 @@ void SceneRendererGLES::render(TimeInterval duration)
     
     // See if we're dealing with a globe or map view
     float overlapMarginX = 0.0;
-    if (auto mapView = dynamic_cast<Maply::MapView *>(theView))
+    if (__unused const auto mapView = dynamic_cast<Maply::MapView *>(theView))
     {
         overlapMarginX = (float)scene->getOverlapMargin();
     }
     
     // Get the model and view matrices
-    Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
-    Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
-    Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
+    const Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
+    const Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
+    const Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
+    const Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    Point2f frameSize(framebufferWidth,framebufferHeight);
-    Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
-    
-    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
+    const Point2f frameSize(framebufferWidth,framebufferHeight);
+    const Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
+
+    const Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = viewTrans * modelTrans;
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
     Eigen::Matrix4d pvMat = projMat4d * viewTrans4d;
-    Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
+    const Eigen::Matrix4f mvpMat = projMat * (modelAndViewMat);
     Eigen::Matrix4f mvpNormalMat4f = mvpMat.inverse().transpose();
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
@@ -362,7 +370,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.pvMat = Matrix4dToMatrix4f(pvMat);
         baseFrameInfo.pvMat4d = pvMat;
         theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
-        Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
+        const Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;
         
@@ -435,7 +443,6 @@ void SceneRendererGLES::render(TimeInterval duration)
         mvpInvMats.resize(offsetMats.size());
         mvpMats4f.resize(offsetMats.size());
         mvpInvMats4f.resize(offsetMats.size());
-        bool calcPassDone = false;
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
             RendererFrameInfo offFrameInfo(baseFrameInfo);  // NOLINT: slicing from GLES frame
@@ -449,7 +456,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             mvpInvMats4f[off] = Matrix4dToMatrix4f(mvpInvMats[off]);
             modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
             modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
-            Matrix4d &thisMvpMat = mvpMats[off];
+            const Matrix4d &thisMvpMat = mvpMats[off];
             offFrameInfo.mvpMat = mvpMats4f[off];
             offFrameInfo.mvpInvMat = mvpInvMats4f[off];
             mvpNormalMat4f = Matrix4dToMatrix4f(mvpMats[off].inverse().transpose());
@@ -461,53 +468,56 @@ void SceneRendererGLES::render(TimeInterval duration)
             offFrameInfo.pvMat4d = pvMat;
 
             auto rawDrawables = scene->getDrawables();
-            for (auto draw : rawDrawables)
+            drawList.reserve(rawDrawables.size());
+            for (auto *draw : rawDrawables)
             {
                 auto *theDrawable = dynamic_cast<DrawableGLES *>(draw);
-                if (theDrawable->isOn(&offFrameInfo))
+                if (theDrawable && theDrawable->isOn(&offFrameInfo))
                 {
-                    const Matrix4d *localMat = theDrawable->getMatrix();
-                    if (localMat)
+                    if (const Matrix4d *localMat = theDrawable->getMatrix())
                     {
                         Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
                         Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
                         Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
                         drawList.emplace_back(theDrawable,newMvpMat,newMvMat,newMvNormalMat);
-                    } else
+                    } else {
                         drawList.emplace_back(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d);
+                    }
                 }
             }
         }
         
         // Sort the drawables (possibly multiple of the same if we have offset matrices)
-        bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
+        const bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortLinesToEnd,&baseFrameInfo));
         
         if (perfInterval > 0)
             perfTimer.startTiming("Calculation Shaders");
-        
+
+#if 0   // Not doing any calculation passes in OpenGL anymore.
         // Run any calculation shaders
         // These should be independent of screen space, so we only run them once and ignore offsets.
+        bool calcPassDone = false;
         if (!calcPassDone) {
             // But do we have any
             bool haveCalcShader = false;
-            for (unsigned int ii=0;ii<drawList.size();ii++)
-                if (drawList[ii].drawable->getCalculationProgram() != EmptyIdentity) {
+            for (auto & ii : drawList)
+                if (ii.drawable->getCalculationProgram() != EmptyIdentity) {
                     haveCalcShader = true;
                     break;
                 }
-            
+
             if (haveCalcShader) {
                 // Have to set an active framebuffer for our empty fragment shaders to write to
-                RenderTargetGLESRef renderTarget = std::dynamic_pointer_cast<RenderTargetGLES>(renderTargets[0]);
-                renderTarget->setActiveFramebuffer(this);
-                
+                if (const auto renderTarget = dynamic_cast<RenderTargetGLES *>(renderTargets[0].get())) {
+                    renderTarget->setActiveFramebuffer(this);
+                }
+
                 glEnable(GL_RASTERIZER_DISCARD);
-                
-                for (unsigned int ii=0;ii<drawList.size();ii++) {
-                    DrawableContainer &drawContain = drawList[ii];
-                    SimpleIdentity calcProgID = drawContain.drawable->getCalculationProgram();
-                    
+
+                for (auto &drawContain : drawList) {
+                    const SimpleIdentity calcProgID = drawContain.drawable->getCalculationProgram();
+
                     // Figure out the program to use for drawing
                     if (calcProgID == EmptyIdentity)
                         continue;
@@ -517,20 +527,21 @@ void SceneRendererGLES::render(TimeInterval duration)
                         glUseProgram(program->getProgram());
                         baseFrameInfo.program = program;
                     }
-                    
+
                     // Tweakers probably not necessary, but who knows
                     drawContain.drawable->runTweakers(&baseFrameInfo);
-                    
+
                     // Run the calculation phase
                     drawContain.drawable->calculate(&baseFrameInfo,scene);
                 }
-                
+
                 glDisable(GL_RASTERIZER_DISCARD);
             }
-            
+
             calcPassDone = true;
         }
-        
+#endif
+
         if (perfInterval > 0)
             perfTimer.stopTiming("Calculation Shaders");
         
@@ -542,7 +553,11 @@ void SceneRendererGLES::render(TimeInterval duration)
         // Iterate through rendering targets here
         for (const RenderTargetRef &inRenderTarget : renderTargets)
         {
-            RenderTargetGLESRef renderTarget = std::dynamic_pointer_cast<RenderTargetGLES>(inRenderTarget);
+            const auto renderTarget = dynamic_cast<RenderTargetGLES*>(inRenderTarget.get());
+            if (!renderTarget)
+            {
+                continue;
+            }
             
             renderTarget->setActiveFramebuffer(this);
             
@@ -553,18 +568,16 @@ void SceneRendererGLES::render(TimeInterval duration)
                 CheckGLError("SceneRendererES2: glClear");
             }
             
-            bool depthMaskOn = (zBufferMode == zBufferOn);
-            for (unsigned int ii=0;ii<drawList.size();ii++)
+            //bool depthMaskOn = (zBufferMode == zBufferOn);
+            for (const auto &drawContain : drawList)
             {
-                DrawableContainer &drawContain = drawList[ii];
-                                
                 // For this mode we turn the z buffer off until we get a request to turn it on
                 if (zBufferMode == zBufferOffDefault)
                 {
                     if (drawContain.drawable->getRequestZBuffer())
                     {
                         glDepthFunc(GL_LESS);
-                        depthMaskOn = true;
+                        //depthMaskOn = true;
                     } else {
                         glDepthFunc(GL_ALWAYS);
                     }
@@ -580,17 +593,17 @@ void SceneRendererGLES::render(TimeInterval duration)
                 }
                 
                 // Set up transforms to use right now
-                Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
-                Matrix4f currentMvpInvMat = Matrix4dToMatrix4f(drawContain.mvpMat.inverse());
-                Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
-                Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
+                const Matrix4f currentMvpMat = Matrix4dToMatrix4f(drawContain.mvpMat);
+                const Matrix4f currentMvpInvMat = Matrix4dToMatrix4f(drawContain.mvpMat.inverse());
+                const Matrix4f currentMvMat = Matrix4dToMatrix4f(drawContain.mvMat);
+                const Matrix4f currentMvNormalMat = Matrix4dToMatrix4f(drawContain.mvNormalMat);
                 baseFrameInfo.mvpMat = currentMvpMat;
                 baseFrameInfo.mvpInvMat = currentMvpInvMat;
                 baseFrameInfo.viewAndModelMat = currentMvMat;
                 baseFrameInfo.viewModelNormalMat = currentMvNormalMat;
                 
                 // Figure out the program to use for drawing
-                SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
+                const SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 if (drawProgramId == EmptyIdentity) {
                     wkLogLevel(Error, "Drawable missing program ID.  Skipping.");
                     continue;
@@ -615,7 +628,7 @@ void SceneRendererGLES::render(TimeInterval duration)
                         continue;
                     }
                 }
-                if (drawProgramId == EmptyIdentity || !baseFrameInfo.program)
+                if (!baseFrameInfo.program)
                     continue;
                 
                 // Only draw drawables that are active for the current render target

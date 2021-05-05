@@ -1,9 +1,8 @@
-/*
- *  WhirlyKitView.mm
+/*  WhirlyKitView.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Platform.h"
@@ -31,11 +29,12 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-View::View()
+View::View() :
+    coordAdapter(nullptr)
 {
     fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
     nearPlane = 0.001;
-    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
+    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0f);
     farPlane = 10.0;
     centerOffset = Point2d(0.0,0.0);
     lastChangedTime = TimeGetCurrent();
@@ -78,39 +77,38 @@ float View::calcZbufferRes()
 }
 
 /// Generate the model view matrix for use by OpenGL.
-Eigen::Matrix4d View::calcModelMatrix()
+Eigen::Matrix4d View::calcModelMatrix() const
 {
     Eigen::Matrix4d ident = ident.Identity();
     return ident;
 }
 
-Eigen::Matrix4d View::calcViewMatrix()
+Eigen::Matrix4d View::calcViewMatrix() const
 {
     Eigen::Matrix4d ident = ident.Identity();
     return ident;
 }
 
-Eigen::Matrix4d View::calcFullMatrix()
+Eigen::Matrix4d View::calcFullMatrix() const
 {
     return calcViewMatrix() * calcModelMatrix();
 }
 
-Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
+Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin) const
 {
-	float near=0,far=0;
 	Point2d frustLL,frustUR;
 	frustLL.x() = -imagePlaneSize * (1.0 + margin);
 	frustUR.x() = imagePlaneSize * (1.0 + margin);
-	double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
+	const double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
 	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
 	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
-	near = nearPlane;
-	far = farPlane;
+	const float near = nearPlane;
+	const float far = farPlane;
     
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
     Eigen::Matrix4d projMat;
-    Point3d delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
+    const Point3d delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
     projMat.setIdentity();
     projMat(0,0) = 2.0f * near / delta.x();
     projMat(1,0) = projMat(2,0) = projMat(3,0) = 0.0f;
@@ -129,23 +127,23 @@ Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
     return projMat;
 }
 
-void View::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX)
+void View::getOffsetMatrices(std::vector<Eigen::Matrix4d> &matrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX) const
 {
     Eigen::Matrix4d ident;
-    offsetMatrices.push_back(ident.Identity());
+    matrices.push_back(ident.Identity());
 }
 
-WhirlyKit::Point2f View::unwrapCoordinate(const WhirlyKit::Point2f &pt)
+WhirlyKit::Point2f View::unwrapCoordinate(const WhirlyKit::Point2f &pt) const
 {
     return pt;
 }
 
-double View::heightAboveSurface()
+double View::heightAboveSurface() const
 {
     return 0.0;
 }
 
-Eigen::Vector3d View::eyePos()
+Eigen::Vector3d View::eyePos() const
 {
     return Eigen::Vector3d(0,0,0);
 }
@@ -216,7 +214,7 @@ double View::currentMapScale(const WhirlyKit::Point2f &frameSize)
 
 double View::heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize)
 {
-    double height = (scale * frameSize.x() * 0.00096) / (2 * tan(fieldOfView/2.0) * EarthRadius);
+    const double height = (scale * frameSize.x() * 0.00096) / (2 * tan(fieldOfView/2.0) * EarthRadius);
     return height;
 }
 
@@ -226,14 +224,14 @@ double View::heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize)
 */
 double View::currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude)
 {
-  double mapWidthInMeters = (2 * heightAboveSurface() *  tan(fieldOfView/2.0) * EarthRadius);
-  double metersPerPizel = mapWidthInMeters/frameSize.x();
-  double zoom = log(EarthRadius * RadToDeg(cos(latitude))/ metersPerPizel)/log(2.0) - 8;
+  const double mapWidthInMeters = (2 * heightAboveSurface() *  tan(fieldOfView/2.0) * EarthRadius);
+  const double metersPerPixel = mapWidthInMeters/frameSize.x();
+  const double zoom = log(EarthRadius * RadToDeg(cos(latitude))/ metersPerPixel)/log(2.0) - 8;
   
   return zoom;
 }
 
-Point2d View::screenSizeInDisplayCoords(Point2f &frameSize)
+Point2d View::screenSizeInDisplayCoords(const Point2f &frameSize)
 {
     Point2d screenSize(0,0);
     if (frameSize.x() == 0.0 || frameSize.y() == 0.0)
@@ -267,12 +265,13 @@ void View::runViewUpdates()
         std::lock_guard<std::mutex> guardLock(watcherLock);
         watchersToRun = watchers;
     }
-    for (ViewWatcherSet::iterator it = watchersToRun.begin();
-         it != watchersToRun.end(); ++it)
-        (*it)->viewUpdated(this);
+    for (const auto &it : watchersToRun)
+        it->viewUpdated(this);
 }
 
-ViewState::ViewState(WhirlyKit::View *view,SceneRenderer *renderer)
+ViewState::ViewState(WhirlyKit::View *view,SceneRenderer *renderer) :
+    near(0),
+    far(0)
 {
     modelMatrix = view->calcModelMatrix();
     invModelMatrix = modelMatrix.inverse();
@@ -359,12 +358,11 @@ Point3d ViewState::pointUnproject(Point2d screenPt,unsigned int frameWidth,unsig
 Point2f ViewState::pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
 {
     // Run the model point through the model transform (presumably what they passed in)
-    Eigen::Matrix4d modelMat = *transform;
-    Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
+    const Eigen::Matrix4d modelMat = *transform;
+    const Vector4d screenPt = modelMat * Vector4d(worldLoc.x(),worldLoc.y(),worldLoc.z(),1.0);
     
     // Intersection with near gives us the same plane as the screen
-    Vector3d ray;
-    ray.x() = screenPt.x() / screenPt.w();  ray.y() = screenPt.y() / screenPt.w();  ray.z() = screenPt.z() / screenPt.w();
+    Vector3d ray = Point3d(screenPt.x(), screenPt.y(), screenPt.z()) / screenPt.w();
     ray *= -nearPlane/ray.z();
     
     // Now we need to scale that to the frame

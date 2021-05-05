@@ -1,9 +1,8 @@
-/*
- *  Program.h
+/*  Program.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -39,16 +37,16 @@ class Program : public Identifiable
 {
 public:
     Program();
-    virtual ~Program();
+    virtual ~Program() = default;
         
     /// Return true if it was built correctly
-    virtual bool isValid() = 0;
+    virtual bool isValid() const = 0;
     
     /// Check for the specific attribute associated with WhirlyKit lights
-    virtual bool hasLights() = 0;
+    virtual bool hasLights() const = 0;
     
     /// Return the name (for tracking purposes)
-    const std::string &getName();
+    virtual const std::string &getName() const;
     
     /// Tie a given texture ID to the given slot or nameID (depending on renderer)
     /// We have to set these up each time before drawing
@@ -70,7 +68,7 @@ public:
     virtual void setReduceMode(ReduceMode reduceMode);
 
     // Current reduce mode (or off)
-    virtual ReduceMode getReduceMode();
+    virtual ReduceMode getReduceMode() const;
     
 public:
     bool changed;

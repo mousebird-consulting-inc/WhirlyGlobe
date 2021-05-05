@@ -97,16 +97,17 @@ class ProgramGLES : public Program
 {
 public:
     ProgramGLES();
-    virtual ~ProgramGLES();
-        
+    virtual ~ProgramGLES() = default;
+
     /// Initialize with both shader programs
-    ProgramGLES(const std::string &name,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varyings=NULL);
+    ProgramGLES(const std::string &name,const std::string &vShaderString,
+                const std::string &fShaderString,const std::vector<std::string> *varyings=nullptr);
     
     /// Return true if it was built correctly
-    bool isValid() override;
+    bool isValid() const override;
     
     /// Search for the given uniform name and return the info.  NULL on failure.
-    OpenGLESUniform *findUniform(StringIdentity nameID);
+    OpenGLESUniform *findUniform(StringIdentity nameID) const;
     
     /// Set the given uniform to the given value.
     /// These check the type and cache a value to save on duplicate gl calls
@@ -129,17 +130,18 @@ public:
     void clearTexture(SimpleIdentity texID) override;
     
     /// Check for the specific attribute associated with WhirlyKit lights
-    bool hasLights() override;
+    bool hasLights() const override;
     
     /// Set the attributes associated with lighting.
     /// We'll check their last updated time against ours.
-    bool setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated, Material *mat, Eigen::Matrix4f &modelMat);
+    bool setLights(const std::vector<DirectionalLight> &lights, TimeInterval lastUpdated,
+                   const Material *mat, const Eigen::Matrix4f &modelMat);
     
     /// Search for the given attribute name and return the info.  NULL on failure.
-    const OpenGLESAttribute *findAttribute(StringIdentity nameID);
+    const OpenGLESAttribute *findAttribute(StringIdentity nameID) const;
     
     /// Return the GL Program ID
-    GLuint getProgram() { return program; }
+    GLuint getProgram() const { return program; }
     
     /// Bind any program specific textures right before we draw.
     /// We get to start at 0 and return however many we bound
