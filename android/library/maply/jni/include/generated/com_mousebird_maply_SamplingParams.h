@@ -215,6 +215,9 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getSingleLeve
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setLevelLoads
   (JNIEnv *, jobject, jintArray);
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
+        (JNIEnv *, jobject, jfloat);
+
 /*
  * Class:     com_mousebird_maply_SamplingParams
  * Method:    setClipBounds

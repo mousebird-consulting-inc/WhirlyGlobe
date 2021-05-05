@@ -197,6 +197,11 @@ public class SamplingParams
     public native void setLevelLoads(int[] levels);
 
     /**
+     * Scale each bounding box by this amount before using it.
+     */
+    public native void setBoundsScale(float scale);
+
+    /**
      * If set, we won't load any tiles outside these boundaries.
      */
     public void setClipBounds(Mbr bounds)

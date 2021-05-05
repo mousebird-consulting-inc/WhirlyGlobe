@@ -148,6 +148,9 @@ public:
     /// Minimum screen area to consider for a tile per level
     std::vector<double> getMinImportancePerLevel() const;
     void setMinImportancePerLevel(const std::vector<double> &imports);
+
+    /// Set the MBR scale factor
+    void setMBRScaling(double newScale);
     
     /// Return the allocated zoom slot (for tracking continuous zoom)
     int getZoomSlot() const;
@@ -189,6 +192,7 @@ protected:
     int minZoom,maxZoom,reportedMaxZoom;
     TimeInterval viewUpdatePeriod;
     bool keepMinLevel;
+    double mbrScaling;
     double keepMinLevelHeight;
     bool singleLevel;
     std::vector<int> levelLoads;

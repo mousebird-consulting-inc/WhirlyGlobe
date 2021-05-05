@@ -39,6 +39,7 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     singleLevel = false;
     keepMinLevel = true;
     keepMinLevelHeight = 0.0;
+    mbrScaling = 1.0;
     scene = renderer->getScene();
     zoomSlot = scene->retainZoomSlot();
     lastTargetLevel = -1.0;
@@ -104,6 +105,11 @@ void QuadDisplayControllerNew::setKeepMinLevel(bool newVal,double height)
 std::vector<int> QuadDisplayControllerNew::getLevelLoads() const
 {
     return levelLoads;
+}
+
+void QuadDisplayControllerNew::setMBRScaling(double newScale)
+{
+    mbrScaling = newScale;
 }
 
 void QuadDisplayControllerNew::setLevelLoads(const std::vector<int> &newLoads)
@@ -279,9 +285,13 @@ double QuadDisplayControllerNew::importance(const Node &node)
     QuadTreeIdentifier ident;
     ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
     Point2d ll,ur;
-    const MbrD nodeMbrD = generateMbrForNode(node);
+    MbrD nodeMbrD = generateMbrForNode(node);
+
+    // Scale the bounding box, possibly
+    if (mbrScaling != 1.0)
+        nodeMbrD.expandByFraction(mbrScaling-1.0);
+
     const Mbr nodeMbr(nodeMbrD);
-    
     // Is this a valid tile?
     if (!nodeMbr.inside(nodeMbr.mid())) {
         return -1.0;
@@ -296,9 +306,13 @@ bool QuadDisplayControllerNew::visible(const Node &node) {
     QuadTreeIdentifier ident;
     ident.level = node.level;  ident.x = node.x;  ident.y = node.y;
     Point2d ll,ur;
-    const MbrD nodeMbrD = generateMbrForNode(node);
+    MbrD nodeMbrD = generateMbrForNode(node);
+
+    // Scale the bounding box, possibly
+    if (mbrScaling != 1.0)
+        nodeMbrD.expandByFraction(mbrScaling-1.0);
+
     const Mbr nodeMbr(nodeMbrD);
-    
     // Is this a valid tile?
     if (!nodeMbr.inside(nodeMbr.mid())) {
         return 0.0;

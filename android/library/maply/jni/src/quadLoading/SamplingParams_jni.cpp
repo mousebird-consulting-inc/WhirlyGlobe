@@ -538,6 +538,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setLevelLoads
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
+		(JNIEnv *env, jobject obj, jfloat scale)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			params->boundsScale = scale;
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setLevelLoads()");
+	}
+}
+
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setClipBounds
   (JNIEnv *env, jobject obj, jdouble llx, jdouble lly, jdouble urx, jdouble ury)

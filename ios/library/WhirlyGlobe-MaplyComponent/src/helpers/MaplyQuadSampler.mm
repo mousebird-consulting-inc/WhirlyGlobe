@@ -183,6 +183,16 @@ using namespace WhirlyKit;
         params.forceMinLevel = true;
 }
 
+- (void)setBoundScale:(float)scale
+{
+    params.boundsScale = scale;
+}
+
+- (float)boundScale
+{
+    return params.boundsScale;
+}
+
 - (MaplyBoundingBoxD)clipBounds
 {
     MaplyBoundingBoxD bbox;
