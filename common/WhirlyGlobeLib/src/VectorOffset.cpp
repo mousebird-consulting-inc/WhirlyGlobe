@@ -28,6 +28,32 @@ namespace WhirlyKit
 
 static float PolyScale = 1e6;
 
+// Check that the given point is on the positive side of the input ring
+static bool isOnRightSide(const VectorRing &ring, float offset, const Point2f &pt)
+{
+    // Look for the closest line segment
+    int found = -1;
+    float dist = MAXFLOAT;
+    for (int ii=0;ii<ring.size()-1;ii++) {
+        float t;
+        Point2f closePt = ClosestPointOnLineSegment(ring[ii],ring[ii+1],pt,t);
+        float thisDist = (closePt - pt).norm();
+        if (thisDist < dist) {
+            found = ii;
+            dist = thisDist;
+        }
+    }
+    
+    if (found >= 0) {
+        const auto &p0 = ring[found], &p1 = ring[found+1];
+        float sign = (p1.x() - p0.x()) * (pt.y() - p0.y()) -
+            (p1.y() - p0.y()) * (pt.x() - p0.x());
+        return sign > 0.0;
+    }
+    
+    return false;
+}
+
 std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
 {
     // If the offset is negative, just flip the geometry
@@ -37,11 +63,11 @@ std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
         std::reverse(theRing.begin(), theRing.end());
     }
     
-    Mbr mbr(ring);
+    Mbr mbr(theRing);
     Point2f org = mbr.ll();
 
     Path path;
-    for (const auto &pt: ring)
+    for (const auto &pt: theRing)
         path.push_back(IntPoint((pt.x() - org.x()) * PolyScale, (pt.y() - org.y()) * PolyScale));
 
     ClipperOffset co;
@@ -55,10 +81,21 @@ std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
         VectorRing outRing;
         for (unsigned jj=0;jj<outPoly.size();jj++) {
             IntPoint &outPt = outPoly[jj];
-            outRing.push_back(Point2f(outPt.X/PolyScale + org.x(),outPt.Y/PolyScale + org.y()));
+            
+            // So when Clipper buffers a line it buffers *around* the line.  We actually only want
+            //  half of these points
+            Point2f theOutPt(outPt.X/PolyScale + org.x(),outPt.Y/PolyScale + org.y());
+            if (isOnRightSide(ring, offset, theOutPt))
+                outRing.push_back(theOutPt);
+            else {
+                if (outRing.size() > 1) {
+                    rets.push_back(outRing);
+                }
+                outRing.clear();
+            }
         }
         
-        if (outRing.size() > 2)
+        if (outRing.size() > 1)
             rets.push_back(outRing);
     }
     return rets;

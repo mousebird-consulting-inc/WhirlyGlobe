@@ -138,5 +138,6 @@ public interface RenderControllerInterface
         EGLSurface eglSurface = null;
     };
 
-
+    // Used to track down problems with GL Context allocation
+    void dumpFailureInfo(String failureLocation);
 }

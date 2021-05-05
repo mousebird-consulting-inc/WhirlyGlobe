@@ -117,8 +117,10 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				try {
 					final EGL10 egl = (EGL10) EGLContext.getEGL();
 					if (context != null && surface != null)
-						if (!egl.eglMakeCurrent(renderer.display, surface, surface, context))
+						if (!egl.eglMakeCurrent(renderer.display, surface, surface, context)) {
 							Log.d("Maply", "Failed to make current context in layer thread.");
+							renderer.dumpFailureInfo("LayerThread Setup");
+						}
 				} catch (Exception e) {
 					Log.i("Maply", "Failed to make current context in layer thread.");
 				}
@@ -173,6 +175,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 						if (!egl1.eglMakeCurrent(renderer.display, surface, surface, context)) {
 							Log.e("Maply", "Failed to make EGL context in layer thread: " +
 									Integer.toHexString(egl1.eglGetError()));
+							renderer.dumpFailureInfo("LayerThread setRenderer");
 						}
 					} else {
 						Log.e("Maply", "Unable to make EGL context in layer thread");
@@ -266,6 +269,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			valid = false;
 			try {
 				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
+				renderer.dumpFailureInfo("LayerThread shutdown");
 			} catch (Exception ignored) {
 			}
 

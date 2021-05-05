@@ -22,6 +22,8 @@
 #import "VectorOffset.h"
 #import "GridClipper.h"
 
+using namespace Eigen;
+
 namespace WhirlyKit
 {
 
@@ -128,7 +130,6 @@ layoutObj(layoutObj)
 void LinearTextBuilder::setPoints(const Point3dVector &inPts)
 {
     pts = inPts;
-    isClosed = pts.front() == pts.back();
 }
 
 void LinearTextBuilder::sortRuns(double minLen)
@@ -161,32 +162,90 @@ void LinearTextBuilder::process()
     if (pts.size() == 1)
         return;
     
-    Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
-    
-    Point2fVector screenPts;
-    for (auto pt: pts) {
-        Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
-        screenPts.push_back(thisObjPt);
+    Matrix4d modelTrans = viewState->fullMatrices[offi];
+    Matrix4d fullNormalMatrix = viewState->fullNormalMatrices[offi];
+
+    {
+        std::vector<VectorRing> newRuns;
+        VectorRing curRun;
+        std::vector<bool> frontSide;
+        for (auto pt: pts) {
+            Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
+
+            bool isFrontSide = true;
+            if (globeViewState)
+            {
+                // Make sure this one is facing toward the viewer
+                if (!(CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,fullNormalMatrix) > 0.0))
+                    isFrontSide = false;
+            }
+            
+            if (isFrontSide)
+                curRun.push_back(thisObjPt);
+            else {
+                if (curRun.size() > 1)
+                    newRuns.push_back(curRun);
+                curRun.clear();
+            }
+        }
+        if (curRun.size() > 1)
+            newRuns.push_back(curRun);
+
+        
+        runs = newRuns;
+    }
+
+    {
+        std::vector<VectorRing> newRuns;
+
+        // Only keep the runs that overlap with the screen
+        for (const auto &run: runs) {
+            Mbr testMbr(run);
+            if (testMbr.overlaps(testMbr))
+                newRuns.push_back(run);
+        }
+        
+        runs = newRuns;
     }
     
-    // Make sure there's at least some overlap with the screen
-    Mbr testMbr(screenPts);
-    if (!testMbr.intersect(screenMbr).valid()) {
+    if (runs.empty())
         return;
+
+    {
+        std::vector<VectorRing> newRuns;
+
+        for (const auto &run: runs) {
+            // Generalize the source line
+            auto newRun = LineGeneralization(run,generalEps,0,run.size());
+            if (newRun.size() > 1)
+                newRuns.push_back(newRun);
+        }
+        
+        runs = newRuns;
     }
 
-    // Generalize the source line
-    screenPts = LineGeneralization(screenPts,generalEps,0,screenPts.size());
-
-    if (screenPts.empty())
+    if (runs.empty())
         return;
     
     // Clip to a larger screen MBR
     {
         std::vector<VectorRing> newRuns;
-        Mbr largeScreenMbr = screenMbr;
-        largeScreenMbr.expandByFraction(0.1);
-        ClipLoopToMbr(screenPts, largeScreenMbr, true, newRuns,1e6);
+        
+        for (const auto &run: runs) {
+            Mbr largeScreenMbr = screenMbr;
+            largeScreenMbr.expandByFraction(0.1);
+            std::vector<VectorRing> clipRuns;
+            bool isClosed = run.front() == run.back();
+            ClipLoopToMbr(run, largeScreenMbr, isClosed, clipRuns,1e6);
+            
+            for (auto &newRun: clipRuns)
+            {
+                if (isClosed && (newRun.front() != newRun.back()))
+                    newRun.push_back(newRun.front());
+                newRuns.push_back(newRun);
+            }
+        }
+        
         runs = newRuns;
     }
     
@@ -195,10 +254,11 @@ void LinearTextBuilder::process()
         std::vector<VectorRing> newRuns;
         for (const auto &run: runs) {
             std::vector<VectorRing> theseRuns;
-            if (isClosed)
+            if (run.front() == run.back())
                 theseRuns = BufferPolygon(run, layoutObj->layoutOffset);
-            else
+            else {
                 theseRuns = BufferLinear(run, layoutObj->layoutOffset);
+            }
             newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
         }
         runs = newRuns;

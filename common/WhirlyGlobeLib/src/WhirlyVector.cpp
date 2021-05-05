@@ -498,7 +498,7 @@ GeoCoord GeoMbr::mid() const
     const auto s = pt_ll.y();
     const auto e = pt_ur.x();
     const auto w = pt_ll.x();
-    if (w < e)
+    if (w <= e)
     {
         return { (e + w) / 2, (n + s) / 2 };
     }
@@ -688,8 +688,12 @@ static struct UnitTests {
         assert(T({1,1},{2,2}).valid());
         assert(T(T({1,1},{2,2})).valid());
         {T t({1,1},{2,2}); t.reset(); assert(!t.valid());}
+        assert(T({0,0},{0,0}).area() == 0);
+        assert(T({0,0},{1,0}).area() == 0);
+        assert(T({0,0},{0,1}).area() == 0);
         assert(T({1,2},{3,5}).area() == 6);
         assert(T({1,2},{3,5}).span() == TP(2,3));
+        assert(T({0,0},{0,0}).mid() == TP(0,0));
         assert(T({1,2},{3,5}).mid() == TP(2,3.5));
     }
     template <typename TM, typename T = typename TM::value_type::Scalar> void genericGeoMbr() {

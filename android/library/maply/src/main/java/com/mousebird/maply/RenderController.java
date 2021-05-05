@@ -1806,4 +1806,8 @@ public class RenderController implements RenderControllerInterface
 
     @SuppressWarnings({"unused", "RedundantSuppression"})
     private long nativeHandle;
+
+    public void dumpFailureInfo(String failureLocation) {
+        Log.e("Maply", "Context failure in local renderer: " + failureLocation);
+    }
 }
