@@ -407,7 +407,7 @@ void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector3f &vec
     SingleVertexAttribute attr;
     attr.nameID = nameID;
     attr.slot = -1;
-    attr.type = BDFloat2Type;
+    attr.type = BDFloat3Type;
     attr.data.vec3[0] = vec.x();
     attr.data.vec3[1] = vec.y();
     attr.data.vec3[2] = vec.z();
@@ -420,7 +420,7 @@ void BasicDrawable::setUniform(SimpleIdentity nameID, const Eigen::Vector4f &vec
     SingleVertexAttribute attr;
     attr.nameID = nameID;
     attr.slot = -1;
-    attr.type = BDFloat2Type;
+    attr.type = BDFloat4Type;
     attr.data.vec4[0] = vec.x();
     attr.data.vec4[1] = vec.y();
     attr.data.vec4[2] = vec.z();
