@@ -1,3 +1,20 @@
+/*  MapboxKindaMap.kt
+ *  WhirlyGlobeLib
+ *
+ *  Created by Steve Gifford on 5/27/2020.
+ *  Copyright 2011-2021 mousebird consulting
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package com.mousebird.maply
 
 import android.content.res.Resources
@@ -23,6 +40,7 @@ import kotlin.collections.ArrayList
  * Set the various settings before it gets going to modify how it works.
  * Callbacks control various pieces that might need to be intercepted.
  */
+@Suppress("unused")
 open class MapboxKindaMap(
         var styleSheetJSON: String?,
         var styleURL: Uri?,
@@ -58,6 +76,7 @@ open class MapboxKindaMap(
     var textScale = 0.0
     var markerScale = 0.0
     var maxConcurrentLoad: Int? = null
+    var debugMode = false
 
     // These are run after a successful load of all the style sheet pieces
     var postLoadRunnables = ArrayList<Runnable>()
@@ -126,7 +145,7 @@ open class MapboxKindaMap(
 
     // Information about the sources as we fetch them
     private fun addTask(task: Call) {
-        control.get()?.getActivity()?.runOnUiThread {
+        control.get()?.activity?.runOnUiThread {
             outstandingFetches.add(task)
         }
     }
@@ -256,8 +275,6 @@ open class MapboxKindaMap(
             })
         }
 
-        // TODO: Look for the sprite sheets
-
         checkFinished()
     }
 
@@ -326,14 +343,13 @@ open class MapboxKindaMap(
             })
         }
 
-        // Load the spread sheets
+        // Load the sprite sheets
         val spriteURL = styleSheet?.spriteURL
-        if (spriteURL != null) {
-            val spriteJSONurl = mapboxURLFor(Uri.parse(spriteURL + "@2x.json"))
-            val spritePNGurl = mapboxURLFor(Uri.parse(spriteURL + "@2x.png"))
-            val client = theControl.getHttpClient()
+        if (spriteURL != null && fetchSources) {
+            val spriteJSONUrl = mapboxURLFor(Uri.parse("$spriteURL@2x.json"))
+            val spritePNGUrl = mapboxURLFor(Uri.parse("$spriteURL@2x.png"))
             try {
-                val cacheUrl = cacheResolve(spriteJSONurl)
+                val cacheUrl = cacheResolve(spriteJSONUrl)
                 if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
                     FileInputStream(cacheUrl.file).use {
                         val json = it.bufferedReader().readText()
@@ -347,7 +363,7 @@ open class MapboxKindaMap(
             }
 
             if (spriteJSON == null) {
-                val task1 = client.newCall(Request.Builder().url(spriteJSONurl.toString()).build())
+                val task1 = client.newCall(Request.Builder().url(spriteJSONUrl.toString()).build())
                 addTask(task1)
                 task1.enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
@@ -362,7 +378,7 @@ open class MapboxKindaMap(
                                     val bytes = body.bytes()
                                     if (bytes.isNotEmpty()) {
                                         spriteJSON = String(bytes)
-                                        cacheFile(spriteJSONurl, bytes)
+                                        cacheFile(spriteJSONUrl, bytes)
                                     }
                                 }
                             }
@@ -375,7 +391,7 @@ open class MapboxKindaMap(
 
             // Look for the PNG in the cache
             try {
-                val cacheUrl = cacheResolve(spritePNGurl)
+                val cacheUrl = cacheResolve(spritePNGUrl)
                 if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
                     FileInputStream(cacheUrl.file).use {
                         spritePNG = BitmapFactory.decodeFile(cacheUrl.path)
@@ -386,7 +402,7 @@ open class MapboxKindaMap(
             }
 
             if (spritePNG == null) {
-                val task2 = client.newCall(Request.Builder().url(spritePNGurl.toString()).build())
+                val task2 = client.newCall(Request.Builder().url(spritePNGUrl.toString()).build())
                 addTask(task2)
                 task2.enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
@@ -402,7 +418,7 @@ open class MapboxKindaMap(
                                     if (bytes.isNotEmpty()) {
                                         spritePNG =
                                             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                                        cacheFile(spritePNGurl, bytes)
+                                        cacheFile(spritePNGUrl, bytes)
                                     }
                                 }
                             }
@@ -547,6 +563,7 @@ open class MapboxKindaMap(
             if (localFetchers.isNotEmpty()) {
                 it.setTileFetcher(localFetchers[0])
             }
+            it.debugMode = debugMode
         }
      }
 
@@ -653,9 +670,9 @@ open class MapboxKindaMap(
             setLoaderInterpreter(mapboxInterp)
             setTileFetcher(localFetchers.firstOrNull() ?:
                 RemoteTileFetcher(control,"Remote Tile Fetcher").apply {
-                    setDebugMode(false)
+                    debugMode = this@MapboxKindaMap.debugMode
                 })
-            setDebugMode(false)
+            debugMode = this@MapboxKindaMap.debugMode
         }
     }
 
@@ -666,7 +683,7 @@ open class MapboxKindaMap(
     
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
-            theControl.getActivity()?.runOnUiThread { stop() }
+            theControl.activity?.runOnUiThread { stop() }
 
             return
         }
