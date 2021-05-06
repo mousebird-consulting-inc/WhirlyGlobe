@@ -267,6 +267,17 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 
 			valid = false;
+
+			// Stop any pending updates
+			final Handler trailHandle = trailingHandle;
+			final Runnable trailRun = trailingRun;
+			if (trailHandle != null && trailRun != null)
+			{
+				trailHandle.removeCallbacks(trailRun);
+				trailingHandle = null;
+				trailingRun = null;
+			}
+
 			try {
 				egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 			} catch (Exception ignored) {
@@ -554,9 +565,16 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				@Override
 				public void run()
 				{
-					final ViewState viewState = view.makeViewState(renderer);
-					final long now = System.currentTimeMillis();
-					updateWatchers(viewState,now);
+					if (valid) {
+						final View theView = view;
+						final RenderController theRenderer = renderer;
+						if (theView != null && theRenderer != null) {
+							final ViewState viewState = view.makeViewState(theRenderer);
+							if (viewState != null) {
+								updateWatchers(viewState, System.currentTimeMillis());
+							}
+						}
+					}
 
 					synchronized (this) {
 						trailingHandle = null;
