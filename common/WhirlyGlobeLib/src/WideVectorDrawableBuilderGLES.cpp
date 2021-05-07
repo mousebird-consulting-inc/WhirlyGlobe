@@ -116,6 +116,7 @@ BasicDrawableInstanceRef  WideVectorDrawableBuilderGLES::getInstanceDrawable()
     
 static const char *vertexShaderTri = R"(
 precision highp float;
+
 uniform mat4  u_mvpMatrix;
 uniform mat4  u_mvMatrix;
 uniform mat4  u_mvNormalMatrix;
@@ -126,14 +127,14 @@ uniform float u_edge;
 uniform float u_texScale;
 uniform float u_wideOffset;
 
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec4 a_texinfo;
-attribute vec4 a_color;
-attribute vec3 a_p1;
-attribute vec3 a_n0;
-attribute float a_c0;
-attribute vec3 a_offset;
+attribute vec3  a_position; // start point
+attribute vec3  a_normal;   // start normal?
+attribute vec4  a_texinfo;  // X,Ymin,Ymax,offset
+attribute vec4  a_color;
+attribute vec3  a_p1;       // end point
+attribute vec3  a_n0;       // end normal?
+attribute float a_c0;       // ?
+attribute vec3  a_offset;
 
 varying vec2 v_texCoord;
 varying vec4 v_color;
@@ -141,21 +142,17 @@ varying vec4 v_color;
 void main()
 {
     v_color = a_color;
-    //  Position along the line
-    float t0 = a_c0 * u_real_w2;
-    t0 = clamp(t0,-4.0,5.0);
-    vec3 dir = normalize(a_p1 - a_position);
-    float centerLineSign = a_offset.z;
-    float realCenterLine = centerLineSign * u_wideOffset * u_real_w2 / u_w2;
-    vec3 realPosOffset = (a_p1 - a_position) * t0 +
-                    dir * u_real_w2 * a_offset.y +
-                    a_n0 * (realCenterLine + u_real_w2) +
-                    a_n0 * u_real_w2 * a_offset.x;
+    float t0 = clamp(a_c0 * u_real_w2,-4.0,5.0);    // Position along the line
+    vec3 v = a_p1 - a_position;
+    vec3 dir = normalize(v);
+    float realCenterLine = a_offset.z * u_wideOffset * u_real_w2 / u_w2;
+    vec3 realPosOffset = v * t0 +
+        dir * u_real_w2 * a_offset.y +
+        a_n0 * (realCenterLine + u_real_w2 + u_real_w2 * a_offset.x);
     float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;
     v_texCoord = vec2(a_texinfo.x, texPos);
     vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0) + u_mvpMatrix * vec4(realPosOffset,0.0);
-    screenPos /= screenPos.w;
-    gl_Position = vec4(screenPos.xy,0,1.0);
+    gl_Position = vec4(screenPos.xy / screenPos.w,0,1.0);
 }
 )";
 
@@ -169,31 +166,31 @@ uniform float u_fade;
 uniform float u_w2;
 uniform float u_real_w2;
 uniform float u_texScale;
+uniform float u_wideOffset;
 
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec4 a_texinfo;
-attribute vec4 a_color;
-attribute vec3 a_p1;
-attribute vec3 a_n0;
+attribute vec3  a_position;
+attribute vec3  a_normal;
+attribute vec4  a_texinfo;
+attribute vec4  a_color;
+attribute vec3  a_p1;
+attribute vec3  a_n0;
 attribute float a_c0;
-attribute vec3 a_offset;
+attribute vec3  a_offset;
 
-varying vec2 v_texCoord;
-varying vec4 v_color;
-varying float      v_dot;
+varying vec2  v_texCoord;
+varying vec4  v_color;
+varying float v_dot;
 
 void main()
 {
     v_color = a_color;
-    //  Position along the line
-    float t0 = a_c0 * u_real_w2;
-    t0 = clamp(t0,-4.0,5.0);
-    vec3 dir = normalize(a_p1 - a_position);
-    vec3 realPosOffset = (a_p1 - a_position) * t0 +
-                    dir * u_real_w2 * a_offset.y +
-                    a_n0 * u_real_w2 +
-                    a_n0 * u_real_w2 * a_offset.x;
+    float t0 = clamp(a_c0 * u_real_w2,-4.0,5.0);        //  Position along the line
+    vec3 v = a_p1 - a_position;
+    vec3 dir = normalize(v);
+    float realCenterLine = a_offset.z * u_wideOffset * u_real_w2 / u_w2;
+    vec3 realPosOffset = v * t0 +
+        dir * u_real_w2 * a_offset.y +
+        a_n0 * (realCenterLine + u_real_w2 + u_real_w2 * a_offset.x);
     vec4 pt = u_mvMatrix * vec4(a_position,1.0);
     pt /= pt.w;
     vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);
@@ -201,8 +198,7 @@ void main()
     float texPos = ((a_texinfo.z - a_texinfo.y) * t0 + a_texinfo.y + a_texinfo.w * u_real_w2) * u_texScale;
     v_texCoord = vec2(a_texinfo.x, texPos);
     vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0) + u_mvpMatrix * vec4(realPosOffset,0.0);
-    screenPos /= screenPos.w;
-    gl_Position = vec4(screenPos.xy,0,1.0);
+    gl_Position = vec4(screenPos.xy / screenPos.w,0,1.0);
 }
 )";
 
