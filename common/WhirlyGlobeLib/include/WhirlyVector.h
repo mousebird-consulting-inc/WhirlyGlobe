@@ -91,17 +91,25 @@ typedef std::vector<GeoCoord,Eigen::aligned_allocator<GeoCoord> > GeoCoordVector
 class RGBAColor
 {
 public:
-	RGBAColor() = default;
+	RGBAColor() : RGBAColor(0,0,0,0) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
 	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
+
+	template <typename T>
+    RGBAColor(const Eigen::Matrix<T,4,1> &v) :
+        RGBAColor((unsigned char)(v.x()*255),(unsigned char)(v.y()*255),
+                  (unsigned char)(v.z()*255),(unsigned char)(v.w()*255)) { }
 
     RGBAColor withAlpha(int newA) const { return RGBAColor(r,g,b,(uint8_t)newA); }
     RGBAColor withAlpha(double newA) const { return RGBAColor(r,g,b,(uint8_t)(newA * 255)); }
 
     // Create an RGBColor from unit floats
-    static RGBAColor FromUnitFloats(float *ret) {
+    static RGBAColor FromUnitFloats(const float *ret) {
         return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
     }
+
+    template <typename T>
+    static RGBAColor FromVec(const Eigen::Matrix<T,4,1> &v) { return RGBAColor(v); }
 
     // Create an RGBAColor from an int
     static RGBAColor FromInt(int color) {
