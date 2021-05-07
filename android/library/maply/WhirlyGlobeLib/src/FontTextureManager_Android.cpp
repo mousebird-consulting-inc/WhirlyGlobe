@@ -127,6 +127,11 @@ DrawableString *FontTextureManager_Android::addString(
 	// Could be more granular if this slows things down
     std::lock_guard<std::mutex> guardLock(lock);
 
+	if (!charRenderObj)
+	{
+		return nullptr;
+	}
+
     // If not initialized, set up texture atlas and such
     init();
 

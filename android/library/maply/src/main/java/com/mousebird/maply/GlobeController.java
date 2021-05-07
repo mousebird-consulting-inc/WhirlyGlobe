@@ -109,7 +109,9 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		globeView.cancelAnimation();
 		super.shutdown();
 		globeView = null;
-		globeScene = null;
+		if (globeScene != null) {
+			globeScene.teardownGL();
+		}
 		if (gestureHandler != null) {
 			gestureHandler.shutdown();
 		}

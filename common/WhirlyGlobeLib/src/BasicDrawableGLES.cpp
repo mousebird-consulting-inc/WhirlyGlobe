@@ -125,44 +125,45 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scen
     // We'll set up a single buffer for everything.
     // The other buffer pointers are now strides
     // Size of a single vertex entry
-    int numVerts = (int)points.size();
+    const int numVerts = (int)points.size();
     
     // Set up the buffer
     int bufferSize = vertexSize*numVerts;
-    if (!tris.empty())
-    {
+    if (!tris.empty()) {
         bufferSize += tris.size()*sizeof(Triangle);
     }
     sharedBuffer = setupInfo->memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
-    if (!sharedBuffer)
-        wkLogLevel(Error, "Empty buffer in BasicDrawable::setupGL()");
+    if (!sharedBuffer) {
+        wkLogLevel(Error, "Empty buffer in BasicDrawable::setupGL() (requested %d)", bufferSize);
+    }
     
     // Now copy in the data
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
     if (hasMapBufferSupport) {
-        void *glMem = NULL;
-        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
-        unsigned char *basePtr = (unsigned char *)glMem;
-        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr,ii,NULL);
-        
-        // And copy in the element buffer
-        if (tris.size())
+        void *glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+        if (unsigned char *basePtr = (unsigned char *)glMem)
         {
-            triBuffer = vertexSize*numVerts;
-            unsigned char *basePtr = (unsigned char *)glMem + triBuffer;
-            for (unsigned int ii=0;ii<tris.size();ii++,basePtr+=sizeof(Triangle))
-                memcpy(basePtr, &tris[ii], sizeof(Triangle));
+            for (unsigned int ii = 0; ii < numVerts; ii++, basePtr += vertexSize)
+                addPointToBuffer(basePtr, ii, nullptr);
+
+            // And copy in the element buffer
+            if (tris.size()) {
+                triBuffer = vertexSize * numVerts;
+                unsigned char *triBasePtr = (unsigned char *) glMem + triBuffer;
+                for (unsigned int ii = 0; ii < tris.size(); ii++, triBasePtr += sizeof(Triangle))
+                    memcpy(triBasePtr, &tris[ii], sizeof(Triangle));
+            }
+            glUnmapBuffer(GL_ARRAY_BUFFER);
         }
-        glUnmapBuffer(GL_ARRAY_BUFFER);
     } else {
         bufferSize = numVerts*vertexSize+tris.size()*sizeof(Triangle);
         
         // Gotta do this the hard way
-        unsigned char *glMem = (unsigned char *)malloc(bufferSize);
+        std::vector<unsigned char> glMemBuf(bufferSize);
+        unsigned char *glMem = &glMemBuf[0];
         unsigned char *basePtr = glMem;
         for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
-            addPointToBuffer(basePtr, ii,NULL);
+            addPointToBuffer(basePtr, ii,nullptr);
         
         // Now the element buffer
         triBuffer = numVerts*vertexSize;
@@ -170,7 +171,6 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scen
             memcpy(basePtr, &tris[ii], sizeof(Triangle));
         
         glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
-        free(glMem);
     }
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);

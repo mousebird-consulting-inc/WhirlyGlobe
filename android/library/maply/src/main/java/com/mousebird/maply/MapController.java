@@ -178,7 +178,9 @@ public class MapController extends BaseController implements View.OnTouchListene
 			mapView.cancelAnimation();
 		super.shutdown();
 		mapView = null;
-		mapScene = null;
+		if (mapScene != null) {
+			mapScene.teardownGL();
+		}
 		if (gestureHandler != null)
 		{
 			gestureHandler.shutdown();

@@ -97,7 +97,7 @@ class ProgramGLES : public Program
 {
 public:
     ProgramGLES();
-    virtual ~ProgramGLES() = default;
+    virtual ~ProgramGLES();
 
     /// Initialize with both shader programs
     ProgramGLES(const std::string &name,const std::string &vShaderString,

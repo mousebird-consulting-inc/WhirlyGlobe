@@ -39,6 +39,16 @@ ProgramGLES::ProgramGLES()
 {
 }
 
+ProgramGLES::~ProgramGLES()
+{
+    if (program)
+    {
+        wkLogLevel(Warn, "ProgramGLES destroyed without being cleaned up");
+    }
+    // Clean up anyway, may fail due to thread context
+    cleanUp();
+}
+
 bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 {
     OpenGLESUniform *uni = findUniform(nameID);
@@ -273,16 +283,21 @@ bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
 bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const std::string &shaderStr)
 {
     *shaderId = glCreateShader(shaderType);
+    if (*shaderId == 0) {
+        wkLogLevel(Error,"Failed to create GL shader (%d)", shaderType);
+        return false;
+    }
+
     const GLchar *sourceCStr = shaderStr.c_str();
     glShaderSource(*shaderId, 1, &sourceCStr, nullptr);
     glCompileShader(*shaderId);
     
-    GLint status;
+    GLint status = GL_FALSE;
     glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &status);
     
     if (status != GL_TRUE)
     {
-        GLint len;
+        GLint len = 0;
         glGetShaderiv(*shaderId, GL_INFO_LOG_LENGTH, &len);
         if (len > 0)
         {
@@ -302,10 +317,21 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 
 // Construct the program, compile and link
 ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
-    : lightsLastUpdated(0.0)
+    : ProgramGLES()
 {
     name = inName;
     program = glCreateProgram();
+    if (!CheckGLError("ProgramGLES glCreateProgram"))
+    {
+        return;
+    }
+    if (!program)
+    {
+        // glCreateProgram sometimes produces zero without setting any error.
+        // This seems to be related to being called without a current context.
+        wkLogLevel(Warn, "glCreateProgram Failed (%x,%x)", glGetError(), eglGetCurrentContext());
+        return;
+    }
     
     if (!compileShader(name,"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
     {
@@ -357,7 +383,7 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
-        GLint len;
+        GLint len = 0;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
         if (len > 0)
         {

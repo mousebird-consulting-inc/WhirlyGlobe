@@ -49,13 +49,23 @@ GLuint SceneGLES::getGLTexture(SimpleIdentity texIdent)
 void SceneGLES::teardown(PlatformThreadInfo* threadInfo)
 {
     for (const auto& it : drawables)
+    {
         it.second->teardownForRenderer(setupInfo,this, nullptr);
+    }
     drawables.clear();
-    for (const auto& it : textures) {
+
+    for (const auto& it : textures)
+    {
         it.second->destroyInRenderer(setupInfo,this);
     }
     textures.clear();
-    
+
+    for (const auto &i : programs)
+    {
+        i.second->teardownForRenderer(setupInfo, this, nullptr);
+    }
+    programs.clear();
+
     memManager.clearBufferIDs();
     memManager.clearTextureIDs();
 

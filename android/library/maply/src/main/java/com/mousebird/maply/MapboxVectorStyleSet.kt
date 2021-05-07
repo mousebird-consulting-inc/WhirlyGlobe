@@ -101,7 +101,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
                 try {
                     sources.add(Source(key, sourcesDict.getDict(key), this))
                 } catch (e: Exception) {
-                    Log.w("Maply", "Error while adding source '$key'", e)
+                    Log.w("Maply", "Error while adding source '$key': ${e.message}")
                 }
             }
         }

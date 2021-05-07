@@ -703,7 +703,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			if (scene != null) {
 				scene.teardownGL();
-				scene.shutdown();
 			}
 
 			//		scene.dispose();
@@ -754,7 +753,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			baseView = null;
 			renderWrapper = null;
 			coordAdapter = null;
-			scene = null;
 			view = null;
 			tempBackground = null;
 		}
