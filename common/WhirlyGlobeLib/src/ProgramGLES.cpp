@@ -39,6 +39,11 @@ ProgramGLES::ProgramGLES()
 {
 }
 
+ProgramGLES::~ProgramGLES()
+{
+    cleanUp();
+}
+
 bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 {
     OpenGLESUniform *uni = findUniform(nameID);
@@ -273,16 +278,21 @@ bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
 bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const std::string &shaderStr)
 {
     *shaderId = glCreateShader(shaderType);
+    if (*shaderId == 0) {
+        wkLogLevel(Error,"Failed to create GL shader (%d)", shaderType);
+        return false;
+    }
+
     const GLchar *sourceCStr = shaderStr.c_str();
     glShaderSource(*shaderId, 1, &sourceCStr, nullptr);
     glCompileShader(*shaderId);
     
-    GLint status;
+    GLint status = GL_FALSE;
     glGetShaderiv(*shaderId, GL_COMPILE_STATUS, &status);
     
     if (status != GL_TRUE)
     {
-        GLint len;
+        GLint len = 0;
         glGetShaderiv(*shaderId, GL_INFO_LOG_LENGTH, &len);
         if (len > 0)
         {
@@ -357,7 +367,7 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
-        GLint len;
+        GLint len = 0;
         glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
         if (len > 0)
         {
