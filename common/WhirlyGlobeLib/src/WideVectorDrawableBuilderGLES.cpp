@@ -55,9 +55,8 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
     basicDraw->setOverrideColor(RGBAColor(c));
 
     const float width = (widthExp ? widthExp->evaluate(zoom, lineWidth) : lineWidth) + 2 * edgeSize;
-    basicDraw->setUniform(u_w2NameID, width);
-    basicDraw->setUniform(u_Realw2NameID, (float)(pixDispScale * width));
-
+    basicDraw->setUniform(u_w2NameID, width / 2);
+    basicDraw->setUniform(u_Realw2NameID, (float)(pixDispScale * width / 2));
     basicDraw->setUniform(u_EdgeNameID, edgeSize);
     basicDraw->setUniform(u_texScaleNameID, (float)texScale);
 
