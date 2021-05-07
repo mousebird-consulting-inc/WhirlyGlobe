@@ -312,7 +312,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setClearColor
 
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_teardown(JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_teardownNative(JNIEnv *env, jobject obj)
 {
 	return true;
 }

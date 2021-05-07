@@ -161,7 +161,6 @@ public class RenderController implements RenderControllerInterface
         // Need a task manager that just runs things on the current thread
         //  after setting the proper context for rendering
         TaskManager taskMan = (run, mode) -> {
-            EGL10 egl1 = (EGL10) EGLContext.getEGL();
             setEGLContext(offlineGLContext);
             run.run();
         };
@@ -381,8 +380,9 @@ public class RenderController implements RenderControllerInterface
         running = false;
 
         // Kill the shaders here because they don't do well being finalized
-        for (Shader shader : shaders)
+        for (Shader shader : shaders) {
             shader.dispose();
+        }
         shaders.clear();
 
         if (vecManager != null)
@@ -420,7 +420,16 @@ public class RenderController implements RenderControllerInterface
 
         texManager = null;
 
-        offlineGLContext = null;
+        if (offlineGLContext != null) {
+            if (offlineGLContext.eglSurface != null && offlineGLContext.eglContext != null) {
+                setEGLContext(offlineGLContext);
+                EGL10 egl = (EGL10) EGLContext.getEGL();
+                egl.eglDestroySurface(display, offlineGLContext.eglSurface);
+            }
+            offlineGLContext = null;
+        }
+
+        teardownNative();
     }
 
     /** RenderControllerInterface **/
@@ -1711,7 +1720,7 @@ public class RenderController implements RenderControllerInterface
         if (cInfo != null)
         {
             if (!egl.eglMakeCurrent(display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.d("Maply", "Failed to make current context:" + Integer.toHexString(egl.eglGetError()));
+                Log.d("Maply", "Failed to make current context: " + Integer.toHexString(egl.eglGetError()));
                 return false;
             }
 
@@ -1781,7 +1790,7 @@ public class RenderController implements RenderControllerInterface
     public native void setupShadersNative();
     public native void setViewNative(View view);
     public native void setClearColor(float r,float g,float b,float a);
-    protected native boolean teardown();
+    private native boolean teardownNative();
     protected native boolean resize(int width,int height);
     protected native void render();
     protected native boolean hasChanges();

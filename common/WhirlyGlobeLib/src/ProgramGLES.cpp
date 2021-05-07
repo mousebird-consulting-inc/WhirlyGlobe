@@ -41,6 +41,11 @@ ProgramGLES::ProgramGLES()
 
 ProgramGLES::~ProgramGLES()
 {
+    if (program)
+    {
+        wkLogLevel(Warn, "ProgramGLES destroyed without being cleaned up");
+    }
+    // Clean up anyway, may fail due to thread context
     cleanUp();
 }
 
@@ -312,10 +317,21 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 
 // Construct the program, compile and link
 ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
-    : lightsLastUpdated(0.0)
+    : ProgramGLES()
 {
     name = inName;
     program = glCreateProgram();
+    if (!CheckGLError("ProgramGLES glCreateProgram"))
+    {
+        return;
+    }
+    if (!program)
+    {
+        // glCreateProgram sometimes produces zero without setting any error.
+        // This seems to be related to being called without a current context.
+        wkLogLevel(Warn, "glCreateProgram Failed (%x,%x)", glGetError(), eglGetCurrentContext());
+        return;
+    }
     
     if (!compileShader(name,"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
     {

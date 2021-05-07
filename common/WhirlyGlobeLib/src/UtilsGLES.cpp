@@ -33,7 +33,7 @@ bool CheckGLError(const char *msg)
         const GLenum theError = glGetError();
         if (theError != GL_NO_ERROR)
         {
-            wkLogLevel(Error, "GL Error: 0x%x - %s", theError, msg);
+            wkLogLevel(Error, "GL Error: 0x%x - %s (ctx: %x)", theError, msg, eglGetCurrentContext());
             return false;
         }
     }

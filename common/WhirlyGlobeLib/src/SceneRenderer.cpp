@@ -126,8 +126,8 @@ SceneRenderer::~SceneRenderer()
     
 void SceneRenderer::init()
 {
-    scene = NULL;
-    theView = NULL;
+    scene = nullptr;
+    theView = nullptr;
     zBufferMode = zBufferOff;
     framebufferWidth = 0;
     framebufferHeight = 0;
@@ -144,7 +144,7 @@ void SceneRenderer::init()
     renderUntil = 0.0;
     extraFrames = 0;
     clearColor = RGBAColor(0,0,0,0);
-    framebufferTex = NULL;
+    framebufferTex = nullptr;
 
     // Add a simple default light
     DirectionalLight light;

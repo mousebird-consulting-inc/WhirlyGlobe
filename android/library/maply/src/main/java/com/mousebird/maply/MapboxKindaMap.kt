@@ -700,6 +700,11 @@ open class MapboxKindaMap(
         loader?.shutdown()
         loader = null
         mapboxInterp = null
+
+        offlineRender?.apply {
+            shutdown()
+        }
+
         control.clear()
     }
 
