@@ -99,6 +99,11 @@ open class MapboxKindaMap(
     var fetchSources = true
 
     /**
+     * If set, we'll fetch and use the sprites from the style sheet.
+     */
+    var fetchSprites = true
+
+    /**
      * If set, a top level directory where we'll cache everything
      */
     var cacheDir: File? = null
@@ -121,6 +126,13 @@ open class MapboxKindaMap(
     var mapboxFontFor: (String) -> String = {
         name: String ->
         name
+    }
+
+    /**
+     * Override HTTP request building to provide authorization, etc.
+     */
+    var requestFor: (Uri) -> Request.Builder = {
+        Request.Builder().url(it.toString())
     }
 
     /**
@@ -247,8 +259,7 @@ open class MapboxKindaMap(
 
             // Go get the style sheet (this will also handle local)
             val client = theControl.getHttpClient()
-            val builder = Request.Builder().url(resolvedURL.toString())
-            val task = client.newCall(builder.build())
+            val task = client.newCall(requestFor(resolvedURL).build())
             addTask(task)
             task.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
@@ -314,7 +325,7 @@ open class MapboxKindaMap(
             }
 
             // Go fetch the TileJSON
-            val task = client.newCall(Request.Builder().url(url.toString()).build())
+            val task = client.newCall(requestFor(url).build())
             addTask(task)
             task.enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
@@ -345,7 +356,7 @@ open class MapboxKindaMap(
 
         // Load the sprite sheets
         val spriteURL = styleSheet?.spriteURL
-        if (spriteURL != null && fetchSources) {
+        if (spriteURL != null) {
             val spriteJSONUrl = mapboxURLFor(Uri.parse("$spriteURL@2x.json"))
             val spritePNGUrl = mapboxURLFor(Uri.parse("$spriteURL@2x.png"))
             try {
@@ -362,8 +373,8 @@ open class MapboxKindaMap(
                 Log.e("MapboxKindaMap", "Failed to load cached sprite sheet", ex)
             }
 
-            if (spriteJSON == null) {
-                val task1 = client.newCall(Request.Builder().url(spriteJSONUrl.toString()).build())
+            if (spriteJSON == null && fetchSprites) {
+                val task1 = client.newCall(requestFor(spriteJSONUrl).build())
                 addTask(task1)
                 task1.enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
@@ -401,8 +412,8 @@ open class MapboxKindaMap(
                 Log.e("MapboxKindaMap", "Failed to load cached sprite image", ex)
             }
 
-            if (spritePNG == null) {
-                val task2 = client.newCall(Request.Builder().url(spritePNGUrl.toString()).build())
+            if (spritePNG == null && fetchSprites) {
+                val task2 = client.newCall(requestFor(spritePNGUrl).build())
                 addTask(task2)
                 task2.enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) {
