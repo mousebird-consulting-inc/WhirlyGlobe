@@ -243,14 +243,12 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(resolvedURL)
                 if (cacheUrl.toString().startsWith("file:")) {
-                    FileInputStream(cacheUrl.file).use {
-                        val json = it.bufferedReader().readText()
-                        if (json.isNotEmpty()) {
-                            styleSheetJSON = json
-                            processStyleSheet()
-                            checkFinished()
-                            return
-                        }
+                    val json = jsonFromFile(cacheUrl.file)
+                    if (json.isNotEmpty()) {
+                        styleSheetJSON = json
+                        processStyleSheet()
+                        checkFinished()
+                        return
                     }
                 }
             } catch (ex: Exception) {
@@ -311,13 +309,11 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(url)
                 if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    FileInputStream(cacheUrl.file).use {
-                        val json = it.bufferedReader().readText()
-                        if (json.isNotEmpty()) {
-                            processStylesheetJson(source, json)
-                            checkFinished()
-                            return@forEach
-                        }
+                    val json = jsonFromFile(cacheUrl.file)
+                    if (json.isNotEmpty()) {
+                        processStylesheetJson(source, json)
+                        checkFinished()
+                        return@forEach
                     }
                 }
             } catch (ex: Exception) {
@@ -362,12 +358,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(spriteJSONUrl)
                 if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    FileInputStream(cacheUrl.file).use {
-                        val json = it.bufferedReader().readText()
-                        if (json.isNotEmpty()) {
-                            spriteJSON = json
-                        }
-                    }
+                    spriteJSON = jsonFromFile(cacheUrl.file)
                 }
             } catch (ex: Exception) {
                 Log.e("MapboxKindaMap", "Failed to load cached sprite sheet", ex)
@@ -718,6 +709,13 @@ open class MapboxKindaMap(
 
         control.clear()
     }
+
+    private fun jsonFromFile(fileName: String) =
+        FileInputStream(fileName).use { stream->
+            stream.bufferedReader().use { reader ->
+                reader.readText()
+            }
+        }
 
     private val control : WeakReference<BaseController> = WeakReference<BaseController>(inControl)
     private val outstandingFetches = ArrayList<Call?>()
