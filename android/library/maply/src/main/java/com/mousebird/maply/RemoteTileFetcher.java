@@ -627,8 +627,9 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // Write to the local cache.  Called on a random thread.
     protected void writeToCache(TileInfo tile,byte[] data)
     {
-        File cacheFile = tile.fetchInfo.cacheFile;
-        if (cacheFile == null)
+        RemoteTileFetchInfo info = (tile != null) ? tile.fetchInfo : null;
+        File cacheFile = (info != null) ? info.cacheFile : null;
+        if (cacheFile == null || data == null || data.length < 1)
             return;
 
         File parent = cacheFile.getParentFile();
