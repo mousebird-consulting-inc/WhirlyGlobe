@@ -330,3 +330,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutImportan
 		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setLayoutImportance()");
 	}
 }
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOrderBy
+		(JNIEnv *env, jobject obj, jint order)
+{
+	try
+	{
+		if (auto marker = MarkerClassInfo::get(env,obj))
+		{
+			marker->orderBy = order;
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setOrderBy()");
+	}
+}

@@ -48,6 +48,9 @@ class InternalMarker
 		if (marker.vertexAttributes != null)
 			setVertexAttributes(marker.vertexAttributes.toArray());
 		setLayoutImportance(marker.layoutImportance);
+		if (marker.orderBy != 0) {
+			setOrderBy(marker.orderBy);
+		}
 	}
 	
 	/**
@@ -116,6 +119,7 @@ class InternalMarker
 	public native void setPeriod(double period);
 	public native void setVertexAttributes(Object[] vertexAttributes);
 	public native void setLayoutImportance(float importance);
+	public native void setOrderBy(int order);
 
 	static
 	{

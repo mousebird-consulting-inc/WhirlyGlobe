@@ -65,7 +65,7 @@ public class ScreenMarker
 	/**
 	 * If set we'll animate these images one after the other over the duration.
 	 */
-	public MaplyTexture images[] = null;
+	public MaplyTexture[] images = null;
 
 	/**
 	 * If images are passed in, this is the time it will take to cycle through them all.
@@ -114,4 +114,12 @@ public class ScreenMarker
 	 * that's created.
 	 */
 	public ArrayList<VertexAttribute> vertexAttributes = null;
+
+	/**
+	 * Screen markers are usually grouped together for rendering efficiency.
+	 * This controls the order of the marker within that grouping.
+	 * <code>orderBy</code> is less important than <code>drawPriority</code>.
+	 * Default is 0 and means no re-ordering, i.e., the order in which they are provided.
+	 */
+	public int orderBy = 0;
 }
