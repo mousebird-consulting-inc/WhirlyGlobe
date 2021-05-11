@@ -243,7 +243,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(resolvedURL)
                 if (cacheUrl.toString().startsWith("file:")) {
-                    val json = jsonFromFile(cacheUrl.file)
+                    val json = readFile(cacheUrl.file)
                     if (json.isNotEmpty()) {
                         styleSheetJSON = json
                         processStyleSheet()
@@ -309,7 +309,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(url)
                 if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    val json = jsonFromFile(cacheUrl.file)
+                    val json = readFile(cacheUrl.file)
                     if (json.isNotEmpty()) {
                         processStylesheetJson(source, json)
                         checkFinished()
@@ -358,7 +358,7 @@ open class MapboxKindaMap(
             try {
                 val cacheUrl = cacheResolve(spriteJSONUrl)
                 if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    spriteJSON = jsonFromFile(cacheUrl.file)
+                    spriteJSON = readFile(cacheUrl.file)
                 }
             } catch (ex: Exception) {
                 Log.e("MapboxKindaMap", "Failed to load cached sprite sheet", ex)
@@ -375,13 +375,18 @@ open class MapboxKindaMap(
 
                     override fun onResponse(call: Call, response: Response) {
                         response.use {
-                            if (!finished) {
-                                it.body?.use { body ->
-                                    val bytes = body.bytes()
-                                    if (bytes.isNotEmpty()) {
-                                        spriteJSON = String(bytes)
-                                        cacheFile(spriteJSONUrl, bytes)
-                                    }
+                            if (finished) return@use
+                            if (!response.isSuccessful) {
+                                Log.w("MapboxKindaMap",
+                                    "Sprite sheet request failed with ${response.code}: ${response.message}");
+                                return@use
+                            }
+                            it.body?.use { body ->
+                                val bytes = body.bytes()
+                                if (bytes.isNotEmpty()) {
+                                    // todo: validate that it's not some kind of error message
+                                    spriteJSON = String(bytes)
+                                    cacheFile(spriteJSONUrl, bytes)
                                 }
                             }
                         }
@@ -414,13 +419,27 @@ open class MapboxKindaMap(
 
                     override fun onResponse(call: Call, response: Response) {
                         response.use {
-                            if (!finished) {
-                                it.body?.use { body ->
-                                    val bytes = body.bytes()
-                                    if (bytes.isNotEmpty()) {
-                                        spritePNG =
-                                            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                            if (finished) return@use
+                            if (!response.isSuccessful) {
+                                Log.w("MapboxKindaMap",
+                                    "Sprite PNG request failed with ${response.code}: ${response.message}");
+                                return@use
+                            }
+                            it.body?.use { body ->
+                                val bytes = body.bytes()
+                                if (bytes.isNotEmpty()) {
+                                    spritePNG =
+                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                                    if (spritePNG != null) {
                                         cacheFile(spritePNGUrl, bytes)
+                                    } else {
+                                        // Probably some error HTML/JSON instead
+                                        val msg: String = kotlin.runCatching {
+                                            String(bytes, Charsets.UTF_8).let { s ->
+                                                if (s.length > 100) s.substring(0,100) else s
+                                            }
+                                        }.getOrDefault("?")
+                                        Log.w("MapboxKindaMap", "Failed to read sprite PNG ($msg)")
                                     }
                                 }
                             }
@@ -710,7 +729,7 @@ open class MapboxKindaMap(
         control.clear()
     }
 
-    private fun jsonFromFile(fileName: String) =
+    private fun readFile(fileName: String) =
         FileInputStream(fileName).use { stream->
             stream.bufferedReader().use { reader ->
                 reader.readText()
