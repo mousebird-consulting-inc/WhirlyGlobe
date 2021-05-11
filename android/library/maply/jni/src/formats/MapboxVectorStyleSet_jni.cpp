@@ -399,3 +399,38 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_addSpri
 
     return true;
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getSpriteInfoNative
+    (JNIEnv *env, jobject obj, jstring nameStr, jintArray xywh)
+{
+    try
+    {
+        if (!nameStr || !xywh || env->GetArrayLength(xywh) != 4) {
+            return false;
+        }
+
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        const auto sprites = (styleSetRef && *styleSetRef) ? (*styleSetRef)->sprites : nullptr;
+        if (!sprites) {
+            return false;
+        }
+
+        const JavaString name(env,nameStr);
+        const auto entry = sprites->getSprite(name.getCString());
+        if (entry.width == 0 || entry.height == 0)
+        {
+            return false;
+        }
+
+        const int v[] = { entry.x, entry.y, entry.width, entry.height };
+        env->SetIntArrayRegion(xywh, 0, 4, &v[0]);
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::addSpritesNative()");
+    }
+
+    return false;
+}

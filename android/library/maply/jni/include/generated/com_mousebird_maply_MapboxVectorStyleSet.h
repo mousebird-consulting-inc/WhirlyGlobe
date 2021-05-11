@@ -92,6 +92,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setLayerVis
 
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_addSpritesNative
         (JNIEnv *, jobject, jstring, jlong, jint , jint);
+
+/*
+ * Class:     com_mousebird_maply_MapboxVectorStyleSet
+ * Method:    getSpriteInfoNative
+ * Signature: (Ljava/lang/String;[I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getSpriteInfoNative
+        (JNIEnv *env, jobject obj, jstring nameStr, jintArray xywh);
+
 /*
  * Class:     com_mousebird_maply_MapboxVectorStyleSet
  * Method:    initialise

@@ -276,7 +276,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     var legendBorderSize = 1
 
     /**
-     * Returns a dictionary containing a flexible legend for the layers contained in this style.
+     * Returns a list containing a flexible legend for the layers contained in this style.
      * Each layer is rendered as a representative image at the given size.  Layer names that start
      * with the same "<name>_" will be grouped together in the hierarchy if the group parameter is
      * set.  Otherwise they'll be flat
@@ -298,7 +298,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             val (group, name) = if (useGroups) parseIdent(ident) else Pair(null, ident)
 
             val color = style.getInt("legendColor")?: Color.TRANSPARENT
-            
+
             val bitmap = when (style.getString("type")) {
                 "background" -> getSolidImage(imageSize, color)
                 "symbol" -> getSymbolImage(imageSize, color, style.getString("legendText"))
@@ -344,14 +344,25 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         }
         return image
     }
-    
+
+    private val spriteExts = arrayOf("", ".svg", ".png")
+
     private fun getSymbolImage(size: Size, @ColorInt color: Int, text: String?): Bitmap? {
         val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
         image.eraseColor(Color.TRANSPARENT)
         val canvas = Canvas(image)
+
         if (text?.isNotEmpty() == true) {
-            // todo: get sprite
-        } // else {
+            spriteExts.asSequence(/*lazy eval*/)
+                      .mapNotNull { getSprite("$text$it") }
+                      .firstOrNull()?.let { sprite ->
+                val srcRect = Rect(0, 0, sprite.width, sprite.height)
+                val dstRect = Rect(0, 0, image.width, image.height)
+                val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.FILTER_BITMAP_FLAG))
+                canvas.drawBitmap(sprite, srcRect, dstRect, paint)
+                return image
+            }
+        }
         val paint = Paint(Paint.ANTI_ALIAS_FLAG.or(Paint.HINTING_ON).or(Paint.SUBPIXEL_TEXT_FLAG))
         paint.color = color
         paint.typeface = Typeface.create("Arial", Typeface.BOLD)
@@ -401,6 +412,8 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
 
     private var spriteTex: MaplyTexture? = null
+    private var spriteSheet: Bitmap? = null
+
     /**
      * Add the sprites
      */
@@ -408,12 +421,24 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         val control = control?.get() ?: return
 
         val spriteTex = control.addTexture(spriteSheet, RenderControllerInterface.TextureSettings(),
-                RenderControllerInterface.ThreadMode.ThreadCurrent) ?: return
+                ThreadMode.ThreadCurrent) ?: return
         this.spriteTex = spriteTex
+        this.spriteSheet = spriteSheet
         addSpritesNative(spriteJSON, spriteTex.texID, spriteSheet.width, spriteSheet.height)
     }
 
-    external fun addSpritesNative(spriteJSON: String, texID: Long, width: Int, height: Int): Boolean
+    fun getSprite(name: String): Bitmap? {
+        val xywh = intArrayOf(0,0,0,0)
+        val src = spriteSheet
+        if (src == null || !getSpriteInfoNative(name, xywh)) {
+            return null
+        }
+        return Bitmap.createBitmap(src, xywh[0], xywh[1], xywh[2], xywh[3])
+    }
+
+    protected external fun addSpritesNative(spriteJSON: String, texID: Long, width: Int, height: Int): Boolean
+
+    protected external fun getSpriteInfoNative(name: String, xywh: IntArray): Boolean
 
     // Set a named layer visible or invisible
     public external fun setLayerVisible(layerName: String, visible: Boolean)
