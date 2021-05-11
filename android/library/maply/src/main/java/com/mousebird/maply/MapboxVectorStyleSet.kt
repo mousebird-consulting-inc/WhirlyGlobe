@@ -395,18 +395,24 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     }
     
     private fun getCircleImage(size: Size, @ColorInt color: Int): Bitmap? {
+        val w = size.width.toFloat()
+        val h = size.height.toFloat()
+        val border = legendBorderSize.toFloat()
+
         val image = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
         image.eraseColor(Color.TRANSPARENT)
+
         val canvas = Canvas(image)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         paint.style = Paint.Style.FILL
         paint.color = color
-        canvas.drawOval(RectF(0f, 0f, size.width.toFloat(), size.height.toFloat()), paint)
-        if (legendBorderSize > 0) {
+        canvas.drawOval(RectF(0f, 0f, w, h), paint)
+        if (border > 0) {
             paint.style = Paint.Style.STROKE
-            paint.strokeWidth = legendBorderSize.toFloat()
+            paint.strokeWidth = border
             paint.color = legendBorderColor
-            canvas.drawOval(RectF(0f, 0f, size.width.toFloat(), size.height.toFloat()), paint)
+            // stroke is centered on the oval, so back it off by half the stroke width
+            canvas.drawOval(RectF(border/2, border/2, w-border/2, h-border/2), paint)
         }
         return image
     }
