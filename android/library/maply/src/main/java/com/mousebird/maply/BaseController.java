@@ -2317,6 +2317,27 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Offset for draw priorities on screen objects
+	 */
+	public int getScreenObjectDrawPriorityOffset() {
+		return (renderControl != null) ? renderControl.getScreenObjectDrawPriorityOffset() : 0;
+	}
+
+	/**
+	 * Set the offset for the screen space objects.
+	 * In general you want the screen space objects to appear on top of everything else.
+	 * There used to be structural reasons for this, but now you can mix and match where
+	 * everything appears.  This controls the offset that's used to push screen space objects
+	 * behind everything else in the list (and thus, on top).
+	 * If you set this to 0, you can control the ordering of everything more precisely.
+	 */
+	public void setScreenObjectDrawPriorityOffset(int offset) {
+		if (renderControl != null) {
+			renderControl.setScreenObjectDrawPriorityOffset(offset);
+		}
+	}
+
+	/**
 	 * True if the renderer was set up as offline.
 	 * Never going to be true for this.
 	 */
