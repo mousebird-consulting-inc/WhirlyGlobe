@@ -132,10 +132,14 @@ public:
     
     // Apply a dynamic color expression
     void setColorExpression(const ColorExpressionInfoRef &colorExp);
-    
+
+    const ColorExpressionInfoRef &getColorExpression() const { return colorExp; }
+
     // Apply a dynamic opacity expression
     void setOpacityExpression(const FloatExpressionInfoRef &opacityExp);
-    
+
+    const FloatExpressionInfoRef &getOpacityExpression() const { return opacityExp; }
+
     /// Number of extra frames to draw after we'd normally stop
     virtual void setExtraFrames(int numFrames);
     

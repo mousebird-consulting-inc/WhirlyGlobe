@@ -209,11 +209,15 @@ protected:
     WideVecImplType implType;
     BasicDrawableInstanceBuilderRef instDrawable;
 
-    RGBAColor color = RGBAColor::white();
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
-    FloatExpressionInfoRef opacityExp;
+    
+    // These duplicate fields in the basic drawable builder, but are needed
+    // by the Metal builders because they aren't also in the instance builder.
+    // We need to ensure that changes are propagated to the basic drawable builder.
+    RGBAColor color = RGBAColor::white();
     ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef opacityExp;
 
     // Centerline structure (for Metal)
     typedef struct {

@@ -31,7 +31,7 @@ class MapboxVectorStyleSetImpl_Android : public MapboxVectorStyleSetImpl
 {
 public:
     MapboxVectorStyleSetImpl_Android(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
-    ~MapboxVectorStyleSetImpl_Android();
+    virtual ~MapboxVectorStyleSetImpl_Android();
 
     /** Platform specific implementation **/
 

@@ -329,7 +329,11 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     {
         // glCreateProgram sometimes produces zero without setting any error.
         // This seems to be related to being called without a current context.
+#if defined(EGL_VERSION_1_4)
         wkLogLevel(Warn, "glCreateProgram Failed (%x,%x)", glGetError(), eglGetCurrentContext());
+#else
+        wkLogLevel(Warn, "glCreateProgram Failed (%x)", glGetError());
+#endif
         return;
     }
     

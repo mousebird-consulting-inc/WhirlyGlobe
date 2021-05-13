@@ -39,7 +39,7 @@ void MapboxVectorStyleSetImpl_Android::setupMethods(JNIEnv *env)
 {
     if (!makeLabelInfoMethod)
     {
-        jclass thisClass = MapboxVectorStyleSetClassInfo::getClassInfo()->getClass();
+        const jclass thisClass = MapboxVectorStyleSetClassInfo::getClassInfo()->getClass();
         makeLabelInfoMethod      = env->GetMethodID(thisClass,"labelInfoForFont",  "(Ljava/lang/String;F)Lcom/mousebird/maply/LabelInfo;");
         calculateTextWidthMethod = env->GetMethodID(thisClass,"calculateTextWidth","(Ljava/lang/String;Lcom/mousebird/maply/LabelInfo;)D");
         makeCircleTextureMethod  = env->GetMethodID(thisClass,"makeCircleTexture", "(DIIFLcom/mousebird/maply/Point2d;)J");
@@ -141,6 +141,8 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
 
     try
     {
+        setupMethods(inst->env);
+
         const auto key = std::make_pair(fontNames[0],fontSize);
         const auto result = labelInfos.insert(std::make_pair(key, LabelInfoAndroidRef()));
         if (!result.second)
@@ -156,7 +158,7 @@ LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo 
 
         if (jobject labelInfoGlobeObj = inst->env->NewGlobalRef(labelInfo))
         {
-            const auto newRef = LabelInfoClassInfo::getClassInfo()->getObject(inst->env,labelInfoGlobeObj);
+            const auto newRef = LabelInfoClassInfo::get(inst->env,labelInfoGlobeObj);
             const auto refLabelInfo = *newRef;
             refLabelInfo->labelInfoObj = labelInfoGlobeObj;
             refLabelInfo->programID = screenMarkerProgramID;
