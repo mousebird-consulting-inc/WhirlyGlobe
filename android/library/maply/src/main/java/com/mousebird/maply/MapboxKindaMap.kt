@@ -186,20 +186,20 @@ open class MapboxKindaMap(
     }
 
     // If we're using a cache dir, look for the file there
-    protected fun cacheResolve(url: Uri) : URL {
+    protected fun cacheResolve(url: Uri) : File? {
         val fileRef = cacheName(url)
         if (fileRef != null && fileRef.exists()) {
-            return URL(Uri.fromFile(fileRef).toString())
+            return fileRef
         }
-
-        return URL(url.toString())
+        return null
     }
 
     // Generate a workable cache file path
     protected fun cacheName(url: Uri) : File? {
         // It's already local
-        if (url.scheme == "file" && url.toFile().exists())
+        if (url.scheme == "file" && url.toFile().exists()) {
             return url.toFile()
+        }
 
         // If the cache dir doesn't exist, we need to create it
         val theCacheDir = cacheDir ?: return null
@@ -247,9 +247,8 @@ open class MapboxKindaMap(
 
             // todo: reduce duplication with processStylesheet
             try {
-                val cacheUrl = cacheResolve(resolvedURL)
-                if (cacheUrl.toString().startsWith("file:")) {
-                    val json = readFile(cacheUrl.file)
+                cacheResolve(resolvedURL)?.let { cacheFile ->
+                    val json = readFile(cacheFile)
                     if (json.isNotEmpty()) {
                         styleSheetJSON = json
                         processStyleSheet()
@@ -313,9 +312,8 @@ open class MapboxKindaMap(
             val url = mapboxURLFor(Uri.parse(source.url))
 
             try {
-                val cacheUrl = cacheResolve(url)
-                if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    val json = readFile(cacheUrl.file)
+                cacheResolve(url)?.let { cacheFile ->
+                    val json = readFile(cacheFile)
                     if (json.isNotEmpty()) {
                         processStylesheetJson(source, json)
                         checkFinished()
@@ -370,9 +368,8 @@ open class MapboxKindaMap(
         val spriteJSONUrl = mapboxURLFor(Uri.parse("$spriteURL$resStr.json"))
         val spritePNGUrl = mapboxURLFor(Uri.parse("$spriteURL$resStr.png"))
         try {
-            val cacheUrl = cacheResolve(spriteJSONUrl)
-            if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                spriteJSON = readFile(cacheUrl.file)
+            cacheResolve(spriteJSONUrl)?.let { cacheFile ->
+                spriteJSON = readFile(cacheFile)
             }
         } catch (ex: Exception) {
             Log.e("MapboxKindaMap", "Failed to load cached sprite sheet", ex)
@@ -412,10 +409,9 @@ open class MapboxKindaMap(
 
         // Look for the PNG in the cache
         try {
-            val cacheUrl = cacheResolve(spritePNGUrl)
-            if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                FileInputStream(cacheUrl.file).use {
-                    spritePNG = BitmapFactory.decodeFile(cacheUrl.path)
+            cacheResolve(spritePNGUrl)?.let { cacheFile ->
+                FileInputStream(cacheFile).use {
+                    spritePNG = BitmapFactory.decodeStream(it)
                 }
             }
         } catch (ex: Exception) {
@@ -742,8 +738,9 @@ open class MapboxKindaMap(
         control.clear()
     }
 
-    private fun readFile(fileName: String) =
-        FileInputStream(fileName).use { stream->
+    private fun readFile(fileName: String) = readFile(File(fileName))
+    private fun readFile(file: File) =
+        FileInputStream(file).use { stream->
             stream.bufferedReader().use { reader ->
                 reader.readText()
             }
@@ -751,7 +748,10 @@ open class MapboxKindaMap(
 
     private val control : WeakReference<BaseController> = WeakReference<BaseController>(inControl)
     private val outstandingFetches = ArrayList<Call?>()
-    private val cacheNamePattern = Regex("[|?*<\":%@>+\\[\\]\\\\/]")
+
+    // Characters which we don't put in cache filenames.
+    // Equals and Ampersand are valid, but get escaped by URI, and so tend to cause trouble.
+    private val cacheNamePattern = Regex("[|?*<\":%@>+\\[\\]\\\\/=&]")
     private var finished = false
 
     init {
