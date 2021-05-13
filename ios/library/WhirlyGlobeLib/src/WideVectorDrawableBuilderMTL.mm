@@ -1,9 +1,8 @@
-/*
- *  WideVectorDrawableBuilderMTL.mm
+/*  WideVectorDrawableBuilderMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <MetalKit/MetalKit.h>
@@ -72,14 +70,14 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecUniBlock()
     // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
-    uniWV.w2 = lineWidth/2.0;
+    uniWV.w2 = lineWidth/2.0f;
     uniWV.offset = lineOffset;
     uniWV.edge = edgeSize;
     uniWV.texRepeat = texRepeat;
     uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp;
     
     BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]));
+    uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]);
     uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
 
     return uniBlock;
@@ -99,9 +97,9 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecExpUniBlock()
         FloatExpressionToMtl(opacityExp,wideVecExp.opacityExp);
     if (colorExp)
         ColorExpressionToMtl(colorExp,wideVecExp.colorExp);
-    
+
     BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]));
+    uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]);
     uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
     
     return uniBlock;
@@ -119,7 +117,8 @@ BasicDrawableRef WideVectorDrawableBuilderMTL::getBasicDrawable()
     colorAttr->setDefaultColor(basicDrawable->color);
     
     // Apply uniform blocks that control general function
-    if (implType == WideVecImplBasic) {
+    if (implType == WideVecImplBasic)
+    {
         basicDrawable->basicDraw->setUniBlock(wideVecUniBlock());
         if (widthExp || offsetExp || colorExp || opacityExp)
             basicDrawable->basicDraw->setUniBlock(wideVecExpUniBlock());
@@ -137,7 +136,7 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
 
     if (!instDrawable)
         return nullptr;
-    
+
     instDrawable->getDrawable();
 
     // Apply uniform blocks to control general function
@@ -170,7 +169,7 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
 int WideVectorDrawableBuilderMTL::maxInstances() const
 {
     // Just figure out big a buffer we'll have.  32MB seems plenty
-    int instSize = std::min(256,(int)sizeof(WhirlyKitShader::VertexTriWideVecInstance));
+    constexpr int instSize = std::min(256,(int)sizeof(WhirlyKitShader::VertexTriWideVecInstance));
     return 32*1024*1024 / instSize;
 }
 
