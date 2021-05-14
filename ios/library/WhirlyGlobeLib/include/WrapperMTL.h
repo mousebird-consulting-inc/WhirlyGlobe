@@ -97,12 +97,12 @@ public:
     // Construct either track all buffers, or just track what we need to use()
     ResourceRefsMTL(bool trackHolds=false);
     
-    void addEntry(BufferEntryMTL &entry);
+    void addEntry(const BufferEntryMTL &entry);
     void addBuffer(id<MTLBuffer> buffer);
-    void addTexture(TextureEntryMTL &texture);
+    void addTexture(const TextureEntryMTL &texture);
     void addTextures(const std::vector<TextureEntryMTL> &textures);
 
-    void addResources(ResourceRefsMTL &other);
+    void addResources(const ResourceRefsMTL &other);
     
     // Wire up the resources listed
     void use(id<MTLRenderCommandEncoder> cmdEncode);
@@ -213,9 +213,11 @@ public:
 };
 
 /// Convert  a float expression into its Metal version
-void FloatExpressionToMtl(FloatExpressionInfoRef srcInfo,WhirlyKitShader::FloatExp &destExp);
+void FloatExpressionToMtl(const FloatExpressionInfoRef &srcInfo,
+                          WhirlyKitShader::FloatExp &destExp);
 
 /// Convert a color expression into its Metal version
-void ColorExpressionToMtl(ColorExpressionInfoRef srcInfo,WhirlyKitShader::ColorExp &destExp);
+void ColorExpressionToMtl(const ColorExpressionInfoRef &srcInfo,
+                          WhirlyKitShader::ColorExp &destExp);
 
 }

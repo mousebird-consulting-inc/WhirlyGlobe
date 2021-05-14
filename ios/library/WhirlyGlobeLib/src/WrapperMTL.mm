@@ -1,9 +1,8 @@
-/*
- *  WrapperMTL.mm
+/*  WrapperMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WrapperMTL.h"
@@ -51,9 +49,9 @@ void CopyIntoMtlFloat4x4Pair(simd::float4x4 &dest,simd::float4x4 &destDiff,const
 {
     for (unsigned int ix=0;ix<4;ix++)
         for (unsigned int iy=0;iy<4;iy++) {
-            double val = src(ix*4+iy);
-            float fVal = val;
-            float fDiff = val - fVal;
+            const double val = src(ix*4+iy);
+            const float fVal = val;
+            const float fDiff = val - fVal;
             
             dest.columns[ix][iy] = fVal;
             destDiff.columns[ix][iy] = fDiff;
@@ -192,7 +190,7 @@ ResourceRefsMTL::ResourceRefsMTL(bool trackHolds)
 {
 }
 
-void ResourceRefsMTL::addEntry(BufferEntryMTL &entry)
+void ResourceRefsMTL::addEntry(const BufferEntryMTL &entry)
 {
     if (entry.heap)
         heaps.insert(entry.heap);
@@ -208,7 +206,7 @@ void ResourceRefsMTL::addBuffer(id<MTLBuffer> buffer)
     buffers.insert(buffer);
 }
 
-void ResourceRefsMTL::addTexture(TextureEntryMTL &tex)
+void ResourceRefsMTL::addTexture(const TextureEntryMTL &tex)
 {
     if (tex.heap)
         heaps.insert(tex.heap);
@@ -221,11 +219,11 @@ void ResourceRefsMTL::addTexture(TextureEntryMTL &tex)
 
 void ResourceRefsMTL::addTextures(const std::vector<TextureEntryMTL> &textures)
 {
-    for (auto tex: textures)
+    for (const auto &tex: textures)
         addTexture(tex);
 }
 
-void ResourceRefsMTL::addResources(ResourceRefsMTL &other)
+void ResourceRefsMTL::addResources(const ResourceRefsMTL &other)
 {
     heaps.insert(other.heaps.begin(),other.heaps.end());
     buffers.insert(other.buffers.begin(),other.buffers.end());
@@ -272,9 +270,9 @@ void RenderTeardownInfoMTL::clear()
 
     // For Metal, we just drop the references and the rest is cleaned up
     for (auto &draw: drawables)
-        draw->teardownForRenderer(NULL, NULL, NULL);
+        draw->teardownForRenderer(nullptr, nullptr, nullptr);
     for (auto &tex: textures)
-        tex->destroyInRenderer(NULL,NULL);
+        tex->destroyInRenderer(nullptr, nullptr);
 }
 
 void RenderTeardownInfoMTL::destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex)
@@ -413,76 +411,75 @@ TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *d
 {
     TextureEntryMTL tex;
     
-    if (UseHeaps) {
-        // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
-        for (unsigned int ii=0;ii<3;ii++)
-            if (!tex.tex) {
-                std::lock_guard<std::mutex> guardLock(texLock);
-
-                tex.heap = findTextureHeap(desc, (1<<ii)*size);
-                tex.tex = [tex.heap newTextureWithDescriptor:desc];
-                if (tex.tex)
-                    break;
-            }
-    } else {
+    if (UseHeaps)
+    {
+        // It turns out that our estimates on size aren't valid for
+        // some formats, so try a few times with bigger estimates
+        for (unsigned int ii=0;ii<3 && !tex.tex;ii++)
+        {
+            std::lock_guard<std::mutex> guardLock(texLock);
+            tex.heap = findTextureHeap(desc, (1<<ii)*size);
+            tex.tex = [tex.heap newTextureWithDescriptor:desc];
+        }
+    }
+    else
+    {
         tex.tex = [mtlDevice newTextureWithDescriptor:desc];
     }
 
-    if (!tex.tex) {
+    if (!tex.tex)
+    {
         wkLogLevel(Warn, "Failed to allocate texture (%lld)", size);
     }
     
     return tex;
 }
 
-RenderSetupInfoMTL::RenderSetupInfoMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary)
-: mtlDevice(mtlDevice), heapManage(mtlDevice)
+RenderSetupInfoMTL::RenderSetupInfoMTL(id<MTLDevice> mtlDevice,
+                                       id<MTLLibrary> mtlLibrary) :
+    mtlDevice(mtlDevice),
+    heapManage(mtlDevice)
 {
     memAlign = [mtlDevice heapBufferSizeAndAlignWithLength:1 options:MTLResourceUsageRead].align;
 }
-    
-void FloatExpressionToMtl(FloatExpressionInfoRef expInfo,WhirlyKitShader::FloatExp &mtlExp)
+
+static WhirlyKitShader::ExpType ToExpType(ExpressionInfoType type)
 {
-    switch (expInfo->type) {
-        case ExpressionNone:
-            mtlExp.type = WhirlyKitShader::ExpNone;
-            break;
-        case ExpressionLinear:
-            mtlExp.type = WhirlyKitShader::ExpLinear;
-            break;
-        case ExpressionExponential:
-            mtlExp.type = WhirlyKitShader::ExpExponential;
-            break;
+    switch (type)
+    {
+        case ExpressionNone:        return WhirlyKitShader::ExpNone;
+        default:
+        case ExpressionLinear:      return WhirlyKitShader::ExpLinear;
+        case ExpressionExponential: return WhirlyKitShader::ExpExponential;
     }
+}
+
+void FloatExpressionToMtl(const FloatExpressionInfoRef &expInfo,WhirlyKitShader::FloatExp &mtlExp)
+{
+    mtlExp.type = ToExpType(expInfo->type);
+    mtlExp.base = expInfo->base;
     mtlExp.numStops = std::min(std::min(expInfo->stopInputs.size(),expInfo->stopOutputs.size()),(size_t)WKSExpStops);
-    for (unsigned int ii=0;ii<mtlExp.numStops;ii++) {
-        mtlExp.base = expInfo->base;
+    for (unsigned int ii=0;ii<mtlExp.numStops;ii++)
+    {
         mtlExp.stopInputs[ii] = expInfo->stopInputs[ii];
         mtlExp.stopOutputs[ii] = expInfo->stopOutputs[ii];
     }
 }
 
-void ColorExpressionToMtl(ColorExpressionInfoRef expInfo,WhirlyKitShader::ColorExp &mtlExp)
+void ColorExpressionToMtl(const ColorExpressionInfoRef &expInfo,WhirlyKitShader::ColorExp &mtlExp)
 {
-    switch (expInfo->type) {
-        case ExpressionNone:
-            mtlExp.type = WhirlyKitShader::ExpNone;
-            break;
-        case ExpressionLinear:
-            mtlExp.type = WhirlyKitShader::ExpLinear;
-            break;
-        case ExpressionExponential:
-            mtlExp.type = WhirlyKitShader::ExpExponential;
-            break;
-    }
+    mtlExp.type = ToExpType(expInfo->type);
+    mtlExp.base = expInfo->base;
     mtlExp.numStops = std::min(std::min(expInfo->stopInputs.size(),expInfo->stopOutputs.size()),(size_t)WKSExpStops);
-    for (unsigned int ii=0;ii<mtlExp.numStops;ii++) {
-        mtlExp.base = 1.0;
+    for (unsigned int ii=0;ii<mtlExp.numStops;ii++)
+    {
         mtlExp.stopInputs[ii] = expInfo->stopInputs[ii];
         float vals[4];
         expInfo->stopOutputs[ii].asUnitFloats(vals);
         for (unsigned int jj=0;jj<4;jj++)
+        {
             mtlExp.stopOutputs[ii][jj] = vals[jj];
+        }
     }
 }
 
