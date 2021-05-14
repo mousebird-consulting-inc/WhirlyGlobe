@@ -235,6 +235,39 @@
 	return @[lines,screenLines,realLines,labelObj];
 }
 
+- (void)overlap:(MaplyBaseViewController *)viewC {
+
+    NSDictionary *wideDesc = @{
+        kMaplyColor: [UIColor colorWithRed:0 green:0 blue:1.0 alpha:0.2],
+        kMaplyFilled: @NO,
+        kMaplyEnable: @YES,
+        kMaplyFade: @0,
+        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+        kMaplyVecCentered: @YES,
+        kMaplyVecTexture: [NSNull null],
+        kMaplyWideVecEdgeFalloff:@(5),
+        kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+        kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+        kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+        kMaplyWideVecOffset: @(10.0),
+        kMaplyWideVecMiterLimit: @(10.0),  // More than 10 degrees need a bevel join
+        kMaplyVecWidth: @(20.0),
+        kMaplyWideVecImpl: kMaplyWideVecImplPerf,//kMaplyWideVecImpl,
+    };
+
+    NSMutableArray* objs = [NSMutableArray new];
+    for (int i = 0; i < 5; ++i) {
+        MaplyCoordinate coords[2] = {
+            MaplyCoordinateMakeWithDegrees(-90 + i*2, 40),
+            MaplyCoordinateMakeWithDegrees(-80 - i*2, 30),
+        };
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:&coords[0] numCoords:2 attributes:nil];
+        [vecObj subdivideToGlobe:0.0001];
+        [objs addObject:vecObj];
+    }
+    [viewC addWideVectors:objs desc:wideDesc mode:MaplyThreadCurrent];
+}
+
 - (void)wideLineTest:(MaplyBaseViewController *)viewC
 {
     [self addGeoJson:@"sawtooth.geojson" dashPattern:nil width:50.0 edge:20.0 simple:false viewC:viewC];
@@ -251,6 +284,7 @@
     //    [self addGeoJson:@"straight.geojson"];
     //    [self addGeoJson:@"uturn.geojson"];
     
+    [self overlap:viewC];
 }
 
 

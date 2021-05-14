@@ -67,14 +67,23 @@ open class MapTilerTestCase : MaplyTestCase
             }
         } ?: customStyle
     
-    // Switch maps on long press
+    // don't switch on long-press, it's too easy to do accidentally when pinching
     override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
-        switchMaps()
     }
     override fun userDidLongPress(mapController: MapController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
+    }
+    
+    // Switch maps on long tap
+    override fun userDidTap(globeControl: GlobeController?, loc: Point2d?, screenLoc: Point2d?) {
+        super.userDidTap(globeControl, loc, screenLoc)
         switchMaps()
     }
-
+    
+    override fun userDidTap(mapControl: MapController?, loc: Point2d?, screenLoc: Point2d?) {
+        super.userDidTap(mapControl, loc, screenLoc)
+        switchMaps()
+    }
+    
     private fun switchMaps() {
         currentMap = (currentMap + 1) % getMaps().size
         baseViewC?.let { setupLoader(it, currentMap) }
@@ -121,7 +130,48 @@ open class MapTilerTestCase : MaplyTestCase
                    "line-color":{"base":1,"stops":[[5,"hsl(26,87%,62%)"],[16,"#0f0"]]},
                    "line-width":{"base":1.2,"stops":[[5,0],[16,60]]}
                  }
-              }
+              },
+    {
+      "id": "road_minor",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": [
+        "all",
+        [
+          "==",
+          "${"$"}type",
+          "LineString"
+        ],
+        [
+          "in",
+          "class",
+          "minor",
+          "service"
+        ]
+      ],
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "rgba(247, 247, 247, 0.12)",
+        "Xline-color": "rgba(247, 0, 0, 1.0)",
+        "line-width": {
+          "base": 1.55,
+          "stops": [
+            [
+              4,
+              0.25
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      }
+    }
            ],"sources":{"openmaptiles":{"type":"vector",
                  "url":"https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}}}
     """.trimIndent()
