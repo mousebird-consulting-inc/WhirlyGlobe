@@ -92,28 +92,65 @@ class RGBAColor
 {
 public:
 	RGBAColor() : RGBAColor(0,0,0,0) { }
-	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
-	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
+
+    RGBAColor(int r,int g,int b,int a) :
+            r((uint8_t)r), g((uint8_t)g), b((uint8_t)b), a((uint8_t)a) { }
+    RGBAColor(int r,int g,int b) :
+            r((uint8_t)r), g((uint8_t)g), b((uint8_t)b), a(255) { }
 
 	template <typename T>
     RGBAColor(const Eigen::Matrix<T,4,1> &v) :
-        RGBAColor((unsigned char)(v.x()*255),(unsigned char)(v.y()*255),
-                  (unsigned char)(v.z()*255),(unsigned char)(v.w()*255)) { }
+        RGBAColor((uint8_t)(v.x()*255),(uint8_t)(v.y()*255),
+                  (uint8_t)(v.z()*255),(uint8_t)(v.w()*255)) { }
 
     RGBAColor withAlpha(int newA) const { return RGBAColor(r,g,b,(uint8_t)newA); }
+    RGBAColor withAlpha(float newA) const { return RGBAColor(r,g,b,(uint8_t)(newA * 255)); }
     RGBAColor withAlpha(double newA) const { return RGBAColor(r,g,b,(uint8_t)(newA * 255)); }
 
+    RGBAColor withAlphaMultiply(float newA) const {
+        return RGBAColor((uint8_t)(r*newA),(uint8_t)(g*newA),
+                         (uint8_t)(b*newA),(uint8_t)(newA * 255));
+	}
+    RGBAColor withAlphaMultiply(double newA) const {
+        return RGBAColor((uint8_t)(r*newA),(uint8_t)(g*newA),
+                         (uint8_t)(b*newA),(uint8_t)(newA * 255));
+    }
+
     // Create an RGBColor from unit floats
-    static RGBAColor FromUnitFloats(const float *ret) {
-        return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
+    static RGBAColor FromUnitFloats(const float *f) {
+        return FromUnitFloats4(f);
+    }
+    static RGBAColor FromUnitFloats3(const float *f) {
+        return FromUnitFloats(f[0],f[1],f[2]);
+    }
+    static RGBAColor FromUnitFloats4(const float *f) {
+        return FromUnitFloats(f[0],f[1],f[2],f[3]);
+    }
+    static RGBAColor FromUnitFloats(float r, float g, float b) {
+        return FromUnitFloats(r,g,b,1.0f);
+    }
+    static RGBAColor FromUnitFloats(float r, float g, float b, float a) {
+        return RGBAColor((uint8_t)(r * 255.0f),(uint8_t)(g * 255.0f),
+                         (uint8_t)(b * 255.0f),(uint8_t)(a * 255.0f));
+    }
+    static RGBAColor FromUnitFloats(double r, double g, double b) {
+        return FromUnitFloats(r,g,b,1.0);
+    }
+    static RGBAColor FromUnitFloats(double r, double g, double b, double a) {
+        return RGBAColor((uint8_t)(r * 255.0),(uint8_t)(g * 255.0),
+                         (uint8_t)(b * 255.0),(uint8_t)(a * 255.0));
     }
 
     template <typename T>
     static RGBAColor FromVec(const Eigen::Matrix<T,4,1> &v) { return RGBAColor(v); }
 
     // Create an RGBAColor from an int
-    static RGBAColor FromInt(int color) {
-	    return RGBAColor((color >> 16) & 0xff,(color >> 8)&0xff,color&0xff, color >> 24);
+    static RGBAColor FromInt(uint32_t color) { return FromARGBInt(color); }
+    static RGBAColor FromARGBInt(uint32_t color) {
+	    return RGBAColor((uint8_t)((color >> 16) & 0xff),
+                         (uint8_t)((color >> 8) & 0xff),
+                         (uint8_t)(color & 0xff),
+                         (uint8_t)(color >> 24));
 	}
     
     // Create an RGBAColor from HSV

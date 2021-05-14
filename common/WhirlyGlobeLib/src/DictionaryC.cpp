@@ -384,7 +384,7 @@ RGBAColor parseColor(const char* const p, RGBAColor ret)
     {
 #define DUP4(x) (uint8_t)((uint8_t)(x) | ((uint8_t)(x) << 4))   // 0N => NN
     case 3: // #RGB => R=RR G=GG B=BB A=FF
-        return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v), 0xFF);
+        return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v));
     case 4: // #ARGB => R=RR G=GG B=BB A=AA
         return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v), DUP4(v >> 12));
 #undef DUP4

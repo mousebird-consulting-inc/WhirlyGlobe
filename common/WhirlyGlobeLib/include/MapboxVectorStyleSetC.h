@@ -219,10 +219,10 @@ public:
     double doubleValue(const DictionaryEntryRef &entry,double defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(const std::string &name,const DictionaryRef &dict,double defVal);
+    double doubleValue(const std::string &valName, const DictionaryRef &dict, double defVal);
         
     /// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
-    bool boolValue(const std::string &name,const DictionaryRef &dict,const std::string &onString,bool defVal);
+    bool boolValue(const std::string &valName, const DictionaryRef &dict, const std::string &onString, bool defVal);
 
     /// @brief Return a string for the given name, taking the constants into account
     std::string stringValue(const std::string &name,const DictionaryRef &dict,const std::string &defVal);
@@ -241,10 +241,10 @@ public:
     MapboxTransDoubleRef transDouble(const DictionaryEntryRef &entry,double defVal);
     
     /// Builds a transitionable double object from a style entry lookup and returns that
-    MapboxTransDoubleRef transDouble(const std::string &name,const DictionaryRef &entry,double defVal);
+    MapboxTransDoubleRef transDouble(const std::string &valName, const DictionaryRef &entry, double defVal);
 
     /// Builds a transitionable color object and returns that
-    MapboxTransColorRef transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor *);
+    MapboxTransColorRef transColor(const std::string &valName, const DictionaryRef &entry, const RGBAColor *);
     MapboxTransColorRef transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor &);
     
     /// Builds a transitional text object

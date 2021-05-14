@@ -1,9 +1,8 @@
-/*
-*  MapboxVectorStyleSetC.h
+/* MapboxVectorStyleSetC.h
 *  WhirlyGlobeLib
 *
 *  Created by Steve Gifford on 4/8/20.
-*  Copyright 2011-2020 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
-*
 */
 
 #import "MapboxVectorStyleSetC.h"
@@ -154,7 +152,6 @@ bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,MapboxVectorStyl
                     default:
                         wkLogLevel(Warn, "Expecting color compatible object in function stop.");
                         return false;
-                        break;
                 }
             }
             
@@ -179,11 +176,11 @@ double MaplyVectorFunctionStops::valueForZoom(double zoom)
         b = &stops[which];
         if (a->zoom <= zoom && zoom < b->zoom)
         {
-            double ratio = 1.0;
+            double ratio;
             if (base == 1.0) {
                 ratio = (zoom-a->zoom)/(b->zoom-a->zoom);
             } else {
-                double soFar = zoom-a->zoom;
+                const double soFar = zoom-a->zoom;
                 ratio = (pow(base, soFar) - 1.0) / (pow(base,b->zoom-a->zoom) - 1.0);
             }
             return ratio * (b->val-a->val) + a->val;
@@ -205,11 +202,11 @@ RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
         b = &stops[which];
         if (a->zoom <= zoom && zoom < b->zoom)
         {
-            double ratio = 1.0;
+            double ratio;
             if (base == 1.0) {
                 ratio = (zoom-a->zoom)/(b->zoom-a->zoom);
             } else {
-                double soFar = zoom-a->zoom;
+                const double soFar = zoom-a->zoom;
                 ratio = (pow(base, soFar) - 1.0) / (pow(base,b->zoom-a->zoom) - 1.0);
             }
             float ac[4],bc[4];
@@ -504,28 +501,28 @@ double MapboxVectorStyleSetImpl::doubleValue(const DictionaryEntryRef &thing,dou
     return defVal;
 }
 
-double MapboxVectorStyleSetImpl::doubleValue(const std::string &name,const DictionaryRef &dict,double defVal)
+double MapboxVectorStyleSetImpl::doubleValue(const std::string &valName, const DictionaryRef &dict, double defVal)
 {
     if (!dict)
         return defVal;
 
-    DictionaryEntryRef thing = dict->getEntry(name);
+    DictionaryEntryRef thing = dict->getEntry(valName);
     if (!thing)
         return defVal;
     
     if (thing->getType() == DictTypeDouble || thing->getType() == DictTypeInt || thing->getType() == DictTypeIdentity)
         return thing->getDouble();
     
-    wkLogLevel(Warn, "Expected double for %s but got something else",name.c_str());
+    wkLogLevel(Warn, "Expected double for %s but got something else", valName.c_str());
     return defVal;
 }
 
-bool MapboxVectorStyleSetImpl::boolValue(const std::string &name,const DictionaryRef &dict,const std::string &onString,bool defVal)
+bool MapboxVectorStyleSetImpl::boolValue(const std::string &valName, const DictionaryRef &dict, const std::string &onString, bool defVal)
 {
     if (!dict)
         return defVal;
 
-    const auto thing = dict->getEntry(name);
+    const auto thing = dict->getEntry(valName);
     switch (thing ? thing->getType() : DictTypeNone)
     {
         case DictTypeString: return thing->getString() == onString;
@@ -571,22 +568,9 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
     return ret;
 }
 
-RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, const DictionaryEntryRef &val, const DictionaryRef &dict, const RGBAColorRef &defVal, bool multiplyAlpha)
+static RGBAColorRef parseColor(const std::string &str, const std::string &inName,
+                               const RGBAColorRef &defVal, bool multiplyAlpha)
 {
-    DictionaryEntryRef thing;
-    if (dict)
-        thing = dict->getEntry(inName);
-    else
-        thing = val;
-    if (!thing)
-        return defVal;
-
-    if (thing->getType() != DictTypeString) {
-        wkLogLevel(Warn, "Expecting a string for color (%s)", inName.c_str());
-        return defVal;
-    }
-
-    std::string str = thing->getString();
     if (str.empty())
     {
         wkLogLevel(Warn, "Expecting non-empty string for color (%s)", inName.c_str());
@@ -596,54 +580,66 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, con
     if (str[0] == '#')
     {
         // Hex string
-        unsigned int iVal = 0;
-        try {
-            iVal = std::stoul(str.substr(1), nullptr, 16);
-        }
-        catch (...) {
-            wkLogLevel(Warn, "Invalid hex value (%s) in color (%s)", str.c_str(), inName.c_str());
+        char *end = nullptr;
+        uint32_t iVal = ::strtoul(str.c_str() + 1, &end, 16);
+        if (end - str.c_str() != str.length())
+        {
+            // trailing characters not read
+            wkLogLevel(Warn, "Invalid hex value '%s' in color '%s'", str.c_str(), inName.c_str());
             return defVal;
         }
 
         int red,green,blue;
         int alpha = 255;
-        if (str.size() == 4)
+        if (str.size() == 4)            // #RGB => FFRRGGBB
         {
-            red = (iVal >> 8) & 0xf;  red |= red << 4;
+            red = (iVal >> 8) & 0xf;    red |= red << 4;
             green = (iVal >> 4) & 0xf;  green |= green << 4;
-            blue = iVal & 0xf;  blue |= blue << 4;
-        } else if (str.size() > 7) {
+            blue = iVal & 0xf;          blue |= blue << 4;
+        } else if (str.size() == 5) {   // #RGBA => AARRGGBB
+            red = (iVal >> 12) & 0xf;   red |= red << 4;
+            green = (iVal >> 8) & 0xf;  green |= green << 4;
+            blue = (iVal >> 4) & 0xf;   blue |= blue << 4;
+            alpha = iVal & 0xf;         alpha |= alpha << 4;
+        } else if (str.size() == 7) {   // #RRGGBB => FFRRGGBB
+            red = (iVal >> 16) & 0xff;
+            green = (iVal >> 8) & 0xff;
+            blue = iVal & 0xff;
+        } else if (str.size() == 9) {   // #RRGGBBAA => AARRGGBB
             red = (iVal >> 24) & 0xff;
             green = (iVal >> 16) & 0xff;
             blue = (iVal >> 8) & 0xff;
             alpha = iVal & 0xff;
-        } else {
-            red = (iVal >> 16) & 0xff;
-            green = (iVal >> 8) & 0xff;
-            blue = iVal & 0xff;
+        } else {    // ?
+            wkLogLevel(Warn, "Unrecognized format '%s' in color '%s'", str.c_str(), inName.c_str());
+            return defVal;
         }
-        return std::make_shared<RGBAColor>(red,green,blue,alpha);
+        if (multiplyAlpha) {
+            return std::make_shared<RGBAColor>(RGBAColor(red, green, blue).withAlphaMultiply(alpha / 255.0));
+        } else {
+            return std::make_shared<RGBAColor>(red, green, blue, alpha);
+        }
     } else if (str.find("rgb(") == 0) {
         const auto &reg = colorSeparatorPattern;
         const std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
         const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 3) {
-            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
+            wkLogLevel(Warn, "Unrecognized format '%s' in color '%s'", str.c_str(), inName.c_str());
             return defVal;
         }
         const int red = std::stoi(toks[0]);
         const int green = std::stoi(toks[1]);
         const int blue = std::stoi(toks[2]);
 
-        return std::make_shared<RGBAColor>(red,green,blue,1.0);
+        return std::make_shared<RGBAColor>(red,green,blue,255);
     } else if (str.find("rgba(") == 0) {
         const auto &reg = colorSeparatorPattern;
         const std::sregex_token_iterator iter(str.begin()+5, str.end(), reg, -1);
-        std::vector<std::string> toks(iter, std::sregex_token_iterator());
+        const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 4) {
-            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
+            wkLogLevel(Warn, "Unrecognized format '%s' in color '%s'", str.c_str(), inName.c_str());
             return defVal;
         }
         const int red = std::stoi(toks[0]);
@@ -651,17 +647,18 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, con
         const int blue = std::stoi(toks[2]);
         const double alpha = std::stod(toks[3]);
         
-        if (multiplyAlpha)
-            return std::make_shared<RGBAColor>(red * alpha,green * alpha,blue * alpha,255.0*alpha);
-        else
-            return std::make_shared<RGBAColor>(red,green,blue,255.0*alpha);
+        if (multiplyAlpha) {
+            return std::make_shared<RGBAColor>(red * alpha, green * alpha, blue * alpha, 255.0 * alpha);
+        } else {
+            return std::make_shared<RGBAColor>(red, green, blue, (int) (255.0 * alpha));
+        }
     } else if (str.find("hsl(") == 0) {
         const auto &reg = colorSeparatorPattern;
         const std::sregex_token_iterator iter(str.begin()+4, str.end(), reg, -1);
         const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 3) {
-            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
+            wkLogLevel(Warn, "Unrecognized format '%s' in color '%s'", str.c_str(), inName.c_str());
             return defVal;
         }
         const int hue = std::stoi(toks[0]);
@@ -677,7 +674,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, con
         const std::vector<std::string> toks(iter, std::sregex_token_iterator());
 
         if (toks.size() != 4) {
-            wkLogLevel(Warn, "Unrecognized format in color %s", inName.c_str());
+            wkLogLevel(Warn, "Unrecognized format '%s' in color '%s'", str.c_str(), inName.c_str());
             return defVal;
         }
         const int hue = std::stoi(toks[0]);
@@ -687,14 +684,27 @@ RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, con
         const auto newLight = light / 100.0f;
         const auto newSat = sat / 100.0f;
 
-        auto color = std::make_shared<RGBAColor>(RGBAColor::FromHSL(hue, newSat, newLight));
-        color->a = (uint8_t)(alpha * 255.0);
-
-        return color;
+        const auto c = RGBAColor::FromHSL(hue, newSat, newLight);
+        return std::make_shared<RGBAColor>(multiplyAlpha ? c.withAlphaMultiply(alpha) : c.withAlpha(alpha));
     }
 
-    wkLogLevel(Warn, "Didn't recognize format of color (%s)", inName.c_str());
+    wkLogLevel(Warn, "Unrecognized format '%s' in color '%s'", str.c_str(), inName.c_str());
     return defVal;
+}
+
+RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName, const DictionaryEntryRef &val,
+                                                  const DictionaryRef &dict, const RGBAColorRef &defVal, bool multiplyAlpha)
+{
+    const DictionaryEntryRef thing = dict ? dict->getEntry(inName) : val;
+    if (!thing)
+        return defVal;
+
+    if (thing->getType() != DictTypeString) {
+        wkLogLevel(Warn, "Expecting a string for color (%s)", inName.c_str());
+        return defVal;
+    }
+
+    return parseColor(thing->getString(), inName, defVal, multiplyAlpha);
 }
 
 RGBAColorRef MapboxVectorStyleSetImpl::colorValue(const std::string &inName,const DictionaryEntryRef &val,const DictionaryRef &dict,const RGBAColor &defVal,bool multiplyAlpha)
@@ -746,29 +756,23 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const DictionaryEntry
 }
 
 
-MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &name,const DictionaryRef &entry,double defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &valName, const DictionaryRef &entry, double defVal)
 {
-    return transDouble(entry ? entry->getEntry(name) : DictionaryEntryRef(), defVal);
+    return transDouble(entry ? entry->getEntry(valName) : DictionaryEntryRef(), defVal);
 }
 
-MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor *defVal)
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &valName, const DictionaryRef &entry, const RGBAColor *defVal)
 {
-    RGBAColorRef defValRef;
-    if (defVal)
-        defValRef = std::make_shared<RGBAColor>(*defVal);
+    const auto defValRef = defVal ? std::make_shared<RGBAColor>(*defVal) : RGBAColorRef();
 
     if (!entry) {
-        if (defVal)
-            return std::make_shared<MapboxTransColor>(std::make_shared<RGBAColor>(*defVal));
-        return MapboxTransColorRef();
+        return defVal ? std::make_shared<MapboxTransColor>(defValRef) : MapboxTransColorRef();
     }
 
     // They pass in the whole dictionary and let us look the field up
-    DictionaryEntryRef theEntry = entry->getEntry(name);
+    const DictionaryEntryRef theEntry = entry->getEntry(valName);
     if (!theEntry) {
-        if (defVal)
-            return std::make_shared<MapboxTransColor>(std::make_shared<RGBAColor>(*defVal));
-        return MapboxTransColorRef();
+        return defVal ? std::make_shared<MapboxTransColor>(defValRef) : MapboxTransColorRef();
     }
 
     // This is probably stops
@@ -777,17 +781,17 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
         if (stops->parse(theEntry->getDict(), this, false)) {
             return std::make_shared<MapboxTransColor>(stops);
         } else {
-            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
+            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s", valName.c_str());
         }
     } else if (theEntry->getType() == DictTypeString) {
-        RGBAColorRef color = colorValue(name, theEntry, DictionaryRef(), defValRef, false);
+        RGBAColorRef color = colorValue(valName, theEntry, DictionaryRef(), defValRef, false);
         if (color)
             return std::make_shared<MapboxTransColor>(color);
         else {
-            wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a color.",name.c_str());
+            wkLogLevel(Warn, "Unexpected type found in entry %s. Was expecting a color.", valName.c_str());
         }
     } else {
-        wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a color.",name.c_str());
+        wkLogLevel(Warn, "Unexpected type found in entry %s. Was expecting a color.", valName.c_str());
     }
 
     return MapboxTransColorRef();
@@ -795,7 +799,7 @@ MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &name
 
 MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &inName, const DictionaryRef &entry, const RGBAColor &inColor)
 {
-    RGBAColor color = inColor;
+    const RGBAColor color = inColor;
     return transColor(inName, entry, &color);
 }
 
@@ -806,7 +810,7 @@ MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &inName
     }
     
     // They pass in the whole dictionary and let us look the field up
-    DictionaryEntryRef theEntry = entry->getEntry(inName);
+    const DictionaryEntryRef theEntry = entry->getEntry(inName);
     if (!theEntry) {
         return str.empty() ? MapboxTransTextRef() : std::make_shared<MapboxTransText>(str);
     }
@@ -849,7 +853,7 @@ RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(const MapboxTransColorRef &c
     if (!opacity || color->hasAlphaOverride())
         return std::make_shared<RGBAColor>(thisColor);
 
-    const double thisOpacity = opacity->valForZoom(zoom) * 255;
+    const float thisOpacity = (float)opacity->valForZoom(zoom) * 255;
 
     float vals[4];
     thisColor.asUnitFloats(vals);
@@ -869,13 +873,11 @@ RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(const MapboxTransColorRef &c
 
 RGBAColor MapboxVectorStyleSetImpl::color(RGBAColor color,double opacity)
 {
-    float vals[4];
-    color.asUnitFloats(vals);
     return {
-        (uint8_t)(vals[0]*opacity*255),
-        (uint8_t)(vals[1]*opacity*255),
-        (uint8_t)(vals[2]*opacity*255),
-        (uint8_t)(vals[3]*opacity*255)
+        (uint8_t)(color.r*opacity),
+        (uint8_t)(color.g*opacity),
+        (uint8_t)(color.b*opacity),
+        (uint8_t)(color.a*opacity)
     };
 }
 
@@ -964,5 +966,73 @@ void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites
 {
     sprites = std::move(newSprites);
 }
+
+//#define LOW_LEVEL_UNIT_TESTS
+#if defined(LOW_LEVEL_UNIT_TESTS)
+static struct UnitTests {
+    UnitTests() {
+        check(RGBAColor(), RGBAColor(0,0,0,0));
+        check(RGBAColor::FromUnitFloats(1.,1.,1.), RGBAColor::white());
+        check(RGBAColor::FromUnitFloats(1.,1.,1.,1.), RGBAColor::white());
+        check(RGBAColor(0x12,0x34,0x56).withAlphaMultiply(0x78/255.0),
+              RGBAColor::FromARGBInt(0x78081828));
+
+        check("", false, RGBAColorRef());
+        check("123", false, RGBAColorRef());
+        check("#1", false, RGBAColorRef());
+        check("#12", false, RGBAColorRef());
+        check("#123456789", false, RGBAColorRef());
+        check("#abg", false, RGBAColorRef());
+        check("red", false, RGBAColorRef());
+
+        check("#123", false, c(0xff112233));
+        check("#123", true, c(0xff112233));
+
+        check("#1234", false, c(0x44112233));
+        check("#1234", true, c(RGBAColor(0x11,0x22,0x33).
+                                        withAlphaMultiply(0x44/255.0)));
+
+        check("#123456", false, c(0xff123456));
+        check("#123456", true, c(0xff123456));
+
+        check("#12345678", false, c(0x78123456));
+        check("#12345678", true, c(RGBAColor(0x12,0x34,0x56).
+                                        withAlphaMultiply(0x78/255.0)));
+
+        check("rgb(1,2,3)", false, c(0xff010203));
+        check("rgb(1,2,3)", true, c(0xff010203));
+
+        check("rgba(1,2,3,0.5)", false, c(0x7f010203));
+        check("rgba(4,6,8,0.5)", true, c(0x7f020304));
+
+        //todo: hsl/hsla
+
+        wkLog("MapboxStyleSet Color Tests Passed");
+    }
+    RGBAColorRef c(RGBAColor cv) const { return std::make_shared<RGBAColor>(cv); }
+    RGBAColorRef c(uint32_t cv) const { return c(RGBAColor::FromARGBInt(cv)); }
+    void check(RGBAColor cv, RGBAColor exp, const char *v = nullptr) {
+        check(c(cv),c(exp),v);
+    }
+    void check(const RGBAColorRef &cv, const RGBAColorRef &exp, const char *v = nullptr) {
+        if ((bool)cv != (bool)exp) {
+            wkLog("RGBAColor text failed: expected %s got %s%s%s",
+                  exp ? "value" : "null", cv ? "value" : "null",
+                  v ? " from input: " : "", v ? v : "");
+            assert(!"RGBAColor parse test failed");
+        }
+        if (cv && exp && *cv != *exp) {
+            wkLog("RGBAColor parse failed: expected %.8x got %.8x%s%s",
+                  exp->asARGBInt(), cv->asARGBInt(),
+                  v ? " from input: " : "", v ? v : "");
+            assert(!"RGBAColor parse test failed");
+        }
+    }
+    void check(const std::string& s, bool multiply, const RGBAColorRef &exp) {
+        const auto c = parseColor(s, "s", RGBAColorRef(), multiply);
+        check(c, exp, s.c_str());
+    }
+} tests;
+#endif
 
 }

@@ -105,7 +105,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     // Default settings
     MarkerInfo markerInfo(/*screenObject=*/true);
     markerInfo.zoomSlot = styleSet->zoomSlot;
-    markerInfo.color = RGBAColor(255,255,255,opacity*255);
+    markerInfo.color = RGBAColor(255,255,255,(int)(opacity*255));
     markerInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
     markerInfo.programID = styleSet->screenMarkerProgramID;
     
