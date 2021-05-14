@@ -79,13 +79,14 @@ public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 		if (startTime <= 0 || animTime <= 0 || globeView == null || renderer == null)
 			return;
 
-		double curTime = Math.min(startTime + animTime, System.currentTimeMillis()/1000.0);
-		double t = (curTime-startTime)/animTime;
+		final double curTime = Math.min(startTime + animTime, System.currentTimeMillis()/1000.0);
+		final double t = (curTime-startTime)/animTime;
 
-		Quaternion newQuat = startQuat.slerp(endQuat,t);
+		final Quaternion newQuat = startQuat.slerp(endQuat,t);
 		globeView.setRotQuat(newQuat);
 
-		double height = (endHeight-startHeight)*t + startHeight;
+		//double height = (endHeight-startHeight)*t + startHeight;
+		final double height = Math.exp((Math.log(endHeight)-Math.log(startHeight))*t + Math.log(startHeight));
 		globeView.setHeight(height);
 
 		if (startRot != null && dRot != null && dRot != 0.0) {

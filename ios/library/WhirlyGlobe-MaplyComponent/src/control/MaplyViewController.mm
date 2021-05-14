@@ -120,7 +120,9 @@ using namespace Maply;
     else
         state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
     
-    state.height = (endState.height - startState.height)*t + startState.height;
+    //state.height = (endState.height - startState.height)*t + startState.height;
+    state.height = exp((log(endState.height) - log(startState.height))*t + log(startState.height));
+
     MaplyCoordinateD pos;
     pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
     pos.y = (endState.pos.y - startState.pos.y)*t + startState.pos.y;

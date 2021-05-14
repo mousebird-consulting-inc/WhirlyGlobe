@@ -81,7 +81,9 @@ using namespace WhirlyGlobe;
     else
         state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
     
-    state.height = (endState.height - startState.height)*t + startState.height;
+    //state.height = (endState.height - startState.height)*t + startState.height;
+    state.height = exp((log(endState.height) - log(startState.height)) * t + log(startState.height));
+    
     state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
     state.roll = (endState.roll - startState.roll)*t + startState.roll;
     MaplyCoordinateD pos;

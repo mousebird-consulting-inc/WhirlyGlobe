@@ -21,14 +21,14 @@ class AnimationDelegateTestCase: MaplyTestCase {
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         baseCase.setUpWithGlobe(globeVC)
         globeVC.keepNorthUp = false
-        globeVC.height = 1.0;
-        globeVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height:0.01, heading:Float.pi/4.0, time:5.0);
+        globeVC.height = 2.0;
+        globeVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height:0.01, heading:Float.pi/4.0, time:8.0);
     }
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         baseCase.setUpWithMap(mapVC)
-        mapVC.height = 1.0;
-        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height:0.01, heading:Float.pi/4.0, time:5.0);
+        mapVC.height = 2.0;
+        mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222), height:0.01, heading:Float.pi/4.0, time:8.0);
     }
 
 }

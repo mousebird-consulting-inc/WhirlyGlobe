@@ -25,9 +25,9 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 class AnimationDelegateTestCase(activity: Activity) :
         MaplyTestCase(activity, "Animating Position", TestExecutionImplementation.Both) {
     
-    val loc: Point2d = Point2d.FromDegrees(-0.1275, 51.507222)
-    private val fromHeight = 0.5
-    private val toHeight = 0.05
+    val loc: Point2d = Point2d.FromDegrees(0.5508867, 51.5203505)
+    private val fromHeight = 1.5
+    private val toHeight = 0.01
     
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         if (!baseCase.setUpWithGlobe(globeVC)) {
@@ -35,6 +35,7 @@ class AnimationDelegateTestCase(activity: Activity) :
         }
         globeVC.apply {
             keepNorthUp = false
+            heading = degToRad(0.0)
             height = fromHeight
             // animate
             animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0)
