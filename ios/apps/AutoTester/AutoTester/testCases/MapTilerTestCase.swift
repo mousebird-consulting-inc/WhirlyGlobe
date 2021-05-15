@@ -46,7 +46,10 @@ class MapTilerTestCase: MaplyTestCase {
         }
         
         print("Starting map with \(style.name) / \(style.sheet)")
-        
+
+        globeViewController?.autoMoveToTap = false
+        mapViewController?.autoMoveToTap = false
+
         // Maptiler token
         // Go to maptiler.com, setup an account and get your own.
         // Go to Edit Scheme, select Run, Arguments, and add an "MAPTILER_TOKEN" entry to Environment Variables.
@@ -174,12 +177,21 @@ class MapTilerTestCase: MaplyTestCase {
         }
     }
 
-    override func maplyViewController(_ viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
+    private func switchMaps() {
         mapboxMap?.stop()
         mapboxMap = nil
 
         mapTilerStyle = (mapTilerStyle + 1) % styles.count
-        startMap(styles[mapTilerStyle], viewC: viewC, round: false)
+        if let vc = baseViewController {
+            startMap(styles[mapTilerStyle], viewC: vc, round: false)
+        }
+    }
+
+    override func globeViewController(_ viewC: WhirlyGlobeViewController, didTapAt coord: MaplyCoordinate) {
+        switchMaps()
+    }
+    override func maplyViewController(_ viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
+        switchMaps()
     }
 }
 

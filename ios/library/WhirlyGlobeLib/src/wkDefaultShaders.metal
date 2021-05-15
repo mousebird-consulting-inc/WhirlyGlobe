@@ -373,8 +373,8 @@ vertex ProjVertexTriA vertexTri_noLightExp(
     if (vertArgs.uniDrawState.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
         color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, 1.0);
-        color.a = color.a * opacity;
+        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
     }
 
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
@@ -458,8 +458,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
     if (vertArgs.uniDrawState.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
         color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, 1.0);
-        color.a = color.a * opacity;
+        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
     }
 
     outVert.color = resolveLighting(vert.position,
@@ -470,8 +470,7 @@ vertex ProjVertexTriA vertexTri_lightExp(
                     calculateFade(uniforms,vertArgs.uniDrawState);
     if (TexturesBase(texArgs.texPresent) > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
-    outVert.color = color;
-    
+
     return outVert;
 }
 
@@ -525,7 +524,6 @@ vertex ProjVertexTriB vertexTri_multiTex(
                                     lighting,
                                     uniforms.mvpMatrix) *
                     calculateFade(uniforms,vertArgs.uniDrawState);
-    outVert.color = vert.color;
 
     // Handle the various texture coordinate input options (none, 1, or 2)
     int numTextures = TexturesBase(texArgs.texPresent);
@@ -687,7 +685,13 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     }
     centerLine = vert.offset.z * centerLine;
 
-    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    float4 color = vert.color;
+    if (vertArgs.wideVec.hasExp) {
+        color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
+        float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
+    }
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float realWidth2 = w2 * pixScale;
@@ -952,8 +956,15 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             }
         }
     }
-    
-    outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
+
+    float4 color = inst[1].color;
+    if (vertArgs.wideVec.hasExp) {
+        color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
+        float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
+    }
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
+
     outVert.w2 = vertArgs.wideVec.w2;
     
     if (isValid && dotProd > 0.0) {
@@ -1078,7 +1089,14 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     if (vertArgs.ss.hasMotion)
         pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
     
-    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    float4 color = vert.color;
+    if (vertArgs.ss.hasExp) {
+        color = ExpCalculateColor(vertArgs.ssExp.colorExp, zoomScale, color);
+        float opacity = ExpCalculateFloat(vertArgs.ssExp.opacityExp, zoomScale, color.a);
+        color.a = /*color.a * */opacity;
+    }
+
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.texCoord = vert.texCoord;
     
     // Convert from model space into display space
