@@ -316,7 +316,6 @@ open class MapboxKindaMap(
                     val json = readFile(cacheFile)
                     if (json.isNotEmpty()) {
                         processStylesheetJson(source, json)
-                        checkFinished()
                         return@forEach
                     }
                 }
@@ -359,6 +358,8 @@ open class MapboxKindaMap(
         styleSheet?.spriteURL?.let {
             loadSprites(it, client)
         }
+
+        checkFinished()
     }
 
     private fun loadSprites(spriteURL: String, client: OkHttpClient) {
@@ -471,7 +472,6 @@ open class MapboxKindaMap(
                 source.tileSpec = getArray("tileSpec")
             }
         }
-        checkFinished()
     }
 
     // Everything has been fetched, so fire up the loader
