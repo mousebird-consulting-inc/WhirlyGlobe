@@ -41,6 +41,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -1736,20 +1737,53 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return null;
 		}
 
-		Point2d viewSize = getViewSize();
-		Point2d frameSize = renderControl.frameSize;
-		Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
-		Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
+		Point2d geoPt = geoPointFromScreen(screenLoc);
+		if (geoPt == null) {
+			return null;
+		}
+
+		final Point2d viewSize = getViewSize();
+		final Point2d frameSize = renderControl.frameSize;
+		final Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
+		final Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
 		// Ask the selection manager
-		ViewState theViewState = theView.makeViewState(renderControl);
-		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState, frameLoc);
-		if (selManObjs != null)
+		final ViewState theViewState = theView.makeViewState(renderControl);
+		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState,frameLoc);
+		if (selManObjs != null) {
 			renderControl.componentManager.remapSelectableObjects(selManObjs);
+			selManObjs = filterMissingObjects(selManObjs);
+		}
 		theViewState.dispose();
 
-		Point2d geoPt = geoPointFromScreen(screenLoc);
-		return (geoPt != null) ? selManObjs : null;
+		return selManObjs;
+	}
+
+	/**
+	 * Remove any results from the array which have no selected object
+	 */
+	private SelectedObject[] filterMissingObjects(SelectedObject[] objs) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			return Arrays.stream(objs).filter(i -> i.selObj != null).toArray(SelectedObject[]::new);
+		}
+
+		int filterCount = 0;
+		for (final SelectedObject so : objs) {
+			if (so.selObj != null) {
+				filterCount += 1;
+			}
+		}
+		if (filterCount == objs.length) {
+			return objs;
+		}
+		final SelectedObject[] filtered = new SelectedObject[filterCount];
+		filterCount = 0;
+		for (final SelectedObject so : objs) {
+			if (so.selObj != null) {
+				filtered[filterCount++] = so;
+			}
+		}
+		return filtered;
 	}
 
 	/**

@@ -621,10 +621,13 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
     std::vector<ComponentObjectRef> compRefs;
     std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
 
+    // not locked, we don't care if the size is off, we just want
+    // to typically do the allocations outside the locked region.
+    compRefs.reserve(compObjsById.size());
+
     // Copy out the vectors that might be candidates
     {
         std::lock_guard<std::mutex> guardLock(lock);
-        
         for (const auto &kvp: compObjsById)
         {
             const auto &compObj = kvp.second;
@@ -636,31 +639,28 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
     }
     
     // Work through the vector objects
+    rets.reserve(multi ? compRefs.size() : 1);
     for (const auto &compObj: compRefs)
     {
         const auto &center = compObj->vectorOffset;
         const Point2d coord = { pt.x()-center.x(), pt.y()-center.y() };
 
-        for (auto vecObj: compObj->vecObjs)
+        for (const auto &vecObj: compObj->vecObjs)
         {
             if (vecObj->pointInside(pt))
             {
-                rets.push_back(std::make_pair(compObj, vecObj));
-                
-                if (!multi)
-                    break;
-                continue;
+                rets.emplace_back(compObj, vecObj);
             }
-            if (vecObj->pointNearLinear(coord, maxDist, viewState, frameSize))
+            else if (vecObj->pointNearLinear(coord, (float)maxDist, viewState, frameSize))
             {
-                rets.push_back(std::make_pair(compObj, vecObj));
-                if (!multi)
-                    break;
+                rets.emplace_back(compObj, vecObj);
             }
         }
         
         if (!multi && !rets.empty())
+        {
             break;
+        }
     }
     
     return rets;
