@@ -118,8 +118,8 @@ public class ComponentManager
         }
     }
 
-    Map<Long, Object> selectionMap = new HashMap<Long, Object>();
-    Map<Long, ComponentObject> compObjMap = new HashMap<Long, ComponentObject>();
+    final Map<Long, Object> selectionMap = new HashMap<>();
+    final Map<Long, ComponentObject> compObjMap = new HashMap<>();
 
     // Add selectable objects to the list
     public void addSelectableObject(long selectID,Object selObj,ComponentObject compObj)
@@ -137,7 +137,7 @@ public class ComponentManager
         // Remap the objects
         synchronized(selectionMap) {
             for (SelectedObject selObj : selManObjs) {
-                long selectID = selObj.getSelectID();
+                final long selectID = selObj.getSelectID();
                 selObj.selObj = selectionMap.get(selectID);
             }
         }
@@ -146,18 +146,15 @@ public class ComponentManager
     public Object findObjectForSelectID(long selectID)
     {
         // Look for the object
-        Object selObj = null;
         synchronized(selectionMap)
         {
-            selObj = selectionMap.get(selectID);
+            return selectionMap.get(selectID);
         }
-
-        return selObj;
     }
 
     // Called by the C++ side to let us know when objects are removed by the C++ side
     // This happens commonly with vector tiles
-    public void objectsRemoved(long objIDs[]) {
+    public void objectsRemoved(long[] objIDs) {
         boolean disposeAfterRemoval = true;
         synchronized (selectionMap) {
             for (long objID: objIDs) {
