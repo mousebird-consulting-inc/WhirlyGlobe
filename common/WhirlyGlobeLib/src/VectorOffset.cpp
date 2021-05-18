@@ -115,10 +115,11 @@ std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
         }
         if (outRing.size() > 1)
             rets.push_back(outRing);
-        
-        for (auto &run: rets)
-            std::reverse(run.begin(),run.end());
     }
+
+    for (auto &run: rets)
+        std::reverse(run.begin(),run.end());
+
     return rets;
 }
 
