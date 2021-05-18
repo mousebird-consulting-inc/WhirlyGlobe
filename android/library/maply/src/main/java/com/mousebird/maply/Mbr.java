@@ -149,7 +149,23 @@ public class Mbr
 	{
 		return isValid() ? new Point2d((ur.getX()+ll.getX())/2.0,(ur.getY()+ll.getY())/2.0) : null;
 	}
-	
+
+	/**
+	 * Test whether a point is inside (or on the boundary of) the area
+	 */
+	public boolean inside(Point2d p) {
+		return inside(p.getX(), p.getY());
+	}
+
+	/**
+	 * Test whether a point is inside (or on the boundary of) the area
+	 */
+	public boolean inside(double x, double y) {
+		return ll != null && ur != null &&
+				ll.getX() <= x && x <= ur.getX() &&
+				ll.getY() <= y && y <= ur.getY();
+	}
+
 	public void expandByFraction(double bufferZone)
 	{
 		if (isValid()) {
