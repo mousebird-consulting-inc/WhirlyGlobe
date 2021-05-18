@@ -54,6 +54,13 @@ void WideVectorDrawableBuilderMTL::Init(unsigned int numVert, unsigned int numTr
     }
 }
 
+void WideVectorDrawableBuilderMTL::generateChanges(const SimpleIDSet &drawIDs,ChangeSet &changes)
+{
+    auto uniBlock = wideVecUniBlock();
+    for (auto drawID: drawIDs)
+        changes.push_back(new UniformBlockSetRequest(drawID, uniBlock.blockData, uniBlock.bufferID));
+}
+
 int WideVectorDrawableBuilderMTL::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {
     return basicDrawable->addAttribute(dataType, nameID, slot, numThings);

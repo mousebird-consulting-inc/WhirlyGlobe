@@ -79,6 +79,13 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
         c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
     }
 }
+
+void WideVectorDrawableBuilder::setValues(const WideVectorInfo &vecInfo)
+{
+    lineWidth = vecInfo.width;
+    lineOffset = vecInfo.offset;
+    edgeSize = vecInfo.edgeSize;
+}
     
 void WideVectorDrawableBuilder::setLineWidth(float inWidth)
 {

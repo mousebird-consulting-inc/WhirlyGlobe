@@ -1162,6 +1162,8 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
 void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
+    
+    WideVectorDrawableBuilderRef builder = renderer->makeWideVectorDrawableBuilder("Wide Vector change");
 
     WideVectorSceneRep dummyRep(vecID);
     const auto it = sceneReps.find(&dummyRep);
@@ -1173,6 +1175,10 @@ void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo 
         SimpleIDSet allIDs = sceneRep->drawIDs;
         allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
 
+        // Set the builder up with the new values (works for Metal)
+        builder->setValues(vecInfo);
+        builder->generateChanges(allIDs, changes);
+
         for (auto id : allIDs)
         {
             // Changed color
@@ -1183,10 +1189,7 @@ void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo 
             {
                 changes.push_back(new VisibilityChangeRequest(id, vecInfo.minVis, vecInfo.maxVis));
             }
-            
-            // Changed line width
-            changes.push_back(new LineWidthChangeRequest(id, vecInfo.width));
-            
+                        
             // Changed draw priority
             changes.push_back(new DrawPriorityChangeRequest(id, vecInfo.drawPriority));
             
