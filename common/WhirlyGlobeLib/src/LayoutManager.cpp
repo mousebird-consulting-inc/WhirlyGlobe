@@ -680,11 +680,11 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                 
                 for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
                     // Set up the text builder to get a set of individual runs to follow
-                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth/2.0,&layoutObj->obj);
+                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth,&layoutObj->obj);
                     textBuilder.setPoints(layoutObj->obj.layoutShape);
                     textBuilder.process();
                     // Sort the runs by length and get rid of the ones too short
-                    textBuilder.sortRuns(2.0*layoutObj->obj.layoutSpacing);
+//                    textBuilder.sortRuns(2.0*layoutObj->obj.layoutSpacing);
 
                     // Follow the individual runs
                     std::vector<std::vector<Eigen::Matrix3d> > layoutInstances;
@@ -711,7 +711,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                             
                             // Check the normal right in the middle
                             Point2f normAtMid;
-                            if (!walk.nextPoint(textLen/2.0, nullptr, &normAtMid, false))
+                            if (!walk.nextPoint(0.0, nullptr, &normAtMid, false))
                                 continue;
                             
                             // Start with an initial offset
@@ -747,7 +747,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 Mbr glyphMbr(geom.coords);
                                 Point2f span = glyphMbr.span();
                                 Point2f midGlyph = glyphMbr.mid();
-                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
+//                                Affine2d transOrigin(Translation2d(-midGlyph.x(),-midY));
+                                Affine2d transOrigin(Translation2d(-midGlyph.x(),flipped ? -midY/2.0 : -1.5*midY));
 
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
