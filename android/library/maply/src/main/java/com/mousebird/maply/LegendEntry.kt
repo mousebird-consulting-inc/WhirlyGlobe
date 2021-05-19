@@ -21,20 +21,20 @@ import android.graphics.Bitmap
 class LegendEntry(
     val name: String,
     val ident: String?,
+    val type: String?,
     val image: Bitmap?,
     var entries: Collection<LegendEntry>
     ) {
 
-    override fun toString(): String {
-        return printString("")
-    }
+    override fun toString() = printString("")
 
-    fun printString(indent: String): String {
-        var retStr =  "$indent name = $name\n"
-        entries.forEach {
-            retStr += it.printString(indent + " ") + "\n"
-        }
-
-        return retStr
-    }
+    fun printString(indent: String): String =
+        StringBuilder(20 * (1 + entries.size)).apply {
+            append(indent)
+            append(" name = ")
+            appendLine(name)
+            entries.forEach {
+                appendLine(it.printString("$indent "))
+            }
+        }.toString()
 }
