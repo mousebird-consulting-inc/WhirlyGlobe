@@ -279,7 +279,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
      * Returns a list containing a flexible legend for the layers contained in this style.
      * Each layer is rendered as a representative image at the given size.  Layer names that start
      * with the same "<name>_" will be grouped together in the hierarchy if the group parameter is
-     * set.  Otherwise they'll be flat
+     * set.  Otherwise they'll be flat.
      */
     fun getLayerLegend(imageSize: Size, useGroups: Boolean): Collection<LegendEntry>? {
         val styles = getStyleInfo(0.0f) ?: return null
@@ -295,6 +295,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             }
 
             val ident = style.getString("ident") ?: continue
+            val type = style.getString("type")
             val (group, name) = if (useGroups) parseIdent(ident) else Pair(null, ident)
 
             val color = style.getInt("legendColor")?: Color.TRANSPARENT
@@ -310,15 +311,15 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
             if (group?.isNotEmpty() == true) {
                 groupMap[group]?.let {
-                    it.entries = it.entries.plus(LegendEntry(name, ident, bitmap, emptyList()))
+                    it.entries = it.entries.plus(LegendEntry(name, ident, type, bitmap, emptyList()))
                 } ?: run {
-                    val entry = LegendEntry(group, ident, null, listOf(
-                            LegendEntry(name, ident, bitmap, emptyList())))
+                    val entry = LegendEntry(group, ident, type, null, listOf(
+                            LegendEntry(name, ident, type, bitmap, emptyList())))
                     groupMap[group] = entry
                     legend.add(entry)
                 }
             } else {
-                legend.add(LegendEntry(name, ident, bitmap, emptyList()))
+                legend.add(LegendEntry(name, ident, type, bitmap, emptyList()))
             }
         }
 

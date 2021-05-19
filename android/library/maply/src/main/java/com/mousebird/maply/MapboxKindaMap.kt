@@ -25,10 +25,7 @@ import android.os.Looper
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.core.net.toFile
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.Request
-import okhttp3.Response
+import okhttp3.*
 import java.io.*
 import java.lang.ref.WeakReference
 import java.net.URL
@@ -40,7 +37,7 @@ import kotlin.collections.ArrayList
  * Set the various settings before it gets going to modify how it works.
  * Callbacks control various pieces that might need to be intercepted.
  */
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 open class MapboxKindaMap(
         var styleSheetJSON: String?,
         var styleURL: Uri?,
@@ -120,6 +117,15 @@ open class MapboxKindaMap(
     }
 
     /**
+     * Control the sprite sheet resolution
+     */
+    var spriteResFor: (String) -> Int = { uri ->
+        val isMapbox = uri.startsWith("mapbox://") ||
+                       uri.contains("mapbox.com/")
+        if (isMapbox) 4 else 2
+    }
+
+    /**
      * You can override the font to use for a given font name in the style.
      * Font names in the style often don't map directly to local font names.
      */
@@ -163,7 +169,7 @@ open class MapboxKindaMap(
     }
 
     private fun clearTask(task: Call) {
-        control.get()?.getActivity()?.runOnUiThread {
+        control.get()?.activity?.runOnUiThread {
             outstandingFetches.remove(task)
         }
     }
@@ -171,7 +177,7 @@ open class MapboxKindaMap(
     // Check if we've finished loading stuff
     protected fun checkFinished() {
         // Start the map if no outstanding fetches are running
-        control.get()?.getActivity()?.runOnUiThread {
+        control.get()?.activity?.runOnUiThread {
             if (!finished && outstandingFetches.all { it == null }) {
                 finished = true
                 startLoader()
@@ -180,20 +186,20 @@ open class MapboxKindaMap(
     }
 
     // If we're using a cache dir, look for the file there
-    protected fun cacheResolve(url: Uri) : URL {
+    protected fun cacheResolve(url: Uri) : File? {
         val fileRef = cacheName(url)
         if (fileRef != null && fileRef.exists()) {
-            return URL(Uri.fromFile(fileRef).toString())
+            return fileRef
         }
-
-        return URL(url.toString())
+        return null
     }
 
     // Generate a workable cache file path
     protected fun cacheName(url: Uri) : File? {
         // It's already local
-        if (url.scheme == "file" && url.toFile().exists())
+        if (url.scheme == "file" && url.toFile().exists()) {
             return url.toFile()
+        }
 
         // If the cache dir doesn't exist, we need to create it
         val theCacheDir = cacheDir ?: return null
@@ -241,9 +247,8 @@ open class MapboxKindaMap(
 
             // todo: reduce duplication with processStylesheet
             try {
-                val cacheUrl = cacheResolve(resolvedURL)
-                if (cacheUrl.toString().startsWith("file:")) {
-                    val json = readFile(cacheUrl.file)
+                cacheResolve(resolvedURL)?.let { cacheFile ->
+                    val json = readFile(cacheFile)
                     if (json.isNotEmpty()) {
                         styleSheetJSON = json
                         processStyleSheet()
@@ -307,12 +312,10 @@ open class MapboxKindaMap(
             val url = mapboxURLFor(Uri.parse(source.url))
 
             try {
-                val cacheUrl = cacheResolve(url)
-                if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    val json = readFile(cacheUrl.file)
+                cacheResolve(url)?.let { cacheFile ->
+                    val json = readFile(cacheFile)
                     if (json.isNotEmpty()) {
                         processStylesheetJson(source, json)
-                        checkFinished()
                         return@forEach
                     }
                 }
@@ -331,11 +334,12 @@ open class MapboxKindaMap(
                 }
                 override fun onResponse(call: Call, response: Response) {
                     response.use {
+                        if (!response.isSuccessful) return@use
                         it.body?.use { body ->
                             val bytes = body.bytes()
                             if (bytes.isNotEmpty()) {
-                                Log.d("MapboxKindaMap",
-                                    "Received ${bytes.size} bytes of ${body.contentType()} for $url")
+                                // Note: this will include access tokens in the log, use with care
+                                //Log.d("MapboxKindaMap", "Received ${bytes.size} bytes of ${body.contentType()} for $url")
                                 val json = String(bytes)
                                 if (json.isNotEmpty()) {
                                     processStylesheetJson(source, json)
@@ -351,108 +355,114 @@ open class MapboxKindaMap(
         }
 
         // Load the sprite sheets
-        val spriteURL = styleSheet?.spriteURL
-        if (spriteURL != null) {
-            val spriteJSONUrl = mapboxURLFor(Uri.parse("$spriteURL@2x.json"))
-            val spritePNGUrl = mapboxURLFor(Uri.parse("$spriteURL@2x.png"))
-            try {
-                val cacheUrl = cacheResolve(spriteJSONUrl)
-                if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    spriteJSON = readFile(cacheUrl.file)
-                }
-            } catch (ex: Exception) {
-                Log.e("MapboxKindaMap", "Failed to load cached sprite sheet", ex)
-            }
-
-            if (spriteJSON == null && fetchSprites) {
-                val task1 = client.newCall(requestFor(spriteJSONUrl).build())
-                addTask(task1)
-                task1.enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Log.w("Maply", "Error fetching sprite sheet", e)
-                        stop()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        response.use {
-                            if (finished) return@use
-                            if (!response.isSuccessful) {
-                                Log.w("MapboxKindaMap",
-                                    "Sprite sheet request failed with ${response.code}: ${response.message}");
-                                return@use
-                            }
-                            it.body?.use { body ->
-                                val bytes = body.bytes()
-                                if (bytes.isNotEmpty()) {
-                                    // todo: validate that it's not some kind of error message
-                                    spriteJSON = String(bytes)
-                                    cacheFile(spriteJSONUrl, bytes)
-                                }
-                            }
-                        }
-                        clearTask(task1)
-                        checkFinished()
-                    }
-                })
-            }
-
-            // Look for the PNG in the cache
-            try {
-                val cacheUrl = cacheResolve(spritePNGUrl)
-                if (cacheUrl.protocol == "file" && File(cacheUrl.file).isFile) {
-                    FileInputStream(cacheUrl.file).use {
-                        spritePNG = BitmapFactory.decodeFile(cacheUrl.path)
-                    }
-                }
-            } catch (ex: Exception) {
-                Log.e("MapboxKindaMap", "Failed to load cached sprite image", ex)
-            }
-
-            if (spritePNG == null && fetchSprites) {
-                val task2 = client.newCall(requestFor(spritePNGUrl).build())
-                addTask(task2)
-                task2.enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Log.w("Maply", "Error fetching sprite image", e)
-                        stop()
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        response.use {
-                            if (finished) return@use
-                            if (!response.isSuccessful) {
-                                Log.w("MapboxKindaMap",
-                                    "Sprite PNG request failed with ${response.code}: ${response.message}");
-                                return@use
-                            }
-                            it.body?.use { body ->
-                                val bytes = body.bytes()
-                                if (bytes.isNotEmpty()) {
-                                    spritePNG =
-                                        BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                                    if (spritePNG != null) {
-                                        cacheFile(spritePNGUrl, bytes)
-                                    } else {
-                                        // Probably some error HTML/JSON instead
-                                        val msg: String = kotlin.runCatching {
-                                            String(bytes, Charsets.UTF_8).let { s ->
-                                                if (s.length > 100) s.substring(0,100) else s
-                                            }
-                                        }.getOrDefault("?")
-                                        Log.w("MapboxKindaMap", "Failed to read sprite PNG ($msg)")
-                                    }
-                                }
-                            }
-                        }
-                        clearTask(task2)
-                        checkFinished()
-                    }
-                })
-            }
-
-            // Might have loaded from the caches
-            checkFinished()
+        styleSheet?.spriteURL?.let {
+            loadSprites(it, client)
         }
+
+        checkFinished()
+    }
+
+    private fun loadSprites(spriteURL: String, client: OkHttpClient) {
+
+        val res = spriteResFor(spriteURL)
+        val resStr = if (res > 1) "@${res}x" else ""
+        val spriteJSONUrl = mapboxURLFor(Uri.parse("$spriteURL$resStr.json"))
+        val spritePNGUrl = mapboxURLFor(Uri.parse("$spriteURL$resStr.png"))
+        try {
+            cacheResolve(spriteJSONUrl)?.let { cacheFile ->
+                spriteJSON = readFile(cacheFile)
+            }
+        } catch (ex: Exception) {
+            Log.e("MapboxKindaMap", "Failed to load cached sprite sheet", ex)
+        }
+
+        if (spriteJSON == null && fetchSprites) {
+            val task1 = client.newCall(requestFor(spriteJSONUrl).build())
+            addTask(task1)
+            task1.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.w("Maply", "Error fetching sprite sheet", e)
+                    stop()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (finished) return@use
+                        if (!response.isSuccessful) {
+                            Log.w("MapboxKindaMap",
+                                "Sprite sheet request failed with ${response.code}: ${response.message}")
+                            return@use
+                        }
+                        it.body?.use { body ->
+                            val bytes = body.bytes()
+                            if (bytes.isNotEmpty()) {
+                                // todo: validate that it's not some kind of error message
+                                spriteJSON = String(bytes)
+                                cacheFile(spriteJSONUrl, bytes)
+                            }
+                        }
+                    }
+                    clearTask(task1)
+                    checkFinished()
+                }
+            })
+        }
+
+        // Look for the PNG in the cache
+        try {
+            cacheResolve(spritePNGUrl)?.let { cacheFile ->
+                FileInputStream(cacheFile).use {
+                    spritePNG = BitmapFactory.decodeStream(it)
+                }
+            }
+        } catch (ex: Exception) {
+            Log.e("MapboxKindaMap", "Failed to load cached sprite image", ex)
+        }
+
+        if (spritePNG == null && fetchSprites) {
+            val task2 = client.newCall(requestFor(spritePNGUrl).build())
+            addTask(task2)
+            task2.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.w("Maply", "Error fetching sprite image", e)
+                    stop()
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use {
+                        if (finished) return@use
+                        if (!response.isSuccessful) {
+                            Log.w("MapboxKindaMap",
+                                "Sprite PNG request failed with ${response.code}: ${response.message}")
+                            return@use
+                        }
+                        it.body?.use { body ->
+                            val bytes = body.bytes()
+                            if (bytes.isNotEmpty()) {
+                                spritePNG =
+                                    BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                                if (spritePNG != null) {
+                                    cacheFile(spritePNGUrl, bytes)
+                                } else {
+                                    // Probably some error HTML/JSON instead
+                                    val msg: String = kotlin.runCatching {
+                                        String(bytes, Charsets.UTF_8).let { s ->
+                                            if (s.length > 100) s.substring(0,100) else s
+                                        }
+                                    }.getOrDefault("?")
+                                    Log.w("MapboxKindaMap", "Failed to read sprite PNG ($msg)")
+                                }
+                            }
+                        }
+                    }
+                    clearTask(task2)
+                    checkFinished()
+                }
+            })
+        }
+
+        // Might have loaded from the caches
+        checkFinished()
     }
 
     private fun processStylesheetJson(source: MapboxVectorStyleSet.Source, json: String) {
@@ -462,7 +472,6 @@ open class MapboxKindaMap(
                 source.tileSpec = getArray("tileSpec")
             }
         }
-        checkFinished()
     }
 
     // Everything has been fetched, so fire up the loader
@@ -729,8 +738,9 @@ open class MapboxKindaMap(
         control.clear()
     }
 
-    private fun readFile(fileName: String) =
-        FileInputStream(fileName).use { stream->
+    private fun readFile(fileName: String) = readFile(File(fileName))
+    private fun readFile(file: File) =
+        FileInputStream(file).use { stream->
             stream.bufferedReader().use { reader ->
                 reader.readText()
             }
@@ -738,7 +748,10 @@ open class MapboxKindaMap(
 
     private val control : WeakReference<BaseController> = WeakReference<BaseController>(inControl)
     private val outstandingFetches = ArrayList<Call?>()
-    private val cacheNamePattern = Regex("[|?*<\":%@>+\\[\\]\\\\/]")
+
+    // Characters which we don't put in cache filenames.
+    // Equals and Ampersand are valid, but get escaped by URI, and so tend to cause trouble.
+    private val cacheNamePattern = Regex("[|?*<\":%@>+\\[\\]\\\\/=&]")
     private var finished = false
 
     init {

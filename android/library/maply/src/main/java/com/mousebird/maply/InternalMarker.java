@@ -51,6 +51,9 @@ class InternalMarker
 		if (marker.orderBy != 0) {
 			setOrderBy(marker.orderBy);
 		}
+		if (marker.uniqueID != null && !marker.uniqueID.isEmpty()) {
+			setUniqueID(marker.uniqueID);
+		}
 	}
 	
 	/**
@@ -120,6 +123,7 @@ class InternalMarker
 	public native void setVertexAttributes(Object[] vertexAttributes);
 	public native void setLayoutImportance(float importance);
 	public native void setOrderBy(int order);
+	public native void setUniqueID(String id);
 
 	static
 	{

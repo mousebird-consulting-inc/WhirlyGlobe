@@ -79,14 +79,33 @@ std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
     for (unsigned int ii=0;ii<soln.size();ii++) {
         Path &outPoly = soln[ii];
         VectorRing outRing;
+        std::vector<bool> validPts;  validPts.reserve(outPoly.size());
+        std::vector<Point2f> outPts;  outPts.reserve(outPoly.size());
         for (unsigned jj=0;jj<outPoly.size();jj++) {
             IntPoint &outPt = outPoly[jj];
             
             // So when Clipper buffers a line it buffers *around* the line.  We actually only want
             //  half of these points
-            Point2f theOutPt(outPt.X/PolyScale + org.x(),outPt.Y/PolyScale + org.y());
-            if (isOnRightSide(ring, offset, theOutPt))
-                outRing.push_back(theOutPt);
+            auto theOutPt = Point2f(outPt.X/PolyScale + org.x(),outPt.Y/PolyScale + org.y());
+            outPts.push_back(theOutPt);
+            validPts.push_back(isOnRightSide(ring, offset, theOutPt));
+        }
+        
+        if (outPoly.size() <= 1)
+            continue;
+            
+        // Find a good starting point
+        int startPt = 0;
+        for (;startPt<outPts.size();startPt++)
+            if (!validPts[startPt])
+                break;
+        if (startPt == outPts.size())
+            startPt = 0;
+        
+        // Now walk around the outside until we've touched it all once
+        for (unsigned int jj=0;jj<outPts.size();jj++,startPt++) {
+            if (validPts[startPt % outPoly.size()])
+                outRing.push_back(outPts[startPt % outPoly.size()]);
             else {
                 if (outRing.size() > 1) {
                     rets.push_back(outRing);
@@ -94,10 +113,13 @@ std::vector<VectorRing> BufferLinear(const VectorRing &ring, float offset)
                 outRing.clear();
             }
         }
-        
         if (outRing.size() > 1)
             rets.push_back(outRing);
     }
+
+    for (auto &run: rets)
+        std::reverse(run.begin(),run.end());
+
     return rets;
 }
 

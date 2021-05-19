@@ -64,6 +64,12 @@ public:
     /// Set the fade in and out
     void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
     
+    /// Set values from the vecInfo
+    void setValues(const WideVectorInfo &vecInfo);
+    
+    /// Used when we're changing values on geometry already generated
+    virtual void generateChanges(const SimpleIDSet &drawID,ChangeSet &changes) = 0;
+    
     /// Set the bounding box for the data
     void setLocalMbr(const Mbr &mbr);
 

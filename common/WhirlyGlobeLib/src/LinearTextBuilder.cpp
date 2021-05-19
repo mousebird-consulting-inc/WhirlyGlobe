@@ -168,42 +168,71 @@ void LinearTextBuilder::process()
     {
         std::vector<VectorRing> newRuns;
         VectorRing curRun;
-        std::vector<bool> frontSide;
+        
+        // Project the points and evaluate the individual validity of each one
+        std::vector<bool> isValid;  isValid.reserve(pts.size());
+        std::vector<bool> isFrontSide;  isFrontSide.reserve(pts.size());
+        std::vector<Point2f> projPts;  projPts.reserve(pts.size());
         for (auto pt: pts) {
             Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
 
-            bool isFrontSide = true;
+            bool testFrontSide = true;
             if (globeViewState)
             {
                 // Make sure this one is facing toward the viewer
                 if (!(CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,fullNormalMatrix) > 0.0))
-                    isFrontSide = false;
+                    testFrontSide = false;
             }
             
-            if (isFrontSide)
-                curRun.push_back(thisObjPt);
+            bool isInside = screenMbr.inside(thisObjPt);
+            isValid.push_back(isInside && testFrontSide);
+            isFrontSide.push_back(testFrontSide);
+            projPts.push_back(thisObjPt);
+        }
+        
+        // Now build runs that cut across the screen MBR
+        // It gets tricky.  We have to include the first and last point of a run
+        //  and we want to look for spans that can overlap the MBR
+        bool includeNext = false;
+        for (unsigned int ii=0;ii<projPts.size();ii++) {
+            bool include = includeNext || isValid[ii];  // Simplest case
+            if (!include) {
+                // Previous point is valid, so keep this one
+                if (ii>0 && isValid[ii-1])
+                    include = true;
+                // Next point is valid, so keep this one
+                if (ii<projPts.size()-1 && isValid[ii+1])
+                    include = true;
+            }
+
+            includeNext = false;
+            if (!include) {
+                // Is this part of a span that overlaps the MBR
+                if (ii < projPts.size()-1 && isFrontSide[ii] && isFrontSide[ii+1]) {
+                    Mbr testMbr;
+                    testMbr.addPoint(projPts[ii]);
+                    testMbr.addPoint(projPts[ii+1]);
+                    if (screenMbr.overlaps(testMbr)) {
+                        include = true;
+                        includeNext = true;
+                    }
+                }
+            }
+
+            // Include this point in the run
+            if (include)
+                curRun.push_back(projPts[ii]);
             else {
+                // Cut off the run and add it to the current runs
                 if (curRun.size() > 1)
                     newRuns.push_back(curRun);
                 curRun.clear();
             }
         }
+        
         if (curRun.size() > 1)
             newRuns.push_back(curRun);
 
-        
-        runs = newRuns;
-    }
-
-    {
-        std::vector<VectorRing> newRuns;
-
-        // Only keep the runs that overlap with the screen
-        for (const auto &run: runs) {
-            Mbr testMbr(run);
-            if (testMbr.overlaps(testMbr))
-                newRuns.push_back(run);
-        }
         
         runs = newRuns;
     }
@@ -226,29 +255,7 @@ void LinearTextBuilder::process()
 
     if (runs.empty())
         return;
-    
-    // Clip to a larger screen MBR
-    {
-        std::vector<VectorRing> newRuns;
         
-        for (const auto &run: runs) {
-            Mbr largeScreenMbr = screenMbr;
-            largeScreenMbr.expandByFraction(0.1);
-            std::vector<VectorRing> clipRuns;
-            bool isClosed = run.front() == run.back();
-            ClipLoopToMbr(run, largeScreenMbr, isClosed, clipRuns,1e6);
-            
-            for (auto &newRun: clipRuns)
-            {
-                if (isClosed && (newRun.front() != newRun.back()))
-                    newRun.push_back(newRun.front());
-                newRuns.push_back(newRun);
-            }
-        }
-        
-        runs = newRuns;
-    }
-    
     // Run the offsetting
     if (layoutObj->layoutOffset != 0.0) {
         std::vector<VectorRing> newRuns;
@@ -263,47 +270,35 @@ void LinearTextBuilder::process()
         }
         runs = newRuns;
     }
-    
-    // Clip to the screen
-    {
-        std::vector<VectorRing> newRuns;
-        for (const auto &run: runs) {
-            std::vector<VectorRing> theseRuns;
-            ClipLoopToMbr(run, screenMbr, false, theseRuns);
-            if (!theseRuns.empty())
-                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
-        }
-        runs = newRuns;
-    }
-    
+        
     // Break up runs at unlikely angles
-    {
-        std::vector<VectorRing> newRuns;
-        for (const auto &run: runs) {
-            std::vector<VectorRing> theseRuns;
-            VectorRing thisRun;
-            thisRun.push_back(run.front());
-            for (unsigned int ii=1;ii<run.size()-1;ii++) {
-                const Point2f &l0 = run[ii-1], &l1 = run[ii], &l2 = run[ii+1];
-                Point2f dir0 = (l1-l0).normalized(), dir1 = (l2-l1).normalized();
-                double ang = acos(dir0.dot(-dir1));
-                if (ang > 135.0 / 180.0 * M_PI)
-                    thisRun.push_back(l1);
-                else {
-                    thisRun.push_back(l1);
-                    theseRuns.push_back(thisRun);
-                    thisRun.clear();
-                    thisRun.push_back(l1);
-                }
-            }
-            thisRun.push_back(run.back());
-            if (thisRun.size() > 1)
-                theseRuns.push_back(thisRun);
-            if (!theseRuns.empty())
-                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
-        }
-        runs = newRuns;
-    }
+//    {
+//        std::vector<VectorRing> newRuns;
+//        for (const auto &run: runs) {
+//            std::vector<VectorRing> theseRuns;
+//            VectorRing thisRun;
+//            thisRun.push_back(run.front());
+//            for (unsigned int ii=1;ii<run.size()-1;ii++) {
+//                const Point2f &l0 = run[ii-1], &l1 = run[ii], &l2 = run[ii+1];
+//                Point2f dir0 = (l1-l0).normalized(), dir1 = (l2-l1).normalized();
+//                double ang = acos(dir0.dot(-dir1));
+//                if (ang > 90.0 / 180.0 * M_PI)
+//                    thisRun.push_back(l1);
+//                else {
+//                    thisRun.push_back(l1);
+//                    theseRuns.push_back(thisRun);
+//                    thisRun.clear();
+//                    thisRun.push_back(l1);
+//                }
+//            }
+//            thisRun.push_back(run.back());
+//            if (thisRun.size() > 1)
+//                theseRuns.push_back(thisRun);
+//            if (!theseRuns.empty())
+//                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+//        }
+//        runs = newRuns;
+//    }
 
     return;
 }

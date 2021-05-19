@@ -82,6 +82,13 @@ void WideVectorDrawableBuilderGLES::Init(unsigned int numVert,unsigned int numTr
     WideVectorDrawableBuilder::Init(numVert,numTri,0,implType,globeMode,vecInfo);
 }
 
+void WideVectorDrawableBuilderGLES::generateChanges(const SimpleIDSet &drawIDs,ChangeSet &changes)
+{
+    // Changed line width
+    for (auto drawID: drawIDs)
+        changes.push_back(new LineWidthChangeRequest(drawID, lineWidth));
+}
+
 // NOLINTNEXTLINE(google-default-arguments)
 int WideVectorDrawableBuilderGLES::addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot,int numThings)
 {

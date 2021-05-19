@@ -122,4 +122,9 @@ public class ScreenMarker
 	 * Default is 0 and means no re-ordering, i.e., the order in which they are provided.
 	 */
 	public int orderBy = 0;
+
+	/**
+	 * Unique identifier for the marker
+	 */
+	public String uniqueID;
 }

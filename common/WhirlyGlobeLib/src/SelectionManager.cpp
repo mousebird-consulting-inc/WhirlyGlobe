@@ -681,50 +681,45 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
 
 void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenPts,TimeInterval now)
 {
-    for (RectSelectable2DSet::iterator it = rect2Dselectables.begin();
-         it != rect2Dselectables.end(); ++it)
+    screenPts.reserve(rect2Dselectables.size() + movingRect2Dselectables.size());
+    for (const auto &sel : rect2Dselectables)
     {
-        const RectSelectable2D &sel = *it;
         if (sel.selectID != EmptyIdentity && sel.enable)
         {
             if (sel.minVis == DrawVisibleInvalid ||
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
-                ScreenSpaceObjectLocation objLoc;
+                screenPts.emplace_back();
+                ScreenSpaceObjectLocation &objLoc = screenPts.back();
                 objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.center;
                 objLoc.offset = Point2d(0,0);
-                for (unsigned int ii=0;ii<4;ii++)
+                for (const auto &pt : sel.pts)
                 {
-                    Point2f pt = sel.pts[ii];
-                    objLoc.pts.push_back(Point2d(pt.x(),pt.y()));
+                    objLoc.pts.emplace_back(pt.x(),pt.y());
                     objLoc.mbr.addPoint(pt);
                 }
-                screenPts.push_back(objLoc);
             }
         }
     }
 
-    for (MovingRectSelectable2DSet::iterator it = movingRect2Dselectables.begin();
-         it != movingRect2Dselectables.end(); ++it)
+    for (const auto & sel : movingRect2Dselectables)
     {
-        const MovingRectSelectable2D &sel = *it;
         if (sel.selectID != EmptyIdentity)
         {
             if (sel.minVis == DrawVisibleInvalid ||
                 (sel.minVis < pInfo.heightAboveSurface && pInfo.heightAboveSurface < sel.maxVis))
             {
-                ScreenSpaceObjectLocation objLoc;
+                screenPts.emplace_back();
+                ScreenSpaceObjectLocation &objLoc = screenPts.back();
                 objLoc.shapeIDs.push_back(sel.selectID);
                 objLoc.dispLoc = sel.centerForTime(now);
                 objLoc.offset = Point2d(0,0);
-                for (unsigned int ii=0;ii<4;ii++)
+                for (const auto &pt : sel.pts)
                 {
-                    Point2f pt = sel.pts[ii];
-                    objLoc.pts.push_back(Point2d(pt.x(),pt.y()));
+                    objLoc.pts.emplace_back(pt.x(),pt.y());
                     objLoc.mbr.addPoint(pt);
                 }
-                screenPts.push_back(objLoc);
             }
         }
     }
@@ -861,7 +856,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
 {
     if (!renderer)
         return;
-    float maxDist2 = maxDist * maxDist;
+    const float maxDist2 = maxDist * maxDist;
     
     // All the various parameters we need to evalute... stuff
     PlacementInfo pInfo(viewState,renderer);
@@ -871,16 +866,14 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
     TimeInterval now = scene->getCurrentTime();
 
     // And the eye vector for billboards
-    Vector4d eyeVec4 = pInfo.viewState->fullMatrices[0].inverse() * Vector4d(0,0,1,0);
-    Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
-    Matrix4d modelTrans = pInfo.viewState->fullMatrices[0];
-    Matrix4d normalMat = pInfo.viewState->fullMatrices[0].inverse().transpose();
+    const Vector4d eyeVec4 = pInfo.viewState->fullMatrices[0].inverse() * Vector4d(0,0,1,0);
+    const Vector3d eyeVec(eyeVec4.x(),eyeVec4.y(),eyeVec4.z());
+    const Matrix4d modelTrans = pInfo.viewState->fullMatrices[0];
+    const Matrix4d normalMat = pInfo.viewState->fullMatrices[0].inverse().transpose();
 
-    Point2f frameBufferSize;
-    frameBufferSize.x() = renderer->framebufferWidth;
-    frameBufferSize.y() = renderer->framebufferHeight;
+    const Point2f frameBufferSize(renderer->framebufferWidth, renderer->framebufferHeight);
 
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
+    const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
 
     std::lock_guard<std::mutex> guardLock(lock);
 
@@ -945,9 +938,8 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                 {
                     for (auto shapeID : screenObj.shapeIDs)
                     {
-                        SelectedObject selObj(shapeID,0.0,0.0);
-                        selObj.isCluster = screenObj.isCluster;
-                        selObjs.push_back(selObj);
+                        selObjs.emplace_back(shapeID,0.0,0.0);
+                        selObjs.back().isCluster = screenObj.isCluster;
                     }
                     break;
                 }
@@ -957,7 +949,7 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                 {
                     float t;
                     Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt,t);
-                    float dist2 = (closePt-touchPt).squaredNorm();
+                    const float dist2 = (closePt-touchPt).squaredNorm();
                     closeDist2 = std::min(dist2,closeDist2);
                 }
             }
@@ -967,9 +959,8 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
         {
             for (auto shapeID : screenObj.shapeIDs)
             {
-                SelectedObject selObj(shapeID,0.0,sqrtf(closeDist2));
-                selObj.isCluster = screenObj.isCluster;
-                selObjs.push_back(selObj);
+                selObjs.emplace_back(shapeID,0.0,sqrt(closeDist2));
+                selObjs.back().isCluster = screenObj.isCluster;
             }
         }
         

@@ -198,7 +198,7 @@ public:
 
     /// Pass in the content scaling (not 1.0 if we're on retina)
     SelectionManager(Scene *scene);
-    ~SelectionManager();
+    virtual ~SelectionManager();
     
     /// When we're selecting multiple objects we'll return a list of these
     class SelectedObject

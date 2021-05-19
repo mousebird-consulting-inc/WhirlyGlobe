@@ -48,7 +48,10 @@ public:
             WideVecImplType implType,
             bool globeMode,
             const WideVectorInfo *vecInfo) override;
-    
+
+    /// Used when we're changing values on geometry already generated
+    virtual void generateChanges(const SimpleIDSet &drawID,ChangeSet &changes) override;
+
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1) override;
 
     // Return the basic drawable for the simple and complex cases
