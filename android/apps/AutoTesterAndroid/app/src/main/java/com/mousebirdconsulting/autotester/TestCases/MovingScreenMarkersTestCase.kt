@@ -64,15 +64,16 @@ public class MovingScreenMarkersTestCase : MaplyTestCase {
         timerRunnable = Runnable {
             clearMarkers()
             markerObj = makeMarkers()
-            if (timerRunnable != null) {
-                timerHandler.postDelayed(timerRunnable, (1000 * duration).toLong())
+            timerRunnable?.let {
+                timerHandler.postDelayed(it, (1000 * duration).toLong())
             }
+        }.also {
+            timerHandler.postDelayed(it, 0)
         }
-        timerHandler.postDelayed(timerRunnable, 0)
     }
 
     override fun shutdown() {
-        timerRunnable.also {
+        timerRunnable?.also {
             timerRunnable = null
             timerHandler.removeCallbacks(it)
         }

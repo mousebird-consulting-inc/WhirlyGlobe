@@ -7,17 +7,14 @@ import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.*
 import java.io.IOException
-import kotlin.math.min
 
 open class MapTilerTestCase : MaplyTestCase
 {
     constructor(activity: Activity) :
-            this(activity, "MapTiler", TestExecutionImplementation.Both) {
-    }
+            this(activity, "MapTiler", TestExecutionImplementation.Both)
     
     protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
-            super(activity, name, impl) {
-    }
+            super(activity, name, impl)
     
     // Maptiler token
     // Go to maptiler.com, setup an account and get your own
