@@ -126,7 +126,7 @@ typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 typedef std::vector<DynamicTextureRef> DynamicTextureVec;
 
 // Used to sort dynamic texture vectors
-typedef struct
+typedef struct DynamicTextureVecSorter
 {
     bool operator () (const DynamicTextureVec *a,const DynamicTextureVec *b) const { return a->at(0)->getId() < b->at(0)->getId(); }
 } DynamicTextureVecSorter;

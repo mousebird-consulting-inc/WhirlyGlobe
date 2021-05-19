@@ -169,7 +169,7 @@ public:
 };
     
 // Sort more important things to the front
-typedef struct
+typedef struct LayoutEntrySorter
 {
     bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
     {
