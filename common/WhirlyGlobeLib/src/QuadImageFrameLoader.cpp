@@ -303,7 +303,7 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     if (!loadReturn->changes.empty())
         changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
     
-    auto frame = findFrameFor(loadReturn->frame);
+    auto frame = loadReturn->frame ? findFrameFor(loadReturn->frame) : nullptr;
     if (loadReturn->frame && !frame)
     {
         if (!loadReturn->compObjs.empty())
@@ -1539,7 +1539,8 @@ bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,
                                             RawDataRef data,
                                             std::vector<RawDataRef> &allData)
 {
-    return frame && mergeLoadedFrame(ident, frame->getId(), std::move(data), allData);
+    const auto frameID = frame ? frame->getId() : EmptyIdentity;
+    return mergeLoadedFrame(ident, frameID, data, allData);
 }
 
 bool QuadImageFrameLoader::mergeLoadedFrame(const QuadTreeIdentifier &ident,
