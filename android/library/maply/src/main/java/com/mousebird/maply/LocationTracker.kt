@@ -76,20 +76,21 @@ class LocationTracker : LocationCallback {
         stop()
     
         val defLooper = baseController.get()?.workingThread?.looper ?: Looper.myLooper()!!
-        handler = Handler(looper ?: defLooper)
+        val theHandler = Handler(looper ?: defLooper)
+        this.handler = theHandler
         
         simulatorDelegate.get()?.let {
             simulating = true
-            handler?.post(simTask)
+            theHandler.post(simTask)
         } ?: trackerDelegate.get()?.let {
-            locationClient = LocationServices.getFusedLocationProviderClient(context)?.also { client ->
-                val req = request ?: LocationRequest().apply {
+            locationClient = LocationServices.getFusedLocationProviderClient(context).also { client ->
+                val req = request ?: create().apply {
                     priority = PRIORITY_BALANCED_POWER_ACCURACY
                     interval = (1000.0 * updateInterval).toLong()
                     maxWaitTime = 2 * interval - 1
                     numUpdates = Int.MAX_VALUE
                 }
-                locationTask = client.requestLocationUpdates(req, this, handler?.looper)
+                locationTask = client.requestLocationUpdates(req, this, theHandler.looper)
             }
         }
     }
@@ -232,7 +233,7 @@ class LocationTracker : LocationCallback {
         }
     }
 
-    override fun onLocationAvailability(availability: LocationAvailability?) {
+    override fun onLocationAvailability(availability: LocationAvailability) {
         availability.let { super.onLocationAvailability(it) }
     
         if (baseController.get() == null) {
@@ -248,11 +249,11 @@ class LocationTracker : LocationCallback {
         }
     }
 
-    override fun onLocationResult(location: LocationResult?) {
+    override fun onLocationResult(location: LocationResult) {
         super.onLocationResult(location)
     
         if (baseController.get() != null) {
-            updateLocation(convertIf(location?.lastLocation))
+            updateLocation(convertIf(location.lastLocation))
         } else {
             stop()
         }
