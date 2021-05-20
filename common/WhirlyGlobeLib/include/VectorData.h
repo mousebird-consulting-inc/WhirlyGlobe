@@ -140,7 +140,7 @@ public:
     ~VectorTriangles();
     
     /// Simple triangle with three points (obviously)
-    typedef struct
+    typedef struct Triangle
     {
     public:
         int pts[3];

@@ -71,7 +71,7 @@ public:
         int refCount;
     };
     
-    typedef struct
+    typedef struct GlyphInfoSorter
     {
         bool operator () (const GlyphInfo *a,const GlyphInfo *b) const { return a->glyph < b->glyph; }
     } GlyphInfoSorter;
