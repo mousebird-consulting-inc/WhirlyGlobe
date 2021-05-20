@@ -35,7 +35,7 @@ static const std::string strLayers("layers");
 static const std::string strBackground("background");
 static const std::regex colorSeparatorPattern("[(),]");
 static const std::regex fieldSeparatorPattern(R"([{}]+)");
-static const std::regex colonPattern(":");
+static const std::regex colonPattern(":\\w+$");
 
 bool MapboxRegexField::parse(const std::string &textField)
 {
@@ -44,21 +44,29 @@ bool MapboxRegexField::parse(const std::string &textField)
     const auto &regex = fieldSeparatorPattern;
     std::sregex_token_iterator it{textField.begin(), textField.end(), regex, -1};
     bool isJustText = textField[0] != '{';
+    std::string regexChunk;
     for (; it != std::sregex_token_iterator(); ++it) {
-        if (it->length() == 0)
-        {
+        if (it->length() == 0) {
             continue;
         }
-        const auto regexChunk = std::string(*it);
+        regexChunk = *it;
+        
         MapboxTextChunk textChunk;
         if (isJustText) {
-            textChunk.str = regexChunk;
+            textChunk.str = std::move(regexChunk);
         } else {
             textChunk.keys.push_back(regexChunk);
-            // For some reason name:en is sometimes name_en
-            textChunk.keys.push_back(std::regex_replace(regexChunk, colonPattern, strUnderbar));
+
+            // For some reason name:en is sometimes name_en.
+            // Add both, assuming only one will match.
+            std::smatch match;
+            if (std::regex_search(regexChunk, match, colonPattern)) {
+                const auto index = &*match.begin()->first - regexChunk.c_str();
+                regexChunk[index] = '_';
+                textChunk.keys.emplace_back(std::move(regexChunk));
+            }
         }
-        chunks.push_back(textChunk);
+        chunks.emplace_back(std::move(textChunk));
         isJustText = !isJustText;
     }
 
@@ -75,7 +83,23 @@ bool MapboxRegexField::parse(const std::string &fieldName,
     return textField.empty() || parse(textField);
 }
 
-std::string MapboxRegexField::build(const DictionaryRef &attrs)
+static void trim(std::string &s)
+{
+    while (!s.empty() && std::isspace(s.back()))
+    {
+        s.pop_back();
+    }
+    for (auto i = s.begin(); ; ++i)
+    {
+        if (!std::isspace(*i) || i == s.end())
+        {
+            s.erase(s.begin(), i);
+            break;
+        }
+    }
+}
+
+std::string MapboxRegexField::build(const DictionaryRef &attrs) const
 {
     bool found = false;
     bool didLookup = false;
@@ -83,19 +107,20 @@ std::string MapboxRegexField::build(const DictionaryRef &attrs)
     std::string text;
     text.reserve(chunks.size() * 20);
 
+    std::string keyVal;
     for (const auto &chunk : chunks) {
-        if (!chunk.str.empty())
+        if (!chunk.str.empty()) {
             text += chunk.str;
-        else {
-            for (const auto &key : chunk.keys) {
-                didLookup = true;
-                if (attrs->hasField(key)) {
-                    found = true;
-                    const std::string keyVal = attrs->getString(key);
-                    if (!keyVal.empty()) {
-                        text += keyVal;
-                        break;
-                    }
+            continue;
+        }
+        for (const auto &key : chunk.keys) {
+            didLookup = true;
+            if (attrs->hasField(key)) {
+                found = true;
+                keyVal = attrs->getString(key);
+                if (!keyVal.empty()) {
+                    text += keyVal;
+                    break;
                 }
             }
         }
@@ -104,9 +129,28 @@ std::string MapboxRegexField::build(const DictionaryRef &attrs)
     if (didLookup && !found)
         return std::string();
 
-    if (!text.empty() && text[text.size()-1] == '\n')
-        text.resize(text.size()-1);
+    trim(text);
+    return text;
+}
 
+std::string MapboxRegexField::buildDesc(const DictionaryRef &attrs) const
+{
+    std::string text;
+    text.reserve(chunks.size() * 20);
+
+    for (const auto &chunk : chunks) {
+        if (!chunk.str.empty()) {
+            text += chunk.str;
+            continue;
+        }
+        for (const auto &key : chunk.keys) {
+            text += "<";
+            text += key;
+            text += ">";
+        }
+    }
+
+    trim(text);
     return text;
 }
 

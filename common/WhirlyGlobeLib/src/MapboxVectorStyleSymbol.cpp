@@ -39,16 +39,17 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *inst,
     placement = styleEntry ? (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint) : MBPlacePoint;
     textTransform = styleEntry ? (MapboxTextTransform)styleSet->enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone) : MBTextTransNone;
     
-    textField.parse("text-field",styleSet,styleEntry);
+    textField = styleSet->transText("text-field", styleEntry, std::string());
 
     std::vector<DictionaryEntryRef> textFontArray;
     if (styleEntry)
         textFontArray = styleEntry->getArray("text-font");
     if (!textFontArray.empty()) {
         for (auto & ii : textFontArray) {
-            const std::string &textField = ii->getString();
-            if (!textField.empty())
-                textFontNames.push_back(textField);
+            const std::string &fieldI = ii->getString();
+            if (!fieldI.empty()) {
+                textFontNames.push_back(fieldI);
+            }
         }
     } else {
         // These are the default fonts
@@ -206,8 +207,8 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
                                                    const VectorTileDataRef &tileInfo)
 {
     // Reconstruct the string from its replacement form
-    std::string text = layout.textField.build(attrs);
-    
+    std::string text = layout.textField->textForZoom(tileInfo->ident.level).build(attrs);
+
     if (text.empty()) {
         return SingleLabelRef();
     }
@@ -447,8 +448,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     //    // Note: Made up value for pushing multi-line text together
     //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
 
+    const auto textField = (textColor && textSize > 0.0 && layout.textField) ?
+                            layout.textField->textForZoom(zoomLevel) : MapboxRegexField();
+
     const bool iconInclude = layout.iconImageField && styleSet->sprites;
-    const bool textInclude = (textColor && textSize > 0.0 && !layout.textField.chunks.empty());
+    const bool textInclude = (textField.valid && !textField.chunks.empty());
     if (!textInclude && !iconInclude)
     {
         return;
@@ -529,7 +533,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             }
                             else
                             {
-                                wkLogLevel(Warn,"Failed to find text for label");
+                                const std::string desc = textField.buildDesc(attrs);
+                                wkLogLevel(Warn,"Failed to find text for label (%s / %s)",
+                                           this->ident.c_str(), desc.c_str());
 #endif
                             }
                         }
