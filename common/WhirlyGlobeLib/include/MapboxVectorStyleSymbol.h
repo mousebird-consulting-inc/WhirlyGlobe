@@ -63,7 +63,7 @@ public:
     float layoutImportance;
         
     // Text can be expressed in a complex way
-    MapboxRegexField textField;
+    MapboxTransTextRef textField;
 
     // Name of icon, if present, can be expressed the same way as text
     MapboxTransTextRef iconImageField;

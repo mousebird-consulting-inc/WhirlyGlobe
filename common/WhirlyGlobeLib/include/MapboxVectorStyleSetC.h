@@ -50,17 +50,32 @@ public:
 class MapboxRegexField {
 public:
     MapboxRegexField() : valid(false) { }
+    MapboxRegexField(const MapboxRegexField &other) :
+        chunks(other.chunks),
+        valid(other.valid)
+    { }
+    MapboxRegexField(MapboxRegexField &&other) :
+        chunks(std::move(other.chunks)),
+        valid(other.valid)
+    {
+        other.valid = false;
+    }
 
     // Simpler version that just takes the text string
     bool parse(const std::string &textVal);
+
     // Parse the regex text field out of a field name string
-    bool parse(const std::string &fieldName,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
+    bool parse(const std::string &fieldName,
+               MapboxVectorStyleSetImpl *styleSet,
+               const DictionaryRef &styleEntry);
     
     // Build the field based on the attributes
-    std::string build(const DictionaryRef &attrs);
-    
+    std::string build(const DictionaryRef &attrs) const;
+
+    // Build a string for debug output
+    std::string buildDesc(const DictionaryRef &attrs) const;
+
     std::vector<MapboxTextChunk> chunks;
-    
     bool valid;
 };
 
