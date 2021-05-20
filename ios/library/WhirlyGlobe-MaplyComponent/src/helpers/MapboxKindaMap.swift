@@ -255,9 +255,8 @@ public class MapboxKindaMap {
                         return
                     }
                     
-                    if let data = data {
+                    if let data = data, !data.isEmpty {
                         self.spriteJSON = data
-
                         self.cacheFile(spriteJSONurl, data: data)
                     }
 
@@ -277,9 +276,8 @@ public class MapboxKindaMap {
                         self.stop()
                         return
                     }
-                    if let data = data {
+                    if let data = data, !data.isEmpty {
                         self.spritePNG = UIImage(data: data)
-                        
                         self.cacheFile(spritePNGurl, data: data)
                     }
 

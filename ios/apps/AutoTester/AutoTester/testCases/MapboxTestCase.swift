@@ -53,6 +53,7 @@ class MapboxTestCase: MaplyTestCase {
         
         let spriteURLstr = "https://api.mapbox.com/styles/v1/{filename}?access_token=" + token
         let tileURLstr = "https://api.mapbox.com/v4/{filename}.json?secure&access_token=" + token
+        let slashPat = try! NSRegularExpression(pattern: "(?<!:)//+")   // multiple slashes *not* preceded by a colon
         mapboxMap.fileOverride = {
             (url) in
             if url.isFileURL {
@@ -62,14 +63,15 @@ class MapboxTestCase: MaplyTestCase {
                 if urlComp.scheme == "mapbox" {
                     // These URLs a bit wonky.  The bit we want comes out in the host area
                     if let host = urlComp.host {
+                        var fullStr: String
                         if host.contains("sprites") {
-                            let fullStr = spriteURLstr.replacingOccurrences(of: "{filename}", with: urlComp.path).replacingOccurrences(of: "//", with: "/")
-                            return URL(string: fullStr)!
+                            fullStr = spriteURLstr.replacingOccurrences(of: "{filename}", with: urlComp.path)
                         } else {
                             // These are probably TileJSON files
-                            let fullStr = tileURLstr.replacingOccurrences(of: "{filename}", with: host)
-                            return URL(string: fullStr)!
+                            fullStr = tileURLstr.replacingOccurrences(of: "{filename}", with: host)
                         }
+                        fullStr = slashPat.stringByReplacingMatches(in: fullStr, range: NSMakeRange(0,fullStr.count), withTemplate: "/")
+                        return URL(string: fullStr)!
                     }
                 }
             }
