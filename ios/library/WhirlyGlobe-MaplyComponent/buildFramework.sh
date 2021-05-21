@@ -4,7 +4,7 @@
 BUILDTYPE=${1:-build}
 
 TARGETOPTS="-target WhirlyGlobeMaplyComponent -scheme WhirlyGlobeMaplyComponent"
-SIM_CONFIG="-sdk iphonesimulator -arch i386"
+SIM_CONFIG="-sdk iphonesimulator -arch x86_64"
 DEV_CONFIG="-sdk iphoneos"
 
 # Locations for build products
@@ -17,9 +17,11 @@ echo iPhoneOS products: $BUILT_PRODUCTS_IPHONEOS
 echo Available Simulator Destinations:
 xcodebuild $TARGETOPTS $SIM_CONFIG -configuration Release -showdestinations
 
-DEST="platform=iOS Simulator,name=iPhone 12"
-echo Building for $DEST ...
-xcodebuild $TARGETOPTS -configuration Archive $SIM_CONFIG -destination "$DEST" OTHER_CFLAGS='-fembed-bitcode' $BUILDTYPE
+#DEST="platform=iOS Simulator,name=iPhone 12"
+#echo Building for $DEST ...
+# Can't specify an architecture and a destination at the same time
+echo Building for simulator
+xcodebuild $TARGETOPTS -configuration Archive $SIM_CONFIG OTHER_CFLAGS='-fembed-bitcode' $BUILDTYPE
 
 echo Building for iPhoneOS
 xcodebuild $TARGETOPTS -configuration Archive $DEV_CONFIG -DONLY_ACTIVE_ARCH=NO OTHER_CFLAGS='-fembed-bitcode' $BUILDTYPE
