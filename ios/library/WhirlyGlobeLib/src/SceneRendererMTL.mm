@@ -683,7 +683,7 @@ void SceneRendererMTL::render(TimeInterval duration,
             // We'll skip empty render targets, except for the default one which we need at least to clear
             // Otherwise we get stuck on the last render, rather than a blank screen
             if (targetContainer->drawables.empty() &&
-                !(targetContainer && targetContainer->renderTarget && targetContainer->renderTarget->getId() == EmptyIdentity))
+                !(targetContainer && targetContainer->renderTarget))
                 continue;
             RenderTargetContainerMTL *targetContainerMTL = (RenderTargetContainerMTL *)targetContainer.get();
             
