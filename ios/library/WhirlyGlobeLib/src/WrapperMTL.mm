@@ -289,7 +289,7 @@ void RenderTeardownInfoMTL::destroyDrawable(SceneRenderer *renderer,const Drawab
 
 
 const bool HeapManagerMTL::UseHeaps =
-#if TARGET_OS_SIMULATOR
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
     false;
 #else
     true;

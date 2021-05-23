@@ -85,10 +85,12 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
 {
     offscreenBlendEnable = false;
     indirectRender = false;
+#if !TARGET_OS_MACCATALYST
     if (@available(iOS 13.0, *)) {
         if ([mtlDevice supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4])
             indirectRender = true;
     }
+#endif
 #if TARGET_OS_SIMULATOR
     indirectRender = false;
 #endif
