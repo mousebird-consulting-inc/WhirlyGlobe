@@ -26,49 +26,26 @@
 ** this Software without prior written authorization from Silicon Graphics, Inc.
 */
 /*
-** Author: Eric Veach, July 1994.
+** Author: Mikko Mononen, July 2009.
 */
 
-#ifndef DICT_LIST_H
-#define DICT_LIST_H
+#ifndef MEMALLOC_H
+#define MEMALLOC_H
 
-typedef void *DictKey;
-typedef struct Dict Dict;
-typedef struct DictNode DictNode;
+#ifdef __cplusplus
+extern "C++" {
+#endif
 
-Dict *dictNewDict( TESSalloc* alloc, void *frame, int (*leq)(void *frame, DictKey key1, DictKey key2) );
+#include "glues.h"
+	
+struct BucketAlloc *createBucketAlloc( TESSalloc* alloc, const char *name,
+									  unsigned int itemSize, unsigned int bucketSize );
+void *bucketAlloc( struct BucketAlloc *ba);
+void bucketFree( struct BucketAlloc *ba, void *ptr );
+void deleteBucketAlloc( struct BucketAlloc *ba );
 
-void dictDeleteDict( TESSalloc* alloc, Dict *dict );
-
-/* Search returns the node with the smallest key greater than or equal
-* to the given key.  If there is no such key, returns a node whose
-* key is NULL.  Similarly, Succ(Max(d)) has a NULL key, etc.
-*/
-DictNode *dictSearch( Dict *dict, DictKey key );
-DictNode *dictInsertBefore( Dict *dict, DictNode *node, DictKey key );
-void dictDelete( Dict *dict, DictNode *node );
-
-#define dictKey(n)	((n)->key)
-#define dictSucc(n)	((n)->next)
-#define dictPred(n)	((n)->prev)
-#define dictMin(d)	((d)->head.next)
-#define dictMax(d)	((d)->head.prev)
-#define dictInsert(d,k) (dictInsertBefore((d),&(d)->head,(k)))
-
-
-/*** Private data structures ***/
-
-struct DictNode {
-	DictKey	key;
-	DictNode *next;
-	DictNode *prev;
+#ifdef __cplusplus
 };
-
-struct Dict {
-	DictNode head;
-	void *frame;
-	struct BucketAlloc *nodePool;
-	int (*leq)(void *frame, DictKey key1, DictKey key2);
-};
+#endif
 
 #endif

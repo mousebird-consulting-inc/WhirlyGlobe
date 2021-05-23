@@ -75,7 +75,7 @@
         if (!self.matchCase)
             predOptions = NSCaseInsensitivePredicateOption;
         
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.leftExpression.expression rightExpression:self.rightExpression.expression modifier:0 type:opType options:predOptions];
+        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.leftExpression.expression rightExpression:self.rightExpression.expression modifier:NSDirectPredicateModifier type:opType options:predOptions];
         
         
     }
@@ -109,7 +109,7 @@
             return nil;
         self.subExpression = expressions[0];
         
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.subExpression.expression rightExpression:[NSExpression expressionForConstantValue:[NSNull null]] modifier:0 type:NSEqualToPredicateOperatorType options:0];
+        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:self.subExpression.expression rightExpression:[NSExpression expressionForConstantValue:[NSNull null]] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:0];
 
     }
     return self;
@@ -233,7 +233,7 @@
         if (!self.matchCase)
             predOptions = NSCaseInsensitivePredicateOption;
         
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.propertyExpression rightExpression:(NSExpression *)self.literalExpression modifier:0 type:NSLikePredicateOperatorType options:predOptions];
+        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.propertyExpression rightExpression:(NSExpression *)self.literalExpression modifier:NSDirectPredicateModifier type:NSLikePredicateOperatorType options:predOptions];
         
     }
     return self;
@@ -290,7 +290,7 @@
         
         NSExpression *boundsExpression = [NSExpression expressionForAggregate:@[(NSExpression *)self.lowerBoundaryExpression, (NSExpression *)self.upperBoundaryExpression]];
         
-        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.subExpression rightExpression:boundsExpression modifier:0 type:NSBetweenPredicateOperatorType options:0];
+        self.predicate = [NSComparisonPredicate predicateWithLeftExpression:(NSExpression *)self.subExpression rightExpression:boundsExpression modifier:NSDirectPredicateModifier type:NSBetweenPredicateOperatorType options:0];
 
         
     }
@@ -316,9 +316,9 @@
         NSMutableArray<SLDOperator *> *subOperators = [NSMutableArray array];
         
         for (DDXMLNode *child in [element children]) {
-            SLDOperator *operator = [SLDOperator operatorForNode:child];
-            if (operator)
-                [subOperators addObject:operator];
+            SLDOperator *oper = [SLDOperator operatorForNode:child];
+            if (oper)
+                [subOperators addObject:oper];
         }
         
         if (subOperators.count != 1)
@@ -349,9 +349,9 @@
         NSMutableArray<SLDOperator *> *subOperators = [NSMutableArray array];
         
         for (DDXMLNode *child in [element children]) {
-            SLDOperator *operator = [SLDOperator operatorForNode:child];
-            if (operator)
-                [subOperators addObject:operator];
+            SLDOperator *oper = [SLDOperator operatorForNode:child];
+            if (oper)
+                [subOperators addObject:oper];
         }
         self.subOperators = subOperators;
         

@@ -358,9 +358,9 @@
     SLDFilter *filter = [[SLDFilter alloc] init];
     
     for (DDXMLNode *child in [filterNode children]) {
-        SLDOperator *operator = [SLDOperator operatorForNode:child];
-        if (operator) {
-            filter.sldOperator = operator;
+        SLDOperator *oper = [SLDOperator operatorForNode:child];
+        if (oper) {
+            filter.sldOperator = oper;
             break;
         }
         else
