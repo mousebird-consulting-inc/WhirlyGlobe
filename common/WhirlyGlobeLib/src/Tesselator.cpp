@@ -34,55 +34,6 @@ typedef struct
 //    std::vector<int> vertIDs;
     bool newVert;
 } TriangulationInfo;
-    
-// Called for every vertex
-//static void vertexCallback(int which,TriangulationInfo *triInfo)
-//{
-////    triInfo->vertIDs.push_back(which);
-//    std::vector<int> *tri = &(triInfo->tris.back());
-//    if (tri->size() == 3)
-//    {
-//        triInfo->tris.resize(triInfo->tris.size()+1);
-//        tri = &(triInfo->tris.back());
-//    }
-//    tri->push_back(which);
-//}
-//
-//// We need to add a new vertex
-//static void combineCallback(const GLfloat newVertex[3], const int neighborVertex[4],
-//                                const GLfloat neighborWeight[4], GLfloat **outData, TriangulationInfo *triInfo)
-//{
-////    int neighbors[4];
-////    for (unsigned int ii=0;ii<4;ii++)
-////        neighbors[ii] = neighborVertex[ii];
-////    Point3f p0 = triInfo->pts[neighbors[0]];
-////    Point3f p1 = triInfo->pts[neighbors[1]];
-////    NSLog(@"NewVertex = (%f,%f), neighorVertex = (%d,%d,%d,%d), weights = (%f,%f,%f,%f)\n\tp0 = (%f,%f), p1 = (%f,%f)",newVertex[0],newVertex[1],neighbors[0],neighbors[1],neighbors[2],neighbors[3],neighborWeight[0],neighborWeight[1],neighborWeight[2],neighborWeight[3],p0.x(),p0.y(),p1.x(),p1.y());
-//
-//    triInfo->pts.push_back(Point3f(newVertex[0],newVertex[1],0.0));
-//    *outData = (GLfloat *)(triInfo->pts.size()-1);
-//
-//    triInfo->newVert = true;
-//}
-//
-//static void beginCallback(GLenum type,TriangulationInfo *triInfo)
-//{
-//    triInfo->tris.resize(triInfo->tris.size()+1);
-//}
-//
-//static void endCallback(TriangulationInfo *triInfo)
-//{
-//}
-//
-//// This forces the tesselator to product only triangles
-//static void edgeFlagCallback( GLboolean flag, void *polygon_data )
-//{
-//}
-//
-//static void errorCallback(GLenum error,TriangulationInfo *triInfo)
-//{
-////    NSLog(@"Error: %d",error);
-//}
 
 static void* stdAlloc(void* userData, unsigned int size)
 {
@@ -156,8 +107,43 @@ void TesselateLoops(const std::vector<VectorRing> &loops,VectorTrianglesRef tris
         tessAddContour(tess, vertexSize, tessRing.data(), stride, (int)tessRing.size() / vertexSize);
         
     }
-    tessTesselate(tess, TESS_WINDING_POSITIVE, TESS_POLYGONS, verticesPerTriangle, vertexSize, 0);
-  
+    tessTesselate(tess, TESS_WINDING_ODD, TESS_POLYGONS, verticesPerTriangle, vertexSize, 0);
+ 
+    const float* verts = tessGetVertices(tess);
+    const int nverts = tessGetVertexCount(tess);
+    const int* elems = tessGetElements(tess);
+    const int nelems = tessGetElementCount(tess);
+
+    int startPoint = (int)(tris->pts.size());
+
+    for (int i = 0; i < nelems; i++)
+    {
+        const TESSindex* poly = &elems[i * verticesPerTriangle];
+        VectorTriangles::Triangle triOut;
+        for (int j = 0; j < verticesPerTriangle; j++) {
+          if (poly[j] == TESS_UNDEF) {
+            break;
+          }
+          const TESSreal* pos = &verts[poly[j] * vertexSize];
+          tris->pts.push_back(Point3f(pos[0]/PolyScale2+org.x(), pos[1]/PolyScale2+org.y(), 0.0));
+          triOut.pts[j] = poly[j] + startPoint;
+        }
+        
+         //Make sure this is pointed up
+//                   Point3f pts[3];
+//                   for (unsigned int jj=0;jj<3;jj++)
+//                       pts[jj] = tris->pts[triOut.pts[jj]];
+//                   Vector3f norm = (pts[1]-pts[0]).cross(pts[2]-pts[0]);
+//                   if (norm.z() >= 0.0)
+//                   {
+//                       int tmp = triOut.pts[0];
+//                       triOut.pts[0] = triOut.pts[2];
+//                       triOut.pts[2] = tmp;
+//                   }
+       
+        tris->tris.push_back(triOut);
+    }
+ 
     tessDeleteTess(tess);
     
     // Convert to triangles
