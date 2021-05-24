@@ -39,7 +39,7 @@ extern bool logAndClearJVMException(JNIEnv* env,
                                     const char* where = nullptr,
                                     android_LogPriority = ANDROID_LOG_ERROR);
 
-extern bool logStackTrace(JNIEnv* env,
+extern void logStackTrace(JNIEnv* env,
                           const char* where = nullptr,
                           android_LogPriority = ANDROID_LOG_ERROR);
 
