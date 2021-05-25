@@ -41,11 +41,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setAnimationRange
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
- * Method:    setColor
+ * Method:    setColorComponents
  * Signature: (FFFF)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setColor
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setColorComponents
   (JNIEnv *, jobject, jfloat, jfloat, jfloat, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setColor
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setColor
+(JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
@@ -81,6 +89,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSize
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setSizePt
+ * Signature: (Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSizePt
+(JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
  * Method:    setLayoutSize
  * Signature: (DD)V
  */
@@ -89,11 +105,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutSize
 
 /*
  * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setLayoutSize
+ * Signature: (Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutSizePt
+(JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
  * Method:    setOffset
  * Signature: (DD)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffset
   (JNIEnv *, jobject, jdouble, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_InternalMarker
+ * Method:    setOffset
+ * Signature: (Lcom/mousebird/maply/Point2d;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffsetPt
+(JNIEnv *, jobject, jobject);
 
 /*
  * Class:     com_mousebird_maply_InternalMarker

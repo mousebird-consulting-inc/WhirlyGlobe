@@ -136,10 +136,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setAnimationRange
 		{
 			marker->startTime = startTime;
 			marker->endTime = endTime;
-			if (startTime < endTime)
-			{
-				marker->hasMotion = true;
-			}
+			marker->hasMotion = (startTime < endTime);
         }
 	}
 	catch (...)
@@ -150,18 +147,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setAnimationRange
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setColor
-	(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
+	(JNIEnv *env, jobject obj, jint color)
 {
 	try
 	{
 		if (auto marker = MarkerClassInfo::get(env,obj))
 		{
-			marker->color = RGBAColor(r*255,g*255,b*255,a*255);
+			marker->color = RGBAColor::FromARGBInt(color);
 		}
 	}
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setColor()");
+	}
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setColorComponents
+		(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
+{
+	try
+	{
+		if (auto marker = MarkerClassInfo::get(env,obj))
+		{
+			marker->color = RGBAColor::FromUnitFloats(r,g,b,a);
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setColorComponents()");
 	}
 }
 
@@ -236,6 +250,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSize
 }
 
 extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setSizePt
+		(JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		if (auto marker = MarkerClassInfo::get(env,obj))
+		if (auto pt = Point2dClassInfo::get(env,ptObj))
+		{
+			marker->width = pt->x();
+			marker->height = pt->y();
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setSizePt()");
+	}
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutSize
 	(JNIEnv *env, jobject obj, jdouble width, jdouble height)
 {
@@ -254,6 +287,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutSize
 }
 
 extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setLayoutSizePt
+		(JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		if (auto marker = MarkerClassInfo::get(env,obj))
+		if (auto pt = Point2dClassInfo::get(env,ptObj))
+		{
+			marker->layoutWidth = pt->x();
+			marker->layoutHeight = pt->y();
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setLayoutSizePt()");
+	}
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffset
 	(JNIEnv *env, jobject obj, jdouble offX,jdouble offY)
 {
@@ -268,6 +320,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffset
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setOffset()");
+	}
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setOffsetPt
+		(JNIEnv *env, jobject obj, jobject ptObj)
+{
+	try
+	{
+		if (auto marker = MarkerClassInfo::get(env,obj))
+		if (auto pt = Point2dClassInfo::get(env,ptObj))
+		{
+			marker->offset.x() = pt->x();
+			marker->offset.y() = pt->y();
+		}
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setOffsetPt()");
 	}
 }
 
@@ -362,6 +433,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalMarker_setUniqueID
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setuniqueID()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalMarker::setUniqueID()");
 	}
 }

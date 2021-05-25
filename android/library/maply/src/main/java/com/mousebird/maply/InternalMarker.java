@@ -19,9 +19,12 @@ package com.mousebird.maply;
 
 import android.graphics.Color;
 
+import androidx.annotation.ColorInt;
+
 /**
  * An internal representation for the markers.  Toolkit users use ScreenMarker or Marker instead of this.
  */
+@SuppressWarnings("unused")
 class InternalMarker
 {
 	protected InternalMarker()
@@ -32,22 +35,31 @@ class InternalMarker
 	// Basic setup for both types of screen markers
 	private void screenMarkerSetup(ScreenMarker marker)
 	{
-		if (marker.selectable)
-			setSelectID(marker.ident);
 		setLoc(marker.loc);
 		setColor(marker.color);
-		if (marker.rotation != 0.0)
-			setRotation(marker.rotation);
-		// Note: Lock rotation?
-		setSize(marker.size.getX(),marker.size.getY());
-		if (marker.layoutSize != null)
-			setLayoutSize(marker.layoutSize.getX(),marker.layoutSize.getY());
-		if (marker.offset != null)
-			setOffset(marker.offset.getX(),marker.offset.getY());
 		setPeriod(marker.period);
-		if (marker.vertexAttributes != null)
-			setVertexAttributes(marker.vertexAttributes.toArray());
 		setLayoutImportance(marker.layoutImportance);
+
+		// Note: Lock rotation?
+
+		if (marker.selectable) {
+			setSelectID(marker.ident);
+		}
+		if (marker.rotation != 0.0) {
+			setRotation(marker.rotation);
+		}
+		if (marker.size != null) {
+			setSizePt(marker.size);
+		}
+		if (marker.layoutSize != null) {
+			setLayoutSizePt(marker.layoutSize);
+		}
+		if (marker.offset != null) {
+			setOffsetPt(marker.offset);
+		}
+		if (marker.vertexAttributes != null) {
+			setVertexAttributes(marker.vertexAttributes.toArray());
+		}
 		if (marker.orderBy != 0) {
 			setOrderBy(marker.orderBy);
 		}
@@ -96,13 +108,6 @@ class InternalMarker
 		setPeriod(marker.period);
 	}
 
-	void setColor(int color) {
-		setColor(Color.red(color)/255.f,
-				Color.green(color)/255.f,
-				Color.blue(color)/255.f,
-				Color.alpha(color)/255.f);
-	}
-
 	public void finalize()
 	{
 		dispose();
@@ -112,13 +117,17 @@ class InternalMarker
 	public native void setLoc(Point2d loc);
 	public native void setEndLoc(Point2d loc);
 	public native void setAnimationRange(double startTime,double endTime);
-	public native void setColor(float r,float g,float b,float a);
+	public native void setColor(@ColorInt int color);
+	public native void setColorComponents(float r,float g,float b,float a);
 	public native void addTexID(long texID);
 	public native void setRotation(double rot);
 	public native void setLockRotation(boolean lockRotation);
 	public native void setSize(double width,double height);
+	public native void setSizePt(Point2d size);
 	public native void setLayoutSize(double width,double height);
+	public native void setLayoutSizePt(Point2d size);
 	public native void setOffset(double offX,double offY);
+	public native void setOffsetPt(Point2d offset);
 	public native void setPeriod(double period);
 	public native void setVertexAttributes(Object[] vertexAttributes);
 	public native void setLayoutImportance(float importance);
