@@ -794,8 +794,19 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// How many contexts have we allocated for temporary work
 	public int numTempContextsCreated = 0;
 
-	// Make a temporary context for use within the base controller.
-	// We expect these to be running on various threads
+	/**
+	 * Get a context wrapped in a closeable wrapper object
+	 * See <ref>setupTempContext</ref>
+	 */
+	public ContextWrapper wrapTempContext(RenderController.ThreadMode threadMode) {
+		return new ContextWrapper(this, setupTempContext(threadMode));
+	}
+
+	/** Make a temporary context for use within the base controller.
+	 *  We expect these to be running on various threads
+	 *  You must ensure that <code>clearTempContext</code> is called.
+	 *  Prefer <code>wrapTempContext</code> for this reason.
+	 */
 	public ContextInfo setupTempContext(RenderController.ThreadMode threadMode)
 	{
 		// The main thread has its own context we use
@@ -805,41 +816,48 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		} else if (isOnGLThread() || isOnLayerThread()) {
 			// We're on a known layer thread, which has a well known context so do nothing
 			return null;
-		} else {
-			final EGL10 egl = (EGL10) EGLContext.getEGL();
-			ContextInfo retContext;
-			synchronized (glContexts)
+		}
+
+		final EGL10 egl = (EGL10) EGLContext.getEGL();
+		final ContextInfo retContext;
+		synchronized (glContexts)
+		{
+			// See if we need to create a new context/surface
+			if (glContexts.size() == 0)
 			{
-				// See if we need to create a new context/surface
-				if (glContexts.size() == 0)
-				{
-					int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
-					retContext = new ContextInfo();
-					retContext.eglContext = egl.eglCreateContext(renderControl.display,renderControl.config,renderControl.context, attrib_list);
-					int[] surface_attrs =
-							{
-									EGL10.EGL_WIDTH, 32,
-									EGL10.EGL_HEIGHT, 32,
-//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
-									EGL10.EGL_NONE
-							};
-					retContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, surface_attrs);
-					numTempContextsCreated = numTempContextsCreated + 1;
+				retContext = new ContextInfo(
+						egl.eglCreateContext(renderControl.display,renderControl.config,renderControl.context, glAttribList),
+						egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, glSurfaceAttrs));
+				numTempContextsCreated = numTempContextsCreated + 1;
 
-//					Log.d("Maply","Created context + " + retContext.eglContext.toString());
-				} else {
-					retContext = glContexts.get(0);
-					glContexts.remove(0);
-				}
+				//Log.d("Maply","Created context + " + retContext.eglContext.toString());
+			} else {
+				retContext = glContexts.get(0);
+				glContexts.remove(0);
 			}
+		}
 
+		try {
 			setEGLContext(retContext);
 			return retContext;
+		} catch (Exception ignored) {
+			// Failure logged within setEGLContext.
+			// Null context won't be released, make create/release are matched.
+			clearTempContext(retContext);
+			return null;
 		}
 	}
+
+	private static final int[] glAttribList = new int[] { EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+	private static final int[] glSurfaceAttrs = new int[] {
+			EGL10.EGL_WIDTH, 32,
+			EGL10.EGL_HEIGHT, 32,
+			//EGL10.EGL_COLORSPACE, GL10.GL_RGB,
+			//EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
+			//EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
+			//EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
+			EGL10.EGL_NONE
+	};
 
 	public void clearTempContext(ContextInfo cInfo)
 	{
@@ -1077,7 +1095,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
         {
             if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
                 Log.d("Maply", "Failed to make current context: " + Integer.toHexString(egl.eglGetError()));
-				dumpFailureInfo("setEGLConstext 1");
+				dumpFailureInfo("setEGLContext 1");
                 return false;
             }
 
@@ -1402,28 +1420,30 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 		if (mode == RenderController.ThreadMode.ThreadCurrent) {
 
-			EGL10 egl = (EGL10) EGLContext.getEGL();
-			EGLContext oldContext = egl.eglGetCurrentContext();
-			EGLSurface  oldDrawSurface = egl.eglGetCurrentSurface(EGL10.EGL_DRAW);
-			EGLSurface  oldReadSurface = egl.eglGetCurrentSurface(EGL10.EGL_READ);
+			final EGL10 egl = (EGL10) EGLContext.getEGL();
+			final EGLContext oldContext = egl.eglGetCurrentContext();
+			final EGLSurface oldDrawSurface = egl.eglGetCurrentSurface(EGL10.EGL_DRAW);
+			final EGLSurface oldReadSurface = egl.eglGetCurrentSurface(EGL10.EGL_READ);
 
-			ContextInfo tempContext = setupTempContext(mode);
-
-            run.run();
-
-			clearTempContext(tempContext);
-
-			if (oldContext != null && tempContext != null)
-			{
-				if (renderWrapper != null)
-					if (!egl.eglMakeCurrent(renderControl.display,oldDrawSurface,oldReadSurface,oldContext))
-					{
-						dumpFailureInfo("addTask oldContext");
-						Log.d("Maply","Failed to set context back to previous context.");
+			try (ContextWrapper wrap = wrapTempContext(mode)) {
+				try {
+					run.run();
+				} catch (@SuppressWarnings("CaughtExceptionImmediatelyRethrown") Exception ex) {
+					// We're not actually delegating to another thread, so just allow the exception
+					// to propagate back to the caller.  This is just a good spot for a breakpoint.
+					throw ex;
+				} finally {
+					if (oldContext != null && wrap.context != null && renderWrapper != null) {
+						if (!egl.eglMakeCurrent(renderControl.display, oldDrawSurface, oldReadSurface, oldContext)) {
+							dumpFailureInfo("addTask oldContext");
+							Log.d("Maply", "Failed to set context back to previous context.");
+						}
 					}
+				}
 			}
-        } else
-			baseLayerThread.addTask(run,true);
+        } else {
+			baseLayerThread.addTask(run, true);
+		}
 	}
 
     /**
@@ -2192,7 +2212,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
-	 * Particles are short term objects, typically very small.  We create them in large groups for efficience.
+	 * Particles are short term objects, typically very small.  We create them in large groups for efficiency.
 	 * You'll need to fill out the MaplyParticleSystem initially and then the MaplyParticleBatch to create them.
 	 * @param particleBatch The batch of particles to add to an active particle system.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.

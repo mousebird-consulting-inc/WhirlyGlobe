@@ -1822,6 +1822,10 @@ public class RenderController implements RenderControllerInterface
         }
     }
 
+    public ContextWrapper wrapTempContext(RenderController.ThreadMode threadMode) {
+        return new ContextWrapper(this, setupTempContext(threadMode));
+    }
+
     // Don't need this in standalone mode
     public ContextInfo setupTempContext(ThreadMode threadMode)
     {
