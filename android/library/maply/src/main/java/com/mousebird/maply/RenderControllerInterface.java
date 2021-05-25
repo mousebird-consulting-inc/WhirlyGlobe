@@ -1,7 +1,10 @@
 package com.mousebird.maply;
 
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
@@ -123,20 +126,42 @@ public interface RenderControllerInterface
 
     boolean setEGLContext(ContextInfo cInfo);
 
+    ContextWrapper wrapTempContext(RenderController.ThreadMode threadMode);
+
     ContextInfo setupTempContext(ThreadMode threadMode);
 
     void clearTempContext(ContextInfo cInfo);
 
     void processChangeSet(ChangeSet changes);
 
-    public void requestRender();
+    void requestRender();
 
     // Context and associated surface
-    public class ContextInfo
-    {
-        EGLContext eglContext = null;
-        EGLSurface eglSurface = null;
-    };
+    class ContextInfo {
+        EGLContext eglContext;
+        EGLSurface eglSurface;
+        public ContextInfo() {
+            this(null,null);
+        }
+        public ContextInfo(EGLContext context, EGLSurface surface) {
+            eglContext = context;
+            eglSurface = surface;
+        }
+    }
+
+    class ContextWrapper implements Closeable {
+        final public ContextInfo context;
+        public ContextWrapper(RenderControllerInterface control, ContextInfo context) {
+            this.control = control;
+            this.context = context;
+        }
+        public void close() {
+            if (control != null && context != null) {
+                control.clearTempContext(context);
+            }
+        }
+        private final RenderControllerInterface control;
+    }
 
     // Used to track down problems with GL Context allocation
     void dumpFailureInfo(String failureLocation);
