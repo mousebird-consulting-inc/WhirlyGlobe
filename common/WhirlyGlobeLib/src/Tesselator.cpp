@@ -76,13 +76,6 @@ void TesselateLoops(const std::vector<VectorRing> &loops,VectorTrianglesRef tris
 
     TESStesselator *tess = tessNewTess(&ma);
     
-    TriangulationInfo tessInfo;
-    int totPoints = 0;
-    for (unsigned int ii=0;ii<loops.size();ii++)
-        totPoints += loops[ii].size();
-    tessInfo.pts.reserve(totPoints);
-    tessInfo.newVert = false;
-    
     Point2f org = (loops[0])[0];
     for (unsigned int li=0;li<loops.size();li++)
     {
@@ -110,23 +103,21 @@ void TesselateLoops(const std::vector<VectorRing> &loops,VectorTrianglesRef tris
     tessTesselate(tess, TESS_WINDING_ODD, TESS_POLYGONS, verticesPerTriangle, vertexSize, 0);
  
     const float* verts = tessGetVertices(tess);
-    const int nverts = tessGetVertexCount(tess);
     const int* elems = tessGetElements(tess);
     const int nelems = tessGetElementCount(tess);
-
-    int startPoint = (int)(tris->pts.size());
 
     for (int i = 0; i < nelems; i++)
     {
         const TESSindex* poly = &elems[i * verticesPerTriangle];
         VectorTriangles::Triangle triOut;
+        int startPoint = (int)(tris->pts.size());
         for (int j = 0; j < verticesPerTriangle; j++) {
           if (poly[j] == TESS_UNDEF) {
             break;
           }
           const TESSreal* pos = &verts[poly[j] * vertexSize];
           tris->pts.push_back(Point3f(pos[0]/PolyScale2+org.x(), pos[1]/PolyScale2+org.y(), 0.0));
-          triOut.pts[j] = poly[j] + startPoint;
+          triOut.pts[j] = j + startPoint;
         }
         
          //Make sure this is pointed up
