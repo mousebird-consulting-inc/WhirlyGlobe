@@ -825,9 +825,17 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// See if we need to create a new context/surface
 			if (glContexts.size() == 0)
 			{
-				retContext = new ContextInfo(
-						egl.eglCreateContext(renderControl.display,renderControl.config,renderControl.context, glAttribList),
-						egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, glSurfaceAttrs));
+				EGLContext context = egl.eglCreateContext(renderControl.display,renderControl.config,renderControl.context, glAttribList);
+				if (LayerThread.checkGLError(egl, "eglCreateContext") || context == null) {
+					return null;
+				}
+				EGLSurface surface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, glSurfaceAttrs);
+				if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || surface == null) {
+					egl.eglDestroyContext(renderControl.display, context);
+					return null;
+				}
+
+				retContext = new ContextInfo(context, surface);
 				numTempContextsCreated = numTempContextsCreated + 1;
 
 				//Log.d("Maply","Created context + " + retContext.eglContext.toString());
@@ -848,14 +856,13 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 	}
 
-	private static final int[] glAttribList = new int[] { EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
+	private static final int[] glAttribList = new int[] {
+			EGL_CONTEXT_CLIENT_VERSION, 2,
+			EGL10.EGL_NONE
+	};
 	private static final int[] glSurfaceAttrs = new int[] {
 			EGL10.EGL_WIDTH, 32,
 			EGL10.EGL_HEIGHT, 32,
-			//EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-			//EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-			//EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-			//EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
 			EGL10.EGL_NONE
 	};
 
@@ -1033,20 +1040,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			// Make our own context that we can use on the main thread
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
-			int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
+
 			glContext = new ContextInfo();
-			glContext.eglContext = egl.eglCreateContext(renderControl.display, renderControl.config, renderControl.context, attrib_list);
-			final int[] surface_attrs =
-					{
-							EGL10.EGL_WIDTH, 32,
-							EGL10.EGL_HEIGHT, 32,
-							//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-							//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-							//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-							//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
-							EGL10.EGL_NONE
-					};
-			glContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, surface_attrs);
+			glContext.eglContext = egl.eglCreateContext(renderControl.display, renderControl.config, renderControl.context, glAttribList);
+			if (LayerThread.checkGLError(egl, "eglCreateContext") || glContext.eglContext == null) {
+				return;
+			}
+
+			glContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, glSurfaceAttrs);
+			if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || glContext.eglSurface == null) {
+				egl.eglDestroyContext(renderControl.display, glContext.eglContext);
+				return;
+			}
 
 			synchronized (layerThreads) {
 				for (LayerThread layerThread : layerThreads)

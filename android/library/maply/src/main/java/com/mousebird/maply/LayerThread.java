@@ -23,6 +23,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
+import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
+
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -132,29 +134,34 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	
 	// Note: Why isn't this in EGL10?
 	private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
-	
+
+	private static final int[] glAttribList = {
+		EGL_CONTEXT_CLIENT_VERSION, 2,
+		EGL10.EGL_NONE
+	};
+	private static final int[] glSurfaceAttrs = {
+		EGL10.EGL_WIDTH, 32,
+		EGL10.EGL_HEIGHT, 32,
+		EGL10.EGL_NONE
+	};
+
 	// Setting the renderer kicks off activity
 	void setRenderer(RenderController inRenderer)
 	{
 		renderer = inRenderer;
 		
-		final int[] attribList = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
-		final int[] surfaceAttrs =
-			{
-			    EGL10.EGL_WIDTH, 32,
-			    EGL10.EGL_HEIGHT, 32,
-//			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-//			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-//			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-//			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
-				//EGL10.EGL_RENDERABLE_TYPE, EGL10.EGL_OPENGL_ES2_BIT,
-				EGL10.EGL_SURFACE_TYPE, EGL10.EGL_PBUFFER_BIT,
-				EGL10.EGL_NONE
-			};
 		final EGL10 egl = (EGL10) EGLContext.getEGL();
 		try {
-			context = egl.eglCreateContext(renderer.display, renderer.config, renderer.context, attribList);
-			surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, surfaceAttrs);
+			context = egl.eglCreateContext(renderer.display, renderer.config, renderer.context, glAttribList);
+			if (checkGLError(egl, "eglCreateContext") || context == null) {
+				return;
+			}
+			surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, glSurfaceAttrs);
+			if (checkGLError(egl, "eglCreatePbufferSurface") || surface == null) {
+				egl.eglDestroyContext(renderer.display, context);
+				context = null;
+				return;
+			}
 		} catch (Exception e) {
 			Log.e("Maply", "Failed to create EGL context for layer thread: " +
 					Integer.toHexString(egl.eglGetError()), e);
@@ -185,6 +192,20 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				}
 			});
 		}
+	}
+
+	public static boolean checkGLError(String where) {
+		return checkGLError((EGL10)EGLContext.getEGL(), where);
+	}
+	public static boolean checkGLError(EGL10 egl, String where) {
+		final int err = egl.eglGetError();
+		if (err != EGL10.EGL_SUCCESS) {
+			Log.w("Maply", String.format("OpenGLES error %x%s%s",
+					err, (where != null) ? " in " : "", where),
+					BuildConfig.DEBUG ? new Throwable() : null);
+			return true;
+		}
+		return false;
 	}
 
 	// Used to shut down cleaning without cutting off outstanding work threads

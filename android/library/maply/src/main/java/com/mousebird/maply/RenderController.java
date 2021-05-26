@@ -124,6 +124,16 @@ public class RenderController implements RenderControllerInterface
         return offlineMode;
     }
 
+    private static final int[] glAttribList = {
+        BaseController.EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL10.EGL_NONE
+    };
+    private static final int[] glSurfaceAttrs = {
+        EGL10.EGL_WIDTH, 32,
+        EGL10.EGL_HEIGHT, 32,
+        EGL10.EGL_NONE
+    };
+
     // Construct a new render control based on an existing one
     public RenderController(RenderController baseControl,int width,int height)
     {
@@ -138,20 +148,18 @@ public class RenderController implements RenderControllerInterface
 
         // Set up our own EGL context for offline work
         EGL10 egl = (EGL10) EGLContext.getEGL();
-        final int[] attributeList = {BaseController.EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
+
         offlineGLContext = new ContextInfo();
-        offlineGLContext.eglContext = egl.eglCreateContext(display, config, context, attributeList);
-        final int[] surface_attrs =
-        {
-            EGL10.EGL_WIDTH, 32,
-            EGL10.EGL_HEIGHT, 32,
-            //			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-            //			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-            //			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-            //			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
-            EGL10.EGL_NONE
-        };
-        offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, surface_attrs);
+        offlineGLContext.eglContext = egl.eglCreateContext(display, config, context, glAttribList);
+        if (LayerThread.checkGLError(egl, "eglCreateContext") || offlineGLContext.eglContext == null) {
+            throw new RuntimeException("Failed to create OpenGLES context");
+        }
+
+        offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, glSurfaceAttrs);
+        if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || offlineGLContext.eglSurface == null) {
+            egl.eglDestroyContext(display, offlineGLContext.eglContext);
+            throw new RuntimeException("Failed to create OpenGLES surface");
+        }
 
         setEGLContext(offlineGLContext);
 
