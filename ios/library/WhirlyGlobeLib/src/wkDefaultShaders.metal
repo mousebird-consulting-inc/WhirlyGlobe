@@ -957,7 +957,10 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         }
     }
 
-    float4 color = inst[1].color;
+    // Note: We're putting a color in the instance, but then it's hard to change
+    //  So we'll pull the color out of the basic drawable
+//    float4 color = inst[1].color;
+    float4 color = vert.color;
     if (vertArgs.wideVec.hasExp) {
         color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
         float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);

@@ -394,6 +394,7 @@ struct VertexTriWideVecB
 {
     // x, y offset around the center
     float3 screenPos [[attribute(WhirlyKitShader::WKSVertexPositionAttribute)]];
+    float4 color [[attribute(WhirlyKitShader::WKSVertexColorAttribute)]];
     int index [[attribute(WhirlyKitShader::WKSVertexWideVecInstIndexAttribute)]];
 };
 
