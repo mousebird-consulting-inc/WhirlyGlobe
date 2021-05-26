@@ -1,9 +1,8 @@
-/*
- *  MaplyClusterGenerator.java
+/*  MaplyClusterGenerator.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,9 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
 
-
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -50,7 +46,7 @@ public class ClusterGenerator
         }
 
         oldTextures = currentTextures;
-        currentTextures = new HashSet<Long>();
+        currentTextures = new HashSet<>();
     }
 
     /**
@@ -66,9 +62,10 @@ public class ClusterGenerator
     }
 
     // The C++ code calls this to get a Bitmap then we call makeClusterGroup
-    public long makeClusterGroupJNI(int num)
+    @SuppressWarnings("unused")
+    private long makeClusterGroupJNI(int num, String[] uniqueIDs)
     {
-        ClusterInfo clusterInfo = new ClusterInfo(num);
+        ClusterInfo clusterInfo = new ClusterInfo(num, uniqueIDs);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);
         if (newGroup != null) {
             currentTextures.add(newGroup.tex.texID);

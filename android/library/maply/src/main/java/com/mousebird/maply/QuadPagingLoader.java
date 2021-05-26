@@ -58,7 +58,7 @@ public class QuadPagingLoader extends QuadLoaderBase {
      */
     public QuadPagingLoader(final SamplingParams params,TileInfoNew[] inTileInfos,LoaderInterpreter inInterp,BaseController control)
     {
-        super(control, params, 1, Mode.Object);
+        super(control, params, inTileInfos.length, Mode.Object);
 
         tileInfos = inTileInfos;
         loadInterp = inInterp;

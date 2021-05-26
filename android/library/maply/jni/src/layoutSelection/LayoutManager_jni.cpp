@@ -81,7 +81,7 @@ public:
             // (as long as the class isn't unloaded and reloaded)
             jclass theClass = env->GetObjectClass(clusterObj);
             startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
-            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I)J");
+            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I[Ljava/lang/String;)J");
             endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
             env->DeleteLocalRef(theClass);
         }
@@ -184,35 +184,54 @@ public:
         ClusterInfo dummyInfo;
         dummyInfo.clusterID = clusterID;
         const auto it = clusterGens.find(dummyInfo);
-        if (it == clusterGens.end())
+        if (it == clusterGens.end() || layoutObjects.empty())
+        {
             return;
+        }
         
         const ClusterInfo &clusterGenerator = *it;
         
         // Pick a representative screen object
-        int drawPriority = -1;
-        LayoutObject *sampleObj = nullptr;
-        for (auto obj : layoutObjects) {
-            if (obj->obj.getDrawPriority() > drawPriority) {
-                drawPriority = obj->obj.getDrawPriority();
-                sampleObj = &obj->obj;
+        int maxDrawPriority = -1;
+        LayoutObject *maxPriorityObj = nullptr;
+        std::vector<std::string> uniqueIDs;
+        uniqueIDs.reserve(layoutObjects.size());
+        for (const auto &obj : layoutObjects)
+        {
+            if (!maxPriorityObj || obj->obj.getDrawPriority() > maxDrawPriority)
+            {
+                maxDrawPriority = obj->obj.getDrawPriority();
+                maxPriorityObj = &obj->obj;
             }
+            // todo: propagate marker "user object" through layout objects so
+            //       the cluster generator can make use of that information.
+            uniqueIDs.push_back(obj->obj.uniqueID);
         }
-        const SimpleIdentity progID = sampleObj->getTypicalProgramID();
+
+        jobjectArray uniqueIDsObj = BuildStringArray(env, uniqueIDs);
+        uniqueIDs.clear();
 
         // The texture gets created on the Java side, so we'll just use the ID
-        const long texID = env->CallLongMethod(clusterGenerator.clusterObj, clusterGenerator.makeClusterGroupJNIJava, layoutObjects.size());
+        const long texID = env->CallLongMethod(clusterGenerator.clusterObj,
+                                               clusterGenerator.makeClusterGroupJNIJava,
+                                               (jint)layoutObjects.size(),
+                                               uniqueIDsObj);
         if (logAndClearJVMException(env,"makeClusterGroup"))
         {
             return;
         }
+
+        env->DeleteLocalRef(uniqueIDsObj);
+        uniqueIDsObj = nullptr;
+
         if (texID == EmptyIdentity)
         {
             __android_log_print(ANDROID_LOG_WARN, "Maply", "No tex from makeClusterGroup");
         }
         
         const Point2d size = clusterGenerator.layoutSize;
-        
+        const SimpleIdentity progID = maxPriorityObj->getTypicalProgramID();
+
         // Geometry for the new cluster object
         ScreenSpaceConvexGeometry smGeom;
         smGeom.progID = progID;
@@ -230,7 +249,7 @@ public:
         retObj.layoutPts = smGeom.coords;
         retObj.selectPts = smGeom.coords;
 
-        retObj.setDrawPriority(drawPriority);
+        retObj.setDrawPriority(maxDrawPriority);
         retObj.addGeometry(smGeom);
     }
     
