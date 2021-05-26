@@ -390,12 +390,12 @@ bool ViewState::isSameAs(WhirlyKit::ViewState *other)
         return false;
     
     // Matrix comparison
-    double *floatsA = fullMatrices[0].data();
-    double *floatsB = other->fullMatrices[0].data();
+    const double *floatsA = fullMatrices[0].data();
+    const double *floatsB = other->fullMatrices[0].data();
     for (unsigned int ii=0;ii<16;ii++)
         if (floatsA[ii] != floatsB[ii])
             return false;
-    
+
     return true;
 }
 
