@@ -754,34 +754,60 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
                                 Point2f norm;
-                                if (!walk.nextPoint(span.x(),&centerPt,&norm)) {
+                                if (!walk.nextPoint(span.x(),&centerPt,&norm,true)) {
                                     failed = true;
                                     break;
                                 }
-                                walk.nextPoint(span.x(), nullptr, nullptr);
+                                walk.nextPoint(span.x()/2.0, nullptr, nullptr,true);
                                 
-                                // If we're too far from the last one, bail.  The text will look jumbled.
+                                // If we're too far from the last normal, bail.  The text will look jumbled.
+                                double normAng = 0.0;
                                 if (lastNormValid) {
-                                    double normAng = acos(norm.dot(lastNorm));
-                                    if (normAng > 60.0 * M_PI / 180.0) {
-                                        failed = true;
-                                        break;
+                                    // Nifty trick to get a clockwise angle between the two
+                                    double dot = norm.x()*lastNorm.x() + norm.y()*lastNorm.y();
+                                    double det = norm.x()*lastNorm.y() - norm.y()*lastNorm.x();
+                                    normAng = atan2(det, dot);
+                                    wkLogLevel(Debug,"normAng = %f",normAng);
+                                    if (normAng != 0.0) {
+                                        if (abs(normAng) > 45.0 * M_PI / 180.0) {
+                                            failed = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                // And let's nudge it over a bit if we're looming in on the previous glyph
+                                bool nudged = false;
+                                if (normAng != 0.0) {
+                                    if (normAng < M_PI / 180.0) {
+                                        float height = span.y();
+                                        float offset = abs(sin(normAng)) * height;
+                                        nudged = true;
+                                        if (!walk.nextPoint(offset,&centerPt,&norm,true)) {
+                                            failed = true;
+                                            break;
+                                        }
                                     }
                                 }
                                 lastNormValid = true;  lastNorm = norm;
-                                
+
+                                // And out of this glyph on to the next
+                                if (!walk.nextPoint(span.x()/2.0, nullptr, nullptr,true)) {
+                                    failed = true;
+                                    break;
+                                }
+
                                 // Don't forget the space between glyphs
                                 if (ig < layoutObj->obj.geometry.size()-1) {
                                     float padX = 0.0;
                                     Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
                                     padX = abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
-
-                                    if (!walk.nextPoint(padX, nullptr, nullptr)) {
-                                        failed = true;
-                                        break;
-                                    }
+                                    if (nudged)
+                                        padX = 2.0 * padX;
+                                    
+                                    walk.nextPoint(padX, nullptr, nullptr,true);
                                 }
-
+                                
                                 // Translate the glyph into that position
                                 Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
                                                                   (worldScreenPt.y()-centerPt.y())/2.0));
