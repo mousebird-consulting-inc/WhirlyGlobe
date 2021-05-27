@@ -49,6 +49,10 @@ MarkerInfo::MarkerInfo(const Dictionary &dict,bool screenObject)
     height = dict.getDouble(MaplyLabelHeight,(screenObject ? 16.0 : 0.001));
     layoutImportance = dict.getDouble(MaplyLayoutImportance,MAXFLOAT);
     clusterGroup = dict.getInt(MaplyClusterGroupID,-1);
+    layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
+    layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
+    layoutSpacing = (float)dict.getDouble(MaplyTextLayoutSpacing,24.0);
+    layoutOffset = (float)dict.getDouble(MaplyTextLayoutOffset,0.0);
 }
     
 MarkerSceneRep::MarkerSceneRep()
@@ -126,6 +130,23 @@ MarkerManager::~MarkerManager()
 }
 
 typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
+
+Point3dVector MarkerManager::convertGeoPtsToModelSpace(const VectorRing &inPts)
+{
+    CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
+    CoordSystem *coordSys = coordAdapt->getCoordSystem();
+
+    Point3dVector outPts;
+    outPts.reserve(inPts.size());
+    
+    for (auto pt: inPts) {
+        auto localPt = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+        Point3d pt3d = coordAdapt->localToDisplay(localPt);
+        outPts.push_back(pt3d);
+    }
+    
+    return outPts;
+}
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
@@ -248,6 +269,16 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 shape->setEnableTime(markerInfo.startEnable, markerInfo.endEnable);
             shape->addGeometry(smGeom);
             markerRep->screenShapeIDs.insert(shape->getId());
+            
+            // Setup layout points if we have them
+            if (!marker->layoutShape.empty()) {
+                layoutObj->layoutShape = convertGeoPtsToModelSpace(marker->layoutShape);
+                layoutObj->layoutRepeat = markerInfo.layoutRepeat;
+                layoutObj->layoutOffset = markerInfo.layoutOffset;
+                layoutObj->layoutSpacing = markerInfo.layoutSpacing;
+                layoutObj->layoutWidth = 2.0 * height2;
+                layoutObj->layoutDebug = markerInfo.layoutDebug;
+            }
             
             // Handle the mask rendering if it's there
             if (marker->maskID != EmptyIdentity && marker->maskRenderTargetID != EmptyIdentity) {

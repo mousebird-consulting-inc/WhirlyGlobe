@@ -72,7 +72,11 @@ public:
     float width,height;
     float layoutImportance;
     int clusterGroup;
-    
+    float layoutOffset = 0.0f;
+    float layoutSpacing = 20.0f;
+    int layoutRepeat = 0;
+    bool layoutDebug = false;
+
     FloatExpressionInfoRef opacityExp;
     ColorExpressionInfoRef colorExp;
     FloatExpressionInfoRef scaleExp;
@@ -135,6 +139,8 @@ public:
     /// Value to use for the layout engine.  Set to MAXFLOAT by
     ///  default, which will always display.
     float layoutImportance;
+    /// Shape for label to follow
+    VectorRing layoutShape;
     /// Ordering within rendering group
     long orderBy;
     /// Passed through the system as a unique identifier
@@ -175,6 +181,9 @@ public:
     virtual void setScene(Scene *inScene);
     
 protected:
+    /// Convenience routine to convert the points to model space
+    Point3dVector convertGeoPtsToModelSpace(const VectorRing &inPts);
+
     /// Resources associated with given markers
     MarkerSceneRepSet markerReps;
     /// We route the mask polygons to this program, if there are any
