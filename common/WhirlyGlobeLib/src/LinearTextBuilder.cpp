@@ -170,9 +170,9 @@ void LinearTextBuilder::process()
         VectorRing curRun;
         
         // Project the points and evaluate the individual validity of each one
-        std::vector<bool> isValid;  isValid.reserve(pts.size());
-        std::vector<bool> isFrontSide;  isFrontSide.reserve(pts.size());
-        std::vector<Point2f> projPts;  projPts.reserve(pts.size());
+        std::vector<bool> isValid;  isValid.reserve(pts.size()+1);
+        std::vector<bool> isFrontSide;  isFrontSide.reserve(pts.size()+1);
+        std::vector<Point2f> projPts;  projPts.reserve(pts.size()+1);
         for (auto pt: pts) {
             Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
 
