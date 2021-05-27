@@ -1002,22 +1002,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			layoutLayer = new LayoutLayer(this, renderControl.layoutManager);
 			baseLayerThread.addLayer(layoutLayer);
 
-			// Add a default cluster generator
-			final BasicClusterGenerator generator = new BasicClusterGenerator(
-					new int[]{
-							Color.argb(192, 32, 224, 0),
-							Color.argb(255, 64, 192, 0),
-							Color.argb(255, 128, 128, 0),
-							Color.argb(255, 168, 96, 0),
-							Color.argb(255, 192, 64, 0),
-							Color.argb(255, 255, 0, 0),
-					},
-					0, new Point2d(64, 64), this, activity);
-			generator.cacheBitmaps(true);
-			generator.setExponentBase(2.5);
-			generator.setTextColor(Color.argb(255,224,224,224));
-			generator.setLayoutSize(new Point2d(70,70));
-			addClusterGenerator(generator);
+			addDefaultClusterGenerator();
 
 			// Run any outstanding runnables
 			if (surfaceTasks != null) {
@@ -2240,14 +2225,62 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
-	 * When the layout system clusters a bunch of markers or labels together, it needs new images to represent the cluster.
-	 * You can provide a custom image for each group of markers by filling in one of these generates and passing it in.
+	 * When the layout system clusters markers or labels together, it needs images to represent the
+	 * cluster.  You can provide a custom image for each group of markers by creating one of these
+	 * generators and passing it in.
      */
-	public void addClusterGenerator(ClusterGenerator generator) {
+	public boolean addClusterGenerator(ClusterGenerator generator) {
 		if (this.layoutLayer != null) {
-			generator.baseController = this;
 			layoutLayer.addClusterGenerator(generator);
+			return true;
 		}
+		return false;
+	}
+
+	/**
+	 * Add the default clustering behavior.
+	 * Only needed if the automatically-added one was cleared.
+	 */
+	public boolean addDefaultClusterGenerator() {
+		Activity activity = getActivity();
+		if (activity == null) {
+			return false;
+		}
+
+		// Add a default cluster generator
+		final BasicClusterGenerator generator = new BasicClusterGenerator(
+				new int[]{
+						Color.argb(192, 32, 224, 0),
+						Color.argb(255, 64, 192, 0),
+						Color.argb(255, 128, 128, 0),
+						Color.argb(255, 168, 96, 0),
+						Color.argb(255, 192, 64, 0),
+						Color.argb(255, 255, 0, 0),
+				},
+				0, new Point2d(64, 64), this, activity);
+		generator.cacheBitmaps(true);
+		generator.setExponentBase(2.5);
+		generator.setTextColor(Color.argb(255,224,224,224));
+		generator.setLayoutSize(new Point2d(70,70));
+		return addClusterGenerator(generator);
+	}
+
+	public boolean removeClusterGenerator(ClusterGenerator generator) {
+		if (layoutLayer != null) {
+			return layoutLayer.removeClusterGenerator(generator);
+		}
+		return false;
+	}
+
+	/**
+	 * Remove all cluster generators, including the default.
+	 */
+	public boolean clearClusterGenerators() {
+		if (layoutLayer != null) {
+			layoutLayer.clearClusterGenerators();
+			return true;
+		}
+		return false;
 	}
 
 	/**

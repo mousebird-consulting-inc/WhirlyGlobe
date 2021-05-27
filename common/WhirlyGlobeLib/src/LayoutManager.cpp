@@ -25,6 +25,9 @@
 
 using namespace Eigen;
 
+// Un-comment to draw the boundaries of the layout objects for debugging
+//#define DEBUG_DRAW_LAYOUT_OBJS
+
 namespace WhirlyKit
 {
 
@@ -173,6 +176,9 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
 bool LayoutManager::hasChanges()
 {
     std::lock_guard<std::mutex> guardLock(lock);
+    if (clusterGen->hasChanges()) {
+        hasUpdates = true;
+    }
     return hasUpdates;
 }
 
@@ -218,6 +224,7 @@ void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGenerator *
 {
     std::lock_guard<std::mutex> guardLock(lock);
     clusterGen = inClusterGen;
+    hasUpdates = true;
 }
 
 // Collection of objects we'll cluster together
@@ -342,9 +349,11 @@ void LayoutManager::addDebugOutput(const Point2dVector &pts,
                                    WhirlyGlobe::GlobeViewState *globeViewState,
                                    Maply::MapViewState *mapViewState,
                                    const Point2f &frameBufferSize,
-                                   ChangeSet &changes)
+                                   ChangeSet &changes,
+                                   int priority,
+                                   float width,
+                                   RGBAColor color)
 {
-    ShapeSet dispShapes;
     auto coordAdapt = globeViewState ? globeViewState->coordAdapter : mapViewState->coordAdapter;
     auto coordSys = coordAdapt->getCoordSystem();
     VectorLinearRef lin = VectorLinear::createLinear();
@@ -355,25 +364,25 @@ void LayoutManager::addDebugOutput(const Point2dVector &pts,
             Point3d modelPt;
             if (globeViewState->pointOnSphereFromScreen(Point2f(pt.x(),pt.y()), globeViewState->fullMatrices[0], frameBufferSize, modelPt, false)) {
                 GeoCoord geoPt = coordSys->localToGeographic(coordAdapt->displayToLocal(modelPt));
-                lin->pts.push_back(Point2f(geoPt.x(),geoPt.y()));
+                lin->pts.emplace_back(geoPt.x(),geoPt.y());
             }
         } else {
             Point3d modelPt;
             if (mapViewState->pointOnPlaneFromScreen(Point2f(pt.x(),pt.y()), mapViewState->fullMatrices[0], frameBufferSize, modelPt, false)) {
                 GeoCoord geoPt = coordSys->localToGeographic(coordAdapt->displayToLocal(modelPt));
-                lin->pts.push_back(Point2f(geoPt.x(),geoPt.y()));
+                lin->pts.emplace_back(geoPt.x(),geoPt.y());
             }
         }
     }
     
     // Turn them back into vectors to debug
     VectorInfo vecInfo;
-    vecInfo.color = RGBAColor::black();
-    vecInfo.lineWidth = 4.0;
-    vecInfo.drawPriority = 10000000;
+    vecInfo.color = color;
+    vecInfo.lineWidth = width;
+    vecInfo.drawPriority = priority;
     vecInfo.programID = vecProgID;
-    
-    dispShapes.insert(lin);
+
+    ShapeSet dispShapes { lin };
     SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
     if (vecId != EmptyIdentity)
         debugVecIDs.insert(vecId);
@@ -909,8 +918,6 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                 // Layout at a point
 
                 // Figure out the rotation situation
-                float screenRot = 0.0;
-                Matrix2d screenRotMat;
                 if (pickedOne)
                     isActive = false;
                 
@@ -922,8 +929,13 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     isActive &= isInside;
                     
                     // Deal with the rotation
+                    float screenRot = 0.0;
+                    Matrix2d screenRotMat = Matrix2d::Identity();
                     if (layoutObj->obj.rotation != 0.0)
-                        screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&layoutObj->obj,objPt,modelTrans,normalMat,frameBufferSize);
+                    {
+                        screenRotMat = calcScreenRot(screenRot, viewState, globeViewState, &layoutObj->obj,
+                                                     objPt, modelTrans, normalMat, frameBufferSize);
+                    }
                     
                     // Now for the overlap checks
                     if (isActive)
@@ -937,67 +949,49 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 // May only want to be placed certain ways.  Fair enough.
                                 if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
                                     continue;
+
+                                // Layout points are relative to the object, figure out where they are on the screen
                                 const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
                                 const Mbr layoutMbr(layoutPts);
                                 const Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
+                                const Point2f layoutSpan2 = layoutSpan / 2.0;
                                 const Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
                                 
                                 // Set up the offset for this orientation
                                 switch (orient)
                                 {
                                     // Don't move at all
-                                    case 0:
-                                        objOffset = Point2d(0,0);
-                                        break;
+                                    default:
+                                    case 0: break;
                                     // Center
-                                    case 1:
-                                        objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y()/2.0);
-                                        break;
+                                    case 1: objOffset = Point2d(-layoutSpan2.x(),layoutSpan2.y()); break;
                                     // Right
-                                    case 2:
-                                        objOffset = Point2d(0.0,layoutSpan.y()/2.0);
-                                        break;
+                                    case 2: objOffset = Point2d(0.0,layoutSpan2.y()); break;
                                     // Left
-                                    case 3:
-                                        objOffset = Point2d(-(layoutSpan.x()),layoutSpan.y()/2.0);
-                                        break;
+                                    case 3: objOffset = Point2d(-layoutSpan.x(),layoutSpan2.y()); break;
                                     // Above
-                                    case 4:
-                                        objOffset = Point2d(-layoutSpan.x()/2.0,0.0);
-                                        break;
+                                    case 4: objOffset = Point2d(-layoutSpan2.x(),0.0); break;
                                     // Below
-                                    case 5:
-                                        objOffset = Point2d(-layoutSpan.x()/2.0,layoutSpan.y());
-                                        break;
+                                    case 5: objOffset = Point2d(-layoutSpan2.x(),layoutSpan.y()); break;
                                 }
                                         
-                                // Rotate the rectangle
-                                if (screenRot == 0.0)
+                                // Rotated relative to the map?
+                                objPts[0] = objOffset + layoutOrg;
+                                objPts[1] = objPts[0] + Point2d(layoutSpan.x(),0.0);
+                                objPts[2] = objPts[0] + Point2d(layoutSpan.x(),-layoutSpan.y());
+                                objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y());
+
+                                for (unsigned int oi=0;oi<4;oi++)
                                 {
-                                    objPts[0] = Point2d(objPt.x(),objPt.y()) + (objOffset + layoutOrg)*resScale;
-                                    objPts[1] = objPts[0] + Point2d(layoutSpan.x()*resScale,0.0);
-                                    objPts[2] = objPts[0] + Point2d(layoutSpan.x()*resScale,-layoutSpan.y()*resScale);
-                                    objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y()*resScale);
-                                } else {
-                                    float flip = 1.0;
-#ifdef __ANDROID__
-                                    flip = -1.0;
-#endif
-                                    Point2d center(objPt.x(),objPt.y());
-                                    objPts[0] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y());
-                                    objPts[1] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y()) + Point2d(layoutSpan.x(),0.0);
-                                    objPts[2] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y()) + Point2d(layoutSpan.x(),flip*layoutSpan.y());
-                                    objPts[3] = Point2d(objOffset.x(),flip*-objOffset.y()) + Point2d(layoutOrg.x(),-flip*layoutOrg.y()) + Point2d(0.0,flip*layoutSpan.y());
-                                    for (unsigned int oi=0;oi<4;oi++)
-                                    {
-                                        Point2d &thisObjPt = objPts[oi];
-                                        Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
-                                        thisObjPt = Point2d(offPt.x(),-offPt.y()) + center;
-                                    }
+                                    Point2d &thisObjPt = objPts[oi];
+                                    const Point2d offPt = screenRotMat * (thisObjPt * resScale);
+                                    thisObjPt = Point2d(offPt.x(),-offPt.y()) + objPt.cast<double>();
                                 }
-                                
+
+#if defined(DEBUG_DRAW_LAYOUT_OBJS)
                                 // Debugging visual output
-//                                addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,changes);
+                                addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,changes);
+#endif
 
 //                            wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
 //                            wkLogLevel(Debug, "Layout Pts");
@@ -1053,174 +1047,186 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
-    if (!vecManage) {
-        vecManage = std::dynamic_pointer_cast<VectorManager>(scene->getManager(kWKVectorManager));
-        Program *prog = scene->findProgramByName(MaplyDefaultLineShader);
-        if (prog)
-            vecProgID = prog->getId();
-        else {
-            Program *prog = scene->findProgramByName(MaplyNoBackfaceLineShader);
-            if (prog)
-                vecProgID = prog->getId();
+    if (!vecManage)
+    {
+        vecManage = scene->getManager<VectorManager>(kWKVectorManager);
+        if (auto program = scene->findProgramByName(MaplyDefaultLineShader))
+        {
+            vecProgID = program->getId();
+        }
+        else if (auto program = scene->findProgramByName(MaplyNoBackfaceLineShader))
+        {
+            vecProgID = program->getId();
         }
     }
     
-    if (!debugVecIDs.empty()) {
+    if (!debugVecIDs.empty())
+    {
         vecManage->removeVectors(debugVecIDs, changes);
         debugVecIDs.clear();
     }
 
     std::lock_guard<std::mutex> guardLock(lock);
 
-    TimeInterval curTime = scene->getCurrentTime();
+    const TimeInterval curTime = scene->getCurrentTime();
     
-    std::vector<ClusterEntry> oldClusters = clusters;
-    clusters.clear();
-    std::vector<ClusterGenerator::ClusterClassParams> oldClusterParams = clusterParams;
-    clusterParams.clear();
-    
+    std::vector<ClusterEntry> oldClusters = std::move(clusters);
+    std::vector<ClusterGenerator::ClusterClassParams> oldClusterParams = std::move(clusterParams);
+
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
     bool layoutChanges = runLayoutRules(threadInfo,viewState,clusters,clusterParams,changes);
     
     // Compare old and new clusters
     if (!layoutChanges && clusters.size() != oldClusters.size())
+    {
         layoutChanges = true;
-    
+    }
+
+    if (clusterGen->hasChanges())
+    {
+        layoutChanges = true;
+    }
+
+    hasUpdates = false;
+
+    if (!layoutChanges)
+    {
+        return;
+    }
+
 //    if (layoutChanges)
 //        NSLog(@"LayoutChanges");
 
-    if (hasUpdates || layoutChanges)
-    {
-        // Get rid of the last set of drawables
-        for (const auto &it : drawIDs)
-            changes.push_back(new RemDrawableReq(it));
+    // Get rid of the last set of drawables
+    for (const auto &it : drawIDs)
+        changes.push_back(new RemDrawableReq(it));
 //        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
-        drawIDs.clear();
+    drawIDs.clear();
 
-        // Generate the drawables
-        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
-        for (const auto &layoutObj : layoutObjects)
+    // Generate the drawables
+    ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+    for (const auto &layoutObj : layoutObjects)
+    {
+        layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
+        if (!layoutObj->currentEnable)
         {
-            layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
-            if (!layoutObj->currentEnable)
-            {
-                layoutObj->obj.state.fadeDown = curTime;
-                layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
-            }
-            
-            // Note: The animation below doesn't handle offsets
-            
-            // Just moved into a cluster
-            if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
-            {
-                ClusterEntry *cluster = &clusters[layoutObj->newCluster];
-                ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
+            layoutObj->obj.state.fadeDown = curTime;
+            layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
+        }
 
-                // Animate from the old position to the new cluster position
-                ScreenSpaceObject animObj = layoutObj->obj;
-                animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-                animObj.setFade(curTime, curTime+params.markerAnimationTime);
-                animObj.state.progID = params.motionShaderID;
-                for (auto &geom : animObj.geometry)
-                    geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+        // Note: The animation below doesn't handle offsets
+
+        // Just moved into a cluster
+        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
+        {
+            ClusterEntry *cluster = &clusters[layoutObj->newCluster];
+            ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
+
+            // Animate from the old position to the new cluster position
+            ScreenSpaceObject animObj = layoutObj->obj;
+            animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+            animObj.setFade(curTime, curTime+params.markerAnimationTime);
+            animObj.state.progID = params.motionShaderID;
+            for (auto &geom : animObj.geometry)
+                geom.progID = params.motionShaderID;
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+        }
+        else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
+        {
+            // Just moved out of a cluster
+            ClusterEntry *oldCluster = nullptr;
+            if (layoutObj->currentCluster < oldClusters.size())
+                oldCluster = &oldClusters[layoutObj->currentCluster];
+            else {
+                wkLogLevel(Warn,"Cluster ID mismatch");
+                continue;
             }
-            else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
-            {
-                // Just moved out of a cluster
-                ClusterEntry *oldCluster = nullptr;
-                if (layoutObj->currentCluster < oldClusters.size())
-                    oldCluster = &oldClusters[layoutObj->currentCluster];
+            ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
+
+            // Animate from the old cluster position to the new real position
+            ScreenSpaceObject animObj = layoutObj->obj;
+            animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+            animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+            animObj.setFade(curTime+params.markerAnimationTime,curTime);
+            animObj.state.progID = params.motionShaderID;
+            //animObj.setDrawOrder(?)
+            for (auto &geom : animObj.geometry)
+                geom.progID = params.motionShaderID;
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+
+            // And hold off on adding it
+            ScreenSpaceObject shortObj = layoutObj->obj;
+            //shortObj.setDrawOrder(?)
+            shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
+            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry);
+        } else {
+            // It's boring, just add it
+            if (layoutObj->newEnable) {
+                // It's a single point placement
+                if (layoutObj->obj.layoutShape.empty())
+                    ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,&layoutObj->obj.geometry);
                 else {
-                    wkLogLevel(Warn,"Cluster ID mismatch");
-                    continue;
-                }
-                ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
-                
-                // Animate from the old cluster position to the new real position
-                ScreenSpaceObject animObj = layoutObj->obj;
-                animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-                animObj.worldLoc = oldCluster->layoutObj.worldLoc;
-                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-                animObj.setFade(curTime+params.markerAnimationTime,curTime);
-                animObj.state.progID = params.motionShaderID;
-                //animObj.setDrawOrder(?)
-                for (auto &geom : animObj.geometry)
-                    geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
-                
-                // And hold off on adding it
-                ScreenSpaceObject shortObj = layoutObj->obj;
-                //shortObj.setDrawOrder(?)
-                shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry);
-            } else {
-                // It's boring, just add it
-                if (layoutObj->newEnable) {
-                    // It's a single point placement
-                    if (layoutObj->obj.layoutShape.empty())
-                        ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,&layoutObj->obj.geometry);
-                    else {
-                        // One or more placements along a path
-                        for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++) {
-                            ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
-                        }
+                    // One or more placements along a path
+                    for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++) {
+                        ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
                     }
                 }
             }
-
-            layoutObj->currentEnable = layoutObj->newEnable;
-            layoutObj->currentCluster = layoutObj->newCluster;
-            
-            layoutObj->changed = false;
         }
-        
-//        NSLog(@"Got %lu clusters",clusters.size());
-        
-        // Add in the clusters
-        for (const auto &cluster : clusters)
-        {
-            // Animate from the old cluster if there is one
-            if (cluster.childOfCluster > -1)
-            {
-                ClusterEntry *oldCluster = nullptr;
-                if (cluster.childOfCluster < oldClusters.size())
-                    oldCluster = &oldClusters[cluster.childOfCluster];
-                else {
-                    wkLogLevel(Warn,"Cluster ID mismatch");
-                    continue;
-                }
-                const auto &params = oldClusterParams[oldCluster->clusterParamID];
 
-                // Animate from the old cluster to the new one
-                ScreenSpaceObject animObj = cluster.layoutObj;
-                animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-                animObj.worldLoc = oldCluster->layoutObj.worldLoc;
-                animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-                animObj.state.progID = params.motionShaderID;
-                //animObj.setDrawOrder(?)
-                for (auto &geom : animObj.geometry)
-                    geom.progID = params.motionShaderID;
-                ssBuild.addScreenObject(animObj, animObj.worldLoc, &animObj.geometry);
+        layoutObj->currentEnable = layoutObj->newEnable;
+        layoutObj->currentCluster = layoutObj->newCluster;
 
-                // Hold off on adding the new one
-                ScreenSpaceObject shortObj = cluster.layoutObj;
-                //shortObj.setDrawOrder(?)
-                shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-                ssBuild.addScreenObject(shortObj, shortObj.worldLoc, &shortObj.geometry);
-                
-            } else
-                ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, &cluster.layoutObj.geometry);
-        }
-        
-        ssBuild.flushChanges(changes, drawIDs);
-        
-//        NSLog(@"  Adding new drawIDs = %lu",drawIDs.size());
+        layoutObj->changed = false;
     }
-    
-    hasUpdates = false;
+
+//        NSLog(@"Got %lu clusters",clusters.size());
+
+    // Add in the clusters
+    for (const auto &cluster : clusters)
+    {
+        // Animate from the old cluster if there is one
+        if (cluster.childOfCluster > -1)
+        {
+            ClusterEntry *oldCluster = nullptr;
+            if (cluster.childOfCluster < oldClusters.size())
+                oldCluster = &oldClusters[cluster.childOfCluster];
+            else {
+                wkLogLevel(Warn,"Cluster ID mismatch");
+                continue;
+            }
+            const auto &params = oldClusterParams[oldCluster->clusterParamID];
+
+            // Animate from the old cluster to the new one
+            ScreenSpaceObject animObj = cluster.layoutObj;
+            animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+            animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+            animObj.state.progID = params.motionShaderID;
+            //animObj.setDrawOrder(?)
+            for (auto &geom : animObj.geometry)
+                geom.progID = params.motionShaderID;
+            ssBuild.addScreenObject(animObj, animObj.worldLoc, &animObj.geometry);
+
+            // Hold off on adding the new one
+            ScreenSpaceObject shortObj = cluster.layoutObj;
+            //shortObj.setDrawOrder(?)
+            shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
+            ssBuild.addScreenObject(shortObj, shortObj.worldLoc, &shortObj.geometry);
+
+        }
+        else
+        {
+            ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, &cluster.layoutObj.geometry);
+        }
+    }
+
+    ssBuild.flushChanges(changes, drawIDs);
+
+    //NSLog(@"  Adding new drawIDs = %lu",drawIDs.size());
 }
-    
+
 }

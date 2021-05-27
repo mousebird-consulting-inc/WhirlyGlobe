@@ -13,9 +13,7 @@ import com.mousebird.maply.VectorInfo;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import okio.Okio;
@@ -23,14 +21,11 @@ import okio.Okio;
 
 public class VectorsTestCase extends MaplyTestCase {
 
-	private ArrayList<VectorObject> vectors = new ArrayList<VectorObject>();
+	private final ArrayList<VectorObject> vectors = new ArrayList<>();
 
 	public VectorsTestCase(Activity activity) {
-		super(activity);
-
-		setTestName("Vectors Test");
+		super(activity, "Vectors Test", TestExecutionImplementation.Both);
 		setDelay(4);
-		this.implementation = TestExecutionImplementation.Both;
 	}
 
 	private void overlayCountries(BaseController baseVC) throws Exception {
@@ -41,18 +36,12 @@ public class VectorsTestCase extends MaplyTestCase {
 		AssetManager assetMgr = getActivity().getAssets();
 		String[] paths = assetMgr.list("country_json_50m");
 		for (String path : paths) {
-			InputStream stream = assetMgr.open("country_json_50m/" + path);
-			try {
+			try (InputStream stream = assetMgr.open("country_json_50m/" + path)) {
 				VectorObject vecObject = new VectorObject();
 				vecObject.setSelectable(true);
 				String json = Okio.buffer(Okio.source(stream)).readUtf8();
 				if (vecObject.fromGeoJSON(json)) {
 					vectors.add(vecObject);
-				}
-			} finally {
-				try {
-					stream.close();
-				} catch (IOException e) {
 				}
 			}
 		}
@@ -75,7 +64,6 @@ public class VectorsTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		GeographyClass baseCase = new GeographyClass(getActivity());
 		baseCase.setUpWithMap(mapVC);
 		overlayCountries(mapVC);
 		return true;
@@ -83,15 +71,20 @@ public class VectorsTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		GeographyClass baseCase = new GeographyClass(getActivity());
 		baseCase.setUpWithGlobe(globeVC);
 		overlayCountries(globeVC);
-
 		return true;
+	}
+
+	@Override
+	public void shutdown() {
+		baseCase.shutdown();
+		super.shutdown();
 	}
 
 	public ArrayList<VectorObject> getVectors() {
 		return vectors;
 	}
 
+	public final MaplyTestCase baseCase = new GeographyClass(getActivity());
 }
