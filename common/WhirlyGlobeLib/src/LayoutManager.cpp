@@ -250,7 +250,9 @@ static const int OverlapSampleY = 60;
 // Now much around the screen we'll take into account
 static const float ScreenBuffer = 0.1;
     
-bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const ViewStateRef &viewState,const Mbr &screenMbr,const Point2f &frameBufferSize)
+bool LayoutManager::calcScreenPt(Point2f &objPt,const LayoutObject *layoutObj,
+                                 const ViewStateRef &viewState,
+                                 const Mbr &screenMbr,const Point2f &frameBufferSize)
 {
     // Figure out where this will land
     bool isInside = false;
@@ -268,7 +270,11 @@ bool LayoutManager::calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const Vi
     return isInside;
 }
 
-Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Matrix4d &modelTrans,const Matrix4d &normalMat,const Point2f &frameBufferSize)
+Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewState,
+                                      const WhirlyGlobe::GlobeViewState *globeViewState,
+                                      const ScreenSpaceObject *ssObj,const Point2f &objPt,
+                                      const Matrix4d &modelTrans,const Matrix4d &normalMat,
+                                      const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
     double rot = 2*M_PI-ssObj->rotation;
@@ -485,13 +491,12 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     }
     
     // Extents for the layout helpers
-    Point2f frameBufferSize;
-    frameBufferSize.x() = renderer->framebufferWidth;
-    frameBufferSize.y() = renderer->framebufferHeight;
-    Mbr screenMbr(Point2f(-ScreenBuffer * frameBufferSize.x(),-ScreenBuffer * frameBufferSize.y()),frameBufferSize * (1.0 + ScreenBuffer));
+    const Point2f frameBufferSize(renderer->framebufferWidth, renderer->framebufferHeight);
+    const Mbr screenMbr(frameBufferSize * -ScreenBuffer,
+                        frameBufferSize * (1.0 + ScreenBuffer));
 
     // Need to scale for retina displays
-    float resScale = renderer->getScale();
+    const float resScale = renderer->getScale();
 
     if (clusterGen)
     {
@@ -534,8 +539,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                         Point2d center(objPt.x(),objPt.y());
                         for (unsigned int ii=0;ii<4;ii++)
                         {
-                            Point2d thisObjPt = entry->obj.layoutPts[ii];
-                            Point2d offPt = screenRotMat * Point2d(thisObjPt.x()*resScale,thisObjPt.y()*resScale);
+                            const Point2d &thisObjPt = entry->obj.layoutPts[ii];
+                            const Point2d offPt = screenRotMat * (thisObjPt * resScale);
                             objPts[ii] = Point2d(offPt.x(),-offPt.y()) + center;
                         }
                     }
@@ -568,14 +573,16 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     clusterEntries.resize(clusterEntryID+1);
                     ClusterEntry &clusterEntry = clusterEntries[clusterEntryID];
 
+                    const Point2f clusterLoc = Point2f(clusterObj.center.x(),clusterObj.center.y());
+
                     // Project the cluster back into a geolocation so we can place it.
                     Point3d dispPt;
                     bool dispPtValid = false;
                     if (globeViewState)
                     {
-                        dispPtValid = globeViewState->pointOnSphereFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),modelTrans,frameBufferSize,dispPt);
+                        dispPtValid = globeViewState->pointOnSphereFromScreen(clusterLoc,modelTrans,frameBufferSize,dispPt);
                     } else {
-                        dispPtValid = mapViewState->pointOnPlaneFromScreen(Point2f(clusterObj.center.x(),clusterObj.center.y()),modelTrans,frameBufferSize,dispPt,false);
+                        dispPtValid = mapViewState->pointOnPlaneFromScreen(clusterLoc,modelTrans,frameBufferSize,dispPt,false);
                     }
 
                     // Note: What happens if the display point isn't valid?
@@ -635,10 +642,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     std::sort(layoutObjs.begin(),layoutObjs.end());
     
     // Clusters have priority in the overlap.
-    for (auto it : clusterEntries) {
+    for (const auto &it : clusterEntries) {
         Point2f objPt = {0,0};
         /*const bool isInside = */calcScreenPt(objPt,&it.layoutObj,viewState,screenMbr,frameBufferSize);
-        auto objPts = it.layoutObj.layoutPts;
+        auto objPts = it.layoutObj.layoutPts;   // make a copy
         for (auto &pt : objPts)
             pt = pt * resScale + Point2d(objPt.x(),objPt.y());
         overlapMan.addObject(objPts);
@@ -680,7 +687,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                 
                 for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++) {
                     // Set up the text builder to get a set of individual runs to follow
-                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,layoutObj->obj.layoutWidth*1.5,&layoutObj->obj);
+                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,
+                                                  layoutObj->obj.layoutWidth*1.5f,
+                                                  &layoutObj->obj);
                     textBuilder.setPoints(layoutObj->obj.layoutShape);
                     textBuilder.process();
                     // Sort the runs by length and get rid of the ones too short
@@ -692,7 +701,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                     auto runs = textBuilder.getScreenVecs();
 //                    unsigned int ri=0;
-                    for (auto run: runs) {
+                    for (const auto& run: runs) {
 //                        wkLog("Run %d",ri++);
                         
                         // We need the length of the glyphs and their center
@@ -703,7 +712,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                         LinearWalker walk(run);
 
                         // Figure out how many times we could lay this out
-                        float textRoom = walk.getTotalLength() - 2.0*layoutObj->obj.layoutSpacing;
+                        float textRoom = walk.getTotalLength() - 2.0f*layoutObj->obj.layoutSpacing;
                         float textInstance = textRoom / textLen;
                         
                         for (unsigned int ini=0;ini<textInstance;ini++) {
@@ -734,7 +743,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                             // Walk through the individual glyphs
                             bool failed = false;
-                            int gStart = 0, gEnd = layoutObj->obj.geometry.size()-1, gIncr = 1;
+                            int gStart = 0, gEnd = (int)layoutObj->obj.geometry.size()-1, gIncr = 1;
                             bool flipped = false;
                             // If it's upside down, then run it backwards
                             if (normAtMid.y() < 0.0) {
@@ -929,11 +938,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
                                     continue;
                                 const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
-                                Mbr layoutMbr;
-                                for (unsigned int li=0;li<layoutPts.size();li++)
-                                    layoutMbr.addPoint(layoutPts[li]);
-                                Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
-                                Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
+                                const Mbr layoutMbr(layoutPts);
+                                const Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
+                                const Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
                                 
                                 // Set up the offset for this orientation
                                 switch (orient)

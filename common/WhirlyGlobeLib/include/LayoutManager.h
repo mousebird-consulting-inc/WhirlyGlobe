@@ -223,8 +223,19 @@ public:
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
     
 protected:
-    static bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const ViewStateRef &viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
-    static Eigen::Matrix2d calcScreenRot(float &screenRot,const ViewStateRef &viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    static bool calcScreenPt(Point2f &objPt,
+                             const LayoutObject *layoutObj,
+                             const ViewStateRef &viewState,
+                             const Mbr &screenMbr,
+                             const Point2f &frameBufferSize);
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,
+                                         const ViewStateRef &viewState,
+                                         const WhirlyGlobe::GlobeViewState *globeViewState,
+                                         const ScreenSpaceObject *ssObj,
+                                         const Point2f &objPt,
+                                         const Eigen::Matrix4d &modelTrans,
+                                         const Eigen::Matrix4d &normalMat,
+                                         const Point2f &frameBufferSize);
 
     bool runLayoutRules(PlatformThreadInfo *threadInfo,
                         const ViewStateRef &viewState,

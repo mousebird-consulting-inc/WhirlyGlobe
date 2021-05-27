@@ -153,7 +153,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
         // Resolve the program ID
         if ((*markerInfo)->programID == EmptyIdentity)
         {
-            Program *prog = NULL;
+            Program *prog = nullptr;
             if (isMoving)
                 prog = (*markerManager)->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             else

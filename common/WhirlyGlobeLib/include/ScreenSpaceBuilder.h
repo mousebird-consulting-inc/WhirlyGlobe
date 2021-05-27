@@ -214,14 +214,14 @@ public:
     
     ScreenSpaceObject();
     ScreenSpaceObject(SimpleIdentity theId);
-    virtual ~ScreenSpaceObject();
+    virtual ~ScreenSpaceObject() = default;
         
     /// Center of the object in world coordinates
     void setWorldLoc(const Point3d &worldLoc);
-    Point3d getWorldLoc();
-    Point3d getEndWorldLoc();
-    TimeInterval getStartTime();
-    TimeInterval getEndTime();
+    Point3d getWorldLoc() const;
+    Point3d getEndWorldLoc() const;
+    TimeInterval getStartTime() const;
+    TimeInterval getEndTime() const;
     
     /// Set up the end location and timing
     void setMovingLoc(const Point3d &worldLoc,TimeInterval startTime,TimeInterval endTime);
