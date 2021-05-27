@@ -767,7 +767,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     double dot = norm.x()*lastNorm.x() + norm.y()*lastNorm.y();
                                     double det = norm.x()*lastNorm.y() - norm.y()*lastNorm.x();
                                     normAng = atan2(det, dot);
-                                    wkLogLevel(Debug,"normAng = %f",normAng);
+//                                    wkLogLevel(Debug,"normAng = %f",normAng);
                                     if (normAng != 0.0) {
                                         if (abs(normAng) > 45.0 * M_PI / 180.0) {
                                             failed = true;
