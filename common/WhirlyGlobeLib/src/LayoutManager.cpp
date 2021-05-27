@@ -754,11 +754,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
                                 Point2f norm;
-                                if (!walk.nextPoint(span.x(),&centerPt,&norm,true)) {
+                                if (!walk.nextPoint(resScale * span.x()/2.0,&centerPt,&norm,true)) {
                                     failed = true;
                                     break;
                                 }
-                                walk.nextPoint(span.x()/2.0, nullptr, nullptr,true);
                                 
                                 // If we're too far from the last normal, bail.  The text will look jumbled.
                                 double normAng = 0.0;
@@ -783,16 +782,16 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                         float height = span.y();
                                         float offset = abs(sin(normAng)) * height;
                                         nudged = true;
-                                        if (!walk.nextPoint(offset,&centerPt,&norm,true)) {
+                                        if (!walk.nextPoint(resScale * offset,&centerPt,&norm,true)) {
                                             failed = true;
                                             break;
                                         }
                                     }
                                 }
                                 lastNormValid = true;  lastNorm = norm;
-
-                                // And out of this glyph on to the next
-                                if (!walk.nextPoint(span.x()/2.0, nullptr, nullptr,true)) {
+                                
+                                // Other half of glyph
+                                if (!walk.nextPoint(resScale * span.x()/2.0,nullptr,nullptr,true)) {
                                     failed = true;
                                     break;
                                 }
@@ -802,10 +801,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     float padX = 0.0;
                                     Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
                                     padX = abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
-                                    if (nudged)
-                                        padX = 2.0 * padX;
                                     
-                                    walk.nextPoint(padX, nullptr, nullptr,true);
+                                    walk.nextPoint(resScale * padX, nullptr, nullptr,true);
                                 }
                                 
                                 // Translate the glyph into that position

@@ -189,6 +189,12 @@ void LinearTextBuilder::process()
             isFrontSide.push_back(testFrontSide);
             projPts.push_back(thisObjPt);
         }
+        // If it's closed, tack on some end points
+        if (pts.front() == pts.back()) {
+            isValid.push_back(isValid.front());
+            isFrontSide.push_back(isValid.front());
+            projPts.push_back(projPts.front());
+        }
         
         // Now build runs that cut across the screen MBR
         // It gets tricky.  We have to include the first and last point of a run
