@@ -347,6 +347,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         NSLog(@"Drawable %s missing program.",name.c_str());
         return false;
     }
+    RenderSetupInfoMTL *setupMTL = (RenderSetupInfoMTL *)sceneRender->getRenderSetupInfo();
 
     if (texturesChanged || valuesChanged || prog->changed) {
         ret = true;
@@ -445,6 +446,15 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                     hasExp = true;
                 vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
                 fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
+            }
+            
+            // If we're overriding the color, we copy that into its own buffer
+            if (hasColor) {
+                // TODO: Reuse these ideally, rather than copy
+                unsigned char data[4];
+                color.asUChar4(&data[0]);
+                auto srcBuffer = setupMTL->heapManage.allocateBuffer(HeapManagerMTL::Drawable, &data, 4);
+                [bltEncode copyFromBuffer:srcBuffer.buffer sourceOffset:srcBuffer.offset toBuffer:colorBuffer.buffer destinationOffset:colorBuffer.offset size:4];
             }
             
             // Per drawable draw state in its own buffer

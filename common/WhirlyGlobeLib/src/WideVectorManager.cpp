@@ -929,7 +929,7 @@ public:
             if (auto drawID = drawable->getBasicDrawableID())
                 sceneRep->drawIDs.insert(drawID);
             if (auto drawID = drawable->getInstanceDrawableID())
-                sceneRep->drawIDs.insert(drawID);
+                sceneRep->instIDs.insert(drawID);
             if (vecInfo->fade > 0.0)
                 drawable->setFade(curTime,curTime+vecInfo->fade);
             if (auto draw = drawable->getBasicDrawable())
@@ -985,8 +985,8 @@ WideVectorSceneRep::~WideVectorSceneRep()
 
 void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
 {
-    SimpleIDSet allIDs = drawIDs;
-    allIDs.insert(instIDs.begin(),instIDs.end());
+    // If we're using instances, just turn on the instances
+    SimpleIDSet allIDs = instIDs.empty() ? drawIDs : instIDs;
     for (const auto &it : allIDs)
         changes.push_back(new OnOffChangeRequest(it,enable));
 }
@@ -1099,8 +1099,8 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
         if (it != sceneReps.end())
         {
             const WideVectorSceneRep *vecRep = *it;
-            SimpleIDSet allIDs = vecRep->drawIDs;
-            allIDs.insert(vecRep->instIDs.begin(),vecRep->instIDs.end());
+            // If we're using instances, we just want those
+            SimpleIDSet allIDs = vecRep->instIDs.empty() ? vecRep->drawIDs : vecRep->instIDs;
             for (const auto &id : allIDs)
                 changes.push_back(new OnOffChangeRequest(id,enable));
         }
@@ -1171,9 +1171,8 @@ void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo 
     {
         const auto sceneRep = *it;
 
-        // Make sure we change both drawables and instances
-        SimpleIDSet allIDs = sceneRep->drawIDs;
-        allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+        // If we're using instances, we just change those
+        SimpleIDSet allIDs = sceneRep->instIDs.empty() ? sceneRep->drawIDs : sceneRep->instIDs;
 
         // Set the builder up with the new values (works for Metal)
         builder->setValues(vecInfo);
