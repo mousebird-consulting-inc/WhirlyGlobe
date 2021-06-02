@@ -136,7 +136,8 @@ typedef enum {
     WKSUniformScreenSpaceEntry = 200,
     WKSUniformScreenSpaceEntryExp = 210,
     WKSUniformModelInstanceEntry = 300,
-    WKSUniformBillboardEntry = 400
+    WKSUniformBillboardEntry = 400,
+    WKSUniformParticleStateEntry = 410
 } WKSArgBufferEntries;
 
 // Uniforms for the basic case.  Nothing fancy.

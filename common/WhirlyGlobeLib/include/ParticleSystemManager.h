@@ -86,7 +86,11 @@ public:
     void enableContents(bool enable,ChangeSet &changes);
     
     ParticleSystem partSys;
+    // We have a special drawable for OpenGL
     std::set<ParticleSystemDrawable *> draws;
+    // For Metal we just use instances
+    SimpleIDSet basicIDs;
+    SimpleIDSet instIDS;
 };
     
 typedef std::map<SimpleIdentity,ParticleSystemSceneRep *> ParticleSystemSceneRepSet;
