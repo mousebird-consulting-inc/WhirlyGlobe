@@ -59,17 +59,20 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	public void viewUpdated(ViewState newViewState) {
 		// This pushes back the update, which is what we want
 		// We'd prefer to update 0.2s after the user stops moving
-		if (viewState == null || !viewState.equals(newViewState))
-		{
-			cancelUpdate();
+		if (viewState == null || !viewState.equals(newViewState)) {
 			viewState = newViewState;
+			registerViewUpdate();
+		}
+	}
 
-			final double elapsed = (System.nanoTime() - lastUpdateTime) / 1.0e9;
-			if (elapsed > getMaxLagTime()) {
-				runUpdate();
-			} else {
-				scheduleUpdate();
-			}
+	private void registerViewUpdate() {
+		cancelUpdate();
+
+		final double elapsed = (System.nanoTime() - lastUpdateTime) / 1.0e9;
+		if (elapsed > getMaxLagTime()) {
+			runUpdate();
+		} else {
+			scheduleUpdate();
 		}
 	}
 
@@ -91,6 +94,24 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 			                                  generator.clusterNumber(),
 			                                  generator.selectable(),
 			                                  clusterSize.getX(),clusterSize.getY());
+			registerViewUpdate();
+		}
+	}
+
+	public boolean removeClusterGenerator(ClusterGenerator generator) {
+		synchronized (this) {
+			if (layoutManager.removeClusterGenerator(generator.clusterNumber())) {
+				registerViewUpdate();
+				return true;
+			}
+			return false;
+		}
+	}
+
+	public void clearClusterGenerators() {
+		synchronized (this) {
+			layoutManager.clearClusterGenerators();
+			registerViewUpdate();
 		}
 	}
 
@@ -100,12 +121,14 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		synchronized(this)
 		{
 			cancelUpdate();
-			if (maplyControl.get() != null && layoutManager.hasChanges()) {
-				// Triggers if we haven't moved again in a while
-				updateHandle = layerThread.addDelayedTask(updateRun, DelayPeriod);
+			if (layerThread != null) {
+				if (maplyControl.get() != null && layoutManager.hasChanges()) {
+					// Triggers if we haven't moved again in a while
+					updateHandle = layerThread.addDelayedTask(updateRun, DelayPeriod);
+				}
+				// Run this again in twice as long
+				checkHandle = layerThread.addDelayedTask(checkRun, 2 * DelayPeriod);
 			}
-			// Run this again in twice as long
-			checkHandle = layerThread.addDelayedTask(checkRun, 2 * DelayPeriod);
 		}
 	}
 	
@@ -125,25 +148,26 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		}
 	}
 	
-	// Actually run the layout update
 	private void runUpdate()
 	{
 		synchronized(this) {
 			cancelUpdate();
 		}
-
-		ChangeSet changes = new ChangeSet();
-		layoutManager.updateLayout(viewState, changes);
-
-		BaseController control = maplyControl.get();
-		Scene scene = (control != null) ? control.scene : null;
-		if (scene != null) {
-			control.scene.addChanges(changes);
-		}
-
-		lastUpdateTime = System.nanoTime();
-
+		runUpdateNow(viewState);
 		scheduleUpdate();
+	}
+
+	private void runUpdateNow(ViewState state) {
+		if (state != null) {
+			BaseController control = maplyControl.get();
+			Scene scene = (control != null) ? control.scene : null;
+			if (scene != null) {
+				ChangeSet changes = new ChangeSet();
+				layoutManager.updateLayout(state, changes);
+				control.scene.addChanges(changes);
+			}
+			lastUpdateTime = System.nanoTime();
+		}
 	}
 
 	private static final int DelayPeriod = 200;

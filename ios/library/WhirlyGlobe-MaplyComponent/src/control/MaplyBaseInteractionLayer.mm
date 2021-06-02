@@ -833,6 +833,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             }
         } else if (marker.images)
         {
+            texs.reserve(marker.images.count);
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])

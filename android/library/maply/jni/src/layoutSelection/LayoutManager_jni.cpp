@@ -36,7 +36,9 @@ public:
     // Used to keep track of cluster objects for callbacks
     struct ClusterInfo
     {
-        ClusterInfo() : clusterObj(nullptr)
+        ClusterInfo(int clusterID = 0) :
+            clusterID(clusterID),
+            clusterObj(nullptr)
         {
         }
 
@@ -83,13 +85,21 @@ public:
             startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
             makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I[Ljava/lang/String;)J");
             endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
+            shutdownClusterGroupJava = env->GetMethodID(theClass, "shutdown", "()V");
             env->DeleteLocalRef(theClass);
         }
         
         void clear(JNIEnv *env)
         {
-            env->DeleteGlobalRef(clusterObj);
-            clusterObj = nullptr;
+            if (clusterObj)
+            {
+                if (shutdownClusterGroupJava)
+                {
+                    env->CallVoidMethod(clusterObj, shutdownClusterGroupJava);
+                }
+                env->DeleteGlobalRef(clusterObj);
+                clusterObj = nullptr;
+            }
         }
 
         int clusterID;
@@ -101,6 +111,7 @@ public:
         jmethodID startClusterGroupJava;
         jmethodID makeClusterGroupJNIJava;
         jmethodID endClusterGroupJava;
+        jmethodID shutdownClusterGroupJava;
 
     private:
         void copy(const ClusterInfo &other) {
@@ -111,13 +122,14 @@ public:
             startClusterGroupJava = other.startClusterGroupJava;
             makeClusterGroupJNIJava = other.makeClusterGroupJNIJava;
             endClusterGroupJava = other.endClusterGroupJava;
+            shutdownClusterGroupJava = other.shutdownClusterGroupJava;
         }
         friend class LayoutManagerWrapper;
     };
     typedef std::set<ClusterInfo> ClusterInfoSet;
 
     LayoutManagerWrapper(PlatformThreadInfo *threadInfo, LayoutManagerRef layoutManager)
-        : layoutManager(layoutManager), motionShaderID(EmptyIdentity)
+        : layoutManager(layoutManager)
     {
         layoutManager->addClusterGenerator(threadInfo,this);
     }
@@ -132,7 +144,10 @@ public:
         {
             ProgramGLES *program = (ProgramGLES *)layoutManager->getScene()->findProgramByName(MaplyScreenSpaceDefaultMotionShader);
             if (program)
+            {
                 motionShaderID = program->getId();
+                generatorChanges = true;
+            }
         }
     }
 
@@ -142,10 +157,39 @@ public:
         ClusterInfo clusterInfo;
         clusterInfo.init(env,clusterID,Point2d(sizeX,sizeY),clusterObj);
         clusterInfo.selectable = selectable;
-        
+
+        const auto hit = clusterGens.find(clusterInfo);
+        if (hit != clusterGens.end())
+        {
+            // Already exists, we need to clean up the old one
+            const_cast<ClusterInfo&>(*hit).clear(env);
+            clusterGens.erase(hit);
+        }
+
         clusterGens.insert(std::move(clusterInfo));
+        generatorChanges = true;
     }
-    
+
+    const ClusterInfo* getClusterGenerator(JNIEnv*, int clusterID)
+    {
+        ClusterInfo temp(clusterID);
+        const auto hit = clusterGens.find(temp);
+        return (hit != clusterGens.end()) ? &*hit : nullptr;
+    }
+
+    bool removeClusterGenerator(JNIEnv* env, int clusterID)
+    {
+        ClusterInfo temp(clusterID);
+        const auto hit = clusterGens.find(temp);
+        if (hit != clusterGens.end()) {
+            const_cast<ClusterInfo&>(*hit).clear(env);
+            clusterGens.erase(hit);
+            generatorChanges = true;
+            return true;
+        }
+        return false;
+    }
+
     void clearClusterGenerators(JNIEnv* env)
     {
         for (auto &ci : clusterGens)
@@ -155,6 +199,7 @@ public:
             const_cast<ClusterInfo&>(ci).clear(env);
         }
         clusterGens.clear();
+        generatorChanges = true;
     }
 
     /** ClusterGenerator virtual methods.
@@ -222,7 +267,6 @@ public:
         }
 
         env->DeleteLocalRef(uniqueIDsObj);
-        uniqueIDsObj = nullptr;
 
         if (texID == EmptyIdentity)
         {
@@ -282,13 +326,24 @@ public:
         clusterParams.clusterSize = clusterGenerator.layoutSize;
     }
 
+    virtual bool hasChanges() override {
+        if (generatorChanges) {
+            generatorChanges = false;
+            return true;
+        }
+        return false;
+    }
+
 public:
     LayoutManagerRef layoutManager;
 
-    SimpleIDSet currentClusterTex,oldClusterTex;
+    SimpleIDSet currentClusterTex;
+    SimpleIDSet oldClusterTex;
     
-    SimpleIdentity motionShaderID;
+    SimpleIdentity motionShaderID = EmptyIdentity;
     ClusterInfoSet clusterGens;
+
+    bool generatorChanges = true;
 };
 
 typedef JavaClassInfo<LayoutManagerWrapper> LayoutManagerWrapperClassInfo;
@@ -412,6 +467,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerato
     {
         __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
     }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_removeClusterGenerator
+        (JNIEnv *env, jobject obj, jint clusterID)
+{
+    try
+    {
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            return wrap->removeClusterGenerator(env, clusterID);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
+    }
+    return false;
 }
 
 extern "C"
