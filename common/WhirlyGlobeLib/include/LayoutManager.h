@@ -149,6 +149,11 @@ public:
     
     // Return the shader used when moving objects into and out of clusters
     virtual void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams) = 0;
+
+    /**
+     * Indicate that a new clustering run is required
+     */
+    virtual bool hasChanges() { return false; }
 };
     
 #define kWKLayoutManager "WKLayoutManager"
@@ -223,8 +228,19 @@ public:
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
     
 protected:
-    static bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const ViewStateRef &viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
-    static Eigen::Matrix2d calcScreenRot(float &screenRot,const ViewStateRef &viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    static bool calcScreenPt(Point2f &objPt,
+                             const LayoutObject *layoutObj,
+                             const ViewStateRef &viewState,
+                             const Mbr &screenMbr,
+                             const Point2f &frameBufferSize);
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,
+                                         const ViewStateRef &viewState,
+                                         const WhirlyGlobe::GlobeViewState *globeViewState,
+                                         const ScreenSpaceObject *ssObj,
+                                         const Point2f &objPt,
+                                         const Eigen::Matrix4d &modelTrans,
+                                         const Eigen::Matrix4d &normalMat,
+                                         const Point2f &frameBufferSize);
 
     bool runLayoutRules(PlatformThreadInfo *threadInfo,
                         const ViewStateRef &viewState,
@@ -236,7 +252,10 @@ protected:
                         WhirlyGlobe::GlobeViewState *globeViewState,
                         Maply::MapViewState *mapViewState,
                         const Point2f &frameBufferSize,
-                        ChangeSet &changes);
+                        ChangeSet &changes,
+                        int priority = 10000000,
+                        float width = 4.0,
+                        RGBAColor color = RGBAColor::black());
     
     VectorManagerRef vecManage;
     

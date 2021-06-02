@@ -59,6 +59,16 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	protected TestExecutionImplementation implementation = TestExecutionImplementation.None;
 	protected ArrayList<String> remoteResources = new ArrayList<>();
 
+	protected GlobeController.GestureDelegate forwardGlobeDelegate;
+	protected MapController.GestureDelegate forwardMapDelegate;
+
+	public void setForwardMapDelegate(MapController.GestureDelegate delegate) {
+		forwardMapDelegate = delegate;
+	}
+	public void setForwardGlobeDelegate(GlobeController.GestureDelegate delegate) {
+		forwardGlobeDelegate = delegate;
+	}
+
 	public MaplyTestCase(Activity activity) {
 		super();
 		weakActivity = new WeakReference<>(activity);
@@ -385,6 +395,9 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 	public void userDidSelect(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
 	{
 		Log.d("Maply","Selected " + selObjs.length + " objects");
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.userDidSelect(globeControl,selObjs,loc,screenLoc);
+		}
 	}
 
 	public void userDidTap(GlobeController globeControl,Point2d loc,Point2d screenLoc)
@@ -397,48 +410,53 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		if (mbr != null) {
 			Log.d("Maply", "User is looking at bounding box: " + mbr);
 		}
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.userDidTap(globeControl,loc,screenLoc);
+		}
 	}
 
-	public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc)
-	{
+	public void userDidTapOutside(GlobeController globeControl,Point2d screenLoc) {
 		Log.d("Maply","User tapped outside globe.");
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.userDidTapOutside(globeControl,screenLoc);
+		}
 	}
 
-	public void userDidLongPress(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
-	{}
-
-	public void globeDidStartMoving(GlobeController globeControl, boolean userMotion)
-	{}
-
-	public void globeDidStopMoving(GlobeController globeControl, Point3d[] corners, boolean userMotion)
-	{}
-
-	public void globeDidMove(GlobeController globeControl,Point3d[] corners, boolean userMotion)
-	{}
-
-	public void mapDidStartMoving(MapController mapControl, boolean userMotion)
-	{}
-
-	public void mapDidStopMoving(MapController mapControl, Point3d[] corners, boolean userMotion)
-	{
-
+	public void userDidLongPress(GlobeController globeControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.userDidLongPress(globeControl,selObjs,loc,screenLoc);
+		}
 	}
 
-	public void mapDidMove(MapController mapControl,Point3d[] corners, boolean userMotion)
-	{
+	public void globeDidStartMoving(GlobeController globeControl, boolean userMotion) {
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.globeDidStartMoving(globeControl,userMotion);
+		}
+	}
 
+	public void globeDidStopMoving(GlobeController globeControl, Point3d[] corners, boolean userMotion) {
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.globeDidStopMoving(globeControl,corners,userMotion);
+		}
+	}
+
+	public void globeDidMove(GlobeController globeControl,Point3d[] corners, boolean userMotion) {
+		if (forwardGlobeDelegate != null) {
+			forwardGlobeDelegate.globeDidMove(globeControl,corners,userMotion);
+		}
 	}
 
 	/** Implementation of Map Gesture Delegate
 	 */
 
-	public void userDidSelect(MapController mapControl,SelectedObject[] selObjs,Point2d loc,Point2d screenLoc)
-	{
+	public void userDidSelect(MapController mapControl,SelectedObject[] selObjs,Point2d loc,Point2d screenLoc) {
 		Log.d("Maply","Selected object");
+		if (forwardMapDelegate != null) {
+			forwardMapDelegate.userDidSelect(mapControl,selObjs,loc,screenLoc);
+		}
 	}
 
-	public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc)
-	{
+	public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc) {
 		Log.d("Maply",  String.format("User tapped at screen(%f,%f) = geo(%f,%f)",
 				screenLoc.getX(), screenLoc.getY(), loc.getX()*180/Math.PI, loc.getY()*180/Math.PI));
 		//Point2d newScreenPt = mapControl.screenPointFromGeo(loc);
@@ -447,10 +465,35 @@ public class MaplyTestCase extends AsyncTask<Void, View, Void> implements GlobeC
 		if (mbr != null) {
 			Log.d("Maply", "User is looking at bounding box: " + mbr);
 		}
+		if (forwardMapDelegate != null) {
+			forwardMapDelegate.userDidTap(mapControl,loc,screenLoc);
+		}
 	}
 
-	public void userDidLongPress(MapController mapController, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc)
-	{}
+	public void userDidLongPress(MapController mapControl, SelectedObject[] selObjs, Point2d loc, Point2d screenLoc) {
+		if (forwardMapDelegate != null) {
+			forwardMapDelegate.userDidLongPress(mapControl,selObjs,loc,screenLoc);
+		}
+	}
+
+	public void mapDidStartMoving(MapController mapControl, boolean userMotion) {
+		if (forwardMapDelegate != null) {
+			forwardMapDelegate.mapDidStartMoving(mapControl,userMotion);
+		}
+	}
+
+	public void mapDidStopMoving(MapController mapControl, Point3d[] corners, boolean userMotion) {
+		if (forwardMapDelegate != null) {
+			forwardMapDelegate.mapDidStopMoving(mapControl,corners,userMotion);
+		}
+	}
+
+	public void mapDidMove(MapController mapControl,Point3d[] corners, boolean userMotion) {
+		if (forwardMapDelegate != null) {
+			forwardMapDelegate.mapDidMove(mapControl,corners,userMotion);
+		}
+	}
+
 
 	/**
 	 * Write a resource file to a local directory where it can be modified or opened for random-access.

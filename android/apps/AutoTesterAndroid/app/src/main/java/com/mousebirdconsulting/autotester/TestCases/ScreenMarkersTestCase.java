@@ -38,6 +38,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		insertMarkers(baseCase.getVectors(), mapVC);
 		Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
 		mapVC.setPositionGeo(loc.getX(), loc.getX(), 2);
+		mapVC.setAllowRotateGesture(true);
 		return true;
 	}
 
@@ -48,6 +49,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		insertMarkers(baseCase.getVectors(), globeVC);
 		Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
 		globeVC.animatePositionGeo(loc.getX(), loc.getX(), 0.9, 1);
+		globeVC.setKeepNorthUp(false);
 		return true;
 	}
 

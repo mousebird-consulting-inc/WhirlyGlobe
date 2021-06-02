@@ -58,14 +58,11 @@ public class LoaderReturn
      */
     public TileID getTileID()
     {
-        TileID tileID = new TileID();
-
-        int[] tileInfo = getTileIDNative();
-        tileID.x = tileInfo[0];
-        tileID.y = tileInfo[1];
-        tileID.level = tileInfo[2];
-
-        return tileID;
+        final int[] tileInfo = getTileIDNative();
+        if (tileInfo != null && tileInfo.length > 2) {
+            return new TileID(tileInfo[0], tileInfo[1], tileInfo[2]);
+        }
+        return null;
     }
 
     private native int[] getTileIDNative();

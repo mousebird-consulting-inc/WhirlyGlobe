@@ -1,9 +1,8 @@
-/*
- *  MaplyClusterGenerator.java
+/*  MaplyClusterGenerator.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,13 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
 
 
-import android.util.Log;
-
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -34,8 +31,12 @@ import static com.mousebird.maply.RenderController.EmptyIdentity;
  */
 public class ClusterGenerator
 {
-    public BaseController baseController = null;
+    protected final WeakReference<BaseController> baseController;
     private HashSet<Long> currentTextures,oldTextures;
+
+    protected ClusterGenerator(BaseController control) {
+        baseController = new WeakReference<>(control);
+    }
 
     /**
      * Called at the start of clustering.
@@ -45,19 +46,22 @@ public class ClusterGenerator
     public void startClusterGroup()
     {
         if (oldTextures != null) {
-            baseController.removeTexturesByID(new ArrayList<Long>(oldTextures), RenderController.ThreadMode.ThreadCurrent);
+            BaseController control = baseController.get();
+            if (control != null) {
+                control.removeTexturesByID(new ArrayList<>(oldTextures), RenderController.ThreadMode.ThreadCurrent);
+            }
             oldTextures = null;
         }
 
         oldTextures = currentTextures;
-        currentTextures = new HashSet<Long>();
+        currentTextures = new HashSet<>();
     }
 
     /**
      * Generate a cluster group for a given collection of markers.
      * <p>
      * Generate an image and size to represent the number of marker/labels we're consolidating.
-     * @param clusterInfo
+     * @param clusterInfo Description of the cluster
      * @return a cluster group for a given collection of markers.
      */
     public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo)
@@ -66,9 +70,10 @@ public class ClusterGenerator
     }
 
     // The C++ code calls this to get a Bitmap then we call makeClusterGroup
-    public long makeClusterGroupJNI(int num)
+    @SuppressWarnings("unused")
+    private long makeClusterGroupJNI(int num, String[] uniqueIDs)
     {
-        ClusterInfo clusterInfo = new ClusterInfo(num);
+        ClusterInfo clusterInfo = new ClusterInfo(num, uniqueIDs);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);
         if (newGroup != null) {
             currentTextures.add(newGroup.tex.texID);
@@ -109,7 +114,7 @@ public class ClusterGenerator
 
     /**
      * Set this if you want cluster to be user selectable.  On by default.
-     * @return
+     * @return true
      */
     public boolean selectable()
     {
@@ -129,10 +134,17 @@ public class ClusterGenerator
      * The shader to use for moving objects around
      * <p>
      * If you're doing animation from point to cluster you need to provide a suitable shader.
-     * @return
+     * @return null
      */
-//    public Shader motionShader()
-//    {
-//    }
+    public Shader motionShader()
+    {
+        return null;
+    }
 
+    /**
+     * Clean up resources on removal
+     */
+    public void shutdown() {
+
+    }
 }

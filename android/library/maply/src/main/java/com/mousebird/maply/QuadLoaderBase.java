@@ -320,7 +320,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
     public void startTileFetch(QIFBatchOps batchOps, QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
     {
-        if (tileInfos.length == 0 || tileInfos.length != inFrameAssets.length)
+        if (tileInfos.length == 0 || inFrameAssets == null || tileInfos.length != inFrameAssets.length)
             return;
 
         final TileID tileID = new TileID(tileX,tileY,tileLevel);

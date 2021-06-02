@@ -170,9 +170,9 @@ void LinearTextBuilder::process()
         VectorRing curRun;
         
         // Project the points and evaluate the individual validity of each one
-        std::vector<bool> isValid;  isValid.reserve(pts.size());
-        std::vector<bool> isFrontSide;  isFrontSide.reserve(pts.size());
-        std::vector<Point2f> projPts;  projPts.reserve(pts.size());
+        std::vector<bool> isValid;  isValid.reserve(pts.size()+1);
+        std::vector<bool> isFrontSide;  isFrontSide.reserve(pts.size()+1);
+        std::vector<Point2f> projPts;  projPts.reserve(pts.size()+1);
         for (auto pt: pts) {
             Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
 
@@ -188,6 +188,12 @@ void LinearTextBuilder::process()
             isValid.push_back(isInside && testFrontSide);
             isFrontSide.push_back(testFrontSide);
             projPts.push_back(thisObjPt);
+        }
+        // If it's closed, tack on some end points
+        if (pts.front() == pts.back()) {
+            isValid.push_back(isValid.front());
+            isFrontSide.push_back(isValid.front());
+            projPts.push_back(projPts.front());
         }
         
         // Now build runs that cut across the screen MBR

@@ -1,9 +1,8 @@
-/*
- *  LayoutManager.java
+/*  LayoutManager.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -29,11 +27,10 @@ package com.mousebird.maply;
  */
 class LayoutManager 
 {
-	private LayoutManager()
-	{		
-	}
+	@SuppressWarnings("unused")		// Referenced by JNI
+	private LayoutManager() { }
 	
-	LayoutManager(Scene scene)
+	protected LayoutManager(Scene scene)
 	{
 		initialise(scene);
 	}
@@ -64,10 +61,21 @@ class LayoutManager
 	 */
 	public native boolean hasChanges();
 
-	// Adds a cluster generator to be used during layout
-	public native void addClusterGenerator(ClusterGenerator generator, int clusterGroupID,boolean selectable,double sizeX,double sizeY);
+	/**
+	 * Adds a cluster generator to be used during layout.
+	 * Replaces any existing generator with the same cluster ID
+	 */
+	public native void addClusterGenerator(ClusterGenerator generator, int clusterGroupID,
+										   boolean selectable,double sizeX,double sizeY);
 
-	// Get rid of cluster generators
+	/**
+	 * Removes a cluster generator
+	 */
+	public native boolean removeClusterGenerator(int clusterID);
+
+	/**
+	 * Removes all cluster generators
+ 	 */
 	public native void clearClusterGenerators();
 	
 	static

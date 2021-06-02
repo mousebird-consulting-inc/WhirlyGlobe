@@ -833,6 +833,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             }
         } else if (marker.images)
         {
+            texs.reserve(marker.images.count);
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])
@@ -869,6 +870,23 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgMarker->orderBy = marker.orderBy;
         }
         wgMarker->layoutImportance = marker.layoutImportance;
+        
+        // Assemble the geometry to lay out a marker along
+        if (marker.layoutVec && !marker.layoutVec->vObj->shapes.empty()) {
+            for (auto shape: marker.layoutVec->vObj->shapes) {
+                auto shapeLin = std::dynamic_pointer_cast<VectorLinear>(shape);
+                if (shapeLin) {
+                    wgMarker->layoutShape = shapeLin->pts;
+                    break;
+                } else {
+                    auto shapeAr = std::dynamic_pointer_cast<VectorAreal>(shape);
+                    if (shapeAr && !shapeAr->loops.empty()) {
+                        wgMarker->layoutShape = shapeAr->loops[0];
+                        break;
+                    }
+                }
+            }
+        }
 
         if (marker.vertexAttributes)
             [self resolveVertexAttrs:wgMarker->vertexAttrs from:marker.vertexAttributes];

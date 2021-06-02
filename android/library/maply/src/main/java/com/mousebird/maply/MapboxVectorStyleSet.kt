@@ -58,6 +58,9 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         combinedInit(styleDict, inSettings, inDisplayMetrics, inControl)
     }
 
+    // We look this up from JNI, but shouldn't call it
+    private constructor()
+
     /**
      * Allows the application to override the handling of typeface lookups.
      */

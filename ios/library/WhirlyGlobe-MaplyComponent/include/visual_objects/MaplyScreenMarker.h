@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import "math/MaplyCoordinate.h"
 
+@class MaplyVectorObject;
+
 /** 
     The Screen Marker is a 2D object that displays an image on the screen tracking a given location.
     
@@ -134,6 +136,12 @@
     If this is present, we'll render an ID into the mask layer to be used by other features to mask against.
  */
 @property (nonatomic,retain,nullable) NSString *maskID;
+
+/**
+    If set, we'll lay out the marker along the given linear or areal feature.
+    Takes the first feature in the vector, if there are multiple.
+ */
+@property (nonatomic,retain,nullable) MaplyVectorObject *layoutVec;
 
 /** 
     User data object for selection
