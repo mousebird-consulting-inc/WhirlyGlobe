@@ -711,7 +711,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     auto runs = textBuilder.getScreenVecs();
 //                    unsigned int ri=0;
                     for (const auto& run: runs) {
-//                        wkLog("Run %d",ri++);
+//                        wkLog("Run %d: %d points",ri++,run.size());
                         
                         // We need the length of the glyphs and their center
                         Mbr layoutMbr(layoutObj->obj.layoutPts);

@@ -21,6 +21,7 @@
 #import "LinearTextBuilder.h"
 #import "VectorOffset.h"
 #import "GridClipper.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -38,10 +39,8 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
     // Find the point with max distance
     float dMax = 0.0;
     unsigned int maxIdx = 0;
-    float len = 0.0;
     for (unsigned int ii = start+1;ii<end;ii++) {
         float t;
-        len += (screenPts[ii] - screenPts[ii-1]).norm();
         Point2f pt = ClosestPointOnLineSegment(screenPts[start], screenPts[end], screenPts[ii], t);
         float dist = (pt-screenPts[ii]).norm();
         if (dist > dMax) {
@@ -238,9 +237,12 @@ void LinearTextBuilder::process()
         
         if (curRun.size() > 1)
             newRuns.push_back(curRun);
-
         
         runs = newRuns;
+        
+//        wkLogLevel(Debug,"Found %d runs",runs.size());
+//        for (unsigned int ii=0;ii<runs.size();ii++)
+//            wkLogLevel(Debug, "  Run %d: %d points",ii,runs[ii].size());
     }
     
     if (runs.empty())
@@ -251,12 +253,16 @@ void LinearTextBuilder::process()
 
         for (const auto &run: runs) {
             // Generalize the source line
-            auto newRun = LineGeneralization(run,generalEps,0,run.size());
+            auto newRun = LineGeneralization(run,generalEps,0,run.size()-1);
             if (newRun.size() > 1)
                 newRuns.push_back(newRun);
         }
-        
+                
         runs = newRuns;
+
+//        wkLogLevel(Debug,"Generalize %d runs",runs.size());
+//        for (unsigned int ii=0;ii<runs.size();ii++)
+//            wkLogLevel(Debug, "  Run %d: %d points",ii,runs[ii].size());
     }
 
     if (runs.empty())
@@ -275,6 +281,10 @@ void LinearTextBuilder::process()
             newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
         }
         runs = newRuns;
+
+//        wkLogLevel(Debug,"Offset %d runs",runs.size());
+//        for (unsigned int ii=0;ii<runs.size();ii++)
+//            wkLogLevel(Debug, "  Run %d: %d points",ii,runs[ii].size());
     }
         
     // Break up runs at unlikely angles
