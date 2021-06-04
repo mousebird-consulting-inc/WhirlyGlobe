@@ -32,6 +32,7 @@ void BasicDrawableInstanceBuilder::Init()
     drawInst->programID = EmptyIdentity;
     drawInst->enable = true;
     drawInst->masterID = EmptyIdentity;
+    drawInst->instID = EmptyIdentity;
     drawInst->requestZBuffer = false;
     drawInst->writeZBuffer = true;
     drawInst->startEnable = 0.0;
@@ -59,6 +60,11 @@ void BasicDrawableInstanceBuilder::setMasterID(SimpleIdentity baseDrawID,BasicDr
 {
     drawInst->masterID = baseDrawID;
     drawInst->instanceStyle = style;
+}
+
+void BasicDrawableInstanceBuilder::setInstID(SimpleIdentity instDrawID)
+{
+    drawInst->instID = instDrawID;
 }
 
 void BasicDrawableInstanceBuilder::setOnOff(bool onOff)

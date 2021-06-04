@@ -200,6 +200,10 @@ public:
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const UniformBlock &uniBlock);
     
+    /// If there's a calculation pass, this is the data we'll pass in.
+    /// This is just for Metal at the moment.
+    virtual void setCalculationData(int numEntries,std::vector<RawDataRef> &data);
+    
     /// Add a tweaker to be run before each frame
     virtual void addTweaker(const DrawableTweakerRef &tweak);
 
@@ -260,6 +264,10 @@ public:
     unsigned int numPoints, numTris;
     RGBAColor color;
     bool hasOverrideColor;  // If set, we've changed the default color
+    
+    // For an optional calculation phase, we just pass in raw buffer data
+    int calcDataEntries;
+    std::vector<RawDataRef> calcData;
 
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;

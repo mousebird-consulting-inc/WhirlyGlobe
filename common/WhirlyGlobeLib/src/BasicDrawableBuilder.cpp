@@ -86,6 +86,8 @@ void BasicDrawableBuilder::Init()
     basicDraw->writeZBuffer = true;
     basicDraw->renderTargetID = EmptyIdentity;
     
+    basicDraw->calcDataEntries = 0;
+    
     basicDraw->clipCoords = false;
     
     basicDraw->hasMatrix = false;
@@ -430,6 +432,11 @@ void BasicDrawableBuilder::addNormal(const Point3f &norm)
         return;
     
     basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(norm);
+}
+
+void BasicDrawableBuilder::setCalculationData(int numEntries,std::vector<RawDataRef> &data)
+{
+    basicDraw->setCalculationData(numEntries, data);
 }
 
 void BasicDrawableBuilder::addNormal(const Point3d &norm)

@@ -476,6 +476,11 @@ void BasicDrawableInstanceMTL::enumerateBuffers(ResourceRefsMTL &resources)
         resources.addEntry(basicDrawMTL->mainBuffer);
     resources.addEntry(mainBuffer);
 
+    BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
+    if (instDrawMTL)
+        for (const auto &calcBuf: instDrawMTL->calcBuffers)
+            resources.addEntry(calcBuf);
+
     if (vertABInfo)
         vertABInfo->addResources(resources);
     if (fragABInfo)
@@ -513,6 +518,9 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     if (!basicDrawMTL)
         return;
 
+    // Used if we're getting our instance from another drawable
+    BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
+
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
     
     // Wire up the various inputs that we know about
@@ -544,6 +552,16 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     // Instances go to the vertex shader if they're present
     if (instBuffer.buffer)
         [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+    
+    // Instances actually come from another drawable
+    // There may be several buffers (imagine particles)
+    if (instDrawMTL) {
+        for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
+            const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer+ii];
+        }
+    }
+
     
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
@@ -632,6 +650,30 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                     break;
             }
             break;
+        case ReferenceStyle:
+            if (!instDrawMTL)
+                return;
+            // Model instancing from another drawable
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                                  vertexStart:0
+                                  vertexCount:basicDrawMTL->numPts
+                                instanceCount:instDrawMTL->numCalcEntries];
+                    break;
+                case Triangles:
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                          indexCount:basicDrawMTL->numTris*3
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
+                                       instanceCount:instDrawMTL->numCalcEntries];
+                    break;
+                default:
+                    break;
+            }
+
+            break;
     }
 }
 
@@ -688,6 +730,9 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
         NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
         return;
     }
+    
+    // Used if we're getting our instance from another drawable
+    BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
 
@@ -719,6 +764,15 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     // Instances go to the vertex shader if they're present
     if (instBuffer.buffer)
         [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+    
+    // Instances actually come from another drawable
+    // There may be several buffers (imagine particles)
+    if (instDrawMTL) {
+        for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
+            const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer+ii];
+        }
+    }
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
@@ -788,6 +842,32 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
                                    indexBufferOffset:basicDrawMTL->triBuffer.offset
                                        instanceCount:numInst
+                                          baseVertex:0
+                                        baseInstance:0];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case ReferenceStyle:
+            if (!instDrawMTL)
+                return;
+            // Model instancing from another drawable
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                                  vertexStart:0
+                                  vertexCount:basicDrawMTL->numPts
+                                instanceCount:instDrawMTL->numCalcEntries
+                                 baseInstance:0];
+                    break;
+                case Triangles:
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                          indexCount:basicDrawMTL->numTris*3
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
+                                       instanceCount:instDrawMTL->numCalcEntries
                                           baseVertex:0
                                         baseInstance:0];
                     break;

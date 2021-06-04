@@ -23,7 +23,6 @@
 #import "BasicDrawableInstanceBuilderMTL.h"
 #import "BillboardDrawableBuilderMTL.h"
 #import "ScreenSpaceDrawableBuilderMTL.h"
-#import "ParticleSystemDrawableBuilderMTL.h"
 #import "WideVectorDrawableBuilderMTL.h"
 #import "RenderTargetMTL.h"
 #import "DynamicTextureAtlasMTL.h"
@@ -1079,7 +1078,7 @@ ScreenSpaceDrawableBuilderRef SceneRendererMTL::makeScreenSpaceDrawableBuilder(c
 
 ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBuilder(const std::string &name) const
 {
-    return std::make_shared<ParticleSystemDrawableBuilderMTL>(name,scene);
+    return nullptr;
 }
 
 WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const

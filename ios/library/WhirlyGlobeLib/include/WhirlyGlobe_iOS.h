@@ -50,8 +50,6 @@
 #import "BasicDrawableInstanceMTL.h"
 #import "BasicDrawableInstanceBuilderMTL.h"
 #import "BillboardDrawableBuilderMTL.h"
-#import "ParticleSystemDrawableMTL.h"
-#import "ParticleSystemDrawableBuilderMTL.h"
 #import "ScreenSpaceDrawableBuilderMTL.h"
 #import "WideVectorDrawableBuilderMTL.h"
 #import "ProgramMTL.h"

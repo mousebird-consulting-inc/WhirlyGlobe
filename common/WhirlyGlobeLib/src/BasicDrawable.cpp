@@ -449,6 +449,12 @@ void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
     
     uniBlocks.push_back(uniBlock);
 }
+
+void BasicDrawable::setCalculationData(int numEntries,std::vector<RawDataRef> &data)
+{
+    calcDataEntries = numEntries;
+    calcData = data;
+}
     
 void BasicDrawable::addTweaker(const DrawableTweakerRef &tweak)
 {

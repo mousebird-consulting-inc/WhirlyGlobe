@@ -38,8 +38,13 @@ class BasicDrawableInstance : virtual public Drawable
 friend class BasicDrawableInstanceBuilder;
     
 public:
-    /// Either the old style where we reuse drawables or the new style, largely for models
-    typedef enum {ReuseStyle,LocalStyle,GPUStyle} Style;
+    /**
+     ReuseStyle - Takes the base geometry and tweaks a few settings (like color, width)
+     LocalStyle - Actual model instancing, with predefined models.
+     ReferenceStyle - Model instance, but the instance come from a BasicDrawable array.
+     GPUStyle - Number of instance is defined by the GPU (currently broken)
+     */
+    typedef enum {ReuseStyle,LocalStyle,ReferenceStyle,GPUStyle} Style;
     
     /// Construct empty
     BasicDrawableInstance(const std::string &name);
@@ -48,6 +53,10 @@ public:
     /// Return the master being instanced
     BasicDrawableRef getMaster() const;
     void setMaster(BasicDrawableRef newMaster);
+    
+    /// Return the instance mastering being used (where we get the instances from)
+    BasicDrawableRef getInstMaster() const;
+    void setInstMaster(BasicDrawableRef newInstMaster);
 
     /// Return the local MBR, if we're working in a non-geo coordinate system
     virtual Mbr getLocalMbr() const;
@@ -60,6 +69,9 @@ public:
     
     /// Return the ID of the drawable this is based on
     SimpleIdentity getMasterID() const;
+    
+    /// Return the ID of the drawable we get the instance arrays from
+    SimpleIdentity getInstID() const;
     
     /// For OpenGLES2, this is the program to use to render this drawable.
     virtual SimpleIdentity getProgram() const;
@@ -183,7 +195,9 @@ protected:
     SimpleIdentity programID;
     bool requestZBuffer,writeZBuffer;
     SimpleIdentity masterID;
+    SimpleIdentity instID;
     BasicDrawableRef basicDraw;
+    BasicDrawableRef instDraw;
     bool enable;
     TimeInterval startEnable,endEnable;
     bool hasDrawOrder = false;
