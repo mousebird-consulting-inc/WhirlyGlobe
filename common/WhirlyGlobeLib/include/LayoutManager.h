@@ -226,7 +226,10 @@ public:
     
     /// Add a generator for cluster images
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
-    
+
+    bool getShowDebugBoundaries() const { return showDebugBoundaries; }
+    void setShowDebugBoundaries(bool show) { showDebugBoundaries = show; }
+
 protected:
     static bool calcScreenPt(Point2f &objPt,
                              const LayoutObject *layoutObj,
@@ -263,6 +266,8 @@ protected:
     int maxDisplayObjects;
     /// If there were updates since the last layout
     bool hasUpdates;
+    /// Enable drawing layout boundaries
+    bool showDebugBoundaries;
     /// Objects we're controlling the placement for
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round

@@ -57,6 +57,8 @@ class ClusteredMarkersTestCase(activity: Activity?) :
         controller.addTexture(loadIcon(name), TextureSettings(), ThreadMode.ThreadCurrent)
 
     private fun insertClusteredMarkers(vectors: List<VectorObject>, inController: BaseController) {
+        controller.showDebugLayoutBoundaries = true
+
         val iconSize = Point2d(64.0, 64.0)
         val clusterMarkers: MutableList<ScreenMarker> = ArrayList(vectors.size)
         val pointMarkers: MutableList<ScreenMarker> = ArrayList(vectors.size)

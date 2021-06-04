@@ -57,6 +57,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenera
 
 /*
  * Class:     com_mousebird_maply_LayoutManager
+ * Method:    setShowDebugLayoutBoundaries
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setShowDebugLayoutBoundaries
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_LayoutManager
+ * Method:    getShowDebugLayoutBoundaries
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_getShowDebugLayoutBoundaries
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LayoutManager
  * Method:    nativeInit
  * Signature: ()V
  */

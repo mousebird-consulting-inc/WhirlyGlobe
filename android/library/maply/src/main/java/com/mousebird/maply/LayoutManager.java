@@ -77,7 +77,14 @@ class LayoutManager
 	 * Removes all cluster generators
  	 */
 	public native void clearClusterGenerators();
-	
+
+
+	/**
+	 * Draw the edges of layout objects for debugging/troubleshooting
+	 */
+	public native void setShowDebugLayoutBoundaries(boolean show);
+	public native boolean getShowDebugLayoutBoundaries();
+
 	static
 	{
 		nativeInit();

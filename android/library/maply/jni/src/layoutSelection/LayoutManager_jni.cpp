@@ -129,9 +129,9 @@ public:
     typedef std::set<ClusterInfo> ClusterInfoSet;
 
     LayoutManagerWrapper(PlatformThreadInfo *threadInfo, LayoutManagerRef layoutManager)
-        : layoutManager(layoutManager)
+        : layoutManager(std::move(layoutManager))
     {
-        layoutManager->addClusterGenerator(threadInfo,this);
+        this->layoutManager->addClusterGenerator(threadInfo,this);
     }
 
     virtual ~LayoutManagerWrapper()
@@ -501,4 +501,39 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenera
     {
         __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
     }
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setShowDebugLayoutBoundaries
+        (JNIEnv *env, jobject obj, jboolean show)
+{
+    try
+    {
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            wrap->layoutManager->setShowDebugBoundaries(show);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::setShowDebugLayoutBoundaries()");
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_getShowDebugLayoutBoundaries
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            return wrap->layoutManager->getShowDebugBoundaries();
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::getShowDebugLayoutBoundaries()");
+    }
+    return false;
 }

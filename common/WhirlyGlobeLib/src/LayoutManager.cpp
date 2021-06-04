@@ -25,9 +25,6 @@
 
 using namespace Eigen;
 
-// Un-comment to draw the boundaries of the layout objects for debugging
-//#define DEBUG_DRAW_LAYOUT_OBJS
-
 namespace WhirlyKit
 {
 
@@ -75,8 +72,12 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
     changed = true;
 }
     
-LayoutManager::LayoutManager()
-    : maxDisplayObjects(0), hasUpdates(false), clusterGen(nullptr), vecProgID(EmptyIdentity)
+LayoutManager::LayoutManager() :
+    maxDisplayObjects(0),
+    hasUpdates(false),
+    showDebugBoundaries(false),
+    clusterGen(nullptr),
+    vecProgID(EmptyIdentity)
 {
 }
     
@@ -824,17 +825,17 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 }
                                 
                                 // Translate the glyph into that position
-                                Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
-                                                                  (worldScreenPt.y()-centerPt.y())/2.0));
-                                double ang = -1.0 * (atan2(norm.y(),norm.x()) - M_PI/2.0 + (flipped ? M_PI : 0.0));
-                                Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
+                                const Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
+                                                                        (worldScreenPt.y()-centerPt.y())/2.0));
+                                const double ang = -(atan2(norm.y(),norm.x()) - M_PI_2 + (flipped ? M_PI : 0.0));
+                                const Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
                                 Matrix3d screenRotMat = Matrix3d::Identity();
                                 for (unsigned ix=0;ix<2;ix++)
                                     for (unsigned iy=0;iy<2;iy++)
                                         screenRotMat(ix, iy) = screenRot(ix, iy);
-                                Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
-                                Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
-                                Matrix3d testMat = screenRotMat * scaleMat * transOrigin.matrix();
+                                const Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
+                                const Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
+                                const Matrix3d testMat = screenRotMat * scaleMat * transOrigin.matrix();
                                 if (flipped)
                                     layoutMats.insert(layoutMats.begin(),overlapMat);
                                 else
@@ -842,10 +843,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                                 // Check for overlap
                                 Point2dVector objPts;  objPts.reserve(4);
-                                for (unsigned int oi=0;oi<4;oi++) {
-                                    Point3d pt = testMat * Point3d(geom.coords[oi].x(),geom.coords[oi].y(),1.0);
-                                    Point2d objPt(pt.x()+centerPt.x(),pt.y()+centerPt.y());
-                                    objPts.push_back(objPt);
+                                for (unsigned int oii=0; oii < 4; oii++) {
+                                    const Point3d pt = testMat * Point3d(geom.coords[oii].x(), geom.coords[oii].y(), 1.0);
+                                    objPts.emplace_back(pt.x()+centerPt.x(),pt.y()+centerPt.y());
                                 }
                                 
 //                                if (!failed) {
@@ -884,11 +884,11 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     
                     if (!layoutInstances.empty()) {
                         isActive = true;
+                        hadChanges = true;
                         layoutObj->newEnable = true;
                         layoutObj->changed = true;
                         layoutObj->obj.layoutPlaces = layoutInstances;
                         layoutObj->obj.layoutModelPlaces = layoutModelInstances;
-                        hadChanges |= layoutObj->changed;
                         layoutObj->newCluster = -1;
                         layoutObj->offset = Point2d(0.0,0.0);
                     } else {
@@ -988,10 +988,11 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     thisObjPt = Point2d(offPt.x(),-offPt.y()) + objPt.cast<double>();
                                 }
 
-#if defined(DEBUG_DRAW_LAYOUT_OBJS)
-                                // Debugging visual output
-                                addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,changes);
-#endif
+                                if (showDebugBoundaries)
+                                {
+                                    // Debugging visual output
+                                    addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,changes);
+                                }
 
 //                            wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
 //                            wkLogLevel(Debug, "Layout Pts");

@@ -2429,6 +2429,30 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 	}
 
+	public boolean getShowDebugLayoutBoundaries() {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				return lm.getShowDebugLayoutBoundaries();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Show the edges of layout objects for debugging/troubleshooting
+	 */
+	public void setShowDebugLayoutBoundaries(boolean show) {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				lm.setShowDebugLayoutBoundaries(show);
+			}
+		}
+	}
+
 	/**
 	 * True if the renderer was set up as offline.
 	 * Never going to be true for this.
