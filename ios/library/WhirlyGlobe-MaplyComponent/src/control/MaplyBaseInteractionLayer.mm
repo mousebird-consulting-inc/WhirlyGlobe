@@ -3059,6 +3059,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             wkPartSys.texIDs.push_back(maplyTex.texID);
             compObj->contents->texs.insert(maplyTex);
         }
+        // For Metal we just pass in a few data arrays and let the calculation shader
+        //  do the rest
+        wkPartSys.totalParticles = partSys.numDataEntries;
+        for (NSData *partData in partSys.dataArrays)
+            wkPartSys.partData.push_back(std::make_shared<RawNSDataReader>(partData));
         
         SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);
         partSys.ident = partSysID;

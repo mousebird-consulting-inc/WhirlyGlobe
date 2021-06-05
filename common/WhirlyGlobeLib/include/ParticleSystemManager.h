@@ -57,6 +57,7 @@ public:
     std::vector<SingleVertexAttributeInfo> varyingAttrs;
     std::vector<SimpleIdentity> varyNames;
     std::vector<SimpleIdentity> texIDs;
+    std::vector<RawDataRef> partData;  // Used for Metal particles
 };
 
 /// Holds the data for a batch of particles
@@ -90,7 +91,7 @@ public:
     std::set<ParticleSystemDrawable *> draws;
     // For Metal we just use instances
     SimpleIDSet basicIDs;
-    SimpleIDSet instIDS;
+    SimpleIDSet instIDs;
 };
     
 typedef std::map<SimpleIdentity,ParticleSystemSceneRep *> ParticleSystemSceneRepSet;

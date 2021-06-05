@@ -101,6 +101,12 @@ using namespace WhirlyKit;
     self.attrs.insert(attr);
 }
 
+- (void)addCalculationNum:(int)numEntries data:(NSMutableArray<NSData *> *)dataEntries
+{
+    self.numDataEntries = numEntries;
+    self.dataArrays = dataEntries;
+}
+
 - (void)addTexture:(id)image
 {
     _images.push_back(image);

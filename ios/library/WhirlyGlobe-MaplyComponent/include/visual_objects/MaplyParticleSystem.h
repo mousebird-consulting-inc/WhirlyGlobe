@@ -137,6 +137,12 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 - (void)addVarying:(NSString *__nonnull)varyAttrName inputName:(NSString *__nonnull)inputName type:(MaplyShaderAttrType)type;
 
+/**
+ For Metal, we just pass in input and output arrays (at least two) along with the number of entries
+ in those arrays.  The shaders do the rest of the work in Metal.
+ */
+- (void)addCalculationNum:(int)numEntries data:(NSMutableArray<NSData *> * __nonnull)dataEntries;
+
 /** 
     Add a texture to the particle system.
     

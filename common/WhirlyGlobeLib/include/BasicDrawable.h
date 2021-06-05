@@ -202,7 +202,7 @@ public:
     
     /// If there's a calculation pass, this is the data we'll pass in.
     /// This is just for Metal at the moment.
-    virtual void setCalculationData(int numEntries,std::vector<RawDataRef> &data);
+    virtual void setCalculationData(int numEntries,const std::vector<RawDataRef> &data);
     
     /// Add a tweaker to be run before each frame
     virtual void addTweaker(const DrawableTweakerRef &tweak);

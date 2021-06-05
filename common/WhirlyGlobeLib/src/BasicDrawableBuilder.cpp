@@ -434,7 +434,7 @@ void BasicDrawableBuilder::addNormal(const Point3f &norm)
     basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(norm);
 }
 
-void BasicDrawableBuilder::setCalculationData(int numEntries,std::vector<RawDataRef> &data)
+void BasicDrawableBuilder::setCalculationData(int numEntries,const std::vector<RawDataRef> &data)
 {
     basicDraw->setCalculationData(numEntries, data);
 }

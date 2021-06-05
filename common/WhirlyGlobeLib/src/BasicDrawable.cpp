@@ -450,7 +450,7 @@ void BasicDrawable::setUniBlock(const UniformBlock &uniBlock)
     uniBlocks.push_back(uniBlock);
 }
 
-void BasicDrawable::setCalculationData(int numEntries,std::vector<RawDataRef> &data)
+void BasicDrawable::setCalculationData(int numEntries,const std::vector<RawDataRef> &data)
 {
     calcDataEntries = numEntries;
     calcData = data;
