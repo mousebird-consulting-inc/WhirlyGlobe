@@ -1,4 +1,4 @@
-/*  FontTextureManagerAndroid.cpp
+/*  FontTextureManager_Android.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -27,7 +27,7 @@ namespace WhirlyKit
 {
 
 // There's a constant on the Java side correspond go this as well
-static const float BogusFontScale = 2.0f;
+static const float BogusFontScale = 1.0f;
 
 FontTextureManager_Android::FontManager_Android::FontManager_Android(PlatformThreadInfo *inst,jobject inTypefaceObj) :
 	typefaceObj(((PlatformInfo_Android*)inst)->env->NewGlobalRef(inTypefaceObj))
@@ -198,8 +198,7 @@ DrawableString *FontTextureManager_Android::addString(
 					{
 						assert(info.width * 4 == info.stride);
 
-						MutableRawData *rawData = new MutableRawData(bitmapPixels,
-																	 info.height * info.width * 4);
+						auto rawData = new MutableRawData(bitmapPixels, info.height * info.width * 4);
 						TextureGLES tex("FontTextureManager");
 						tex.setRawData(rawData, info.width, info.height);
 
@@ -248,14 +247,14 @@ DrawableString *FontTextureManager_Android::addString(
         {
             // Now we make a rectangle that covers the glyph in its texture atlas
             DrawableString::Rect rect;
-			const float scale = 1.0/BogusFontScale;
+			const float scale = 1.0f/BogusFontScale;
             const Point2f offset(offsetX,-glyphInfo->offset.y()*scale);
 
             // Note: was -1,-1
-            rect.pts[0] = Point2f(glyphInfo->offset.x()*scale-glyphInfo->textureOffset.x()*scale,glyphInfo->offset.y()*scale-glyphInfo->textureOffset.y()*scale)+offset;
+            rect.pts[0] = (glyphInfo->offset - glyphInfo->textureOffset) * scale + offset;
             rect.texCoords[0] = TexCoord(0.0,1.0);
             // Note: was 2,2
-            rect.pts[1] = Point2f(glyphInfo->size.x()*scale+2*glyphInfo->textureOffset.x()*scale,glyphInfo->size.y()*scale+2*glyphInfo->textureOffset.y()*scale)+rect.pts[0];
+            rect.pts[1] = (glyphInfo->size + glyphInfo->textureOffset) * scale + rect.pts[0];
             rect.texCoords[1] = TexCoord(1.0,0.0);
 
             rect.subTex = glyphInfo->subTex;
@@ -272,27 +271,28 @@ DrawableString *FontTextureManager_Android::addString(
     drawStringRep->addGlyphs(fm->getId(),glyphsUsed);
     fm->addGlyphRefs(glyphsUsed);
 
-    // If it didn't produce anything, just delete it now
-    if (drawString->glyphPolys.empty())
-    {
-        delete drawString;
-        delete drawStringRep;
-        drawString = NULL;
-    }
-
-    // We need to track the glyphs we're using
-    drawStringReps.insert(drawStringRep);
-
-    return drawString;
+	// If it didn't produce anything, just delete it now
+	if (drawString->glyphPolys.empty())
+	{
+		delete drawString;
+		delete drawStringRep;
+		return nullptr;
+	}
+	else
+	{
+		// We need to track the glyphs we're using
+		drawStringReps.insert(drawStringRep);
+		return drawString;
+	}
 }
 
 FontTextureManager_Android::FontManager_AndroidRef FontTextureManager_Android::findFontManagerForFont(PlatformInfo_Android *threadInfo,jobject typefaceObj,const LabelInfo &inLabelInfo)
 {
 	const LabelInfoAndroid &labelInfo = (LabelInfoAndroid &)inLabelInfo;
 
-	for (auto it : fontManagers)
+	for (const auto &it : fontManagers)
 	{
-		if (const auto fm = std::dynamic_pointer_cast<FontManager_Android>(it.second))
+		if (auto fm = std::dynamic_pointer_cast<FontManager_Android>(it.second))
 		{
 			if (fm->pointSize == labelInfo.fontSize &&
 				fm->color == labelInfo.textColor &&
@@ -306,7 +306,7 @@ FontTextureManager_Android::FontManager_AndroidRef FontTextureManager_Android::f
 	}
 
 	// Didn't find it, so create it
-	const auto fm = std::make_shared<FontManager_Android>(threadInfo,typefaceObj);
+	auto fm = std::make_shared<FontManager_Android>(threadInfo,typefaceObj);
 	fm->color = labelInfo.textColor;
 	fm->pointSize = labelInfo.fontSize;
 	fm->outlineColor = labelInfo.outlineColor;
