@@ -49,6 +49,10 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	
 	public void shutdown()
 	{
+		// prevent any more tasks from being started
+		maplyControl.clear();
+
+		// cancel anything already pending
 		cancelUpdate();
 
 		layoutManager.clearClusterGenerators();
@@ -161,7 +165,7 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		if (state != null) {
 			BaseController control = maplyControl.get();
 			Scene scene = (control != null) ? control.scene : null;
-			if (scene != null) {
+			if (scene != null && control.isRunning()) {
 				ChangeSet changes = new ChangeSet();
 				layoutManager.updateLayout(state, changes);
 				control.scene.addChanges(changes);

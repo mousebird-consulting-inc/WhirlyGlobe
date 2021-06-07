@@ -143,7 +143,10 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         VectorObjectRef newVecObj = vecObj;
         if (dropGridLines)
         {
-            newVecObj = newVecObj->filterClippedEdges();
+            if (auto clipped = newVecObj->filterClippedEdges())
+            {
+                newVecObj = std::move(clipped);
+            }
         }
         
         if (newVecObj->getVectorType() == VectorArealType)

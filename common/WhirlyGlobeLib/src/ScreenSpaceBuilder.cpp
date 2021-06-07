@@ -278,7 +278,7 @@ ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const 
     if (it == drawables.end())
     {
         // Nope, create one
-        drawWrap = DrawableWrapRef(new DrawableWrap(sceneRender,state));
+        drawWrap = std::make_shared<DrawableWrap>(sceneRender,state);
         drawWrap->center = center;
         Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
         Eigen::Matrix4d transMat = trans.matrix();

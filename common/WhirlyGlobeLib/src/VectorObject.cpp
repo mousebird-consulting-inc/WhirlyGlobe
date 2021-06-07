@@ -1202,15 +1202,15 @@ VectorObjectRef VectorObject::filterClippedEdges() const
                     continue;
 
                 // Compare segments against the bounding box
-                Mbr mbr;
-                mbr.addPoints(loop);
+                const Mbr mbr(loop);
                 
                 int which = 0;
                 while (which < loop.size()) {
                     VectorRing pts;
+                    pts.reserve(loop.size());
                     while (which < loop.size()) {
-                        auto p0 = loop[which];
-                        auto p1 = loop[(which+1)%loop.size()];
+                        const auto &p0 = loop[which];
+                        const auto &p1 = loop[(which+1)%loop.size()];
                         
                         which++;
                         if (p0 == p1)
@@ -1222,21 +1222,21 @@ VectorObjectRef VectorObject::filterClippedEdges() const
                         } else {
                             if (pts.empty() || pts.back() != p0)
                                 pts.push_back(p0);
-                                if (pts.empty() || pts.back() != p1)
-                                    pts.push_back(p1);
-                                    }
+                            if (pts.back() != p1)
+                                pts.push_back(p1);
+                        }
                     }
                     
                     if (!pts.empty()) {
                         const auto newLn = VectorLinear::createLinear();
                         newLn->setAttrDict(ar->getAttrDict());
-                        newLn->pts = pts;
+                        newLn->pts = std::move(pts);
                         newVec->shapes.insert(newLn);
                     }
                 }
             }
-        } else if (const auto ln = std::dynamic_pointer_cast<VectorLinear>(shape)) {
-            newVec->shapes.insert(ln);
+        } else if (auto ln = std::dynamic_pointer_cast<VectorLinear>(shape)) {
+            newVec->shapes.insert(std::move(ln));
         }
     }
     
