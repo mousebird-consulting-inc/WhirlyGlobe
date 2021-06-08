@@ -412,10 +412,14 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 {
     bool ret = false;
     
+    // Either regular program or calculation program
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
     if (!prog) {
-        NSLog(@"Drawable %s missing program.",name.c_str());
-        return false;
+        prog = (ProgramMTL *)scene->getProgram(calcProgramId);
+        if (!prog) {
+            NSLog(@"Drawable %s missing program.",name.c_str());
+            return false;
+        }
     }
 
     if (texturesChanged || valuesChanged || prog->changed) {
@@ -734,6 +738,10 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
 
 void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
+    // Ignore calculation drawables
+    if (calcDataEntries > 0)
+        return;
+    
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
     if (!program) {
         NSLog(@"BasicDrawableMTL: Missing programId for %s",name.c_str());

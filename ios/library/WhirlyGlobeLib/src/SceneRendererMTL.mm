@@ -444,14 +444,6 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                                 wkLogLevel(Error, "SceneRendererMTL: Invalid drawable");
                                 continue;
                             }
-
-                            // Figure out the program to use for drawing
-                            SimpleIdentity drawProgramId = drawMTL->getProgram();
-                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
-                            if (!program) {
-                                wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
-                                continue;
-                            }
                             
                             id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
 
@@ -846,11 +838,13 @@ void SceneRendererMTL::render(TimeInterval duration,
                             }
 
                             // Figure out the program to use for drawing
-                            const SimpleIdentity drawProgramId = drawMTL->getProgram();
-                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
+                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawMTL->getProgram());
                             if (!program) {
-                                wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
-                                continue;
+                                program = (ProgramMTL *)scene->getProgram(drawMTL->getCalculationProgram());
+                                if (!program) {
+                                    wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
+                                    continue;
+                                }
                             }
 
                             // For a reduce operation, we want to draw into the first level of the render
