@@ -28,7 +28,7 @@ void SubTexture::setFromTex(const TexCoord &texOrg,const TexCoord &texDest)
 {
     trans = decltype(trans)::Identity();
     trans.translate(texOrg);
-    trans.scale(Point2f(texDest.x()-texOrg.x(),texDest.y()-texOrg.y()));
+    trans.scale(texDest - texOrg);
 }
 
 // Calculate a destination texture coordinate
@@ -43,7 +43,7 @@ void SubTexture::processTexCoords(std::vector<TexCoord> &coords) const
 {
     for (auto &coord : coords)
     {
-        const Vector3f res = trans * Vector3f(coord.x(),coord.y(),1.0);
+        const Vector3f res = trans * Vector3f(coord.x(),coord.y(),1.0f);
         coord.x() = res.x();
         coord.y() = res.y();
     }

@@ -1100,6 +1100,8 @@
  */
 - (void)setLayoutOverrideIDs:(NSArray *__nullable)uuids;
 
+
+
 /**
     Normally the layout layer runs periodically if you change something or when you move around.
     You can ask it to run ASAP right here.  Layout runs on its own thread, so there may still be a delay.
@@ -1432,6 +1434,9 @@
 
 /// Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
+
+/// Turn on/off debug outlines for layout objects
+@property (nonatomic,assign) bool showDebugLayoutBoundaries;
 
 /** 
     See derived class method.

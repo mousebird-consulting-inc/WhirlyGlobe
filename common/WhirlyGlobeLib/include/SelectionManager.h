@@ -205,53 +205,73 @@ public:
     {
     public:
         SelectedObject();
-        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) : distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
-        SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) : selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
+        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) :
+                distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
+        SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) :
+                selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         VectorObjectRef vecObj;     // On the Android side, we use this as a container for selected vectors
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
-        bool isCluster;             // Set if this is a cluster
+        bool isCluster = false;     // Set if this is a cluster
     };
 
     /// Add a rectangle (in 3-space) for selection
-    void addSelectableRect(SimpleIdentity selectId,Point3f *pts,bool enable);
+    void addSelectableRect(SimpleIdentity selectId,const Point3f *pts,bool enable);
     
     /// Add a rectangle (in 3-space) for selection, but only between the given visibilities
-    void addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableRect(SimpleIdentity selectId,const Point3f *pts,
+                           float minVis,float maxVis,bool enable);
     
     /// Add a screen space rectangle (2D) for selection, between the given visibilities
-    void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,
+                                 const Point2f *pts,float minVis,float maxVis,bool enable);
 
     /// Add a screen space rectangle (2D) for selection, between the given visibilities, and it's moving
-    void addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,
+                                       const Point3d &endCenter,TimeInterval startTime,
+                                       TimeInterval endTime,const Point2f *pts,
+                                       float minVis,float maxVis,bool enable);
     
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
-    void addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable);
+    void addSelectableRectSolid(SimpleIdentity selectId,const Point3f *pts,
+                                float minVis,float maxVis,bool enable);
 
     /// This verison takes Point3d
-    void addSelectableRectSolid(SimpleIdentity selectId,Point3d *pts,float minVis,float maxVis,bool enable);
+    void addSelectableRectSolid(SimpleIdentity selectId,const Point3d *pts,
+                                float minVis,float maxVis,bool enable);
 
     /// Add a rectangular solid for selection.  Pass in 8 points (bottom four + top four)
     void addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable);
     
     /// Add a polytope, represented by a set of surfaces
-    void addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable);
+    void addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector> &surfaces,
+                     float minVis,float maxVis,bool enable);
 
     /// Add a polytope
-    void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    void addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,
+                            const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
     
     /// Add a polytope that moves over time
-    void addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    void addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector> &surfaces,
+                           const Point3d &startCenter,const Point3d &endCenter,
+                           TimeInterval startTime,TimeInterval duration,
+                           const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
     
     /// Add a moving polytop from a box
-    void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
+    void addMovingPolytopeFromBox(SimpleIdentity selectID,const Point3d &ll,const Point3d &ur,
+                                  const Point3d &startCenter,const Point3d &endCenter,
+                                  TimeInterval startTime,TimeInterval duration,
+                                  const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable);
 
     /// Add a linear in 3-space for selection.
-    void addSelectableLinear(SimpleIdentity selectId,const Point3dVector &pts,float minVis,float maxVis,bool enable);
+    void addSelectableLinear(SimpleIdentity selectId,const Point3dVector &pts,
+                             float minVis,float maxVis,bool enable);
     
     /// Add a billboard for selection.  Pass in the middle of the base and size
-    void addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable);
+    void addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,
+                                const Point3d &norm,const Point2d &size,
+                                float minVis,float maxVis,bool enable);
     
     /// Remove the given selectable from consideration
     void removeSelectable(SimpleIdentity selectId);

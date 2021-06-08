@@ -99,10 +99,12 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     auto labelRep = new LabelSceneRep();
     labelRep->fadeOut = (float)((labelInfo.fadeOut > 0 && labelInfo.fadeOutTime != 0) ? labelInfo.fadeOut : 0);
     
-    if (maskProgID == EmptyIdentity) {
-        Program *prog = scene->findProgramByName(MaplyScreenSpaceMaskShader);
-        if (prog)
+    if (maskProgID == EmptyIdentity)
+    {
+        if (Program *prog = scene->findProgramByName(MaplyScreenSpaceMaskShader))
+        {
             maskProgID = prog->getId();
+        }
     }
 
     // Set up the label renderer
@@ -115,8 +117,6 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     labelRenderer.scale = renderer->getScale();
    
     labelRenderer.render(threadInfo, labels, changes, cancelFn);
-    
-    changes.insert(changes.end(),labelRenderer.changeRequests.begin(), labelRenderer.changeRequests.end());
 
     // Create screen shapes
     if (!labelRenderer.screenObjects.empty())
@@ -158,9 +158,9 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
             {
                 return EmptyIdentity;
             }
-            auto &selectables2D = labelRenderer.selectables2D;
-            RectSelectable2D &sel = selectables2D[ii];
-            selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            const RectSelectable2D &sel = labelRenderer.selectables2D[ii];
+            selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,
+                                                   sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
@@ -169,9 +169,10 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
             {
                 return EmptyIdentity;
             }
-            auto &movingSelectables2D = labelRenderer.movingSelectables2D;
-            auto &sel = movingSelectables2D[ii];
-            selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,sel.startTime,sel.endTime,sel.pts,sel.minVis,sel.maxVis,sel.enable);
+            const auto &sel = labelRenderer.movingSelectables2D[ii];
+            selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,
+                                                         sel.startTime,sel.endTime,sel.pts,
+                                                         sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
         for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
@@ -180,8 +181,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
             {
                 return EmptyIdentity;
             }
-            auto &selectables3D = labelRenderer.selectables3D;
-            auto &sel = selectables3D[ii];
+            const auto &sel = labelRenderer.selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
@@ -196,7 +196,8 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     return labelID;
 }
 
-void LabelManager::changeLabel(PlatformThreadInfo *,SimpleIdentity labelID,const LabelInfo &labelInfo,ChangeSet &changes)
+void LabelManager::changeLabel(PlatformThreadInfo *,SimpleIdentity labelID,
+                               const LabelInfo &labelInfo,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
@@ -247,7 +248,7 @@ void LabelManager::removeLabels(PlatformThreadInfo *inst,const SimpleIDSet &labe
     
     std::lock_guard<std::mutex> guardLock(lock);
 
-    TimeInterval curTime = scene->getCurrentTime();
+    const TimeInterval curTime = scene->getCurrentTime();
     for (const auto &lbl : labelIDs)
     {
         LabelSceneRep dummyRep(lbl);

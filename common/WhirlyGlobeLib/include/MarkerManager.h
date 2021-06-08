@@ -43,13 +43,17 @@ class MarkerSceneRep : public Identifiable
 {
 public:
     MarkerSceneRep();
-    ~MarkerSceneRep() { };
+    ~MarkerSceneRep() = default;
 
     // Clear the contents out of the scene
-    void clearContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,ChangeSet &changes,TimeInterval when);
+    void clearContents(const SelectionManagerRef &selectManager,
+                       const LayoutManagerRef &layoutManager,
+                       ChangeSet &changes,TimeInterval when);
     
     // Enable/disable marker related features
-    void enableContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,bool enable,ChangeSet &changes);
+    void enableContents(const SelectionManagerRef &selectManager,
+                        const LayoutManagerRef &layoutManager,
+                        bool enable,ChangeSet &changes);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
