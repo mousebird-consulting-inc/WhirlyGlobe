@@ -65,7 +65,7 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
 
-    _ident = WhirlyKit::EmptyIdentity;
+    _ident = Identifiable::genId();
     _name = name;
     _type = MaplyParticleSystemTypePoint;
     _lifetime = 5.0;

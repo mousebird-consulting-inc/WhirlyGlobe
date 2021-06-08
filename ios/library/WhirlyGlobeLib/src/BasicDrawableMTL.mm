@@ -32,7 +32,7 @@ namespace WhirlyKit
 {
 
 BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
-    : BasicDrawable(name), Drawable(name), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0),numCalcEntries(0),vertHasTextures(false),fragHasTextures(false),vertHasLighting(false),fragHasLighting(false)
+    : BasicDrawable(name), Drawable(name), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0),vertHasTextures(false),fragHasTextures(false),vertHasLighting(false),fragHasLighting(false)
 {
 }
 
@@ -100,6 +100,15 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     
     // Construct the buffer we've been adding to
     mainBuffer = buffBuild.buildBuffer();
+    
+    // If this is a calculation drawable, we need to build the data buffers
+    // We're not going to merge these into a main buffer, they're meant to be big
+    for (const auto &thisData : calcData) {
+        auto newBuff = setupInfo->heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable,
+                                                            thisData->getRawData(),
+                                                            thisData->getLen());
+        calcBuffers.push_back(newBuff);
+    }
     
     setupForMTL = true;
 }
@@ -282,6 +291,9 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
         return renderState;
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,program,renderTarget);
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
+    // Calculation drawables don't rasterize
+    if (calcDataEntries > 0)
+        renderDesc.rasterizationEnabled = false;
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
 
@@ -552,6 +564,10 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 void BasicDrawableMTL::enumerateBuffers(ResourceRefsMTL &resources)
 {
     resources.addEntry(mainBuffer);
+    
+    for (const auto &calcBuf: calcBuffers)
+        resources.addEntry(calcBuf);
+    
     if (vertABInfo)
         vertABInfo->addResources(resources);
     if (fragABInfo)
@@ -681,7 +697,7 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
     if (calcDataEntries <= 0)
         return;
     
-    ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
+    ProgramMTL *program = (ProgramMTL *)scene->getProgram(calcProgramId);
     if (!program) {
         NSLog(@"BasicDrawableMTL: Missing programId for %s",name.c_str());
         return;

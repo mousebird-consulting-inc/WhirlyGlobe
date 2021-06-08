@@ -352,9 +352,14 @@ void BasicDrawable::updateRenderer(SceneRenderer *renderer)
         renderer->addExtraFrameRenderRequest(getId(), extraFrames);
 }
 
+void BasicDrawable::setCalculationProgram(SimpleIdentity progID)
+{
+    calcProgramId = progID;
+}
+
 SimpleIdentity BasicDrawable::getCalculationProgram() const
 {
-    return EmptyIdentity;
+    return calcProgramId;
 }
         
 /// Return the active transform matrix, if we have one

@@ -659,7 +659,7 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                     [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
                                   vertexStart:0
                                   vertexCount:basicDrawMTL->numPts
-                                instanceCount:instDrawMTL->numCalcEntries];
+                                instanceCount:instDrawMTL->calcDataEntries];
                     break;
                 case Triangles:
                     [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
@@ -667,7 +667,7 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                                            indexType:MTLIndexTypeUInt16
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
                                    indexBufferOffset:basicDrawMTL->triBuffer.offset
-                                       instanceCount:instDrawMTL->numCalcEntries];
+                                       instanceCount:instDrawMTL->calcDataEntries];
                     break;
                 default:
                     break;
@@ -858,7 +858,7 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                     [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
                                   vertexStart:0
                                   vertexCount:basicDrawMTL->numPts
-                                instanceCount:instDrawMTL->numCalcEntries
+                                instanceCount:instDrawMTL->calcDataEntries
                                  baseInstance:0];
                     break;
                 case Triangles:
@@ -867,7 +867,7 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                                            indexType:MTLIndexTypeUInt16
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
                                    indexBufferOffset:basicDrawMTL->triBuffer.offset
-                                       instanceCount:instDrawMTL->numCalcEntries
+                                       instanceCount:instDrawMTL->calcDataEntries
                                           baseVertex:0
                                         baseInstance:0];
                     break;

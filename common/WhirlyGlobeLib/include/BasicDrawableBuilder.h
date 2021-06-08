@@ -114,6 +114,9 @@ public:
 
     /// For OpenGLES2, you can set the program to use in rendering
     void setProgram(SimpleIdentity progId);
+    
+    /// Program use for calculation phase
+    void setCalculationProgram(SimpleIdentity progId);
 
     /// Add a tweaker to this list to be run each frame
     void addTweaker(const DrawableTweakerRef &tweakRef);
