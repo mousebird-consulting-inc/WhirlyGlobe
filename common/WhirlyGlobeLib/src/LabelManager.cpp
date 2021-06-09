@@ -96,7 +96,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     const auto fontTexManager = scene->getFontTextureManager();
 
     // Set up the representation (but then hand it off)
-    auto labelRep = new LabelSceneRep();
+    auto labelRep = std::make_unique<LabelSceneRep>();
     labelRep->fadeOut = (float)((labelInfo.fadeOut > 0 && labelInfo.fadeOutTime != 0) ? labelInfo.fadeOut : 0);
     
     if (maskProgID == EmptyIdentity)
@@ -111,7 +111,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     LabelRenderer labelRenderer(scene,renderer,fontTexManager,&labelInfo,maskProgID);
     labelRenderer.textureAtlasSize = (int)textureAtlasSize;
     labelRenderer.coordAdapter = scene->getCoordAdapter();
-    labelRenderer.labelRep = labelRep;
+    labelRenderer.labelRep = labelRep.get();
     labelRenderer.scene = scene;
     labelRenderer.fontTexManager = (labelInfo.screenObject ? fontTexManager : nullptr);
     labelRenderer.scale = renderer->getScale();
@@ -190,7 +190,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     SimpleIdentity labelID = labelRep->getId();
     {
         std::lock_guard<std::mutex> guardLock(lock);
-        labelReps.insert(labelRep);
+        labelReps.insert(labelRep.release());
     }
     
     return labelID;

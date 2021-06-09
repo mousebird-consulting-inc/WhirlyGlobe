@@ -33,8 +33,10 @@ Mbr::Mbr(const MbrD &inMbr) :
 Mbr::Mbr(const Point2fVector &pts)
     : pt_ll(0,0), pt_ur(-1,-1)
 {
-	for (unsigned int ii=0;ii<pts.size();ii++)
-		addPoint(pts[ii]);
+    for (auto const &p : pts)
+    {
+        addPoint(p);
+    }
 }
 
 bool Mbr::operator == (const Mbr &that) const
@@ -128,12 +130,13 @@ bool Mbr::overlaps(const Mbr &that) const
 	
 float Mbr::area() const
 {
-	return (pt_ur.x() - pt_ll.x())*(pt_ur.y() - pt_ll.y());
+    auto const s = span();
+	return s.x() * s.y();
 }
 
 Point2f Mbr::span() const
 {
-    return Point2f(pt_ur.x()-pt_ll.x(),pt_ur.y()-pt_ll.y());
+    return pt_ur - pt_ll;
 }
 
 void Mbr::expand(const Mbr &that)
@@ -248,14 +251,15 @@ bool MbrD::overlaps(const MbrD &that) const
            overlapOneWay(that,*this);
 }
 
-float MbrD::area() const
+double MbrD::area() const
 {
-    return (pt_ur.x() - pt_ll.x())*(pt_ur.y() - pt_ll.y());
+    auto const s = span();
+    return s.x() * s.y();
 }
 
 Point2d MbrD::span() const
 {
-    return Point2d(pt_ur.x()-pt_ll.x(),pt_ur.y()-pt_ll.y());
+    return pt_ur - pt_ll;
 }
 
 
@@ -305,8 +309,8 @@ MbrD MbrD::intersect(const MbrD &that) const
 // Expand a longitude bound to include a new point, returning the amount expanded
 template<typename T> T expandLonDelta(T &w, T& e, T lon)
 {
-    auto deltaW = 0.0;
-    auto deltaE = 0.0;
+    double deltaW;
+    double deltaE;
     if (w <= e)
     {
         // the span doesn't include the anti-meridian

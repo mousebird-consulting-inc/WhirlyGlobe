@@ -69,7 +69,7 @@ class ScreenLabelsTestCase(activity: Activity?) :
             outlineColor = Color.WHITE
             outlineSize = 2f
             layoutImportance = 1f //Float.MAX_VALUE
-            
+
             setLayoutPlacement(LabelInfo.LayoutRight or LabelInfo.LayoutCenter)
             setTextJustify(LabelInfo.TextJustify.TextLeft)
 
@@ -83,6 +83,7 @@ class ScreenLabelsTestCase(activity: Activity?) :
 
         val labels = ArrayList<ScreenLabel>()
         val markers = ArrayList<ScreenMarker>()
+        var i = 0
         for (vecObj in objects) {
             vecObj.attributes?.let { attrs ->
                 val labelName = attrs.getString("ADMIN")
@@ -100,6 +101,15 @@ class ScreenLabelsTestCase(activity: Activity?) :
                             if (center.y > 0) {
                                 rotation = center.x / 8
                             }
+                            if ((i % 2) == 0) {
+                                // shadow and outline stuff requires separate LabelInfo objects
+                                //shadowColor =
+                                //shadowSize =
+                                layoutPlacement = LabelInfo.LayoutCenter
+                            } else {
+                                //outline
+                                layoutPlacement = LabelInfo.LayoutBelow
+                            }
                         })
                         if (addMarkers) {
                             markers.add(ScreenMarker().apply {
@@ -110,6 +120,7 @@ class ScreenLabelsTestCase(activity: Activity?) :
                     }
                 }
             }
+            i += 1
         }
         
         // Toss in a few with explicit diacritics

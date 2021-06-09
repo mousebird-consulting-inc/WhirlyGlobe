@@ -317,19 +317,19 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             {
                 const Point2d &off = marker->offset;
 
-                layoutObj->selectPts.emplace_back(-width2+off.x(),-height2-off.y());
-                layoutObj->selectPts.emplace_back(width2+off.x(),-height2-off.y());
-                layoutObj->selectPts.emplace_back(width2+off.x(),height2-off.y());
-                layoutObj->selectPts.emplace_back(-width2+off.x(),height2-off.y());
+                layoutObj->selectPts.emplace_back(-width2+off.x(),-height2+off.y());
+                layoutObj->selectPts.emplace_back(width2+off.x(),-height2+off.y());
+                layoutObj->selectPts.emplace_back(width2+off.x(),height2+off.y());
+                layoutObj->selectPts.emplace_back(-width2+off.x(),height2+off.y());
 
                 if (marker->layoutWidth >= 0.0)
                 {
                     const auto w2 = marker->layoutWidth / 2.0;
                     const auto h2 = marker->layoutHeight / 2.0;
-                    layoutObj->layoutPts.emplace_back(-w2+off.x(),-h2-off.y());
-                    layoutObj->layoutPts.emplace_back(w2+off.x(),-h2-off.y());
-                    layoutObj->layoutPts.emplace_back(w2+off.x(),h2-off.y());
-                    layoutObj->layoutPts.emplace_back(-w2+off.x(),h2-off.y());
+                    layoutObj->layoutPts.emplace_back(-w2+off.x(),-h2+off.y());
+                    layoutObj->layoutPts.emplace_back(w2+off.x(),-h2+off.y());
+                    layoutObj->layoutPts.emplace_back(w2+off.x(),h2+off.y());
+                    layoutObj->layoutPts.emplace_back(-w2+off.x(),h2+off.y());
                 } else {
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }

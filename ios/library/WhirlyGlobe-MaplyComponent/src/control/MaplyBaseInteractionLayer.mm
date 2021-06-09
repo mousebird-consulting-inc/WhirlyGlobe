@@ -1436,7 +1436,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     if (auto labelManager = scene->getManager<LabelManager>(kWKLabelManager))
     {
         // Set up a description and create the markers in the marker layer
-        SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
+        SimpleIdentity labelID = labelManager->addLabels(nullptr, wgLabels, labelInfo, changes);
         if (labelID != EmptyIdentity)
         {
             compObj->contents->labelIDs.insert(labelID);

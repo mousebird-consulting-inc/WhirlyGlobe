@@ -22,6 +22,7 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 		insertClusteredMarkers(baseCase.vecList!, theBaseView: globeVC)
 		globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
         globeVC.keepNorthUp = false
+        globeVC.autoMoveToTap = false
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
@@ -29,7 +30,15 @@ class ClusteredMarkersTestCase: MaplyTestCase {
 		insertClusteredMarkers(baseCase.vecList!, theBaseView: mapVC)
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(151.211111, -33.859972), time: 1.0)
         mapVC.rotateGesture = true
+        mapVC.autoMoveToTap = false
 	}
+
+    override func maplyViewController(_ viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
+        viewC.showDebugLayoutBoundaries = !viewC.showDebugLayoutBoundaries
+    }
+    override func globeViewController(_ viewC: WhirlyGlobeViewController, didTapAt coord: MaplyCoordinate) {
+        viewC.showDebugLayoutBoundaries = !viewC.showDebugLayoutBoundaries
+    }
 
 	func insertClusteredMarkers(_ compB : NSArray, theBaseView: MaplyBaseViewController) {
 		let size = CGSize(width: 48, height: 48)

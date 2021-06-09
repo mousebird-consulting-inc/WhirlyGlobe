@@ -262,7 +262,6 @@ protected:
                         const Point2f &frameBufferSize,
                         ChangeSet &changes,
                         int priority = 10000000,
-                        float width = 4.0,
                         RGBAColor color = RGBAColor::black());
     
     VectorManagerRef vecManage;
