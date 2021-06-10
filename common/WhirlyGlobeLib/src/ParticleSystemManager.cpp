@@ -125,7 +125,6 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         instDrawBuild->setProgram(sceneRep->partSys.renderShaderID);
         instDrawBuild->setDrawOrder(sceneRep->partSys.drawOrder);
         instDrawBuild->setDrawPriority(sceneRep->partSys.drawPriority);
-        instDrawBuild->setTexIDs(sceneRep->partSys.texIDs);
         instDrawBuild->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
         instDrawBuild->setRequestZBuffer(sceneRep->partSys.zBufferRead);
         instDrawBuild->setWriteZBuffer(sceneRep->partSys.zBufferWrite);
