@@ -349,6 +349,8 @@ namespace {
 void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL *buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
+    if (!prog)
+        prog = (ProgramMTL *)scene->getProgram(calcProgramId);
     if (!prog)  // This happens if we're being used by an instance
         return;
     
@@ -623,7 +625,7 @@ void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<
     // Wire up the buffers themselves.  One will be input, another output.
     for (unsigned int ii=0;ii<calcBuffers.size();ii++) {
         const BufferEntryMTL &calcBuf = calcBuffers[ii];
-        [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer+ii];
+        [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
     }
 
     [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:calcDataEntries];
@@ -730,7 +732,7 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
     // Wire up the buffers themselves.  One will be input, another output.
     for (unsigned int ii=0;ii<calcBuffers.size();ii++) {
         const BufferEntryMTL &calcBuf = calcBuffers[ii];
-        [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer+ii];
+        [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
     }
 
     [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:calcDataEntries instanceCount:1 baseInstance:0];

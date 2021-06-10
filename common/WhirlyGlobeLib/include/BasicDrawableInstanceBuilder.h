@@ -111,6 +111,9 @@ public:
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
     
+    /// Set whether we're doing continuous renders
+    void setContinuousUpdate(bool newVal);
+    
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
     virtual void setTexId(unsigned int which,SimpleIdentity inId);
     

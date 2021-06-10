@@ -101,10 +101,10 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         BasicDrawableBuilderRef basicBuild = renderer->makeBasicDrawableBuilder(newSystem.name + " Base Calculate");
         basicBuild->setOnOff(false);
         basicBuild->setType(GeometryType::Triangles);
-        basicBuild->addPoint(Point3f(-0.5,-0.5,0.0));
-        basicBuild->addPoint(Point3f(0.5,-0.5,0.0));
-        basicBuild->addPoint(Point3f(0.5,0.5,0.0));
-        basicBuild->addPoint(Point3f(-0.5,0.5,0.0));
+        basicBuild->addPoint(Point3f(-0.5,-0.5,0.0));  basicBuild->addTexCoord(0, TexCoord(-1.0,-1.0));
+        basicBuild->addPoint(Point3f(0.5,-0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(1.0,-1.0));
+        basicBuild->addPoint(Point3f(0.5,0.5,0.0));    basicBuild->addTexCoord(0, TexCoord(1.0,1.0));
+        basicBuild->addPoint(Point3f(-0.5,0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(-1.0,1.0));
         basicBuild->addTriangle(BasicDrawable::Triangle(0,1,2));
         basicBuild->addTriangle(BasicDrawable::Triangle(0,2,3));
         sceneRep->basicIDs.insert(basicBuild->getDrawableID());
@@ -116,6 +116,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         calcBuild->setCalculationProgram(newSystem.calcShaderID);
         sceneRep->basicIDs.insert(calcBuild->getDrawableID());
         calcBuild->setCalculationData(newSystem.totalParticles, newSystem.partData);
+        calcBuild->setTexIDs(sceneRep->partSys.texIDs);
         changes.push_back(new AddDrawableReq(calcBuild->getDrawable()));
 
         // Set up a single instance to manage the particle system
@@ -125,8 +126,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         instDrawBuild->setDrawOrder(sceneRep->partSys.drawOrder);
         instDrawBuild->setDrawPriority(sceneRep->partSys.drawPriority);
         instDrawBuild->setTexIDs(sceneRep->partSys.texIDs);
-        // TODO: Update this
-//        instDraw->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+        instDrawBuild->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
         instDrawBuild->setRequestZBuffer(sceneRep->partSys.zBufferRead);
         instDrawBuild->setWriteZBuffer(sceneRep->partSys.zBufferWrite);
         instDrawBuild->setRenderTarget(sceneRep->partSys.renderTargetID);

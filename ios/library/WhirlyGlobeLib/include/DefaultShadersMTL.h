@@ -110,10 +110,11 @@ typedef enum {
     // Textures are optional
     WKSVertTextureArgBuffer,
     // Model instances
-    WKSVertModelInstanceArgBuffer,  // Leave some room for more than one of these
+    WKSVertModelInstanceArgBuffer,
+    WKSVertCalculationArgBuffer, // Leave some room for more than one of these
     // If we're using the indirect instancing (can be driven by the GPU) this is
     //  where the indirect buffer lives
-    WKSVertInstanceIndirectBuffer = WKSVertModelInstanceArgBuffer + 4,
+    WKSVertInstanceIndirectBuffer = WKSVertCalculationArgBuffer + 4,
     WKSVertMaxBuffer
 } WKSVertexArgumentBuffers;
 

@@ -177,6 +177,11 @@ void BasicDrawableInstanceBuilder::setUniBlock(const BasicDrawable::UniformBlock
     drawInst->setUniBlock(uniBlock);
 }
 
+void BasicDrawableInstanceBuilder::setContinuousUpdate(bool newVal)
+{
+    drawInst->moving = newVal;
+}
+
 void BasicDrawableInstanceBuilder::setTexId(unsigned int which,SimpleIdentity inId)
 {
     setupTexCoordEntry((int)which, 0);

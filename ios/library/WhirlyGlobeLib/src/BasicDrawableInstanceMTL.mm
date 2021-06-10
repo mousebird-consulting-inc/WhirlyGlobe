@@ -558,7 +558,7 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     if (instDrawMTL) {
         for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
             const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
-            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer+ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
         }
     }
 
@@ -770,7 +770,7 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     if (instDrawMTL) {
         for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
             const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
-            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer+ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
         }
     }
 
