@@ -57,14 +57,18 @@ MarkerInfo::MarkerInfo(const Dictionary &dict,bool screenObject)
     
 MarkerSceneRep::MarkerSceneRep()
     : useLayout(false)
+    , fadeOut(0.0f)
 {
 }
     
-void MarkerSceneRep::enableContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,bool enable,ChangeSet &changes)
+void MarkerSceneRep::enableContents(const SelectionManagerRef &selectManager,
+                                    const LayoutManagerRef &layoutManager,
+                                    bool enable,ChangeSet &changes)
 {
-    for (SimpleIDSet::iterator idIt = drawIDs.begin();
-         idIt != drawIDs.end(); ++idIt)
-        changes.push_back(new OnOffChangeRequest(*idIt,enable));
+    for (const auto id : drawIDs)
+    {
+        changes.push_back(new OnOffChangeRequest(id, enable));
+    }
     
     if (selectManager && !selectIDs.empty())
         selectManager->enableSelectables(selectIDs, enable);
@@ -73,12 +77,15 @@ void MarkerSceneRep::enableContents(SelectionManagerRef &selectManager,LayoutMan
         layoutManager->enableLayoutObjects(screenShapeIDs, enable);
 }
     
-void MarkerSceneRep::clearContents(SelectionManagerRef &selectManager,LayoutManagerRef &layoutManager,ChangeSet &changes,TimeInterval when)
+void MarkerSceneRep::clearContents(const SelectionManagerRef &selectManager,
+                                   const LayoutManagerRef &layoutManager,
+                                   ChangeSet &changes,TimeInterval when)
 {
     // Just delete everything
-    for (SimpleIDSet::iterator idIt = drawIDs.begin();
-         idIt != drawIDs.end(); ++idIt)
-        changes.push_back(new RemDrawableReq(*idIt,when));
+    for (const auto id : drawIDs)
+    {
+        changes.push_back(new RemDrawableReq(id, when));
+    }
     drawIDs.clear();
     
     if (selectManager && !selectIDs.empty())
@@ -310,19 +317,19 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             {
                 const Point2d &off = marker->offset;
 
-                layoutObj->selectPts.emplace_back(-width2+off.x(),-height2-off.y());
-                layoutObj->selectPts.emplace_back(width2+off.x(),-height2-off.y());
-                layoutObj->selectPts.emplace_back(width2+off.x(),height2-off.y());
-                layoutObj->selectPts.emplace_back(-width2+off.x(),height2-off.y());
+                layoutObj->selectPts.emplace_back(-width2+off.x(),-height2+off.y());
+                layoutObj->selectPts.emplace_back(width2+off.x(),-height2+off.y());
+                layoutObj->selectPts.emplace_back(width2+off.x(),height2+off.y());
+                layoutObj->selectPts.emplace_back(-width2+off.x(),height2+off.y());
 
                 if (marker->layoutWidth >= 0.0)
                 {
                     const auto w2 = marker->layoutWidth / 2.0;
                     const auto h2 = marker->layoutHeight / 2.0;
-                    layoutObj->layoutPts.emplace_back(-w2+off.x(),-h2-off.y());
-                    layoutObj->layoutPts.emplace_back(w2+off.x(),-h2-off.y());
-                    layoutObj->layoutPts.emplace_back(w2+off.x(),h2-off.y());
-                    layoutObj->layoutPts.emplace_back(-w2+off.x(),h2-off.y());
+                    layoutObj->layoutPts.emplace_back(-w2+off.x(),-h2+off.y());
+                    layoutObj->layoutPts.emplace_back(w2+off.x(),-h2+off.y());
+                    layoutObj->layoutPts.emplace_back(w2+off.x(),h2+off.y());
+                    layoutObj->layoutPts.emplace_back(-w2+off.x(),h2+off.y());
                 } else {
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
@@ -473,7 +480,6 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     {
         if (markerInfo.fadeIn > 0.0)
         {
-            TimeInterval curTime = scene->getCurrentTime();
             it->second->setFade(curTime,curTime+markerInfo.fadeIn);
         }
         changes.push_back(new AddDrawableReq(it->second->getDrawable()));
@@ -528,38 +534,38 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
 
 void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
+    const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
+    const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
 
     std::lock_guard<std::mutex> guardLock(lock);
 
-    TimeInterval curTime = scene->getCurrentTime();
-    for (SimpleIDSet::iterator mit = markerIDs.begin();mit != markerIDs.end(); ++mit)
+    const TimeInterval curTime = scene->getCurrentTime();
+    for (const auto markerID : markerIDs)
     {
-        SimpleIdentity markerID = *mit;
         MarkerSceneRep dummyRep;
         dummyRep.setId(markerID);
-        MarkerSceneRepSet::iterator it = markerReps.find(&dummyRep);
-        if (it != markerReps.end())
+        const MarkerSceneRepSet::iterator it = markerReps.find(&dummyRep);
+        if (it == markerReps.end())
         {
-            MarkerSceneRep *markerRep = *it;
-            
-            TimeInterval removeTime = 0.0;
-            if (markerRep->fadeOut > 0.0)
-            {
-                for (SimpleIDSet::iterator idIt = markerRep->drawIDs.begin();
-                     idIt != markerRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+markerRep->fadeOut));
-                
-                removeTime = curTime + markerRep->fadeOut;
-            }
-            
-            
-            markerRep->clearContents(selectManager, layoutManager, changes, removeTime);
-            
-            markerReps.erase(it);
-            delete markerRep;
+            continue;
         }
+
+        MarkerSceneRep *markerRep = *it;
+
+        TimeInterval removeTime = 0.0;
+        if (markerRep->fadeOut > 0.0)
+        {
+            for (const auto did : markerRep->drawIDs)
+            {
+                changes.push_back(new FadeChangeRequest(did, curTime, curTime + markerRep->fadeOut));
+            }
+            removeTime = curTime + markerRep->fadeOut;
+        }
+
+        markerRep->clearContents(selectManager, layoutManager, changes, removeTime);
+
+        markerReps.erase(it);
+        delete markerRep;
     }
 }
 

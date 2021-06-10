@@ -364,7 +364,7 @@ public:
     bool valid() const { return pt_ur.x() >= pt_ll.x() && pt_ur.y() >= pt_ll.y(); }
 
     /// Calculate area
-    float area() const;
+    double area() const;
     
     /// Extend the MBR by the given point
     void addPoint(const Point2f &pt);

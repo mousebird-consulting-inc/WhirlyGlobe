@@ -222,13 +222,18 @@ public:
     bool hasChanges();
     
     /// Return the active objects in a form the selection manager can handle
-    void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
+    void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,
+                               std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
     
     /// Add a generator for cluster images
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
 
+    /// Show lines around layout objects for debugging/troubleshooting
     bool getShowDebugBoundaries() const { return showDebugBoundaries; }
-    void setShowDebugBoundaries(bool show) { showDebugBoundaries = show; }
+    void setShowDebugBoundaries(bool show) {
+        showDebugBoundaries = show;
+        hasUpdates = true;
+    }
 
 protected:
     static bool calcScreenPt(Point2f &objPt,
@@ -257,7 +262,6 @@ protected:
                         const Point2f &frameBufferSize,
                         ChangeSet &changes,
                         int priority = 10000000,
-                        float width = 4.0,
                         RGBAColor color = RGBAColor::black());
     
     VectorManagerRef vecManage;

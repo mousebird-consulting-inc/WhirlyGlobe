@@ -184,7 +184,8 @@ bool LayoutManager::hasChanges()
 }
 
 // Return the screen space objects in a form the selection manager can understand
-void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
+void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,
+                                          std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
@@ -352,7 +353,6 @@ void LayoutManager::addDebugOutput(const Point2dVector &pts,
                                    const Point2f &frameBufferSize,
                                    ChangeSet &changes,
                                    int priority,
-                                   float width,
                                    RGBAColor color)
 {
     auto coordAdapt = globeViewState ? globeViewState->coordAdapter : mapViewState->coordAdapter;
@@ -379,7 +379,6 @@ void LayoutManager::addDebugOutput(const Point2dVector &pts,
     // Turn them back into vectors to debug
     VectorInfo vecInfo;
     vecInfo.color = color;
-    vecInfo.lineWidth = width;
     vecInfo.drawPriority = priority;
     vecInfo.programID = vecProgID;
 
@@ -387,6 +386,21 @@ void LayoutManager::addDebugOutput(const Point2dVector &pts,
     SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
     if (vecId != EmptyIdentity)
         debugVecIDs.insert(vecId);
+}
+
+static Point2d offsetForOrientation(int orient, const Point2d &span)
+{
+    // Set up the offset for this orientation
+    switch (orient)
+    {
+        default:
+        case 0: return {           0,            0 }; // Don't move at all
+        case 1: return { -span.x()/2,  -span.y()/2 }; // Center
+        case 2: return {         0.0,  -span.y()/2 }; // Right
+        case 3: return {   -span.x(),  -span.y()/2 }; // Left
+        case 4: return { -span.x()/2,          0.0 }; // Above
+        case 5: return { -span.x()/2,    -span.y() }; // Below
+    }
 }
 
 // Do the actual layout logic.  We'll modify the offset and on value in place.
@@ -765,10 +779,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                             bool lastNormValid = false;
                             for (int ig=gStart;gIncr > 0 ? ig<=gEnd : ig>=gEnd;ig+=gIncr) {
                                 const auto &geom = layoutObj->obj.geometry[ig];
-                                Mbr glyphMbr(geom.coords);
-                                Point2f span = glyphMbr.span();
-                                Point2f midGlyph = glyphMbr.mid();
-                                Affine2d transOrigin(Translation2d(-midGlyph.x(),flipped ? -midY/2.0 : -1.5*midY));
+                                const Mbr glyphMbr(geom.coords);
+                                const Point2f span = glyphMbr.span();
+                                const Point2f midGlyph = glyphMbr.mid();
+                                const Affine2d transOrigin(Translation2d(-midGlyph.x(),flipped ? -midY/2.0 : -1.5*midY));
 
                                 // Walk along the line to get a good center
                                 Point2f centerPt;
@@ -777,20 +791,18 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     failed = true;
                                     break;
                                 }
-                                
+
                                 // If we're too far from the last normal, bail.  The text will look jumbled.
                                 double normAng = 0.0;
                                 if (lastNormValid) {
                                     // Nifty trick to get a clockwise angle between the two
-                                    double dot = norm.x()*lastNorm.x() + norm.y()*lastNorm.y();
-                                    double det = norm.x()*lastNorm.y() - norm.y()*lastNorm.x();
+                                    const double dot = norm.x()*lastNorm.x() + norm.y()*lastNorm.y();
+                                    const double det = norm.x()*lastNorm.y() - norm.y()*lastNorm.x();
                                     normAng = atan2(det, dot);
-//                                    wkLogLevel(Debug,"normAng = %f",normAng);
-                                    if (normAng != 0.0) {
-                                        if (abs(normAng) > 45.0 * M_PI / 180.0) {
-                                            failed = true;
-                                            break;
-                                        }
+                                    //wkLogLevel(Debug,"normAng = %f",normAng);
+                                    if (normAng != 0.0 && abs(normAng) > 45.0 * M_PI / 180.0) {
+                                        failed = true;
+                                        break;
                                     }
                                 }
                                 
@@ -798,8 +810,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 bool nudged = false;
                                 if (normAng != 0.0) {
                                     if (normAng < M_PI / 180.0) {
-                                        float height = span.y();
-                                        float offset = abs(sin(normAng)) * height;
+                                        const float height = span.y();
+                                        const float offset = abs(sin(normAng)) * height;
                                         nudged = true;
                                         if (!walk.nextPoint(resScale * offset,&centerPt,&norm,true)) {
                                             failed = true;
@@ -808,7 +820,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     }
                                 }
                                 lastNormValid = true;  lastNorm = norm;
-                                
+
                                 // Other half of glyph
                                 if (!walk.nextPoint(resScale * span.x()/2.0,nullptr,nullptr,true)) {
                                     failed = true;
@@ -817,10 +829,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                                 // Don't forget the space between glyphs
                                 if (ig < layoutObj->obj.geometry.size()-1) {
-                                    float padX = 0.0;
-                                    Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
-                                    padX = abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
-                                    
+                                    const Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
+                                    const float padX = std::abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
                                     walk.nextPoint(resScale * padX, nullptr, nullptr,true);
                                 }
                                 
@@ -953,58 +963,47 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 // Layout points are relative to the object, figure out where they are on the screen
                                 const Point2dVector &layoutPts = layoutObj->obj.layoutPts;
                                 const Mbr layoutMbr(layoutPts);
-                                const Point2f layoutSpan(layoutMbr.ur().x()-layoutMbr.ll().x(),layoutMbr.ur().y()-layoutMbr.ll().y());
-                                const Point2f layoutSpan2 = layoutSpan / 2.0;
-                                const Point2d layoutOrg(layoutMbr.ll().x(),-layoutMbr.ll().y());
-                                
+                                const Point2f span = layoutMbr.span();
+                                const Point2f &layoutOrg = layoutMbr.ll();
+
                                 // Set up the offset for this orientation
-                                switch (orient)
-                                {
-                                    // Don't move at all
-                                    default:
-                                    case 0: break;
-                                    // Center
-                                    case 1: objOffset = Point2d(-layoutSpan2.x(),layoutSpan2.y()); break;
-                                    // Right
-                                    case 2: objOffset = Point2d(0.0,layoutSpan2.y()); break;
-                                    // Left
-                                    case 3: objOffset = Point2d(-layoutSpan.x(),layoutSpan2.y()); break;
-                                    // Above
-                                    case 4: objOffset = Point2d(-layoutSpan2.x(),0.0); break;
-                                    // Below
-                                    case 5: objOffset = Point2d(-layoutSpan2.x(),layoutSpan.y()); break;
-                                }
-                                        
-                                // Rotated relative to the map?
-                                objPts[0] = objOffset + layoutOrg;
-                                objPts[1] = objPts[0] + Point2d(layoutSpan.x(),0.0);
-                                objPts[2] = objPts[0] + Point2d(layoutSpan.x(),-layoutSpan.y());
-                                objPts[3] = objPts[0] + Point2d(0.0,-layoutSpan.y());
+                                objOffset = offsetForOrientation(orient, span.cast<double>());
 
-                                for (unsigned int oi=0;oi<4;oi++)
+                                objPts[0] = objOffset + layoutOrg.cast<double>();
+                                objPts[1] = objPts[0] + Point2d(span.x(), 0.0);
+                                objPts[2] = objPts[0] + Point2d(span.x(), span.y());
+                                objPts[3] = objPts[0] + Point2d(0.0, span.y());
+
+                                for (auto &p : objPts)
                                 {
-                                    Point2d &thisObjPt = objPts[oi];
-                                    const Point2d offPt = screenRotMat * (thisObjPt * resScale);
-                                    thisObjPt = Point2d(offPt.x(),-offPt.y()) + objPt.cast<double>();
+                                    const Point2d offPt = screenRotMat * (p * resScale);
+                                    p = Point2d(offPt.x(),-offPt.y()) + objPt.cast<double>();
                                 }
 
-                                if (showDebugBoundaries)
-                                {
-                                    // Debugging visual output
-                                    addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,changes);
-                                }
-
-//                            wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d",objPt.x(),objPt.y(),orient);
-//                            wkLogLevel(Debug, "Layout Pts");
-//                            for (unsigned int xx=0;xx<objPts.size();xx++)
-//                               wkLogLevel(Debug, "  (%f,%f)\n",objPts[xx].x(),objPts[xx].y());
+                                //wkLogLevel(Debug, "Center pt = (%f,%f), orient = %d, pts:",objPt.x(),objPt.y(),orient);
+                                //for (const auto &p : objPts) wkLogLevel(Debug, "  (%f,%f)\n",p.x(),p.y());
                                 
                                 // Now try it.  Objects we've pegged as essential always win
                                 if (overlapMan.addCheckObject(objPts) || container.importance >= MAXFLOAT)
                                 {
+                                    if (showDebugBoundaries)
+                                    {
+                                        // Debugging visual output
+                                        // The chosen placement is drawn in black.
+                                        addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,
+                                                       changes, 10000000, RGBAColor::black());
+                                    }
+
                                     validOrient = true;
                                     pickedOne = true;
                                     break;
+                                }
+
+                                if (showDebugBoundaries)
+                                {
+                                    // Placements that don't work are drawn in translucent blue
+                                    addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,
+                                                   changes, 10000000, RGBAColor::blue().withAlpha(0.5));
                                 }
                             }
                             
@@ -1012,29 +1011,28 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                         }
                     }
 
-    //            wkLogLevel(Debug, " Valid (%s): %s, pos = (%f,%f), offset = (%f,%f)",(isActive ? "yes" : "no"),layoutObj->obj.hint.c_str(),objPt.x(),objPt.y(),
-    //                  layoutObj->offset.x(),layoutObj->offset.y());
+                    //wkLogLevel(Debug, " Valid (%s): %s, pos = (%f,%f), offset = (%f,%f)",(isActive ? "yes" : "no"),
+                    //           layoutObj->obj.hint.c_str(),objPt.x(),objPt.y(),
+                    //           layoutObj->offset.x(),layoutObj->offset.y());
                 }
             }
-                
+
             if (isActive)
                 numSoFar++;
             
             // See if we've changed any of the state
-            layoutObj->changed = (layoutObj->currentEnable != isActive);
-            if (!layoutObj->changed && (layoutObj->newEnable ||
-                (layoutObj->offset.x() != objOffset.x() || layoutObj->offset.y() != -objOffset.y())))
+            if (layoutObj->currentEnable != isActive || layoutObj->newEnable || layoutObj->offset != objOffset)
             {
                 layoutObj->changed = true;
+                hadChanges = true;
             }
-            hadChanges |= layoutObj->changed;
             layoutObj->newEnable = isActive;
             layoutObj->newCluster = -1;
-            layoutObj->offset = Point2d(objOffset.x(),-objOffset.y());
+            layoutObj->offset = objOffset;
         }
     }
     
-//    wkLogLevel(Debug, "----Finished layout----");
+    //wkLogLevel(Debug, "----Finished layout---- changes=%d", hadChanges);
     
     return hadChanges;
 }

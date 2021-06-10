@@ -78,13 +78,13 @@ SelectionManager::SelectionManager(Scene *scene)
 
 SelectionManager::~SelectionManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
+    //std::lock_guard<std::mutex> guardLock(lock);
 }
 
 // Add a rectangle (in 3-space) available for selection
-void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,bool enable)
+void SelectionManager::addSelectableRect(SimpleIdentity selectId,const Point3f *pts,bool enable)
 {
-    if (selectId == EmptyIdentity)
+    if (selectId == EmptyIdentity || !pts)
         return;
     
     RectSelectable3D newSelect;
@@ -92,19 +92,21 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,bo
     newSelect.minVis = newSelect.maxVis = DrawVisibleInvalid;
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
     newSelect.enable = enable;
-    for (unsigned int ii=0;ii<4;ii++)
-        newSelect.pts[ii] = pts[ii];
 
+    for (unsigned int ii = 0; ii < 4; ii++)
     {
-        std::lock_guard<std::mutex> guardLock(lock);
-        rect3Dselectables.insert(newSelect);
+        newSelect.pts[ii] = pts[ii];
     }
+
+    std::lock_guard<std::mutex> guardLock(lock);
+    rect3Dselectables.insert(newSelect);
 }
 
 // Add a rectangle (in 3-space) for selection, but only between the given visibilities
-void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableRect(SimpleIdentity selectId,const Point3f *pts,
+                                         float minVis,float maxVis,bool enable)
 {
-    if (selectId == EmptyIdentity)
+    if (selectId == EmptyIdentity || !pts)
         return;
     
     RectSelectable3D newSelect;
@@ -112,17 +114,19 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,Point3f *pts,fl
     newSelect.minVis = minVis;  newSelect.maxVis = maxVis;
     newSelect.norm = (pts[1] - pts[0]).cross(pts[3]-pts[0]).normalized();
     newSelect.enable = enable;
-    for (unsigned int ii=0;ii<4;ii++)
-        newSelect.pts[ii] = pts[ii];
-    
+
+    for (unsigned int ii = 0; ii < 4; ii++)
     {
-        std::lock_guard<std::mutex> guardLock(lock);
-        rect3Dselectables.insert(newSelect);
+        newSelect.pts[ii] = pts[ii];
     }
+
+    std::lock_guard<std::mutex> guardLock(lock);
+    rect3Dselectables.insert(newSelect);
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
-void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,Point2f *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Point3d &center,
+                                               const Point2f *pts,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -133,17 +137,24 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Poi
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
     newSelect.enable = enable;
-    for (unsigned int ii=0;ii<4;ii++)
-        newSelect.pts[ii] = pts[ii];
-    
+
+    if (pts)
     {
-        std::lock_guard<std::mutex> guardLock(lock);
-        rect2Dselectables.insert(newSelect);
+        for (unsigned int ii = 0; ii < 4; ii++)
+        {
+            newSelect.pts[ii] = pts[ii];
+        }
     }
+    
+    std::lock_guard<std::mutex> guardLock(lock);
+    rect2Dselectables.insert(newSelect);
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
-void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime,TimeInterval endTime,Point2f *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,const Point3d &startCenter,
+                                                     const Point3d &endCenter,TimeInterval startTime,
+                                                     TimeInterval endTime,const Point2f *pts,float minVis,
+                                                     float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -157,18 +168,23 @@ void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,con
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
     newSelect.enable = enable;
-    for (unsigned int ii=0;ii<4;ii++)
-        newSelect.pts[ii] = pts[ii];
-    
+
+    if (pts)
     {
-        std::lock_guard<std::mutex> guardLock(lock);
-        movingRect2Dselectables.insert(newSelect);
+        for (unsigned int ii = 0; ii < 4; ii++)
+        {
+            newSelect.pts[ii] = pts[ii];
+        }
     }
+    
+    std::lock_guard<std::mutex> guardLock(lock);
+    movingRect2Dselectables.insert(newSelect);
 }
 
 static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
 
-void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const Point3f *pts,
+                                              float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -179,22 +195,26 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     newSelect.maxVis = maxVis;
     newSelect.centerPt = Point3d(0,0,0);
     newSelect.enable = enable;
-    for (unsigned int ii=0;ii<8;ii++)
+
+    if (pts)
     {
-        const Point3f &pt = pts[ii];
-        newSelect.centerPt += Point3d(pt.x(),pt.y(),pt.z());
+        for (unsigned int ii = 0; ii < 8; ii++)
+        {
+            newSelect.centerPt += pts[ii].cast<double>();
+        }
     }
     newSelect.centerPt /= 8;
     
     for (unsigned int ii=0;ii<6;ii++)
     {
-        Point3fVector poly;
+        newSelect.polys.emplace_back();
+        Point3fVector &poly = newSelect.polys.back();
+        poly.reserve(4);
+        const Point3f center3f = newSelect.centerPt.cast<float>();
         for (unsigned int jj=0;jj<4;jj++)
         {
-            Point3f pt = pts[corners[ii][jj]];
-            poly.push_back(Point3f(pt.x()-newSelect.centerPt.x(),pt.y()-newSelect.centerPt.y(),pt.z()-newSelect.centerPt.z()));
+            poly.push_back(pts[corners[ii][jj]] - center3f);
         }
-        newSelect.polys.push_back(poly);
     }
     
     {
@@ -203,7 +223,8 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3f *p
     }
 }
 
-void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3d *pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const Point3d *pts,
+                                              float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -214,39 +235,41 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,Point3d *p
     newSelect.maxVis = maxVis;
     newSelect.centerPt = Point3d(0,0,0);
     newSelect.enable = enable;
-    for (unsigned int ii=0;ii<8;ii++)
+
+    if (pts)
     {
-        const Point3d &pt = pts[ii];
-        newSelect.centerPt += Point3d(pt.x(),pt.y(),pt.z());
+        for (unsigned int ii = 0; ii < 8; ii++)
+        {
+            newSelect.centerPt += pts[ii].cast<double>();
+        }
     }
     newSelect.centerPt /= 8;
     
     for (unsigned int ii=0;ii<6;ii++)
     {
-        Point3fVector poly;
+        newSelect.polys.emplace_back();
+        Point3fVector &poly = newSelect.polys.back();
         for (unsigned int jj=0;jj<4;jj++)
         {
-            Point3d pt = pts[corners[ii][jj]];
-            poly.push_back(Point3f(pt.x()-newSelect.centerPt.x(),pt.y()-newSelect.centerPt.y(),pt.z()-newSelect.centerPt.z()));
+            poly.push_back((pts[corners[ii][jj]] - newSelect.centerPt).cast<float>());
         }
-        newSelect.polys.push_back(poly);
     }
     
-    {
-        std::lock_guard<std::mutex> guardLock(lock);
-        polytopeSelectables.insert(newSelect);
-    }
+    std::lock_guard<std::mutex> guardLock(lock);
+    polytopeSelectables.insert(newSelect);
 }
 
-void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,
+                                              float minVis,float maxVis,bool enable)
 {
     Point3fVector pts;
-    pts.reserve(8);
     bbox.asPoints(pts);
     addSelectableRect(selectId,&pts[0],minVis,maxVis,enable);
 }
 
-void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,float minVis,float maxVis,bool enable)
+void SelectionManager::addPolytope(SimpleIdentity selectId,
+                                   const std::vector<Point3dVector> &surfaces,
+                                   float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -257,48 +280,50 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,const std::vector<Poi
     newSelect.maxVis = maxVis;
     newSelect.centerPt = Point3d(0,0,0);
     newSelect.enable = enable;
+
     int numPts = 0;
     for (const Point3dVector &surface : surfaces)
+    {
         for (const Point3d &pt : surface)
         {
             newSelect.centerPt += pt;
             numPts++;
         }
+    }
     newSelect.centerPt /= numPts;
     
     for (const Point3dVector &surface : surfaces)
     {
-        Point3fVector surface3f;
+        newSelect.polys.emplace_back();
+        Point3fVector &surface3f = newSelect.polys.back();
         surface3f.reserve(surface.size());
         for (const Point3d &pt : surface)
         {
-            Point3f pt3f(pt.x()-newSelect.centerPt.x(),pt.y()-newSelect.centerPt.y(),pt.z()-newSelect.centerPt.z());
-            surface3f.push_back(pt3f);
+            surface3f.push_back((pt - newSelect.centerPt).cast<float>());
         }
-        newSelect.polys.push_back(surface3f);
     }
     
-    {
-        std::lock_guard<std::mutex> guardLock(lock);
-        polytopeSelectables.insert(newSelect);
-    }
+    std::lock_guard<std::mutex> guardLock(lock);
+    polytopeSelectables.insert(newSelect);
 }
 
-void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
+void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,
+                                          const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
 {
     // Corners of the box
-    Point3d pts[8];
-    pts[0] = Point3d(ll.x(),ll.y(),ll.z());
-    pts[1] = Point3d(ur.x(),ll.y(),ll.z());
-    pts[2] = Point3d(ur.x(),ur.y(),ll.z());
-    pts[3] = Point3d(ll.x(),ur.y(),ll.z());
-    pts[4] = Point3d(ll.x(),ll.y(),ur.z());
-    pts[5] = Point3d(ur.x(),ll.y(),ur.z());
-    pts[6] = Point3d(ur.x(),ur.y(),ur.z());
-    pts[7] = Point3d(ll.x(),ur.y(),ur.z());
+    const Point3d pts[8] = {
+        { ll.x(), ll.y(), ll.z() },
+        { ur.x(), ll.y(), ll.z() },
+        { ur.x(), ur.y(), ll.z() },
+        { ll.x(), ur.y(), ll.z() },
+        { ll.x(), ll.y(), ur.z() },
+        { ur.x(), ll.y(), ur.z() },
+        { ur.x(), ur.y(), ur.z() },
+        { ll.x(), ur.y(), ur.z() },
+    };
     
     // Turn the box into a polytope
-    std::vector<Point3dVector > polys(6);
+    std::vector<Point3dVector> polys(6);
     auto &bot = polys[0];  bot.resize(4);
     auto &side0 = polys[1];  side0.resize(4);
     auto &side1 = polys[2];  side1.resize(4);
@@ -314,16 +339,21 @@ void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d 
     
     // Run through the matrix
     for (auto &side : polys)
+    {
         for (auto &pt : side)
         {
-            Vector4d newPt = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            const Vector4d newPt = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
             pt = Point3d(newPt.x(),newPt.y(),newPt.z());
         }
-    
+    }
+
     addPolytope(selectId, polys, minVis, maxVis, enable);
 }
 
-void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector > &surfaces,const Point3d &startCenter,const Point3d &endCenter,TimeInterval startTime, TimeInterval duration,const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
+void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vector<Point3dVector> &surfaces,
+                                         const Point3d &startCenter,const Point3d &endCenter,
+                                         TimeInterval startTime, TimeInterval duration,
+                                         const Eigen::Matrix4d &mat,float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -340,37 +370,38 @@ void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vect
     
     for (const Point3dVector &surface : surfaces)
     {
-        Point3fVector surface3f;
+        newSelect.polys.emplace_back();
+        Point3fVector &surface3f = newSelect.polys.back();
         surface3f.reserve(surface.size());
         for (const Point3d &pt : surface)
         {
-            Point3f pt3f(pt.x(),pt.y(),pt.z());
-            surface3f.push_back(pt3f);
+            surface3f.push_back(pt.cast<float>());
         }
-        newSelect.polys.push_back(surface3f);
     }
     
-    {
-        std::lock_guard<std::mutex> guardLock(lock);
-        movingPolytopeSelectables.insert(newSelect);
-    }
+    std::lock_guard<std::mutex> guardLock(lock);
+    movingPolytopeSelectables.insert(newSelect);
 }
 
-void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const Point3d &ll, const Point3d &ur, const Point3d &startCenter, const Point3d &endCenter,TimeInterval startTime,TimeInterval duration, const Eigen::Matrix4d &mat, float minVis, float maxVis, bool enable)
+void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const Point3d &ll, const Point3d &ur,
+                                                const Point3d &startCenter, const Point3d &endCenter,
+                                                TimeInterval startTime,TimeInterval duration,
+                                                const Eigen::Matrix4d &mat, float minVis, float maxVis, bool enable)
 {
     // Corners of the box
-    Point3d pts[8];
-    pts[0] = Point3d(ll.x(),ll.y(),ll.z());
-    pts[1] = Point3d(ur.x(),ll.y(),ll.z());
-    pts[2] = Point3d(ur.x(),ur.y(),ll.z());
-    pts[3] = Point3d(ll.x(),ur.y(),ll.z());
-    pts[4] = Point3d(ll.x(),ll.y(),ur.z());
-    pts[5] = Point3d(ur.x(),ll.y(),ur.z());
-    pts[6] = Point3d(ur.x(),ur.y(),ur.z());
-    pts[7] = Point3d(ll.x(),ur.y(),ur.z());
+    const Point3d pts[8] = {
+        { ll.x(), ll.y(), ll.z() },
+        { ur.x(), ll.y(), ll.z() },
+        { ur.x(), ur.y(), ll.z() },
+        { ll.x(), ur.y(), ll.z() },
+        { ll.x(), ll.y(), ur.z() },
+        { ur.x(), ll.y(), ur.z() },
+        { ur.x(), ur.y(), ur.z() },
+        { ll.x(), ur.y(), ur.z() },
+    };
     
     // Turn the box into a polytope
-    std::vector<Point3dVector > polys(6);
+    std::vector<Point3dVector> polys(6);
     auto &bot = polys[0];  bot.resize(4);
     auto &side0 = polys[1];  side0.resize(4);
     auto &side1 = polys[2];  side1.resize(4);
@@ -386,16 +417,19 @@ void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const P
     
     // Run through the matrix
     for (auto &side : polys)
+    {
         for (auto &pt : side)
         {
-            Vector4d newPt = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
+            const Vector4d newPt = mat * Vector4d(pt.x(),pt.y(),pt.z(),1.0);
             pt = Point3d(newPt.x(),newPt.y(),newPt.z());
         }
-    
+    }
+
     addMovingPolytope(selectID, polys, startCenter, endCenter, startTime, duration, mat, minVis, maxVis, enable);
 }
 
-void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3dVector &pts,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3dVector &pts,
+                                           float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -405,20 +439,15 @@ void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3d
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
     newSelect.enable = enable;
-    newSelect.pts.resize(pts.size());
-    for (unsigned int ii=0;ii<pts.size();ii++)
-    {
-        const Point3d &pt = pts[ii];
-        newSelect.pts[ii] = Point3d(pt.x(),pt.y(),pt.z());
-    }
+    newSelect.pts = pts;
 
-    {
-        std::lock_guard<std::mutex> guardLock(lock);
-        linearSelectables.insert(newSelect);
-    }
+    std::lock_guard<std::mutex> guardLock(lock);
+    linearSelectables.insert(newSelect);
 }
 
-void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,const Point3d &norm,const Point2d &size,float minVis,float maxVis,bool enable)
+void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,
+                                              const Point3d &norm,const Point2d &size,
+                                              float minVis,float maxVis,bool enable)
 {
     if (selectId == EmptyIdentity)
         return;
@@ -433,10 +462,8 @@ void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Poin
     newSelect.minVis = minVis;
     newSelect.maxVis = maxVis;
     
-    {
-        std::lock_guard<std::mutex> guardLock(lock);
-        billboardSelectables.insert(newSelect);
-    }
+    std::lock_guard<std::mutex> guardLock(lock);
+    billboardSelectables.insert(newSelect);
 }
 
 void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)

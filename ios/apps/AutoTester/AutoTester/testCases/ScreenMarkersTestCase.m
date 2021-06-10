@@ -34,6 +34,7 @@
     [baseCase setUpWithGlobe:globeVC];
     [self insertMarker:baseCase.vecList theView:(MaplyBaseViewController*)globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
+    globeVC.autoMoveToTap = false;
 }
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
@@ -42,6 +43,27 @@
     [baseCase setUpWithMap:mapVC];
     [self insertMarker:baseCase.vecList theView:(MaplyBaseViewController*)mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056) time:1.0];
+    mapVC.autoMoveToTap = false;
+}
+
+- (void)maplyViewController:(MaplyViewController *)viewC didTapAt:(MaplyCoordinate)coord
+{
+    viewC.showDebugLayoutBoundaries = !viewC.showDebugLayoutBoundaries;
+}
+- (void)globeViewController:(WhirlyGlobeViewController *)viewC didTapAt:(MaplyCoordinate)coord
+{
+    viewC.showDebugLayoutBoundaries = !viewC.showDebugLayoutBoundaries;
+}
+
+- (void)stop
+{
+    if (self.markersObj)
+    {
+        [self.baseViewController removeObject:self.markersObj];
+        self.markersObj = nil;
+    }
+    [baseCase stop];
+    [super stop];
 }
 
 - (void) insertMarker:(NSMutableArray*) arrayComp theView: (MaplyBaseViewController*) theView

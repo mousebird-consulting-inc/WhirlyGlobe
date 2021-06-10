@@ -444,6 +444,19 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
+- (void)setShowDebugLayoutBoundaries:(bool)show
+{
+    self->_showDebugLayoutBoundaries = show;
+    if (renderControl && renderControl->scene)
+    {
+        if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
+        {
+            layoutManager->setShowDebugBoundaries(show);
+            [renderControl->layoutLayer scheduleUpdateNow];
+        }
+    }
+}
+
 // Run every so often to dump out stats
 - (void)periodicPerfOutput
 {
@@ -991,9 +1004,10 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
-    if (layoutManager)
+    if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
+    {
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
+    }
 }
 
 - (void)setLayoutOverrideIDs:(NSArray *)uuids
@@ -1005,9 +1019,10 @@ static const float PerfOutputDelay = 15.0;
             uuidSet.insert(uuidStr);
     }
     
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
-    if (layoutManager)
+    if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
+    {
         layoutManager->setOverrideUUIDs(uuidSet);
+    }
 }
 
 - (void)runLayout
