@@ -514,7 +514,8 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             // Uniform blocks associated with the program
             for (const UniformBlock &uniBlock : prog->uniBlocks) {
                 vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+                if (fragABInfo)
+                    fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
             }
 
             // And the uniforms passed through the drawable
