@@ -101,10 +101,10 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         BasicDrawableBuilderRef basicBuild = renderer->makeBasicDrawableBuilder(newSystem.name + " Base Calculate");
         basicBuild->setOnOff(false);
         basicBuild->setType(GeometryType::Triangles);
-        basicBuild->addPoint(Point3f(-0.5,-0.5,0.0));  basicBuild->addTexCoord(0, TexCoord(-1.0,-1.0));
-        basicBuild->addPoint(Point3f(0.5,-0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(1.0,-1.0));
+        basicBuild->addPoint(Point3f(-0.5,-0.5,0.0));  basicBuild->addTexCoord(0, TexCoord(0.0,0.0));
+        basicBuild->addPoint(Point3f(0.5,-0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(1.0,0.0));
         basicBuild->addPoint(Point3f(0.5,0.5,0.0));    basicBuild->addTexCoord(0, TexCoord(1.0,1.0));
-        basicBuild->addPoint(Point3f(-0.5,0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(-1.0,1.0));
+        basicBuild->addPoint(Point3f(-0.5,0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(0.0,1.0));
         basicBuild->addTriangle(BasicDrawable::Triangle(0,1,2));
         basicBuild->addTriangle(BasicDrawable::Triangle(0,2,3));
         sceneRep->basicIDs.insert(basicBuild->getDrawableID());
