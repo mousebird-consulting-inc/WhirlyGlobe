@@ -208,7 +208,7 @@ DrawableString *FontTextureManager_Android::addString(
 						                       glyphSize.y() + 2 * textureOffset.y());
 						std::vector<Texture *> texs{&tex};
 						if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, nullptr, subTex,
-												 changes, 0, 0, nullptr))
+												 changes, 0, 1, nullptr))
 						{
 							glyphInfo = fm->addGlyph(glyph, subTex,
 													 Point2f(glyphSize.x(), glyphSize.y()),

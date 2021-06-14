@@ -108,8 +108,10 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
         releasedRegions.clear();
     }
 
-    for (unsigned int ii=0;ii<toClear.size();ii++)
-        setRegion(toClear[ii], false);
+    for (auto &ii : toClear)
+    {
+        setRegion(ii, false);
+    }
     
     // Now look for a region that'll fit
     // Look for a spot big enough
@@ -279,9 +281,10 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     }
     
     // Now look for space
-    DynamicTextureVec *dynTexVec = NULL;
+    DynamicTextureVec *dynTexVec = nullptr;
     bool found = false;
-    int numCellX = ceil((firstTex->getWidth()+bufferPixels) / (float)cellSize), numCellY = ceil((firstTex->getHeight()+bufferPixels) / (float)cellSize);
+    const int numCellX = ceil((float)(firstTex->getWidth()+bufferPixels) / (float)cellSize);
+    const int numCellY = ceil((float)(firstTex->getHeight()+bufferPixels) / (float)cellSize);
     for (auto it = textures.begin(); it != textures.end(); ++it)
     {
         DynamicTextureVec *dynTex = *it;
@@ -332,16 +335,16 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     
     if (found)
     {
-        DynamicTextureRef dynTex0 = dynTexVec->at(0);
+        const DynamicTextureRef &dynTex0 = dynTexVec->at(0);
         dynTex0->setRegion(texRegion.region, true);
         dynTex0->getNumRegions()++;
         
         for (unsigned int ii=0;ii<newTextures.size();ii++)
         {
             // If there's only one frame, we're updating that
-            int which = frame == -1 ? ii : frame;
+            const int which = frame == -1 ? ii : frame;
             Texture *tex = newTextures[newTextures.size() == 1 ? 0 : which];
-            DynamicTextureRef dynTex = dynTexVec->at(which);
+            const DynamicTextureRef &dynTex = dynTexVec->at(which);
             //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
             // Make the main thread do the merge
             if (MainThreadMerge || mainThreadMerge)
@@ -353,10 +356,11 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
         }
 
         // This asks for a flush
-        changes.push_back(NULL);
+        changes.push_back(nullptr);
 
         // This way does not take into account borders
-        TexCoord org((texRegion.region.sx * cellSize) / (float)texSize, (texRegion.region.sy * cellSize) / (float)texSize);
+        TexCoord org((texRegion.region.sx * cellSize) / (float)texSize,
+                     (texRegion.region.sy * cellSize) / (float)texSize);
 //        texRegion.subTex.setFromTex(TexCoord(org.x(),org.y()),
 //                                    TexCoord(org.x() + tex->getWidth() / (float)texSize , org.y() + tex->getHeight() / (float)texSize));
         
