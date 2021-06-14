@@ -183,8 +183,20 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     // TODO: We can also have a symbol, where we might do the same thing
     // Problem is, we'll need to pass the sub-texture logic through to the renderer
     //  because right now it's expecting a single texture that can be strung along the line
-    
-    const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
+
+    MBResolveColorType resolveMode = MBResolveColorOpacityComposeAlpha;
+#ifdef __ANDROID__
+    // On Android, pre-multiply the alpha on static colors.
+    // When the color or opacity is dynamic, we need to do it in the tweaker.
+    if ((!paint.color || !paint.color->isExpression()) &&
+        (!paint.opacity || !paint.opacity->isExpression()))
+    {
+        resolveMode = MBResolveColorOpacityMultiply;
+    }
+#endif
+
+    const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode);
+
     const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     const double offset = paint.offset->valForZoom(tileInfo->ident.level) * lineScale;
     
