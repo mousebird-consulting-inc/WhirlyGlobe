@@ -546,7 +546,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     baseFrameInfo.modelTrans4d = modelTrans4d;
     baseFrameInfo.scene = scene;
     baseFrameInfo.frameLen = duration;
-    baseFrameInfo.currentTime = scene->getCurrentTime();
+    baseFrameInfo.currentTime = now;
     baseFrameInfo.projMat = projMat;
     baseFrameInfo.projMat4d = projMat4d;
     baseFrameInfo.mvpMat = mvpMat;
