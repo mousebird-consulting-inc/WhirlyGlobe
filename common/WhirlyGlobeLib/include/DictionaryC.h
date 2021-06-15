@@ -307,12 +307,20 @@ public:
 
     const std::string &getStringRef() const { return str; }
 
-    // TODO: Parse ints and such out of the string
-    
     /// Return a string, or empty if it's missing
     virtual std::string getString() const override { return str; }
+
+    virtual int getInt() const override { return (int)getInt64(); }
+    /// Return a 64 bit unique identity or 0 if missing
+    virtual SimpleIdentity getIdentity() const override { return (SimpleIdentity)getInt64(); }
+    /// Return a 64 bit value or 0 if missing
+    virtual int64_t getInt64() const override;
+    /// Interpret an int as a boolean
+    virtual bool getBool() const override;
     /// Interpret an int as a RGBA color
     virtual RGBAColor getColor() const override;
+    /// Return a double, using the default if it's missing
+    virtual double getDouble() const override;
 
     /// Compare to other
     virtual bool isEqual(const DictionaryEntryRef &other) const override;

@@ -129,9 +129,13 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
 
         MBResolveColorType resolveMode = MBResolveColorOpacityComposeAlpha;
 #ifdef __ANDROID__
-        // On Android we need to run the math later, so don't premultiply
-        if (!paint.color->isExpression() && !paint.opacity->isExpression())
+        // On Android, pre-multiply the alpha on static colors.
+        // When the color or opacity is dynamic, we need to do it in the tweaker.
+        if ((!paint.color || !paint.color->isExpression()) &&
+            (!paint.opacity || !paint.opacity->isExpression()))
+        {
             resolveMode = MBResolveColorOpacityMultiply;
+        }
 #endif
         if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode))
         {
