@@ -22,6 +22,8 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
@@ -30,8 +32,6 @@ import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -41,12 +41,12 @@ import java.util.zip.InflaterInputStream;
  */
 public class MapboxVectorInterpreter implements LoaderInterpreter
 {
-    VectorStyleInterface imageStyleGen;
-    VectorStyleInterface styleGen;
-    WeakReference<BaseController> vc;
-    RenderController tileRender;
-    MapboxVectorTileParser parser;
-    MapboxVectorTileParser imageParser;
+    final VectorStyleInterface imageStyleGen;
+    final VectorStyleInterface styleGen;
+    final WeakReference<BaseController> vc;
+    final RenderController tileRender;
+    final MapboxVectorTileParser parser;
+    final MapboxVectorTileParser imageParser;
 
     /**
      * This version of the init builds visual features for vector tiles.
@@ -54,10 +54,14 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
      * This interpreter can be used as overlay data or a full map, depending
      * on how your style is configured.
      */
-    public MapboxVectorInterpreter(VectorStyleInterface inStyleInter,BaseController inVC) {
+    public MapboxVectorInterpreter(@NotNull VectorStyleInterface inStyleInter,
+                                   @NotNull BaseController inVC) {
         styleGen = inStyleInter;
+        imageStyleGen = null;
         vc = new WeakReference<>(inVC);
         parser = new MapboxVectorTileParser(inStyleInter,inVC);
+        imageParser = null;
+        tileRender = null;
     }
 
     /**
@@ -72,9 +76,10 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
      * @param inVectorStyle Style used in the main controller (e.g. the overlay)
      * @param inVC Controller where everything eventually goes
      */
-    public MapboxVectorInterpreter(VectorStyleInterface inImageStyle,RenderController inTileRender,
-                                   VectorStyleInterface inVectorStyle,BaseController inVC)
-    {
+    public MapboxVectorInterpreter(@NotNull VectorStyleInterface inImageStyle,
+                                   @NotNull RenderController inTileRender,
+                                   @NotNull VectorStyleInterface inVectorStyle,
+                                   @NotNull BaseController inVC) {
         imageStyleGen = inImageStyle;
         styleGen = inVectorStyle;
         tileRender = inTileRender;
@@ -85,6 +90,8 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         if (inTileRender != null) {
             imageParser = new MapboxVectorTileParser(imageStyleGen, inTileRender);
             imageParser.setLocalCoords(true);
+        } else {
+            imageParser = null;
         }
     }
 
@@ -167,6 +174,33 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         return data;
     }
 
+    // Simple heuristics for detecting image data.  This allows us to call the correct parser most of
+    // the time and avoid a lot of warnings in the logs from passing Protobuf data to BitmapFactory.
+
+    private static final int SMALLEST_POSSIBLE_JPG = 125;
+    private static final byte[] JPG_HEADER = new byte[] { (byte)0xff, (byte)0xd8 };
+    private static final int SMALLEST_POSSIBLE_PNG = 68;
+    private static final byte[] PNG_HEADER = new byte[] { (byte)0x89, 'P', 'N', 'G', '\r', '\n', (byte)0x1A, '\n' };
+    private static final int SMALLEST_POSSIBLE_GIF = 26;
+    private static final byte[] GIF_HEADER = new byte[] { 'G','I','F','8' };
+
+    private static boolean isLikely(final byte[] bytes, final int minSize, final byte[] pattern) {
+        if (bytes == null || bytes.length < minSize || bytes.length < pattern.length) {
+            return false;
+        }
+        for (int i = 0; i < pattern.length; ++i) {
+            if (bytes[i] != pattern[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+    private static boolean likelyImage(byte[] bytes) {
+        return isLikely(bytes, SMALLEST_POSSIBLE_JPG, JPG_HEADER) ||
+               isLikely(bytes, SMALLEST_POSSIBLE_PNG, PNG_HEADER) ||
+               isLikely(bytes, SMALLEST_POSSIBLE_GIF, GIF_HEADER);
+    }
+
     public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader)
     {
         BaseController theVC = vc.get();
@@ -177,11 +211,18 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
         if (styleGen != null) styleGen.setZoomSlot(loader.getZoomSlot());
         if (imageStyleGen != null) imageStyleGen.setZoomSlot(loader.getZoomSlot());
 
+        TileID tileID = loadReturn.getTileID();
+        Mbr locBounds = loader.geoBoundsForTile(tileID);
+        locBounds.ll = toMerc(locBounds.ll);
+        locBounds.ur = toMerc(locBounds.ur);
+
+        VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
+
         ArrayList<Bitmap> images = new ArrayList<>();
         ArrayList<byte[]> pbfData = new ArrayList<>();
         for (byte[] data : loadReturn.getTileData())
         {
-            // Decode compressed data
+            // If it's compressed, decompress it
             data = decodeStream(data, loadReturn);
             if (data == null || data.length < 1) {
                 if (loadReturn.isCanceled()) {
@@ -191,12 +232,33 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 continue;
             }
 
-            // See if it's an image
+            // See if it looks like an image, otherwise it's probably Protobuf data
+            if (likelyImage(data)) {
+                Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
+                if (image != null) {
+                    images.add(image);
+                    continue;
+                }
+            }
+
+            if (parser.parseData(data, tileData, loadReturn)) {
+                pbfData.add(data);
+                continue;
+            }
+
+            if (loadReturn.isCanceled()) {
+                // Parsing failed because it was canceled, stop now
+                break;
+            }
+
+            // Maybe it's an image after all?
             Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
             if (image != null) {
+                // Yes, we probably need a new heuristic in `maybeImage`
                 images.add(image);
             } else {
-                pbfData.add(data);
+                // It's not Protobuf data or an image, so ignore it.
+                Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
             }
         }
 
@@ -207,29 +269,11 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
         // Don't let the sampling layer shut down while we're working
         QuadSamplingLayer samplingLayer = loader.samplingLayer.get();
-        if (samplingLayer == null || !samplingLayer.layerThread.startOfWork()) {
+        if (samplingLayer == null || !samplingLayer.layerThread.startOfWork() || loadReturn.isCanceled()) {
             return;
         }
 
         try {   // ensure endOfWork is called
-            // Parse the data into vectors
-            // This will skip layers we don't care about
-            TileID tileID = loadReturn.getTileID();
-            Mbr locBounds = loader.geoBoundsForTile(tileID);
-            locBounds.ll = toMerc(locBounds.ll);
-            locBounds.ur = toMerc(locBounds.ur);
-
-            VectorTileData tileData = new VectorTileData(tileID, locBounds, loader.geoBoundsForTile(tileID));
-
-            for (byte[] data : pbfData) {
-                if (!parser.parseData(data, tileData, loadReturn) || loadReturn.isCanceled()) {
-                    if (loadReturn.isCanceled()) {
-                        break;
-                    } else {
-                        Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
-                    }
-                }
-            }
 
             ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
             ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
@@ -248,7 +292,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             // If we have a tile renderer, draw the data into that
             Bitmap tileBitmap = null;
             // multiple checks and synchronization are ok, tileRender is never set to null
-            if (tileRender != null) {
+            if (tileRender != null && imageStyleGen != null) {
                 synchronized (tileRender) {
                     tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
                     Mbr imageBounds = new Mbr(new Point2d(0.0, 0.0), tileRender.frameSize);
@@ -325,7 +369,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
                 if (tileBitmap != null) {
                     images.add(tileBitmap);
-                } else if (images.isEmpty()) {
+                } else if (images.isEmpty() && styleGen != null) {
                     // Make a single color background image
                     // We have to do this each time because it can change per level
                     final int bgColor = styleGen.backgroundColorForZoom(tileID.level);

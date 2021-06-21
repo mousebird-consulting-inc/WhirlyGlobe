@@ -598,14 +598,15 @@ open class MapboxKindaMap(
             parseFromJSON(styleSheetJSON)
         }
 
-        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
+        val styleSet = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
+        styleSheetVector = styleSet
 
         // Set up the sprite sheet
         if (spriteJSON != null && spritePNG != null) {
             styleSheetVector?.addSprites(spriteJSON!!,spritePNG!!)
         }
 
-        mapboxInterp = MapboxVectorInterpreter(styleSheetVector, control)
+        mapboxInterp = MapboxVectorInterpreter(styleSet, control)
         loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
             it.flipY = false
             if (localFetchers.isNotEmpty()) {
@@ -654,12 +655,13 @@ open class MapboxKindaMap(
         if (styleSheetJSON == null)
             return
 
+        var renderer: RenderController? = null
         if (backgroundAllPolys) {
             // Set up an offline renderer and a Mapbox vector style handler to render to it
             val imageSizeWidth = 512
             val imageSizeHeight = 512
-            val offlineRender = RenderController(control.renderControl, imageSizeWidth,imageSizeHeight)
-            this.offlineRender = offlineRender
+            renderer = RenderController(control.renderControl, imageSizeWidth,imageSizeHeight)
+            this.offlineRender = renderer
             val imageStyleSettings = VectorStyleSettings()
             imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
             // TODO: Do we need this?
@@ -679,8 +681,8 @@ open class MapboxKindaMap(
                 }
             }
             imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
-            styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, displayMetrics, offlineRender).also {
-                offlineRender.setClearColor(it.backgroundColorForZoom(0.0))
+            styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, displayMetrics, renderer).also {
+                renderer.setClearColor(it.backgroundColorForZoom(0.0))
             }
         }
 
@@ -701,17 +703,20 @@ open class MapboxKindaMap(
             }
             vectorStyleDict.setArray("layers", newVectorLayers.toTypedArray())
         }
-        styleSheetVector = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
+
+        val vecStyle = MapboxVectorStyleSet(vectorStyleDict, styleSettings, displayMetrics, control)
+        val imgStyle = styleSheetImage
+        styleSheetVector = vecStyle
 
         // Set up the sprite sheet
         if (spriteJSON != null && spritePNG != null) {
             styleSheetVector?.addSprites(spriteJSON!!,spritePNG!!)
         }
 
-        mapboxInterp = if (offlineRender != null && styleSheetImage != null) {
-            MapboxVectorInterpreter(styleSheetImage, offlineRender, styleSheetVector, control)
+        mapboxInterp = if (renderer != null && imgStyle != null) {
+            MapboxVectorInterpreter(imgStyle, renderer, vecStyle, control)
         } else {
-            MapboxVectorInterpreter(styleSheetVector, control)
+            MapboxVectorInterpreter(vecStyle, control)
         }
 
         if (mapboxInterp == null) {

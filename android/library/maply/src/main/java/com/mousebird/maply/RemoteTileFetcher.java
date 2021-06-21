@@ -458,11 +458,10 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     // On a random thread, perhaps
     protected void finishedLoading(final TileInfo inTile, final Response response, final Exception inE,final double fetchStartTile)
     {
-        if (response == null) {
-            return;
-        }
         if (!valid) {
-            response.close();
+            if (response != null) {
+                response.close();
+            }
             return;
         }
 
@@ -481,13 +480,13 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     return;
                 }
 
-                boolean success = (inE == null);
+                boolean success = (inE == null && response != null && response.isSuccessful());
                 Exception e = inE;
 
                 if (debugMode)
                     Log.d("RemoteTileFetcher", "Got response for: " + response.request());
 
-                if (response != null) {
+                if (success) {
                     try (final ResponseBody body = response.body()) {
                         final byte[] bodyBytes = body.bytes();
                         if (bodyBytes != null && bodyBytes.length > 0) {
@@ -503,22 +502,13 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
 
                             handleFinishLoading(tile, bodyBytes, null);
                         } else {
-                            // empty response?
+                            // empty response
                             success = false;
                         }
                     } catch (Exception thisE) {
                         success = false;
                         e = thisE;
-                        if (inE != null) {
-                            if (e.getCause() == null && e.getCause() != inE) {
-                                e.initCause(inE);
-                            } else {
-                                e.addSuppressed(inE);
-                            }
-                        }
                     }
-                } else {
-                    success = false;
                 }
 
                 if (!success) {
