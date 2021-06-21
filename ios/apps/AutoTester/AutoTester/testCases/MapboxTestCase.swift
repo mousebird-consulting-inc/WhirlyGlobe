@@ -38,11 +38,19 @@ class MapboxTestCase: MaplyTestCase {
         let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
         // We have to capture the mapbox: URLs and redirect them because Mapbox does some funky things with their URLs
 
-        // Put your own Mapbox token here.
+        // Put your Mapbox token here, or in the application environment variables.
         // To get a Mapbox token, go sign up on mapbox.com
         // Go to Edit Scheme, select Run, Arguments, and add an "MAPBOX_TOKEN" entry to Environment Variables.
-        let token = ProcessInfo.processInfo.environment["MAPBOX_TOKEN"] ?? "GetYerOwnToken"
-        if token.count == 0 || token == "GetYerOwnToken" {
+        let myToken = "GetYerOwnToken"
+        let key = "MAPBOX_TOKEN"
+        var token = ProcessInfo.processInfo.environment[key] ?? myToken
+        if token.isEmpty || token == "GetYerOwnToken" {
+            if let def = UserDefaults.standard.string(forKey: key) {
+                token = def
+            }
+        }
+
+        if token.isEmpty || token == "GetYerOwnToken" {
             let alertControl = UIAlertController(title: "Missing Token", message: "You need to add your own Mapbox token.\nYou can't use mine.", preferredStyle: .alert)
             alertControl.addAction(UIAlertAction(title: "Fine!", style: .cancel, handler: { _ in
                 alertControl.dismiss(animated: true, completion: nil)
@@ -50,7 +58,9 @@ class MapboxTestCase: MaplyTestCase {
             viewC.present(alertControl, animated: true, completion: nil)
             return
         }
-        
+
+        UserDefaults.standard.setValue(token, forKey: key)
+
         let spriteURLstr = "https://api.mapbox.com/styles/v1/{filename}?access_token=" + token
         let tileURLstr = "https://api.mapbox.com/v4/{filename}.json?secure&access_token=" + token
         let slashPat = try! NSRegularExpression(pattern: "(?<!:)//+")   // multiple slashes *not* preceded by a colon

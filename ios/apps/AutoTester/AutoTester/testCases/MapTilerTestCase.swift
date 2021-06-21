@@ -51,9 +51,17 @@ class MapTilerTestCase: MaplyTestCase {
         mapViewController?.autoMoveToTap = false
 
         // Maptiler token
-        // Go to maptiler.com, setup an account and get your own.
+        // Go to maptiler.com, setup an account and get your own.  Paste it here, or in the environment:
         // Go to Edit Scheme, select Run, Arguments, and add an "MAPTILER_TOKEN" entry to Environment Variables.
-        let token = ProcessInfo.processInfo.environment["MAPTILER_TOKEN"] ?? "GetYerOwnToken"
+        let myToken = "GetYerOwnToken"
+        let key = "MAPTILER_TOKEN"
+        var token = ProcessInfo.processInfo.environment[key] ?? myToken
+        if token.isEmpty || token == "GetYerOwnToken" {
+            if let def = UserDefaults.standard.string(forKey: key) {
+                token = def
+            }
+        }
+        
         if token.count == 0 || token == "GetYerOwnToken" {
             let alertControl = UIAlertController(title: "Missing Token", message: "You need to add your own Maptiler token.\nYou can't use mine.", preferredStyle: .alert)
             alertControl.addAction(UIAlertAction(title: "Fine!", style: .cancel, handler: { _ in
@@ -62,6 +70,8 @@ class MapTilerTestCase: MaplyTestCase {
             viewC.present(alertControl, animated: true, completion: nil)
             return
         }
+
+        UserDefaults.standard.setValue(token, forKey: key)
 
         // Parse it and then let it start itself
         let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
