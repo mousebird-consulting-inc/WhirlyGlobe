@@ -74,18 +74,6 @@
 		2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B5E8AF41E943560000B39E5 /* greensquare.png */; };
 		2B60F4462452706200CF9339 /* VectorMBTilesTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */; };
 		2B6611E625D1C35D009D228F /* AirwayTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B6611E525D1C35D009D228F /* AirwayTestCase.swift */; };
-		2B66120D25D1E6D8009D228F /* Airspace_Boundary.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120125D1E6D7009D228F /* Airspace_Boundary.prj */; };
-		2B66120E25D1E6D8009D228F /* Airspace_Boundary.cpg in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120225D1E6D7009D228F /* Airspace_Boundary.cpg */; };
-		2B66120F25D1E6D8009D228F /* ATS_Route.cpg in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120325D1E6D8009D228F /* ATS_Route.cpg */; };
-		2B66121025D1E6D8009D228F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120425D1E6D8009D228F /* Airspace_Boundary.dbf */; };
-		2B66121125D1E6D8009D228F /* ATS_Route.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120525D1E6D8009D228F /* ATS_Route.dbf */; };
-		2B66121225D1E6D8009D228F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120625D1E6D8009D228F /* ATS_Route.shp */; };
-		2B66121325D1E6D8009D228F /* ATS_Route.shx in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120725D1E6D8009D228F /* ATS_Route.shx */; };
-		2B66121425D1E6D8009D228F /* Airspace_Boundary.shp in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120825D1E6D8009D228F /* Airspace_Boundary.shp */; };
-		2B66121525D1E6D8009D228F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120925D1E6D8009D228F /* Airspace_Boundary.shx */; };
-		2B66121625D1E6D8009D228F /* ATS_Route.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120A25D1E6D8009D228F /* ATS_Route.xml */; };
-		2B66121725D1E6D8009D228F /* ATS_Route.prj in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120B25D1E6D8009D228F /* ATS_Route.prj */; };
-		2B66121825D1E6D8009D228F /* Airspace_Boundary.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2B66120C25D1E6D8009D228F /* Airspace_Boundary.xml */; };
 		2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */; };
 		2B6953681C7E67DD007FC51E /* colorramp.png in Resources */ = {isa = PBXBuildFile; fileRef = 2B6953671C7E67DD007FC51E /* colorramp.png */; };
 		2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2B8F3258201021CF006DDE27 /* NotoSans-Bold.ttf */; };
@@ -122,6 +110,18 @@
 		2BF29B8C24D2268200553963 /* LegendViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF29B8B24D2268200553963 /* LegendViewController.storyboard */; };
 		2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF29B8E24D226B000553963 /* LegendViewController.swift */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A902680F597007BE16F /* ATS_Route.shp */; };
+		311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A912680F597007BE16F /* Airspace_Boundary.dbf */; };
+		311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A922680F597007BE16F /* Airspace_Boundary.shx */; };
+		311E0A9F2680F597007BE16F /* Airspace_Boundary.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A932680F597007BE16F /* Airspace_Boundary.shp */; };
+		311E0AA02680F597007BE16F /* ATS_Route.cpg in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A942680F597007BE16F /* ATS_Route.cpg */; };
+		311E0AA12680F597007BE16F /* ATS_Route.prj in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A952680F597007BE16F /* ATS_Route.prj */; };
+		311E0AA22680F597007BE16F /* ATS_Route.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A962680F597007BE16F /* ATS_Route.shx */; };
+		311E0AA32680F597007BE16F /* Airspace_Boundary.xml in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A972680F597007BE16F /* Airspace_Boundary.xml */; };
+		311E0AA42680F597007BE16F /* ATS_Route.xml in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A982680F597007BE16F /* ATS_Route.xml */; };
+		311E0AA52680F597007BE16F /* Airspace_Boundary.cpg in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A992680F597007BE16F /* Airspace_Boundary.cpg */; };
+		311E0AA62680F597007BE16F /* Airspace_Boundary.prj in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */; };
+		311E0AA72680F597007BE16F /* ATS_Route.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9B2680F597007BE16F /* ATS_Route.dbf */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
 		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
 		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
@@ -686,18 +686,6 @@
 		2B4BA6CD1C83A22000DC1562 /* uturn.geojson */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = uturn.geojson; sourceTree = "<group>"; };
 		2B5E8AF41E943560000B39E5 /* greensquare.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = greensquare.png; path = resources/greensquare.png; sourceTree = "<group>"; };
 		2B6611E525D1C35D009D228F /* AirwayTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirwayTestCase.swift; sourceTree = "<group>"; };
-		2B66120125D1E6D7009D228F /* Airspace_Boundary.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Airspace_Boundary.prj; path = ../../../../resources/vectors/faa/Airspace_Boundary.prj; sourceTree = "<group>"; };
-		2B66120225D1E6D7009D228F /* Airspace_Boundary.cpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Airspace_Boundary.cpg; path = ../../../../resources/vectors/faa/Airspace_Boundary.cpg; sourceTree = "<group>"; };
-		2B66120325D1E6D8009D228F /* ATS_Route.cpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ATS_Route.cpg; path = ../../../../resources/vectors/faa/ATS_Route.cpg; sourceTree = "<group>"; };
-		2B66120425D1E6D8009D228F /* Airspace_Boundary.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.dbf; path = ../../../../resources/vectors/faa/Airspace_Boundary.dbf; sourceTree = "<group>"; };
-		2B66120525D1E6D8009D228F /* ATS_Route.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.dbf; path = ../../../../resources/vectors/faa/ATS_Route.dbf; sourceTree = "<group>"; };
-		2B66120625D1E6D8009D228F /* ATS_Route.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shp; path = ../../../../resources/vectors/faa/ATS_Route.shp; sourceTree = "<group>"; };
-		2B66120725D1E6D8009D228F /* ATS_Route.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shx; path = ../../../../resources/vectors/faa/ATS_Route.shx; sourceTree = "<group>"; };
-		2B66120825D1E6D8009D228F /* Airspace_Boundary.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shp; path = ../../../../resources/vectors/faa/Airspace_Boundary.shp; sourceTree = "<group>"; };
-		2B66120925D1E6D8009D228F /* Airspace_Boundary.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shx; path = ../../../../resources/vectors/faa/Airspace_Boundary.shx; sourceTree = "<group>"; };
-		2B66120A25D1E6D8009D228F /* ATS_Route.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = ATS_Route.xml; path = ../../../../resources/vectors/faa/ATS_Route.xml; sourceTree = "<group>"; };
-		2B66120B25D1E6D8009D228F /* ATS_Route.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ATS_Route.prj; path = ../../../../resources/vectors/faa/ATS_Route.prj; sourceTree = "<group>"; };
-		2B66120C25D1E6D8009D228F /* Airspace_Boundary.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = Airspace_Boundary.xml; path = ../../../../resources/vectors/faa/Airspace_Boundary.xml; sourceTree = "<group>"; };
 		2B68A43B225D06A8009CC720 /* ImageReloadTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageReloadTestCase.swift; sourceTree = "<group>"; };
 		2B6953671C7E67DD007FC51E /* colorramp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = colorramp.png; path = AutoTester/colorramp.png; sourceTree = "<group>"; };
 		2B73D6B2207C106C00AF5095 /* GlobeSamplerTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobeSamplerTestCase.swift; sourceTree = "<group>"; };
@@ -730,6 +718,18 @@
 		2BF29B8E24D226B000553963 /* LegendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendViewController.swift; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
+		311E0A902680F597007BE16F /* ATS_Route.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shp; path = ../../../resources/vectors/faa/ATS_Route.shp; sourceTree = SOURCE_ROOT; };
+		311E0A912680F597007BE16F /* Airspace_Boundary.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.dbf; path = ../../../resources/vectors/faa/Airspace_Boundary.dbf; sourceTree = SOURCE_ROOT; };
+		311E0A922680F597007BE16F /* Airspace_Boundary.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shx; path = ../../../resources/vectors/faa/Airspace_Boundary.shx; sourceTree = SOURCE_ROOT; };
+		311E0A932680F597007BE16F /* Airspace_Boundary.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shp; path = ../../../resources/vectors/faa/Airspace_Boundary.shp; sourceTree = SOURCE_ROOT; };
+		311E0A942680F597007BE16F /* ATS_Route.cpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ATS_Route.cpg; path = ../../../resources/vectors/faa/ATS_Route.cpg; sourceTree = SOURCE_ROOT; };
+		311E0A952680F597007BE16F /* ATS_Route.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ATS_Route.prj; path = ../../../resources/vectors/faa/ATS_Route.prj; sourceTree = SOURCE_ROOT; };
+		311E0A962680F597007BE16F /* ATS_Route.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shx; path = ../../../resources/vectors/faa/ATS_Route.shx; sourceTree = SOURCE_ROOT; };
+		311E0A972680F597007BE16F /* Airspace_Boundary.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = Airspace_Boundary.xml; path = ../../../resources/vectors/faa/Airspace_Boundary.xml; sourceTree = SOURCE_ROOT; };
+		311E0A982680F597007BE16F /* ATS_Route.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = ATS_Route.xml; path = ../../../resources/vectors/faa/ATS_Route.xml; sourceTree = SOURCE_ROOT; };
+		311E0A992680F597007BE16F /* Airspace_Boundary.cpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Airspace_Boundary.cpg; path = ../../../resources/vectors/faa/Airspace_Boundary.cpg; sourceTree = SOURCE_ROOT; };
+		311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Airspace_Boundary.prj; path = ../../../resources/vectors/faa/Airspace_Boundary.prj; sourceTree = SOURCE_ROOT; };
+		311E0A9B2680F597007BE16F /* ATS_Route.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.dbf; path = ../../../resources/vectors/faa/ATS_Route.dbf; sourceTree = SOURCE_ROOT; };
 		313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenMarkersTestCase.swift; sourceTree = "<group>"; };
 		316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_expr_test.json; sourceTree = "<group>"; };
 		316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_test_circles.json; sourceTree = "<group>"; };
@@ -1304,23 +1304,23 @@
 			path = resources;
 			sourceTree = "<group>";
 		};
-		2B6611E825D1C967009D228F /* airways */ = {
+		311E0A822680F496007BE16F /* airways */ = {
 			isa = PBXGroup;
 			children = (
-				2B66120225D1E6D7009D228F /* Airspace_Boundary.cpg */,
-				2B66120425D1E6D8009D228F /* Airspace_Boundary.dbf */,
-				2B66120125D1E6D7009D228F /* Airspace_Boundary.prj */,
-				2B66120825D1E6D8009D228F /* Airspace_Boundary.shp */,
-				2B66120925D1E6D8009D228F /* Airspace_Boundary.shx */,
-				2B66120C25D1E6D8009D228F /* Airspace_Boundary.xml */,
-				2B66120325D1E6D8009D228F /* ATS_Route.cpg */,
-				2B66120525D1E6D8009D228F /* ATS_Route.dbf */,
-				2B66120B25D1E6D8009D228F /* ATS_Route.prj */,
-				2B66120625D1E6D8009D228F /* ATS_Route.shp */,
-				2B66120725D1E6D8009D228F /* ATS_Route.shx */,
-				2B66120A25D1E6D8009D228F /* ATS_Route.xml */,
+				311E0A992680F597007BE16F /* Airspace_Boundary.cpg */,
+				311E0A912680F597007BE16F /* Airspace_Boundary.dbf */,
+				311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */,
+				311E0A932680F597007BE16F /* Airspace_Boundary.shp */,
+				311E0A922680F597007BE16F /* Airspace_Boundary.shx */,
+				311E0A972680F597007BE16F /* Airspace_Boundary.xml */,
+				311E0A942680F597007BE16F /* ATS_Route.cpg */,
+				311E0A9B2680F597007BE16F /* ATS_Route.dbf */,
+				311E0A952680F597007BE16F /* ATS_Route.prj */,
+				311E0A902680F597007BE16F /* ATS_Route.shp */,
+				311E0A962680F597007BE16F /* ATS_Route.shx */,
+				311E0A982680F597007BE16F /* ATS_Route.xml */,
 			);
-			path = airways;
+			name = airways;
 			sourceTree = "<group>";
 		};
 		3651D5D283D23F0C2EFDE845 /* Frameworks */ = {
@@ -1483,7 +1483,7 @@
 		88FF5BDF1BC31D3C002F15CE /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				2B6611E825D1C967009D228F /* airways */,
+				311E0A822680F496007BE16F /* airways */,
 				2BD914E7256F1F8A00E724A8 /* Assets.xcassets */,
 				2BD914BC256F1C8D00E724A8 /* icon_152.png */,
 				2BD914BB256F1C8D00E724A8 /* icon_167.png */,
@@ -2101,6 +2101,7 @@
 			files = (
 				88FF5E521BC31D95002F15CE /* GUF.geojson in Resources */,
 				8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */,
+				311E0AA32680F597007BE16F /* Airspace_Boundary.xml in Resources */,
 				88FF5E211BC31D95002F15CE /* CIV.geojson in Resources */,
 				88FF5CCD1BC31D6D002F15CE /* religious-jewish-24@2x.png in Resources */,
 				88FF5CDA1BC31D6D002F15CE /* star-stroked-24@2x.png in Resources */,
@@ -2125,12 +2126,12 @@
 				2B4B30C62395F08D00854073 /* mapbox_satellite-v9.json in Resources */,
 				88FF5C821BC31D6D002F15CE /* airport-24@2x.png in Resources */,
 				88FF5C811BC31D6D002F15CE /* airfield-24@2x.png in Resources */,
-				2B66121325D1E6D8009D228F /* ATS_Route.shx in Resources */,
 				88FF5ED01BC31D95002F15CE /* TJK.geojson in Resources */,
 				88FF5ED51BC31D95002F15CE /* TTO.geojson in Resources */,
 				88FF5E061BC31D95002F15CE /* BDI.geojson in Resources */,
 				88FF5EEA1BC31D95002F15CE /* YEM.geojson in Resources */,
 				88FF5E111BC31D95002F15CE /* BLR.geojson in Resources */,
+				311E0A9F2680F597007BE16F /* Airspace_Boundary.shp in Resources */,
 				88FF5ED61BC31D95002F15CE /* TUN.geojson in Resources */,
 				2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */,
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
@@ -2172,7 +2173,7 @@
 				2B033BFD24F6DA4600B55248 /* Roboto-Condensed-Light.ttf in Resources */,
 				88FF5E7E1BC31D95002F15CE /* MAR.geojson in Resources */,
 				2B7E288C200EC109007E2965 /* SE_Basic.json in Resources */,
-				2B66121525D1E6D8009D228F /* Airspace_Boundary.shx in Resources */,
+				311E0AA62680F597007BE16F /* Airspace_Boundary.prj in Resources */,
 				88FF5EDD1BC31D95002F15CE /* UMI.geojson in Resources */,
 				88FF5E771BC31D95002F15CE /* LKA.geojson in Resources */,
 				88FF5E7B1BC31D95002F15CE /* LVA.geojson in Resources */,
@@ -2203,7 +2204,6 @@
 				88FF5EEE1BC31D95002F15CE /* tl_2013_06075_roads.dbf in Resources */,
 				88FF5E3A1BC31D95002F15CE /* ESP.geojson in Resources */,
 				88FF5BEA1BC31D53002F15CE /* Star.png in Resources */,
-				2B66121625D1E6D8009D228F /* ATS_Route.xml in Resources */,
 				88FF5CDC1BC31D6D002F15CE /* swimming-24@2x.png in Resources */,
 				88FF5DFD1BC31D95002F15CE /* ARG.geojson in Resources */,
 				88FF5ECD1BC31D95002F15CE /* TCD.geojson in Resources */,
@@ -2224,7 +2224,6 @@
 				88FF5EE61BC31D95002F15CE /* VNM.geojson in Resources */,
 				2B033C0D24F6F75300B55248 /* OpenSans-ExtraBoldItalic.ttf in Resources */,
 				88FF5E5B1BC31D95002F15CE /* IDN.geojson in Resources */,
-				2B66120D25D1E6D8009D228F /* Airspace_Boundary.prj in Resources */,
 				88FF5E121BC31D95002F15CE /* BLZ.geojson in Resources */,
 				88FF5E9E1BC31D95002F15CE /* NRU.geojson in Resources */,
 				88FF5C9C1BC31D6D002F15CE /* cross-24@2x.png in Resources */,
@@ -2274,8 +2273,8 @@
 				88FF5CE21BC31D6D002F15CE /* town-hall-24@2x.png in Resources */,
 				2B4BA6D81C83A22000DC1562 /* track.geojson in Resources */,
 				88FF5CF21BC31D6D002F15CE /* starcatalog_orig.txt in Resources */,
-				2B66121225D1E6D8009D228F /* ATS_Route.shp in Resources */,
 				2B033BFB24F6DA4600B55248 /* Roboto-Condensed-BoldItalic.ttf in Resources */,
+				311E0AA42680F597007BE16F /* ATS_Route.xml in Resources */,
 				2B73D6AE207C0D5F00AF5095 /* NotoSans-Bold.ttf in Resources */,
 				2BD914BD256F1C8D00E724A8 /* icon_167.png in Resources */,
 				E53CF5E81E1EAF73000FB5C1 /* school.png in Resources */,
@@ -2302,6 +2301,7 @@
 				2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */,
 				2B033BE424F6D7BA00B55248 /* Roboto-Bold.ttf in Resources */,
 				88FF5E621BC31D95002F15CE /* ISL.geojson in Resources */,
+				311E0AA12680F597007BE16F /* ATS_Route.prj in Resources */,
 				88FF5E391BC31D95002F15CE /* ESH.geojson in Resources */,
 				88FF5CCE1BC31D6D002F15CE /* religious-muslim-24@2x.png in Resources */,
 				88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */,
@@ -2370,6 +2370,7 @@
 				2B1C26531C91037100C71B0A /* France.mbtiles in Resources */,
 				88FF5E911BC31D95002F15CE /* MWI.geojson in Resources */,
 				88FF5CDE1BC31D6D002F15CE /* tennis-24@2x.png in Resources */,
+				311E0AA22680F597007BE16F /* ATS_Route.shx in Resources */,
 				88FF5C981BC31D6D002F15CE /* clothing-store-24@2x.png in Resources */,
 				88FF5CA91BC31D6D002F15CE /* golf-24@2x.png in Resources */,
 				2B033C0E24F6F75300B55248 /* OpenSans-Italic.ttf in Resources */,
@@ -2394,7 +2395,7 @@
 				88FF5EB91BC31D95002F15CE /* SHN.geojson in Resources */,
 				88FF5E971BC31D95002F15CE /* NFK.geojson in Resources */,
 				88FF5C9E1BC31D6D002F15CE /* danger-24@2x.png in Resources */,
-				2B66121025D1E6D8009D228F /* Airspace_Boundary.dbf in Resources */,
+				311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */,
 				2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */,
 				2B29944F243BA31900677DE4 /* cube.obj in Resources */,
 				88FF5C971BC31D6D002F15CE /* city-24@2x.png in Resources */,
@@ -2417,7 +2418,6 @@
 				88FF5CCC1BC31D6D002F15CE /* religious-christian-24@2x.png in Resources */,
 				88FF5E4F1BC31D95002F15CE /* GRD.geojson in Resources */,
 				88FF5E101BC31D95002F15CE /* BLM.geojson in Resources */,
-				2B66120E25D1E6D8009D228F /* Airspace_Boundary.cpg in Resources */,
 				88FF5C911BC31D6D002F15CE /* campsite-24@2x.png in Resources */,
 				88FF5EA51BC31D95002F15CE /* PHL.geojson in Resources */,
 				88FF5E7C1BC31D95002F15CE /* MAC.geojson in Resources */,
@@ -2434,7 +2434,6 @@
 				88FF5E0E1BC31D95002F15CE /* BHS.geojson in Resources */,
 				88FF5CBA1BC31D6D002F15CE /* museum-24@2x.png in Resources */,
 				88FF5CDB1BC31D6D002F15CE /* suitcase-24@2x.png in Resources */,
-				2B66121425D1E6D8009D228F /* Airspace_Boundary.shp in Resources */,
 				2B033C0F24F6F75300B55248 /* OpenSans-Light.ttf in Resources */,
 				88FF5DF91BC31D95002F15CE /* ALA.geojson in Resources */,
 				2B033C1324F6F75300B55248 /* OpenSans-SemiBoldItalic.ttf in Resources */,
@@ -2443,6 +2442,7 @@
 				88FF5E711BC31D95002F15CE /* LAO.geojson in Resources */,
 				E5941DCE1E0D02A800E1C8B3 /* water_lines.sld in Resources */,
 				8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */,
+				311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */,
 				88FF5E2B1BC31D95002F15CE /* CUW.geojson in Resources */,
 				2B033C1224F6F75300B55248 /* OpenSans-SemiBold.ttf in Resources */,
 				88FF5E511BC31D95002F15CE /* GTM.geojson in Resources */,
@@ -2457,7 +2457,6 @@
 				88FF5E8A1BC31D95002F15CE /* MNG.geojson in Resources */,
 				88FF5EE01BC31D95002F15CE /* UZB.geojson in Resources */,
 				2B4BA6D61C83A22000DC1562 /* square.geojson in Resources */,
-				2B66121725D1E6D8009D228F /* ATS_Route.prj in Resources */,
 				88FF5E581BC31D95002F15CE /* HRV.geojson in Resources */,
 				88FF5C8D1BC31D6D002F15CE /* building-24@2x.png in Resources */,
 				88FF5C781BC31D6D002F15CE /* lowres_wtb_1x1.pvrtc in Resources */,
@@ -2471,6 +2470,7 @@
 				88FF5E901BC31D95002F15CE /* MUS.geojson in Resources */,
 				88FF5E1D1BC31D95002F15CE /* CCK.geojson in Resources */,
 				2B033BFC24F6DA4600B55248 /* Roboto-Condensed-Italic.ttf in Resources */,
+				311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */,
 				88FF5EBE1BC31D95002F15CE /* SMR.geojson in Resources */,
 				88FF5CD81BC31D6D002F15CE /* square-stroked-24@2x.png in Resources */,
 				88FF5DFB1BC31D95002F15CE /* AND.geojson in Resources */,
@@ -2487,13 +2487,13 @@
 				88FF5CAD1BC31D6D002F15CE /* hospital-24@2x.png in Resources */,
 				88FF5C921BC31D6D002F15CE /* car-24@2x.png in Resources */,
 				88FF5E1F1BC31D95002F15CE /* CHL.geojson in Resources */,
-				2B66121825D1E6D8009D228F /* Airspace_Boundary.xml in Resources */,
 				88FF5E741BC31D95002F15CE /* LBY.geojson in Resources */,
 				88FF5CB21BC31D6D002F15CE /* lighthouse-24@2x.png in Resources */,
 				E5C82FCC1E221C890074DF23 /* cemetery.png in Resources */,
 				88FF5E221BC31D95002F15CE /* CMR.geojson in Resources */,
 				88FF5CDD1BC31D6D002F15CE /* telephone-24@2x.png in Resources */,
 				88FF5E231BC31D95002F15CE /* COD.geojson in Resources */,
+				311E0AA02680F597007BE16F /* ATS_Route.cpg in Resources */,
 				D84AA5971C1A26C100413B76 /* OSTN02_NTv2.gsb in Resources */,
 				88FF5CC11BC31D6D002F15CE /* pharmacy-24@2x.png in Resources */,
 				E5941DBF1E0CEC8600E1C8B3 /* belfast_ireland_waterways.geojson in Resources */,
@@ -2501,7 +2501,6 @@
 				88FF5ED21BC31D95002F15CE /* TKM.geojson in Resources */,
 				88FF5E321BC31D95002F15CE /* DMA.geojson in Resources */,
 				88FF5E951BC31D95002F15CE /* NCL.geojson in Resources */,
-				2B66121125D1E6D8009D228F /* ATS_Route.dbf in Resources */,
 				88FF5C891BC31D6D002F15CE /* baseball-24@2x.png in Resources */,
 				88FF5EA61BC31D95002F15CE /* PLW.geojson in Resources */,
 				E53CF5E41E1EAF73000FB5C1 /* firehouse.png in Resources */,
@@ -2558,7 +2557,9 @@
 				2B033BFA24F6DA4600B55248 /* Roboto-Condensed-Bold.ttf in Resources */,
 				2B033C0B24F6F75300B55248 /* OpenSans-BoldItalic.ttf in Resources */,
 				88FF5C881BC31D6D002F15CE /* bar-24@2x.png in Resources */,
+				311E0AA72680F597007BE16F /* ATS_Route.dbf in Resources */,
 				E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */,
+				311E0AA52680F597007BE16F /* Airspace_Boundary.cpg in Resources */,
 				88FF5ECB1BC31D95002F15CE /* SYR.geojson in Resources */,
 				88FF5EA71BC31D95002F15CE /* PNG.geojson in Resources */,
 				88FF5E681BC31D95002F15CE /* JPN.geojson in Resources */,
@@ -2567,7 +2568,6 @@
 				88FF5CDF1BC31D6D002F15CE /* theatre-24@2x.png in Resources */,
 				88FF5CC21BC31D6D002F15CE /* pitch-24@2x.png in Resources */,
 				2B4BA6D91C83A22000DC1562 /* uturn.geojson in Resources */,
-				2B66120F25D1E6D8009D228F /* ATS_Route.cpg in Resources */,
 				88FF5E5F1BC31D95002F15CE /* IRL.geojson in Resources */,
 				2B033BE824F6D7BA00B55248 /* Roboto-LightItalic.ttf in Resources */,
 				88FF5ECC1BC31D95002F15CE /* TCA.geojson in Resources */,
