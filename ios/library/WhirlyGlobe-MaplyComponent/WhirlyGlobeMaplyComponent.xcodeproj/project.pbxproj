@@ -152,12 +152,10 @@
 		2B69984C228DD31F00C31E3F /* BasicDrawableBuilderMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B69983B228DD31D00C31E3F /* BasicDrawableBuilderMTL.h */; };
 		2B69984D228DD31F00C31E3F /* ScreenSpaceDrawableBuilderMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B69983C228DD31D00C31E3F /* ScreenSpaceDrawableBuilderMTL.h */; };
 		2B69984E228DD31F00C31E3F /* WideVectorDrawableBuilderMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B69983D228DD31D00C31E3F /* WideVectorDrawableBuilderMTL.h */; };
-		2B69984F228DD31F00C31E3F /* ParticleSystemDrawableMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B69983E228DD31D00C31E3F /* ParticleSystemDrawableMTL.h */; };
 		2B699850228DD31F00C31E3F /* BasicDrawableInstanceMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B69983F228DD31E00C31E3F /* BasicDrawableInstanceMTL.h */; };
 		2B699851228DD31F00C31E3F /* TextureMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699840228DD31E00C31E3F /* TextureMTL.h */; };
 		2B699852228DD31F00C31E3F /* WrapperMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699841228DD31E00C31E3F /* WrapperMTL.h */; };
 		2B699853228DD31F00C31E3F /* VertexAttributeMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699842228DD31E00C31E3F /* VertexAttributeMTL.h */; };
-		2B699854228DD31F00C31E3F /* ParticleSystemDrawableBuilderMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699843228DD31E00C31E3F /* ParticleSystemDrawableBuilderMTL.h */; };
 		2B699855228DD31F00C31E3F /* SceneRendererMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699844228DD31E00C31E3F /* SceneRendererMTL.h */; };
 		2B699856228DD31F00C31E3F /* DynamicTextureAtlasMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699845228DD31F00C31E3F /* DynamicTextureAtlasMTL.h */; };
 		2B699857228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B699846228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h */; };
@@ -171,12 +169,10 @@
 		2B699870228DD36A00C31E3F /* DynamicTextureAtlasMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B69985F228DD36600C31E3F /* DynamicTextureAtlasMTL.mm */; };
 		2B699871228DD36A00C31E3F /* ScreenSpaceDrawableBuilderMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699860228DD36600C31E3F /* ScreenSpaceDrawableBuilderMTL.mm */; };
 		2B699872228DD36A00C31E3F /* SceneRendererMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699861228DD36600C31E3F /* SceneRendererMTL.mm */; };
-		2B699873228DD36A00C31E3F /* ParticleSystemDrawableBuilderMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699862228DD36700C31E3F /* ParticleSystemDrawableBuilderMTL.mm */; };
 		2B699874228DD36A00C31E3F /* WrapperMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699863228DD36700C31E3F /* WrapperMTL.mm */; };
 		2B699875228DD36A00C31E3F /* BasicDrawableMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699864228DD36700C31E3F /* BasicDrawableMTL.mm */; };
 		2B699876228DD36A00C31E3F /* VertexAttributeMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699865228DD36800C31E3F /* VertexAttributeMTL.mm */; };
 		2B699877228DD36A00C31E3F /* WideVectorDrawableBuilderMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */; };
-		2B699878228DD36A00C31E3F /* ParticleSystemDrawableMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */; };
 		2B699879228DD36A00C31E3F /* TextureMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B699868228DD36A00C31E3F /* TextureMTL.mm */; };
 		2B69987B228DE06000C31E3F /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B69987A228DE06000C31E3F /* Metal.framework */; };
 		2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B69987C228DE2EF00C31E3F /* MetalKit.framework */; };
@@ -1182,12 +1178,10 @@
 		2B69983B228DD31D00C31E3F /* BasicDrawableBuilderMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawableBuilderMTL.h; sourceTree = "<group>"; };
 		2B69983C228DD31D00C31E3F /* ScreenSpaceDrawableBuilderMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenSpaceDrawableBuilderMTL.h; sourceTree = "<group>"; };
 		2B69983D228DD31D00C31E3F /* WideVectorDrawableBuilderMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorDrawableBuilderMTL.h; sourceTree = "<group>"; };
-		2B69983E228DD31D00C31E3F /* ParticleSystemDrawableMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemDrawableMTL.h; sourceTree = "<group>"; };
 		2B69983F228DD31E00C31E3F /* BasicDrawableInstanceMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicDrawableInstanceMTL.h; sourceTree = "<group>"; };
 		2B699840228DD31E00C31E3F /* TextureMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextureMTL.h; sourceTree = "<group>"; };
 		2B699841228DD31E00C31E3F /* WrapperMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WrapperMTL.h; sourceTree = "<group>"; };
 		2B699842228DD31E00C31E3F /* VertexAttributeMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VertexAttributeMTL.h; sourceTree = "<group>"; };
-		2B699843228DD31E00C31E3F /* ParticleSystemDrawableBuilderMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleSystemDrawableBuilderMTL.h; sourceTree = "<group>"; };
 		2B699844228DD31E00C31E3F /* SceneRendererMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SceneRendererMTL.h; sourceTree = "<group>"; };
 		2B699845228DD31F00C31E3F /* DynamicTextureAtlasMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicTextureAtlasMTL.h; sourceTree = "<group>"; };
 		2B699846228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillboardDrawableBuilderMTL.h; sourceTree = "<group>"; };
@@ -1201,12 +1195,10 @@
 		2B69985F228DD36600C31E3F /* DynamicTextureAtlasMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DynamicTextureAtlasMTL.mm; sourceTree = "<group>"; };
 		2B699860228DD36600C31E3F /* ScreenSpaceDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ScreenSpaceDrawableBuilderMTL.mm; sourceTree = "<group>"; };
 		2B699861228DD36600C31E3F /* SceneRendererMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = SceneRendererMTL.mm; sourceTree = "<group>"; };
-		2B699862228DD36700C31E3F /* ParticleSystemDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleSystemDrawableBuilderMTL.mm; sourceTree = "<group>"; };
 		2B699863228DD36700C31E3F /* WrapperMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WrapperMTL.mm; sourceTree = "<group>"; };
 		2B699864228DD36700C31E3F /* BasicDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = BasicDrawableMTL.mm; sourceTree = "<group>"; };
 		2B699865228DD36800C31E3F /* VertexAttributeMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VertexAttributeMTL.mm; sourceTree = "<group>"; };
 		2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorDrawableBuilderMTL.mm; sourceTree = "<group>"; };
-		2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleSystemDrawableMTL.mm; sourceTree = "<group>"; };
 		2B699868228DD36A00C31E3F /* TextureMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TextureMTL.mm; sourceTree = "<group>"; };
 		2B69987A228DE06000C31E3F /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		2B69987C228DE2EF00C31E3F /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
@@ -2345,8 +2337,6 @@
 				2B69983F228DD31E00C31E3F /* BasicDrawableInstanceMTL.h */,
 				2B699839228DD31D00C31E3F /* BasicDrawableInstanceBuilderMTL.h */,
 				2B699846228DD31F00C31E3F /* BillboardDrawableBuilderMTL.h */,
-				2B69983E228DD31D00C31E3F /* ParticleSystemDrawableMTL.h */,
-				2B699843228DD31E00C31E3F /* ParticleSystemDrawableBuilderMTL.h */,
 				2B69983C228DD31D00C31E3F /* ScreenSpaceDrawableBuilderMTL.h */,
 				2B69983D228DD31D00C31E3F /* WideVectorDrawableBuilderMTL.h */,
 				2B69983A228DD31D00C31E3F /* RenderTargetMTL.h */,
@@ -2368,8 +2358,6 @@
 				2B699858228DD36300C31E3F /* BasicDrawableInstanceBuilderMTL.mm */,
 				2B69985C228DD36500C31E3F /* BillboardDrawableBuilderMTL.mm */,
 				2B69985F228DD36600C31E3F /* DynamicTextureAtlasMTL.mm */,
-				2B699867228DD36900C31E3F /* ParticleSystemDrawableMTL.mm */,
-				2B699862228DD36700C31E3F /* ParticleSystemDrawableBuilderMTL.mm */,
 				2B699860228DD36600C31E3F /* ScreenSpaceDrawableBuilderMTL.mm */,
 				2B699866228DD36900C31E3F /* WideVectorDrawableBuilderMTL.mm */,
 				2B69985B228DD36400C31E3F /* ProgramMTL.mm */,
@@ -4187,7 +4175,6 @@
 				2BD6FA64254B478000FD8374 /* DictionaryC.h in Headers */,
 				31833118259112BA005FEF70 /* Ellipsoid.hpp in Headers */,
 				31833122259112BA005FEF70 /* Geoid.hpp in Headers */,
-				2B699854228DD31F00C31E3F /* ParticleSystemDrawableBuilderMTL.h in Headers */,
 				2B846F1021F158E100EF2A82 /* LayoutManager.h in Headers */,
 				31833123259112BA005FEF70 /* Rhumb.hpp in Headers */,
 				31833131259112BA005FEF70 /* GeoCoords.hpp in Headers */,
@@ -4267,7 +4254,6 @@
 				2B446B0221F79A600078A975 /* WhirlyOctEncoding.h in Headers */,
 				2BB8E1B721FBC61C00154CDC /* ActiveModel.h in Headers */,
 				2B69984A228DD31F00C31E3F /* BasicDrawableInstanceBuilderMTL.h in Headers */,
-				2B69984F228DD31F00C31E3F /* ParticleSystemDrawableMTL.h in Headers */,
 				2B82B5E31E82E2490095FB14 /* dict.h in Headers */,
 				3183313D259112BA005FEF70 /* EllipticFunction.hpp in Headers */,
 				31833167259114A0005FEF70 /* GeographicLib.h in Headers */,
@@ -4473,7 +4459,6 @@
 				2B446B1F21F79AE40078A975 /* Proj4CoordSystem.cpp in Sources */,
 				2B82B61E1E82E2490095FB14 /* libjson.cpp in Sources */,
 				2B3F4528243FD82200F85414 /* SLDStyleSet.m in Sources */,
-				2B699878228DD36A00C31E3F /* ParticleSystemDrawableMTL.mm in Sources */,
 				2BE539B31D249BEF00B60FAD /* AAPhysicalMars.cpp in Sources */,
 				2B87971F2203BF7900EF801D /* MaplyMarker.m in Sources */,
 				2BE5399E1D249BEF00B60FAD /* AAInterpolate.cpp in Sources */,
@@ -4871,7 +4856,6 @@
 				2BE1E7412208C03900815D9C /* GlobeDoubleTapDelegate.mm in Sources */,
 				2BB8E20221FF93CB00154CDC /* WhirlyKitView.cpp in Sources */,
 				2B8A78CC228B6AAA008B0A1F /* ParticleSystemManager.cpp in Sources */,
-				2B699873228DD36A00C31E3F /* ParticleSystemDrawableBuilderMTL.mm in Sources */,
 				2B3F4525243FD82200F85414 /* MapnikStyle.m in Sources */,
 				2BE539AD1D249BEF00B60FAD /* AANodes.cpp in Sources */,
 				2B82B6A11E82E24A0095FB14 /* PJ_poly.c in Sources */,

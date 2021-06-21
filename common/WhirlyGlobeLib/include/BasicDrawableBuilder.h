@@ -114,6 +114,9 @@ public:
 
     /// For OpenGLES2, you can set the program to use in rendering
     void setProgram(SimpleIdentity progId);
+    
+    /// Program use for calculation phase
+    void setCalculationProgram(SimpleIdentity progId);
 
     /// Add a tweaker to this list to be run each frame
     void addTweaker(const DrawableTweakerRef &tweakRef);
@@ -188,6 +191,10 @@ public:
     /// Add a normal
     virtual void addNormal(const Point3f &norm);
     virtual void addNormal(const Point3d &norm);
+    
+    /// If there's a calculation pass, this is the data we'll pass in.
+    /// This is just for Metal at the moment.
+    virtual void setCalculationData(int numEntries,const std::vector<RawDataRef> &data);
     
     /// Decide if the given list of vertex attributes is the same as the one we have
     bool compareVertexAttributes(const SingleVertexAttributeSet &attrs) const;

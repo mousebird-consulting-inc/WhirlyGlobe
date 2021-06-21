@@ -291,48 +291,6 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getCalcRenderPipelineState(
     return calcRenderState;
 }
 
-//void BasicDrawableInstanceMTL::calculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
-//{
-//    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
-//    if (!basicDrawMTL) {
-//        NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
-//        return;
-//    }
-//    if (!basicDrawMTL)
-//        return;
-//    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-//    // Render state is pretty simple, so apply that
-//    id<MTLRenderPipelineState> renderState = getCalcRenderPipelineState(sceneRender,frameInfo);
-//    [cmdEncode setRenderPipelineState:renderState];
-//
-//    if (instanceStyle == GPUStyle) {
-//        if (!indirectBuffer) {
-//            // Set up a buffer for the indirect arguments
-//            MTLDrawIndexedPrimitivesIndirectArguments args;
-//            args.indexCount = basicDrawMTL->numTris*3;
-//            args.instanceCount = 0;
-//            args.indexStart = 0;
-//            args.baseVertex = 0;
-//            args.baseInstance = 0;
-//            indirectBuffer = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:&args length:sizeof(MTLDrawIndexedPrimitivesIndirectArguments) options:MTLStorageModeShared];
-//        }
-//
-//        TextureBaseMTL *tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(instanceTexSource));
-//        if (!tex) {
-//            NSLog(@"Missing texture for instance texture source in BasicDrawableInstanceMTL::draw() for tex %d",(int)instanceTexSource);
-//            return;
-//        }
-//
-//        // Set up the inputs for the program to copy into the indirect buffer
-//        [cmdEncode setVertexBuffer:indirectBuffer offset:0 atIndex:WKSInstanceIndirectBuffer];
-//        [cmdEncode setVertexTexture:tex->getMTLID() atIndex:0];
-//        Point3f pt(0.0,0.0,0.0);
-//        [cmdEncode setVertexBytes:&pt length:sizeof(float)*3 atIndex:0];
-//        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1];
-//    }
-//}
-
-
 // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
 // Also adds to the list of resources being used by this drawable
 bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
@@ -518,6 +476,11 @@ void BasicDrawableInstanceMTL::enumerateBuffers(ResourceRefsMTL &resources)
         resources.addEntry(basicDrawMTL->mainBuffer);
     resources.addEntry(mainBuffer);
 
+    BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
+    if (instDrawMTL)
+        for (const auto &calcBuf: instDrawMTL->calcBuffers)
+            resources.addEntry(calcBuf);
+
     if (vertABInfo)
         vertABInfo->addResources(resources);
     if (fragABInfo)
@@ -555,6 +518,9 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     if (!basicDrawMTL)
         return;
 
+    // Used if we're getting our instance from another drawable
+    BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
+
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
     
     // Wire up the various inputs that we know about
@@ -586,6 +552,16 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     // Instances go to the vertex shader if they're present
     if (instBuffer.buffer)
         [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+    
+    // Instances actually come from another drawable
+    // There may be several buffers (imagine particles)
+    if (instDrawMTL) {
+        for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
+            const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
+        }
+    }
+
     
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
@@ -674,13 +650,77 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
                     break;
             }
             break;
+        case ReferenceStyle:
+            if (!instDrawMTL)
+                return;
+            // Model instancing from another drawable
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                                  vertexStart:0
+                                  vertexCount:basicDrawMTL->numPts
+                                instanceCount:instDrawMTL->calcDataEntries];
+                    break;
+                case Triangles:
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                          indexCount:basicDrawMTL->numTris*3
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
+                                       instanceCount:instDrawMTL->calcDataEntries];
+                    break;
+                default:
+                    break;
+            }
+
+            break;
     }
 }
 
 void BasicDrawableInstanceMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
-    // TODO: Fill this in
+    
 }
+
+// Note: This is the old direct implementation of a GPU Style instance
+//       These are used when only the GPU knows how many there will be.  Very handy.
+//    BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
+//    if (!basicDrawMTL) {
+//        NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
+//        return;
+//    }
+//    if (!basicDrawMTL)
+//        return;
+//    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+//    // Render state is pretty simple, so apply that
+//    id<MTLRenderPipelineState> renderState = getCalcRenderPipelineState(sceneRender,frameInfo);
+//    [cmdEncode setRenderPipelineState:renderState];
+//
+//    if (instanceStyle == GPUStyle) {
+//        if (!indirectBuffer) {
+//            // Set up a buffer for the indirect arguments
+//            MTLDrawIndexedPrimitivesIndirectArguments args;
+//            args.indexCount = basicDrawMTL->numTris*3;
+//            args.instanceCount = 0;
+//            args.indexStart = 0;
+//            args.baseVertex = 0;
+//            args.baseInstance = 0;
+//            indirectBuffer = [sceneRender->setupInfo.mtlDevice newBufferWithBytes:&args length:sizeof(MTLDrawIndexedPrimitivesIndirectArguments) options:MTLStorageModeShared];
+//        }
+//
+//        TextureBaseMTL *tex = dynamic_cast<TextureBaseMTL *>(scene->getTexture(instanceTexSource));
+//        if (!tex) {
+//            NSLog(@"Missing texture for instance texture source in BasicDrawableInstanceMTL::draw() for tex %d",(int)instanceTexSource);
+//            return;
+//        }
+//
+//        // Set up the inputs for the program to copy into the indirect buffer
+//        [cmdEncode setVertexBuffer:indirectBuffer offset:0 atIndex:WKSInstanceIndirectBuffer];
+//        [cmdEncode setVertexTexture:tex->getMTLID() atIndex:0];
+//        Point3f pt(0.0,0.0,0.0);
+//        [cmdEncode setVertexBytes:&pt length:sizeof(float)*3 atIndex:0];
+//        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1];
+//    }
 
 void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
@@ -690,6 +730,9 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
         NSLog(@"BasicDrawableInstance pointing at a bad BasicDrawable");
         return;
     }
+    
+    // Used if we're getting our instance from another drawable
+    BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
 
@@ -721,6 +764,15 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     // Instances go to the vertex shader if they're present
     if (instBuffer.buffer)
         [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+    
+    // Instances actually come from another drawable
+    // There may be several buffers (imagine particles)
+    if (instDrawMTL) {
+        for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
+            const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
+        }
+    }
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
@@ -790,6 +842,32 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
                                          indexBuffer:basicDrawMTL->triBuffer.buffer
                                    indexBufferOffset:basicDrawMTL->triBuffer.offset
                                        instanceCount:numInst
+                                          baseVertex:0
+                                        baseInstance:0];
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case ReferenceStyle:
+            if (!instDrawMTL)
+                return;
+            // Model instancing from another drawable
+            switch (basicDraw->type) {
+                case Lines:
+                    [cmdEncode drawPrimitives:MTLPrimitiveTypeLine
+                                  vertexStart:0
+                                  vertexCount:basicDrawMTL->numPts
+                                instanceCount:instDrawMTL->calcDataEntries
+                                 baseInstance:0];
+                    break;
+                case Triangles:
+                    [cmdEncode drawIndexedPrimitives:MTLPrimitiveTypeTriangle
+                                          indexCount:basicDrawMTL->numTris*3
+                                           indexType:MTLIndexTypeUInt16
+                                         indexBuffer:basicDrawMTL->triBuffer.buffer
+                                   indexBufferOffset:basicDrawMTL->triBuffer.offset
+                                       instanceCount:instDrawMTL->calcDataEntries
                                           baseVertex:0
                                         baseInstance:0];
                     break;

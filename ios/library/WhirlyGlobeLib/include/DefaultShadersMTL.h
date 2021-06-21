@@ -111,9 +111,10 @@ typedef enum {
     WKSVertTextureArgBuffer,
     // Model instances
     WKSVertModelInstanceArgBuffer,
+    WKSVertCalculationArgBuffer, // Leave some room for more than one of these
     // If we're using the indirect instancing (can be driven by the GPU) this is
     //  where the indirect buffer lives
-    WKSVertInstanceIndirectBuffer,
+    WKSVertInstanceIndirectBuffer = WKSVertCalculationArgBuffer + 4,
     WKSVertMaxBuffer
 } WKSVertexArgumentBuffers;
 
@@ -136,7 +137,8 @@ typedef enum {
     WKSUniformScreenSpaceEntry = 200,
     WKSUniformScreenSpaceEntryExp = 210,
     WKSUniformModelInstanceEntry = 300,
-    WKSUniformBillboardEntry = 400
+    WKSUniformBillboardEntry = 400,
+    WKSUniformParticleStateEntry = 410
 } WKSArgBufferEntries;
 
 // Uniforms for the basic case.  Nothing fancy.

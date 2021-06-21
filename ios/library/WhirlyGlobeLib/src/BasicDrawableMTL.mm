@@ -101,6 +101,15 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     // Construct the buffer we've been adding to
     mainBuffer = buffBuild.buildBuffer();
     
+    // If this is a calculation drawable, we need to build the data buffers
+    // We're not going to merge these into a main buffer, they're meant to be big
+    for (const auto &thisData : calcData) {
+        auto newBuff = setupInfo->heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable,
+                                                            thisData->getRawData(),
+                                                            thisData->getLen());
+        calcBuffers.push_back(newBuff);
+    }
+    
     setupForMTL = true;
 }
 
@@ -143,6 +152,11 @@ MTLVertexDescriptor *BasicDrawableMTL::getVertexDescriptor(id<MTLFunction> vertF
     
     vertDesc = [[MTLVertexDescriptor alloc] init];
     defAttrs.clear();
+    
+    // If this is a calculation drawable, just short circuit this
+    if (calcDataEntries > 0)
+        return vertDesc;
+    
     std::set<int> buffersFilled;
     
     // Work through the buffers we know about
@@ -277,6 +291,9 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
         return renderState;
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,program,renderTarget);
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
+    // Calculation drawables don't rasterize
+    if (calcDataEntries > 0)
+        renderDesc.rasterizationEnabled = false;
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
 
@@ -332,6 +349,8 @@ namespace {
 void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfo,SceneMTL *scene,BufferBuilderMTL *buffBuild)
 {
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
+    if (!prog)
+        prog = (ProgramMTL *)scene->getProgram(calcProgramId);
     if (!prog)  // This happens if we're being used by an instance
         return;
     
@@ -395,10 +414,14 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 {
     bool ret = false;
     
+    // Either regular program or calculation program
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
     if (!prog) {
-        NSLog(@"Drawable %s missing program.",name.c_str());
-        return false;
+        prog = (ProgramMTL *)scene->getProgram(calcProgramId);
+        if (!prog) {
+            NSLog(@"Drawable %s missing program.",name.c_str());
+            return false;
+        }
     }
 
     if (texturesChanged || valuesChanged || prog->changed) {
@@ -491,7 +514,8 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             // Uniform blocks associated with the program
             for (const UniformBlock &uniBlock : prog->uniBlocks) {
                 vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
-                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
+                if (fragABInfo)
+                    fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock.bufferID, (void *)uniBlock.blockData->getRawData(), uniBlock.blockData->getLen());
             }
 
             // And the uniforms passed through the drawable
@@ -547,6 +571,10 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 void BasicDrawableMTL::enumerateBuffers(ResourceRefsMTL &resources)
 {
     resources.addEntry(mainBuffer);
+    
+    for (const auto &calcBuf: calcBuffers)
+        resources.addEntry(calcBuf);
+    
     if (vertABInfo)
         vertABInfo->addResources(resources);
     if (fragABInfo)
@@ -570,7 +598,38 @@ void BasicDrawableMTL::enumerateResources(RendererFrameInfoMTL *frameInfo,Resour
 
 void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
 {
-    // TODO: Fill this in
+    if (calcDataEntries <= 0)
+        return;
+
+    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+
+    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,(ProgramMTL *)frameInfo->program,(RenderTargetMTL *)frameInfo->renderTarget);
+
+    [cmdEncode setRenderPipelineState:renderState];
+
+    // Everything takes the uniforms
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+
+    // More flexible data structures passed in to the shaders
+    if (vertABInfo) {
+        BufferEntryMTL &buff = vertABInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
+    }
+
+    // Textures may or may not be passed in to shaders
+    if (vertTexInfo) {
+        BufferEntryMTL &buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
+    }
+
+    // Wire up the buffers themselves.  One will be input, another output.
+    for (unsigned int ii=0;ii<calcBuffers.size();ii++) {
+        const BufferEntryMTL &calcBuf = calcBuffers[ii];
+        [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
+    }
+
+    [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:calcDataEntries];
 }
 
 void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
@@ -642,11 +701,50 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRender
 
 void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
-    // TODO: Fill this in
+    if (calcDataEntries <= 0)
+        return;
+    
+    ProgramMTL *program = (ProgramMTL *)scene->getProgram(calcProgramId);
+    if (!program) {
+        NSLog(@"BasicDrawableMTL: Missing programId for %s",name.c_str());
+        return;
+    }
+
+    id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,program,renderTarget);
+
+    [cmdEncode setRenderPipelineState:renderState];
+
+    // Everything takes the uniforms
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+
+    // More flexible data structures passed in to the shaders
+    if (vertABInfo) {
+        BufferEntryMTL &buff = vertABInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
+    }
+
+    // Textures may or may not be passed in to shaders
+    if (vertTexInfo) {
+        BufferEntryMTL &buff = vertTexInfo->getBuffer();
+        [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
+    }
+
+    // Wire up the buffers themselves.  One will be input, another output.
+    for (unsigned int ii=0;ii<calcBuffers.size();ii++) {
+        const BufferEntryMTL &calcBuf = calcBuffers[ii];
+        [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
+    }
+
+    [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:calcDataEntries instanceCount:1 baseInstance:0];
 }
 
 void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
+    // Ignore calculation drawables
+    if (calcDataEntries > 0)
+        return;
+    
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
     if (!program) {
         NSLog(@"BasicDrawableMTL: Missing programId for %s",name.c_str());

@@ -65,7 +65,7 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
 
-    _ident = WhirlyKit::EmptyIdentity;
+    _ident = Identifiable::genId();
     _name = name;
     _type = MaplyParticleSystemTypePoint;
     _lifetime = 5.0;
@@ -99,6 +99,12 @@ using namespace WhirlyKit;
     attr.type = type;
     
     self.attrs.insert(attr);
+}
+
+- (void)addCalculationNum:(int)numEntries data:(NSMutableArray<NSData *> *)dataEntries
+{
+    self.numDataEntries = numEntries;
+    self.dataArrays = dataEntries;
 }
 
 - (void)addTexture:(id)image

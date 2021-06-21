@@ -674,6 +674,7 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
     // If this is an instance, deal with that madness
     if (auto drawInst = dynamic_cast<BasicDrawableInstance *>(drawRef.get()))
     {
+        // What the drawable is instancing
         const auto theDraw = scene->getDrawable(drawInst->getMasterID());
         if (const auto baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theDraw))
         {
@@ -683,6 +684,18 @@ void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::Vie
         {
             wkLogLevel(Error,"Found BasicDrawableInstance without masterID.  Dropping.");
             return;
+        }
+        
+        // We may also get the instances from another drawable
+        SimpleIdentity instID = drawInst->getInstID();
+        if (instID != EmptyIdentity) {
+            const auto theOtherDraw = scene->getDrawable(instID);
+            if (const auto baseDraw = std::dynamic_pointer_cast<BasicDrawable>(theOtherDraw)) {
+                drawInst->setInstMaster(baseDraw);
+            } else {
+                wkLogLevel(Error,"Found BasicDrawableInstance with invalid instance master.  Dropping.");
+                return;
+            }
         }
     }
 

@@ -23,7 +23,6 @@
 #import "BasicDrawableInstanceBuilderMTL.h"
 #import "BillboardDrawableBuilderMTL.h"
 #import "ScreenSpaceDrawableBuilderMTL.h"
-#import "ParticleSystemDrawableBuilderMTL.h"
 #import "WideVectorDrawableBuilderMTL.h"
 #import "RenderTargetMTL.h"
 #import "DynamicTextureAtlasMTL.h"
@@ -445,14 +444,6 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                                 wkLogLevel(Error, "SceneRendererMTL: Invalid drawable");
                                 continue;
                             }
-
-                            // Figure out the program to use for drawing
-                            SimpleIdentity drawProgramId = drawMTL->getProgram();
-                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
-                            if (!program) {
-                                wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
-                                continue;
-                            }
                             
                             id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
 
@@ -555,7 +546,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     baseFrameInfo.modelTrans4d = modelTrans4d;
     baseFrameInfo.scene = scene;
     baseFrameInfo.frameLen = duration;
-    baseFrameInfo.currentTime = scene->getCurrentTime();
+    baseFrameInfo.currentTime = now;
     baseFrameInfo.projMat = projMat;
     baseFrameInfo.projMat4d = projMat4d;
     baseFrameInfo.mvpMat = mvpMat;
@@ -585,10 +576,15 @@ void SceneRendererMTL::render(TimeInterval duration,
     Vector4f fullEyeVec4 = fullTransInv * Vector4f(0,0,1,0);
     Vector3f fullEyeVec3(fullEyeVec4.x(),fullEyeVec4.y(),fullEyeVec4.z());
     baseFrameInfo.fullEyeVec = -fullEyeVec3;
-    Vector4d eyeVec4d = modelTrans4d.inverse() * Vector4d(0,0,1,0.0);
-    baseFrameInfo.heightAboveSurface = 0.0;
+    Matrix4d modelTransInv4d = modelTrans4d.inverse();
+    Vector4d eyeVec4d = modelTransInv4d * Vector4d(0,0,1,0.0);
     baseFrameInfo.heightAboveSurface = theView->heightAboveSurface();
-    baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
+    if (scene->getCoordAdapter()->isFlat()) {
+        Vector4d eyePos4d = modelTransInv4d * Vector4d(0.0,0.0,0.0,1.0);
+        eyePos4d /= eyePos4d.w();
+        baseFrameInfo.eyePos = Vector3d(eyePos4d.x(),eyePos4d.y(),eyePos4d.z());
+    } else
+        baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
     
     if (perfInterval > 0)
         perfTimer.startTiming("Scene preprocessing");
@@ -847,11 +843,13 @@ void SceneRendererMTL::render(TimeInterval duration,
                             }
 
                             // Figure out the program to use for drawing
-                            const SimpleIdentity drawProgramId = drawMTL->getProgram();
-                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawProgramId);
+                            ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawMTL->getProgram());
                             if (!program) {
-                                wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
-                                continue;
+                                program = (ProgramMTL *)scene->getProgram(drawMTL->getCalculationProgram());
+                                if (!program) {
+                                    wkLogLevel(Error, "SceneRendererMTL: Drawable without Program");
+                                    continue;
+                                }
                             }
 
                             // For a reduce operation, we want to draw into the first level of the render
@@ -1079,7 +1077,7 @@ ScreenSpaceDrawableBuilderRef SceneRendererMTL::makeScreenSpaceDrawableBuilder(c
 
 ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBuilder(const std::string &name) const
 {
-    return std::make_shared<ParticleSystemDrawableBuilderMTL>(name,scene);
+    return nullptr;
 }
 
 WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const
