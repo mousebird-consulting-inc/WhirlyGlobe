@@ -20,8 +20,12 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
  */
 public class GestureFeedbackTestCase extends MaplyTestCase {
 
+    public GestureFeedbackTestCase(Activity activity) {
+        super(activity, "Gesture Feedback Test", TestExecutionImplementation.Both);
+        setDelay(2);
+    }
 
-    private GlobeController.GestureDelegate globeGestureDelegate = new GlobeController.GestureDelegate() {
+    private final GlobeController.GestureDelegate globeGestureDelegate = new GlobeController.GestureDelegate() {
 
         @Override
         public void userDidSelect(GlobeController globeVC, SelectedObject[] objs, Point2d loc, Point2d screenLoc) {
@@ -68,7 +72,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
     };
 
 
-    private MapController.GestureDelegate mapGestureDelegate = new MapController.GestureDelegate() {
+    private final MapController.GestureDelegate mapGestureDelegate = new MapController.GestureDelegate() {
         @Override
         public void userDidSelect(MapController mapController, SelectedObject[] selectedObjects, Point2d loc, Point2d screenloc) {
             Log.i("AutoTester","User selected feature at" + loc.getX() + " " + loc.getY());
@@ -89,37 +93,30 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
             mapController.animatePositionGeo(curLoc.getX(),curLoc.getY(),curLoc.getZ()*2.0,1.0);
         }
 
-        public void mapDidStartMoving(MapController mapControl, boolean userMotion)
-        {
-            Log.i("AutoTester","Map started moving");
+        public void mapDidStartMoving(MapController mapControl, boolean userMotion) {
+            Log.i("AutoTester",String.format("Map started moving (userMotion = %b)", userMotion));
         }
 
-        public void mapDidStopMoving(MapController mapControl, Point3d corners[], boolean userMotion)
-        {
-            Log.i("AutoTester","Map stopped moving");
+        public void mapDidStopMoving(MapController mapControl, Point3d[] corners, boolean userMotion) {
+            Log.i("AutoTester",String.format("Map stopped moving (userMotion = %b)", userMotion));
         }
 
-        public void mapDidMove(MapController mapControl,Point3d corners[], boolean userMotion)
-        {
+        public void mapDidMove(MapController mapControl, Point3d[] corners, boolean userMotion) {
             updateBbox(mapControl,corners);
             Log.i("AutoTester",String.format("Map did move (userMotion = %b)", userMotion));
         }
 
     };
 
-
-    public GestureFeedbackTestCase(Activity activity) {
-        super(activity);
-        setTestName("Gesture Feedback Test");
-        setDelay(2);
-        this.implementation = TestExecutionImplementation.Both;
-    }
+    private final Point2d loc = Point2d.FromDegrees(-0.1275, 51.507222);
+    private final double toHeight = 0.05;
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
         CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         globeVC.gestureDelegate = globeGestureDelegate;
+        globeVC.animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0);
         return true;
     }
 
@@ -128,6 +125,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         mapVC.gestureDelegate = mapGestureDelegate;
+        mapVC.animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0);
         return true;
     }
 
@@ -144,22 +142,22 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
             vecInfo.setLineWidth(4.f);
         }
 
-        for (int ii=0;ii<corners.length;ii++)
-            if (corners[ii] == null)
+        for (Point3d corner : corners)
+            if (corner == null)
                 return;
 
         double fac = 0.01;
         double width = corners[1].getX() - corners[0].getX();
         double height = corners[2].getY() - corners[0].getY();
 
-        Point2d newCorners[] = new Point2d[4];
+        Point2d[] newCorners = new Point2d[4];
         newCorners[0] = new Point2d(corners[0].getX()+width*fac,corners[0].getY()+height*fac);
         newCorners[1] = new Point2d(corners[1].getX()-width*fac,corners[1].getY()+height*fac);
         newCorners[2] = new Point2d(corners[2].getX()-width*fac,corners[2].getY()-height*fac);
         newCorners[3] = new Point2d(corners[3].getX()+width*fac,corners[3].getY()-height*fac);
 
         VectorObject vecObj = new VectorObject();
-        Point2d pts[] = new Point2d[5];
+        Point2d[] pts = new Point2d[5];
         for (int ii=0;ii<corners.length+1;ii++)
             pts[ii] = new Point2d(newCorners[ii%corners.length].getX(),newCorners[ii%corners.length].getY());
         vecObj.addLinear(pts);

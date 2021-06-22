@@ -112,7 +112,7 @@ public class TestListFragment extends Fragment {
 			testCases.add(new ShapesTestCase(a));
 //			testCases.add(new MaplyStarModelTestCase(a));
 			testCases.add(new FindHeightTestCase(a));
-//			testCases.add(new GestureFeedbackTestCase(a));
+			testCases.add(new GestureFeedbackTestCase(a));
 //			testCases.add(new LightingTestCase(a));
 			testCases.add(new BillboardTestCase(a));
 //			testCases.add(new CoordConversionTestCase(a));

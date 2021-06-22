@@ -1,4 +1,4 @@
-﻿iOS case,Android case,iOS Status,Android Status,Comment
+iOS case,Android case,iOS Status,Android Status,Comment
 ActiveObjectTestCase,,?,,
 AirwayTestCase,,?,,
 ,ArealTestCase,,?,
@@ -21,7 +21,7 @@ ExtrudedModelTestCase,,?,,
 FindHeightTestCase,FindHeightTestCase,?,?,
 GeographyClass,GeographyClass,?,?,
 ,GeomPointsTestCase,,?,
-,GestureFeedbackTestCase,,?,
+,GestureFeedbackTestCase,,✓,
 GeoJSONStyleTestCase,,?,,Text looks wrong.  Too blocky.
 GlobeSamplerTestCase,,?,,
 GlyphProblemTestCase,,?,,

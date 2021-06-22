@@ -817,7 +817,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		final RenderController render = (wrapper != null) ? wrapper.maplyRender.get() : null;
 		final GestureDelegate delegate = gestureDelegate;
         if (render != null && !isPanning && !isRotating && !isZooming && !isAnimating && delegate != null) {
-			delegate.mapDidStartMoving(this, true);
+			delegate.mapDidStartMoving(this, userMotion);
 
 			final Choreographer c = Choreographer.getInstance();
 			if (c != null) {
