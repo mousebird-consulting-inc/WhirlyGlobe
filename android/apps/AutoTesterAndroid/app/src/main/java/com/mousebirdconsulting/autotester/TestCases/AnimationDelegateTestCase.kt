@@ -19,19 +19,35 @@
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
-import com.mousebird.maply.GlobeController
-import com.mousebird.maply.MapController
+import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
-class AnimationDelegateTestCase(activity: Activity) : MaplyTestCase(activity, "Animating Position", TestExecutionImplementation.Both) {
+class AnimationDelegateTestCase(activity: Activity) :
+        MaplyTestCase(activity, "Animating Position", TestExecutionImplementation.Both) {
+    
+    val loc = Point2d.FromDegrees(-0.1275, 51.507222)
+    val fromHeight = 0.5
+    val toHeight = 0.05
     
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
         if (!baseCase.setUpWithGlobe(globeVC)) {
             return false
         }
-        globeVC?.keepNorthUp = false
-        globeVC?.height = 1.0
-        globeVC?.animatePositionGeo(degToRad(-0.1275), degToRad(51.507222), 0.01, degToRad(45.0), 5.0)
+        globeVC?.apply {
+            keepNorthUp = false
+            height = fromHeight
+            // animate
+            animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0)
+            // Animate heading only
+            addPostSurfaceRunnable({ animatePositionGeo(loc, toHeight, degToRad(-45.0), 2.0) }, 6000)
+            // and back
+            addPostSurfaceRunnable({ animatePositionGeo(loc, fromHeight, degToRad(0.0), 2.0) }, 8000)
+            // repeat with `keepNorthUp` set
+            addPostSurfaceRunnable({
+                keepNorthUp = true
+                animatePositionGeo(loc, toHeight, degToRad(45.0), 2.0)
+            }, 10000)
+        }
         return true
     }
     
@@ -39,8 +55,18 @@ class AnimationDelegateTestCase(activity: Activity) : MaplyTestCase(activity, "A
         if (!baseCase.setUpWithMap(mapVC)) {
             return false
         }
-        mapVC?.height = 1.0
-        mapVC?.animatePositionGeo(degToRad(-0.1275), degToRad(51.507222), 0.01, degToRad(45.0), 5.0)
+        mapVC?.apply {
+            height = fromHeight
+            // Note that, unlike `GlobeViewController.keepNorthUp`, this option only affects
+            // gestures, not programmatic changes through `animatePositionGeo` and friends
+            setAllowRotateGesture(false)
+            // animate
+            animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0)
+            // Animate heading only
+            addPostSurfaceRunnable({
+                animatePositionGeo(loc, toHeight, degToRad(-45.0), 2.0)
+            }, 6000)
+        }
         return true
     }
 
