@@ -794,7 +794,8 @@ public class MapController extends BaseController implements View.OnTouchListene
 		return false;
 	}
 
-    boolean isPanning = false, isZooming = false, isRotating = false, isAnimating = false;
+    boolean isPanning = false, isZooming = false, isRotating = false,
+			isAnimating = false, isUserMotion = false, isFinalMotion = false;
     
     public void panDidStart(boolean userMotion) { handleStartMoving(userMotion); isPanning = true; }
     public void panDidEnd(boolean userMotion) { isPanning = false; handleStopMoving(userMotion); }
@@ -810,20 +811,26 @@ public class MapController extends BaseController implements View.OnTouchListene
      */
     public void handleStartMoving(boolean userMotion)
     {
-		if (!userMotion)
-			isAnimating = true;
-
 		final RendererWrapper wrapper = renderWrapper;
-		final RenderController render = (wrapper != null) ? wrapper.maplyRender.get() : null;
 		final GestureDelegate delegate = gestureDelegate;
-        if (render != null && !isPanning && !isRotating && !isZooming && !isAnimating && delegate != null) {
-			delegate.mapDidStartMoving(this, userMotion);
+		if (delegate != null) {
+			if (!userMotion && (isPanning || isRotating || isZooming || isAnimating)) {
+				// Transitioning from user motion to animation, e.g., for a fling
+				delegate.mapDidStartMoving(this, isUserMotion);
+				delegate.mapDidStartMoving(this, false);
+			} else if (!isPanning && !isRotating && !isZooming && !isAnimating) {
+				delegate.mapDidStartMoving(this, userMotion);
 
-			final Choreographer c = Choreographer.getInstance();
-			if (c != null) {
-				c.postFrameCallback(this);
+				final Choreographer c = Choreographer.getInstance();
+				if (c != null) {
+					c.removeFrameCallback(this);
+					c.postFrameCallback(this);
+				}
 			}
 		}
+
+        isUserMotion = userMotion;
+		isAnimating = !userMotion;
     }
     
     /**
@@ -833,20 +840,16 @@ public class MapController extends BaseController implements View.OnTouchListene
      */
     public void handleStopMoving(boolean userMotion)
     {
-		if (!userMotion)
-			isAnimating = false;
-
         if (renderWrapper == null || renderWrapper.maplyRender == null)
             return;
-        
-        if (isPanning || isRotating || isZooming || isAnimating)
-            return;
-        
-        if (gestureDelegate != null)
-        {
-            Point3d[] corners = getVisibleCorners();
-            gestureDelegate.mapDidStopMoving(this,corners,userMotion);
-        }
+
+		final GestureDelegate delegate = gestureDelegate;
+		if (!isPanning && !isRotating && !isZooming && delegate != null) {
+			// Notify stopping after the next frame callback
+			isFinalMotion = true;
+		}
+
+		isAnimating = false;
     }
     
     double lastViewUpdate = 0.0;
@@ -857,11 +860,22 @@ public class MapController extends BaseController implements View.OnTouchListene
     {
         if (mapView != null) {
             double newUpdateTime = mapView.getLastUpdatedTime();
-            if (gestureDelegate != null && lastViewUpdate < newUpdateTime) {
-                Point3d[] corners = getVisibleCorners();
-                gestureDelegate.mapDidMove(this, corners, false);
+			final GestureDelegate delegate = gestureDelegate;
+			Point3d[] corners = null;
+            if (delegate != null && lastViewUpdate < newUpdateTime) {
+                corners = getVisibleCorners();
+				delegate.mapDidMove(this, corners, isUserMotion);
                 lastViewUpdate = newUpdateTime;
             }
+            if (isFinalMotion) {
+            	if (delegate != null) {
+            		if (corners == null) {
+						corners = getVisibleCorners();
+					}
+					delegate.mapDidStopMoving(this,corners,isUserMotion);
+				}
+            	isFinalMotion = false;
+			}
         }
         
         Choreographer c = Choreographer.getInstance();

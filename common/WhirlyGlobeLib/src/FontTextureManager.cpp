@@ -1,4 +1,4 @@
-/*  FontTextureManager.mm
+/*  FontTextureManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/15/13.

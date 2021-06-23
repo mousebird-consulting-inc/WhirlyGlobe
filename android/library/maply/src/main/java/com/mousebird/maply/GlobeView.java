@@ -72,19 +72,27 @@ public class GlobeView extends View
 	// Set the animation delegate.  Called every frame.
 	void setAnimationDelegate(AnimationDelegate delegate)
 	{
-		animationDelegate = delegate;
+		synchronized (this) {
+			animationDelegate = delegate;
+		}
 		control.handleStartMoving(false);
 	}
 	
 	// Clear the animation delegate
 	@Override public void cancelAnimation() 
 	{
-		animationDelegate = null;
+		final boolean didStop;
+		synchronized (this) {
+			didStop = (animationDelegate != null);
+			animationDelegate = null;
+		}
 
-		GlobeController theControl = control;
-		Activity activity = (theControl != null) ? theControl.getActivity() : null;
-		if (activity != null) {
-			activity.runOnUiThread(() -> theControl.handleStopMoving(false));
+		if (didStop) {
+			GlobeController theControl = control;
+			Activity activity = (theControl != null) ? theControl.getActivity() : null;
+			if (activity != null) {
+				activity.runOnUiThread(() -> theControl.handleStopMoving(false));
+			}
 		}
 	}
 	

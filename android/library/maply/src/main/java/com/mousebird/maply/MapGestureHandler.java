@@ -373,7 +373,11 @@ public class MapGestureHandler
 				return true;
 			}
 
-			maplyControl.processTap(new Point2d(e.getX(),e.getY()));
+			final MapController theControl = maplyControl;
+			if (theControl != null) {
+				maplyControl.processTap(new Point2d(e.getX(), e.getY()));
+			}
+
 			return true;
 		}
 
@@ -381,7 +385,7 @@ public class MapGestureHandler
 		@Override
 		public boolean onDoubleTap(MotionEvent e) 
 		{
-			if (!allowZoom)
+			if (!allowZoom || maplyControl == null)
 				return false;
 
 			// Figure out where they tapped
@@ -406,7 +410,11 @@ public class MapGestureHandler
 			if (renderWrap !=  null) {
 				final RenderController render = renderWrap.maplyRender.get();
 				if (render != null) {
-					mapView.setAnimationDelegate(new MapAnimateTranslate(mapView, render, loc, (float) 0.1, maplyControl.viewBounds));
+					// Start after the stop/end events for the current tap
+					maplyControl.addPostSurfaceRunnable(() -> {
+						mapView.setAnimationDelegate(
+								new MapAnimateTranslate(mapView, render, loc, (float) 0.1, maplyControl.viewBounds));
+					});
 				}
 			}
 

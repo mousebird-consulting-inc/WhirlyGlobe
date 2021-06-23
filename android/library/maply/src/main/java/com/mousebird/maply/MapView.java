@@ -79,29 +79,39 @@ public class MapView extends View
 	// Set the animation delegate.  Called every frame.
 	void setAnimationDelegate(AnimationDelegate delegate)
 	{
+		if (delegate == null) {
+			cancelAnimation();
+			return;
+		}
 		synchronized (this) {
 			animationDelegate = delegate;
-			if (control.get() != null)
-				control.get().handleStartMoving(true);
+			MapController theControl = control.get();
+			if (theControl != null) {
+				theControl.handleStartMoving(false);
+			}
 		}
 	}
 	
 	// Clear the animation delegate
 	@Override public void cancelAnimation() 
 	{
+		boolean didStop;
 		synchronized (this) {
+			didStop = (animationDelegate != null);
 			animationDelegate = null;
 		}
 
-		MapController theControl = control.get();
-		Activity activity = (theControl != null) ? theControl.getActivity() : null;
-		if (activity != null) {
-			activity.runOnUiThread(() -> {
-				MapController theControl2 = control.get();
-				if (theControl2 != null) {
-					theControl2.handleStopMoving(false);
-				}
-			});
+		if (didStop) {
+			MapController theControl = control.get();
+			Activity activity = (theControl != null) ? theControl.getActivity() : null;
+			if (activity != null) {
+				activity.runOnUiThread(() -> {
+					MapController theControl2 = control.get();
+					if (theControl2 != null) {
+						theControl2.handleStopMoving(false);
+					}
+				});
+			}
 		}
 	}
 	
@@ -126,11 +136,8 @@ public class MapView extends View
 	public boolean isAnimating()
 	{
 		synchronized (this) {
-			if (animationDelegate != null)
-				return true;
+			return (animationDelegate != null);
 		}
-
-		return false;
 	}
 
 	// Set the view location from a Point3d

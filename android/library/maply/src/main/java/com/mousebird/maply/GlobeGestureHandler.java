@@ -386,6 +386,12 @@ public class GlobeGestureHandler
 		@Override
 		public void onLongPress(MotionEvent e) 
 		{
+			// The touch listener isn't aware of the scale listener, and so sends us long-
+			// press events (with pointerCount==1 for some reason) while pinch-zooming.
+			if (sl != null && sl.isActive) {
+				return;
+			}
+
 //			Log.d("Maply","Long Press");
 			if (globeControl != null && e.getPointerCount() == 1) {
 				globeControl.processLongPress(new Point2d(e.getX(), e.getY()));

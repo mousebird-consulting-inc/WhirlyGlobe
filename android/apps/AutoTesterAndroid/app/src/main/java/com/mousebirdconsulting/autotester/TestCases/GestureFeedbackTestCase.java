@@ -79,7 +79,7 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
         }
 
         @Override
-        public void userDidTap(MapController mapController, Point2d loc, Point2d screenloc) {
+        public void userDidTap(MapController mapController, Point2d loc, Point2d screenLoc) {
             Log.i("AutoTester","User tapped at " + loc.getX() + " " + loc.getY());
             Log.i("AutoTester",String.format("Current zoom %.3f / scale %.0f", mapController.currentMapZoom(loc), mapController.currentMapScale()));
         }
@@ -105,26 +105,30 @@ public class GestureFeedbackTestCase extends MaplyTestCase {
             updateBbox(mapControl,corners);
             Log.i("AutoTester",String.format("Map did move (userMotion = %b)", userMotion));
         }
-
     };
 
     private final Point2d loc = Point2d.FromDegrees(-0.1275, 51.507222);
+    private final double fromHeight = 1.0;
     private final double toHeight = 0.05;
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
+        super.setUpWithGlobe(globeVC);
         CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithGlobe(globeVC);
         globeVC.gestureDelegate = globeGestureDelegate;
+        globeVC.setPositionGeo(0, 0, fromHeight);
         globeVC.animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0);
         return true;
     }
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
+        super.setUpWithMap(mapVC);
         CartoLightTestCase mapBoxSatelliteTestCase = new CartoLightTestCase(this.getActivity());
         mapBoxSatelliteTestCase.setUpWithMap(mapVC);
         mapVC.gestureDelegate = mapGestureDelegate;
+        mapVC.setPositionGeo(0, 0, fromHeight);
         mapVC.animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0);
         return true;
     }
