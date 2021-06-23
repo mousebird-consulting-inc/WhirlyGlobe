@@ -1106,13 +1106,13 @@ public class RenderController implements RenderControllerInterface
                 compObj.addWideVectorID(vecId);
             }
 
-            // TODO: Porting
-            //for (VectorObject vecObj : vecs)
-            //{
-            //    // Keep track of this one for selection
-            //    if (vecObj.getSelectable())
-            //        compObj.addVector(vecObj);
-            //}
+            for (VectorObject vecObj : vecs) {
+                // Keep track of this one for selection
+                if (vecObj.getSelectable()) {
+                    compObj.addVector(vecObj);
+                    componentManager.addSelectableObject(vecObj.ident,vecObj,compObj);
+                }
+            }
 
             if (wideVecInfo.disposeAfterUse || disposeAfterRemoval) {
                 for (VectorObject vecObj : vecs) {

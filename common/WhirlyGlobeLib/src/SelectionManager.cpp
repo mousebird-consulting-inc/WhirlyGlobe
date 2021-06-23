@@ -1,9 +1,8 @@
-/*
- *  SelectionManager.mm
+/*  SelectionManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/26/11.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SelectionManager.h"
@@ -885,12 +883,12 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
         return;
     const float maxDist2 = maxDist * maxDist;
     
-    // All the various parameters we need to evalute... stuff
+    // All the various parameters we need to evaluate... stuff
     PlacementInfo pInfo(viewState,renderer);
     if (!pInfo.globeViewState && !pInfo.mapViewState)
         return;
     
-    TimeInterval now = scene->getCurrentTime();
+    const TimeInterval now = scene->getCurrentTime();
 
     // And the eye vector for billboards
     const Vector4d eyeVec4 = pInfo.viewState->fullMatrices[0].inverse() * Vector4d(0,0,1,0);
@@ -972,10 +970,10 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                 }
                 
                 // Now for a proximity check around the edges
-                for (unsigned int ii=0;ii<screenObj.pts.size();ii++)
+                for (unsigned int kk=0; kk < screenObj.pts.size(); kk++)
                 {
                     float t;
-                    Point2f closePt = ClosestPointOnLineSegment(screenPts[ii],screenPts[(ii+1)%4],touchPt,t);
+                    const Point2f closePt = ClosestPointOnLineSegment(screenPts[kk], screenPts[(kk + 1) % 4], touchPt, t);
                     const float dist2 = (closePt-touchPt).squaredNorm();
                     closeDist2 = std::min(dist2,closeDist2);
                 }
@@ -1102,9 +1100,9 @@ void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef vi
                             
                             for (unsigned int jj=0;jj<screenPts.size();jj++)
                             {
-                                float t;
-                                Point2f closePt = ClosestPointOnLineSegment(screenPts[jj],screenPts[(jj+1)%4],touchPt,t);
-                                float dist2 = (closePt-touchPt).squaredNorm();
+                                float ti;
+                                Point2f closePt = ClosestPointOnLineSegment(screenPts[jj], screenPts[(jj+1)%4], touchPt, ti);
+                                const float dist2 = (closePt-touchPt).squaredNorm();
                                 closeDist2 = std::min(dist2,closeDist2);
                             }
                         }

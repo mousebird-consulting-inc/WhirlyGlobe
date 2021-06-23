@@ -36,7 +36,21 @@ class SimpleStyleTestCase(activity: Activity) : MaplyTestCase(activity, "Simple 
         mapVC.animatePositionGeo(Point2d.FromDegrees(145.0, -33.0), 0.2, 0.0, 0.5)
         return true
     }
-
+    
+    override fun userDidSelect(mapControl: MapController?, selObjs: Array<out SelectedObject>?, loc: Point2d?, screenLoc: Point2d?) {
+        super.userDidSelect(mapControl, selObjs, loc, screenLoc)
+        selObjs?.forEach { so ->
+            (so.selObj as? VectorObject)?.let { obj ->
+                val json = obj.attributes.getString("json")
+                val x = json
+            }
+        }
+    }
+    
+    override fun userDidSelect(globeControl: GlobeController?, selObjs: Array<out SelectedObject>?, loc: Point2d?, screenLoc: Point2d?) {
+        super.userDidSelect(globeControl, selObjs, loc, screenLoc)
+    }
+    
     override fun shutdown() {
         cleanup()
         super.shutdown()
@@ -71,6 +85,15 @@ class SimpleStyleTestCase(activity: Activity) : MaplyTestCase(activity, "Simple 
         }.also { styleMan ->
             componentObjects = arrayOf(vectorGeoJson1, vectorGeoJson2).flatMap { json ->
                 VectorObject().let { obj ->
+                    obj.selectable = true
+                    if (obj.attributes == null) {
+                        // has no effect if the vector object has no shapes
+                        obj.attributes = AttrDictionary()
+                    }
+                    if (obj.attributes != null) {
+                        obj.attributes.setString("json", json);
+                    }
+
                     if (obj.fromGeoJSON(json)) {
                         styleMan.addFeatures(obj, threadAny)
                     } else {
