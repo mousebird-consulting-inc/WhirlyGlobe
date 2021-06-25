@@ -122,6 +122,7 @@
 		311E0AA52680F597007BE16F /* Airspace_Boundary.cpg in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A992680F597007BE16F /* Airspace_Boundary.cpg */; };
 		311E0AA62680F597007BE16F /* Airspace_Boundary.prj in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */; };
 		311E0AA72680F597007BE16F /* ATS_Route.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9B2680F597007BE16F /* ATS_Route.dbf */; };
+		311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
 		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
 		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
@@ -730,6 +731,7 @@
 		311E0A992680F597007BE16F /* Airspace_Boundary.cpg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Airspace_Boundary.cpg; path = ../../../resources/vectors/faa/Airspace_Boundary.cpg; sourceTree = SOURCE_ROOT; };
 		311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Airspace_Boundary.prj; path = ../../../resources/vectors/faa/Airspace_Boundary.prj; sourceTree = SOURCE_ROOT; };
 		311E0A9B2680F597007BE16F /* ATS_Route.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.dbf; path = ../../../resources/vectors/faa/ATS_Route.dbf; sourceTree = SOURCE_ROOT; };
+		311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ESRIRemoteTestCase.swift; sourceTree = "<group>"; };
 		313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenMarkersTestCase.swift; sourceTree = "<group>"; };
 		316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_expr_test.json; sourceTree = "<group>"; };
 		316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_test_circles.json; sourceTree = "<group>"; };
@@ -1358,6 +1360,7 @@
 				31833791259E5291005FEF70 /* ChangeVectorsTestCase.h */,
 				31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */,
 				D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */,
+				311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */,
 				2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */,
 				2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */,
 				E5679F461CB72DE800369A15 /* FindHeightTestCase.h */,
@@ -2632,6 +2635,7 @@
 				D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */,
 				2BC3D6F3220B901000CE91D0 /* AppDelegate.swift in Sources */,
 				2BC3D6F2220B900D00CE91D0 /* TestCell.swift in Sources */,
+				311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */,
 				31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,

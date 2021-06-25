@@ -1,457 +1,757 @@
 cases:
 - name: ActiveObjectTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: AirwayTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ArealTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: AutoRotateTestCase
   iOS: N/A
-  Android: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
   Issues: [296]
   Checks:
     - Rotation starts after 5s, and restarts 5s after being interrupted
     - Markers and ScreenMarkers, with and without Layout, appear when they rotate into view
   Comments: []
 - name: AnimatedBasemapTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: AnimatedBasemapTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: AnimatedMarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: AnimatedScreenMarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: AnimationDelegateTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: BillboardTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: BNGCustomMapTestCase / CustomBNGCoordAdapter
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: BNGTestCase / CustomBNGTileSource
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: BoundsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: CartoDBLightTestCase / CartoLightTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: CartoDBTestCase / CartoTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Needs QuadPagingLayer
 - name: ComponentObjectLeakTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: CoordConversionTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ChangeVectorsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ClusteredMarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
+  Issues: []
+  Checks: []
+  Comments: []
+- name: ESRIRemoteTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: N/A
   Issues: []
   Checks: []
   Comments: []
 - name: ExtrudedModelTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: FindHeightTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: GeographyClass
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: GeomPointsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: GestureFeedbackTestCase
   iOS: N/A
-  Android: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
   Issues: []
   Checks: []
   Comments: []
 - name: GeoJSONStyleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Text looks wrong.  Too blocky.
 - name: GlobeSamplerTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: GlyphProblemTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: GreatCircleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ImageReloadTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ImageSingleLevelTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: Issue721TestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LabelAnimationTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LabelsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - 3D Labels broken.  Probably going to remove them.
 - name: LayerStartupShutdownTestCase / LayerShutdownTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LIDARTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LightingTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LocationTrackingRealTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LocationTrackingSimTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: LoftedPolysTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MapboxTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MaplyTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MapTilerCircleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MapTilerTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MarkersAndLinesTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MegaMarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ModelsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MovingScreenLabelsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: MovingScreenMarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: NASAGIBSTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: NASAGIBSTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: OfflineRenderTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: OpenMapTilesHybridTestCase / OpenMapTilesHybridTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Needs snapshot functionality
 - name: PagingLayerTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Needs QuadPagingLayer
 - name: ParticleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Needs QuadPagingLayer
 - name: RepresentationsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: RunwayBuilderTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ScreenLabelsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Layout manager not quite right.  Could be layout size.
 - name: ScreenMarkersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ShapefileTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: ShapesTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Not working for 2D map (probably z buffer)
 - name: SimpleStyleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: SLDTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: StamenWatercolorRemote / StamenRemoteTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: StarsSunTestCase / MaplyStarModelTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - Atmosphere not showing up
 - name: StartupShutdownTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: StickersTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments:
     - SphericalChunkManager turned off
 - name: TextureVectorTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: VectorHoleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: VectorMBTilesTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: VectorsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: VectorStyleTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: WideVectorsTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
 - name: WMSTestCase
-  iOS: ?
-  Android: ?
+  iOS:
+    Map: '?'
+    Globe: '?'
+  Android:
+    Map: '?'
+    Globe: '?'
   Issues: []
   Checks: []
   Comments: []
