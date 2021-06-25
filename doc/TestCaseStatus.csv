@@ -1,8 +1,9 @@
-iOS case,Android case,iOS Status,Android Status,Comment
+iOS case,Android case,iOS Status,Android Status,Comments / Criteria
 ActiveObjectTestCase,,?,,
 AirwayTestCase,,?,,
 ,ArealTestCase,,?,
-,AutoRotateTestCase,,Partial,ScreenMarkers not showing up
+,AutoRotateTestCase,,?,"Rotation starts after 5s, and restarts 5s after being interrupted"
+,,,,"Markers and ScreenMarkers, with and without Layout, appear when they rotate into view (#296)"
 AnimatedBasemapTestCase,AnimatedBaseMapTestCase,?,?,
 AnimatedMarkersTestCase,AnimatedMarkersTestCase,?,?,
 ,AnimatedScreenMarkersTestCase,,?,
@@ -21,7 +22,7 @@ ExtrudedModelTestCase,,?,,
 FindHeightTestCase,FindHeightTestCase,?,?,
 GeographyClass,GeographyClass,?,?,
 ,GeomPointsTestCase,,?,
-,GestureFeedbackTestCase,,✓,
+,GestureFeedbackTestCase,,?,
 GeoJSONStyleTestCase,,?,,Text looks wrong.  Too blocky.
 GlobeSamplerTestCase,,?,,
 GlyphProblemTestCase,,?,,

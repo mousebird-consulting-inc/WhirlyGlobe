@@ -13,44 +13,20 @@ class AutoRotateTestCase(activity: Activity?) :
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         baseCase.setUpWithGlobe(globeVC)
         globeVC.setPositionGeo(Point2d.FromDegrees(0.0, 30.0), 2.0)
-        globeVC.setAutoRotate(5f, 45f)
+        globeVC.setAutoRotate(5f, 30f)
     
-        // Test marker updating without user interaction (See #296)
+        // Marker/ScreenMarker updates (particularly w/ Layout) without user interaction (See #296)
         val icon = BitmapFactory.decodeResource(activity.resources, R.drawable.teardrop_stroked)
-        val iconTex = globeVC.addTexture(icon, null, ThreadMode.ThreadCurrent)
-        val info = MarkerInfo().apply {
-            drawPriority = 1000
-        }
+        val info = MarkerInfo()
         objs.add(globeVC.addMarkers(listOf(
                 Marker().apply {
                     image = icon
                     loc = Point2d.FromDegrees(90.0, 40.0)
                     size = Point2d(0.2, 0.2)
-                    selectable = true
-                },
-                Marker().apply {
+                }, Marker().apply {
                     image = icon
                     loc = Point2d.FromDegrees(-90.0, 40.0)
                     size = Point2d(0.2, 0.2)
-                    selectable = true
-                }), info, ThreadMode.ThreadCurrent))
-
-        objs.add(globeVC.addScreenMarkers(listOf(
-                ScreenMarker().apply {
-                    tex = iconTex
-                    loc = Point2d.FromDegrees(0.0, 40.0)
-                    size = Point2d(128.0, 128.0)
-                    rotation = 0.0
-                    selectable = true
-                    layoutImportance = 1.0f
-                },
-                ScreenMarker().apply {
-                    tex = iconTex
-                    loc = Point2d.FromDegrees(180.0, 40.0)
-                    size = Point2d(128.0, 128.0)
-                    rotation = 0.0
-                    selectable = true
-                    layoutImportance = Float.MAX_VALUE
                 }), info, ThreadMode.ThreadCurrent))
 
         return true
@@ -65,5 +41,5 @@ class AutoRotateTestCase(activity: Activity?) :
     }
 
     private val objs = ArrayList<ComponentObject>()
-    private val baseCase = StamenRemoteTestCase(getActivity())
+    private val baseCase = ScreenMarkersTestCase(getActivity())
 }
