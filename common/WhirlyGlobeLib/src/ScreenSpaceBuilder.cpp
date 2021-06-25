@@ -276,7 +276,7 @@ void ScreenSpaceBuilder::setEnableRange(TimeInterval inStartEnable,TimeInterval 
     curState.endEnable = inEndEnable;
 }
 
-ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center)
+ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTris,const Point3d &center)
 {
     // Look for an existing drawable
     DrawableWrapRef drawWrap;
@@ -309,7 +309,7 @@ ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const 
         
         // Make sure this one isn't too large
         if (drawWrap && (drawWrap->locDraw->getNumPoints() + numVerts >= MaxDrawablePoints ||
-                         drawWrap->locDraw->getNumTris()              >= MaxDrawableTriangles))
+                         drawWrap->locDraw->getNumTris()   + numTris  >= MaxDrawableTriangles))
         {
             // It is, so we need to flush it and create a new one
             fullDrawables.push_back(drawWrap);
