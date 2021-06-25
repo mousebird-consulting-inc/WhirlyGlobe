@@ -29,9 +29,9 @@ There’s a tutorial for both iOS and Android:
 Builds
 ---
 
-[![iOS Build Status](https://app.bitrise.io/app/73efc488840cb3bf.svg?token=-_RGRNloG-bCA9O5ml-U8Q)](https://app.bitrise.io/app/73efc488840cb3bf) | iOS Develop
+[![iOS Build Status](https://app.bitrise.io/app/73efc488840cb3bf.svg?token=-_RGRNloG-bCA9O5ml-U8Q)](https://app.bitrise.io/app/73efc488840cb3bf) | iOS Main
 -: | :-
-[![Android Build Status](https://app.bitrise.io/app/36f069a6fbd58b11.svg?token=XD5YnMiUwnj0169yhIOkPQ)](https://app.bitrise.io/app/6783ecb338897a67) | Android Develop
+[![Android Build Status](https://app.bitrise.io/app/36f069a6fbd58b11.svg?token=XD5YnMiUwnj0169yhIOkPQ)](https://app.bitrise.io/app/36f069a6fbd58b11) | Android Main
 
 This is the main branch of the WhirlyGlobe-Maply Component and API version 3.2. It should be easy to compile, as all the crazy dependencies are in submodules. You can also get a [precompiled version](https://mousebird-consulting-inc.github.io/WhirlyGlobe/builds/builds.html).
 
