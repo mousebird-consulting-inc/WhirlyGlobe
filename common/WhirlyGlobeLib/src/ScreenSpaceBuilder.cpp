@@ -99,7 +99,13 @@ ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const DrawableState &state)
     : state(state), center(0,0,0)
 {
+    if (!render)
+    {
+        throw std::invalid_argument("render");
+    }
+
     locDraw = render->makeScreenSpaceDrawableBuilder("ScreenSpace Builder");
+
     locDraw->ScreenSpaceInit(state.motion,state.rotation,state.hasMask);
     locDraw->setType(Triangles);
     // A max of two textures per
@@ -125,11 +131,11 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
         locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
 
     // If we've got more than one texture ID and a period, we need a tweaker
-    if (state.texIDs.size() > 1 && state.period != 0.0)
+    const auto scene = render->getScene();
+    if (scene && state.texIDs.size() > 1 && state.period != 0.0)
     {
-        TimeInterval now = render->getScene()->getCurrentTime();
-        BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
-        locDraw->addTweaker(DrawableTweakerRef(tweak));
+        const TimeInterval now = scene->getCurrentTime();
+        locDraw->addTweaker(std::make_shared<BasicDrawableTexTweaker>(state.texIDs,now,state.period));
     }
 }
 
@@ -270,32 +276,45 @@ void ScreenSpaceBuilder::setEnableRange(TimeInterval inStartEnable,TimeInterval 
     curState.endEnable = inEndEnable;
 }
 
-ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center)
+ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTris,const Point3d &center)
 {
     // Look for an existing drawable
     DrawableWrapRef drawWrap;
-    auto it = drawables.find(state);
+    const auto it = drawables.find(state);
     if (it == drawables.end())
     {
         // Nope, create one
-        drawWrap = std::make_shared<DrawableWrap>(sceneRender,state);
-        drawWrap->center = center;
-        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
-        Eigen::Matrix4d transMat = trans.matrix();
-        drawWrap->locDraw->setMatrix(&transMat);
-        if (state.motion)
-            drawWrap->locDraw->setStartTime(sceneRender->getScene()->getCurrentTime());
-        drawables[state] = (drawWrap);
-    } else {
+        try
+        {
+            drawWrap = std::make_shared<DrawableWrap>(sceneRender, state);
+        }
+        catch (const std::exception &ex)
+        {
+            wkLogLevel(Error, "Failed to create drawable wrapper: %s", ex.what());
+        }
+
+        if (drawWrap)
+        {
+            drawWrap->center = center;
+            const Eigen::Affine3d trans(Eigen::Translation3d(center.x(), center.y(), center.z()));
+            drawWrap->locDraw->setMatrix(trans.matrix());
+            if (state.motion)
+                drawWrap->locDraw->setStartTime(sceneRender->getScene()->getCurrentTime());
+            drawables[state] = (drawWrap);
+        }
+    }
+    else
+    {
         drawWrap = it->second;
         
         // Make sure this one isn't too large
-        if (drawWrap->locDraw->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->locDraw->getNumTris() >= MaxDrawableTriangles)
+        if (drawWrap && (drawWrap->locDraw->getNumPoints() + numVerts >= MaxDrawablePoints ||
+                         drawWrap->locDraw->getNumTris()   + numTris  >= MaxDrawableTriangles))
         {
             // It is, so we need to flush it and create a new one
             fullDrawables.push_back(drawWrap);
             drawables.erase(it);
-            drawWrap = DrawableWrapRef(new DrawableWrap(sceneRender,state));
+            drawWrap = std::make_shared<DrawableWrap>(sceneRender,state);
             drawables[state] = drawWrap;
         }
     }

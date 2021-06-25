@@ -84,7 +84,10 @@ public:
     virtual void setDrawPriority(unsigned int newPriority);
 
     /// Set the active transform matrix
-    virtual void setMatrix(const Eigen::Matrix4d *inMat);
+    virtual void setMatrix(const Eigen::Matrix4d *inMat) { setMatrix(*inMat); }
+
+    /// Set the active transform matrix
+    virtual void setMatrix(const Eigen::Matrix4d &inMat);
 
     /// Resulting drawable wants the Z buffer for comparison
     virtual void setRequestZBuffer(bool val);

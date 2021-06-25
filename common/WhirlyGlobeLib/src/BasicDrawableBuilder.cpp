@@ -214,9 +214,9 @@ void BasicDrawableBuilder::setDrawPriority(unsigned int newPriority)
     basicDraw->drawPriority = newPriority;
 }
 
-void BasicDrawableBuilder::setMatrix(const Eigen::Matrix4d *inMat)
+void BasicDrawableBuilder::setMatrix(const Eigen::Matrix4d &inMat)
 {
-    basicDraw->mat = *inMat; basicDraw->hasMatrix = true;
+    basicDraw->mat = inMat; basicDraw->hasMatrix = true;
 }
 
 void BasicDrawableBuilder::setRequestZBuffer(bool val)
