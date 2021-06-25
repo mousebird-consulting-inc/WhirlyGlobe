@@ -24,22 +24,23 @@ class MapTilerTestCase: MaplyTestCase {
         mapTilerStyle = NumberFormatter().number(from: env["MAPTILER_STYLE"] ?? "")?.intValue ?? mapTilerStyle
     }
 
-    func getStyles() -> [(name: String, sheet: String)] {
+    // May be overridden by derived classes to display custom styles
+    func getStyles() -> [(name: String, sheet: String, bg: Bool)] {
         return [
-            ("Basic", "maptiler_basic"),
-            ("Hybrid Satellite", "maptiler_hybrid_satellite"),
-            ("Streets", "maptiler_streets"),
-    //         ("Topo", "maptiler_topo"),   // ?
-            ("Custom", "maptiler_expr_test")
+            ("Basic", "maptiler_basic", false),
+            ("Hybrid Satellite", "maptiler_hybrid_satellite", true),
+            ("Streets", "maptiler_streets", false),
+    //         ("Topo", "maptiler_topo", false),   // ?
+            ("Custom", "maptiler_expr_test", false)
         ]
     }
 
-    var styles = [(name: String, sheet: String)]()
+    var styles = [(name: String, sheet: String, bg: Bool)]()
     var mapTilerStyle = 2
     var mapboxMap : MapboxKindaMap? = nil
 
     // Start fetching the required pieces for a Mapbox style map
-    func startMap(_ style: (name: String, sheet: String), viewC: MaplyBaseViewController, round: Bool) {
+    func startMap(_ style: (name: String, sheet: String, bg: Bool), viewC: MaplyBaseViewController) {
         guard let fileName = Bundle.main.url(forResource: style.sheet, withExtension: "json") else {
             print("Style sheet missing from bundle: \(style.sheet)")
             return
@@ -75,7 +76,7 @@ class MapTilerTestCase: MaplyTestCase {
 
         // Parse it and then let it start itself
         let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
-        mapboxMap.backgroundAllPolys = round     // Render all the polygons into an image for the globe
+        mapboxMap.backgroundAllPolys = globeViewController != nil && !style.bg
         mapboxMap.cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
         // Replace the MapTilerKey in any URL with the actual token
         mapboxMap.fileOverride = {
@@ -138,7 +139,7 @@ class MapTilerTestCase: MaplyTestCase {
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         //mapVC.performanceOutput = true
         
-        startMap(styles[mapTilerStyle], viewC: mapVC, round: false)
+        startMap(styles[mapTilerStyle], viewC: mapVC)
 
         mapVC.rotateGestureThreshold = 15;
 
@@ -150,7 +151,7 @@ class MapTilerTestCase: MaplyTestCase {
     override func setUpWithGlobe(_ mapVC: WhirlyGlobeViewController) {
         //mapVC.performanceOutput = true
         
-        startMap(styles[mapTilerStyle], viewC: mapVC, round: true)
+        startMap(styles[mapTilerStyle], viewC: mapVC)
         
         runProgram(mapVC)
     }
@@ -193,7 +194,7 @@ class MapTilerTestCase: MaplyTestCase {
 
         mapTilerStyle = (mapTilerStyle + 1) % styles.count
         if let vc = baseViewController {
-            startMap(styles[mapTilerStyle], viewC: vc, round: false)
+            startMap(styles[mapTilerStyle], viewC: vc)
         }
     }
 
