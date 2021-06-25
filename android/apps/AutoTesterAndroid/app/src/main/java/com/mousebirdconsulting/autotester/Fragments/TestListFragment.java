@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.fragment.app.Fragment;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,7 +53,7 @@ public class TestListFragment extends Fragment {
 	}
 
 	private RecyclerView.LayoutManager createLayoutManager() {
-		return new LinearLayoutManager(Objects.requireNonNull(getActivity()).getApplicationContext());
+		return new LinearLayoutManager(requireActivity().getApplicationContext());
 	}
 
 	public void changeItemsState(boolean selected) {
@@ -78,7 +79,7 @@ public class TestListFragment extends Fragment {
 		final private ArrayList<MaplyTestCase> testCases = new ArrayList<>();
 
 		TestListAdapter() {
-			Activity a = Objects.requireNonNull(getActivity());
+			Activity a = requireActivity();
 			testCases.add(new StamenRemoteTestCase(a));
 			testCases.add(new GeographyClass(a));
 			testCases.add(new AnimatedBaseMapTestCase(a));
@@ -121,7 +122,7 @@ public class TestListFragment extends Fragment {
 //			testCases.add(new BoundsTestCase(a));
 //			testCases.add(new LayerShutdownTestCase(a));
 //			testCases.add(new GeomPointsTestCase(a));
-//			testCases.add(new AutoRotateTestCase(a));
+			testCases.add(new AutoRotateTestCase(a));
 //			testCases.add(new ArealTestCase(a));
 			testCases.add(new LocationTrackingRealTestCase(a));
 			testCases.add(new LocationTrackingSimTestCase(a));
@@ -131,7 +132,7 @@ public class TestListFragment extends Fragment {
 
 		public void downloadResources() {
 			ArrayList<MaplyTestCase> incompleteTest = new ArrayList<>();
-			Context context = Objects.requireNonNull(getContext());
+			Context context = requireContext();
 			for (MaplyTestCase testCase : this.testCases) {
 				if (!testCase.areResourcesDownloaded()) {
 					incompleteTest.add(testCase);
@@ -199,7 +200,7 @@ public class TestListFragment extends Fragment {
 		}
 
 		public void changeItemsState(boolean selected) {
-			Context context = Objects.requireNonNull(getContext());
+			Context context = requireContext();
 			for (MaplyTestCase testCase : testCases) {
 				ConfigOptions.TestState state = selected ? ConfigOptions.TestState.Ready : ConfigOptions.TestState.Selected;
 				ConfigOptions.setTestState(context, testCase.getTestName(), state);
@@ -224,12 +225,12 @@ public class TestListFragment extends Fragment {
 
 			public TestViewHolder(View itemView) {
 				super(itemView);
-				label = (TextView) itemView.findViewById(R.id.testNameLabel);
-				selected = (ImageView) itemView.findViewById(R.id.itemSelected);
-				map = (ImageView) itemView.findViewById(R.id.map_icon);
-				globe = (ImageView) itemView.findViewById(R.id.globe_icon);
-				retry = (ImageView) itemView.findViewById(R.id.retryDownload);
-				download = (ImageView) itemView.findViewById(R.id.downloading);
+				label = itemView.findViewById(R.id.testNameLabel);
+				selected = itemView.findViewById(R.id.itemSelected);
+				map = itemView.findViewById(R.id.map_icon);
+				globe = itemView.findViewById(R.id.globe_icon);
+				retry = itemView.findViewById(R.id.retryDownload);
+				download = itemView.findViewById(R.id.downloading);
 				//self = itemView;
 			}
 
@@ -239,7 +240,7 @@ public class TestListFragment extends Fragment {
 
 				this.label.setText(testCase.getTestName());
 				final MainActivity activity = Objects.requireNonNull((MainActivity)getActivity());
-				final Context context = Objects.requireNonNull(getContext());
+				final Context context = requireContext();
 				//if error
 				switch (ConfigOptions.getTestState(context, testCase.getTestName())) {
 					case Error:
@@ -296,14 +297,14 @@ public class TestListFragment extends Fragment {
 									globe.setVisibility(View.INVISIBLE);
 								}
 								map.setOnClickListener(v -> {
-									ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.MapTest);
+									ConfigOptions.setTestType(requireContext(), ConfigOptions.TestType.MapTest);
 									if (!activity.isExecuting()) {
 										activity.prepareTest(testCase);
 										activity.runTest(testCase);
 									}
 								});
 								globe.setOnClickListener(v -> {
-									ConfigOptions.setTestType(getContext(), ConfigOptions.TestType.GlobeTest);
+									ConfigOptions.setTestType(requireContext(), ConfigOptions.TestType.GlobeTest);
 									if (!activity.isExecuting()) {
 										activity.prepareTest(testCase);
 										activity.runTest(testCase);
@@ -333,7 +334,9 @@ public class TestListFragment extends Fragment {
 						download.setVisibility(View.INVISIBLE);
 						switch (ConfigOptions.getExecutionMode(context)) {
 							case Multiple:
-								this.selected.setImageDrawable(getResources().getDrawable(R.drawable.ic_options_action));
+								this.selected.setImageDrawable(
+									AppCompatResources.getDrawable(requireContext(),
+										R.drawable.ic_options_action));
 								break;
 							case Interactive:
 							case Single:
