@@ -32,10 +32,21 @@ RenderSetupInfoGLES::RenderSetupInfoGLES() :
 {
 }
     
-RenderSetupInfoGLES::RenderSetupInfoGLES(Scene *inScene) : RenderSetupInfoGLES()
+RenderSetupInfoGLES::RenderSetupInfoGLES(Scene *inScene) :
+    RenderSetupInfoGLES()
 {
-    auto scene = (SceneGLES *)inScene;
+    const auto scene = (SceneGLES *)inScene;
     memManager = scene->getMemManager();
+}
+
+
+int OpenGLMemManager::maxCachedBuffers = WhirlyKitOpenGLMemCacheMax;
+int OpenGLMemManager::maxCachedTextures = WhirlyKitOpenGLMemCacheMax;
+
+OpenGLMemManager::OpenGLMemManager() :
+    buffIDs(WhirlyKitOpenGLMemCacheMax),
+    texIDs(WhirlyKitOpenGLMemCacheMax)
+{
 }
 
 OpenGLMemManager::~OpenGLMemManager()
@@ -45,6 +56,18 @@ OpenGLMemManager::~OpenGLMemManager()
     {
         wkLogLevel(Error,"OpenGL Memory Manager destroyed while locked");
         assert(!"OpenGL Memory Manager destroyed while locked");
+    }
+
+    if (!buffIDs.empty())
+    {
+        wkLogLevel(Error,"OpenGL Memory Manager destroyed with outstanding buffer allocations");
+        assert(!"OpenGL Memory Manager destroyed with outstanding buffer allocations");
+    }
+
+    if (!texIDs.empty())
+    {
+        wkLogLevel(Error,"OpenGL Memory Manager destroyed with outstanding texture allocations");
+        assert(!"OpenGL Memory Manager destroyed with outstanding texture allocations");
     }
 }
 
@@ -62,11 +85,18 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
             {
                 buffIDs.insert(&newAlloc[0], &newAlloc[count]);
             }
+            else
+            {
+                // It's not clear from the documentation whether partial allocation can
+                // occur in an error condition, but deleting an array of zeros is safe.
+                glDeleteBuffers(count, newAlloc);
+            }
         }
-        
+
+        // take one item from the set
         if (!buffIDs.empty())
         {
-            auto it = buffIDs.begin();
+            const auto it = buffIDs.begin();
             which = *it;
             buffIDs.erase(it);
         }
@@ -87,14 +117,10 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
     return which;
 }
 
-// If set, we'll reuse buffers rather than allocating new ones
-static const bool ReuseBuffers = true;
-
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
-    bool doClear = false;
-    
     //    wkLogLevel(Debug,"Releasing buffer %d",bufID);
+    if (bufID != 0)
     {
         std::lock_guard<std::mutex> guardLock(idLock);
         
@@ -102,14 +128,20 @@ void OpenGLMemManager::removeBufferID(GLuint bufID)
         glBindBuffer(GL_ARRAY_BUFFER, bufID);
         glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        buffIDs.insert(bufID);
-        
-        if (!ReuseBuffers || buffIDs.size() > WhirlyKitOpenGLMemCacheMax)
-            doClear = true;
+
+        // Add this one back to the cache set if we should keep it.
+        if (!shutdown && buffIDs.size() < maxCachedBuffers)
+        {
+            buffIDs.insert(bufID);
+            bufID = 0;
+        }
     }
     
-    if (doClear)
-        clearBufferIDs();
+    if (bufID != 0)
+    {
+        // not caching it, so delete it
+        glDeleteBuffers(1, &bufID);
+    }
 }
 
 // Clear out any and all buffer IDs that we may have sitting around
@@ -153,22 +185,27 @@ GLuint OpenGLMemManager::getTexID()
 
 void OpenGLMemManager::removeTexID(GLuint texID)
 {
-    bool doClear = false;
-
-    // Clear out the texture data first
-    glBindTexture(GL_TEXTURE_2D, texID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
+    if (texID != 0)
     {
+        // Clear out the texture data first
+        glBindTexture(GL_TEXTURE_2D, texID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
         std::lock_guard<std::mutex> guardLock(idLock);
-        texIDs.insert(texID);
-        
-        if (!ReuseBuffers || texIDs.size() > WhirlyKitOpenGLMemCacheMax)
-            doClear = true;
+
+        // Add this one back to the cache set if we should keep it.
+        if (!shutdown && texIDs.size() < maxCachedTextures)
+        {
+            texIDs.insert(texID);
+            texID = 0;
+        }
     }
-    
-    if (doClear)
-        clearTextureIDs();
+
+    if (texID != 0)
+    {
+        // not caching it, so delete it
+        glDeleteTextures(1, &texID);
+    }
 }
 
 // Clear out any and all texture IDs that we have sitting around
@@ -188,6 +225,23 @@ void OpenGLMemManager::dumpStats()
 {
     wkLogLevel(Verbose,"MemCache: %ld buffers",(long int)buffIDs.size());
     wkLogLevel(Verbose,"MemCache: %ld textures",(long int)texIDs.size());
+}
+
+void OpenGLMemManager::teardown()
+{
+    shutdown = true;
+    clearBufferIDs();
+    clearTextureIDs();
+}
+
+void OpenGLMemManager::setBufferReuse(int maxBuffers)
+{
+    maxCachedBuffers = maxBuffers;
+}
+
+void OpenGLMemManager::setTextureReuse(int maxTextures)
+{
+    maxCachedTextures = maxTextures;
 }
 
 }
