@@ -269,12 +269,12 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
         // Don't let the sampling layer shut down while we're working
         QuadSamplingLayer samplingLayer = loader.samplingLayer.get();
-        if (samplingLayer == null || !samplingLayer.layerThread.startOfWork() || loadReturn.isCanceled()) {
+        // startOfWork must be last, or we could bypass endOfWork
+        if (samplingLayer == null || loadReturn.isCanceled() || !samplingLayer.layerThread.startOfWork()) {
             return;
         }
 
         try {   // ensure endOfWork is called
-
             ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
             ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
             if (thisOvjObjs != null) {
