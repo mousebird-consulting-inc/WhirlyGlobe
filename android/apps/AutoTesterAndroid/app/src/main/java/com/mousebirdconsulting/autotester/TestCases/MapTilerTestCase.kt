@@ -1,8 +1,10 @@
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
+import android.content.Context.MODE_PRIVATE
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import okio.*
@@ -10,18 +12,29 @@ import java.io.IOException
 
 open class MapTilerTestCase : MaplyTestCase
 {
+    // Maptiler token
+    // Go to maptiler.com, setup an account, get your token, and paste it here
+    private var token: String = "GetYerOwnToken"
+    
     constructor(activity: Activity) :
             this(activity, "MapTiler", TestExecutionImplementation.Both)
     
-    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
+    protected constructor(activity: Activity, name: String,
+                          impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
             super(activity, name, impl)
-    
-    // Maptiler token
-    // Go to maptiler.com, setup an account and get your own
-    private val token = "GetYerOwnToken"
     
     // Set up the loader (and all the stuff it needs) for the map tiles
     private fun setupLoader(control: BaseController, whichMap: Int) {
+        val prefs = activity.getSharedPreferences("com.mousebird.autotester.prefs", MODE_PRIVATE)
+        if (token.isEmpty() || token == "GetYerOwnToken") {
+            token = prefs.getString("MapTilerToken", null) ?: "GetYerOwnToken"
+        }
+        if (token.isEmpty() || token == "GetYerOwnToken") {
+            Toast.makeText(activity.applicationContext, "Missing MapTiler Token", Toast.LENGTH_LONG).show()
+        } else {
+            prefs.edit().putString("MapTilerToken",token).apply()
+        }
+        
         getStyleJson(whichMap)?.let { json ->
             loader?.shutdown()
             loader = null
