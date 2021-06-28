@@ -41,17 +41,19 @@ open class MapTilerTestCase : MaplyTestCase
             map?.stop()
             map = null
             
-            map = MapboxKindaMap(json, control).apply {
+            MapboxKindaMap(json, control).apply {
+                map = this
                 mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
                 backgroundAllPolys = (control is GlobeController)
                 imageVectorHybrid = true
+                postSetup = {
+                    // Set up an overlay with the same parameters showing the
+                    // tile boundaries, for debugging/troubleshooting purposes
+                    this@MapTilerTestCase.loader =
+                            QuadPagingLoader(it.sampleParams, OvlDebugImageLoaderInterpreter(), control)
+                }
                 setup(this)
                 start()
-            }
-            map?.postSetup = {
-                // Set up an overlay with the same parameters showing the
-                // tile boundaries, for debugging/troubleshooting purposes
-                loader = QuadPagingLoader(it.sampleParams, OvlDebugImageLoaderInterpreter(), control)
             }
         }
     }
@@ -115,6 +117,14 @@ open class MapTilerTestCase : MaplyTestCase
         return true
     }
     
+    override fun shutdown() {
+        loader?.shutdown()
+        loader = null
+        map?.stop()
+        map = null
+        super.shutdown()
+    }
+
     protected open fun getMaps(): Collection<String?> = listOf(
         "maptiler_basic.json",
         "maptiler_streets.json",
