@@ -1,14 +1,12 @@
 package com.mousebird.maply;
 
-import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.List;
-import java.util.Vector;
 
 import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
 import javax.microedition.khronos.egl.EGLSurface;
 
 /**
@@ -123,7 +121,7 @@ public interface RenderControllerInterface
 
     boolean getOfflineMode();
 
-    boolean setEGLContext(ContextInfo cInfo);
+    ContextInfo setEGLContext(ContextInfo cInfo);
 
     ContextWrapper wrapTempContext(RenderController.ThreadMode threadMode);
 
@@ -137,14 +135,16 @@ public interface RenderControllerInterface
 
     // Context and associated surface
     class ContextInfo {
+        EGLDisplay eglDisplay;
         EGLContext eglContext;
-        EGLSurface eglSurface;
-        public ContextInfo() {
-            this(null,null);
-        }
-        public ContextInfo(EGLContext context, EGLSurface surface) {
+        EGLSurface eglDrawSurface;
+        EGLSurface eglReadSurface;
+        public ContextInfo(EGLDisplay display, EGLContext context,
+                           EGLSurface drawSurface, EGLSurface readSurface) {
+            eglDisplay = display;
             eglContext = context;
-            eglSurface = surface;
+            eglReadSurface = readSurface;
+            eglDrawSurface = drawSurface;
         }
     }
 

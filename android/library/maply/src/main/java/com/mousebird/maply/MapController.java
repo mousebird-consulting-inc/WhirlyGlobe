@@ -145,8 +145,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 		coordAdapter = inCoordAdapter;
 
 		// Create the scene and map view
-		mapScene = new Scene(coordAdapter,renderControl);
-		scene = mapScene;
+		scene = new Scene(coordAdapter,renderControl);
 		mapView = new MapView(this,coordAdapter);
 		view = mapView;
 		super.setClearColor(clearColor);
@@ -176,25 +175,27 @@ public class MapController extends BaseController implements View.OnTouchListene
 			c.removeFrameCallback(this);
 		if (mapView != null)
 			mapView.cancelAnimation();
+
+		// superclass shuts down the scene
+
 		super.shutdown();
+
 		mapView = null;
-		if (mapScene != null) {
-			mapScene.teardownGL();
-		}
 		if (gestureHandler != null)
 		{
 			gestureHandler.shutdown();
 		}
 		gestureDelegate = null;
 		gestureHandler = null;
+
+		if (scene != null) {
+			scene.teardownGL();
+		}
 	}
 
 	// Map version of view
 	MapView mapView = null;
-	
-	// Map version of scene
-	Scene mapScene = null;
-	
+
 	/**
 	 * Return the screen coordinate for a given geographic coordinate (in radians).
 	 * 

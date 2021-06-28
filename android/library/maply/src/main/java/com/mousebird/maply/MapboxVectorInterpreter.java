@@ -294,37 +294,47 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             // multiple checks and synchronization are ok, tileRender is never set to null
             if (tileRender != null && imageStyleGen != null) {
                 synchronized (tileRender) {
+                    // Make sure the renderer doesn't shut down while we're using it
+                    if (!tileRender.isRunning()) {
+                        return;
+                    }
+
                     tileRender.setClearColor(imageStyleGen.backgroundColorForZoom(tileID.level));
-                    Mbr imageBounds = new Mbr(new Point2d(0.0, 0.0), tileRender.frameSize);
+                    final Mbr imageBounds = new Mbr(new Point2d(0.0, 0.0), tileRender.frameSize);
                     VectorTileData imageTileData = new VectorTileData(tileID, imageBounds, locBounds);
 
                     // Need to activate the renderer, add the data, enable the objects and then clean it all up
                     // We need to use a specific context that comes with the tile renderer
                     RenderControllerInterface.ContextInfo cInfo = RenderController.getEGLContext();
-                    tileRender.setEGLContext(null);
+                    try {
+                        tileRender.setEGLContext(null);
 
-                    for (byte[] data : pbfData) {
-                        if (!imageParser.parseData(data, imageTileData, loadReturn) || loadReturn.isCanceled()) {
-                            if (loadReturn.isCanceled()) {
-                                return;
-                            } else {
-                                Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
+                        for (byte[] data : pbfData) {
+                            if (!imageParser.parseData(data, imageTileData, loadReturn) || loadReturn.isCanceled()) {
+                                if (loadReturn.isCanceled()) {
+                                    return;
+                                } else {
+                                    Log.w(getClass().getSimpleName(), "Tile parsing failed for " + tileID);
+                                }
                             }
                         }
+
+                        ChangeSet changes = imageTileData.getChangeSet();
+                        changes.process(tileRender, tileRender.getScene());
+                        changes.dispose();
+
+                        tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
+
+                        tileBitmap = tileRender.renderToBitmap();
+
+                        tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
+
+                        imageTileData.dispose();
+                    } finally {
+                        // Reset the OpenGL context back to what it was before
+                        // It would have been set up by our own renderer for us on a specific thread
+                        theVC.renderControl.setEGLContext(cInfo);
                     }
-
-                    ChangeSet changes = imageTileData.getChangeSet();
-                    changes.process(tileRender, tileRender.getScene());
-                    changes.dispose();
-                    tileRender.enableObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
-                    tileBitmap = tileRender.renderToBitmap();
-                    tileRender.removeObjects(imageTileData.getComponentObjects(), RenderControllerInterface.ThreadMode.ThreadCurrent);
-                    tileRender.clearContext();
-                    imageTileData.dispose();
-
-                    // Reset the OpenGL context back to what it was before
-                    // It would have been set up by our own renderer for us on a specific thread
-                    theVC.renderControl.setEGLContext(cInfo);
                 }
             }
 

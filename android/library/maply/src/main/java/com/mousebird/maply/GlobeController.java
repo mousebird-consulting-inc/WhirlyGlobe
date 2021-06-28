@@ -81,8 +81,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		coordAdapter = new FakeGeocentricDisplayAdapter();
 
 		// Create the scene and map view
-		globeScene = new Scene(coordAdapter,renderControl);
-		scene = globeScene;
+		scene = new Scene(coordAdapter,renderControl);
 		globeView = new GlobeView(this,coordAdapter);
 		view = globeView;
 		globeView.northUp = true;
@@ -107,16 +106,21 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		if (c != null)
 			c.removeFrameCallback(this);
 		globeView.cancelAnimation();
+
+		// superclass shuts down the scene
+
 		super.shutdown();
+
 		globeView = null;
-		if (globeScene != null) {
-			globeScene.teardownGL();
-		}
 		if (gestureHandler != null) {
 			gestureHandler.shutdown();
 		}
 		gestureDelegate = null;
 		gestureHandler = null;
+
+		if (scene != null) {
+			scene.teardownGL();
+		}
 	}
 	
 	// Map version of view
@@ -126,9 +130,6 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	public GlobeView getGlobeView() {
 		return globeView;
 	}
-
-	// Map version of scene
-	Scene globeScene = null;
 
 	/**
 	 * True if the globe is keeping north facing up on the screen.

@@ -32,6 +32,10 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 
+import static javax.microedition.khronos.egl.EGL10.EGL_DRAW;
+import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
+import static javax.microedition.khronos.egl.EGL10.EGL_READ;
+
 /**
  * The Render Controller handles the object manipulation and rendering interface.
  * It can be a standalone object, doing offline rendering or it can be attached
@@ -148,53 +152,61 @@ public class RenderController implements RenderControllerInterface
         // Set up our own EGL context for offline work
         EGL10 egl = (EGL10) EGLContext.getEGL();
 
-        offlineGLContext = new ContextInfo();
+        offlineGLContext = new ContextInfo(display, null, null, null);
         offlineGLContext.eglContext = egl.eglCreateContext(display, config, context, glAttribList);
         if (LayerThread.checkGLError(egl, "eglCreateContext") || offlineGLContext.eglContext == null) {
             throw new RuntimeException("Failed to create OpenGLES context");
         }
 
-        offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, glSurfaceAttrs);
-        if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || offlineGLContext.eglSurface == null) {
+        offlineGLContext.eglDrawSurface = egl.eglCreatePbufferSurface(display, config, glSurfaceAttrs);
+        offlineGLContext.eglReadSurface = offlineGLContext.eglDrawSurface;
+        if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || offlineGLContext.eglDrawSurface == null) {
             egl.eglDestroyContext(display, offlineGLContext.eglContext);
             throw new RuntimeException("Failed to create OpenGLES surface");
         }
 
-        setEGLContext(offlineGLContext);
-
-        initialise(width,height);
-
-        // Set up a pass-through coordinate system, view, and so on
-        CoordSystem coordSys = new PassThroughCoordSystem();
-        Point3d ll = new Point3d(0.0,0.0,0.0);
-        Point3d ur = new Point3d(width,height,0.0);
-        Point3d scale = new Point3d(1.0, 1.0, 1.0);
-        Point3d center = new Point3d((ll.getX()+ur.getX())/2.0,(ll.getY()+ur.getY())/2.0,(ll.getZ()+ur.getZ())/2.0);
-        coordAdapter = new GeneralDisplayAdapter(coordSys,ll,ur,center,scale);
-        FlatView flatView = new FlatView(null,coordAdapter);
-        Mbr extents = new Mbr(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
-        flatView.setExtents(extents);
-        flatView.setWindow(new Point2d(width,height),new Point2d(0.0,0.0));
-        view = flatView;
-
-        scene = new Scene(coordAdapter,this);
-
         // Need a task manager that just runs things on the current thread
         //  after setting the proper context for rendering
-        TaskManager taskMan = (run, mode) -> {
-            setEGLContext(offlineGLContext);
-            run.run();
+        TaskManager ourTaskMan = (run,mode) -> {
+            ContextInfo savedContext = setEGLContext(offlineGLContext);
+            if (savedContext != null) {
+                try {
+                    run.run();
+                } finally {
+                    setEGLContext(savedContext);
+                }
+            }
         };
 
-        // This will properly wire things up
-        Init(scene,coordAdapter,taskMan);
-        setScene(scene);
-        setView(view);
+        ourTaskMan.addTask(() -> {
+            initialise(width, height);
 
-        // Need all the default shaders
-        setupShadersNative();
+            // Set up a pass-through coordinate system, view, and so on
+            final CoordSystem coordSys = new PassThroughCoordSystem();
+            final Point3d ll = new Point3d(0.0, 0.0, 0.0);
+            final Point3d ur = new Point3d(width, height, 0.0);
+            final Point3d scale = new Point3d(1.0, 1.0, 1.0);
+            final Point3d center = new Point3d((ll.getX() + ur.getX()) / 2.0,
+                                            (ll.getY() + ur.getY()) / 2.0,
+                                            (ll.getZ() + ur.getZ()) / 2.0);
+            coordAdapter = new GeneralDisplayAdapter(coordSys, ll, ur, center, scale);
+            final FlatView flatView = new FlatView(null, coordAdapter);
+            final Mbr extents = new Mbr(new Point2d(ll.getX(), ll.getY()),
+                                        new Point2d(ur.getX(), ur.getY()));
+            flatView.setExtents(extents);
+            flatView.setWindow(new Point2d(width, height), new Point2d(0.0, 0.0));
+            view = flatView;
 
-        clearContext();
+            scene = new Scene(coordAdapter, this);
+
+            // This will properly wire things up
+            Init(scene, coordAdapter, ourTaskMan);
+            setScene(scene);
+            setView(view);
+
+            // Need all the default shaders
+            setupShadersNative();
+        }, ThreadMode.ThreadCurrent);
     }
 
     /**
@@ -395,7 +407,7 @@ public class RenderController implements RenderControllerInterface
     // Manage bitmaps and their conversion to textures
     TextureManager texManager = new TextureManager();
 
-    public void shutdown()
+    public synchronized void shutdown()
     {
         // signal to end any outstanding async tasks
         running = false;
@@ -441,13 +453,29 @@ public class RenderController implements RenderControllerInterface
 
         texManager = null;
 
+        if (scene != null) {
+            taskMan.addTask(() -> {
+                scene.teardownGL();
+                scene.dispose();
+                scene = null;
+            }, ThreadMode.ThreadCurrent);
+        }
+
         if (offlineGLContext != null) {
-            if (offlineGLContext.eglSurface != null && offlineGLContext.eglContext != null) {
-                setEGLContext(offlineGLContext);
-                EGL10 egl = (EGL10) EGLContext.getEGL();
-                egl.eglDestroySurface(display, offlineGLContext.eglSurface);
+            EGL10 egl = (EGL10) EGLContext.getEGL();
+            if (offlineGLContext.eglDrawSurface != null) {
+                Log.d("Maply", "RenderController destroying surface " + offlineGLContext.eglDrawSurface.hashCode());
+                egl.eglDestroySurface(display, offlineGLContext.eglDrawSurface);
+            }
+            if (offlineGLContext.eglContext != null) {
+                Log.d("Maply", "RenderController destroying context " + offlineGLContext.eglContext.hashCode());
+                egl.eglDestroyContext(display, offlineGLContext.eglContext);
             }
             offlineGLContext = null;
+        }
+
+        if (scene != null) {
+            scene.teardownGL();
         }
 
         teardownNative();
@@ -1641,10 +1669,14 @@ public class RenderController implements RenderControllerInterface
             return;
 
         taskMan.addTask(() -> {
+            final ComponentManager compMan = componentManager;
+            if (compMan == null || (layoutLayer != null && layoutLayer.isShuttingDown)) {
+                return;
+            }
             ChangeSet changes = new ChangeSet();
             for (ComponentObject compObj : compObjs) {
                 if (compObj != null) {
-                    componentManager.enableComponentObject(compObj, true, changes);
+                    compMan.enableComponentObject(compObj, true, changes);
                 }
             }
             processChangeSet(changes);
@@ -1678,8 +1710,12 @@ public class RenderController implements RenderControllerInterface
             return;
 
         taskMan.addTask(() -> {
-            ChangeSet changes = new ChangeSet();
+            final ComponentManager compMan = componentManager;
+            if (compMan == null || (layoutLayer != null && layoutLayer.isShuttingDown)) {
+                return;
+            }
 
+            ChangeSet changes = new ChangeSet();
             componentManager.removeComponentObjects(compObjs,changes,disposeAfterRemoval);
             processChangeSet(changes);
         }, mode);
@@ -1809,34 +1845,36 @@ public class RenderController implements RenderControllerInterface
     ContextInfo offlineGLContext = null;
 
     // Used only in standalone mode
-    public boolean setEGLContext(ContextInfo cInfo) {
-        if (cInfo == null)
+    // Returns previous context, or null if the context could not be changed
+    public ContextInfo setEGLContext(ContextInfo cInfo) {
+        if (cInfo == null) {
             cInfo = offlineGLContext;
-
-        EGL10 egl = (EGL10) EGLContext.getEGL();
-        if (cInfo != null)
-        {
-            if (!egl.eglMakeCurrent(display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.d("Maply", "Failed to make current context: " + Integer.toHexString(egl.eglGetError()));
-                return false;
-            }
-
-            return true;
-        } else {
-                egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
         }
 
-        return false;
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        ContextInfo current = getEGLContext();
+
+        Thread t = Thread.currentThread();
+        if (cInfo != null)
+        {
+            if (!egl.eglMakeCurrent(display, cInfo.eglDrawSurface, cInfo.eglReadSurface, cInfo.eglContext)) {
+                return null;
+            }
+        } else {
+            egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+
+        return current;
     }
 
     // Return a description of the current context
-    static public ContextInfo getEGLContext() {
-        ContextInfo cInfo = new ContextInfo();
+    public static ContextInfo getEGLContext() {
         EGL10 egl = (EGL10) EGLContext.getEGL();
-        cInfo.eglContext = egl.eglGetCurrentContext();
-        cInfo.eglSurface = egl.eglGetCurrentSurface(egl.EGL_DRAW);
-
-        return cInfo;
+        return new ContextInfo(
+                egl.eglGetCurrentDisplay(),
+                egl.eglGetCurrentContext(),
+                egl.eglGetCurrentSurface(EGL_DRAW),
+                egl.eglGetCurrentSurface(EGL_READ));
     }
 
     public void processChangeSet(ChangeSet changes)
@@ -1879,13 +1917,16 @@ public class RenderController implements RenderControllerInterface
      * You should have already set the context at this point
      */
     public Bitmap renderToBitmap() {
-        Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
+        final Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
         renderToBitmapNative(bitmap);
-
         return bitmap;
     }
 
     private boolean running = true;
+
+    public boolean isRunning() {
+        return running;
+    }
 
     public native void setScene(Scene scene);
     public native void setupShadersNative();
