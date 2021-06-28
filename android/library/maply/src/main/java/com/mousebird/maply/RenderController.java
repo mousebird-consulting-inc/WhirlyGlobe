@@ -109,8 +109,7 @@ public class RenderController implements RenderControllerInterface
     /**
      * This constructor assumes we'll be hooking up to surface provided later.
      */
-    RenderController()
-    {
+    RenderController() {
         initialise();
     }
 
@@ -542,7 +541,6 @@ public class RenderController implements RenderControllerInterface
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
-        // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
@@ -617,7 +615,9 @@ public class RenderController implements RenderControllerInterface
      * Add moving screen markers to the visual display.  These are the same as the regular
      * screen markers, but they have a start and end point and a duration.
      */
-    public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
+    public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,
+                                                  final MarkerInfo markerInfo,
+                                                  RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
@@ -847,7 +847,8 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the labels for modification or deletion.
      */
-    public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+    public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,
+                                                 final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
@@ -913,7 +914,8 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
+    public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,
+                                      RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1087,7 +1089,9 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
+    public ComponentObject addWideVectors(final List<VectorObject> vecs,
+                                          final WideVectorInfo wideVecInfo,
+                                          ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1141,7 +1145,9 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the instanced wide vectors.  This is necessary for modifying
      * or deleting the instance once created.
      */
-    public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
+    public ComponentObject instanceWideVectors(final ComponentObject inCompObj,
+                                               final WideVectorInfo wideVecInfo,
+                                               ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1265,7 +1271,9 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the stickers for later modification or deletion.
      */
-    public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
+    public ComponentObject changeSticker(final ComponentObject stickerObj,
+                                         final StickerInfo stickerInfo,
+                                         ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1294,7 +1302,9 @@ public class RenderController implements RenderControllerInterface
      * Billboards are rectangles pointed toward the viewer.  They can either be upright, tied to a
      * surface, or oriented completely toward the user.
      */
-    public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
+    public ComponentObject addBillboards(final List<Billboard> bills,
+                                         final BillboardInfo info,
+                                         final RenderController.ThreadMode threadMode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
         // Do the actual work on the layer thread
@@ -1363,7 +1373,9 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the geometry points for later modification or deletion.
      */
-    public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
+    public ComponentObject addPoints(final List<Points> ptList,
+                                     final GeometryInfo geomInfo,
+                                     RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1407,7 +1419,9 @@ public class RenderController implements RenderControllerInterface
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-    public MaplyTexture addTexture(final Bitmap image,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
+    public MaplyTexture addTexture(final Bitmap image,
+                                   final RenderController.TextureSettings settings,
+                                   RenderController.ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
@@ -1432,7 +1446,9 @@ public class RenderController implements RenderControllerInterface
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-    public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
+    public MaplyTexture addTexture(final Texture rawTex,
+                                   final TextureSettings settings,
+                                   ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
 
@@ -1455,7 +1471,10 @@ public class RenderController implements RenderControllerInterface
      * @param mode Which thread to do the work on
      * @return The new texture (or a reference to it, anyway)
      */
-    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode)
+    public MaplyTexture createTexture(final int width,
+                                      final int height,
+                                      final TextureSettings settings,
+                                      ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
