@@ -53,12 +53,9 @@ public class QuadImageLoader extends QuadImageLoaderBase
         tileInfos = tileInfo;
         valid = true;
 
-        control.addPostSurfaceRunnable(new Runnable() {
-            @Override
-            public void run() {
-                if (valid) {
-                    delayedInit(params);
-                }
+        control.addPostSurfaceRunnable(() -> {
+            if (valid) {
+                delayedInit(params);
             }
         });
     }

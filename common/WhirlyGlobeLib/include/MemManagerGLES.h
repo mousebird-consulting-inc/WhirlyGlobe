@@ -18,10 +18,8 @@
 
 #import "WrapperGLES.h"
 #import "ChangeRequest.h"
-#import <vector>
-#import <set>
-#import <map>
 #import <mutex>
+#import <unordered_set>
 
 namespace WhirlyKit
 {
@@ -40,7 +38,7 @@ namespace WhirlyKit
 class OpenGLMemManager
 {
 public:
-    OpenGLMemManager() = default;
+    OpenGLMemManager();
     ~OpenGLMemManager();
     
     /// Pick a buffer ID off the list or ask OpenGL for one
@@ -61,12 +59,26 @@ public:
     
     /// Print out stats about what's in the cache
     void dumpStats();
-    
+
+    /// Clean up resources, don't cache anything else
+    void teardown();
+
+    /// Globally enable/disable buffer reuse, 0 to disable
+    static void setBufferReuse(int maxBuffers);
+
+    /// Globally enable/disable texture reuse, 0 to disable
+    static void setTextureReuse(int maxTextures);
+
 protected:
     std::mutex idLock;
     
-    std::set<GLuint> buffIDs;
-    std::set<GLuint> texIDs;
+    std::unordered_set<GLuint> buffIDs;
+    std::unordered_set<GLuint> texIDs;
+
+    bool shutdown = false;
+
+    static int maxCachedBuffers;
+    static int maxCachedTextures;
 };
     
 /** This is the configuration info passed to setupGL for each

@@ -701,13 +701,11 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				metroThread = null;
 			}
 
-
 			if (scene != null) {
 				scene.teardownGL();
+				scene.dispose();
+				scene = null;
 			}
-
-			//		scene.dispose();
-			//		view.dispose();
 
 			if (coordAdapter != null)
 				coordAdapter.shutdown();
@@ -718,7 +716,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
 			synchronized (glContexts) {
 				for (ContextInfo context : glContexts) {
-					egl.eglDestroySurface(renderControl.display, context.eglSurface);
+					egl.eglDestroySurface(renderControl.display, context.eglDrawSurface);
 					egl.eglDestroyContext(renderControl.display, context.eglContext);
 				}
 				glContexts.clear();
@@ -726,7 +724,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			// And the main one
 			if (renderWrapper != null && renderWrapper.maplyRender != null && glContext != null) {
-				egl.eglDestroySurface(renderControl.display, glContext.eglSurface);
+				egl.eglDestroySurface(renderControl.display, glContext.eglDrawSurface);
 				egl.eglDestroyContext(renderControl.display, glContext.eglContext);
 				glContext = null;
 			}
@@ -835,7 +833,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 					return null;
 				}
 
-				retContext = new ContextInfo(context, surface);
+				retContext = new ContextInfo(renderControl.display, context, surface, surface);
 				numTempContextsCreated = numTempContextsCreated + 1;
 
 				//Log.d("Maply","Created context + " + retContext.eglContext.toString());
@@ -1026,14 +1024,15 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// Make our own context that we can use on the main thread
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
 
-			glContext = new ContextInfo();
+			glContext = new ContextInfo(renderControl.display, null, null, null);
 			glContext.eglContext = egl.eglCreateContext(renderControl.display, renderControl.config, renderControl.context, glAttribList);
 			if (LayerThread.checkGLError(egl, "eglCreateContext") || glContext.eglContext == null) {
 				return;
 			}
 
-			glContext.eglSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, glSurfaceAttrs);
-			if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || glContext.eglSurface == null) {
+			glContext.eglDrawSurface = egl.eglCreatePbufferSurface(renderControl.display, renderControl.config, glSurfaceAttrs);
+			glContext.eglReadSurface = glContext.eglDrawSurface;
+			if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || glContext.eglDrawSurface == null) {
 				egl.eglDestroyContext(renderControl.display, glContext.eglContext);
 				return;
 			}
@@ -1071,32 +1070,31 @@ public class BaseController implements RenderController.TaskManager, RenderContr
     /**
      * Set the EGL Context we created for the main thread, if we can.
      */
-    public boolean setEGLContext(ContextInfo cInfo)
+    public ContextInfo setEGLContext(ContextInfo cInfo)
     {
 		if (cInfo == null)
 			cInfo = glContext;
 
 		// This does seem to happen
-		if (renderWrapper == null || renderWrapper.maplyRender == null || renderControl.display == null)
-			return false;
+		if (renderWrapper == null || renderWrapper.maplyRender == null || renderControl.display == null) {
+			return null;
+		}
 
 		final EGL10 egl = (EGL10) EGLContext.getEGL();
         if (cInfo != null)
         {
-            if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.d("Maply", "Failed to make current context: " + Integer.toHexString(egl.eglGetError()));
+        	ContextInfo oldContext = RenderController.getEGLContext();
+            if (!egl.eglMakeCurrent(renderControl.display, cInfo.eglDrawSurface, cInfo.eglReadSurface, cInfo.eglContext)) {
 				dumpFailureInfo("setEGLContext 1");
-                return false;
+                return null;
             }
-
-            return true;
+            return oldContext;
         } else if (renderWrapper != null && renderWrapper.maplyRender != null && renderControl.display != null) {
 			if (!egl.eglMakeCurrent(renderControl.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT)) {
 				dumpFailureInfo("setEGLContext 2");
 			}
 		}
-
-        return false;
+		return null;
     }
 	
 	/**

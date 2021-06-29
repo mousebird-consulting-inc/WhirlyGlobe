@@ -303,6 +303,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 		// Wait for anything outstanding to finish before we shut down
 		try {
+			final long t0 = System.nanoTime();
 			do {
 				workLock.acquire();
 				if (numActiveWorkers == 0) {
@@ -310,6 +311,10 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					break;
 				}
 				workLock.release();
+				if (System.nanoTime() - t0 > 2L * 1000L * 1000L * 1000L) {
+					Log.w("Maply", "LayerThread timed out waiting for workers");
+					break;
+				}
 				//noinspection BusyWait
 				sleep(10);
 			} while (true);

@@ -89,7 +89,13 @@ class CoordSystemDisplayAdapter : public DelayedDeletable
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) : coordSys(coordSys), center(0.0,0.0,0.0), scale(1.0,1.0,1.0) { }
+    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) :
+            coordSys(coordSys),
+            center(center),
+            scale(1.0,1.0,1.0)
+    {
+        assert(coordSys);
+    }
     virtual ~CoordSystemDisplayAdapter() = default;
     
     /// If the subclass can support a bounding box, this returns true
@@ -150,7 +156,7 @@ public:
 protected:
     Point3d center;
     Point3d scale;
-    CoordSystem *coordSys;
+    const CoordSystem *coordSys;
 };
 
 typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;

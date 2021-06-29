@@ -433,11 +433,21 @@ cases:
     Map: '?'
     Globe: '?'
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments: []
+    Map: ✓Partial
+    Globe: ✓Partial
+      Issues: 
+        - Streets case landuse not working with `backgroundAllPolys`
+    Issues: 
+      - Multiple sources not working (e.g., topo)
+      - Loader sometimes not shutting down when cycling styles?
+      - Needs `imageVectorHybrid` even when not really appropriate
+  Issues:
+      - Highway shield markers + text don't work correctly
+  Checks:
+    - Vector and hybrid styles display correctly
+    - Expression test sheet demonstrates dynamic line color, widths, offsets; area color (zoom to cities/interstate highways)
+  Comments:
+    - Tap an empty spot to cycle through styles    
 - name: MarkersTestCase
   iOS:
     Map: '?'

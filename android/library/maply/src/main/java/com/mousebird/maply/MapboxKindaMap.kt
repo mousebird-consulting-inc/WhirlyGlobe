@@ -60,14 +60,14 @@ open class MapboxKindaMap(
     constructor(styleJSON: String, localMBTilesFile: File, control: BaseController, styleSettings: VectorStyleSettings = defaultStyle()) :
             this(styleJSON, null, sequenceOf(localMBTilesFile), control, styleSettings)
 
-    var styleSheet: MapboxVectorStyleSet? = null
-    var styleSheetImage: MapboxVectorStyleSet? = null
-    var styleSheetVector: MapboxVectorStyleSet? = null
-    var spriteJSON: String? = null
-    var spritePNG: Bitmap? = null
-    var mapboxInterp: MapboxVectorInterpreter? = null
-    var loader: QuadLoaderBase? = null
-    var offlineRender: RenderController? = null
+    var styleSheet: MapboxVectorStyleSet? = null; private set
+    var styleSheetImage: MapboxVectorStyleSet? = null; private set
+    var styleSheetVector: MapboxVectorStyleSet? = null; private set
+    var spriteJSON: String? = null; private set
+    var spritePNG: Bitmap? = null; private set
+    var mapboxInterp: MapboxVectorInterpreter? = null; private set
+    var loader: QuadLoaderBase? = null; private set
+    var offlineRender: RenderController? = null; private set
     var lineScale = 0.0
     var textScale = 0.0
     var markerScale = 0.0
@@ -606,13 +606,18 @@ open class MapboxKindaMap(
             styleSheetVector?.addSprites(spriteJSON!!,spritePNG!!)
         }
 
-        mapboxInterp = MapboxVectorInterpreter(styleSet, control)
-        loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
-            it.flipY = false
-            if (localFetchers.isNotEmpty()) {
-                it.setTileFetcher(localFetchers[0])
+        synchronized(this) {
+            if (stopping) {
+                return
             }
-            it.debugMode = debugMode
+            mapboxInterp = MapboxVectorInterpreter(styleSet, control)
+            loader = QuadPagingLoader(sampleParams, tileInfos.toTypedArray(), mapboxInterp, control).also {
+                it.flipY = false
+                if (localFetchers.isNotEmpty()) {
+                    it.setTileFetcher(localFetchers[0])
+                }
+                it.debugMode = debugMode
+            }
         }
 
         // Called after we've parsed the style sheet (again)
@@ -652,37 +657,38 @@ open class MapboxKindaMap(
             }
         }
 
-        if (styleSheetJSON == null)
+        if (styleSheetJSON == null || stopping)
             return
 
-        var renderer: RenderController? = null
         if (backgroundAllPolys) {
-            // Set up an offline renderer and a Mapbox vector style handler to render to it
-            val imageSizeWidth = 512
-            val imageSizeHeight = 512
-            renderer = RenderController(control.renderControl, imageSizeWidth,imageSizeHeight)
-            this.offlineRender = renderer
-            val imageStyleSettings = VectorStyleSettings()
-            imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
-            // TODO: Do we need this?
-//                imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
-
-            // We only want the polygons in the image
-            val imageStyleDict = AttrDictionary()
-            imageStyleDict.parseFromJSON(styleSheetJSON)
-            val imageLayers =  imageStyleDict.getArray("layers")
-            val newImageLayers = ArrayList<AttrDictionaryEntry>()
-            for (layer in imageLayers) {
-                if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
-                    val layerDict = layer.dict
-                    val type = layerDict.getString("type")
-                    if (type != null && (type == "background" || type == "fill"))
-                        newImageLayers.add(layer)
+            synchronized(this) {
+                if (stopping) {
+                    return
                 }
-            }
-            imageStyleDict.setArray("layers",newImageLayers.toTypedArray())
-            styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, displayMetrics, renderer).also {
-                renderer.setClearColor(it.backgroundColorForZoom(0.0))
+
+                // Set up an offline renderer and a Mapbox vector style handler to render to it
+                val imageSize = 512
+                offlineRender = RenderController(control.renderControl, imageSize, imageSize)
+                val imageStyleSettings = VectorStyleSettings()
+                imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
+    
+                // We only want the polygons in the image
+                val imageStyleDict = AttrDictionary()
+                imageStyleDict.parseFromJSON(styleSheetJSON)
+                val imageLayers = imageStyleDict.getArray("layers")
+                val newImageLayers = ArrayList<AttrDictionaryEntry>()
+                for (layer in imageLayers) {
+                    if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
+                        val layerDict = layer.dict
+                        val type = layerDict.getString("type")
+                        if (type != null && (type == "background" || type == "fill"))
+                            newImageLayers.add(layer)
+                    }
+                }
+                imageStyleDict.setArray("layers", newImageLayers.toTypedArray())
+                styleSheetImage = MapboxVectorStyleSet(imageStyleDict, styleSettings, displayMetrics, offlineRender!!).also {
+                    offlineRender!!.setClearColor(it.backgroundColorForZoom(0.0))
+                }
             }
         }
 
@@ -712,28 +718,37 @@ open class MapboxKindaMap(
         if (spriteJSON != null && spritePNG != null) {
             styleSheetVector?.addSprites(spriteJSON!!,spritePNG!!)
         }
-
-        mapboxInterp = if (renderer != null && imgStyle != null) {
-            MapboxVectorInterpreter(imgStyle, renderer, vecStyle, control)
-        } else {
-            MapboxVectorInterpreter(vecStyle, control)
+        
+        synchronized(this) {
+            if (stopping) {
+                return
+            }
+            mapboxInterp = if (offlineRender != null && imgStyle != null) {
+                MapboxVectorInterpreter(imgStyle, offlineRender!!, vecStyle, control)
+            } else {
+                MapboxVectorInterpreter(vecStyle, control)
+            }
         }
 
         if (mapboxInterp == null) {
             reportLoadError("Failed to set up Mapbox interpreter", null)
             stop()
         }
-
-        loader = QuadImageLoader(sampleParams, tileInfos.toTypedArray(),
-                                 control, QuadLoaderBase.Mode.SingleFrame).apply {
-            setBaseDrawPriority(styleSettings.baseDrawPriority)
-            setDrawPriorityPerLevel(styleSettings.drawPriorityPerLevel)
-            setLoaderInterpreter(mapboxInterp)
-            setTileFetcher(localFetchers.firstOrNull() ?:
-                RemoteTileFetcher(control,"Remote Tile Fetcher").apply {
+    
+        synchronized(this) {
+            if (stopping) {
+                return
+            }
+            loader = QuadImageLoader(sampleParams, tileInfos.toTypedArray(),
+                    control, QuadLoaderBase.Mode.SingleFrame).apply {
+                setBaseDrawPriority(styleSettings.baseDrawPriority)
+                setDrawPriorityPerLevel(styleSettings.drawPriorityPerLevel)
+                setLoaderInterpreter(mapboxInterp)
+                setTileFetcher(localFetchers.firstOrNull() ?: RemoteTileFetcher(control, "Remote Tile Fetcher").apply {
                     debugMode = this@MapboxKindaMap.debugMode
                 })
-            debugMode = this@MapboxKindaMap.debugMode
+                debugMode = this@MapboxKindaMap.debugMode
+            }
         }
 
         synchronized(postLoadRunnables) {
@@ -762,33 +777,41 @@ open class MapboxKindaMap(
     // Stop trying to load data if we're doing that
     //  or shutdown the loader if we've gotten to that point
     fun stop() {
+        synchronized(this) {
+            stopping = true
+            running = false
+        }
+
         val theControl = control.get() ?: return
     
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
-            theControl.activity?.runOnUiThread { stop() }
-            return
+            val activity = theControl.activity;
+            if (activity != null) {
+                activity.runOnUiThread {
+                    stop()
+                }
+                return
+            }
+            Log.w("Maply", "No activity, shutting down on calling thread");
         }
-
-        running = false
 
         outstandingFetches.forEach {
             it?.cancel()
         }
         outstandingFetches.clear()
 
-        styleSheet?.shutdown()
-        styleSheetVector?.shutdown()
-        styleSheetImage?.shutdown()
-
         loader?.shutdown()
         loader = null
         mapboxInterp = null
 
-        offlineRender?.apply {
-            shutdown()
-        }
-
+        offlineRender?.shutdown()
+        offlineRender = null;
+    
+        styleSheet?.shutdown()
+        styleSheetVector?.shutdown()
+        styleSheetImage?.shutdown()
+        
         control.clear()
     }
 
@@ -807,6 +830,8 @@ open class MapboxKindaMap(
     // Equals and Ampersand are valid, but get escaped by URI, and so tend to cause trouble.
     private val cacheNamePattern = Regex("[|?*<\":%@>+\\[\\]\\\\/=&]")
     private var finished = false
+    
+    private var stopping = false
 
     private val postLoadRunnables = ArrayList<Runnable>()
     private val loadErrorRunnables = ArrayList<(String,Boolean,Exception?) -> Unit>()

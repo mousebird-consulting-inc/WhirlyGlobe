@@ -66,8 +66,7 @@ void SceneGLES::teardown(PlatformThreadInfo* threadInfo)
     }
     programs.clear();
 
-    memManager.clearBufferIDs();
-    memManager.clearTextureIDs();
+    memManager.teardown();
 
     if (fontTextureManager)
     {

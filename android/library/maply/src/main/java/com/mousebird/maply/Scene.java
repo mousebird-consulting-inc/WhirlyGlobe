@@ -9,32 +9,29 @@ package com.mousebird.maply;
 public class Scene 
 {
 	// Used to render individual characters using Android's Canvas/Paint/Typeface
-	CharRenderer charRenderer = new CharRenderer();
+	protected final CharRenderer charRenderer = new CharRenderer();
 
 	// Necessary for the JNI side
-	private Scene()
-	{
+	private Scene() {
 	}
 	
-	public Scene(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl)
-	{
+	public Scene(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl) {
 		initialise(coordAdapter,renderControl,charRenderer);
 	}
 
 	// Pass this over to the native call.
-	public void addChanges(ChangeSet changes)
-	{
+	public void addChanges(ChangeSet changes) {
 		addChangesNative(changes);
 	}
 
 	// Overridden by subclass
-	public void shutdown()
-	{
+	public void shutdown() {
 		dispose();
 	}
 
 	/**
-	 * Associate a shader with the given scene name.  These names let us override existing shaders, as well as adding our own.
+	 * Associate a shader with the given scene name.
+	 * These names let us override existing shaders, as well as adding our own.
 	 * @param shader The shader to add.
 	 */
 	public native void addShaderProgram(Shader shader);

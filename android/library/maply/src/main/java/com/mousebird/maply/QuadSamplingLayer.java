@@ -60,7 +60,7 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
         layerThread.addChanges(changes);
     }
 
-    ArrayList<ClientInterface> clients = new ArrayList<ClientInterface>();
+    private final ArrayList<ClientInterface> clients = new ArrayList<>();
 
     /**
      * Client will stop getting updates from this sampling layer.
