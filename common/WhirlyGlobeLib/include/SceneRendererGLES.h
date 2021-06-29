@@ -102,7 +102,7 @@ public:
     /// Construct a billboard drawable builder for the current rendering type
     virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
     
-    /// Construct a screnspace drawable builder for the current rendering type
+    /// Construct a screen-space drawable builder for the current rendering type
     virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const;
     
     /// Construct a particle system builder of the appropriate rendering type

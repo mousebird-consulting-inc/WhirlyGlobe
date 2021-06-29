@@ -392,8 +392,12 @@ public:
     float getZoomSlotValue(int zoomSlot) const;
     
     /// Copy all the zoom slots into a destination array
-    void copyZoomSlots(float *dest);
-	
+    // dest must be at least MaplyMaxZoomSlots
+    void copyZoomSlots(float *dest) const;
+
+    /// Copy all zoom slot values from the given scene object
+    void copyZoomSlotsFrom(const Scene *otherScene, float offset = 0.0f);
+
     /// Add a shader for reference, but not with a scene name.
     /// Presumably you'll call setSceneProgram() shortly.
     void addProgram(ProgramRef prog);

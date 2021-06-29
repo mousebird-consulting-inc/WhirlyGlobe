@@ -609,10 +609,30 @@ float Scene::getZoomSlotValue(int zoomSlot) const
     return (zoomSlot < 0 || zoomSlot >= MaplyMaxZoomSlots) ? 0.0f : zoomSlots[zoomSlot];
 }
 
-void Scene::copyZoomSlots(float *dest)
+void Scene::copyZoomSlots(float *dest) const
 {
     std::lock_guard<std::mutex> guardLock(zoomSlotLock);
     std::copy(&zoomSlots[0], &zoomSlots[MaplyMaxZoomSlots], dest);
+}
+
+void Scene::copyZoomSlotsFrom(const Scene *otherScene, float offset)
+{
+    if (otherScene)
+    {
+        std::lock_guard<std::mutex> guardLock(zoomSlotLock);
+        otherScene->copyZoomSlots(&zoomSlots[0]);
+
+        if (offset != 0.0f)
+        {
+            for (auto &slot : zoomSlots)
+            {
+                if (slot != MAXFLOAT)
+                {
+                    slot += offset;
+                }
+            }
+        }
+    }
 }
 
 void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)

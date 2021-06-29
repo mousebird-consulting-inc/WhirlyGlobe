@@ -378,60 +378,62 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		if (!renderer)
 			return;
 
-        auto snapshot = std::make_shared<Snapshot_Android>();
+        const auto snapshot = std::make_shared<Snapshot_Android>();
 		renderer->addSnapshotDelegate(snapshot);
 
 		renderer->forceDrawNextFrame();
 		renderer->render(1/60.0);
 
 		// Framebuffer info
-		auto size = renderer->getFramebufferSize();
-		int width = size.x(), height = size.y();
+		const auto size = renderer->getFramebufferSize();
+		const int width = size.x();
+		const int height = size.y();
 
-		RawDataRef data = renderer->getSnapshotAt(EmptyIdentity,0,0,0,0);
-		if (data) {
-			// Make sure sizes match
-			AndroidBitmapInfo bitmapInfo;
-			AndroidBitmap_getInfo(env, bitmapObj, &bitmapInfo);
-			if (width != bitmapInfo.width || height != bitmapInfo.height) {
-				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() due to size.");
+		const RawDataRef data = renderer->getSnapshotAt(EmptyIdentity,0,0,0,0);
+		renderer->removeSnapshotDelegate(snapshot);
 
-				renderer->removeSnapshotDelegate(snapshot);
-				return;
-			}
+		if (!data) {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() (no data)");
+			return;
+		}
 
-			// Copy the data
-			void* bitmapPixels;
-			if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0) {
-				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPixels.");
+		// Make sure sizes match
+		AndroidBitmapInfo bitmapInfo;
+		AndroidBitmap_getInfo(env, bitmapObj, &bitmapInfo);
+		if (width != bitmapInfo.width || height != bitmapInfo.height) {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() due to size.");
+			return;
+		}
 
-				renderer->removeSnapshotDelegate(snapshot);
-				return;
-			}
+		// Copy the data
+		void* bitmapPixels = nullptr;
+		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0) {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPixels.");
+			return;
+		}
 
+		try
+		{
 			// Convert pixels to Bitmap order
-			auto *b = (unsigned *)data->getRawData();
-			auto *bt = (unsigned *)bitmapPixels;
-			for(int i=0, k=0; i<height; i++, k++)
+			auto *b = (unsigned *) data->getRawData();
+			auto *bt = (unsigned *) bitmapPixels;
+			for (int i = 0, k = 0; i < height; i++, k++)
 			{
-				for(int j=0; j<width; j++)
-				{
-					const unsigned pix=b[i*width+j];
-					const unsigned pr = pix & 0xffU;
-					const unsigned pg = (pix>>8U) & 0xffU;
-					const unsigned pb = (pix>>16U) & 0xffU;
-					const unsigned pa = (pix>>24U) & 0xffU;
-					bt[(height-k-1)*width+j] = (pa << 24U) | (pb << 16U) | (pg << 8U) | pr;
-				}
+				//for (int j = 0; j < width; j++)
+				//{
+				//	bt[(height - k - 1) * width + j] = b[i * width + j];
+				//}
+				memcpy(&bt[(height - k - 1) * width], &b[i * width], width * 4);
 			}
 //			memmove(bitmapPixels,snapshot->data->getRawData(),snapshot->data->getLen());
 
 			AndroidBitmap_unlockPixels(env, bitmapObj);
-		} else {
-			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative()");
 		}
-
-		renderer->removeSnapshotDelegate(snapshot);
+		catch (...)
+		{
+			AndroidBitmap_unlockPixels(env, bitmapObj);
+			throw;
+		}
 	}
 	catch (...)
 	{

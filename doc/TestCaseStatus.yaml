@@ -435,8 +435,6 @@ cases:
   Android:
     Map: ✓Partial
     Globe: ✓Partial
-      Issues: 
-        - Streets case landuse not working with `backgroundAllPolys`
     Issues: 
       - Multiple sources not working (e.g., topo)
       - Loader sometimes not shutting down when cycling styles?
