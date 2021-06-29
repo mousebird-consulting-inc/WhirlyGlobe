@@ -74,6 +74,26 @@ using namespace WhirlyKit;
     return impl->markerScale;
 }
 
+- (void)setSymbolScale:(float)symbolScale
+{
+    impl->symbolScale = symbolScale;
+}
+
+- (float)symbolScale
+{
+    return impl->symbolScale;
+}
+
+- (void)setCircleScale:(float)circleScale
+{
+    impl->circleScale = circleScale;
+}
+
+- (float)circleScale
+{
+    return impl->circleScale;
+}
+
 - (void)setMarkerImportance:(float)markerImportance
 {
     impl->markerImportance = markerImportance;
@@ -435,7 +455,7 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeCircleTexture(PlatformThreadInf
                                                                Point2f *circleSize)
 {
     // We want the texture a bit bigger than specified
-    const float scale = tileStyleSettings->markerScale * 2;
+    const float scale = tileStyleSettings->markerScale * tileStyleSettings->circleScale * 2;
 
     // Build an image for the circle
     const float buffer = 1.0;

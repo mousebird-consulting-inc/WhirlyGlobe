@@ -167,6 +167,75 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSca
 }
 
 extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSymbolScale(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
+        {
+            return (*inst)->symbolScale;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getSymbolScale()");
+    }
+
+    return 1.0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSymbolScale(JNIEnv *env, jobject obj, jdouble scale)
+{
+    try
+    {
+        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
+        {
+            (*inst)->symbolScale = scale;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setSymbolScale()");
+    }
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getCircleScale(JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
+        {
+            return (*inst)->circleScale;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getCircleScale()");
+    }
+
+    return 1.0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setCircleScale(JNIEnv *env, jobject obj, jdouble scale)
+{
+    try
+    {
+        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
+        {
+            (*inst)->circleScale = scale;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setCircleScale()");
+    }
+}
+
+
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerImportance(JNIEnv *env, jobject obj)
 {
     try

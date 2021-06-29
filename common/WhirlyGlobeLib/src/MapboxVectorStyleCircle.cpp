@@ -129,6 +129,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         }
 
         const auto attrs = vecObj->getAttributes();
+        const auto &settings = *styleSet->tileStyleSettings;
 
         for (const VectorShapeRef &shape : vecObj->shapes)
         {
@@ -145,8 +146,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                 auto marker = markerOwner.back().get();
                 marker->loc = GeoCoord(pt.x(),pt.y());
                 marker->texIDs.push_back(circleTexID);
-                marker->width = 2*radius * styleSet->tileStyleSettings->markerScale;
-                marker->height = 2*radius * styleSet->tileStyleSettings->markerScale;
+                marker->width = 2*radius * settings.markerScale * settings.circleScale;
+                marker->height = 2*radius * settings.markerScale * settings.circleScale;
                 marker->layoutWidth = marker->width;
                 marker->layoutHeight = marker->height;
                 marker->layoutImportance = MAXFLOAT;    //importance + (101-tileInfo->ident.level)/100.0;

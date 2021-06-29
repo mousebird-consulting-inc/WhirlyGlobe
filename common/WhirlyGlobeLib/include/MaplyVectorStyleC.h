@@ -41,8 +41,12 @@ public:
     float lineScale;
     /// Text sizes will be scaled by this amount before display.
     float textScale;
-    /// Markers will be scaled by this amount before display.
+    /// Markers (symbols+circles) will be scaled by this amount before display.
     float markerScale;
+    /// Circles will be scaled by this amount before display.
+    float circleScale;
+    /// Symbols will be scaled by this amount before display.
+    float symbolScale;
     /// Importance for markers in the layout engine
     float markerImportance;
     /// Default marker size when none is specified
