@@ -102,6 +102,10 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     {
         if (vecObj->getVectorType() == VectorArealType)
         {
+            if (shapes.empty())
+            {
+                shapes.reserve(vecObjs.size() * 20);
+            }
             std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
         }
     }
@@ -111,6 +115,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     {
         // tessellate the area features
         std::vector<VectorShapeRef> tessShapes;
+        tessShapes.reserve(shapes.size());
         for (const auto &it : shapes)
         {
             if (cancelFn(inst))

@@ -575,7 +575,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFr
     {
         const auto loaderPtr = QuadImageFrameLoaderClassInfo::get(env,obj);
         const auto loader = loaderPtr ? *loaderPtr : nullptr;
-        if (!loader || !rawData)
+        if (!loader)
         {
             return false;
         }
@@ -583,63 +583,58 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFr
         // Get the raw bytes, not making a copy, if possible, since we're going to
         // copy it anyway.  Note that the critical section must be exited as soon as
         // possible and no JNI calls calls or blocking may be executed while it is open.
-        const int rawDataSize = env->GetArrayLength(rawData);
         jboolean isCopy = false;
-        if (auto rawBytes = (jbyte*)env->GetPrimitiveArrayCritical(rawData, &isCopy))
+        const int rawDataSize = rawData ? env->GetArrayLength(rawData) : 0;
+        auto rawBytes = rawDataSize ? (jbyte*)env->GetPrimitiveArrayCritical(rawData, &isCopy) : nullptr;
+        try
         {
-            try
+            // We need to make a copy because this data may be
+            // held over until a later load completes the frame.
+            auto dataWrapper = rawBytes ? std::make_shared<RawDataWrapper>(new jbyte[rawDataSize], rawDataSize, /*free=*/true) : RawDataWrapperRef();
+            if (dataWrapper)
             {
-                // We need to make a copy because this data may be held over until a later load
-                // completes the frame.
-                auto dataWrapper = std::make_shared<RawDataWrapper>(new jbyte[rawDataSize], rawDataSize, /*free=*/true);
-                memcpy((jbyte*)dataWrapper->getRawData(), rawBytes, rawDataSize);
+                memcpy((jbyte *) dataWrapper->getRawData(), rawBytes, rawDataSize);
                 env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT); // do not copy back
                 rawBytes = nullptr; // cleanup complete, don't repeat on exception
-
-                const auto tileID = loader->getTileID(env, identObj);
-
-                // Do the merge.  If we're not the last fetch needed for the frame, this will
-                // store the data, if we are, it will produce all the results for the frame.
-                // todo: could we just use a `RawData` type that holds on to the array jobject?
-                std::vector<RawDataRef> allData;
-                const auto res = loader->mergeLoadedFrame(tileID, frameID, std::move(dataWrapper), allData);
-
-                // Copy any produced data back to the caller's array
-                for (const auto &data : allData)
-                {
-                    const auto len = (jsize)data->getLen();
-                    if (const auto newArray = env->NewByteArray(len))
-                    {
-                        env->SetByteArrayRegion(newArray, 0, len, (jbyte*)data->getRawData());
-                        env->CallBooleanMethod(rawDataArray, loader->arrayListAdd, newArray);
-                        env->DeleteLocalRef(newArray);
-                    }
-                    else
-                    {
-                        __android_log_print(ANDROID_LOG_WARN, "Maply",
-                                            "QuadLoaderBase::mergeLoadedFrame failed to create byte array");
-                        logAndClearJVMException(env);
-                        return false;
-                    }
-                }
-                return res;
             }
-            catch (...)
+
+            const auto tileID = loader->getTileID(env, identObj);
+
+            // Do the merge.  If we're not the last fetch needed for the frame, this will
+            // store the data, if we are, it will produce all the results for the frame.
+            // todo: could we just use a `RawData` type that holds on to the array jobject?
+            std::vector<RawDataRef> allData;
+            const auto res = loader->mergeLoadedFrame(tileID, frameID, std::move(dataWrapper), allData);
+
+            // Copy any produced data back to the caller's array
+            for (const auto &data : allData)
             {
-                if (rawBytes)
+                const auto len = (jsize)data->getLen();
+                if (const auto newArray = env->NewByteArray(len))
                 {
-                    // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
-                    env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
-                    logAndClearJVMException(env);
+                    env->SetByteArrayRegion(newArray, 0, len, (jbyte*)data->getRawData());
+                    env->CallBooleanMethod(rawDataArray, loader->arrayListAdd, newArray);
+                    env->DeleteLocalRef(newArray);
                 }
-                throw;
+                else
+                {
+                    __android_log_print(ANDROID_LOG_WARN, "Maply",
+                                        "QuadLoaderBase::mergeLoadedFrame failed to create byte array");
+                    logAndClearJVMException(env);
+                    return false;
+                }
             }
+            return res;
         }
-        else
+        catch (...)
         {
-            __android_log_print(ANDROID_LOG_WARN, "Maply",
-                                "QuadLoaderBase::mergeLoadedFrame failed to get input bytes");
-            logAndClearJVMException(env);
+            if (rawBytes)
+            {
+                // since we can't `finally{}`, handle and re-throw.  todo: RAII wrapper
+                env->ReleasePrimitiveArrayCritical(rawData, rawBytes, JNI_ABORT);
+                logAndClearJVMException(env);
+            }
+            throw;
         }
     }
     catch (...)

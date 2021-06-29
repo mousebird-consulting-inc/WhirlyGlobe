@@ -30,7 +30,7 @@ class MapTilerTestCase: MaplyTestCase {
             ("Basic", "maptiler_basic", false),
             ("Hybrid Satellite", "maptiler_hybrid_satellite", true),
             ("Streets", "maptiler_streets", false),
-    //         ("Topo", "maptiler_topo", false),   // ?
+            ("Topo", "maptiler_topo", false),
             ("Custom", "maptiler_expr_test", false)
         ]
     }
