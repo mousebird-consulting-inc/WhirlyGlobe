@@ -36,8 +36,12 @@
 @property (nonatomic) float lineScale;
 /// Text sizes will be scaled by this amount before display.
 @property (nonatomic) float textScale;
-/// Markers will be scaled by this amount before display.
+/// Markers (symbols+circles) will be scaled by this amount before display.
 @property (nonatomic) float markerScale;
+/// Symbols will be scaled by this amount before display.
+@property (nonatomic) float symbolScale;
+/// Circles will be scaled by this amount before display.
+@property (nonatomic) float circleScale;
 /// Importance for markers in the layout engine
 @property (nonatomic) float markerImportance;
 /// Default marker size when none is specified
