@@ -49,6 +49,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative
 
 /*
  * Class:     com_mousebird_maply_Scene
+ * Method:    getZoomSlotValue
+ * Signature: (I)F
+ */
+JNIEXPORT float JNICALL Java_com_mousebird_maply_Scene_getZoomSlotValue
+  (JNIEnv *env, jobject obj, jint slot);
+
+/*
+ * Class:     com_mousebird_maply_Scene
+ * Method:    copyZoomSlots
+ * Signature: (Lcom/mousebird/maply/Scene;F)V
+ * Signature: (Lcom/mousebird/maply/Scene;F)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_copyZoomSlots
+  (JNIEnv *env, jobject obj, jobject, jfloat);
+
+/*
+ * Class:     com_mousebird_maply_Scene
  * Method:    teardownGL
  * Signature: ()V
  */

@@ -210,3 +210,38 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative(J
         __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::removeRenderTargetNative()");
     }
 }
+
+extern "C"
+JNIEXPORT float JNICALL Java_com_mousebird_maply_Scene_getZoomSlotValue(JNIEnv *env, jobject obj, jint slot)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            return scene->getZoomSlotValue(slot);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::getZoomSlotValue()");
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_copyZoomSlots(JNIEnv *env, jobject obj, jobject otherObj, jfloat offset)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        if (Scene *thisScene = classInfo->getObject(env,obj))
+        if (Scene *otherScene = classInfo->getObject(env,otherObj))
+        {
+            thisScene->copyZoomSlotsFrom(otherScene, offset);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::copyZoomSlots()");
+    }
+}

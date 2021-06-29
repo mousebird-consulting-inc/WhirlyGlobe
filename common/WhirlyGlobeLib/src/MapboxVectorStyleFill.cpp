@@ -155,7 +155,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             // TODO: Switch to stencils
 //            vecInfo.drawOrder = tileInfo->tileNumber();
 
-//            wkLogLevel(Debug, "fill: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
+//            wkLogLevel(Debug, "fill: tileID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
 
             if (minzoom != 0 || maxzoom < 1000)
             {

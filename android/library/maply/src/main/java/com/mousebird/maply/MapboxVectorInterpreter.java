@@ -309,6 +309,11 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                     try {
                         tileRender.setEGLContext(null);
 
+                        // Copy the zoom slot values from the scene into the renderer's scene,
+                        // adding half a level to each to approximate the half-way point between
+                        // here and the next level where we'll generate a new tile image.
+                        tileRender.getScene().copyZoomSlots(theVC.getScene(), 0.5f);
+
                         for (byte[] data : pbfData) {
                             if (!imageParser.parseData(data, imageTileData, loadReturn) || loadReturn.isCanceled()) {
                                 if (loadReturn.isCanceled()) {
