@@ -526,7 +526,12 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     handleFinishLoading(tile, null, e);
                 }
             } finally {
-                response.close();
+                if (response != null) {
+                    try {
+                        response.close();
+                    } catch (Exception ignored) {
+                    }
+                }
             }
         });
     }
