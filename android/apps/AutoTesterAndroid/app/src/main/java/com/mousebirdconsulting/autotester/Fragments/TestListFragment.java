@@ -99,6 +99,7 @@ public class TestListFragment extends Fragment {
 				new BillboardTestCase(a),
 				new BoundsTestCase(a),
 				new CartoTestCase(a),
+				new CartoLightTestCase(a),
 				new ClusteredMarkersTestCase(a),
 				new ComponentObjectLeakTestCase(a),
 				new CustomBNGCoordAdapter(a),
