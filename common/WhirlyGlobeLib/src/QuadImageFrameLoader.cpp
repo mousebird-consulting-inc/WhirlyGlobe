@@ -784,7 +784,7 @@ void QuadImageFrameLoader::setColor(const RGBAColor &inColor,ChangeSet *changes)
         // Have all the tiles change their base color
         // For multi-frame tiles, they'll get a new color on the next frame as well
         for (auto const &it : tiles) {
-            auto tile = it.second;
+            const auto &tile = it.second;
             tile->setColor(this,color,*changes);
         }
     }

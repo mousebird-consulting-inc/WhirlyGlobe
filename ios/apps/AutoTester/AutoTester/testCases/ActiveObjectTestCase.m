@@ -40,7 +40,7 @@
         compObj = nil;
     }
     
-    MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(0.0 + drand48(), 0.0 + drand48());
+    MaplyCoordinate coord = MaplyCoordinateMakeWithDegrees(-1 + 2*drand48(), -1 + 2*drand48());
     MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
     marker.loc = coord;
     marker.image = tex;
@@ -54,6 +54,7 @@
 @implementation ActiveObjectTestCase
 {
     SimpleActiveObject *activeObject;
+    CartoDBLightTestCase *baseCase;
 }
 
 - (instancetype)init
@@ -77,7 +78,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    CartoDBLightTestCase *baseCase = [[CartoDBLightTestCase alloc] init];
+    baseCase = [[CartoDBLightTestCase alloc] init];
     [baseCase setUpWithGlobe:globeVC];
     
     [self setupActiveObject:globeVC];
@@ -85,9 +86,19 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    CartoDBLightTestCase *baseCase = [[CartoDBLightTestCase alloc] init];
+    baseCase = [[CartoDBLightTestCase alloc] init];
     [baseCase setUpWithMap:mapVC];
 
     [self setupActiveObject:mapVC];
 }
+
+- (void)stop
+{
+    if (baseCase)
+    {
+        [baseCase stop];
+        baseCase = nil;
+    }
+}
+
 @end

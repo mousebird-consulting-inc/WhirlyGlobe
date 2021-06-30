@@ -36,9 +36,7 @@ import java.io.File;
 public class AnimatedBaseMapTestCase extends MaplyTestCase {
 
 	public AnimatedBaseMapTestCase(Activity activity) {
-		super(activity);
-		setTestName("Animated basemap");
-		this.implementation = TestExecutionImplementation.Both;
+		super(activity, "Animated basemap", TestExecutionImplementation.Both);
 	}
 
 	QuadImageFrameLoader loader = null;

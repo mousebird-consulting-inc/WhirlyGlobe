@@ -1,134 +1,141 @@
 cases:
 - name: ActiveObjectTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
+  Checks:
+    - Marker icon jumps randomly around 0/0
   Comments: []
 - name: AirwayTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Shows airspaces with line-following label text
+    - Shows airways with masked intersection points
+  Comments:
+    - Airways, etc., disabled by default, need to recompile to test
+    - Maybe add a way to cycle through what's displayed at runtime, e.g., tapping
 - name: ArealTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments: []
-- name: AutoRotateTestCase
-  iOS: N/A
+  iOS: Not Implemented
   Android:
     Map: ✓
     Globe: ✓
-  Issues: [296]
+  Issues: []
+  Checks:
+    - Displays a red square with a "hole" around 0/0
+  Comments: []
+- name: AutoRotateTestCase
+  iOS: Not Implemented
+  Android:
+    Map: 'N/A'
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/296 (closed)
   Checks:
     - Rotation starts after 5s, and restarts 5s after being interrupted
-    - Markers and ScreenMarkers, with and without Layout, appear when they rotate into view
+    - Markers (stroked teardrop) and ScreenMarkers, with and without Layout, appear when they rotate into view
+    - ScreenMarkers with layout will appear after a small delay
+    - ScreenMarkers without layout should appear immediately
   Comments: []
 - name: AnimatedBasemapTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
-- name: AnimatedBasemapTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+  Checks:
+    - Cycles through 6 precip overlays
   Comments: []
 - name: AnimatedMarkersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Markers smoothly cycle between stroked and filled
   Comments: []
 - name: AnimatedScreenMarkersTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Single marker rotates and changes position
   Comments: []
 - name: AnimationDelegateTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1071 (closed)
+  Checks:
+    - View smoothly zooms to London with rotation
+    - (Android only) View then animates rotation only
+    - (Android globe only) The above repeats with `keepNorthUp` set, disabling rotation
   Comments: []
 - name: BillboardTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: 'N/A'
+    Globe: ✗
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: 'N/A'
+    Globe: ✗
+  Issues: 
+    - iOS markers are truncated/clipped
+    - Android sun/moon are clipped when within ~2 radii of being "behind" the globe
   Checks: []
   Comments: []
 - name: BNGCustomMapTestCase / CustomBNGCoordAdapter
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: 'N/A'
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✓
+    Globe: 'N/A'
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/519 (open)
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/546 (open)
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1394 (open)
+  Checks:
+    - Tiles in BNG coordinates appear rectangular because the basemap is also in BNG coordinates
+    - Zoom/pan is limited to approximately the area covered
   Comments: []
 - name: BNGTestCase / CustomBNGTileSource
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Tiles in BNG coordinates are non-rectangular on the flat map
+  Comments:
+    - No actual tile data, they're just placeholders
 - name: BoundsTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1394 (open)
   Checks: []
-  Comments: []
+  Comments:
+    - Seems to work reasonably well with a large area (unlike the BNG case)
 - name: CartoDBLightTestCase / CartoLightTestCase
   iOS:
     Map: '?'
@@ -650,23 +657,28 @@ cases:
   Issues: []
   Checks: []
   Comments: []
-- name: StamenWatercolorRemote / StamenRemoteTestCase
+- name: "StamenWatercolorRemote (Android: StamenRemoteTestCase)"
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Globe case uses pole covering
+    - Uses RGB 5/6/5 texture format (not really obvious, but if that's broken nothing may appear at all)
+    - Android sets a red overlay after 4 seconds, then clears it after another 4
+    - Android sets dark red clear color
+    - Map/globe rotation disallowed
   Comments: []
 - name: StarsSunTestCase / MaplyStarModelTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✗
+    Globe: ✗
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✗
+    Globe: ✗
   Issues: []
   Checks: []
   Comments:
