@@ -436,8 +436,7 @@ cases:
     Map: ✓Partial
     Globe: ✓Partial
     Issues: 
-      - Multiple sources not working (e.g., topo)
-      - Loader sometimes not shutting down when cycling styles?
+      - Loader sometimes not shutting down when cycling styles, leaving map elements behind
       - Needs `imageVectorHybrid` even when not really appropriate
   Issues:
       - Highway shield markers + text don't work correctly

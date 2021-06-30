@@ -469,6 +469,8 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         Handler handler = new Handler(getLooper());
         handler.post(() -> {
             try {
+                final double howLong = System.currentTimeMillis() / 1000.0 - fetchStartTile;
+
                 // Make sure we still care
                 final TileInfo tile;
                 synchronized (tilesByFetchRequest) {
@@ -489,20 +491,20 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 if (success) {
                     try (final ResponseBody body = response.body()) {
                         final byte[] bodyBytes = body.bytes();
-                        if (bodyBytes != null && bodyBytes.length > 0) {
-                            final long length = bodyBytes.length;   //body.contentLength() is -1 for streamed responses (transfer-encoding:chunked)
-                            allStats.remoteRequests = allStats.remoteRequests + 1;
-                            recentStats.remoteRequests = recentStats.remoteRequests + 1;
-                            allStats.remoteData = allStats.remoteData + length;
-                            recentStats.remoteData = recentStats.remoteData + length;
-
-                            final double howLong = System.currentTimeMillis() / 1000.0 - fetchStartTile;
-                            allStats.totalLatency = allStats.totalLatency + howLong;
-                            recentStats.totalLatency = recentStats.totalLatency + howLong;
-
+                        // body.contentLength() is -1 for streamed responses (transfer-encoding:chunked)
+                        final int bodyLength = (bodyBytes != null) ? bodyBytes.length : 0;
+                        if (bodyLength > 0) {
+                            allStats.remoteData = allStats.remoteData + bodyLength;
+                            recentStats.remoteData = recentStats.remoteData + bodyLength;
                             handleFinishLoading(tile, bodyBytes, null);
+                        } else if (response.code() == 204) {
+                            // 204 "No Content" means an empty result is "success" ... sortof.
+                            // This usually means the requested tile is outside the supported
+                            // geographic area or zoom levels.
+                            // We still need to process it to make sure the frame(s) load correctly.
+                            handleFinishLoading(tile, null, null);
                         } else {
-                            // empty response
+                            // empty response is an error, otherwise
                             success = false;
                         }
                     } catch (Exception thisE) {
@@ -511,7 +513,13 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     }
                 }
 
-                if (!success) {
+                allStats.remoteRequests = allStats.remoteRequests + 1;
+                recentStats.remoteRequests = recentStats.remoteRequests + 1;
+
+                if (success) {
+                    allStats.totalLatency = allStats.totalLatency + howLong;
+                    recentStats.totalLatency = recentStats.totalLatency + howLong;
+                } else  {
                     allStats.totalFails = allStats.totalFails + 1;
                     recentStats.totalFails = recentStats.totalFails + 1;
 
