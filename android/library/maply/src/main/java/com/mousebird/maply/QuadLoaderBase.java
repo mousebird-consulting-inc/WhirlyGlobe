@@ -350,7 +350,12 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             QIFFrameAsset frameAsset = inFrameAssets[frame];
             frameAssets.add(frameAsset);
 
-            if (tileInfo != null) {
+            // If the tile is outside the range of valid zoom levels for this source,
+            // produce an empty placeholder tile instead of attempting to load it.
+            final boolean placeholder = tileInfo != null &&
+                    (tileID.level < tileInfo.minZoom || tileID.level > tileInfo.maxZoom);
+
+            if (tileInfo != null && !placeholder) {
                 fetchRequest.fetchInfo = tileInfo.fetchInfoForTile(tileID, getFlipY());
                 fetchRequest.tileSource = tileInfo.uniqueID;
                 frameAsset.request = fetchRequest;

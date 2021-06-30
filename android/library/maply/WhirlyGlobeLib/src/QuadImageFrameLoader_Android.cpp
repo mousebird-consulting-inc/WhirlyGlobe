@@ -201,12 +201,11 @@ QuadImageFrameLoader_Android::QuadImageFrameLoader_Android(PlatformInfo_Android 
         arrayListAdd = env->GetMethodID(arrayListClass, "add", "(Ljava/lang/Object;)Z");
     }
 
-    frames.resize(numFrames);
     // TODO: Shouldn't we be creating Android side objects for this?
+    frames.resize(numFrames);
     for (unsigned int ii=0;ii!=numFrames;ii++) {
-        auto frameInfo = std::make_shared<QuadFrameInfo>();
-        frameInfo->frameIndex = ii;
-        frames[ii] = frameInfo;
+        frames[ii] = std::make_shared<QuadFrameInfo>();
+        frames[ii]->frameIndex = ii;
     }
 }
 
