@@ -24,7 +24,7 @@
 
 using namespace WhirlyKit;
 
-template<> ComponentManagerClassInfo *ComponentManagerClassInfo::classInfoObj = NULL;
+template<> ComponentManagerClassInfo *ComponentManagerClassInfo::classInfoObj = nullptr;
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_nativeInit
   (JNIEnv *env, jclass cls)
@@ -40,9 +40,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-		ComponentManager_AndroidRef compManager = std::dynamic_pointer_cast<ComponentManager_Android>(scene->getManager(kWKComponentManager));
+
+		const auto compManager = scene->getManager<ComponentManager_Android>(kWKComponentManager);
 		compManager->setupJNI(env,obj);
-		ComponentManagerClassInfo::getClassInfo()->setHandle(env,obj,new ComponentManager_AndroidRef(compManager));
+
+        ComponentManagerClassInfo::getClassInfo()->setHandle(env,obj,new ComponentManager_AndroidRef(compManager));
 	}
 	catch (...)
 	{
@@ -113,7 +115,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ComponentManager_hasComponen
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponentObjectsNative
-  (JNIEnv *env, jobject obj, jobjectArray compObjArray, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray compObjArray,
+   jobject changeSetObj, jboolean disposeAfterRemoval)
 {
     try
     {
@@ -133,7 +136,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
         }
 
         PlatformInfo_Android platformInfo(env);
-        (*compManager)->removeComponentObjects(&platformInfo,compObjIDs,*(changeSet->get()));
+        (*compManager)->removeComponentObjects(&platformInfo,compObjIDs,**changeSet, disposeAfterRemoval);
     }
     catch (...)
     {

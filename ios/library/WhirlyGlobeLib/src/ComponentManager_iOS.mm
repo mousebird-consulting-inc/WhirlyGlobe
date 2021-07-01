@@ -90,7 +90,10 @@ void ComponentManager_iOS::removeSelectObjects(SimpleIDSet selIDs)
     }
 }
     
-void ComponentManager_iOS::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
+void ComponentManager_iOS::removeComponentObjects(PlatformThreadInfo *threadInfo,
+                                                  const SimpleIDSet &compIDs,
+                                                  ChangeSet &changes,
+                                                  bool disposeAfterRemove)
 {
     // Lock around all component objects
     {
@@ -110,7 +113,7 @@ void ComponentManager_iOS::removeComponentObjects(PlatformThreadInfo *threadInfo
         removeSelectObjects(selectIDs);
     }
 
-    ComponentManager::removeComponentObjects(threadInfo,compIDs, changes);
+    ComponentManager::removeComponentObjects(threadInfo,compIDs, changes, disposeAfterRemove);
 }
 
 void ComponentManager_iOS::clear()

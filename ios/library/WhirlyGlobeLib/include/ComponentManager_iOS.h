@@ -78,7 +78,8 @@ public:
     /// Need to remove select IDs before we let the superclass clean up
     virtual void removeComponentObjects(PlatformThreadInfo *_Nullable threadInfo,
                                         const SimpleIDSet &compIDs,
-                                        ChangeSet &changes) override;
+                                        ChangeSet &changes,
+                                        bool disposeAfterRemove = true) override;
     
     /// Clear out anything we're holding
     void clear();
