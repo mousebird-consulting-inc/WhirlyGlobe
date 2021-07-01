@@ -454,9 +454,11 @@ public class RenderController implements RenderControllerInterface
         texManager = null;
 
         if (scene != null) {
+            // Tear down the scene with GL context, if we're standalone.
+            // If we're being used by a BaseController, the addTask won't run because
+            // we're already shutting down, but it will have already cleaned up the scene.
             taskMan.addTask(() -> {
                 scene.teardownGL();
-                scene.dispose();
                 scene = null;
             }, ThreadMode.ThreadCurrent);
         }

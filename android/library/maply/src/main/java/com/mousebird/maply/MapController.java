@@ -625,40 +625,48 @@ public class MapController extends BaseController implements View.OnTouchListene
 		}
 	}
 
+	public boolean getAllowRotateGesture() {
+		return (running && gestureHandler != null && gestureHandler.allowRotate);
+	}
+
 	/**
 	 * If set we'll allow the user to rotate.
 	 * If not, we'll keep north up at all times.
      */
 	public void setAllowRotateGesture(boolean allowRotate)
 	{
-		if (!running)
-			return;
+		if (running && gestureHandler != null && gestureHandler.allowRotate) {
+			gestureHandler.allowRotate = allowRotate;
+		}
 
-		gestureHandler.allowRotate = allowRotate;
+	}
+
+	public boolean getAllowZoom() {
+		return (running && gestureHandler != null && gestureHandler.allowZoom);
 	}
 
 	/**
 	 * If set, the user can zoom in and out.
 	 * If not set, they can't.  On by default.
 	 */
-	public void setAllowZoom(boolean allowZoom)
-	{
-		if (!running)
-			return;
+	public void setAllowZoom(boolean allowZoom) {
+		if (running && gestureHandler != null) {
+			gestureHandler.allowZoom = allowZoom;
+		}
+	}
 
-		gestureHandler.allowZoom = allowZoom;
+	public boolean getAllowPan() {
+		return (running && gestureHandler != null && gestureHandler.allowPan);
 	}
 
 	/**
 	 * If set, the user can pan around.
 	 * If not set, they can't.  On by default.
 	 */
-	public void setAllowPan(boolean allowPan)
-	{
-		if (!running)
-			return;
-
-		gestureHandler.allowPan = allowPan;
+	public void setAllowPan(boolean allowPan) {
+		if (running && gestureHandler != null) {
+			gestureHandler.allowPan = allowPan;
+		}
 	}
 	
 	// Gesture handler

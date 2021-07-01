@@ -246,27 +246,38 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	private final Semaphore workLock = new Semaphore(1, true);
 	private int numActiveWorkers = 0;
 
-	// Something is requesting a lock on shutting down while working
+	/**
+	 * Something is requesting a lock on shutting down while working
+	 *
+	 * @return True if the work was started and can proceed, and <c>endOfWork</c> *must* be called.
+	 *         False if the work should be canceled, and <c>endOfWork</c> must *not* be called.
+	 */
 	public boolean startOfWork()
 	{
-		if (isShuttingDown)
+		if (isShuttingDown) {
 			return false;
+		}
 
 		try {
 			workLock.acquire();
-			// Check it again
-			if (isShuttingDown) {
-				workLock.release();
-				return false;
-			}
-			numActiveWorkers = numActiveWorkers + 1;
-		}
-		catch (Exception exp) {
+		} catch (Exception ignored) {
 			return false;
 		}
 
-		workLock.release();
-		return true;
+		try {
+			// Check it again now that we might have waited for a while
+			if (!isShuttingDown) {
+				numActiveWorkers = numActiveWorkers + 1;
+				return true;
+			}
+		} finally {
+			try {
+				workLock.release();
+			} catch (Exception ignored) {
+			}
+		}
+
+		return false;
 	}
 
 	// End of an external work block.  Safe to shut down.
@@ -275,6 +286,11 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		try {
 			workLock.acquire();
 			numActiveWorkers = numActiveWorkers - 1;
+			if (numActiveWorkers < 0) {
+				// If you see this, it probably means you called `startOfWork` and didn't
+				// check the result.  If it returns false, you must not call `endOfWork`.
+				Log.e("Maply", "Unbalanced endOfWork");
+			}
 			workLock.release();
 		}
 		catch (Exception ignored) {
@@ -306,7 +322,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			final long t0 = System.nanoTime();
 			do {
 				workLock.acquire();
-				if (numActiveWorkers == 0) {
+				if (numActiveWorkers <= 0) {
 					workLock.release();
 					break;
 				}
@@ -377,7 +393,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				quit();
 			} catch (Exception ignored) {
 			}
-		}, true);
+		}, true, false);	// don't wrap with startOfWork/endOfWork
 
 		// Block until the queue drains
 		if (renderer != null) {
@@ -450,7 +466,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	}
 	
 	protected ChangeSet changes = new ChangeSet();
-	Handler changeHandler = null;
+	private Handler changeHandler = null;
 
 	/**
 	 * Add a set of change requests to the scene.
@@ -471,37 +487,35 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		{
 			changes.merge(newChanges);
 			newChanges.dispose();
-			// Schedule a merge with the scene
-			if (changeHandler == null)
-			{
-				changeHandler = addTask(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						if (isShuttingDown)
-							return;
 
-						// Do a pre-scene flush callback on the layers
-						synchronized (layers) {
-							for (Layer layer : layers) {
-								layer.preSceneFlush(layerThread);
-							}
-						}
-
-						// Now merge in the changes
-						synchronized (this) {
-							changeHandler = null;
-							if (scene != null) {
-								changes.process(renderer, scene);
-								changes.dispose();
-
-								changes = new ChangeSet();
-							}
-						}
-					}
-				},true);
+			if (changeHandler != null) {
+				// already scheduled
+				return;
 			}
+
+			// Schedule a merge with the scene
+			changeHandler = addTask(() -> {
+				if (isShuttingDown)
+					return;
+
+				// Do a pre-scene flush callback on the layers
+				synchronized (layers) {
+					for (Layer layer : layers) {
+						layer.preSceneFlush(layerThread);
+					}
+				}
+
+				// Now merge in the changes
+				synchronized (this) {
+					changeHandler = null;
+					if (scene != null) {
+						changes.process(renderer, scene);
+						changes.dispose();
+
+						changes = new ChangeSet();
+					}
+				}
+			},true);
 		}
 	}
 
@@ -525,12 +539,12 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 */
 	public Handler addDelayedTask(Runnable run,long time)
 	{
-		if (!valid)
-			return null;
-
-		Handler handler = new Handler(getLooper());
-		handler.postDelayed(run, time);
-		return handler;
+		if (valid && run != null) {
+			Handler handler = new Handler(getLooper());
+			handler.postDelayed(() -> runWorkRunnable(run, true), time);
+			return handler;
+		}
+		return null;
 	}
 
 	/**
@@ -543,20 +557,55 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @return Returns a Handler if you want to cancel the task later.  Returns null if
 	 * we were on the layer thread and no Handler was needed.
 	 */
-	public Handler addTask(Runnable run,boolean wait)
-	{
-		if (!valid)
-			return null;
+	public Handler addTask(Runnable run,boolean wait) {
+		return addTask(run,wait,true);
+	}
 
-		if (!wait && Looper.myLooper() == getLooper())
-			run.run();
-		else {
-			Handler handler = new Handler(getLooper());
-			handler.post(run);
-			return handler;
+	/**
+	 * Add a Runnable to this thread's queue.  It will be executed at some point in the future.
+	 *
+	 * @param run Runnable to run
+	 * @param wait If true we'll always put the Runnable in the queue.  If false we'll see
+	 *             if we're already on the layer thread and just execute the runnable instead.
+	 * @param unitOfWork If true, the runnable will be bracketed with
+	 *                   <c>startOfWork</c> and <c>endOfWork</c> calls
+	 * @return Returns a Handler if you want to cancel the task later.  Returns null if
+	 * we were on the layer thread and no Handler was needed.
+	 */
+	public Handler addTask(Runnable run,boolean wait,boolean unitOfWork) {
+		if (valid && run != null) {
+			if (!wait && Looper.myLooper() == getLooper()) {
+				runWorkRunnable(run, false);
+			} else {
+				Handler handler = new Handler(getLooper());
+				handler.post(unitOfWork ? () -> runWorkRunnable(run, true) : run);
+				return handler;
+			}
 		}
-		
 		return null;
+	}
+
+	/**
+	 * Run the given runnable, wrapping it in a startOfWork/endOfWork region.
+	 *
+	 * @param work The work to do
+	 * @param trap Trap any exceptions
+	 */
+	private void runWorkRunnable(Runnable work, boolean trap) {
+		if (!startOfWork()) {
+			return;
+		}
+		try {
+			work.run();
+		} catch (Exception ex) {
+			if (trap) {
+				Log.e("Maply", "Exception in LayerThread task", ex);
+				return;
+			}
+			throw ex;
+		} finally {
+			endOfWork();
+		}
 	}
 
 	// Used to track a view watcher

@@ -25,6 +25,7 @@ import com.mousebirdconsulting.autotester.TestCases.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class TestListFragment extends Fragment {
@@ -64,7 +65,7 @@ public class TestListFragment extends Fragment {
 		this.adapter.notifyItemChanged(index);
 	}
 
-	public ArrayList<MaplyTestCase> getTests() {
+	public MaplyTestCase[] getTests() {
 		return adapter.getTestCases();
 	}
 
@@ -76,58 +77,64 @@ public class TestListFragment extends Fragment {
 
 	private class TestListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-		final private ArrayList<MaplyTestCase> testCases = new ArrayList<>();
+		final private MaplyTestCase[] testCases;
 
 		TestListAdapter() {
-			Activity a = requireActivity();
-			testCases.add(new StamenRemoteTestCase(a));
-			testCases.add(new GeographyClass(a));
-			testCases.add(new AnimatedBaseMapTestCase(a));
-			testCases.add(new ImageReloadTestCase(a));
-			testCases.add(new CustomBNGCoordAdapter(a));
-			testCases.add(new CustomBNGTileSource(a));
-			testCases.add(new ScreenLabelsTestCase(a));
-			testCases.add(new ScreenMarkersTestCase(a));
-			testCases.add(new MarkersTestCase(a));
-			testCases.add(new AnimatedScreenMarkersTestCase(a));
-			testCases.add(new AnimatedMarkersTestCase(a));
-			testCases.add(new ClusteredMarkersTestCase(a));
-			testCases.add(new MovingScreenMarkersTestCase(a));
-			testCases.add(new VectorsTestCase(a));
-			testCases.add(new GreatCircleTestCase(a));
-			testCases.add(new SimpleStyleTestCase(a));
-			testCases.add(new VectorStyleTestCase(a));
-			testCases.add(new VectorHoleTestCase(a));
-			testCases.add(new ShapefileTestCase(a));
-			testCases.add(new WideVectorsTestCase(a));
-			testCases.add(new TextureVectorTestCase(a));
-			testCases.add(new SLDTestCase(a));
-			testCases.add(new LoftedPolyTestCase(a));
-			testCases.add(new StickersTestCase(a));
-			testCases.add(new PagingLayerTestCase(a));
-			testCases.add(new VectorMBTilesTestCase(a));
-			testCases.add(new MapTilerTestCase(a));
-			testCases.add(new MapTilerCircleTestCase(a));
-			testCases.add(new OpenMapTilesHybridTestCase(a));
-			testCases.add(new CartoTestCase(a));
-			testCases.add(new ShapesTestCase(a));
-//			testCases.add(new MaplyStarModelTestCase(a));
-			testCases.add(new FindHeightTestCase(a));
-			testCases.add(new GestureFeedbackTestCase(a));
-//			testCases.add(new LightingTestCase(a));
-			testCases.add(new BillboardTestCase(a));
-//			testCases.add(new CoordConversionTestCase(a));
-//			testCases.add(new StartupShutdownTestCase(a));
-//			testCases.add(new MarkersAndLinesTestCase(a));
-//			testCases.add(new BoundsTestCase(a));
-//			testCases.add(new LayerShutdownTestCase(a));
-//			testCases.add(new GeomPointsTestCase(a));
-			testCases.add(new AutoRotateTestCase(a));
-//			testCases.add(new ArealTestCase(a));
-			testCases.add(new LocationTrackingRealTestCase(a));
-			testCases.add(new LocationTrackingSimTestCase(a));
-			testCases.add(new AnimationDelegateTestCase(a));
-			testCases.add(new ComponentObjectLeakTestCase(a));
+			final Activity a = requireActivity();
+
+			testCases = new MaplyTestCase[]{
+				//new CoordConversionTestCase(a),
+				//new GeomPointsTestCase(a),
+				//new LayerShutdownTestCase(a),
+				//new LightingTestCase(a),
+				//new MaplyStarModelTestCase(a),
+				//new MarkersAndLinesTestCase(a),
+				//new StartupShutdownTestCase(a),
+				new AnimatedBaseMapTestCase(a),
+				new AnimatedMarkersTestCase(a),
+				new AnimatedScreenMarkersTestCase(a),
+				new AnimationDelegateTestCase(a),
+				new ArealTestCase(a),
+				new AutoRotateTestCase(a),
+				new BillboardTestCase(a),
+				new BoundsTestCase(a),
+				new CartoTestCase(a),
+				new CartoLightTestCase(a),
+				new ClusteredMarkersTestCase(a),
+				new ComponentObjectLeakTestCase(a),
+				new CustomBNGCoordAdapter(a),
+				new CustomBNGTileSource(a),
+				new FindHeightTestCase(a),
+				new GeographyClass(a),
+				new GestureFeedbackTestCase(a),
+				new GreatCircleTestCase(a),
+				new ImageReloadTestCase(a),
+				new LocationTrackingRealTestCase(a),
+				new LocationTrackingSimTestCase(a),
+				new LoftedPolyTestCase(a),
+				new MapTilerCircleTestCase(a),
+				new MapTilerTestCase(a),
+				new MarkersTestCase(a),
+				new MovingScreenMarkersTestCase(a),
+				new OpenMapTilesHybridTestCase(a),
+				new PagingLayerTestCase(a),
+				new SLDTestCase(a),
+				new ScreenLabelsTestCase(a),
+				new ScreenMarkersTestCase(a),
+				new ShapefileTestCase(a),
+				new ShapesTestCase(a),
+				new SimpleStyleTestCase(a),
+				new StamenRemoteTestCase(a),
+				new StickersTestCase(a),
+				new TextureVectorTestCase(a),
+				new VectorHoleTestCase(a),
+				new VectorMBTilesTestCase(a),
+				new VectorStyleTestCase(a),
+				new VectorsTestCase(a),
+				new WideVectorsTestCase(a),
+			};
+			Arrays.sort(testCases,
+					(x,y) -> x.getTestName().compareToIgnoreCase(y.getTestName()));
 		}
 
 		public void downloadResources() {
@@ -162,11 +169,11 @@ public class TestListFragment extends Fragment {
 		}
 
 		public void downloadTestResources(final int index) {
-			if (index >= testCases.size()) {
+			if (index >= testCases.length) {
 				return;
 			}
 			ArrayList<MaplyTestCase> test = new ArrayList<>();
-			test.add(testCases.get(index));
+			test.add(testCases[index]);
 			MaplyDownloadManager.MaplyDownloadManagerListener listener = new MaplyDownloadManager.MaplyDownloadManagerListener() {
 				@Override
 				public void onFinish() {
@@ -191,12 +198,12 @@ public class TestListFragment extends Fragment {
 
 		@Override
 		public void onBindViewHolder(@NotNull RecyclerView.ViewHolder holder, int position) {
-			((TestViewHolder) holder).bindViewHolder(testCases.get(position), position);
+			((TestViewHolder) holder).bindViewHolder(testCases[position], position);
 		}
 
 		@Override
 		public int getItemCount() {
-			return testCases.size();
+			return testCases.length;
 		}
 
 		public void changeItemsState(boolean selected) {
@@ -209,7 +216,7 @@ public class TestListFragment extends Fragment {
 		}
 
 
-		public ArrayList<MaplyTestCase> getTestCases() {
+		public MaplyTestCase[] getTestCases() {
 			return testCases;
 		}
 

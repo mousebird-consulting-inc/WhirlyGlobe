@@ -17,10 +17,7 @@ class AnimatedBasemapTestCase: MaplyTestCase {
     var varTarget : MaplyVariableTarget? = nil
 
 	override init() {
-		super.init()
-
-		self.name = "Animated basemap"
-		self.implementations = [.globe, .map]
+        super.init(name: "Animated Basemap", supporting: [.globe, .map])
 	}
     
     var rampTex : MaplyTexture? = nil

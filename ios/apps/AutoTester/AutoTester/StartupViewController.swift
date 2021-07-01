@@ -19,6 +19,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         ImageReloadTestCase(),
         BNGCustomMapTestCase(),
         BNGTestCase(),
+        ActiveObjectTestCase(),
         // Note: Endpoint missing
 //        WMSTestCase(),
 
@@ -51,6 +52,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         PagingLayerTestCase(),
         VectorMBTilesTestCase(),
         CartoDBTestCase(),
+        CartoDBLightTestCase(),
         MapTilerTestCase(),
         MapTilerCircleTestCase(),
         MapboxTestCase(),
@@ -71,7 +73,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         
         StartupShutdownTestCase(),
         LayerStartupShutdownTestCase()
-	]
+    ].sorted(by: { (a,b) in a.name.caseInsensitiveCompare(b.name) == ComparisonResult.orderedAscending } )
 
 	@IBOutlet weak var testsTable: UITableView!
 

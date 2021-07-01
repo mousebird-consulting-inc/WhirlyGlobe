@@ -310,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 		playButton.setIcon(getResources().getDrawable(R.drawable.ic_stop_action));
 		getSupportActionBar().setTitle("Running tests...");
 		this.testResults.clear();
-		ArrayList<MaplyTestCase> tests = this.testList.getTests();
+		MaplyTestCase[] tests = this.testList.getTests();
 		if (ConfigOptions.getViewSetting(this) == ConfigOptions.ViewMapOption.ViewMap) {
 			selectFragment(this.viewTest);
 		}
@@ -319,9 +319,9 @@ public class MainActivity extends AppCompatActivity implements NavigationDrawer.
 	}
 
 
-	private void startTests(final ArrayList<MaplyTestCase> tests, final int index) {
-		if (tests.size() != index) {
-			final MaplyTestCase head = tests.get(index);
+	private void startTests(final MaplyTestCase[] tests, final int index) {
+		if (tests.length != index) {
+			final MaplyTestCase head = tests[index];
 			if (ConfigOptions.getTestState(getApplicationContext(), head.getTestName()) == ConfigOptions.TestState.Selected) {
 				head.setOptions(ConfigOptions.getTestType(this));
 				ConfigOptions.setTestState(getApplicationContext(), head.getTestName(), ConfigOptions.TestState.Executing);

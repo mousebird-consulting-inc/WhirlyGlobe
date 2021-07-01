@@ -256,7 +256,8 @@ class AirwayTestCase: MaplyTestCase {
         baseCase.setUpWithGlobe(globeVC)
 
 //        globeVC.keepNorthUp = false
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056),
+                        height:1.0, heading:0.0, time: 1.0)
 
         if buildAirways {
             setupAirways(globeVC)
@@ -270,7 +271,8 @@ class AirwayTestCase: MaplyTestCase {
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         baseCase.setUpWithMap(mapVC)
         
-        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
+        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056),
+                      height:1.0, heading:0.0, time: 1.0)
         
         if buildAirways {
             setupAirways(mapVC)

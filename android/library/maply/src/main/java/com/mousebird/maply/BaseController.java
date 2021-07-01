@@ -703,7 +703,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 			if (scene != null) {
 				scene.teardownGL();
-				scene.dispose();
 				scene = null;
 			}
 
@@ -1439,7 +1438,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
     public ComponentObject addVector(final VectorObject vec,final VectorInfo vecInfo,RenderController.ThreadMode mode)
     {
-        ArrayList<VectorObject> vecObjs = new ArrayList<>();
+        ArrayList<VectorObject> vecObjs = new ArrayList<>(1);
         vecObjs.add(vec);
         return addVectors(vecObjs,vecInfo,mode);
     }
@@ -1527,7 +1526,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public ComponentObject addWideVector(VectorObject vec,WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
 	{
-		ArrayList<VectorObject> vecObjs = new ArrayList<>();
+		ArrayList<VectorObject> vecObjs = new ArrayList<>(1);
 		vecObjs.add(vec);
 
 		return addWideVectors(vecObjs,wideVecInfo,mode);
@@ -1558,7 +1557,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public ComponentObject addLoftedPoly(final VectorObject vec,final LoftedPolyInfo loftInfo,RenderController.ThreadMode mode)
 	{
-		ArrayList<VectorObject> vecObjs = new ArrayList<>();
+		ArrayList<VectorObject> vecObjs = new ArrayList<>(1);
 		vecObjs.add(vec);
 		return addLoftedPolys(vecObjs,loftInfo,mode);
 	}
@@ -1592,7 +1591,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 
-		ArrayList<ScreenMarker> markers = new ArrayList<>();
+		ArrayList<ScreenMarker> markers = new ArrayList<>(1);
 		markers.add(marker);
 		return addScreenMarkers(markers,markerInfo,mode);
 	}
@@ -1635,7 +1634,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 
-		ArrayList<Marker> markers = new ArrayList<>();
+		ArrayList<Marker> markers = new ArrayList<>(1);
 		markers.add(marker);
 		return addMarkers(markers,markerInfo,mode);
 	}
@@ -1719,7 +1718,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 
-		List<Points> ptList = new ArrayList<>();
+		List<Points> ptList = new ArrayList<>(1);
 		ptList.add(pts);
 
 		return addPoints(ptList,geomInfo,mode);
@@ -1828,7 +1827,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return null;
 		
-		ArrayList<ScreenLabel> labels = new ArrayList<>();
+		ArrayList<ScreenLabel> labels = new ArrayList<>(1);
 		labels.add(label);
 		return addScreenLabels(labels,labelInfo,mode);
 	}
@@ -1924,7 +1923,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      */
 	public void removeTexture(final MaplyTexture tex,RenderController.ThreadMode mode)
 	{
-        ArrayList<MaplyTexture> texs = new ArrayList<>();
+        ArrayList<MaplyTexture> texs = new ArrayList<>(1);
         texs.add(tex);
         removeTextures(texs,mode);
 	}
@@ -2090,7 +2089,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return;
 
-		ArrayList<ComponentObject> compObjs = new ArrayList<>();
+		ArrayList<ComponentObject> compObjs = new ArrayList<>(1);
 		compObjs.add(compObj);
 
 		disableObjects(compObjs, mode);
@@ -2122,7 +2121,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (!running)
 			return;
 
-		ArrayList<ComponentObject> compObjs = new ArrayList<>();
+		ArrayList<ComponentObject> compObjs = new ArrayList<>(1);
 		compObjs.add(compObj);
 
 		enableObjects(compObjs, mode);
@@ -2139,7 +2138,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		if (compObj == null)
 			return;
 
-		ArrayList<ComponentObject> compObjs = new ArrayList<>();
+		ArrayList<ComponentObject> compObjs = new ArrayList<>(1);
 		compObjs.add(compObj);
 		removeObjects(compObjs, mode);
 	}

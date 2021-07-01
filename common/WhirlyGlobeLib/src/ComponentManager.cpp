@@ -128,13 +128,19 @@ bool ComponentManager::hasComponentObject(SimpleIdentity compID)
     return it != compObjsById.end();
 }
 
-void ComponentManager::removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID, ChangeSet &changes)
+void ComponentManager::removeComponentObject(PlatformThreadInfo *threadInfo,
+                                             SimpleIdentity compID,
+                                             ChangeSet &changes,
+                                             bool disposeAfterRemoval)
 {
     SimpleIDSet compIDs { compID };
-    removeComponentObjects(threadInfo,compIDs, changes);
+    removeComponentObjects(threadInfo,compIDs, changes, disposeAfterRemoval);
 }
 
-void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
+                                              const std::vector<ComponentObjectRef> &compObjs,
+                                              ChangeSet &changes,
+                                              bool disposeAfterRemoval)
 {
     SimpleIDSet compIDs;
 
@@ -142,10 +148,10 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
         compIDs.insert(compObj->getId());
     }
 
-    removeComponentObjects(threadInfo,compIDs, changes);
+    removeComponentObjects(threadInfo,compIDs, changes, disposeAfterRemoval);
 }
 
-void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *threadInfo,
+void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *,
                                                      const SimpleIDSet &compIDs,
                                                      std::vector<ComponentObjectRef> &objs)
 {
@@ -189,7 +195,10 @@ void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *threadI
     }
 }
 
-void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
+                                              const SimpleIDSet &compIDs,
+                                              ChangeSet &changes,
+                                              __unused bool disposeAfterRemoval)    // used by platform override
 {
     if (compIDs.empty())
         return;
