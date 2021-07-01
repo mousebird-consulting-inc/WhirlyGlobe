@@ -138,35 +138,42 @@ cases:
     - Seems to work reasonably well with a large area (unlike the BNG case)
 - name: CartoDBLightTestCase / CartoLightTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
-- name: CartoDBTestCase / CartoTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+  Checks:
+    - Basic Carto Voyager basemap with labels
   Comments:
-    - Needs QuadPagingLayer
-- name: ComponentObjectLeakTestCase
+    - Mostly intended as a base for other test cases
+    - https://carto.com/help/building-maps/basemap-list/
+- name: CartoDBTestCase / CartoTestCase ("Carto New York")
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Shows building overlays in red
+  Comments:
+    - Buildings at tile edges can be drawn multiple times, leading to a grid pattern.  This is expected.
+- name: ComponentObjectLeakTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1332 (closed)
+  Checks:
+    - Adds and removes many screen markers over a set period, use profiling to track memory
+  Comments: 
+    - Some memory leaks still seem to exist between the end of the add/remove cycle and destroying the map controller
+    - JVM profile shows some `ComponentObject` objects active, but no call stacks were available.
+    - Native memory increases with each cycle, even after destroying the controller.
 - name: CoordConversionTestCase
   iOS:
     Map: '?'
