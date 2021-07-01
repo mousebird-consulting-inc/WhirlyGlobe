@@ -46,7 +46,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_initialise
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentManager::initialise()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::initialise()");
 	}
 }
 
@@ -70,7 +70,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentManager::dispose()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::dispose()");
 	}
 }
 
@@ -89,7 +89,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_addComponentObj
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentManager::addComponentObject()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::addComponentObject()");
     }
 }
 
@@ -106,7 +106,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ComponentManager_hasComponen
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentManager::hasComponentObject()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::hasComponentObject()");
     }
 
     return false;
@@ -137,7 +137,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentManager::enableComponentObjects()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::enableComponentObjects()");
     }
 }
 
@@ -165,6 +165,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ComponentManager::enableComponentObjects()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::enableComponentObjects()");
     }
 }
