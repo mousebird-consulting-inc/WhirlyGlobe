@@ -28,7 +28,7 @@ import java.io.File
 class StamenRemoteTestCase(activity: Activity?) :
         MaplyTestCase(activity, "Stamen Watercolor Remote", TestExecutionImplementation.Both) {
 
-    public var doColorChange = true
+    var doColorChange = true
 
     private fun setupImageLoader(testType: TestType, baseController: BaseController): QuadImageLoader {
         val cacheDirName = "stamen_watercolor6"
