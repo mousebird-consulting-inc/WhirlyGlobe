@@ -11,8 +11,6 @@ import UIKit
 class StartupViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
 	let tests = [
-        //OfflineRenderTestCase(),
-        //WMSTestCase(),        // Note: Endpoint missing
         ActiveObjectTestCase(),
         AirwayTestCase(),
         AnimatedBasemapTestCase(),
@@ -48,9 +46,12 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         MarkersTestCase(),
         MegaMarkersTestCase(),
         ModelsTestCase(),
+        MovingScreenLabelsTestCase(),
         MovingScreenMarkersTestCase(),
         NASAGIBSTestCase(),
+        OfflineRenderTestCase(),
         PagingLayerTestCase(),
+        ParticleTestCase(),
         RepresentationsTestCase(),
         RunwayBuilderTestCase(),
         ScreenLabelsTestCase(),
@@ -68,6 +69,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         VectorStyleTestCase(),
         VectorsTestCase(),
         WideVectorsTestCase(),
+        WMSTestCase(),        // Note: Endpoint missing
     ].sorted(by: { (a,b) in a.name.caseInsensitiveCompare(b.name) == ComparisonResult.orderedAscending } )
 
 	@IBOutlet weak var testsTable: UITableView!

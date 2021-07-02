@@ -289,6 +289,7 @@ cases:
     - Shows tile boundaries
   Comments:
     - Duplicates rather than referencing the Stamen Watercolor case, should be refactored
+    - Also basically a duplicate of PagingLayerTestCase, maybe just remove this one?
 - name: GlyphProblemTestCase
   iOS:
     Map: 'N/A'
@@ -499,62 +500,49 @@ cases:
     - Uses texture atlas to efficiently handle many small images
 - name: ModelsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: 'N/A'
+    Globe: ✓
+  Android: Not Implemented
+  Issues:
+    - Model ends up hidden by the globe surface after a while, despite the begin and and coordinates having the same Z value
+  Checks:
+    - Shows aircraft model which moves above selected cities
   Comments: []
 - name: MovingScreenLabelsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: ✗
+    Globe: ✗
+  Android: Not Implemented
+  Issues:
+    - Does nothing
   Checks: []
   Comments: []
 - name: MovingScreenMarkersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1286
   Checks: []
   Comments: []
 - name: NASAGIBSTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments: []
-- name: NASAGIBSTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
   Checks: []
   Comments: []
 - name: OfflineRenderTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: 'N/A'
+    Globe: ✗
+  Android: Not Implemented
+  Issues:
+    - `removeSnapshotDelegate` seems to be called before the snapshot occurs asynchronously via `addCompletedHandler` and `dispatch_async`
   Checks: []
   Comments: []
 - name: OpenMapTilesHybridTestCase / OpenMapTilesHybridTestCase
@@ -570,26 +558,26 @@ cases:
     - Needs snapshot functionality
 - name: PagingLayerTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Shows tile outlines
+    - That's it.  
   Comments:
-    - Needs QuadPagingLayer
-- name: ParticleTestCase
+    - See GlobeSamplerTestCase
+- name: ParticleTestCase (Wind Particle Test)
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: 'N/A'
+    Globe: ✗
+  Android: Not Implemented
+  Issues: 
+    - Not ported from 2.x
   Checks: []
   Comments:
-    - Needs QuadPagingLayer
 - name: RepresentationsTestCase
   iOS:
     Map: '?'

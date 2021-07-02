@@ -124,6 +124,8 @@
 		311E0AA72680F597007BE16F /* ATS_Route.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9B2680F597007BE16F /* ATS_Route.dbf */; };
 		311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */; };
 		311E0AB7268E87E3007BE16F /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
+		311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */; };
+		311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8895D8AF1CA4ABA9004387FB /* ParticleTest.mm */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
 		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
 		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
@@ -2618,6 +2620,7 @@
 				2B29944D243BA16000677DE4 /* SimpleStyleTestCase.swift in Sources */,
 				2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */,
 				2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */,
+				311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
@@ -2639,6 +2642,7 @@
 				311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */,
 				31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
+				311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,

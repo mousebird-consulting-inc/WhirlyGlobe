@@ -37,5 +37,6 @@
 #import "RepresentationsTestCase.h"
 #import "GeographicLib.h"
 #import "LIDARTestCase.h"
+#import "ParticleTest.h"
 
 #endif
