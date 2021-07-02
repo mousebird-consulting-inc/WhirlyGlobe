@@ -88,7 +88,6 @@
 		2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433ED1C14E4FE00A52117 /* CartoDBInterpreter.m */; };
 		2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */; };
 		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
-		2B8E609520DC02D200FB96F0 /* OpenMapTilesHybridTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */; };
 		2BA827CD225EBDBF00324594 /* GeoJSONStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */; };
 		2BB4766920004763006AAACB /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */; };
@@ -123,6 +122,9 @@
 		311E0AA62680F597007BE16F /* Airspace_Boundary.prj in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */; };
 		311E0AA72680F597007BE16F /* ATS_Route.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9B2680F597007BE16F /* ATS_Route.dbf */; };
 		311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */; };
+		311E0AB7268E87E3007BE16F /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
+		311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */; };
+		311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8895D8AF1CA4ABA9004387FB /* ParticleTest.mm */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
 		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
 		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
@@ -642,7 +644,6 @@
 		2B033C0724F6F6DB00B55248 /* OpenSans-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-ExtraBold.ttf"; path = "../../../../resources/fonts/OpenSans-ExtraBold.ttf"; sourceTree = "<group>"; };
 		2B033C0824F6F6DB00B55248 /* OpenSans-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-Light.ttf"; path = "../../../../resources/fonts/OpenSans-Light.ttf"; sourceTree = "<group>"; };
 		2B033C0924F6F6DB00B55248 /* OpenSans-SemiBoldItalic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "OpenSans-SemiBoldItalic.ttf"; path = "../../../../resources/fonts/OpenSans-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
-		2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenMapTilesHybridTestCase.swift; sourceTree = "<group>"; };
 		2B158BED1D5D19E900103E04 /* VectorHoleTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorHoleTestCase.h; sourceTree = "<group>"; };
 		2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorHoleTestCase.m; sourceTree = "<group>"; };
 		2B1806D122AECF4200DD3DB1 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
@@ -1397,7 +1398,6 @@
 				313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */,
 				D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */,
 				2B4B63AD23611D690008C8C1 /* OfflineRenderTestCase.swift */,
-				2B127BFE201802BB0099F405 /* OpenMapTilesHybridTestCase.swift */,
 				2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */,
 				2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */,
 				8895D8AE1CA4ABA9004387FB /* ParticleTest.h */,
@@ -2611,12 +2611,12 @@
 				E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */,
 				2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */,
 				D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */,
-				2B8E609520DC02D200FB96F0 /* OpenMapTilesHybridTestCase.swift in Sources */,
 				2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */,
 				D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */,
 				2B29944D243BA16000677DE4 /* SimpleStyleTestCase.swift in Sources */,
 				2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */,
 				2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */,
+				311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
@@ -2638,6 +2638,7 @@
 				311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */,
 				31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
+				311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
@@ -2656,6 +2657,7 @@
 				31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */,
 				2B4B30AA2395E0DE00854073 /* MapboxTestCase.swift in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
+				311E0AB7268E87E3007BE16F /* LIDARTestCase.mm in Sources */,
 				2B753DE221EEB7F900DE98BA /* StarsSunTestCase.swift in Sources */,
 				2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */,
 				2BC3D6F0220B900A00CE91D0 /* StartupViewController.swift in Sources */,

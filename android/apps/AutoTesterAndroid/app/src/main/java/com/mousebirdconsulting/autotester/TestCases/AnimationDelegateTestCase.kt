@@ -25,15 +25,15 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 class AnimationDelegateTestCase(activity: Activity) :
         MaplyTestCase(activity, "Animating Position", TestExecutionImplementation.Both) {
     
-    val loc = Point2d.FromDegrees(-0.1275, 51.507222)
-    val fromHeight = 0.5
-    val toHeight = 0.05
+    val loc: Point2d = Point2d.FromDegrees(-0.1275, 51.507222)
+    private val fromHeight = 0.5
+    private val toHeight = 0.05
     
-    override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
+    override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         if (!baseCase.setUpWithGlobe(globeVC)) {
             return false
         }
-        globeVC?.apply {
+        globeVC.apply {
             keepNorthUp = false
             height = fromHeight
             // animate
@@ -51,15 +51,15 @@ class AnimationDelegateTestCase(activity: Activity) :
         return true
     }
     
-    override fun setUpWithMap(mapVC: MapController?): Boolean {
+    override fun setUpWithMap(mapVC: MapController): Boolean {
         if (!baseCase.setUpWithMap(mapVC)) {
             return false
         }
-        mapVC?.apply {
+        mapVC.apply {
             height = fromHeight
             // Note that, unlike `GlobeViewController.keepNorthUp`, this option only affects
             // gestures, not programmatic changes through `animatePositionGeo` and friends
-            setAllowRotateGesture(false)
+            allowRotateGesture = false
             // animate
             animatePositionGeo(loc, toHeight, degToRad(45.0), 5.0)
             // Animate heading only

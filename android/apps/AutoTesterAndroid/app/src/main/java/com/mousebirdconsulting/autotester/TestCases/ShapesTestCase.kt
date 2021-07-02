@@ -1,9 +1,8 @@
-/*
- *  ShapesTestCase.kt
+/*  ShapesTestCase.kt
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,13 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
-import android.graphics.Color
-import android.location.Location
 import com.mousebird.maply.*
 
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
@@ -30,25 +26,28 @@ import java.util.ArrayList
 import kotlin.math.PI
 
 
-class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
-
-    init {
-        setTestName("Shape Test Case")
-        setDelay(1000)
-        this.implementation = MaplyTestCase.TestExecutionImplementation.Globe
-    }
+class ShapesTestCase(activity: Activity) :
+        MaplyTestCase(activity, "Shape Test Case", TestExecutionImplementation.Both) {
 
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
-        val baseView = StamenRemoteTestCase(getActivity())
         baseView.setUpWithGlobe(globeVC)
-
         addShapes(globeVC)
-
+        return true
+    }
+    
+    override fun setUpWithMap(mapVC: MapController): Boolean {
+        baseView.setUpWithMap(mapVC)
+        addShapes(mapVC)
         return true
     }
 
-    private inner class LocationInfo(internal var name: String, internal var x: Double, internal var y: Double)
+    override fun shutdown() {
+        baseView.shutdown()
+        super.shutdown()
+    }
+
+    private inner class LocationInfo(var name: String, var x: Double, var y: Double)
 
     private fun addShapes(viewC: BaseController) {
         val locations = ArrayList<LocationInfo>()
@@ -105,7 +104,7 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         shapeInfo.setColor(1f, 0f, 0f, 0.8f)
         shapeInfo.drawPriority = 1000000
         //        shapeInfo.setFade(1.0f);
-        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+        vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
     private fun addCylinders(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
@@ -125,7 +124,7 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         shapeInfo.setColor(0f, 0f, 1f, 0.8f)
         shapeInfo.drawPriority = 1000000
         //        shapeInfo.setFade(1.0f);
-        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+        vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
     private fun addGreatCircles(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
@@ -133,7 +132,7 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
 
         for (ii in offset until locs.size step stride) {
             val circle = ShapeGreatCircle()
-            val loc0 = locs[ii];
+            val loc0 = locs[ii]
             val loc1 = locs[(ii+1)%locs.size]
             circle.setPoints(Point2d.FromDegrees(loc0.y,loc0.x),Point2d.FromDegrees(loc1.y,loc1.x))
             circle.isSelectable = true
@@ -147,7 +146,7 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         shapeInfo.drawPriority = 1000000
         shapeInfo.setLineWidth(8.0f)
         //        shapeInfo.setFade(1.0f);
-        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+        vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
     private fun addCircles(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
@@ -166,7 +165,7 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         shapeInfo.setColor(0f, 1.00f, 0f, 0.8f)
         shapeInfo.drawPriority = 1000000
         //        shapeInfo.setFade(1.0f);
-        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+        vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
     private fun addArrows(vc: BaseController, locs: ArrayList<LocationInfo>, stride: Int, offset: Int) {
@@ -195,6 +194,11 @@ class ShapesTestCase(activity: Activity) : MaplyTestCase(activity) {
         shapeInfo.setColor(1.0f, 0.1f, 0f, 0.8f)
         shapeInfo.drawPriority = 1000000
         //        shapeInfo.setFade(1.0f);
-        vc.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadAny)
+        vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
+    }
+    
+    
+    private val baseView = StamenRemoteTestCase(activity).apply {
+        doColorChange = false
     }
 }

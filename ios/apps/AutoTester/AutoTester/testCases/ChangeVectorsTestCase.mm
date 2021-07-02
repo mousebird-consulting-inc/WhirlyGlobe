@@ -124,11 +124,11 @@
 
     if (_vecObj)
     {
-//        [self.baseViewController changeVector:_vecObj desc:@{
-//            kMaplyEnable: @((arc4random()%10) ? YES : NO),
-//            kMaplyColor: [ChangeVectorsTestCase randomColor],
-//            kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault)
-//        }];
+        [self.baseViewController changeVector:_vecObj desc:@{
+            kMaplyEnable: @((arc4random()%10) ? YES : NO),
+            kMaplyColor: [ChangeVectorsTestCase randomColor],
+            kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault)
+        }];
     }
     if (_wideVecObj)
     {

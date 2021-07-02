@@ -44,34 +44,25 @@ class VectorStyleTestCase(activity: Activity) :
         }
     }
 
-    override fun setUpWithMap(mapVC: MapController?): Boolean {
-        mapVC?.activity?.let { activity ->
-            baseCase = CartoLightTestCase(activity).apply {
-                setUpWithMap(mapVC)
-            }
-            setupOverlay(mapVC)
-        }
+    override fun setUpWithMap(mapVC: MapController): Boolean {
+        baseCase.setUpWithMap(mapVC)
+        setupOverlay(mapVC)
         return true
     }
 
-    override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        globeVC?.activity?.let { activity ->
-            baseCase = CartoLightTestCase(activity).apply {
-                setUpWithGlobe(globeVC)
-            }
-            setupOverlay(globeVC)
-        }
+    override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
+        baseCase.setUpWithGlobe(globeVC)
+        setupOverlay(globeVC)
         return true
     }
     
     override fun shutdown() {
         controller?.removeObjects(objs, ThreadMode.ThreadCurrent)
         objs.clear()
-        baseCase?.shutdown()
-        baseCase = null
+        baseCase.shutdown()
         super.shutdown()
     }
     
-    private var baseCase: MaplyTestCase? = null
+    private var baseCase = CartoLightTestCase(activity)
     private val objs = ArrayList<ComponentObject>()
 }

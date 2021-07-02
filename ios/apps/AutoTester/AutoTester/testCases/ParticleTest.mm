@@ -258,7 +258,7 @@ void main()
     SimpleColor *colors;
     float *times;
     NSMutableDictionary *cachedTiles;
-    MaplyQuadTracker *tileTrack;
+    //MaplyQuadTracker *tileTrack;
     float velocityScale;
     int numVelocityColors;
     SimpleColor velocityColors[3];
@@ -266,7 +266,7 @@ void main()
 
 - (id)initWithURL:(NSString *)inURL minZoom:(int)inMinZoom maxZoom:(int)inMaxZoom viewC:(MaplyBaseViewController *)inViewC
 {
-    self = [super init];
+    //self = [super init];
     url = inURL;
     _minZoom = inMinZoom;
     _maxZoom = inMaxZoom;
@@ -286,7 +286,7 @@ void main()
     velocityColors[0].r = 0.6f;  velocityColors[0].g = 1.0f;  velocityColors[0].b = 0.6f;  velocityColors[0].a = 1.f;
     velocityColors[1].r = 0.6f;  velocityColors[1].g = 0.6f;  velocityColors[1].b = 1.f;  velocityColors[1].a = 1.f;
     velocityColors[2].r = 1.f;  velocityColors[2].g = 0.6f;  velocityColors[2].b = 0.6f;  velocityColors[2].a = 1.f;
-    
+    /*
     // Position calculation shader
     MaplyShader *posShader = [[MaplyShader alloc] initWithViewC:viewC];
     [posShader addVarying:@"va_startTime"];
@@ -344,6 +344,7 @@ void main()
         ^{
            [self generateParticles];
         });
+     */
     
     return self;
 }
@@ -359,7 +360,7 @@ void main()
     }
 }
 
-- (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLayer *)layer
+- (void)startFetchForTile:(MaplyTileID)tileID forLayer:(MaplyQuadPagingLoader *)layer
 {
     // Make sure there's an entry for the tiles
     dispatch_async(queue,
@@ -391,7 +392,7 @@ void main()
 					dispatch_async(self->queue, ^{
 						if (error || !data) {
 							[self clearTile:tileID];
-							[layer tileFailedToLoad:tileID];
+							//[layer tileFailedToLoad:tileID];
 						}
 						else {
 							UIImage *img = [UIImage imageWithData:data];
@@ -408,8 +409,8 @@ void main()
 
 								if ([tile isComplete])
 								{
-									[self->tileTrack addTile:tileID];
-									[layer tileDidLoad:tileID];
+									//[self->tileTrack addTile:tileID];
+									//[layer tileDidLoad:tileID];
 								}
 							}
 						}
@@ -422,7 +423,7 @@ void main()
 {
     dispatch_async(queue,
     ^{
-       [self->tileTrack removeTile:tileID];
+       //[self->tileTrack removeTile:tileID];
        [self clearTile:tileID];
     });
 }
@@ -482,7 +483,7 @@ static const float sqrt2 = 1.41421356237;
         partSysObj = [viewC addParticleSystem:partSys desc:@{kMaplyPointSize: @(4.0), kMaplyDrawPriority: @(kMaplyModelDrawPriorityDefault+1000)} mode:MaplyThreadCurrent];
     }
     
-    NSTimeInterval now = scene->getCurrentTime();
+    //NSTimeInterval now = scene->getCurrentTime();
 
     // Data arrays for particles
     // These have to be raw data, rather than objects for speed
@@ -521,6 +522,7 @@ static const float sqrt2 = 1.41421356237;
     }
 #endif
 
+    /*
     // Generate some screen coordinates for sampling
     MaplyQuadTrackerPointReturn *points = (MaplyQuadTrackerPointReturn *)malloc(sizeof(MaplyQuadTrackerPointReturn)*partSys.batchSize);
     MaplyQuadTrackerPointReturn *pt = points;
@@ -549,7 +551,7 @@ static const float sqrt2 = 1.41421356237;
             SimpleLoc *dir = &dirs[whichPart];
             SimpleColor *color = &colors[whichPart];
             float *time = &times[whichPart];
-            *time = now-partSys.baseTime;
+            // *time = now-partSys.baseTime;
             
             MaplyCoordinate3d coordA;
             coordA.x = pt->locX;
@@ -590,10 +592,11 @@ static const float sqrt2 = 1.41421356237;
         
         pt++;
     }
-    
+     */
+
     // Set up the batch
     MaplyParticleBatch *batch = [[MaplyParticleBatch alloc] initWithParticleSystem:partSys];
-    batch.time = now;
+    //batch.time = now;
     NSData *posData = [[NSData alloc] initWithBytesNoCopy:locs length:partSys.batchSize*sizeof(SimpleLoc) freeWhenDone:false];
     [batch addAttribute:@"a_position" values:posData];
     NSData *dirData = [[NSData alloc] initWithBytesNoCopy:dirs length:partSys.batchSize*sizeof(SimpleLoc) freeWhenDone:false];

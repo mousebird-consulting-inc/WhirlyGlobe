@@ -1044,7 +1044,6 @@ public class RenderController implements RenderControllerInterface
         return compObj;
     }
 
-
     /**
      * Change the visual representation of the given vectors.
      * @param vecObj The component object returned by the original addVectors() call.
@@ -1063,6 +1062,30 @@ public class RenderController implements RenderControllerInterface
             long[] vecIDs = vecObj.getVectorIDs();
             if (vecIDs != null) {
                 vecManager.changeVectors(vecIDs, vecInfo, changes);
+                processChangeSet(changes);
+            }
+        }, mode);
+    }
+
+    /**
+     * Change the visual representation of the given vectors.
+     * @param vecObj The component object returned by the original addVectors() call.
+     * @param vecInfo Visual representation to use for the changes.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+    public void changeWideVector(final ComponentObject vecObj,final WideVectorInfo vecInfo,ThreadMode mode)
+    {
+        if (vecObj == null)
+            return;
+
+        // Do the actual work on the layer thread
+        taskMan.addTask(() -> {
+            // Vectors are simple enough to just add
+            ChangeSet changes = new ChangeSet();
+            long[] vecIDs = vecObj.getVectorIDs();
+            if (vecIDs != null) {
+                // todo: implement this
+                //vecManager.changeWideVectors(vecIDs, vecInfo, changes);
                 processChangeSet(changes);
             }
         }, mode);
