@@ -1,5 +1,4 @@
-/*
- *  MaplyBaseViewController.mm
+/*  MaplyBaseViewController.mm
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "control/MaplyBaseViewController.h"
@@ -224,7 +222,7 @@ using namespace WhirlyKit;
     NSString *build = infoDict[@"CFBundleVersion"];
     NSString *bundleVersion = infoDict[@"CFBundleShortVersionString"];
     // WGMaply version
-    NSString *wgmaplyVersion = @"3.0";
+    NSString *wgmaplyVersion = @"3.3";
     // OS version
     NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
