@@ -33,7 +33,7 @@ Builds
 -: | :-
 [![Android Build Status](https://app.bitrise.io/app/36f069a6fbd58b11.svg?token=XD5YnMiUwnj0169yhIOkPQ)](https://app.bitrise.io/app/36f069a6fbd58b11) | Android Main
 
-This is the main branch of the WhirlyGlobe-Maply Component and API version 3.2. It should be easy to compile, as all the crazy dependencies are in submodules. You can also get a [precompiled version](https://mousebird-consulting-inc.github.io/WhirlyGlobe/builds/builds.html).
+This is the main branch of the WhirlyGlobe-Maply Component and API version 3.3. It should be easy to compile, as all the crazy dependencies are in submodules. You can also get a [precompiled version](https://mousebird-consulting-inc.github.io/WhirlyGlobe/builds/builds.html).
 
 WhirlyGlobe-Maply uses a bunch of submodules, which you'll need to get. Like so:
 
