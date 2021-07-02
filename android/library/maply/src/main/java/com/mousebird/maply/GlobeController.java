@@ -761,6 +761,10 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		globeView.setHeight(height);
 	}
 
+	public double getHeading() {
+		return (globeView != null) ? globeView.getHeading() : 0.0;
+	}
+
 	public void setHeading(final double heading) {
 		if (!isCompletelySetup()) {
 			if (!rendererAttached) {

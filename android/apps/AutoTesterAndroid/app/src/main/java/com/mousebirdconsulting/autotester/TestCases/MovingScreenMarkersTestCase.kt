@@ -27,36 +27,30 @@ import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import com.mousebirdconsulting.autotester.R
 
-public class MovingScreenMarkersTestCase : MaplyTestCase {
-
-    constructor(activity: Activity) : super(activity) {
-        testName = "Moving Screen Markers"
-        implementation = TestExecutionImplementation.Both
-
-        baseCase = VectorsTestCase(activity)
-    }
-
-    override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
+class MovingScreenMarkersTestCase(activity: Activity) :
+        MaplyTestCase(activity, "Moving Screen Markers", TestExecutionImplementation.Both) {
+    
+    override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         if (!baseCase.setUpWithGlobe(globeVC)) {
             return false
         }
         setUp()
-        globeVC?.animatePositionGeo(0.1, 0.1, 0.5, 0.0, 0.5)
+        globeVC.animatePositionGeo(0.1, 0.1, 0.5, 0.0, 0.5)
         return true
     }
 
-    override fun setUpWithMap(mapVC: MapController?): Boolean {
+    override fun setUpWithMap(mapVC: MapController): Boolean {
         if (!baseCase.setUpWithMap(mapVC)) {
             return false
         }
         setUp()
-        mapVC?.animatePositionGeo(0.0, 0.1, 0.5, 0.0, 0.5)
+        mapVC.animatePositionGeo(0.0, 0.1, 0.5, 0.0, 0.5)
         return true
     }
 
     private fun setUp() {
-        val icon0 = BitmapFactory.decodeResource(getActivity().resources, R.drawable.teardrop)
-        val icon1 = BitmapFactory.decodeResource(getActivity().resources, R.drawable.teardrop_stroked)
+        val icon0 = BitmapFactory.decodeResource(activity.resources, R.drawable.teardrop)
+        val icon1 = BitmapFactory.decodeResource(activity.resources, R.drawable.teardrop_stroked)
         textures = arrayOf(
                 controller.addTexture(icon0, null, threadCurrent)!!,
                 controller.addTexture(icon1, null, threadCurrent)!!)
@@ -113,7 +107,7 @@ public class MovingScreenMarkersTestCase : MaplyTestCase {
 
     private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
 
-    private var baseCase: VectorsTestCase
+    private var baseCase = VectorsTestCase(activity)
     private val duration = 5.0
 
     private var timerRunnable: Runnable? = null

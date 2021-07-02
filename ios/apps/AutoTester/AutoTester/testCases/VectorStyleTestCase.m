@@ -11,18 +11,13 @@
 
 @implementation VectorStyleTestCase
 {
-    MaplyBaseViewController *baseViewC;
-    GeographyClassTestCase *baseCase;
+    CartoDBLightTestCase *baseCase;
 }
 
 - (instancetype)init
 {
-    if (self = [super init]) {
-        self.name = @"Vector Style Test";
-        self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
-        
+    if (self = [super initWithName:@"Vector Style Test" supporting:MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe]) {
     }
-    
     return self;
 }
 
@@ -42,8 +37,7 @@
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC
 {
-    baseViewC = globeVC;
-    baseCase = [[GeographyClassTestCase alloc]init];
+    baseCase = [[CartoDBLightTestCase alloc]init];
     [baseCase setUpWithGlobe:globeVC];
     [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
     
@@ -52,12 +46,16 @@
 
 - (void)setUpWithMap:(MaplyViewController *)mapVC
 {
-    baseViewC = mapVC;
-    baseCase = [[GeographyClassTestCase alloc]init];
+    baseCase = [[CartoDBLightTestCase alloc]init];
     [baseCase setUpWithMap:mapVC];
     [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:1.0];
 
     [self overlayCountryFile:@"USA" ext:@"geojson" viewC:mapVC];
+}
+
+- (void)stop {
+    [baseCase stop];
+    [super stop];
 }
 
 @end

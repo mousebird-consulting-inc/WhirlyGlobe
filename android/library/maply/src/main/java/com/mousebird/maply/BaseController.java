@@ -1487,6 +1487,20 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Change the visual representation of the given vectors.
+	 * @param vecObj The component object returned by the original addVectors() call.
+	 * @param vecInfo Visual representation to use for the changes.
+	 * @param mode Where to execute the add.  Choose ThreadAny by default.
+	 */
+	public void changeWideVector(final ComponentObject vecObj,final WideVectorInfo vecInfo,RenderController.ThreadMode mode)
+	{
+		if (!running)
+			return;
+
+		renderControl.changeWideVector(vecObj,vecInfo,mode);
+	}
+
+	/**
 	 * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
 	 * features with line width, filled style, color and so forth defined by the
 	 * WideVectorInfo class.

@@ -702,71 +702,83 @@ cases:
     - Stickers are distorted by being sized with a fixed lat/lon offset
 - name: TextureVectorTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✗
+    Globe: ✗
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Textures seem to be applied incompletely/inconsistently
+    - Texture projection options don't work right
   Checks: []
   Comments: []
 - name: VectorHoleTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Displays a large, red area overlapping West Africa with a hole exposing the area around Sierra Leone
   Comments: []
 - name: VectorMBTilesTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Displays streets and labels in SE France with random colors
+  Comments:
+    - Labels are expected to overlap, looks a messy until you zoom in
 - name: VectorsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - Change wide vectors doesn't work yet
+    - Some countries like Russia and Finland don't seem to work correctly
+  Checks: 
+    - Tap to identify
   Comments: []
 - name: VectorStyleTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Displays the U.S. overlaid on Carto case
   Comments: []
 - name: WideVectorsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Displays GeoJSON from resources with wide vectors
+    - Check full and performance wide vectors
+    - Check edge blending
+    - Check dash pattern
   Comments: []
 - name: WMSTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: ✗
+    Globe: ✗
+  Android: Not Implemented
+  Issues:
+    - Not implemented
   Checks: []
   Comments: []
