@@ -268,17 +268,20 @@ cases:
     - Logs delegate callbacks
     - Pay particular attention to the `userMotion` value
   Comments: []
-- name: GeoJSONStyleTestCase
+- name: GeoJSONStyleTestCase / SLDTestCase
   iOS:
     Map: ✓
     Globe: ✓
-  Android: Not Implemented
+  Android:
+    Map: ✓
+    Globe: ✓
   Issues:
     - Text looks wrong; glyph outlines overlap other glyphs
     - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1368 (open)
   Checks:
-    - Enables each styling option automatically
-  Comments: []
+    - (iOS) Enables each styling option automatically
+  Comments:
+    - No interactive UI on Android
 - name: GlobeSamplerTestCase
   iOS:
     Map: ✓
@@ -567,87 +570,84 @@ cases:
     - Not ported from 2.x
   Checks: []
   Comments:
-- name: RepresentationsTestCase
+- name: RepresentationsTestCase (Alternate Representations)
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
+  Checks:
+    - Cycles through multiple versions of a GC and polygon without removing/re-adding the objects
   Comments: []
 - name: RunwayBuilderTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: 'N/A'
+  Android: Not Implemented
   Issues: []
-  Checks: []
+  Checks:
+    - Draws a runway
   Comments: []
 - name: ScreenLabelsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Displays labels in screen-space, with and without background
   Comments:
-    - Layout manager not quite right.  Could be layout size.
+    - Tap to toggle debug layout outlines
 - name: ScreenMarkersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Displays markers in screen-space, with and without layout
+  Comments:
+    - (iOS) Tap to toggle debug layout outlines
 - name: ShapefileTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - (iOS) Shows U.S. roads
+    - (Android) Shows S.F. area elements
   Comments: []
 - name: ShapesTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments:
-    - Not working for 2D map (probably z buffer)
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Android has z-fighting in both map and globe cases
+  Checks:
+    - Displays parabolic arcs and spheres
+  Comments: []
 - name: SimpleStyleTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
-  Comments: []
-- name: SLDTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+  Checks:
+    - Displays a simple polyline and polygon with styles
+    - Displays a grid of markers with ~1000 combinations of fill, stroke, and marker options
+    - (Android) Displays a grid of markers with positive and negative offsets in both dimensions
   Comments: []
 - name: "StamenWatercolorRemote (Android: StamenRemoteTestCase)"
   iOS:
@@ -677,25 +677,29 @@ cases:
     - Atmosphere not showing up
 - name: StartupShutdownTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Repeatedly loads and destroys the controller
+    - Check memory use with profiling
+  Comments:
+    - Hit 'Back' while loaded to cancel
 - name: StickersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1397 (open)
+  Checks:
+    - Stickers sub-divided to surface
+    - (iOS) "green square" sticker appears near Bordeaux, France
   Comments:
-    - SphericalChunkManager turned off
+    - Stickers are distorted by being sized with a fixed lat/lon offset
 - name: TextureVectorTestCase
   iOS:
     Map: '?'
