@@ -116,7 +116,6 @@ public class TestListFragment extends Fragment {
 				new MarkersTestCase(a),
 				new MarkersAndLinesTestCase(a),
 				new MovingScreenMarkersTestCase(a),
-				new OpenMapTilesHybridTestCase(a),
 				new PagingLayerTestCase(a),
 				new SLDTestCase(a),
 				new ScreenLabelsTestCase(a),

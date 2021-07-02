@@ -545,17 +545,6 @@ cases:
     - `removeSnapshotDelegate` seems to be called before the snapshot occurs asynchronously via `addCompletedHandler` and `dispatch_async`
   Checks: []
   Comments: []
-- name: OpenMapTilesHybridTestCase / OpenMapTilesHybridTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments:
-    - Needs snapshot functionality
 - name: PagingLayerTestCase
   iOS:
     Map: ✓
