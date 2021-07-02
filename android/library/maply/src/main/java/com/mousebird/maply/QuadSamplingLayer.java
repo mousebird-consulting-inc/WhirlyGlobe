@@ -1,9 +1,8 @@
-/*
- *  QuadSamplingLayer.cpp
+/*  QuadSamplingLayer.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -24,7 +22,6 @@ import android.util.Log;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.logging.Handler;
 
 /**
  * The Quad Sampling Layer runs a quad tree which determines what
@@ -63,7 +60,7 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
         layerThread.addChanges(changes);
     }
 
-    ArrayList<ClientInterface> clients = new ArrayList<ClientInterface>();
+    private final ArrayList<ClientInterface> clients = new ArrayList<>();
 
     /**
      * Client will stop getting updates from this sampling layer.
@@ -96,10 +93,12 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
         layerThread.addChanges(changes);
     }
 
-    boolean isShuttingDown = false;
+    // Used for debugging
+//    public long ident = Identifiable.genID();
 
     public void shutdown()
     {
+//        Log.d("Maply", "QuadSamplingLayer: isShuttingDown + " + ident);
         isShuttingDown = true;
         ChangeSet changes = new ChangeSet();
         shutdownNative(changes);
@@ -112,24 +111,21 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
     /** --- View Updated Methods --- **/
     public void viewUpdated(final ViewState viewState)
     {
-        if (isShuttingDown)
+        if (isShuttingDown || layerThread.isShuttingDown)
             return;
 
         generation++;
         final int thisGeneration = generation;
 
         ChangeSet changes = new ChangeSet();
+//        Log.d("Maply", "QuadSamplingLayer: pre-viewUpdatedNative + " + ident);
+        if (!layerThread.startOfWork())
+            return;
         if (viewUpdatedNative(viewState,changes)) {
-            if (isShuttingDown)
-                return;
-
             // Have a few things left to process.  So come back in a bit and do them.
             layerThread.addDelayedTask(new Runnable() {
                 @Override
                 public void run() {
-                    if (isShuttingDown)
-                        return;
-
                     // If we've moved on, then cancel
                     if (thisGeneration < generation)
                         return;
@@ -138,6 +134,7 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
             },LayerThread.UpdatePeriod);
         }
         layerThread.addChanges(changes);
+        layerThread.endOfWork();
     }
 
     // Called no more often than 1/10 of a second

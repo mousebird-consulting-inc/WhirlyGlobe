@@ -135,7 +135,7 @@
         [self.baseViewController changeVector:_wideVecObj desc:@{
             kMaplyEnable: @((arc4random()%10) ? YES : NO),
             kMaplyColor: [ChangeVectorsTestCase randomColor],
-            kMaplyVecWidth: @((arc4random()%33) / 4.0f),
+            kMaplyVecWidth: @((arc4random()%330) / 4.0f),
             kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault)
         }];
     }
@@ -144,7 +144,8 @@
         [self.baseViewController changeVector:_wideTexVecObj desc:@{
             kMaplyEnable: @((arc4random()%10) ? YES : NO),
             kMaplyColor: [ChangeVectorsTestCase randomColor],
-            kMaplyVecWidth: @((arc4random()%33) / 4.0f),
+            kMaplyVecWidth: @((arc4random()%330) / 4.0f),
+            kMaplyVecTexture: _dashedLineTex,
             kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault)
         }];
     }

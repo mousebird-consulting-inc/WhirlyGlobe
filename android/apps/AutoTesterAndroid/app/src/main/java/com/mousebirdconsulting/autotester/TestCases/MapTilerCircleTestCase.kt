@@ -5,7 +5,9 @@ import android.app.Activity
 class MapTilerCircleTestCase(activity: Activity) :
         MapTilerTestCase(activity, "MapTiler Circles")
 {
-    override fun getMaps() = listOf("maptiler_test_circles.json")
+    override fun getMaps() = listOf(
+        Pair("maptiler_test_circles.json", false)
+    )
     
     //override fun getStyleJson(whichMap: Int) =
     //override fun setup(map: MapboxKindaMap) {

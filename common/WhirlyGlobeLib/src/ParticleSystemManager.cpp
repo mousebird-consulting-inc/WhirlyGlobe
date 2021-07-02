@@ -20,6 +20,7 @@
 
 #import "ParticleSystemManager.h"
 #import "ParticleSystemDrawable.h"
+#import "BasicDrawableInstanceBuilder.h"
 
 namespace WhirlyKit
 {
@@ -95,36 +96,77 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
     
     SimpleIdentity partSysID = sceneRep->getId();
     
-    // Set up a single giant drawable for a particle system
-    bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
-    // Note: There are devices where this won't work
-    bool useInstancing = useRectangles;
-    int totalParticles = newSystem.totalParticles;
-    ParticleSystemDrawableBuilderRef draw = renderer->makeParticleSystemDrawableBuilder(newSystem.name);
-    draw->setup(sceneRep->partSys.vertAttrs,
-                sceneRep->partSys.varyingAttrs,
-                sceneRep->partSys.varyNames,
-                totalParticles,
-                sceneRep->partSys.batchSize,
-                newSystem.vertexSize,
-                useRectangles,
-                useInstancing);
-    draw->getDrawable()->setOnOff(newSystem.enable);
-    draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
-    draw->getDrawable()->setProgram(sceneRep->partSys.renderShaderID);
-    draw->getDrawable()->setCalculationProgram(sceneRep->partSys.calcShaderID);
-    draw->getDrawable()->setDrawOrder(sceneRep->partSys.drawOrder);
-    draw->getDrawable()->setDrawPriority(sceneRep->partSys.drawPriority);
-    draw->getDrawable()->setBaseTime(newSystem.baseTime);
-    draw->getDrawable()->setLifetime(sceneRep->partSys.lifetime);
-    draw->getDrawable()->setTexIDs(sceneRep->partSys.texIDs);
-    draw->getDrawable()->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
-    draw->getDrawable()->setRequestZBuffer(sceneRep->partSys.zBufferRead);
-    draw->getDrawable()->setWriteZbuffer(sceneRep->partSys.zBufferWrite);
-    draw->getDrawable()->setRenderTarget(sceneRep->partSys.renderTargetID);
-    draw->getDrawable()->setupForRenderer(renderer->getRenderSetupInfo(),renderer->getScene());
-    changes.push_back(new AddDrawableReq(draw->getDrawable()));
-    sceneRep->draws.insert(draw->getDrawable());
+    if (renderer->getType() == SceneRenderer::RenderMetal) {
+        // Use a basic drawable for the particle geometry
+        BasicDrawableBuilderRef basicBuild = renderer->makeBasicDrawableBuilder(newSystem.name + " Base Calculate");
+        basicBuild->setOnOff(false);
+        basicBuild->setType(GeometryType::Triangles);
+        basicBuild->addPoint(Point3f(-0.5,-0.5,0.0));  basicBuild->addTexCoord(0, TexCoord(0.0,0.0));
+        basicBuild->addPoint(Point3f(0.5,-0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(1.0,0.0));
+        basicBuild->addPoint(Point3f(0.5,0.5,0.0));    basicBuild->addTexCoord(0, TexCoord(1.0,1.0));
+        basicBuild->addPoint(Point3f(-0.5,0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(0.0,1.0));
+        basicBuild->addTriangle(BasicDrawable::Triangle(0,1,2));
+        basicBuild->addTriangle(BasicDrawable::Triangle(0,2,3));
+        sceneRep->basicIDs.insert(basicBuild->getDrawableID());
+        changes.push_back(new AddDrawableReq(basicBuild->getDrawable()));
+        
+        // And another basic drawable for the calculation phase
+        BasicDrawableBuilderRef calcBuild = renderer->makeBasicDrawableBuilder(newSystem.name + " Calculation");
+        calcBuild->setOnOff(newSystem.enable);
+        calcBuild->setCalculationProgram(newSystem.calcShaderID);
+        sceneRep->basicIDs.insert(calcBuild->getDrawableID());
+        calcBuild->setCalculationData(newSystem.totalParticles, newSystem.partData);
+        calcBuild->setTexIDs(sceneRep->partSys.texIDs);
+        changes.push_back(new AddDrawableReq(calcBuild->getDrawable()));
+
+        // Set up a single instance to manage the particle system
+        BasicDrawableInstanceBuilderRef instDrawBuild = renderer->makeBasicDrawableInstanceBuilder(newSystem.name + " Instance");
+        instDrawBuild->setOnOff(newSystem.enable);
+        instDrawBuild->setProgram(sceneRep->partSys.renderShaderID);
+        instDrawBuild->setDrawOrder(sceneRep->partSys.drawOrder);
+        instDrawBuild->setDrawPriority(sceneRep->partSys.drawPriority);
+        instDrawBuild->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+        instDrawBuild->setRequestZBuffer(sceneRep->partSys.zBufferRead);
+        instDrawBuild->setWriteZBuffer(sceneRep->partSys.zBufferWrite);
+        instDrawBuild->setRenderTarget(sceneRep->partSys.renderTargetID);
+        instDrawBuild->setMasterID(basicBuild->getDrawableID(), BasicDrawableInstance::ReferenceStyle);
+        instDrawBuild->setInstID(calcBuild->getDrawableID());
+        auto instDraw = instDrawBuild->getDrawable();
+        instDraw->setupForRenderer(renderer->getRenderSetupInfo(),renderer->getScene());
+        sceneRep->instIDs.insert(instDrawBuild->getDrawableID());
+        changes.push_back(new AddDrawableReq(instDraw));
+    } else {
+        // Set up a single giant drawable for a particle system
+        bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
+        // Note: There are devices where this won't work
+        bool useInstancing = useRectangles;
+        int totalParticles = newSystem.totalParticles;
+        ParticleSystemDrawableBuilderRef draw = renderer->makeParticleSystemDrawableBuilder(newSystem.name);
+        draw->setup(sceneRep->partSys.vertAttrs,
+                    sceneRep->partSys.varyingAttrs,
+                    sceneRep->partSys.varyNames,
+                    totalParticles,
+                    sceneRep->partSys.batchSize,
+                    newSystem.vertexSize,
+                    useRectangles,
+                    useInstancing);
+        draw->getDrawable()->setOnOff(newSystem.enable);
+        draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
+        draw->getDrawable()->setProgram(sceneRep->partSys.renderShaderID);
+        draw->getDrawable()->setCalculationProgram(sceneRep->partSys.calcShaderID);
+        draw->getDrawable()->setDrawOrder(sceneRep->partSys.drawOrder);
+        draw->getDrawable()->setDrawPriority(sceneRep->partSys.drawPriority);
+        draw->getDrawable()->setBaseTime(newSystem.baseTime);
+        draw->getDrawable()->setLifetime(sceneRep->partSys.lifetime);
+        draw->getDrawable()->setTexIDs(sceneRep->partSys.texIDs);
+        draw->getDrawable()->setContinuousUpdate(sceneRep->partSys.continuousUpdate);
+        draw->getDrawable()->setRequestZBuffer(sceneRep->partSys.zBufferRead);
+        draw->getDrawable()->setWriteZbuffer(sceneRep->partSys.zBufferWrite);
+        draw->getDrawable()->setRenderTarget(sceneRep->partSys.renderTargetID);
+        draw->getDrawable()->setupForRenderer(renderer->getRenderSetupInfo(),renderer->getScene());
+        changes.push_back(new AddDrawableReq(draw->getDrawable()));
+        sceneRep->draws.insert(draw->getDrawable());
+    }
     
     {
         std::lock_guard<std::mutex> guardLock(lock);

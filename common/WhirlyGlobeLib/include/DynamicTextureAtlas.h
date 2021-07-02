@@ -126,7 +126,7 @@ typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 typedef std::vector<DynamicTextureRef> DynamicTextureVec;
 
 // Used to sort dynamic texture vectors
-typedef struct
+typedef struct DynamicTextureVecSorter
 {
     bool operator () (const DynamicTextureVec *a,const DynamicTextureVec *b) const { return a->at(0)->getId() < b->at(0)->getId(); }
 } DynamicTextureVecSorter;
@@ -137,11 +137,13 @@ class DynamicTextureAddRegion : public ChangeRequest
 public:
     DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data)
     : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
+    ~DynamicTextureAddRegion();
 
     /// Add the region.  Never call this.
     void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
     
 protected:
+    bool wasRun = false;
     SimpleIdentity texId;
     int startX,startY,width,height;
     RawDataRef data;

@@ -1,9 +1,8 @@
-/*
- *  GlobeView.h
+/*  GlobeView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyKitView.h"
@@ -51,8 +49,8 @@ public:
     virtual ~GlobeView();
     
     /// Return min/max valid heights above globe
-    double minHeightAboveGlobe();
-    double maxHeightAboveGlobe();
+    double minHeightAboveGlobe() const;
+    double maxHeightAboveGlobe() const;
 
     /// Set the height above globe, taking constraints into account
     void setHeightAboveGlobe(double newH);
@@ -73,16 +71,16 @@ public:
     void setRotQuat(Eigen::Quaterniond rotQuat,bool updateWatchers);
     
     /// Return the current quaternion
-    Eigen::Quaterniond getRotQuat() { return rotQuat; }
+    Eigen::Quaterniond getRotQuat() const { return rotQuat; }
 
     /// Roll around an axis pointed straight out of the front
     void setRoll(double roll,bool updateWatchers);
     
     /// Roll around an axis pointed straight out of the front
-    double getRoll() { return roll; }
+    double getRoll() const { return roll; }
     
     /// Return the tilt
-    double getTilt() { return tilt; }
+    double getTilt() const { return tilt; }
     
     /// Set the tilt
     void setTilt(double tilt);
@@ -91,19 +89,19 @@ public:
     void setFarClippingPlane(double farClip);
 
     /// Calculate the z offset to make the earth appear where we want it
-    double calcEarthZOffset();
+    double calcEarthZOffset() const;
     
     /// Calculate model matrix
-    virtual Eigen::Matrix4d calcModelMatrix();
+    virtual Eigen::Matrix4d calcModelMatrix() const override;
     
     /// Calculate view matrix
-    virtual Eigen::Matrix4d calcViewMatrix();
+    virtual Eigen::Matrix4d calcViewMatrix() const override;
 
     /// Return where up (0,0,1) is after model rotation
-    virtual Eigen::Vector3d currentUp();
+    virtual Eigen::Vector3d currentUp() const;
 
     /// Calculate where the eye is in model coordinates
-    virtual Eigen::Vector3d eyePos();
+    virtual Eigen::Vector3d eyePos() const override;
 
     /// Given a rotation, where would (0,0,1) wind up
     static Eigen::Vector3d prospectiveUp(Eigen::Quaterniond &prospectiveRot);
@@ -134,22 +132,22 @@ public:
     virtual Eigen::Quaterniond makeRotationToGeoCoord(const WhirlyKit::Point2d &worldCoord,bool northUp);
 
     /// Calculate the Z buffer resolution
-    virtual float calcZbufferRes();
+    virtual float calcZbufferRes() override;
 
     /// Height above the globe
-    virtual double heightAboveSurface();
+    virtual double heightAboveSurface() const override;
     
     /// Make a globe view state from the current globe view
-    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRenderer *renderer);
+    virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRenderer *renderer) override;
     
     /// Set the change delegate
     virtual void setDelegate(GlobeViewAnimationDelegateRef delegate);
 
     /// Called to cancel a running animation
-    virtual void cancelAnimation();
+    virtual void cancelAnimation() override;
     
     /// Renderer calls this every update.
-    virtual void animate();
+    virtual void animate() override;
 
     // These are all for continuous zoom mode
     double absoluteMinHeight;
@@ -160,10 +158,10 @@ public:
     double absoluteMinFarPlane;
     
     /// Return the current height
-    virtual double getHeightAboveGlobe() { return heightAboveGlobe; }
+    virtual double getHeightAboveGlobe() const { return heightAboveGlobe; }
     
     /// Return the current delegate (use for comparison)
-    GlobeViewAnimationDelegateRef getDelegate() { return delegate; }
+    GlobeViewAnimationDelegateRef getDelegate() const { return delegate; }
     
 protected:
     void privateSetHeightAboveGlobe(double newH,bool updateWatchers);

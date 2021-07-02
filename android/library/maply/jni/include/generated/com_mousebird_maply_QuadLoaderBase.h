@@ -25,6 +25,14 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getDebugMode
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getDebugMode
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    setDebugMode
  * Signature: (Z)V
  */
@@ -62,6 +70,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForT
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
   (JNIEnv *, jobject, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    setLoadReturn
+ * Signature: (Lcom/mousebird/maply/LoaderReturn;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setLoadReturn
+        (JNIEnv *env, jobject obj, jobject loadReturnObj);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    clearLoadReturn
+ * Signature: (Lcom/mousebird/maply/LoaderReturn;)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_clearLoadReturn
+        (JNIEnv *env, jobject obj, jobject loadReturnObj);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
@@ -121,11 +145,43 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getModeNative
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getModeNative
+        (JNIEnv *env, jobject obj);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    isFrameLoading
+ * Signature: (Lcom/mousebird/maply/TileID;IL)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoading
+        (JNIEnv *env, jobject obj, jobject identObj, jlong frameID);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    mergeLoadedFrame
+ * Signature: (Lcom/mousebird/maply/TileID;IJ[BLjava/util/ArrayList;)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFrame
+        (JNIEnv *env, jobject obj, jobject identObj, jlong frameID, jbyteArray rawData, jobject rawDataArray);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
  * Method:    getZoomSlot
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getZoomSlot
   (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadLoaderBase
+ * Method:    getNumFrames
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getNumFrames
+        (JNIEnv *, jobject);
 
 /*
  * Class:     com_mousebird_maply_QuadLoaderBase

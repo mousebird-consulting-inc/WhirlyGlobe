@@ -1,9 +1,8 @@
-/*
- *  MaplyStarsModel.mm
+/*  MaplyStarsModel.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/4/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -28,8 +26,9 @@ using namespace WhirlyKit;
 
 typedef struct
 {
-    float mag;
-    float ra,dec;
+    float mag;  // atronomical magnitude (inverse brightness)
+    float ra;   // right ascension (angle measured eastward along the celestial equator)
+    float dec;  // declination (angle north or south of the celestial equator)
 } SingleStar;
 
 @implementation MaplyStarsModel
@@ -50,15 +49,20 @@ typedef struct
     if (!fp)
         return nil;
 
-    // Mangitude x y z
-    char line[1024];
+    char line[1024] = {0};
     while (fgets(line, 1023, fp))
     {
         stars.resize(stars.size()+1);
         SingleStar &star = stars.back();
-        sscanf(line, "%f %f %f",&star.ra, &star.dec, &star.mag);
+        if (sscanf(line, "%f %f %f",&star.ra, &star.dec, &star.mag) != 3)
+        {
+            NSLog(@"Unrecognized: '%s'", line);
+            stars.resize(stars.size()-1);
+        }
     }
-    
+
+    fclose(fp);
+
     return self;
 }
 
@@ -67,54 +71,12 @@ typedef struct
     image = inImage;
 }
 
-//static const char *vertexShaderTriPoint = R"(
-//precision highp float;
-//
-//uniform mat4  u_mvpMatrix;
-//uniform float u_radius;
-//
-//attribute vec3 a_position;
-//attribute float a_size;
-//
-//varying vec4 v_color;
-//
-//void main()
-//{
-//   v_color = vec4(1.0,1.0,1.0,1.0);
-//   gl_PointSize = a_size;
-//   gl_Position = u_mvpMatrix * vec4(a_position * u_radius,1.0);
-//}
-//)";
-//
-//static const char *fragmentShaderTriPoint = R"(
-//precision highp float;
-//
-//varying vec4      v_color;
-//
-//void main()
-//{
-//  gl_FragColor = v_color;
-//}
-//)";
-//
-//static const char *fragmentShaderTexTriPoint = R"(
-//precision highp float;
-//
-//uniform sampler2D s_baseMap0;
-//varying vec4      v_color;
-//
-//void main()
-//{
-//  gl_FragColor = v_color * texture2D(s_baseMap0, gl_PointCoord);
-//}
-//)";
-
 typedef struct
 {
     float x,y,z;
 } SimpleVec3;
 
-- (void)addToViewC:(WhirlyGlobeViewController *)inViewC date:(NSDate *)date desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
+- (bool)addToViewC:(WhirlyGlobeViewController *)inViewC date:(NSDate *)date desc:(NSDictionary *)inDesc mode:(MaplyThreadMode)mode
 {
     viewC = inViewC;
     addedMode = mode;
@@ -127,13 +89,26 @@ typedef struct
     double jd = aaDate.Julian();
     double siderealTime = CAASidereal::MeanGreenwichSiderealTime(jd);
 
-    // Really simple shader
-    // TODO: Switch to Metal
-//    MaplyShader *shader = [[MaplyShader alloc] initWithName:@"Star Shader" vertex:[NSString stringWithFormat:@"%s",vertexShaderTriPoint] fragment:[NSString stringWithFormat:@"%s",(image ? fragmentShaderTexTriPoint : fragmentShaderTriPoint)] viewC:viewC];
-    MaplyShader *shader = nil;
-    //[viewC addShaderProgram:shader];
-//    [shader setUniformFloatNamed:@"u_radius" val:6.0];
-    
+    const auto mtlLib = [inViewC getMetalLibrary];
+    id<MTLFunction> vertexFunc = [mtlLib newFunctionWithName:@"vertStars"];
+    id<MTLFunction> fragmentFunc = [mtlLib newFunctionWithName:@"fragmentStars"];
+    if (!vertexFunc || !fragmentFunc)
+    {
+        NSLog(@"Failed to get star model shaders");
+        return false;
+    }
+
+    MaplyShader *shader = [[MaplyShader alloc] initMetalWithName:@"Star Shader"
+                                                          vertex:vertexFunc
+                                                        fragment:fragmentFunc
+                                                           viewC:inViewC];
+    if (shader)
+    {
+        [inViewC addShaderProgram:shader];
+        //[shader setUniformBlock:<#(NSData * _Nonnull)#> buffer:<#(int)#>]
+        //[shader setUniformFloatNamed:@"u_radius" val:6.0];
+    }
+
     NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:inDesc];
     if (!desc[kMaplyDrawPriority])
         desc[kMaplyDrawPriority] = @(kMaplyStarsDrawPriorityDefault);
@@ -150,6 +125,7 @@ typedef struct
     partSys.batchSize = (int)stars.size();
     partSys.continuousUpdate = false;
     partSys.renderShader = shader;
+    partSys.vertexSize = sizeof(SimpleVec3)+sizeof(float); // ?
     if (starTex)
         [partSys addTexture:starTex];
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
@@ -163,33 +139,24 @@ typedef struct
 
     SimpleVec3 *posPtr = (SimpleVec3 *)[posData mutableBytes];
     float *magPtr = (float *)[sizeData mutableBytes];
-    for (unsigned int ii=0;ii<stars.size();ii++)
+    for (const auto &star : stars)
     {
-        SingleStar *star = &stars[ii];
-
-        // Convert the start from equatorial to a useable lon/lat
+        // Convert the star from equatorial to a useable lon/lat
         // Note: Should check this math
-        double starLon = CAACoordinateTransformation::DegreesToRadians(star->ra-15*siderealTime);
-        double starLat = CAACoordinateTransformation::DegreesToRadians(star->dec);
+        const double starLon = CAACoordinateTransformation::DegreesToRadians(star.ra-15*siderealTime);
+        const double starLat = CAACoordinateTransformation::DegreesToRadians(star.dec);
         
 //        NSLog(@"star lon, lat = (%f,%f)",starLon*180/M_PI,starLat*180/M_PI);
 
-//        Point3f pt;
-        double z = sin(starLat);
-        double rad = sqrt(1.0-z*z);
-        Point3d pt(rad*cos(starLon),rad*sin(starLon),z);
-        
-//        pt.x() = cos(starLon);
-//        pt.y() = sin(starLon);
-//        pt.z() = sin(starLat);
-//        pt.normalize();
-        posPtr->x = pt.x();  posPtr->y = pt.y();  posPtr->z = pt.z();
-        float mag = 6.0-star->mag;
-        if (mag < 0.0)
-            mag = 0.0;
-        *magPtr = mag;
-        
-        posPtr++;   magPtr++;
+        const double z = sin(starLat);
+        const double rad = sqrt(1.0-z*z);
+        posPtr->x = rad*cos(starLon);
+        posPtr->y = rad*sin(starLon);
+        posPtr->z = z;
+        posPtr++;
+
+        *magPtr = std::max(0.0f, 6.0f - star.mag);
+        magPtr++;
     }
 
     // Set up the particle batch
@@ -197,7 +164,15 @@ typedef struct
     batch.time = inViewC->renderControl->scene->getCurrentTime();
     [batch addAttribute:@"a_position" values:posData];
     [batch addAttribute:@"a_size" values:sizeData];
+    
+    // todo: batch object isn't populating its own data, do it here for now
+    NSMutableData *batchData = [[NSMutableData alloc] initWithCapacity:posData.length + sizeData.length];
+    [batchData appendData:posData];
+    [batchData appendData:sizeData];
+    [batch addData:batchData];
+
     [inViewC addParticleBatch:batch mode:mode];
+    return true;
 }
 
 - (void)removeFromViewC

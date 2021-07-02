@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,11 +19,13 @@
 #ifndef Maply_JNI_h_
 #define Maply_JNI_h_
 
-#include <stdlib.h>
+#import <stdlib.h>
 #import <vector>
 #import <android/log.h>
 #import <jni.h>
-#import "WhirlyGlobe.h"
+#import <WhirlyGlobe.h>
+#import <WhirlyKitLog.h>
+#import <Exceptions_jni.h>
 
 /* Java Class Info
  * This tracks JNI info about classes we implement.
@@ -40,6 +42,10 @@ public:
 		nativeHandleField(nullptr)
 	{
 		initMethodID = env->GetMethodID(theClass, "<init>", "()V");
+		if (!initMethodID) {
+			wkLogLevel(Warn, "No-argument constructor missing from %s", typeid(T).name());
+		}
+		WhirlyKit::logAndClearJVMException(env);
 	}
 	virtual ~JavaClassInfo() {
 	    if (theClass) {
@@ -57,6 +63,9 @@ public:
 	// Make an object of the type and point it to the C++ object given
 	virtual jobject makeWrapperObject(JNIEnv *env,T *cObj)
 	{
+		if (!initMethodID) {
+			return nullptr;
+		}
 		jobject obj = env->NewObject(theClass,initMethodID);
 		T *oldRef = getObject(env,obj);
 		setHandle(env, obj, cObj);
@@ -67,8 +76,7 @@ public:
 
 	// Make a wrapper object, but don't set the handle
 	virtual jobject makeWrapperObject(JNIEnv *env) {
-		jobject obj = env->NewObject(theClass,initMethodID);
-		return obj;
+		return initMethodID ? env->NewObject(theClass,initMethodID) : nullptr;
 	}
 
 	// Return the field ID for the handle we use
@@ -520,6 +528,7 @@ protected:
 };
 
 namespace WhirlyKit {
+
 /**
  * For more complex parts of the system we need the JNIEnv associated
  * with the thread we're current on.  But we really like to reuse
@@ -530,7 +539,8 @@ public:
     PlatformInfo_Android(JNIEnv *env) : env(env) {}
 	JNIEnv *env;
 };
-}
+
+}	// namespace WhirlyKit
 
 // Convert a Java int array into a std::vector of ints
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);

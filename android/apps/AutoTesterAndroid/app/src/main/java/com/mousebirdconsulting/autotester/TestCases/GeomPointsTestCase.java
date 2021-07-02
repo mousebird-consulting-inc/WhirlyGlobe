@@ -18,13 +18,11 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 public class GeomPointsTestCase extends MaplyTestCase {
 
     public GeomPointsTestCase(Activity activity) {
-        super(activity);
-        setTestName("Geometry Points Test");
+        super(activity, "Geometry Points Test", TestExecutionImplementation.Globe);
         setDelay(100);
-        this.implementation = TestExecutionImplementation.Globe;
     }
 
-    String vertProg =
+    final String vertProg =
             "uniform mat4  u_mvpMatrix;\n" +
             "uniform float u_pointSize;\n" +
             "\n" +
@@ -40,7 +38,7 @@ public class GeomPointsTestCase extends MaplyTestCase {
             "   gl_Position = u_mvpMatrix * vec4(a_position,1.0);\n" +
             "}\n";
 
-    String fragProg =
+    final String fragProg =
             "precision mediump float;\n" +
             "\n" +
             "varying vec4      v_color;\n" +
@@ -50,8 +48,7 @@ public class GeomPointsTestCase extends MaplyTestCase {
             "  gl_FragColor = v_color;\n" +
             "}\n";
 
-    Shader makePointShader(BaseController control)
-    {
+    Shader makePointShader(BaseController control) {
         Shader shader = new Shader("Point Shader",vertProg,fragProg,control);
         control.addShaderProgram(shader);
 
@@ -60,9 +57,8 @@ public class GeomPointsTestCase extends MaplyTestCase {
 
     static int NumPoints = 10000;
 
-    public void addPoints(GlobeController control)
-    {
-        Points points = new Points();
+    public void addPoints(GlobeController control) {
+        //Points points = new Points();
         Shader shader = makePointShader(control);
 
         // Points are in the display space so let's figure out where that is
@@ -76,8 +72,8 @@ public class GeomPointsTestCase extends MaplyTestCase {
         pts.addAttribute("a_color", GeometryRawPoints.Type.Float4Type);
         pts.setMatrix(mat);
 
-        float ptArray[] = new float[NumPoints*3];
-        float colorArray[] = new float[NumPoints*4];
+        float[] ptArray = new float[NumPoints*3];
+        float[] colorArray = new float[NumPoints*4];
         for (int ii=0;ii<NumPoints;ii++)
         {
             ptArray[3*ii+0] = (float)Math.random()*10000 / 6371000;
@@ -104,7 +100,6 @@ public class GeomPointsTestCase extends MaplyTestCase {
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        CartoLightTestCase baseTestCase = new CartoLightTestCase(this.getActivity());
         baseTestCase.setUpWithGlobe(globeVC);
         globeVC.setAllowTilt(true);
         globeVC.setKeepNorthUp(false);
@@ -116,4 +111,12 @@ public class GeomPointsTestCase extends MaplyTestCase {
 
         return true;
     }
+
+    @Override
+    public void shutdown() {
+        baseTestCase.shutdown();
+        super.shutdown();
+    }
+
+    CartoLightTestCase baseTestCase = new CartoLightTestCase(this.getActivity());
 }

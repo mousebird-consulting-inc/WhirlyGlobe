@@ -299,7 +299,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
                         Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
                         std::vector<Texture *> texs;
                         texs.push_back(tex);
-                        if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex, changes, 0))
+                        if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex, changes, 0, 1))
                             glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), offset, textureOffset);
                         delete tex;
                     }

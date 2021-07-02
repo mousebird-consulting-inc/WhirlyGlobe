@@ -5,35 +5,58 @@ import android.graphics.Color
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
-class GreatCircleTestCase : MaplyTestCase {
-
-    constructor(activity: Activity) : super(activity)
-    {
-        setTestName("Great Circles")
-        implementation = TestExecutionImplementation.Both
-    }
-
-    fun buildGreatCircle(control: BaseController, a: Point2d, b: Point2d, color: Int) : ComponentObject {
-        val vecObj = VectorObject()
+class GreatCircleTestCase(activity: Activity) :
+        MaplyTestCase(activity, "Great Circles", TestExecutionImplementation.Both) {
+    
+    fun buildGreatCircle(control: BaseController, a: Point2d, b: Point2d, color: Int,
+                         width: Float = 12.0f, precise: Boolean = false, epsilon: Double = 0.001,
+                         priority: Int = 1000) : ComponentObject {
+        var vecObj = VectorObject()
         vecObj.addLinear(arrayOf(a,b))
-        var subDivObj : VectorObject
-        if (control is GlobeController)
-            subDivObj = vecObj.subdivideToGlobeGreatCircle(0.001)
-        else
-            subDivObj = vecObj.subdivideToFlatGreatCircle(0.001)
 
-        val vecInfo = WideVectorInfo()
-        vecInfo.setColor(color)
-        vecInfo.setLineWidth(12.0f)
-        return control.addWideVector(subDivObj,vecInfo,RenderControllerInterface.ThreadMode.ThreadAny)
+        if (epsilon > 0) {
+            if (control is GlobeController) {
+                if (precise) {
+                    vecObj.subdivideToGlobeGreatCirclePrecise(epsilon)
+                } else {
+                    vecObj.subdivideToGlobeGreatCircle(epsilon)
+                }
+            } else {
+                if (precise) {
+                    vecObj.subdivideToFlatGreatCircle(epsilon)
+                } else {
+                    vecObj.subdivideToFlatGreatCirclePrecise(epsilon)
+                }
+            }?.let { vecObj = it }
+        }
+
+        val vecInfo = WideVectorInfo().apply {
+            setColor(color)
+            setLineWidth(width)
+            drawPriority = priority
+        }
+        return control.addWideVector(vecObj,vecInfo,ThreadMode.ThreadAny)
     }
 
     // Add a series of great circles that test various problems
-    fun addGreatCircles(vc: BaseController) {
+    private fun addGreatCircles(vc: BaseController) {
         buildGreatCircle(vc,
                 Point2d.FromDegrees(2.548, 49.010),
                 Point2d.FromDegrees(151.177, -33.946),
-                Color.RED)
+                Color.RED, 30.0f, false, 0.005, 1000)
+        buildGreatCircle(vc,
+                Point2d.FromDegrees(2.548, 49.010),
+                Point2d.FromDegrees(151.177, -33.946),
+                Color.BLACK, 20.0f, false, 0.0025, 1001)
+        buildGreatCircle(vc,
+                Point2d.FromDegrees(2.548, 49.010),
+                Point2d.FromDegrees(151.177, -33.946),
+                Color.MAGENTA, 10.0f, true, 0.001, 1002)
+        buildGreatCircle(vc,
+                Point2d.FromDegrees(2.548, 49.010),
+                Point2d.FromDegrees(151.177, -33.946),
+                Color.GRAY, 5.0f, true, 0.01, 1003)
+        
         buildGreatCircle(vc,
                 Point2d.FromDegrees(150.0, 0.0),
                 Point2d.FromDegrees(-150.0, 0.0),

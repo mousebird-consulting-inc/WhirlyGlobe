@@ -1,9 +1,8 @@
-/*
- *  OpenGLES2Program.h
+/*  Program.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Program.h"
@@ -25,15 +23,14 @@
 namespace WhirlyKit
 {
 
-Program::Program() : reduceMode(None), changed(true)
+Program::Program() :
+    reduceMode(None),
+    changed(true),
+    lightsLastUpdated(0)
 {
 }
 
-Program::~Program()
-{
-}
-        
-const std::string &Program::getName()
+const std::string &Program::getName() const
 {
     return name;
 }
@@ -44,7 +41,7 @@ void Program::setReduceMode(ReduceMode inReduceMode)
     changed = true;
 }
 
-Program::ReduceMode Program::getReduceMode()
+Program::ReduceMode Program::getReduceMode() const
 {
     return reduceMode;
 }
@@ -53,15 +50,15 @@ void Program::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
 {
     changed = true;
 
-    for (int ii=0;ii<uniBlocks.size();ii++)
-        if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
-            uniBlocks[ii] = uniBlock;
+    for (auto & ii : uniBlocks)
+        if (ii.bufferID == uniBlock.bufferID) {
+            ii = uniBlock;
             return;
         }
     
-    uniBlocks.push_back(uniBlock);    
+    uniBlocks.push_back(uniBlock);
 }
-    
+
 ShaderAddTextureReq::ShaderAddTextureReq(SimpleIdentity shaderID,SimpleIdentity nameID,SimpleIdentity texID,int textureSlot)
 : shaderID(shaderID), nameID(nameID), texID(texID), textureSlot(textureSlot)
 {

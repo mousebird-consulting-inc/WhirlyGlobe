@@ -29,9 +29,10 @@ namespace {
     static const GeographicLib::Geocentric &wgs84Geocentric = GeographicLib::Geocentric::WGS84();
 }
 
-MaplyCoordinateD GeoLibCalcDirectF(MaplyCoordinate origin, double azimuth, double distance)
+MaplyCoordinate GeoLibCalcDirectF(MaplyCoordinate origin, double azimuth, double distance)
 {
-    return GeoLibCalcDirectD(MaplyCoordinateD { origin.x, origin.y }, azimuth, distance);
+    return MaplyCoordinateMakeWithMaplyCoordinateD(
+        GeoLibCalcDirectD(MaplyCoordinateD { origin.x, origin.y }, azimuth, distance));
 }
 
 MaplyCoordinateD GeoLibCalcDirectD(MaplyCoordinateD origin, double azimuthRadians, double distanceMeters)

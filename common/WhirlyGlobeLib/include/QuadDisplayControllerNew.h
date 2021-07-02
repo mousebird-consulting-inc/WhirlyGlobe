@@ -37,42 +37,42 @@ class QuadDisplayControllerNew;
 class QuadDataStructure
 {
 public:
-    QuadDataStructure();
-    virtual ~QuadDataStructure();
+    QuadDataStructure() = default;
+    virtual ~QuadDataStructure() = default;
     
     /// Return the coordinate system we're working in
-    virtual CoordSystem *getCoordSystem() = 0;
+    virtual CoordSystem *getCoordSystem() const = 0;
     
     /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
-    virtual Mbr getTotalExtents() = 0;
+    virtual Mbr getTotalExtents() const = 0;
     
     /// Bounding box of data you actually want to display.  In local coordinate system.
     /// Unless you're being clever, make this the same as totalExtents.
-    virtual Mbr getValidExtents() = 0;
+    virtual Mbr getValidExtents() const = 0;
     
     /// Return the minimum quad tree zoom level (usually 0)
-    virtual int getMinZoom() = 0;
+    virtual int getMinZoom() const = 0;
     
     /// Return the maximum quad tree zoom level.  Must be at least minZoom
-    virtual int getMaxZoom() = 0;
+    virtual int getMaxZoom() const = 0;
     
     /// Max zoom level that we want to report (for continuous zoom and enable)
-    virtual int getReportedMaxZoom() = 0;
+    virtual int getReportedMaxZoom() const = 0;
     
     /// Return an importance value for the given tile
     virtual double importanceForTile(const QuadTreeIdentifier &ident,
-                                             const Mbr &mbr,
-                                             ViewStateRef viewState,
-                                             const Point2f &frameSize) = 0;
+                                     const Mbr &mbr,
+                                     const ViewStateRef &viewState,
+                                     const Point2f &frameSize) = 0;
     
     /// Called when the view state changes.  If you're caching info, do it here.
     virtual void newViewState(ViewStateRef viewState) = 0;
     
     /// Return true if the tile is visible, false otherwise
     virtual bool visibilityForTile(const QuadTreeIdentifier &ident,
-                                           const Mbr &mbr,
-                                           ViewStateRef viewState,
-                                           const Point2f &frameSize) = 0;
+                                   const Mbr &mbr,
+                                   const ViewStateRef &viewState,
+                                   const Point2f &frameSize) = 0;
 };
 
 /** The Quad Display Layer (New) calls an object with this protocol.
@@ -81,8 +81,8 @@ public:
 class QuadLoaderNew
 {
 public:
-    QuadLoaderNew() { }
-    virtual ~QuadLoaderNew() { }
+    QuadLoaderNew() = default;
+    virtual ~QuadLoaderNew() = default;
     
     /// Called when the layer first starts up.  Keep this around if you need it.
     virtual void setController(QuadDisplayControllerNew *inControl) { control = inControl; }
@@ -103,7 +103,7 @@ public:
     virtual void quadLoaderShutdown(PlatformThreadInfo *threadInfo,ChangeSet &changes) = 0;
     
 protected:
-    QuadDisplayControllerNew *control;
+    QuadDisplayControllerNew *control = nullptr;
 };
 
 /** Quad Display Controller (New)
@@ -115,7 +115,7 @@ class QuadDisplayControllerNew : public QuadTreeNew
 {
 public:
     QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer);
-    virtual ~QuadDisplayControllerNew();
+    virtual ~QuadDisplayControllerNew() = default;
     
     /// Scene we're modifying
     Scene *getScene();
@@ -127,36 +127,39 @@ public:
     CoordSystem *getCoordSys();
     
     /// Maximum number of tiles loaded in at once
-    int getMaxTiles();
+    int getMaxTiles() const;
     void setMaxTiles(int);
     
     /// How often this layer gets notified of view changes.  1s by default.
-    TimeInterval getViewUpdatePeriod();
+    TimeInterval getViewUpdatePeriod() const;
     void setViewUpdatePeriod(TimeInterval);
 
     /// Load just the target level (and the lowest level)
-    bool getSingleLevel();
+    bool getSingleLevel() const;
     void setSingleLevel(bool);
     
     /// Do we always throw the min level into the mix or not
     void setKeepMinLevel(bool newVal,double height);
         
     /// Level offsets in single level mode
-    std::vector<int> getLevelLoads();
+    std::vector<int> getLevelLoads() const;
     void setLevelLoads(const std::vector<int> &);
     
     /// Minimum screen area to consider for a tile per level
-    std::vector<double> getMinImportancePerLevel();
+    std::vector<double> getMinImportancePerLevel() const;
     void setMinImportancePerLevel(const std::vector<double> &imports);
+
+    /// Set the MBR scale factor
+    void setMBRScaling(double newScale);
     
     /// Return the allocated zoom slot (for tracking continuous zoom)
-    int getZoomSlot();
+    int getZoomSlot() const;
     
     /// Return the geometry information being used
     QuadDataStructure *getDataStructure();
     
     /// Return the current view state, if there is one
-    ViewStateRef getViewState();
+    ViewStateRef getViewState() const;
     
     // Notify any attached loaders and generally get ready to party
     virtual void start();
@@ -173,8 +176,8 @@ public:
     
 protected:
     // QuadTreeNew overrides
-    double importance(const Node &node);
-    bool visible(const Node &node);
+    virtual double importance(const Node &node) override;
+    virtual bool visible(const Node &node) override;
     
     QuadDataStructure *dataStructure;
     QuadLoaderNew *loader;
@@ -189,6 +192,7 @@ protected:
     int minZoom,maxZoom,reportedMaxZoom;
     TimeInterval viewUpdatePeriod;
     bool keepMinLevel;
+    double mbrScaling;
     double keepMinLevelHeight;
     bool singleLevel;
     std::vector<int> levelLoads;

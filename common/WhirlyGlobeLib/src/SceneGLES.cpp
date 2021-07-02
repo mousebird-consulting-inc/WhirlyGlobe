@@ -33,32 +33,40 @@ GLuint SceneGLES::getGLTexture(SimpleIdentity texIdent)
     if (texIdent == EmptyIdentity)
         return 0;
     
-    GLuint ret = 0;
-    
     std::lock_guard<std::mutex> guardLock(textureLock);
+
     // Might be a texture ref
-    auto it = textures.find(texIdent);
+    const auto it = textures.find(texIdent);
     if (it != textures.end())
     {
-        TextureBaseGLESRef tex = std::dynamic_pointer_cast<TextureBaseGLES> (it->second);
-        ret = tex->getGLId();
+        if (auto tex = dynamic_cast<TextureBaseGLES*>(it->second.get())) {
+            return tex->getGLId();
+        }
     }
-    
-    return ret;
+    return 0;
 }
 
 void SceneGLES::teardown(PlatformThreadInfo* threadInfo)
 {
-    for (auto it : drawables)
+    for (const auto& it : drawables)
+    {
         it.second->teardownForRenderer(setupInfo,this, nullptr);
+    }
     drawables.clear();
-    for (auto it : textures) {
+
+    for (const auto& it : textures)
+    {
         it.second->destroyInRenderer(setupInfo,this);
     }
     textures.clear();
-    
-    memManager.clearBufferIDs();
-    memManager.clearTextureIDs();
+
+    for (const auto &i : programs)
+    {
+        i.second->teardownForRenderer(setupInfo, this, nullptr);
+    }
+    programs.clear();
+
+    memManager.teardown();
 
     if (fontTextureManager)
     {

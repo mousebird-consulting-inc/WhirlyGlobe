@@ -1,5 +1,4 @@
-/*
- *  MaplyBaseViewController.mm
+/*  MaplyBaseViewController.mm
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "control/MaplyBaseViewController.h"
@@ -224,7 +222,7 @@ using namespace WhirlyKit;
     NSString *build = infoDict[@"CFBundleVersion"];
     NSString *bundleVersion = infoDict[@"CFBundleShortVersionString"];
     // WGMaply version
-    NSString *wgmaplyVersion = @"3.0";
+    NSString *wgmaplyVersion = @"3.3";
     // OS version
     NSOperatingSystemVersion osversionID = [[NSProcessInfo processInfo] operatingSystemVersion];
     NSString *osversion = [NSString stringWithFormat:@"%d.%d.%d",(int)osversionID.majorVersion,(int)osversionID.minorVersion,(int) osversionID.patchVersion];
@@ -441,6 +439,19 @@ static const float PerfOutputDelay = 15.0;
     } else {
         renderControl->sceneRenderer->setPerfInterval(0);
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(periodicPerfOutput) object:nil];
+    }
+}
+
+- (void)setShowDebugLayoutBoundaries:(bool)show
+{
+    self->_showDebugLayoutBoundaries = show;
+    if (renderControl && renderControl->scene)
+    {
+        if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
+        {
+            layoutManager->setShowDebugBoundaries(show);
+            [renderControl->layoutLayer scheduleUpdateNow];
+        }
     }
 }
 
@@ -991,9 +1002,10 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
-    if (layoutManager)
+    if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
+    {
         layoutManager->setMaxDisplayObjects(maxLayoutObjects);
+    }
 }
 
 - (void)setLayoutOverrideIDs:(NSArray *)uuids
@@ -1005,9 +1017,10 @@ static const float PerfOutputDelay = 15.0;
             uuidSet.insert(uuidStr);
     }
     
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(renderControl->scene->getManager(kWKLayoutManager));
-    if (layoutManager)
+    if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
+    {
         layoutManager->setOverrideUUIDs(uuidSet);
+    }
 }
 
 - (void)runLayout

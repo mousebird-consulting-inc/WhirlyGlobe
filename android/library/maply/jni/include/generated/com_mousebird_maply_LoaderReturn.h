@@ -89,6 +89,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObje
 
 /*
  * Class:     com_mousebird_maply_LoaderReturn
+ * Method:    isCanceled
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LoaderReturn_isCanceled
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LoaderReturn
  * Method:    nativeInit
  * Signature: ()V
  */

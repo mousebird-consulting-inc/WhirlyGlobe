@@ -1,11 +1,11 @@
 buildscript {
     repositories {
-        jcenter()
         google()
+        mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.1.0"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10"
+        classpath "com.android.tools.build:gradle:4.2.1"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -14,20 +14,19 @@ buildscript {
 
 allprojects {
     repositories {
-        jcenter()
         google()
+        mavenCentral()
     }
 }
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -38,7 +37,7 @@ android {
                 debuggable true
                 jniDebuggable true
                 ndk {
-                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
                     debuggable true
                 }
                 externalNativeBuild {
@@ -68,7 +67,7 @@ android {
                 debuggable false
                 jniDebuggable false
                 ndk {
-                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
                     debuggable false
                 }
                 externalNativeBuild {
@@ -104,21 +103,35 @@ android {
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8
     }
+    lintOptions {
+        //disable 'TypographyFractions','TypographyQuotes'
+        //enable 'RtlHardcoded', 'RtlCompat', 'RtlEnabled'
+        //check 'NewApi', 'InlinedApi'
+        abortOnError false
+    }
+    testOptions {
+        reportDir "build/outputs/reports"
+        resultsDir "build/outputs/results"
+        unitTests {
+            all {
+                //jvmArgs '-XX:MaxPermSize=256m'
+                //if (it.name == 'testDebugUnitTest') {
+                //    systemProperty 'debug', 'true'
+                //}
+            }
+        }
+    }
     ndkVersion '21.3.6528147'
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0'
-    implementation 'com.squareup.okhttp3:okhttp:3.14.9'
-    implementation 'androidx.core:core-ktx:+'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.10"
-    //implementation 'com.google.android.gms:play-services:12.0.1'
-    api 'com.google.android.gms:play-services-location:17.1.0'
-}
-repositories {
-    mavenCentral()
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    testImplementation 'junit:junit:4.13.1'
+    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
+    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    api 'com.google.android.gms:play-services-location:18.0.0'
 }

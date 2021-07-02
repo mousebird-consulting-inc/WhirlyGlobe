@@ -1,9 +1,8 @@
-/*
- *  MaplyRenderer_jni.cpp
+/*  MaplyRenderer_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <android/bitmap.h>
@@ -26,7 +24,7 @@
 
 using namespace WhirlyKit;
 
-template<> SceneRendererInfo *SceneRendererInfo::classInfoObj = NULL;
+template<> SceneRendererInfo *SceneRendererInfo::classInfoObj = nullptr;
 
 namespace WhirlyKit {
 GLenum ImageFormatToGLenum(MaplyImageType format) {
@@ -100,14 +98,14 @@ TextureType ImageFormatToTexType(MaplyImageType format) {
 
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_nativeInit
-  (JNIEnv *env, jclass cls)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_nativeInit(JNIEnv *env, jclass cls)
 {
 	SceneRendererInfo::getClassInfo(env,cls);
 }
 
-void Java_com_mousebird_maply_RenderController_initialise__
-  (JNIEnv *env, jobject obj)
+extern "C"
+void Java_com_mousebird_maply_RenderController_initialise__(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -125,12 +123,13 @@ void Java_com_mousebird_maply_RenderController_initialise__
 //	renderer->setup();
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise__II
 		(JNIEnv *env, jobject obj, jint width, jint height)
 {
 	try
 	{
-		SceneRendererGLES_Android *renderer = new SceneRendererGLES_Android(width,height);
+		auto renderer = new SceneRendererGLES_Android(width,height);
 		renderer->setZBufferMode(zBufferOffDefault);
 		renderer->setClearColor(RGBAColor(255,255,255,255));
 		SceneRendererInfo *classInfo = SceneRendererInfo::getClassInfo();
@@ -144,8 +143,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_initialise__II
 
 static std::mutex disposeMutex;
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_dispose
-  (JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_dispose(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -166,8 +165,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_dispose
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setScene
-		(JNIEnv *env, jobject obj, jobject sceneObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setScene(JNIEnv *env, jobject obj, jobject sceneObj)
 {
 	try
 	{
@@ -195,10 +194,10 @@ public:
 	}
 
 	// Add a shader and let the Java side RenderController keep it
-	void addShader(const std::string &name,ProgramGLESRef prog)
+	void addShader(const std::string &name,ProgramGLESRef prog) const
 	{
-		Shader_AndroidRef localShader(new Shader_Android());
-		localShader->setupPreBuildProgram(prog);
+		auto localShader = std::make_shared<Shader_Android>();
+		localShader->setupPreBuildProgram(std::move(prog));
 		scene->addProgram(localShader->prog);
 		jobject shaderObj = MakeShader(env,localShader);
 		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);
@@ -210,6 +209,7 @@ public:
 	jmethodID addShaderID;
 };
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNative
 		(JNIEnv *env, jobject obj)
 {
@@ -273,8 +273,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setupShadersNat
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setViewNative
-		(JNIEnv *env, jobject obj, jobject objView)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setViewNative(JNIEnv *env, jobject obj, jobject objView)
 {
 	try
 	{
@@ -292,6 +292,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setViewNative
 }
 
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setClearColor
 		(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
@@ -310,12 +311,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setClearColor
 }
 
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_teardown
-		(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_teardownNative(JNIEnv *env, jobject obj)
 {
 	return true;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_resize
 		(JNIEnv *env, jobject obj, jint width, jint height)
 {
@@ -341,8 +343,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_resize
 	return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
-		(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -350,17 +352,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
 		if (!renderer)
 			return;
 
-		bool changes = renderer->hasChanges();
+		const bool changes = renderer->hasChanges();
 
 		/// TODO: Make sure this is actually what we're using
 		renderer->render(1/60.0);
 
 		// Count down the extra frames if we need them
 		if (renderer->extraFrameMode) {
-		    if (changes)
-		        renderer->extraFrameCount = 1;
-            else
-                renderer->extraFrameCount--;
+			renderer->extraFrameCount = changes ? 1 : renderer->extraFrameCount-1;
 		}
 	}
 	catch (...)
@@ -369,6 +368,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_render
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapNative
         (JNIEnv *env, jobject obj, jobject bitmapObj)
 {
@@ -378,60 +378,62 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 		if (!renderer)
 			return;
 
-        auto snapshot = std::make_shared<Snapshot_Android>();
+        const auto snapshot = std::make_shared<Snapshot_Android>();
 		renderer->addSnapshotDelegate(snapshot);
 
 		renderer->forceDrawNextFrame();
 		renderer->render(1/60.0);
 
 		// Framebuffer info
-		auto size = renderer->getFramebufferSize();
-		int width = size.x(), height = size.y();
+		const auto size = renderer->getFramebufferSize();
+		const int width = size.x();
+		const int height = size.y();
 
-		RawDataRef data = renderer->getSnapshotAt(EmptyIdentity,0,0,0,0);
-		if (data) {
-			// Make sure sizes match
-			AndroidBitmapInfo bitmapInfo;
-			AndroidBitmap_getInfo(env, bitmapObj, &bitmapInfo);
-			if (width != bitmapInfo.width || height != bitmapInfo.height) {
-				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() due to size.");
+		const RawDataRef data = renderer->getSnapshotAt(EmptyIdentity,0,0,0,0);
+		renderer->removeSnapshotDelegate(snapshot);
 
-				renderer->removeSnapshotDelegate(snapshot);
-				return;
-			}
+		if (!data) {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() (no data)");
+			return;
+		}
 
-			// Copy the data
-			void* bitmapPixels;
-			if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0) {
-				wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPixels.");
+		// Make sure sizes match
+		AndroidBitmapInfo bitmapInfo;
+		AndroidBitmap_getInfo(env, bitmapObj, &bitmapInfo);
+		if (width != bitmapInfo.width || height != bitmapInfo.height) {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() due to size.");
+			return;
+		}
 
-				renderer->removeSnapshotDelegate(snapshot);
-				return;
-			}
+		// Copy the data
+		void* bitmapPixels = nullptr;
+		if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0) {
+			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative() because of lockPixels.");
+			return;
+		}
 
+		try
+		{
 			// Convert pixels to Bitmap order
-			int *b = (int *)data->getRawData();
-			int *bt = (int *)bitmapPixels;
-			for(int i=0, k=0; i<height; i++, k++)
+			auto *b = (unsigned *) data->getRawData();
+			auto *bt = (unsigned *) bitmapPixels;
+			for (int i = 0, k = 0; i < height; i++, k++)
 			{
-				for(int j=0; j<width; j++)
-				{
-					const unsigned pix=b[i*width+j];
-					const unsigned pr = pix & 0xffU;
-					const unsigned pg = (pix>>8U) & 0xffU;
-					const unsigned pb = (pix>>16U) & 0xffU;
-					const unsigned pa = (pix>>24U) & 0xffU;
-					bt[(height-k-1)*width+j] = (pa << 24U) | (pb << 16U) | (pg << 8U) | pr;
-				}
+				//for (int j = 0; j < width; j++)
+				//{
+				//	bt[(height - k - 1) * width + j] = b[i * width + j];
+				//}
+				memcpy(&bt[(height - k - 1) * width], &b[i * width], width * 4);
 			}
 //			memmove(bitmapPixels,snapshot->data->getRawData(),snapshot->data->getLen());
 
 			AndroidBitmap_unlockPixels(env, bitmapObj);
-		} else {
-			wkLogLevel(Warn,"Failed to snapshot in RenderController:renderToBitmapNative()");
 		}
-
-		renderer->removeSnapshotDelegate(snapshot);
+		catch (...)
+		{
+			AndroidBitmap_unlockPixels(env, bitmapObj);
+			throw;
+		}
 	}
 	catch (...)
 	{
@@ -439,8 +441,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_renderToBitmapN
 	}
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges
-		(JNIEnv *env, jobject obj)
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges(JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -469,8 +471,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_RenderController_hasChanges
 	return false;
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setPerfInterval
-		(JNIEnv *env, jobject obj, jint perfInterval)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setPerfInterval(JNIEnv *env, jobject obj, jint perfInterval)
 {
 	try
 	{
@@ -486,8 +488,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setPerfInterval
 	}
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_addLight
-		(JNIEnv *env, jobject obj, jobject lightObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_addLight(JNIEnv *env, jobject obj, jobject lightObj)
 {
 	try
 	{
@@ -504,6 +506,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_addLight
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_replaceLights
 		(JNIEnv *env, jobject obj, jobjectArray lightArray)
 {
@@ -530,3 +533,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_replaceLights
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RenderController::replaceLights()");
 	}
 }
+
+#include <utility>

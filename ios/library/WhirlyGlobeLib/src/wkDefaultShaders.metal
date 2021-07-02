@@ -373,8 +373,8 @@ vertex ProjVertexTriA vertexTri_noLightExp(
     if (vertArgs.uniDrawState.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
         color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, 1.0);
-        color.a = color.a * opacity;
+        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
     }
 
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
@@ -458,8 +458,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
     if (vertArgs.uniDrawState.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
         color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, 1.0);
-        color.a = color.a * opacity;
+        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
     }
 
     outVert.color = resolveLighting(vert.position,
@@ -470,8 +470,7 @@ vertex ProjVertexTriA vertexTri_lightExp(
                     calculateFade(uniforms,vertArgs.uniDrawState);
     if (TexturesBase(texArgs.texPresent) > 0)
         outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
-    outVert.color = color;
-    
+
     return outVert;
 }
 
@@ -525,7 +524,6 @@ vertex ProjVertexTriB vertexTri_multiTex(
                                     lighting,
                                     uniforms.mvpMatrix) *
                     calculateFade(uniforms,vertArgs.uniDrawState);
-    outVert.color = vert.color;
 
     // Handle the various texture coordinate input options (none, 1, or 2)
     int numTextures = TexturesBase(texArgs.texPresent);
@@ -687,7 +685,13 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     }
     centerLine = vert.offset.z * centerLine;
 
-    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    float4 color = vert.color;
+    if (vertArgs.wideVec.hasExp) {
+        color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
+        float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
+    }
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) / min(uniforms.frameSize.x,uniforms.frameSize.y);
     float realWidth2 = w2 * pixScale;
@@ -822,7 +826,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert;
-    
+
     int whichVert = (vert.index >> 16) & 0xffff;
     int whichPoly = vert.index & 0xffff;
 
@@ -832,6 +836,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     VertexTriWideVecInstance inst[4];
     inst[1] = wideVecInsts[instanceID];
     instValid[1] = true;
+    outVert.maskIDs[0] = inst[1].mask0;
+    outVert.maskIDs[1] = inst[1].mask1;
     if (inst[1].prev != -1) {
         inst[0] = wideVecInsts[inst[1].prev];
         instValid[0] = true;
@@ -950,8 +956,18 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             }
         }
     }
-    
-    outVert.color = inst[1].color * calculateFade(uniforms,vertArgs.uniDrawState);
+
+    // Note: We're putting a color in the instance, but then it's hard to change
+    //  So we'll pull the color out of the basic drawable
+//    float4 color = inst[1].color;
+    float4 color = vert.color;
+    if (vertArgs.wideVec.hasExp) {
+        color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
+        float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
+        color.a = /*color.a * */opacity;
+    }
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
+
     outVert.w2 = vertArgs.wideVec.w2;
     
     if (isValid && dotProd > 0.0) {
@@ -978,6 +994,17 @@ fragment float4 fragmentTri_wideVecPerf(
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
+    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
+            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
+    }
+
     return vert.color;
 }
 
@@ -1065,7 +1092,14 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     if (vertArgs.ss.hasMotion)
         pos += (uniforms.currentTime - vertArgs.ss.startTime) * vert.dir;
     
-    outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
+    float4 color = vert.color;
+    if (vertArgs.ss.hasExp) {
+        color = ExpCalculateColor(vertArgs.ssExp.colorExp, zoomScale, color);
+        float opacity = ExpCalculateFloat(vertArgs.ssExp.opacityExp, zoomScale, color.a);
+        color.a = /*color.a * */opacity;
+    }
+
+    outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.texCoord = vert.texCoord;
     
     // Convert from model space into display space
@@ -1184,4 +1218,40 @@ vertex ProjVertexTriA vertexTri_billboard(
 
     return outVert;
 
+}
+
+
+// Stars shader.  Simple points
+struct VertexIn {
+    packed_float3 a_position;
+    float         a_size;
+};
+
+struct VertexOut {
+    float4 computedPosition [[position]];
+    float4 color;
+};
+
+vertex VertexOut vertStars(constant VertexIn* vertex_array [[ buffer(0) ]],
+                      unsigned int vid [[ vertex_id ]]) {
+    VertexIn v = vertex_array[vid];
+    VertexOut outVertex = VertexOut();
+    outVertex.computedPosition = float4(v.a_position, 1.0);
+    outVertex.color = float4(1,1,1,1);
+    return outVertex;
+}
+
+fragment float4 fragmentStars(ProjVertexTriB vert [[stage_in]],
+                                     constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+                                     constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                                     constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    int numTextures = TexturesBase(texArgs.texPresent);
+    
+    // Handle none, 1 or 2 textures
+    if (numTextures == 0) {
+        return vert.color;
+    } else {
+        return vert.color;
+    }
 }

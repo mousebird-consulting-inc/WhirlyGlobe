@@ -50,7 +50,7 @@ public class ImageTile
 	public native void setBorderSize(int borderSize);
 
 	/**
-	 * Turn the data into a raw texture.  This can be down later, but if you're on
+	 * Turn the data into a raw texture.  This can be done later, but if you're on
 	 * your own thread, you may just want to do it here.
 	 */
 	public native void preprocessTexture();

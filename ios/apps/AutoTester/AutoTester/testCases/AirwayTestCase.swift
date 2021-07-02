@@ -52,7 +52,7 @@ class AirwayTestCase: MaplyTestCase {
     let buildPointLabels = false
     let buildAirways = false
     let buildAirspaces = true
-    let buildLineLabels = true
+    let buildLineLabels = false
     let buildCenterLabels = false
     
     func setupAirways(_ viewC: MaplyBaseViewController) {
@@ -121,7 +121,7 @@ class AirwayTestCase: MaplyTestCase {
             var labels: [MaplyScreenLabel] = []
             var lines: [MaplyVectorObject] = []
             for seg in segments {
-                var include = true
+                let include = true
 //                if let highVal = seg.attributes?["US_HIGH"] as? Int {
 //                    if highVal > 0 {
 //                        include = true
@@ -160,7 +160,7 @@ class AirwayTestCase: MaplyTestCase {
                 }
             }
 
-            viewC.addWideVectors(lines, desc: [kMaplyVecWidth: 2.0,
+            viewC.addWideVectors(lines, desc: [kMaplyVecWidth: 4.0,
                                                kMaplyWideVecImpl: kMaplyWideVecImplPerf,
                                                   kMaplyColor: UIColor.blue],
                                  mode: .any)
@@ -256,7 +256,8 @@ class AirwayTestCase: MaplyTestCase {
         baseCase.setUpWithGlobe(globeVC)
 
 //        globeVC.keepNorthUp = false
-        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
+        globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056),
+                        height:1.0, heading:0.0, time: 1.0)
 
         if buildAirways {
             setupAirways(globeVC)
@@ -270,7 +271,8 @@ class AirwayTestCase: MaplyTestCase {
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         baseCase.setUpWithMap(mapVC)
         
-        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056), time: 1.0)
+        mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-110.0, 40.5023056),
+                      height:1.0, heading:0.0, time: 1.0)
         
         if buildAirways {
             setupAirways(mapVC)

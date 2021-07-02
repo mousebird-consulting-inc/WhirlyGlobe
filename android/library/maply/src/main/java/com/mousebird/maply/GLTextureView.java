@@ -752,11 +752,15 @@ public class GLTextureView extends TextureView implements TextureView.SurfaceTex
         EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig);
         void destroyContext(EGL10 egl, EGLDisplay display, EGLContext context);
     }
+
+    private static final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+
     private class DefaultContextFactory implements EGLContextFactory {
-        private int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig config) {
-            int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, mEGLContextClientVersion,
-                    EGL10.EGL_NONE };
+            final int[] attrib_list = {
+                    EGL_CONTEXT_CLIENT_VERSION, mEGLContextClientVersion,
+                    EGL10.EGL_NONE
+            };
             return egl.eglCreateContext(display, config, EGL10.EGL_NO_CONTEXT,
                     mEGLContextClientVersion != 0 ? attrib_list : null);
         }

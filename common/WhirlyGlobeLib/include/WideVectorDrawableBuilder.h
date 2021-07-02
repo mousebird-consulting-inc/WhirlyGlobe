@@ -64,6 +64,12 @@ public:
     /// Set the fade in and out
     void setFade(TimeInterval inFadeDown,TimeInterval inFadeUp);
     
+    /// Set values from the vecInfo
+    void setValues(const WideVectorInfo &vecInfo);
+    
+    /// Used when we're changing values on geometry already generated
+    virtual void generateChanges(const SimpleIDSet &drawID,ChangeSet &changes) = 0;
+    
     /// Set the bounding box for the data
     void setLocalMbr(const Mbr &mbr);
 
@@ -209,11 +215,15 @@ protected:
     WideVecImplType implType;
     BasicDrawableInstanceBuilderRef instDrawable;
 
-    RGBAColor color = RGBAColor::white();
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
-    FloatExpressionInfoRef opacityExp;
+    
+    // These duplicate fields in the basic drawable builder, but are needed
+    // by the Metal builders because they aren't also in the instance builder.
+    // We need to ensure that changes are propagated to the basic drawable builder.
+    RGBAColor color = RGBAColor::white();
     ColorExpressionInfoRef colorExp;
+    FloatExpressionInfoRef opacityExp;
 
     // Centerline structure (for Metal)
     typedef struct {

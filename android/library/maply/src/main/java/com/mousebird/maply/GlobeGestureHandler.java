@@ -386,9 +386,16 @@ public class GlobeGestureHandler
 		@Override
 		public void onLongPress(MotionEvent e) 
 		{
+			// The touch listener isn't aware of the scale listener, and so sends us long-
+			// press events (with pointerCount==1 for some reason) while pinch-zooming.
+			if (sl != null && sl.isActive) {
+				return;
+			}
+
 //			Log.d("Maply","Long Press");
-			if (e.getPointerCount() == 1)
-				globeControl.processLongPress(new Point2d(e.getX(),e.getY()));
+			if (globeControl != null && e.getPointerCount() == 1) {
+				globeControl.processLongPress(new Point2d(e.getX(), e.getY()));
+			}
 
 			updateTouchedTime();
 		}
@@ -418,8 +425,10 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onSingleTapConfirmed(MotionEvent e) 
 		{
-			globeControl.processTap(new Point2d(e.getX(),e.getY()));
-			updateTouchedTime();
+			if (globeControl != null) {
+				globeControl.processTap(new Point2d(e.getX(), e.getY()));
+				updateTouchedTime();
+			}
 			return true;
 		}
 
@@ -427,6 +436,10 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onDoubleTap(MotionEvent e) 
 		{
+			if (globeControl == null) {
+				return false;
+			}
+
 			CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
 			Point2d frameSize = globeControl.getViewSize();
 
@@ -441,20 +454,17 @@ public class GlobeGestureHandler
 				return false;
 			Point3d geoCoord = coordAdapter.getCoordSystem().localToGeographic(localPt);
 
-			if (pt != null || geoCoord != null)
-			{
-				// Zoom in where they tapped
-				double height = globeView.getHeight();
-				double newHeight = height/2.0;
-				newHeight = Math.min(newHeight,zoomLimitMax);
-				newHeight = Math.max(newHeight,zoomLimitMin);
+			// Zoom in where they tapped
+			double height = globeView.getHeight();
+			double newHeight = height/2.0;
+			newHeight = Math.min(newHeight,zoomLimitMax);
+			newHeight = Math.max(newHeight,zoomLimitMin);
 
-				// Note: This isn't right.  Need the 
-				Quaternion newQuat = globeView.makeRotationToGeoCoord(geoCoord.getX(), geoCoord.getY(), globeView.northUp);
-				
-				// Now kick off the animation
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender.get(), newQuat, newHeight, 0.5));
-			}
+			// Note: This isn't right.  Need the
+			Quaternion newQuat = globeView.makeRotationToGeoCoord(geoCoord.getX(), geoCoord.getY(), globeView.northUp);
+
+			// Now kick off the animation
+			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender.get(), newQuat, newHeight, 0.5));
 
 			updateTouchedTime();
 			isActive = false;
@@ -652,5 +662,5 @@ public class GlobeGestureHandler
 
 		updateTouchedTime();
 		return true;
-	}      
+	}
 }

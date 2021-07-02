@@ -38,7 +38,10 @@ ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRe
 struct ScreenSpaceTweakerGLES : public ScreenSpaceTweaker
 {
     virtual void tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo) override;
+
+    FloatExpressionInfoRef scaleExp;
 };
+typedef std::shared_ptr<ScreenSpaceTweakerGLES> ScreenSpaceTweakerGLESRef;
     
 /** OpenGL version of ScreenSpaceDrawable Builder
  */
@@ -54,8 +57,8 @@ public:
 
     virtual DrawableTweakerRef makeTweaker() const override;
 
-    virtual void setupTweaker(BasicDrawable &draw) const override { BasicDrawableBuilder::setupTweaker(draw); }
-    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override { BasicDrawableBuilderGLES::setupTweaker(inTweaker); }
+    virtual void setupTweaker(BasicDrawable &draw) const override;
+    virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
 };
 
 }

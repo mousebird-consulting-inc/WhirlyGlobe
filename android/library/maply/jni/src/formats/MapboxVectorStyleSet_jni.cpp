@@ -52,7 +52,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_initialise
             settings = std::make_shared<VectorStyleSettingsImpl>(1.0);
         }
 
-        auto inst = new MapboxVectorStyleSetImpl_AndroidRef(new MapboxVectorStyleSetImpl_Android(scene,(*coordSystem).get(),settings));
+        auto inst = new MapboxVectorStyleSetImpl_AndroidRef(
+                new MapboxVectorStyleSetImpl_Android(scene,coordSystem->get(),settings));
 
         // Need a pointer to this JNIEnv for low level parsing callbacks
         PlatformInfo_Android threadInst(env);
@@ -96,8 +97,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::dispose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::dispose()");
     }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_hasBackgroundStyle
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto inst = MapboxVectorStyleSetClassInfo::get(env,obj))
+        {
+            PlatformInfo_Android platformInfo(env);
+            if (const auto style = (*inst)->backgroundStyle(&platformInfo))
+            {
+                return true;
+            }
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::hasBackgroundStyle()");
+    }
+    return false;
 }
 
 extern "C"
@@ -121,10 +144,91 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_backgroundC
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::backgroundColorForZoomNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::backgroundColorForZoomNative()");
     }
 
     return 0;
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_stylesForFeature
+        (JNIEnv *, jobject, jobject attrs, jobject tileID, jstring featureName, jobject control)
+{
+    try
+    {
+        // not implemented
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::stylesForFeature()");
+    }
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_allStyles
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+//        const auto styleInfo = VectorStyleClassInfo::getClassInfo();
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (const auto styleSet = styleSetRef ? *styleSetRef : nullptr)
+        {
+            PlatformInfo_Android inst(env);
+            const auto styles = styleSet->allStyles(&inst);
+
+//            std::vector<jobject> styleObjs;
+//            styleObjs.reserve(styles.size());
+//            for (const auto &style : styles)
+//            {
+//                auto styleObj = styleInfo->makeWrapperObject(env,new VectorStyleImpl_AndroidRef(style));
+//                styleObjs.push_back(MakeComponentObjectWrapper(env, styleInfo, styleObj));
+//            }
+//
+//            jobjectArray retArray = BuildObjectArray(env, styleInfo->getClass(), styleObjs);
+//            for (auto objRef : styleObjs)
+//            {
+//                env->DeleteLocalRef(objRef);
+//            }
+//
+//            return retArray;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::allStyles()");
+    }
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_layerShouldDisplay
+        (JNIEnv *, jobject, jstring name, jobject tileID)
+{
+    try
+    {
+        // not implemented
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::layerShouldDisplay()");
+    }
+    return false;
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_styleForUUID
+        (JNIEnv *, jobject, jlong uuid, jobject control)
+{
+    try
+    {
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::styleForUUID()");
+    }
+    return nullptr;
 }
 
 /*
@@ -189,6 +293,144 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setArealSha
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in MapboxVectorStyleSet::setArealShaderNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::setArealShaderNative()");
     }
+}
+
+extern "C"
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getStyleInfo
+        (JNIEnv *env, jobject obj, jfloat zoom)
+{
+    try
+    {
+        const auto attrDictInfo = AttrDictClassInfo::getClassInfo();
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (const auto styleSet = styleSetRef ? *styleSetRef : nullptr)
+        {
+            PlatformInfo_Android inst(env);
+            const auto styles = styleSet->allStyles(&inst);
+
+            std::vector<jobject> results;
+            results.reserve(styles.size());
+            for (const auto &style : styles)
+            {
+                auto dict = std::make_unique<MutableDictionary_Android>();
+                dict->setString("type", style->getType());
+                dict->setString("ident", style->getIdent());
+                dict->setString("representation", style->getRepresentation());
+                const auto text = style->getLegendText(zoom);
+                if (!text.empty())
+                {
+                    dict->setString("legendText", style->getLegendText(zoom));
+                }
+                auto const color = style->getLegendColor(zoom);
+                if (color != RGBAColor::clear())
+                {
+                    dict->setInt("legendColor", color.asARGBInt());
+                }
+                auto dictObj = attrDictInfo->makeWrapperObject(env, new MutableDictionary_AndroidRef(dict.release()));
+                results.push_back(dictObj);
+            }
+
+            auto retArray = BuildObjectArray(env, attrDictInfo->getClass(), results);
+            for (auto &objRef : results)
+            {
+                env->DeleteLocalRef(objRef);
+            }
+
+            return retArray;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::allStyles()");
+    }
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setLayerVisible
+        (JNIEnv *env, jobject obj, jstring layerNameJava, jboolean visible)
+{
+    try
+    {
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (!styleSetRef)
+            return;
+
+        JavaString layerName(env,layerNameJava);
+        for (auto &layer : (*styleSetRef)->layers) {
+            if (layer->ident == layerName.getCString()) {
+                layer->visible = visible;
+            }
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::setLayerVisible()");
+    }
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_addSpritesNative
+        (JNIEnv *env, jobject obj, jstring assetJSONJava, jlong texID, int width, int height)
+{
+    try
+    {
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        if (!styleSetRef)
+            return false;
+
+        JavaString assetJSON(env,assetJSONJava);
+        auto newSprites = std::make_shared<MapboxVectorStyleSprites>(texID,width,height);
+        auto dict = std::make_shared<MutableDictionary_Android>();
+        if (!dict->parseJSON(assetJSON.getCString()))
+            return false;
+        if (newSprites->parse(*styleSetRef, dict))
+        {
+            (*styleSetRef)->addSprites(newSprites);
+            return true;
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::addSpritesNative()");
+    }
+
+    return true;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_getSpriteInfoNative
+    (JNIEnv *env, jobject obj, jstring nameStr, jintArray xywh)
+{
+    try
+    {
+        if (!nameStr || !xywh || env->GetArrayLength(xywh) != 4) {
+            return false;
+        }
+
+        const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj);
+        const auto sprites = (styleSetRef && *styleSetRef) ? (*styleSetRef)->sprites : nullptr;
+        if (!sprites) {
+            return false;
+        }
+
+        const JavaString name(env,nameStr);
+        const auto entry = sprites->getSprite(name.getCString());
+        if (entry.width == 0 || entry.height == 0)
+        {
+            return false;
+        }
+
+        const int v[] = { entry.x, entry.y, entry.width, entry.height };
+        env->SetIntArrayRegion(xywh, 0, 4, &v[0]);
+        return true;
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapboxVectorStyleSet::addSpritesNative()");
+    }
+
+    return false;
 }

@@ -11,12 +11,9 @@ import UIKit
 class StickersTestCase: MaplyTestCase {
 
 	override init() {
-		super.init()
-		
-		self.name = "Stickers"
-		self.implementations = [.globe, .map]
+		super.init(name: "Stickers", supporting: [.globe, .map])
 	}
-    
+
     var startTex : MaplyTexture?
 
 	func addStickers (_ arrayComp: NSArray , baseViewC: MaplyBaseViewController) {
@@ -59,7 +56,10 @@ class StickersTestCase: MaplyTestCase {
         //        sticker.ur = MaplyCoordinateMakeWithDegrees(19.954, 61.5041)
         sticker.image = startImage
         //        baseViewC.addStickers([sticker], desc: [kMaplyColor: UIColor.init(white: 0.25, alpha: 0.25)] )
-        baseViewC.addStickers([sticker], desc: [kMaplyColor: UIColor.init(white: 1.0, alpha: 1.0)] )
+        baseViewC.addStickers([sticker], desc: [
+            kMaplyColor: UIColor.init(white: 1.0, alpha: 1.0),
+            //kMaplyDrawPriority: kMaplyStickerDrawPriorityDefault + 1000,
+        ] )
     }
     
     let baseCase = VectorsTestCase()
@@ -80,4 +80,9 @@ class StickersTestCase: MaplyTestCase {
         
         addTestSticker(baseViewC: mapVC, rotation: 45.0)
 	}
+    
+    override func stop() {
+        baseCase.stop()
+        super.stop()
+    }
 }

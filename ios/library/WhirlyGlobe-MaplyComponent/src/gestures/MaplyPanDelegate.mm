@@ -1,9 +1,8 @@
-/*
- *  MaplyPanDelegateMap.mm
+/*  MaplyPanDelegateMap.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneRenderer.h"
@@ -133,7 +131,7 @@ static const float AnimLen = 1.0;
             CGPoint panPt = [pan locationInView:pan.view];
             Point2f panPt2f(panPt.x,panPt.y);
             mapView->pointOnPlaneFromScreen(panPt2f, &startTransform, frameSizeScaled, &startOnPlane, false);
-            startLoc = mapView->getLoc();
+            startLoc = mapView->coordAdapter->localToDisplay(mapView->getLoc());
             panning = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:mapView->tag];
         }
@@ -153,12 +151,14 @@ static const float AnimLen = 1.0;
                 
                 // Note: Just doing a translation for now.  Won't take angle into account
                 MapView testMapView(*mapView);
-                Point3d oldLoc = mapView->getLoc();
-                Point3d newLoc = startOnPlane - hit + startLoc;
+                Point3d oldLoc = mapView->coordAdapter->localToDisplay(mapView->getLoc());
+                Point3d newLocDisp = startOnPlane - hit + startLoc;
+                Point3d newLoc = mapView->coordAdapter->displayToLocal(newLocDisp);
                 testMapView.setLoc(newLoc);
+
                 Point3d newCenter;
                 bool validLoc = false;
-                
+
                 // We'll do a hard stop if we're not within the bounds
                 // We're trying this location out, then backing off if it failed.
                 if (!MaplyGestureWithinBounds(bounds, newLoc, sceneRender, &testMapView, &newCenter))
@@ -180,7 +180,7 @@ static const float AnimLen = 1.0;
                 } else {
                     validLoc = true;
                 }
-                
+
                 // Okay, we found a good location, so go
                 if (validLoc)
                 {

@@ -1,9 +1,8 @@
-/*
- *  QuadSamplingLayer_jni.cpp
+/*  QuadSamplingLayer_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg on 3/28/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadLoading_jni.h"
@@ -45,7 +43,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_initialise
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ImageTile::initialise()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ImageTile::initialise()");
     }
 }
 
@@ -68,7 +66,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_dispose
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadSamplingLayer::dispose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::dispose()");
     }
 }
 
@@ -84,7 +82,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadSamplingLayer_getNumClients
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadSamplingLayer::getNumClients()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::getNumClients()");
     }
 
     return 0;
@@ -105,7 +103,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadSamplingLayer_viewUpdate
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadSamplingLayer::getNumClients()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::getNumClients()");
     }
 
     return false;
@@ -128,7 +126,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_startNative
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadSamplingLayer::startNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::startNative()");
     }
 }
 
@@ -145,7 +143,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preSceneFlushN
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadSamplingLayer::preSceneFlushNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::preSceneFlushNative()");
     }
 }
 
@@ -164,6 +162,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_shutdownNative
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadSamplingLayer::shutdownNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::shutdownNative()");
     }
 }

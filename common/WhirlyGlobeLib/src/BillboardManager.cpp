@@ -1,9 +1,8 @@
-/*
- *  BillboardManager.cpp
+/*  BillboardManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BillboardManager.h"
@@ -33,23 +31,23 @@ SingleBillboardPoly::SingleBillboardPoly() :
 }
 
 BillboardInfo::BillboardInfo() :
-    color(RGBAColor())
+    color(RGBAColor::white()),
+    orient(Eye)
 {
 }
 
-BillboardInfo::BillboardInfo(const Dictionary &dict)
-: BaseInfo(dict)
+BillboardInfo::BillboardInfo(const Dictionary &dict) :
+    BaseInfo(dict),
+    color(RGBAColor::white())
 {
     // We have different defaults than the base
     zBufferRead = dict.getBool(MaplyZBufferRead,true);
     zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
 
-    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
-    std::string orientStr = dict.getString(MaplyBillboardOrient, "");
-    if (orientStr == MaplyBillboardOrientEye)
-        orient = Eye;
-    else
-        orient = Ground;
+    color = dict.getColor(MaplyColor,color);
+
+    const auto orientStr = dict.getString(MaplyBillboardOrient, std::string());
+    orient = (orientStr == MaplyBillboardOrientEye) ? Eye : Ground;
 }
 
 Billboard::Billboard() :
@@ -60,16 +58,15 @@ Billboard::Billboard() :
 {
 }
     
-BillboardSceneRep::BillboardSceneRep()
+BillboardSceneRep::BillboardSceneRep() :
+    Identifiable(),
+    fade(0.0f)
 {
 }
 
 BillboardSceneRep::BillboardSceneRep(SimpleIdentity inId) :
-    Identifiable(inId)
-{
-}
-
-BillboardSceneRep::~BillboardSceneRep()
+    Identifiable(inId),
+    fade(0.0f)
 {
 }
 
@@ -89,7 +86,7 @@ BillboardBuilder::BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,Chang
     changes(changes),
     sceneRep(sceneRep),
     billInfo(billInfo),
-    drawable(NULL),
+    drawable(nullptr),
     billboardProgram(billboardProgram),
     texId(texId)
 {
@@ -101,7 +98,10 @@ BillboardBuilder::~BillboardBuilder()
     flush();
 }
 
-void BillboardBuilder::addBillboard(Point3d center, const Point2dVector &pts, const std::vector<WhirlyKit::TexCoord> &texCoords, const WhirlyKit::RGBAColor *inColor, const SingleVertexAttributeSet &vertAttrs)
+void BillboardBuilder::addBillboard(const Point3d &center, const Point2dVector &pts,
+                                    const std::vector<WhirlyKit::TexCoord> &texCoords,
+                                    const WhirlyKit::RGBAColor *inColor,
+                                    const SingleVertexAttributeSet &vertAttrs)
 {
     if (pts.size() != 4)
     {
@@ -120,7 +120,7 @@ void BillboardBuilder::addBillboard(Point3d center, const Point2dVector &pts, co
             flush();
             
         drawable = sceneRender->makeBillboardDrawableBuilder("Billboard");
-        //        drawMbr.reset();
+        drawable->Init();
         drawable->setType(Triangles);
         billInfo.setupBasicDrawable(drawable);
         drawable->setGroundMode(billInfo.orient == BillboardInfo::Ground);
@@ -132,21 +132,19 @@ void BillboardBuilder::addBillboard(Point3d center, const Point2dVector &pts, co
             VertexAttributeSetConvert(vertAttrs,vertInfoSet);
             drawable->setVertexAttributes(vertInfoSet);
         }
-        //        drawable->setForceZBufferOn(true);
+        //drawable->setForceZBufferOn(true);    // ?
     }
         
-    RGBAColor color = (inColor ? *inColor : billInfo.color);
-    
-    Point3d centerOnSphere = center;
-    double len = sqrt(centerOnSphere.x()*centerOnSphere.x() + centerOnSphere.y()*centerOnSphere.y() + centerOnSphere.z()*centerOnSphere.z());
-    if (len != 0.0)
-        centerOnSphere /= len;
-        
+    const RGBAColor color = (inColor ? *inColor : billInfo.color);
+
+    const double len = center.norm();
+    const Point3d centerOnSphere = (len != 0.0) ? (center / len) : center;
+
     // Normal is straight up
-    Point3d localPt = coordAdapter->displayToLocal(centerOnSphere);
-    Point3d axisY = coordAdapter->normalForLocal(localPt);
+    const Point3d localPt = coordAdapter->displayToLocal(centerOnSphere);
+    const Point3d axisY = coordAdapter->normalForLocal(localPt);
         
-    int startPoint = drawable->getNumPoints();
+    const auto startPoint = drawable->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         drawable->addPoint(center);
@@ -167,7 +165,7 @@ void BillboardBuilder::flush()
     {
         if (drawable->getNumPoints() > 0)
         {
-            //            drawable->setLocalMbr(drawMbr);
+            //drawable->setLocalMbr(drawMbr);
             sceneRep->drawIDs.insert(drawable->getDrawableID());
             
 // TODO Port (fade isn't supported yet)
@@ -178,56 +176,51 @@ void BillboardBuilder::flush()
 //            }
             changes.push_back(new AddDrawableReq(drawable->getDrawable()));
         }
-        drawable = NULL;
+        drawable = nullptr;
     }
 }
 
-
-BillboardManager::BillboardManager()
-{
-}
 
 BillboardManager::~BillboardManager()
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (BillboardSceneRepSet::iterator it = sceneReps.begin(); it != sceneReps.end(); ++it)
-        delete *it;
+    for (auto sceneRep : sceneReps)
+        delete sceneRep;
     sceneReps.clear();
 }
 
 typedef std::map<SimpleIdentity,BillboardBuilderRef> BuilderMap;
 
 /// Add billboards for display
-SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,ChangeSet &changes)
+SimpleIdentity BillboardManager::addBillboards(const std::vector<Billboard*> &billboards,const BillboardInfo &billboardInfo,ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 
-    BillboardSceneRep *sceneRep = new BillboardSceneRep();
-    sceneRep->fade = billboardInfo.fade;
-        
+    auto sceneRep = new BillboardSceneRep();
+    sceneRep->fade = (float)billboardInfo.fade;
+
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-        
+
     // One builder per texture
     BuilderMap drawBuilders;
         
     // Work through the billboards, constructing as we go
-    for (Billboard *billboard : billboards)
+    for (auto *billboard : billboards)
     {
         // Work through the individual polygons
-        for (const SingleBillboardPoly &billPoly : billboard->polys)
+        for (const auto &billPoly : billboard->polys)
         {
-            BuilderMap::iterator it = drawBuilders.find(billPoly.texId);
-            BillboardBuilderRef drawBuilder;
-            // Need a new one
-            if (it == drawBuilders.end())
+            const auto it = drawBuilders.insert(std::make_pair(billPoly.texId, BillboardBuilderRef()));
+            if (it.second)
             {
-                drawBuilder = BillboardBuilderRef(new BillboardBuilder(scene,renderer,changes,sceneRep,billboardInfo,billboardInfo.programID,billPoly.texId));
-                drawBuilders[billPoly.texId] = drawBuilder;
-            } else
-                drawBuilder = it->second;
-            
-            drawBuilder->addBillboard(billboard->center, billPoly.pts, billPoly.texCoords, &billPoly.color, billPoly.vertexAttrs);
+                // new item inserted, fill in the value with a new builder
+                it.first->second = std::make_shared<BillboardBuilder>(scene,renderer,changes,sceneRep,billboardInfo,
+                                                                      billboardInfo.programID,billPoly.texId);
+            }
+            const auto &drawBuilder = it.first->second;
+            drawBuilder->addBillboard(billboard->center, billPoly.pts, billPoly.texCoords,
+                                      &billPoly.color, billPoly.vertexAttrs);
         }
             
         // While we're at it, let's add this to the selection layer
@@ -240,23 +233,25 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
             sceneRep->selectIDs.insert(billboard->selectID);
                 
                 // Normal is straight up
-            Point3d localPt = coordAdapter->displayToLocal(billboard->center);
-            Point3d axisY = coordAdapter->normalForLocal(localPt);
+            const Point3d localPt = coordAdapter->displayToLocal(billboard->center);
+            const Point3d axisY = coordAdapter->normalForLocal(localPt);
                 
-            selectManager->addSelectableBillboard(billboard->selectID, billboard->center, axisY, billboard->size, billboardInfo.minVis, billboardInfo.maxVis, billboardInfo.enable);
+            selectManager->addSelectableBillboard(billboard->selectID, billboard->center, axisY, billboard->size,
+                                                  (float)billboardInfo.minVis, (float)billboardInfo.maxVis,
+                                                  billboardInfo.enable);
         }
     }
         
     // Flush out the changes and tear down the builders
-    for (BuilderMap::iterator it = drawBuilders.begin(); it != drawBuilders.end(); ++it)
+    for (const auto &it : drawBuilders)
     {
-        BillboardBuilderRef drawBuilder = it->second;
+        const auto &drawBuilder = it.second;
         drawBuilder->flush();
     }
     drawBuilders.clear();
         
-    SimpleIdentity billID = sceneRep->getId();
-        
+    const SimpleIdentity billID = sceneRep->getId();
+
     std::lock_guard<std::mutex> guardLock(lock);
     sceneReps.insert(sceneRep);
     
@@ -265,21 +260,25 @@ SimpleIdentity BillboardManager::addBillboards(std::vector<Billboard*> billboard
 
 void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
+    for (auto billID : billIDs)
     {
-        BillboardSceneRep dummyRep(*bit);
-        BillboardSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+        BillboardSceneRep dummyRep(billID);
+        auto it = sceneReps.find(&dummyRep);
         if (it != sceneReps.end())
         {
-            BillboardSceneRep *billRep = *it;
-            for (SimpleIDSet::iterator dit = billRep->drawIDs.begin(); dit != billRep->drawIDs.end(); ++dit)
-                changes.push_back(new OnOffChangeRequest((*dit), enable));
+            const auto *billRep = *it;
+            for (auto drawID : billRep->drawIDs)
+            {
+                changes.push_back(new OnOffChangeRequest(drawID, enable));
+            }
                 
             if (selectManager && !billRep->selectIDs.empty())
+            {
                 selectManager->enableSelectables(billRep->selectIDs, enable);
+            }
         }
     }
 }
@@ -287,23 +286,25 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
 /// Remove a group of billboards named by the given ID
 void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     std::lock_guard<std::mutex> guardLock(lock);
 
     TimeInterval curTime = scene->getCurrentTime();
-    for (SimpleIDSet::iterator bit = billIDs.begin();bit != billIDs.end();++bit)
+    for (auto billID : billIDs)
     {
-        BillboardSceneRep dummyRep(*bit);
-        BillboardSceneRepSet::iterator it = sceneReps.find(&dummyRep);
+        BillboardSceneRep dummyRep(billID);
+        auto it = sceneReps.find(&dummyRep);
         if (it != sceneReps.end())
         {
-            BillboardSceneRep *sceneRep = *it;
-            
+            auto *sceneRep = *it;
+
             TimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
-                for (SimpleIDSet::iterator it = sceneRep->drawIDs.begin(); it != sceneRep->drawIDs.end(); ++it)
-                    changes.push_back(new FadeChangeRequest(*it, curTime, curTime+sceneRep->fade));
+                for (auto id : sceneRep->drawIDs)
+                {
+                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fade));
+                }
                 
                 removeTime = curTime + sceneRep->fade;
             }

@@ -24,8 +24,6 @@
 using namespace WhirlyKit;
 using namespace Maply;
 
-//static const char *SceneHandleName = "nativeSceneHandle";
-
 typedef JavaClassInfo<LabelManagerRef> LabelManagerClassInfo;
 template<> LabelManagerClassInfo *LabelManagerClassInfo::classInfoObj = nullptr;
 
@@ -48,7 +46,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_initialise(JNIEnv *
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::initialise()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LabelManager::initialise()");
 	}
 }
 
@@ -66,23 +64,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_dispose(JNIEnv *env
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::dispose()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LabelManager::dispose()");
 	}
 }
 
 extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
-  (JNIEnv *env, jobject obj, jobjectArray labelArray, jobject labelInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray labelArray,
+   jobject labelInfoObj, jobject changeSetObj)
 {
 	try
 	{
-		LabelManagerClassInfo *classInfo = LabelManagerClassInfo::getClassInfo();
-		LabelManagerRef *labelManager = classInfo->getObject(env,obj);
-        LabelInfoAndroidRef *labelInfo = LabelInfoClassInfo::getClassInfo()->getObject(env,labelInfoObj);
-		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
+		LabelClassInfo *labelClassInfo = LabelClassInfo::getClassInfo();
+		LabelManagerRef *labelManager = LabelManagerClassInfo::get(env,obj);
+        LabelInfoAndroidRef *labelInfo = LabelInfoClassInfo::get(env,labelInfoObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::get(env,changeSetObj);
 		if (!labelManager || !labelInfo || !changeSet)
 		{
-			__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in LabelManager::addLabels()");
+			__android_log_print(ANDROID_LOG_WARN, "Maply", "One of the inputs was null in LabelManager::addLabels()");
 			return EmptyIdentity;
 		}
 
@@ -92,12 +91,15 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 		// Collect the labels
 		std::vector<SingleLabel *> labels;
 		JavaObjectArrayHelper labelHelp(env,labelArray);
-		LabelClassInfo *labelClassInfo = LabelClassInfo::getClassInfo();
+		labels.reserve(labelHelp.numObjects());
 		bool isMoving = false;
-		while (jobject labelObj = labelHelp.getNextObject()) {
+		while (jobject labelObj = labelHelp.getNextObject())
+		{
 			SingleLabelAndroid *label = labelClassInfo->getObject(env,labelObj);
 			if (label->startTime != label->endTime)
+			{
 				isMoving = true;
+			}
 			labels.push_back(label);
 		}
 
@@ -111,7 +113,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
             }
         }
 		PlatformInfo_Android platformInfo(env);
-		SimpleIdentity labelId = (*labelManager)->addLabels(&platformInfo,labels,*(*labelInfo),*(changeSet->get()));
+		SimpleIdentity labelId = (*labelManager)->addLabels(&platformInfo,labels,**labelInfo,**changeSet);
 
         (*labelInfo)->labelInfoObj = nullptr;
 
@@ -119,7 +121,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_LabelManager_addLabels
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::addLabels()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LabelManager::addLabels()");
 	}
     
     return EmptyIdentity;
@@ -141,11 +143,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_removeLabels
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
 		PlatformInfo_Android platformInfo(env);
-		(*labelManager)->removeLabels(&platformInfo,idSet,*(changeSet->get()));
+		(*labelManager)->removeLabels(&platformInfo,idSet,**changeSet);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::removeLabels()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LabelManager::removeLabels()");
 	}
 }
 
@@ -164,11 +166,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LabelManager_enableLabels
         SimpleIDSet idSet;
         ConvertLongArrayToSet(env,idArrayObj,idSet);
 
-		(*labelManager)->enableLabels(idSet,enable,*(changeSet->get()));
+		(*labelManager)->enableLabels(idSet,enable,**changeSet);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in LabelManager::enableLabels()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LabelManager::enableLabels()");
 	}
-
 }

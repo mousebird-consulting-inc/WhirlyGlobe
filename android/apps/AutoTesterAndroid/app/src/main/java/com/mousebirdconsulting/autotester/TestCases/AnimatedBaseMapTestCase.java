@@ -36,9 +36,7 @@ import java.io.File;
 public class AnimatedBaseMapTestCase extends MaplyTestCase {
 
 	public AnimatedBaseMapTestCase(Activity activity) {
-		super(activity);
-		setTestName("Animated basemap");
-		this.implementation = TestExecutionImplementation.Both;
+		super(activity, "Animated basemap", TestExecutionImplementation.Both);
 	}
 
 	QuadImageFrameLoader loader = null;
@@ -113,7 +111,8 @@ public class AnimatedBaseMapTestCase extends MaplyTestCase {
 					Log.v("Maply", String.format("  Loading %d out of %d tiles",stats.frameStats[ii].tilesToLoad,stats.frameStats[ii].totalTiles));
 				}
 
-				timeHandler.postDelayed(timeRun, 3000);
+				if (controller != null && controller.isRunning())
+					timeHandler.postDelayed(timeRun, 3000);
 			}
 		};
 		timeHandler.postDelayed(timeRun,1000);

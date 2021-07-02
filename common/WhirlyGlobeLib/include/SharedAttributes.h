@@ -287,6 +287,8 @@
 #define MaplySubdivType WKString("subdivisiontype")
 /// Subdivide the vector edges along a great circle
 #define MaplySubdivGreatCircle WKString("greatcircle")
+/// Subdivide the vector edges along a great circle with ellipsoidal math
+#define MaplySubdivGreatCirclePrecise WKString("greatcircleprecise")
 /// Subdivide the vectors edges along lat/lon
 #define MaplySubdivSimple WKString("simple")
 /// Clip features along a grid of the given size

@@ -41,8 +41,12 @@ public:
     float lineScale;
     /// Text sizes will be scaled by this amount before display.
     float textScale;
-    /// Markers will be scaled by this amount before display.
+    /// Markers (symbols+circles) will be scaled by this amount before display.
     float markerScale;
+    /// Circles will be scaled by this amount before display.
+    float circleScale;
+    /// Symbols will be scaled by this amount before display.
+    float symbolScale;
     /// Importance for markers in the layout engine
     float markerImportance;
     /// Default marker size when none is specified
@@ -152,11 +156,14 @@ typedef std::shared_ptr<VectorStyleDelegateImpl> VectorStyleDelegateImplRef;
 class VectorStyleImpl
 {
 public:
-    VectorStyleImpl() { }
-    virtual ~VectorStyleImpl() { }
+    VectorStyleImpl() = default;
+    virtual ~VectorStyleImpl() = default;
 
     virtual std::string getIdent() const { return std::string(); }
     virtual std::string getType() const { return std::string(); }
+    virtual std::string getLegendText(float zoom) const { return std::string(); }
+    virtual RGBAColor getLegendColor(float zoom) const { return RGBAColor::clear(); }
+    virtual std::string getRepresentation() const { return std::string(); }
 
     /// Unique Identifier for this style
     virtual long long getUuid(PlatformThreadInfo *inst) = 0;
@@ -168,11 +175,14 @@ public:
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
     virtual bool geomAdditive(PlatformThreadInfo *inst) = 0;
 
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
-                              const Dictionary *desc) = 0;
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) = 0;
 };
 
 }

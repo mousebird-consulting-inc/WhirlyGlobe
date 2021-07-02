@@ -21,6 +21,9 @@
 #import "LinearTextBuilder.h"
 #import "VectorOffset.h"
 #import "GridClipper.h"
+#import "WhirlyKitLog.h"
+
+using namespace Eigen;
 
 namespace WhirlyKit
 {
@@ -36,10 +39,8 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
     // Find the point with max distance
     float dMax = 0.0;
     unsigned int maxIdx = 0;
-    float len = 0.0;
     for (unsigned int ii = start+1;ii<end;ii++) {
         float t;
-        len += (screenPts[ii] - screenPts[ii-1]).norm();
         Point2f pt = ClosestPointOnLineSegment(screenPts[start], screenPts[end], screenPts[ii], t);
         float dist = (pt-screenPts[ii]).norm();
         if (dist > dMax) {
@@ -128,7 +129,6 @@ layoutObj(layoutObj)
 void LinearTextBuilder::setPoints(const Point3dVector &inPts)
 {
     pts = inPts;
-    isClosed = pts.front() == pts.back();
 }
 
 void LinearTextBuilder::sortRuns(double minLen)
@@ -161,89 +161,160 @@ void LinearTextBuilder::process()
     if (pts.size() == 1)
         return;
     
-    Eigen::Matrix4d modelTrans = viewState->fullMatrices[offi];
-    
-    Point2fVector screenPts;
-    for (auto pt: pts) {
-        Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
-        screenPts.push_back(thisObjPt);
-    }
-    
-    // Make sure there's at least some overlap with the screen
-    Mbr testMbr(screenPts);
-    if (!testMbr.intersect(screenMbr).valid()) {
-        return;
-    }
+    Matrix4d modelTrans = viewState->fullMatrices[offi];
+    Matrix4d fullNormalMatrix = viewState->fullNormalMatrices[offi];
 
-    // Generalize the source line
-    screenPts = LineGeneralization(screenPts,generalEps,0,screenPts.size());
-
-    if (screenPts.empty())
-        return;
-    
-    // Clip to a larger screen MBR
     {
         std::vector<VectorRing> newRuns;
-        Mbr largeScreenMbr = screenMbr;
-        largeScreenMbr.expandByFraction(0.1);
-        ClipLoopToMbr(screenPts, largeScreenMbr, true, newRuns,1e6);
+        VectorRing curRun;
+        
+        // Project the points and evaluate the individual validity of each one
+        std::vector<bool> isValid;  isValid.reserve(pts.size()+1);
+        std::vector<bool> isFrontSide;  isFrontSide.reserve(pts.size()+1);
+        std::vector<Point2f> projPts;  projPts.reserve(pts.size()+1);
+        for (auto pt: pts) {
+            Point2f thisObjPt = viewState->pointOnScreenFromDisplay(pt,&modelTrans,frameBufferSize);
+
+            bool testFrontSide = true;
+            if (globeViewState)
+            {
+                // Make sure this one is facing toward the viewer
+                if (!(CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,fullNormalMatrix) > 0.0))
+                    testFrontSide = false;
+            }
+            
+            bool isInside = screenMbr.inside(thisObjPt);
+            isValid.push_back(isInside && testFrontSide);
+            isFrontSide.push_back(testFrontSide);
+            projPts.push_back(thisObjPt);
+        }
+        // If it's closed, tack on some end points
+        if (pts.front() == pts.back()) {
+            isValid.push_back(isValid.front());
+            isFrontSide.push_back(isValid.front());
+            projPts.push_back(projPts.front());
+        }
+        
+        // Now build runs that cut across the screen MBR
+        // It gets tricky.  We have to include the first and last point of a run
+        //  and we want to look for spans that can overlap the MBR
+        bool includeNext = false;
+        for (unsigned int ii=0;ii<projPts.size();ii++) {
+            bool include = includeNext || isValid[ii];  // Simplest case
+            if (!include) {
+                // Previous point is valid, so keep this one
+                if (ii>0 && isValid[ii-1])
+                    include = true;
+                // Next point is valid, so keep this one
+                if (ii<projPts.size()-1 && isValid[ii+1])
+                    include = true;
+            }
+
+            includeNext = false;
+            if (!include) {
+                // Is this part of a span that overlaps the MBR
+                if (ii < projPts.size()-1 && isFrontSide[ii] && isFrontSide[ii+1]) {
+                    Mbr testMbr;
+                    testMbr.addPoint(projPts[ii]);
+                    testMbr.addPoint(projPts[ii+1]);
+                    if (screenMbr.overlaps(testMbr)) {
+                        include = true;
+                        includeNext = true;
+                    }
+                }
+            }
+
+            // Include this point in the run
+            if (include)
+                curRun.push_back(projPts[ii]);
+            else {
+                // Cut off the run and add it to the current runs
+                if (curRun.size() > 1)
+                    newRuns.push_back(curRun);
+                curRun.clear();
+            }
+        }
+        
+        if (curRun.size() > 1)
+            newRuns.push_back(curRun);
+        
         runs = newRuns;
+        
+//        wkLogLevel(Debug,"Found %d runs",runs.size());
+//        for (unsigned int ii=0;ii<runs.size();ii++)
+//            wkLogLevel(Debug, "  Run %d: %d points",ii,runs[ii].size());
     }
     
+    if (runs.empty())
+        return;
+
+    {
+        std::vector<VectorRing> newRuns;
+
+        for (const auto &run: runs) {
+            // Generalize the source line
+            auto newRun = LineGeneralization(run,generalEps,0,run.size()-1);
+            if (newRun.size() > 1)
+                newRuns.push_back(newRun);
+        }
+                
+        runs = newRuns;
+
+//        wkLogLevel(Debug,"Generalize %d runs",runs.size());
+//        for (unsigned int ii=0;ii<runs.size();ii++)
+//            wkLogLevel(Debug, "  Run %d: %d points",ii,runs[ii].size());
+    }
+
+    if (runs.empty())
+        return;
+        
     // Run the offsetting
     if (layoutObj->layoutOffset != 0.0) {
         std::vector<VectorRing> newRuns;
         for (const auto &run: runs) {
             std::vector<VectorRing> theseRuns;
-            if (isClosed)
+            if (run.front() == run.back())
                 theseRuns = BufferPolygon(run, layoutObj->layoutOffset);
-            else
+            else {
                 theseRuns = BufferLinear(run, layoutObj->layoutOffset);
+            }
             newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
         }
         runs = newRuns;
+
+//        wkLogLevel(Debug,"Offset %d runs",runs.size());
+//        for (unsigned int ii=0;ii<runs.size();ii++)
+//            wkLogLevel(Debug, "  Run %d: %d points",ii,runs[ii].size());
     }
-    
-    // Clip to the screen
-    {
-        std::vector<VectorRing> newRuns;
-        for (const auto &run: runs) {
-            std::vector<VectorRing> theseRuns;
-            ClipLoopToMbr(run, screenMbr, false, theseRuns);
-            if (!theseRuns.empty())
-                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
-        }
-        runs = newRuns;
-    }
-    
+        
     // Break up runs at unlikely angles
-    {
-        std::vector<VectorRing> newRuns;
-        for (const auto &run: runs) {
-            std::vector<VectorRing> theseRuns;
-            VectorRing thisRun;
-            thisRun.push_back(run.front());
-            for (unsigned int ii=1;ii<run.size()-1;ii++) {
-                const Point2f &l0 = run[ii-1], &l1 = run[ii], &l2 = run[ii+1];
-                Point2f dir0 = (l1-l0).normalized(), dir1 = (l2-l1).normalized();
-                double ang = acos(dir0.dot(-dir1));
-                if (ang > 135.0 / 180.0 * M_PI)
-                    thisRun.push_back(l1);
-                else {
-                    thisRun.push_back(l1);
-                    theseRuns.push_back(thisRun);
-                    thisRun.clear();
-                    thisRun.push_back(l1);
-                }
-            }
-            thisRun.push_back(run.back());
-            if (thisRun.size() > 1)
-                theseRuns.push_back(thisRun);
-            if (!theseRuns.empty())
-                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
-        }
-        runs = newRuns;
-    }
+//    {
+//        std::vector<VectorRing> newRuns;
+//        for (const auto &run: runs) {
+//            std::vector<VectorRing> theseRuns;
+//            VectorRing thisRun;
+//            thisRun.push_back(run.front());
+//            for (unsigned int ii=1;ii<run.size()-1;ii++) {
+//                const Point2f &l0 = run[ii-1], &l1 = run[ii], &l2 = run[ii+1];
+//                Point2f dir0 = (l1-l0).normalized(), dir1 = (l2-l1).normalized();
+//                double ang = acos(dir0.dot(-dir1));
+//                if (ang > 90.0 / 180.0 * M_PI)
+//                    thisRun.push_back(l1);
+//                else {
+//                    thisRun.push_back(l1);
+//                    theseRuns.push_back(thisRun);
+//                    thisRun.clear();
+//                    thisRun.push_back(l1);
+//                }
+//            }
+//            thisRun.push_back(run.back());
+//            if (thisRun.size() > 1)
+//                theseRuns.push_back(thisRun);
+//            if (!theseRuns.empty())
+//                newRuns.insert(newRuns.end(),theseRuns.begin(),theseRuns.end());
+//        }
+//        runs = newRuns;
+//    }
 
     return;
 }

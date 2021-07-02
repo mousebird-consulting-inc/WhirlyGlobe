@@ -19,7 +19,7 @@ class StamenWatercolorRemote: MaplyTestCase {
     
     var imageLoader : MaplyQuadImageLoader? = nil
 	
-	func setupLoader(_ baseVC: MaplyBaseViewController) -> MaplyQuadImageLoader? {
+	func setupLoader(_ baseVC: MaplyRenderControllerProtocol) -> MaplyQuadImageLoader? {
         let cacheDir = NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)[0]
         let thisCacheDir = "\(cacheDir)/stamentiles/"
         let maxZoom = Int32(16)
@@ -40,9 +40,13 @@ class StamenWatercolorRemote: MaplyTestCase {
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
         }
-        // TODO: Get this working
-//        imageLoader.imageFormat = .imageUShort565
-        //        imageLoader.debugMode = true
+
+        // Store the images as RGB 5/6/5 textures to save memory.  Not supported on iOS simulator.
+        // "Don't use the following pixel formats: ... b5g6r5Unorm"
+        // https://developer.apple.com/documentation/metal/developing_metal_apps_that_run_in_simulator
+#if !targetEnvironment(simulator)
+        imageLoader.imageFormat = .imageUShort565
+#endif
         
         return imageLoader
 	}
@@ -59,6 +63,7 @@ class StamenWatercolorRemote: MaplyTestCase {
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
 		imageLoader = setupLoader(mapVC)
 
+        mapVC.rotateGesture = false
 		mapVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-3.6704803, 40.5023056), height: 1.0, time: 1.0)
 		mapVC.setZoomLimitsMin(0.01, max: 5.0)
 	}

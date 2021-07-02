@@ -24,17 +24,25 @@ namespace WhirlyKit
     
 void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
-    if (!frameInfo->program)
-        return;
-    
-    BasicDrawable *draw = dynamic_cast<BasicDrawable *>(inDraw);
-    Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
-    ProgramGLES *programGLES = (ProgramGLES *)frameInfo->program;
-    programGLES->setUniform(u_ScaleNameID, Point2f(2.f/fbSize.x(),2.f/(float)fbSize.y()));
-    programGLES->setUniform(u_uprightNameID, keepUpright);
-    if (draw->hasMotion())
-        programGLES->setUniform(u_TimeNameID, (float)(frameInfo->currentTime - startTime));
-    programGLES->setUniform(u_activerotNameID, (activeRot ? 1 : 0));
+    if (auto programGLES = dynamic_cast<ProgramGLES*>(frameInfo->program))
+    {
+        const float zoom = (opacityExp || colorExp || scaleExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
+
+        float scale = scaleExp ? scaleExp->evaluate(zoom, 1.0) : 1.0;
+
+        const Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
+        programGLES->setUniform(u_ScaleNameID, Point2f(2.f * scale / fbSize.x(), 2.f * scale / (float) fbSize.y()));
+        programGLES->setUniform(u_uprightNameID, keepUpright);
+        programGLES->setUniform(u_activerotNameID, (activeRot ? 1 : 0));
+    }
+    if (auto draw = dynamic_cast<BasicDrawable*>(inDraw))
+    {
+        if (draw->hasMotion())
+        {
+            //programGLES->setUniform(u_TimeNameID, (float) (frameInfo->currentTime - startTime));
+            draw->setUniform(u_TimeNameID, (float) (frameInfo->currentTime - startTime));
+        }
+    }
 }
 
 ScreenSpaceDrawableBuilderGLES::ScreenSpaceDrawableBuilderGLES(const std::string &name,Scene *scene)
@@ -52,12 +60,31 @@ DrawableTweakerRef ScreenSpaceDrawableBuilderGLES::makeTweaker() const
     return std::make_shared<ScreenSpaceTweakerGLES>();
 }
 
+void ScreenSpaceDrawableBuilderGLES::setupTweaker(BasicDrawable &draw) const
+{
+    // Diamond inheritance, this method only exists to eliminate ambiguity
+    BasicDrawableBuilder::setupTweaker(draw);
+}
+
+void ScreenSpaceDrawableBuilderGLES::setupTweaker(const DrawableTweakerRef &inTweaker) const
+{
+    // Need to set up both parts of the tweaker
+    BasicDrawableBuilderGLES::setupTweaker(inTweaker);
+    ScreenSpaceDrawableBuilder::setupTweaker(inTweaker);
+    ScreenSpaceTweakerGLESRef theTweaker = std::dynamic_pointer_cast<ScreenSpaceTweakerGLES>(inTweaker);
+    if (theTweaker && scaleExp) {
+        theTweaker->scaleExp = scaleExp;
+    }
+}
+
 BasicDrawableRef ScreenSpaceDrawableBuilderGLES::getDrawable()
 {
     if (drawableGotten)
         return BasicDrawableBuilderGLES::getDrawable();
     
     auto theDraw = BasicDrawableBuilderGLES::getDrawable();
+    theDraw->motion = motion;
+
     setupTweaker(*theDraw);
     
     return theDraw;
@@ -260,7 +287,7 @@ ProgramGLES *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     if (shader)
@@ -275,7 +302,7 @@ ProgramGLES *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     if (shader)
@@ -290,7 +317,7 @@ ProgramGLES *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRend
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     if (shader)
@@ -305,7 +332,7 @@ ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRe
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     if (shader)

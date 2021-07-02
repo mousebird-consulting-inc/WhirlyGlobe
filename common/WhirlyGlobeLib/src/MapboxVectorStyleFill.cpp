@@ -77,7 +77,8 @@ void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
                                          const std::vector<VectorObjectRef> &vecObjs,
                                          const VectorTileDataRef &tileInfo,
-                                         const Dictionary *desc)
+                                         const Dictionary *desc,
+                                         const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if (!visible /*&& representation.empty()*/)
@@ -97,10 +98,14 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
 
     // Gather all the areal features for fill and/or outline
     std::vector<VectorShapeRef> shapes;
-    for (auto vecObj : vecObjs)
+    for (const auto& vecObj : vecObjs)
     {
         if (vecObj->getVectorType() == VectorArealType)
         {
+            if (shapes.empty())
+            {
+                shapes.reserve(vecObjs.size() * 20);
+            }
             std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
         }
     }
@@ -110,8 +115,13 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     {
         // tessellate the area features
         std::vector<VectorShapeRef> tessShapes;
+        tessShapes.reserve(shapes.size());
         for (const auto &it : shapes)
         {
+            if (cancelFn(inst))
+            {
+                return;
+            }
             if (const auto ar = dynamic_cast<VectorAreal*>(it.get()))
             {
                 const auto trisRef = VectorTriangles::createTriangles();
@@ -122,7 +132,17 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             }
         }
 
-        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
+        MBResolveColorType resolveMode = MBResolveColorOpacityComposeAlpha;
+#ifdef __ANDROID__
+        // On Android, pre-multiply the alpha on static colors.
+        // When the color or opacity is dynamic, we need to do it in the tweaker.
+        if ((!paint.color || !paint.color->isExpression()) &&
+            (!paint.opacity || !paint.opacity->isExpression()))
+        {
+            resolveMode = MBResolveColorOpacityMultiply;
+        }
+#endif
+        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode))
         {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;
@@ -140,7 +160,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             // TODO: Switch to stencils
 //            vecInfo.drawOrder = tileInfo->tileNumber();
 
-//            wkLogLevel(Debug, "fill: tildID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
+//            wkLogLevel(Debug, "fill: tileID = %d: (%d,%d)  drawOrder = %d, drawPriority = %d",tileInfo->ident.level, tileInfo->ident.x, tileInfo->ident.y, vecInfo.drawOrder,vecInfo.drawPriority);
 
             if (minzoom != 0 || maxzoom < 1000)
             {
@@ -178,6 +198,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             vecInfo.opacityExp = paint.opacity->expression();
             vecInfo.programID = (arealShaderID != EmptyIdentity) ? arealShaderID : styleSet->vectorArealProgramID;
             vecInfo.color = *color;
+            vecInfo.zoomSlot = styleSet->zoomSlot;
             vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
             vecInfo.drawOrder = tileInfo->tileNumber();
 

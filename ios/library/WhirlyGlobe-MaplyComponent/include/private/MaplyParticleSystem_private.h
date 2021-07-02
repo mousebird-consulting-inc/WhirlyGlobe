@@ -53,6 +53,8 @@ public:
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity ident;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 @property (nonatomic,assign) std::vector<id> &images;
+@property (nonatomic,assign) int numDataEntries;
+@property (nonatomic) NSMutableArray<NSData *> *dataArrays;
 
 @end
 

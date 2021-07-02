@@ -1,9 +1,8 @@
-/*
- *  QuadImageFrameLoader_iOS.mm
+/*  QuadImageFrameLoader_iOS.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/18/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadImageFrameLoader_iOS.h"
@@ -64,9 +62,6 @@ void QIFFrameAsset_ios::clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoade
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
     
     QIFFrameAsset::clear(threadInfo,loader,batchOps,changes);
-    
-    if (loadReturnRef)
-        loadReturnRef->cancel = true;
 
     if (request) {
         [batchOps->toCancel addObject:request];
@@ -128,13 +123,18 @@ QIFTileAsset_ios::~QIFTileAsset_ios()
 {
 }
     
-QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo,QuadFrameInfoRef frameInfo,QuadImageFrameLoader *loader)
+QIFFrameAssetRef QIFTileAsset_ios::makeFrameAsset(PlatformThreadInfo *threadInfo,
+                                                  const QuadFrameInfoRef &frameInfo,
+                                                  QuadImageFrameLoader *loader)
 {
-    auto frameAsset = QIFFrameAssetRef(new QIFFrameAsset_ios(frameInfo));
-    return frameAsset;
+    return std::make_shared<QIFFrameAsset_ios>(frameInfo);
 }
-    
-void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *inLoader,QuadFrameInfoRef frameToLoad,QIFBatchOps *inBatchOps,ChangeSet &changes)
+
+void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,
+                                     QuadImageFrameLoader *inLoader,
+                                     const QuadFrameInfoRef &frameToLoad,
+                                     QIFBatchOps *inBatchOps,
+                                     ChangeSet &changes)
 {
     QuadImageFrameLoader_ios *loader = (QuadImageFrameLoader_ios *)inLoader;
     QIFBatchOps_ios *batchOps = (QIFBatchOps_ios *)inBatchOps;
@@ -204,7 +204,7 @@ QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,
 void QuadImageFrameLoader_ios::setupFrames()
 {
     for (unsigned int ii=0;ii<[frameInfos count];ii++) {
-        QuadFrameInfoRef frame(new QuadFrameInfo());
+        auto frame = std::make_shared<QuadFrameInfo>();
         frame->frameIndex = ii;
         frames.push_back(frame);
     }
@@ -216,12 +216,12 @@ QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
 
 QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident)
 {
-    auto tileAsset = QIFTileAssetRef(new QIFTileAsset_ios(ident));
+    auto tileAsset = std::make_shared<QIFTileAsset_ios>(ident);
     tileAsset->setupFrames(threadInfo,this,[frameInfos count]);
     return tileAsset;
 }
     
-int QuadImageFrameLoader_ios::getNumFrames()
+int QuadImageFrameLoader_ios::getNumFrames() const
 {
     return [frameInfos count];
 }

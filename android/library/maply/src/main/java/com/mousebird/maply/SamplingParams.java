@@ -35,7 +35,9 @@ public class SamplingParams
      */
     public void setCoordSystem(CoordSystem coordSystem)
     {
-        setCoordSystemNative(coordSystem,coordSystem.ll,coordSystem.ur);
+        // Note: bound coords are in projected coordinates, not geographic
+        final Mbr bounds = coordSystem.getBounds();
+        setCoordSystemNative(coordSystem, new Point3d(bounds.ll,0),new Point3d(bounds.ur,0));
     }
 
     protected native void setCoordSystemNative(CoordSystem coordSystem,Point3d ll,Point3d ur);
@@ -64,6 +66,18 @@ public class SamplingParams
      * Max zoom level for sampling.  Usually more than 0.
      */
     public native int getMaxZoom();
+
+    /**
+     * We may want to calculate zoom levels beyond what we actually load.
+     * Useful for zoom scaled features and enable/disable based on zoom
+     */
+    public native void setReportedMaxZoom(int maxZoom);
+
+    /**
+     * We may want to calculate zoom levels beyond what we actually load.
+     * Useful for zoom scaled features and enable/disable based on zoom
+     */
+    public native int getReportedMaxZoom();
 
     /**
      * Maximum number of tiles to display at once.
@@ -181,6 +195,11 @@ public class SamplingParams
      * and targetLevel-2, but only the latter two if they make sense.
      */
     public native void setLevelLoads(int[] levels);
+
+    /**
+     * Scale each bounding box by this amount before using it.
+     */
+    public native void setBoundsScale(float scale);
 
     /**
      * If set, we won't load any tiles outside these boundaries.

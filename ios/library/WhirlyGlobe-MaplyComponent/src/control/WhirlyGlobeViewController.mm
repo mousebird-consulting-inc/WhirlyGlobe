@@ -1700,9 +1700,10 @@ public:
     globeView->setHeightAboveGlobe(animState.height,false);
     
     // Set the tilt either directly or as a consequence of the height
-    if (animState.tilt >= MAXFLOAT)
-        globeView->setTilt(tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe()));
-    else
+    if (animState.tilt >= MAXFLOAT) {
+        if (tiltControlDelegate)
+            globeView->setTilt(tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe()));
+    } else
         globeView->setTilt(animState.tilt);
     globeView->setRoll(animState.roll, false);
 

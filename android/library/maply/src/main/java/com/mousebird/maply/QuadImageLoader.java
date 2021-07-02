@@ -1,9 +1,8 @@
-/*
- *  QuadImageLoader.java
+/*  QuadImageLoader.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,15 +14,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
 import android.os.Handler;
-import android.renderscript.Sampler;
-
-import java.util.ArrayList;
+import android.os.Looper;
 
 /**
  * The Quad Image Loader is for paging image pyramids local or remote.
@@ -36,7 +32,7 @@ import java.util.ArrayList;
  */
 public class QuadImageLoader extends QuadImageLoaderBase
 {
-    boolean valid = false;
+    boolean valid;
 
     /**
      *  Initialize with a single tile info object and the sampling parameters.
@@ -47,19 +43,18 @@ public class QuadImageLoader extends QuadImageLoaderBase
      */
     public QuadImageLoader(final SamplingParams params,TileInfoNew tileInfo,BaseController control)
     {
-        super(control, params, 1);
+        this(params,new TileInfoNew[]{tileInfo},control,Mode.SingleFrame);
+    }
 
-        tileInfos = new TileInfoNew[1];
-        tileInfos[0] = tileInfo;
+    public QuadImageLoader(final SamplingParams params,TileInfoNew[] tileInfo,BaseController control,Mode mode)
+    {
+        super(control, params, tileInfo.length,mode);
+
+        tileInfos = tileInfo;
         valid = true;
 
-        Handler handler = new Handler(control.getActivity().getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!valid)
-                    return;
-
+        control.addPostSurfaceRunnable(() -> {
+            if (valid) {
                 delayedInit(params);
             }
         });
@@ -70,9 +65,15 @@ public class QuadImageLoader extends QuadImageLoaderBase
      */
     public void changeTileInfo(TileInfoNew tileInfo)
     {
-        tileInfos = new TileInfoNew[1];
-        tileInfos[0] = tileInfo;
+        changeTileInfo(new TileInfoNew[]{tileInfo});
+    }
 
+    /**
+     * Change the tile source and force a reload.
+     */
+    public void changeTileInfo(TileInfoNew[] tileInfo)
+    {
+        tileInfos = tileInfo;
         super.changeTileInfo(tileInfos);
     }
 }

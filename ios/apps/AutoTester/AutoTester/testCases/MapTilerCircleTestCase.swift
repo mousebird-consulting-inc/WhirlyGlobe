@@ -19,10 +19,8 @@ class MapTilerCircleTestCase: MapTilerTestCase {
         map.styleSettings.markerScale = 1.0
     }
 
-    override func getStyles() -> [(name: String, sheet: String)] {
-        return [
-            ("Custom", "maptiler_test_circles")
-        ]
+    override func getStyles() -> [(name: String, sheet: String, bg: Bool)] {
+        return [ ("Custom", "maptiler_test_circles", false) ]
     }
 
 }

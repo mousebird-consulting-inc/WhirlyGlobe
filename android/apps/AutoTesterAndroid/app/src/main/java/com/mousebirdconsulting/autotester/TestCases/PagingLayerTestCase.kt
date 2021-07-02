@@ -40,6 +40,7 @@ class PagingLayerTestCase(activity: Activity) : MaplyTestCase(activity) {
         params.maxZoom = 22
         params.minImportance = 256.0*256.0
         params.singleLevel = true
+//        params.setBoundsScale(2.0f)
         params.coordSystem = SphericalMercatorCoordSystem()
 
         // This will put an outline around a tile and a number in the middle

@@ -57,6 +57,38 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSca
 
 /*
  * Class:     com_mousebird_maply_VectorStyleSettings
+ * Method:    getSymbolScale
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSymbolScale
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorStyleSettings
+ * Method:    setSymbolScale
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSymbolScale
+        (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorStyleSettings
+ * Method:    getCircleScale
+ * Signature: ()D
+ */
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getCircleScale
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorStyleSettings
+ * Method:    setCircleScale
+ * Signature: (D)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setCircleScale
+        (JNIEnv *, jobject, jdouble);
+
+/*
+ * Class:     com_mousebird_maply_VectorStyleSettings
  * Method:    getMarkerImportance
  * Signature: ()D
  */

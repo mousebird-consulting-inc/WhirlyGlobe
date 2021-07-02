@@ -79,6 +79,9 @@ public:
     
     /// If set, we'll try to load a single level
     bool singleLevel;
+
+    /// Scale the bounding boxes of tiles before we evaluate them
+    double boundsScale;
     
     /// If set, the tiles are clipped to this boundary
     MbrD clipBounds;

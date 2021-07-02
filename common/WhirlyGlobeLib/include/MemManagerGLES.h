@@ -1,9 +1,8 @@
-/*
- *  MemManagerGLES.h
+/*  MemManagerGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,15 +14,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WrapperGLES.h"
 #import "ChangeRequest.h"
-#import <vector>
-#import <set>
-#import <map>
 #import <mutex>
+#import <unordered_set>
 
 namespace WhirlyKit
 {
@@ -63,12 +59,26 @@ public:
     
     /// Print out stats about what's in the cache
     void dumpStats();
-    
+
+    /// Clean up resources, don't cache anything else
+    void teardown();
+
+    /// Globally enable/disable buffer reuse, 0 to disable
+    static void setBufferReuse(int maxBuffers);
+
+    /// Globally enable/disable texture reuse, 0 to disable
+    static void setTextureReuse(int maxTextures);
+
 protected:
     std::mutex idLock;
     
-    std::set<GLuint> buffIDs;
-    std::set<GLuint> texIDs;
+    std::unordered_set<GLuint> buffIDs;
+    std::unordered_set<GLuint> texIDs;
+
+    bool shutdown = false;
+
+    static int maxCachedBuffers;
+    static int maxCachedTextures;
 };
     
 /** This is the configuration info passed to setupGL for each

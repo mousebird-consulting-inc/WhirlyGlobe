@@ -128,13 +128,19 @@ bool ComponentManager::hasComponentObject(SimpleIdentity compID)
     return it != compObjsById.end();
 }
 
-void ComponentManager::removeComponentObject(PlatformThreadInfo *threadInfo,SimpleIdentity compID, ChangeSet &changes)
+void ComponentManager::removeComponentObject(PlatformThreadInfo *threadInfo,
+                                             SimpleIdentity compID,
+                                             ChangeSet &changes,
+                                             bool disposeAfterRemoval)
 {
     SimpleIDSet compIDs { compID };
-    removeComponentObjects(threadInfo,compIDs, changes);
+    removeComponentObjects(threadInfo,compIDs, changes, disposeAfterRemoval);
 }
 
-void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const std::vector<ComponentObjectRef> &compObjs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
+                                              const std::vector<ComponentObjectRef> &compObjs,
+                                              ChangeSet &changes,
+                                              bool disposeAfterRemoval)
 {
     SimpleIDSet compIDs;
 
@@ -142,10 +148,10 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,con
         compIDs.insert(compObj->getId());
     }
 
-    removeComponentObjects(threadInfo,compIDs, changes);
+    removeComponentObjects(threadInfo,compIDs, changes, disposeAfterRemoval);
 }
 
-void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *threadInfo,
+void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *,
                                                      const SimpleIDSet &compIDs,
                                                      std::vector<ComponentObjectRef> &objs)
 {
@@ -189,7 +195,10 @@ void ComponentManager::removeComponentObjects_NoLock(PlatformThreadInfo *threadI
     }
 }
 
-void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes)
+void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
+                                              const SimpleIDSet &compIDs,
+                                              ChangeSet &changes,
+                                              __unused bool disposeAfterRemoval)    // used by platform override
 {
     if (compIDs.empty())
         return;
@@ -621,10 +630,13 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
     std::vector<ComponentObjectRef> compRefs;
     std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
 
+    // not locked, we don't care if the size is off, we just want
+    // to typically do the allocations outside the locked region.
+    compRefs.reserve(compObjsById.size());
+
     // Copy out the vectors that might be candidates
     {
         std::lock_guard<std::mutex> guardLock(lock);
-        
         for (const auto &kvp: compObjsById)
         {
             const auto &compObj = kvp.second;
@@ -636,31 +648,28 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
     }
     
     // Work through the vector objects
+    rets.reserve(multi ? compRefs.size() : 1);
     for (const auto &compObj: compRefs)
     {
         const auto &center = compObj->vectorOffset;
         const Point2d coord = { pt.x()-center.x(), pt.y()-center.y() };
 
-        for (auto vecObj: compObj->vecObjs)
+        for (const auto &vecObj: compObj->vecObjs)
         {
             if (vecObj->pointInside(pt))
             {
-                rets.push_back(std::make_pair(compObj, vecObj));
-                
-                if (!multi)
-                    break;
-                continue;
+                rets.emplace_back(compObj, vecObj);
             }
-            if (vecObj->pointNearLinear(coord, maxDist, viewState, frameSize))
+            else if (vecObj->pointNearLinear(coord, (float)maxDist, viewState, frameSize))
             {
-                rets.push_back(std::make_pair(compObj, vecObj));
-                if (!multi)
-                    break;
+                rets.emplace_back(compObj, vecObj);
             }
         }
         
         if (!multi && !rets.empty())
+        {
             break;
+        }
     }
     
     return rets;

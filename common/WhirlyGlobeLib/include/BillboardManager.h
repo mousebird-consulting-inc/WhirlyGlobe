@@ -99,7 +99,7 @@ class BillboardSceneRep : public Identifiable
 public:
     BillboardSceneRep();
     BillboardSceneRep(SimpleIdentity inId);
-    ~BillboardSceneRep();
+    ~BillboardSceneRep() = default;
 
     // Clear the contents out of the scene
     void clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
@@ -115,10 +115,14 @@ typedef std::set<BillboardSceneRep *,IdentifiableSorter> BillboardSceneRepSet;
 class BillboardBuilder
 {
 public:
-    BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changes,BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,SimpleIdentity billboardProgram,SimpleIdentity texId);
+    BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changes,
+                     BillboardSceneRep *sceneRep,const BillboardInfo &billInfo,
+                     SimpleIdentity billboardProgram,SimpleIdentity texId);
     ~BillboardBuilder();
 
-    void addBillboard(Point3d center,const Point2dVector &pts,const std::vector<WhirlyKit::TexCoord> &texCoords, const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
+    void addBillboard(const Point3d &center,const Point2dVector &pts,
+                      const std::vector<WhirlyKit::TexCoord> &texCoords,
+                      const RGBAColor *inColor,const SingleVertexAttributeSet &vertAttrs);
 
     void flush();
 
@@ -143,11 +147,11 @@ This object is thread safe except for deletion.
 class BillboardManager : public SceneManager
 {
 public:
-    BillboardManager();
+    BillboardManager() = default;
     virtual ~BillboardManager();
 
     /// Add billboards for display
-    SimpleIdentity addBillboards(std::vector<Billboard*> billboards,const BillboardInfo &billboardInfo,ChangeSet &changes);
+    SimpleIdentity addBillboards(const std::vector<Billboard*> &billboards,const BillboardInfo &billboardInfo,ChangeSet &changes);
 
     /// Enable/disable active billboards
     void enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);

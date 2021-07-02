@@ -11,6 +11,8 @@ public class VectorStyleSettings {
 
     public VectorStyleSettings() {
         this(1.0);
+        setBaseDrawPriority(QuadImageLoaderBase.BaseDrawPriorityDefault + 1000);
+        setDrawPriorityPerLevel(100);
     }
     public VectorStyleSettings(double scale) {
         initialise(scale);
@@ -24,9 +26,17 @@ public class VectorStyleSettings {
     native public double getTextScale();
     native public void setTextScale(double scale);
 
-    /// Markers will be scaled by this amount before display.
+    /// Markers (Symbols+Circles) will be scaled by this amount before display.
     native public double getMarkerScale();
     native public void setMarkerScale(double scale);
+
+    /// Symbols will be scaled by this amount before display.
+    native public double getSymbolScale();
+    native public void setSymbolScale(double scale);
+
+    /// Circles will be scaled by this amount before display.
+    native public double getCircleScale();
+    native public void setCircleScale(double scale);
 
     /// Importance for markers in the layout engine
     native public double getMarkerImportance();

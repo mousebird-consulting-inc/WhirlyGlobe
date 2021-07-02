@@ -242,7 +242,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjec
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObjects
-		(JNIEnv *env, jobject obj, jobject renderControlObj, jobject compManagerObj, jobject changeSetObj)
+		(JNIEnv *env, jobject obj, jobject renderControlObj,
+		 jobject compManagerObj, jobject changeSetObj)
 {
 	try
 	{
@@ -262,16 +263,31 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObje
 
 		// And then the IDs from the component objects just added
 		SimpleIDSet idSet;
-		for (auto compObj: (*loadReturn)->compObjs)
+		for (const auto& compObj: (*loadReturn)->compObjs)
 			idSet.insert(compObj->getId());
-		for (auto compObj: (*loadReturn)->ovlCompObjs)
+		for (const auto& compObj: (*loadReturn)->ovlCompObjs)
 			idSet.insert(compObj->getId());
 
 		PlatformInfo_Android platformInfo(env);
-		(*compManager)->removeComponentObjects(&platformInfo, idSet, *(*changeSet));
+		(*compManager)->removeComponentObjects(&platformInfo, idSet, **changeSet, true);
 	}
 	catch (...)
 	{
 		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::deleteComponentObjects()");
 	}
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LoaderReturn_isCanceled(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		auto loadReturn = LoaderReturnClassInfo::get(env,obj);
+		return loadReturn && *loadReturn && (*loadReturn)->cancel;
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::setGeneration()");
+	}
+	return false;
 }

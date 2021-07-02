@@ -1,9 +1,8 @@
-/*
- *  MaplyStarsModel.h
+/*  MaplyStarsModel.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/4/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -49,7 +47,7 @@
     
     @param mode Thread mode to use when adding the geometry.
   */
-- (void)addToViewC:(WhirlyGlobeViewController *__nonnull)viewC date:(NSDate *__nonnull)date desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)mode;
+- (bool)addToViewC:(WhirlyGlobeViewController *__nonnull)viewC date:(NSDate *__nonnull)date desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)mode;
 
 /** 
     Remove star geometry from the registered view controller.

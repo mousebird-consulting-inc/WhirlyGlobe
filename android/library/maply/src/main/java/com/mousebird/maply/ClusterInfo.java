@@ -1,9 +1,8 @@
-/*
- *  MaplyClusterInfo.java
+/*  MaplyClusterInfo.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
 
@@ -29,9 +27,15 @@ public class ClusterInfo {
     /**
      * Number of objects being clustered
      */
-    public int numObjects = 0;
+    public final int numObjects;
 
-    public ClusterInfo(int numObjects){
+    /**
+     * Unique IDs of the objects being clustered
+     */
+    public final String[] uniqueIDs;
+
+    public ClusterInfo(int numObjects, String[] uniqueIDs) {
         this.numObjects = numObjects;
+        this.uniqueIDs = uniqueIDs;
     }
 }

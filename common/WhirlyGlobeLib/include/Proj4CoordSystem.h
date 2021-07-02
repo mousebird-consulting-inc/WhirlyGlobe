@@ -33,29 +33,29 @@ public:
     
     /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(const std::string &proj4Str);
-    ~Proj4CoordSystem();
+    virtual ~Proj4CoordSystem();
     
     /// Convert from the local coordinate system to lat/lon
-    GeoCoord localToGeographic(Point3f);
-    GeoCoord localToGeographic(Point3d);
-    Point2d localToGeographicD(Point3d);
+    virtual GeoCoord localToGeographic(Point3f) const override;
+    virtual GeoCoord localToGeographic(Point3d) const override;
+    virtual Point2d localToGeographicD(Point3d) const override;
     /// Convert from lat/lon t the local coordinate system
-    Point3f geographicToLocal(GeoCoord);
-    Point3d geographicToLocal3d(GeoCoord);
-    Point3d geographicToLocal(Point2d);
+    virtual Point3f geographicToLocal(GeoCoord) const override;
+    virtual Point3d geographicToLocal3d(GeoCoord) const override;
+    virtual Point3d geographicToLocal(Point2d) const override;
     
     /// Convert from the local coordinate system to geocentric
-    Point3f localToGeocentric(Point3f);
-    Point3d localToGeocentric(Point3d);
+    virtual Point3f localToGeocentric(Point3f) const override;
+    virtual Point3d localToGeocentric(Point3d) const override;
     /// Convert from display coordinates to geocentric
-    Point3f geocentricToLocal(Point3f);
-    Point3d geocentricToLocal(Point3d);
+    virtual Point3f geocentricToLocal(Point3f) const override;
+    virtual Point3d geocentricToLocal(Point3d) const override;
     
     /// True if the other system is Spherical Mercator with the same origin
-    virtual bool isSameAs(CoordSystem *coordSys);
+    virtual bool isSameAs(CoordSystem *coordSys) const override;
     
     /// Check that it actually created the pj structures
-    bool isValid();
+    bool isValid() const { return pj != nullptr; }
     
 protected:
     void *pj;

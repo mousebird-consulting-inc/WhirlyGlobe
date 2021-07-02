@@ -1,0 +1,54 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+target_include_directories(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}/include/"
+)
+
+target_sources(
+        ${WGTARGET}
+
+        PUBLIC
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/Accumulator.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/AlbersEqualArea.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/AzimuthalEquidistant.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CassiniSoldner.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/CircularEngine.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/DMS.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Ellipsoid.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/EllipticFunction.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GARS.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GeoCoords.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Geocentric.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Geodesic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GeodesicExact.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GeodesicExactC4.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GeodesicLine.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GeodesicLineExact.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Geohash.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Geoid.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Georef.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Gnomonic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GravityCircle.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/GravityModel.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/LambertConformalConic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/LocalCartesian.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/MGRS.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/MagneticCircle.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/MagneticModel.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Math.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/NormalGravity.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/OSGB.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/PolarStereographic.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/PolygonArea.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Rhumb.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/SphericalEngine.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/TransverseMercator.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/TransverseMercatorExact.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/UTMUPS.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/Utility.cpp"
+)
