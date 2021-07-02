@@ -123,6 +123,7 @@
 		311E0AA62680F597007BE16F /* Airspace_Boundary.prj in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9A2680F597007BE16F /* Airspace_Boundary.prj */; };
 		311E0AA72680F597007BE16F /* ATS_Route.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A9B2680F597007BE16F /* ATS_Route.dbf */; };
 		311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */; };
+		311E0AB7268E87E3007BE16F /* LIDARTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B8849EA1E37F7CB0027C397 /* LIDARTestCase.mm */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
 		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
 		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
@@ -2656,6 +2657,7 @@
 				31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */,
 				2B4B30AA2395E0DE00854073 /* MapboxTestCase.swift in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
+				311E0AB7268E87E3007BE16F /* LIDARTestCase.mm in Sources */,
 				2B753DE221EEB7F900DE98BA /* StarsSunTestCase.swift in Sources */,
 				2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */,
 				2BC3D6F0220B900A00CE91D0 /* StartupViewController.swift in Sources */,

@@ -36,5 +36,6 @@
 #import "ChangeVectorsTestCase.h"
 #import "RepresentationsTestCase.h"
 #import "GeographicLib.h"
+#import "LIDARTestCase.h"
 
 #endif

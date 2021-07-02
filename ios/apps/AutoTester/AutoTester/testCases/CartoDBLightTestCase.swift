@@ -1,5 +1,5 @@
 //
-//  GlobeSamplerTestCase.swift
+//  CartoDBLightTestCase.swift
 //  AutoTester
 //
 //  Created by Stephen Gifford on 3/27/18.

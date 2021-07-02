@@ -49,8 +49,7 @@
 {
     baseCase = [[CartoDBLightTestCase alloc] init];
     [baseCase setUpWithGlobe:globeVC];
-    globeVC.height = 0.25;
-    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) height:0.05];
+    [globeVC setPosition:MaplyCoordinateMakeWithDegrees(-99.87, 40.13) height:0.02];
     [self setupWithBaseVC:(MaplyBaseViewController *)globeVC];
 }
 
@@ -64,15 +63,13 @@
 {
     baseCase = [[CartoDBLightTestCase alloc] init];
     [baseCase setUpWithMap:mapVC];
-    mapVC.height = 0.05;
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-100.0, 40.0) time:0.0];
+    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-99.87, 40.13) height:0.02 time:1.0];
     [self setupWithBaseVC:(MaplyBaseViewController *)mapVC];
 }
 
 - (void)tearDownWithMap:(MaplyViewController * _Nonnull)mapVC
 {
     [self teardownWithBaseVC:(MaplyBaseViewController *)mapVC];
-    
 }
 
 - (void) labelAnimationCallback

@@ -175,82 +175,88 @@ cases:
     - JVM profile shows some `ComponentObject` objects active, but no call stacks were available.
     - Native memory increases with each cycle, even after destroying the controller.
 - name: CoordConversionTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Tap shows tapped coordinate
   Comments: []
 - name: ChangeVectorsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
+  Checks:
+    - Cycles through random combinations of color, enabled, and width on normal, wide, and textured vector lines
   Comments: []
 - name: ClusteredMarkersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1139
+    - Animation doesn't seem to be working on Android
+  Checks:
+    - Markers grouped as appropriate
+    - Grouping and ungrouping animation
+  Comments:
+    - (iOS) Tap to toggle debug layout outlines
+    - (Android) Tap to cycle through cluster generators
 - name: ESRIRemoteTestCase
   iOS:
     Map: ✓
     Globe: ✓
-  Android: N/A
+  Android: Not Implemented
   Issues: []
   Checks: []
   Comments: []
 - name: ExtrudedModelTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: 'N/A'
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
+  Checks:
+    - Shows 3D arrows pointing up from selected cities
   Comments: []
 - name: FindHeightTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - Android show show the target area
+  Checks:
+    - Zooms to target area on load
   Comments: []
 - name: GeographyClass
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Simple MBTiles display
   Comments: []
 - name: GeomPointsTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Doesn't seem to do anything
+  Checks:
+    - '?'
   Comments: []
 - name: GestureFeedbackTestCase
   iOS: N/A
@@ -258,202 +264,204 @@ cases:
     Map: ✓
     Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Logs delegate callbacks
+    - Pay particular attention to the `userMotion` value
   Comments: []
 - name: GeoJSONStyleTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
-  Comments:
-    - Text looks wrong.  Too blocky.
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues:
+    - Text looks wrong; glyph outlines overlap other glyphs
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1368 (open)
+  Checks:
+    - Enables each styling option automatically
+  Comments: []
 - name: GlobeSamplerTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Shows tile boundaries
+  Comments:
+    - Duplicates rather than referencing the Stamen Watercolor case, should be refactored
 - name: GlyphProblemTestCase
   iOS:
-    Map: '?'
+    Map: 'N/A'
     Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+  Android: Not Implemented
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Screen labels with extended Unicode glyphs
+    - Not clear what the problem is/was
+  Comments:
+    - Toggles between labels on each map movement
 - name: GreatCircleTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Lines subdivided to spherical & ellipsoidal globe
+    - Precise/ellipsoidal line goes through placed marker (currently iOS only)
   Comments: []
 - name: ImageReloadTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Loads with Stamen Watercolor tiles, switches to Carto Voyager tiles after 10s
   Comments: []
 - name: ImageSingleLevelTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✗
+    Globe: ✗
   Issues: []
   Checks: []
-  Comments: []
+  Comments:
+    - Disabled
+    - Never ported from 2.x
+    - Is `setSingleLevelLoading` still relevant?
 - name: Issue721TestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: 'N/A'
+    Globe: ✗
+  Android: 'N/A'
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/pull/721
   Checks: []
   Comments: []
 - name: LabelAnimationTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
+  Checks:
+    - Labels change every 10s
   Comments: []
 - name: LabelsTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✗
+    Globe: ✗
+  Android: Not Implemented
   Issues: []
   Checks: []
   Comments:
     - 3D Labels broken.  Probably going to remove them.
 - name: LayerStartupShutdownTestCase / LayerShutdownTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✗
+    Globe: ✗
   Issues: []
-  Checks: []
+  Checks:
+    - Repeatedly creates and destroys vector MBTiles case
+    - Check memory with profiling
   Comments: []
 - name: LIDARTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: 'N/A'
+    Globe: ✗
+  Android: Not Implemented
   Issues: []
   Checks: []
-  Comments: []
+  Comments:
+    - Not ported from 2.x
 - name: LightingTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Light locations seem to be wrong
+  Checks:
+    - Lights above selected major cities
   Comments: []
 - name: LocationTrackingRealTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - iOS tracking takes a long time to start (because position isn't changing and so is reported only occasionally?)
+  Checks:
+    - Shows and optionally tracks current device location
   Comments: []
 - name: LocationTrackingSimTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Shows and optionally tracks a simulated track in Vienna
   Comments: []
 - name: LoftedPolysTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: 'N/A'
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Enabled for flat map on Android, is that expected to work?
+    - Seems to suffer from z-fighting on Android map and globe
+  Checks:
+    - Shows raised outlines for U.S. polygons
   Comments: []
 - name: MapboxTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
-  Comments: []
-- name: MaplyTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
-  Checks: []
+  Checks:
+    - Shows hybrid with image background and MapBox styled vectors
+    - Same issues as MapTiler case
   Comments: []
 - name: MapTilerCircleTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - "Various combinations of circle fill and stroke settings (todo: enumerate specifics to check)"
   Comments: []
 - name: MapTilerTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: ✓Partial
-    Globe: ✓Partial
+    Map: ✓
+    Globe: ✓
     Issues: 
       - Loader sometimes not shutting down when cycling styles, leaving map elements behind
       - Needs `imageVectorHybrid` even when not really appropriate
   Issues:
-      - Highway shield markers + text don't work correctly
+    - Highway shield markers + text don't work correctly
+    - Blocky basemaps sometimes, adjust importance values?
   Checks:
     - Vector and hybrid styles display correctly
     - Expression test sheet demonstrates dynamic line color, widths, offsets; area color (zoom to cities/interstate highways)
@@ -461,34 +469,34 @@ cases:
     - Tap an empty spot to cycle through styles    
 - name: MarkersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
   Issues: []
-  Checks: []
+  Checks:
+    - Displays world-coordinate markers (scale and rotate with the map/globe)
   Comments: []
 - name: MarkersAndLinesTestCase
-  iOS:
-    Map: '?'
-    Globe: '?'
+  iOS: Not Implemented
   Android:
-    Map: '?'
-    Globe: '?'
-  Issues: []
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Doesn't seem to do anything
   Checks: []
   Comments: []
 - name: MegaMarkersTestCase
   iOS:
-    Map: '?'
-    Globe: '?'
-  Android:
-    Map: '?'
-    Globe: '?'
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
   Issues: []
-  Checks: []
-  Comments: []
+  Checks:
+    - Lots of markers showing random colored circles
+  Comments:
+    - Uses texture atlas to efficiently handle many small images
 - name: ModelsTestCase
   iOS:
     Map: '?'
