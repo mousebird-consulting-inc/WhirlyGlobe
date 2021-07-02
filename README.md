@@ -1,7 +1,7 @@
 ![WhirlyGlobe-Maply](/common/images/banner.jpg)
 
 [![Apache v2](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
-[![Release 3.2](https://img.shields.io/badge/Release-3.2-blue.svg)](https://github.com/mousebird-consulting-inc/WhirlyGlobe/releases)
+[![Release 3.3](https://img.shields.io/badge/Release-3.2-blue.svg)](https://github.com/mousebird-consulting-inc/WhirlyGlobe/releases)
 ![Platform iOS+Android](https://img.shields.io/badge/Platform-%20iOS%20%7c%20Android-blue.svg)
 [![Open Issues](https://img.shields.io/github/issues/mousebird-consulting-inc/WhirlyGlobe.svg?color=blue)](https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues)
 [![Closed Issues](https://img.shields.io/github/issues-closed/mousebird-consulting-inc/WhirlyGlobe.svg?color=blue)](https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues?q=is%3Aissue+is%3Aclosed)
