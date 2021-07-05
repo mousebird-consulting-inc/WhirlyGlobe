@@ -109,9 +109,9 @@
 
 <h3 id="create-asynctask">Create AsyncTask</h3>
 
-<p>Picking up from the previous tutorial, create a new Java file in your <code class="language-plaintext highlighter-rouge">helloearth</code> package. Name it <code class="language-plaintext highlighter-rouge">GeoJsonHttpTask.java</code>. You can reference the completed <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/com/mousebirdconsulting/helloearth/GeoJsonHttpTask.java">GeoJsonHttpTask.java</a> on Github.</p>
+<p>Picking up from the previous tutorial, create a new Java file in your <code class="highlighter-rouge">helloearth</code> package. Name it <code class="highlighter-rouge">GeoJsonHttpTask.java</code>. You can reference the completed <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/com/mousebirdconsulting/helloearth/GeoJsonHttpTask.java">GeoJsonHttpTask.java</a> on Github.</p>
 
-<p>This Java class will extend <code class="language-plaintext highlighter-rouge">AsyncTask</code>, representing an HTTP request for GeoJSON in the background which adds the result to the given controller. Doing a long-lasting task in as an AsyncTask keeps your main UI thread from locking up. Paste the following boilerplate code in your <code class="language-plaintext highlighter-rouge">GeoJsonHttpTask.java</code> file.</p>
+<p>This Java class will extend <code class="highlighter-rouge">AsyncTask</code>, representing an HTTP request for GeoJSON in the background which adds the result to the given controller. Doing a long-lasting task in as an AsyncTask keeps your main UI thread from locking up. Paste the following boilerplate code in your <code class="highlighter-rouge">GeoJsonHttpTask.java</code> file.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">io.theoutpost.helloearth</span><span class="o">;</span>
 
@@ -140,7 +140,7 @@
 
 <h3 id="fetch-geojson-string">Fetch GeoJSON String</h3>
 
-<p>The <code class="language-plaintext highlighter-rouge">doInBackground</code> method is where work is done in a background thread. Here we will make our HTTP request and build the response buffer into a string. The following code will return a GeoJSON string back to the UI thread for further action.</p>
+<p>The <code class="highlighter-rouge">doInBackground</code> method is where work is done in a background thread. Here we will make our HTTP request and build the response buffer into a string. The following code will return a GeoJSON string back to the UI thread for further action.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="nc">String</span> <span class="nf">doInBackground</span><span class="o">(</span><span class="nc">String</span><span class="o">...</span> <span class="n">params</span><span class="o">)</span> <span class="o">{</span>
@@ -170,11 +170,11 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>If the request fails and we do not get a string of GeoJSON, we return <code class="language-plaintext highlighter-rouge">null</code>.</p>
+<p>If the request fails and we do not get a string of GeoJSON, we return <code class="highlighter-rouge">null</code>.</p>
 
 <h3 id="create-vector-object-and-add-to-map">Create Vector Object and Add to Map</h3>
 
-<p>Once we have created our GeoJSON string, we can add it to the map in <code class="language-plaintext highlighter-rouge">onPostExectue</code>.</p>
+<p>Once we have created our GeoJSON string, we can add it to the map in <code class="highlighter-rouge">onPostExectue</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="nc">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
@@ -190,11 +190,11 @@
 
 <p>Here we create a vector object out of the GeoJSON.  If successful, we add it to the target controller to be drawn on each frame where it’s visible.</p>
 
-<p>Notice that when you add the vector to the map controller, the 3rd argument is <code class="language-plaintext highlighter-rouge">ThreadMode.ThreadAny</code>. This indicates that the underlying tesselation and geometry processing work is to be done in a worker thread in the WhirlyGlobe library. You can use <code class="language-plaintext highlighter-rouge">ThreadMode.ThreadCurrent</code> if you want to control the thread on which this work is done.</p>
+<p>Notice that when you add the vector to the map controller, the 3rd argument is <code class="highlighter-rouge">ThreadMode.ThreadAny</code>. This indicates that the underlying tesselation and geometry processing work is to be done in a worker thread in the WhirlyGlobe library. You can use <code class="highlighter-rouge">ThreadMode.ThreadCurrent</code> if you want to control the thread on which this work is done.</p>
 
 <h3 id="instantiate-geojsonhttptask">Instantiate GeoJsonHttpTask</h3>
 
-<p>Again create a new fragment, <code class="language-plaintext highlighter-rouge">HelloGeoJsonFragment</code> or use <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java">HelloGeoJsonFragment.java</a>.  Here we build on <code class="language-plaintext highlighter-rouge">HelloGlobeFragment</code> and add our GeoJSON request.</p>
+<p>Again create a new fragment, <code class="highlighter-rouge">HelloGeoJsonFragment</code> or use <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java">HelloGeoJsonFragment.java</a>.  Here we build on <code class="highlighter-rouge">HelloGlobeFragment</code> and add our GeoJSON request.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
@@ -2471,7 +2471,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 

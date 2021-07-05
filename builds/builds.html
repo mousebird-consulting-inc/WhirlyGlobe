@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width initial-scale=1" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -70,9 +70,9 @@
 
 </head>
 
-<body onload="getAPIData()">
-<div id="wrap">
-    <header>
+  <body>
+    <div id="wrap">
+      <header>
 
   <div class="navbar navbar-default navbar-fixed-top" role="navigation">
     <div class="container">
@@ -99,73 +99,61 @@
 
 </header>
 
-    <script src="/WhirlyGlobe/js/builds.js"></script>
-    <div class="col-sm-12 tutorial tutorial-main build-table">
-        <h2>WhirlyGlobe-Maply Builds</h2>
-        <p>Building the toolkit from scratch can be a lot of work.  Even the Cocoapods version compiles a lot of code.  If you just want a binary version, we’ve got that here.</p>
 
-<!--
-We also provide the results of our Jenkins continuous integration server.  Builds are run for iOS and Android nightly on the development branch and every time we check something in.
+      <div class="container">
+        <div class="col-sm-12 tutorial tutorial-main">
+          <h2>Builds</h2>
+          <p>Building the toolkit from scratch can be a lot of work.  Even the Cocoapods version compiles a lot of code.  If you just want a binary version, we’ve got that here.</p>
 
-If you'd like a good binary build, just grab 2.5 or a *nightly* version.  If you've been sent here for a specific feature, you may want the commit builds.  Those are the ones without *nightly* in the name.
--->
+<p>We also provide the results of our <a href="https://www.bitrise.io/">BitRise.io</a> continuous integration builds.  Builds are run for iOS and Android on the main and development branches every time we commit.</p>
 
-<!--
-### Version 2.5
+<p>If you’d like a good binary build, grab 3.3 or a <em>latest</em> version.</p>
 
-The official released version of WhirlyGlobe-Maply is 2.5.  The downloads are as follows.
+<p>The iOS version is a binary framework you can import into your project.  One of <a href="https://mousebird-consulting-inc.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html">our tutorials</a> discusses that in detail.</p>
 
-[iOS 2.5 framework](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.zip)
+<p>For Android, you can use the AAR and we discuss how in <a href="https://mousebird-consulting-inc.github.io/WhirlyGlobe/tutorial/android/building-from-binary.html">another tutorial</a>.</p>
 
-[Android 2.5 AAR](https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.aar)
+<h3 id="version-33">Version 3.3</h3>
 
-The iOS version is a binary framework you can import into your project.  One of [our tutorials](https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html/) discusses that in detail.
+<p>The official released version of WhirlyGlobe-Maply is 3.3.  The downloads are as follows.</p>
 
-For Android, you can use the AAR and we discuss how in [another tutorial](https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html).
--->
+<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe_Maply_Distribution_3_3.zip">iOS 3.3 Xframework</a></p>
 
-<h3 id="version-30">Version 3.0</h3>
+<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe_Maply_Distribution_3_3.aar">Android 3.3 AAR</a></p>
 
-<p>The official released version of WhirlyGlobe-Maply is 3.0.  The downloads are as follows.</p>
+<h3 id="latest-versions">Latest Versions</h3>
 
-<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe-Maply_Distribution_3_0.zip">iOS 3.0 framework</a></p>
+<p>The most recent development branch builds:</p>
 
-<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe-Maply_Distribution_3_0.aar">Android 3.0 AAR</a></p>
+<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe_Maply_Develop_latest.zip">iOS Develop Xframework</a></p>
 
-<p>The iOS version is a binary framework you can import into your project.  One of <a href="https://mousebird.github.io/WhirlyGlobe/tutorial/ios/building_from_binary.html/">our tutorials</a> discusses that in detail.</p>
+<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe_Maply_Develop_latest.aar">Android Develop AAR</a></p>
 
-<p>For Android, you can use the AAR and we discuss how in <a href="https://mousebird.github.io/WhirlyGlobe/tutorial/android/building-from-nightly.html">another tutorial</a>.</p>
+<p>The most recent main branch builds:</p>
 
-<h3 id="cocoapods-ios">Cocoapods (iOS)</h3>
+<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe_Maply_Distribution_latest.zip">iOS Main Xframework</a></p>
 
-<p>Get the URL of the zip file listed below and use that in your <code class="language-plaintext highlighter-rouge">Podfile</code> as follows:</p>
+<p><a href="https://whirlyglobemaplydistribution.s3-us-west-1.amazonaws.com/WhirlyGlobe_Maply_Distribution_latest.aar">Android Main AAR</a></p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">pod <span class="s1">'WhirlyGlobe'</span>, :http <span class="o">=&gt;</span> <span class="s1">'http://url/to/binary/version.zip'</span></code></pre></figure>
+<h3 id="version-2">Version 2</h3>
 
-<p>It’s too simple to be truth, isn’t it?</p>
+<p>This is an older version of WhirlyGlobe-Maply, provided here for compatibility.  The downloads are as follows.</p>
 
-<!--
-Besides the urls listed below, you also have an special url always pointing to the lastest nightly build:
+<p><a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_5.zip">iOS 2.5 framework</a></p>
+
+<p><a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_2_6_2.aar">Android 2.6.2 AAR</a></p>
+
+<p><em>Note: Cocoapods caches the file downloaded using the URL as cache key, so even though this file always contains the latest nighly build, you will have to clean the cache after the first dowload. For that, check the command <code class="highlighter-rouge">pod cache clean -all</code></em></p>
 
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">pod <span class="s1">'WhirlyGlobe'</span>, :http <span class="o">=&gt;</span> <span class="s1">'https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/iOS_daily_builds/WhirlyGlobe-Maply_Nightly_latest.zip'</span></code></pre></figure>
 
-
--->
-
-<p><em>Note: Cocoapods caches the file downloaded using the URL as cache key, so even though this file always contains the latest nighly build, you will have to clean the cache after the first dowload. For that, check the command <code class="language-plaintext highlighter-rouge">pod cache clean -all</code></em></p>
-
-        <!--
-        <h2>Available Builds and Status</h2>
-        <div id="table">
-            <div class="container text-center">
-                <button class="btn btn-lg btn-warning"><span class="glyphicon glyphicon-refresh glyphicon-refresh-animate"></span> Loading...</button>
-            </div>
         </div>
-        -->
+
+      </div><!-- /.container -->
+
     </div>
-</div>
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 
 <!-- Include all compiled plugins (below), or include individual files as needed -->
@@ -221,7 +209,7 @@ Besides the urls listed below, you also have an special url always pointing to t
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 
@@ -262,5 +250,5 @@ Besides the urls listed below, you also have an special url always pointing to t
   </div>
 </footer>
 
-</body>
+  </body>
 </html>

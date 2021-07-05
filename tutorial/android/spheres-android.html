@@ -111,7 +111,7 @@
 
 <p>We’ll add another new fragment, <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloSphereFragment.java">HelloSphereFragment.java</a>.</p>
 
-<p>Inside of <code class="language-plaintext highlighter-rouge">insertSpheres</code>, we are going to add four spheres, each with a different location and size.</p>
+<p>Inside of <code class="highlighter-rouge">insertSpheres</code>, we are going to add four spheres, each with a different location and size.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
@@ -205,13 +205,13 @@
 
 <h3 id="a-few-things-to-make-note-of">A few things to make note of…</h3>
 
-<p>The radius is a floating point value whose units are Earth radii.  That is, <code class="language-plaintext highlighter-rouge">1.0</code> is the radius of the Earth.</p>
+<p>The radius is a floating point value whose units are Earth radii.  That is, <code class="highlighter-rouge">1.0</code> is the radius of the Earth.</p>
 
-<p>The location of the sphere is determined by <code class="language-plaintext highlighter-rouge">setLoc</code>, and this takes a <code class="language-plaintext highlighter-rouge">Point2d</code> object. You can easily convert a WGS84 (longitude, latitude) coordinate with the convenice function <code class="language-plaintext highlighter-rouge">Point2d.FromDegrees</code>.</p>
+<p>The location of the sphere is determined by <code class="highlighter-rouge">setLoc</code>, and this takes a <code class="highlighter-rouge">Point2d</code> object. You can easily convert a WGS84 (longitude, latitude) coordinate with the convenice function <code class="highlighter-rouge">Point2d.FromDegrees</code>.</p>
 
-<p>The styling of the the shape is done with the <code class="language-plaintext highlighter-rouge">ShapeInfo</code> object. This works similarly to <code class="language-plaintext highlighter-rouge">MarkerInfo</code> and <code class="language-plaintext highlighter-rouge">LabelInfo</code>. The color is set by 4 floating point values [0.0 =&gt; 1.0]. These are your red, green, blue, and alpha (transparency) values, respectively.</p>
+<p>The styling of the the shape is done with the <code class="highlighter-rouge">ShapeInfo</code> object. This works similarly to <code class="highlighter-rouge">MarkerInfo</code> and <code class="highlighter-rouge">LabelInfo</code>. The color is set by 4 floating point values [0.0 =&gt; 1.0]. These are your red, green, blue, and alpha (transparency) values, respectively.</p>
 
-<p>As before, when you add a sphere to your controller, you are given a <code class="language-plaintext highlighter-rouge">ComponentObject</code> from which you can enable, disable, and remove your sphere from the globe.</p>
+<p>As before, when you add a sphere to your controller, you are given a <code class="highlighter-rouge">ComponentObject</code> from which you can enable, disable, and remove your sphere from the globe.</p>
 
 <hr />
 
@@ -2445,7 +2445,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 

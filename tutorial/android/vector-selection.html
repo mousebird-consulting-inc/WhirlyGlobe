@@ -109,7 +109,7 @@
 
 <h3 id="switch-to-geojson-fragment">Switch to GeoJSON Fragment</h3>
 
-<p>First, switch your layout back to <code class="language-plaintext highlighter-rouge">HelloGeoJsonFragment</code>:</p>
+<p>First, switch your layout back to <code class="highlighter-rouge">HelloGeoJsonFragment</code>:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code>...
    <span class="nt">&lt;fragment</span>
@@ -120,7 +120,7 @@
 
 <h3 id="make-vector-object-selectable">Make Vector Object Selectable</h3>
 
-<p>Vector selection in WhirlyGlobe–Maply is easy to enable. First, make sure that you have set your <code class="language-plaintext highlighter-rouge">VectorObject</code> to be selectable. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/GeoJsonHttpTask.java">GeoJsonHttpTask.java</a>, call <code class="language-plaintext highlighter-rouge">object.selectable(true);</code>.</p>
+<p>Vector selection in WhirlyGlobe–Maply is easy to enable. First, make sure that you have set your <code class="highlighter-rouge">VectorObject</code> to be selectable. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/GeoJsonHttpTask.java">GeoJsonHttpTask.java</a>, call <code class="highlighter-rouge">object.selectable(true);</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onPostExecute</span><span class="o">(</span><span class="nc">String</span> <span class="n">json</span><span class="o">)</span> <span class="o">{</span>
@@ -139,7 +139,7 @@
 
 <h3 id="create-gesture-delegate-method">Create Gesture Delegate Method</h3>
 
-<p>The super class of <code class="language-plaintext highlighter-rouge">HelloMapFragment</code> is <code class="language-plaintext highlighter-rouge">GlobeMapFragment</code>. One of the methods defined is <code class="language-plaintext highlighter-rouge">userDidSelect</code>. This is a delegate method that you can override that is called whenever an object is selected. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java">HelloGeoJsonFragment.java</a>, create the following method:</p>
+<p>The super class of <code class="highlighter-rouge">HelloMapFragment</code> is <code class="highlighter-rouge">GlobeMapFragment</code>. One of the methods defined is <code class="highlighter-rouge">userDidSelect</code>. This is a delegate method that you can override that is called whenever an object is selected. In <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java">HelloGeoJsonFragment.java</a>, create the following method:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">public</span> <span class="kt">void</span> <span class="nf">userDidSelect</span><span class="o">(</span><span class="nc">GlobeController</span> <span class="n">globeControl</span><span class="o">,</span> <span class="nc">SelectedObject</span><span class="o">[]</span> <span class="n">selObjs</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">loc</span><span class="o">,</span> <span class="nc">Point2d</span> <span class="n">screenLoc</span><span class="o">)</span> <span class="o">{</span>
@@ -162,11 +162,11 @@
 
 <p>This method will be called whenver a vector object is selected.</p>
 
-<p>There are a lot of things you can do when <code class="language-plaintext highlighter-rouge">userDidSelect</code> is fired. To keep things simple, we just create a <code class="language-plaintext highlighter-rouge">Toast</code> (popup) message that displays the administrative name from the original GeoJSON of the polygon that was selected.</p>
+<p>There are a lot of things you can do when <code class="highlighter-rouge">userDidSelect</code> is fired. To keep things simple, we just create a <code class="highlighter-rouge">Toast</code> (popup) message that displays the administrative name from the original GeoJSON of the polygon that was selected.</p>
 
 <h3 id="set-fragment-as-gesture-delegate">Set Fragment as Gesture Delegate</h3>
 
-<p>In order to call <code class="language-plaintext highlighter-rouge">userDidSelect</code>, the globe controller needs to know that your <code class="language-plaintext highlighter-rouge">HelloMapFragment</code> should be notified when a selection occurs. In the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java"><code class="language-plaintext highlighter-rouge">controlHasStarted</code></a> method, set:</p>
+<p>In order to call <code class="highlighter-rouge">userDidSelect</code>, the globe controller needs to know that your <code class="highlighter-rouge">HelloMapFragment</code> should be notified when a selection occurs. In the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGeoJsonFragment.java"><code class="highlighter-rouge">controlHasStarted</code></a> method, set:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Override</span>
 <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">controlHasStarted</span><span class="o">()</span> <span class="o">{</span>
@@ -177,7 +177,7 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>It doesn’t matter when you set this fragment as the delegate, as long as it happens before the user actually selects the vector. <code class="language-plaintext highlighter-rouge">controlHasStarted</code> is the most logical place for us to do this.</p>
+<p>It doesn’t matter when you set this fragment as the delegate, as long as it happens before the user actually selects the vector. <code class="highlighter-rouge">controlHasStarted</code> is the most logical place for us to do this.</p>
 
 <p><img src="resources/vector-selection.jpg" alt="Vector Selection" /></p>
 
@@ -202,14 +202,14 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>This method is to be called in <code class="language-plaintext highlighter-rouge">userDidSelect</code> when we are handling a selected <code class="language-plaintext highlighter-rouge">VectorObject</code>:</p>
+<p>This method is to be called in <code class="highlighter-rouge">userDidSelect</code> when we are handling a selected <code class="highlighter-rouge">VectorObject</code>:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="o">...</span>
     <span class="n">drawVectorObjectAsSelected</span><span class="o">(</span><span class="n">vectorObject</span><span class="o">);</span>
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Lastly, make sure you have a class member <code class="language-plaintext highlighter-rouge">ComponentObject selectedComponentObject;</code>. Whenever a selection is made, we check to see if there was a previous selection and remove it from the map controller.</p>
+<p>Lastly, make sure you have a class member <code class="highlighter-rouge">ComponentObject selectedComponentObject;</code>. Whenever a selection is made, we check to see if there was a previous selection and remove it from the map controller.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="kd">private</span> <span class="nc">ComponentObject</span> <span class="n">selectedComponentObject</span><span class="o">;</span>
 </code></pre></div></div>
@@ -2450,7 +2450,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 

@@ -107,9 +107,9 @@
             <h2>Binary Distribution</h2>
             <p>The binary distribution is one of the easiest ways to get started with WhirlyGlobe-Maply.  We distribute the toolkit as a framework for iOS device and simulator.</p>
 
-<p>First, download the <a href="https://s3-us-west-1.amazonaws.com/whirlyglobemaplydistribution/WhirlyGlobe-Maply_Distribution_3_0.zip">binary distribution</a> and unzip it into your projects directory. It should look something like this:</p>
+<p>First, download the <a href="../../builds/builds.html">binary distribution</a> and unzip it into your projects directory. It should look something like this:</p>
 
-<figure class="highlight"><pre><code class="language-bash" data-lang="bash">projects/WhirlyGlobe_Maply_Distribution_3_0</code></pre></figure>
+<figure class="highlight"><pre><code class="language-bash" data-lang="bash">projects/WhirlyGlobeMaplyComponent.framework</code></pre></figure>
 
 <p>This guide will simply refer to it as <strong>BinaryDirectory</strong> for purposes of indicating paths.</p>
 
@@ -119,23 +119,24 @@
 
 <p>We build WhirlyGlobe-Maply as a binary framework.  Those need to be explicitly imported into the project.</p>
 
-<p><img src="/WhirlyGlobe/images/tutorial/source_dist_1.png" alt="Adding the Framework" /></p>
+<p><img src="/WhirlyGlobe/images/tutorial/binary_dist_1.png" alt="Adding the Framework" /></p>
 
 <p>To add an external library in Xcode, select the top level HelloEarth node in the project tab, click the + at the bottom, and then <strong>Add Files</strong> from the <strong>Add Other</strong> dropdown.</p>
 
 <p>Navigate to your  <strong>BinaryDirectory</strong> and select WhirlyGlobeMaplyComponent.framework., then click Open.</p>
 
-<p>We’ll need to add some libraries that WG-Maply needs. Click + again and add the following.</p>
+<p>We’ll need to add some libraries that WG-Maply needs. Navigate to the HelloEarth target in the project settings, and in the General section click <code class="highlighter-rouge">+</code> to add the following.</p>
 
 <figure class="highlight"><pre><code class="language-bash" data-lang="bash">+ CoreLocation
-+ libc++
-+ libz
-+ libxml2
-+ libsqlite3</code></pre></figure>
++ libz.1
++ libxml2.2
++ libsqlite3
++ libc++.1
++ libc++abi</code></pre></figure>
+
+<p><img src="/WhirlyGlobe/images/tutorial/binary_dist_2.png" alt="Adding the Dependent packages" /></p>
 
 <p>Next, we need to indicate where to find the framework and the header files. Open up Build Settings and scroll down to <strong>Framework Search Paths</strong>.  Add your <strong>BinaryDirectory</strong> here.  This should be the level where your <em>WhirlyGlobeMaplyComponent.framework</em> directory lives.</p>
-
-<p><img src="/WhirlyGlobe/images/tutorial/binary_dist_2.png" alt="Adding the Dependent Project" /></p>
 
 <p>For the header files, find the <strong>Header Search Paths</strong> in your Build Settings.  Add the path to your <strong>BinaryDirectory</strong> plus Headers, like so.</p>
 
@@ -2953,6 +2954,317 @@
                       
                       </ol>
                       
+                      <li class="sidebar-header-item">Advanced</li>
+                      <ol class="list-unstyled sidebar-list-items">
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/cartodb_layer.html">Carto Layer</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      <li class="sidebar-list-item"><a class="page-link" href="/WhirlyGlobe/tutorial/ios/digitalglobe_mapsapi.html">DigitalGlobe Maps API</a></li>
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      
+                      </ol>
+                      
                     </ol>
                   </div>
                 </nav>
@@ -3033,7 +3345,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 

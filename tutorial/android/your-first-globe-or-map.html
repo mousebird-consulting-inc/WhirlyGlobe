@@ -111,11 +111,11 @@
 
 <p><img src="/WhirlyGlobe/images/tutorial/getting_started_header.png" alt="Globe and Map" /></p>
 
-<p>If you want a rotating globe, you’ll want a <code class="language-plaintext highlighter-rouge">MapDisplayType.Globe</code>. If you want a slippy map, you’ll want a <code class="language-plaintext highlighter-rouge">MapDisplayType.Map</code> enum in your <code class="language-plaintext highlighter-rouge">GlobeMapFragment</code>. We’ll go into greater detail about this setting later in the tutorial.</p>
+<p>If you want a rotating globe, you’ll want a <code class="highlighter-rouge">MapDisplayType.Globe</code>. If you want a slippy map, you’ll want a <code class="highlighter-rouge">MapDisplayType.Map</code> enum in your <code class="highlighter-rouge">GlobeMapFragment</code>. We’ll go into greater detail about this setting later in the tutorial.</p>
 
 <h3 id="add-internet-permission">Add Internet Permission</h3>
 
-<p>We’ll need to be able to load tile images from the internet, which means the application will need to request the internet permission. Add the following <code class="language-plaintext highlighter-rouge">uses-permission</code> element to the manifest section of <code class="language-plaintext highlighter-rouge">app/manifests/AppManifest.xml</code>, as well as the <code class="language-plaintext highlighter-rouge">android:usesCleartextTraffic="true"</code> attribute to allow fetching data from public sources with no encryption:</p>
+<p>We’ll need to be able to load tile images from the internet, which means the application will need to request the internet permission. Add the following <code class="highlighter-rouge">uses-permission</code> element to the manifest section of <code class="highlighter-rouge">app/manifests/AppManifest.xml</code>, as well as the <code class="highlighter-rouge">android:usesCleartextTraffic="true"</code> attribute to allow fetching data from public sources with no encryption:</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;manifest</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
@@ -143,7 +143,7 @@
 
 <h3 id="add-globe-map-fragment">Add Globe Map Fragment</h3>
 
-<p>Create a new Java class called <code class="language-plaintext highlighter-rouge">HelloGlobeFragment</code> in HelloEarth with the following contents, or download the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGlobeFragment.java">HelloGlobeFragment.java</a> file and place it in the appropriate directory, e.g., <code class="language-plaintext highlighter-rouge">HelloEarth/app/src/main/java/com/mousebirdconsulting/helloearth</code>.</p>
+<p>Create a new Java class called <code class="highlighter-rouge">HelloGlobeFragment</code> in HelloEarth with the following contents, or download the <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloGlobeFragment.java">HelloGlobeFragment.java</a> file and place it in the appropriate directory, e.g., <code class="highlighter-rouge">HelloEarth/app/src/main/java/com/mousebirdconsulting/helloearth</code>.</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
@@ -217,7 +217,7 @@
 
 <h3 id="include-fragment-in-the-main-activity-layout">Include Fragment in the Main Activity Layout</h3>
 
-<p>Open <code class="language-plaintext highlighter-rouge">app/res/layout/activity_main.xml</code> and select the “Code” view. Replace the <code class="language-plaintext highlighter-rouge">TextView</code> with the fragment element as shown below.</p>
+<p>Open <code class="highlighter-rouge">app/res/layout/activity_main.xml</code> and select the “Code” view. Replace the <code class="highlighter-rouge">TextView</code> with the fragment element as shown below.</p>
 
 <h4 id="activity_mainxml">activity_main.xml</h4>
 
@@ -253,7 +253,7 @@
 
 <h3 id="setup-hellomapfragment">Setup HelloMapFragment</h3>
 
-<p>Create another new class, <code class="language-plaintext highlighter-rouge">HelloMapFragment</code>, replacing it with the following code:</p>
+<p>Create another new class, <code class="highlighter-rouge">HelloMapFragment</code>, replacing it with the following code:</p>
 
 <div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">com.mousebirdconsulting.helloearth</span><span class="o">;</span>
 
@@ -327,16 +327,16 @@
 
 <p>You can download <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloMapFragment.java">HelloMapFragment.java</a> and place it directly in your project.</p>
 
-<p>Notice that this fragment is almost exactly the same as <code class="language-plaintext highlighter-rouge">HelloGlobeFragment.java</code>. There are two differences:</p>
+<p>Notice that this fragment is almost exactly the same as <code class="highlighter-rouge">HelloGlobeFragment.java</code>. There are two differences:</p>
 
 <ol>
-  <li><code class="language-plaintext highlighter-rouge">chooseDisplayType</code> returns <code class="language-plaintext highlighter-rouge">MapDisplayType.Map</code> instead of <code class="language-plaintext highlighter-rouge">MapDisplayType.Globe</code>.</li>
-  <li><code class="language-plaintext highlighter-rouge">controlHasStarted</code> uses <code class="language-plaintext highlighter-rouge">mapControl</code> instead of <code class="language-plaintext highlighter-rouge">globeControl</code>.</li>
+  <li><code class="highlighter-rouge">chooseDisplayType</code> returns <code class="highlighter-rouge">MapDisplayType.Map</code> instead of <code class="highlighter-rouge">MapDisplayType.Globe</code>.</li>
+  <li><code class="highlighter-rouge">controlHasStarted</code> uses <code class="highlighter-rouge">mapControl</code> instead of <code class="highlighter-rouge">globeControl</code>.</li>
 </ol>
 
 <h3 id="replace-activity-xml-with-map-fragment">Replace Activity XML with Map Fragment</h3>
 
-<p>In your <code class="language-plaintext highlighter-rouge">activity_main.xml</code>, comment out the <code class="language-plaintext highlighter-rouge">HelloGlobeFragment</code> and replace it with your new <code class="language-plaintext highlighter-rouge">HelloMapFragment</code>.</p>
+<p>In your <code class="highlighter-rouge">activity_main.xml</code>, comment out the <code class="highlighter-rouge">HelloGlobeFragment</code> and replace it with your new <code class="highlighter-rouge">HelloMapFragment</code>.</p>
 
 <div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
 <span class="nt">&lt;androidx.constraintlayout.widget.ConstraintLayout</span> <span class="na">xmlns:android=</span><span class="s">"http://schemas.android.com/apk/res/android"</span>
@@ -2596,7 +2596,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 

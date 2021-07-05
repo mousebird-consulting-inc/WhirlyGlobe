@@ -4,13 +4,14 @@ This fork is for the Jekyll conversion of WhirlyGlobe-Maply documentation. Here'
 
 ### Ruby Versions and Gemsets
 
-Perform a single-user installation of [RVM](http://rvm.io/rvm/install). Be sure that your installation passes the ```rvm
-is a function``` test.
+Perform a single-user installation of [RVM](http://rvm.io/rvm/install). Be sure that your installation passes the <a href="https://rvm.io/rvm/install#3-reload-shell-configuration-amp-test">```rvm
+is a function``` test</a>.
 
-Make sure you have installed Bundler.
+Make sure you have installed or updated Bundler:
 
 ```
 gem install bundler
+gem update bundler
 ```
 
 ### Use Bundler to install Jekyll and Its Dependencies
@@ -22,32 +23,10 @@ ruby-2.1.0 - #generating WhirlyGlobe wrappers...........
 $ bundle
 Fetching gem metadata from https://rubygems.org/.......
 Installing RedCloth (4.2.9)
-Installing i18n (0.6.11)
-Using json (1.8.1)
-Installing minitest (5.4.2)
-Installing thread_safe (0.3.4)
-Installing tzinfo (1.2.2)
-Installing activesupport (4.1.6)
-
 ...
 
-Installing html-pipeline (1.9.0)
-Installing jekyll-mentions (0.1.3)
-Installing jekyll-redirect-from (0.6.2)
-Installing jekyll-sitemap (0.6.0)
-Installing jemoji (0.3.0)
-Installing maruku (0.7.0)
-Installing rdiscount (2.1.7)
-Installing github-pages (28)
-Using bundler (1.5.3)
-Your bundle is complete!
-Use `bundle show [gemname]` to see where a bundled gem is installed.
-Post-install message from html-pipeline:
--------------------------------------------------
-Thank you for installing html-pipeline!
-You must bundle Filter gem dependencies.
-See html-pipeline README.md for more details.
-https://github.com/jch/html-pipeline#dependencies
+Bundle complete! 1 Gemfile dependency, 85 gems now installed.
+Use `bundle info [gemname]` to see where a bundled gem is installed.
 $
 ```
 
@@ -70,7 +49,7 @@ This'll start a [local server running on port 4000](http://localhost:4000/tutori
 
 ### Addendum
 
-If all that fails try:  bundle exec jekyll build
+If all that fails try: ```bundle exec jekyll build```
 
 ### Adding/Deleting Pages
 

@@ -109,14 +109,14 @@
 
 <h3 id="copy-and-include-aar">Copy and Include AAR</h3>
 
-<p>Copy your just-downloaded <code class="language-plaintext highlighter-rouge">.aar</code> file into your app’s <code class="language-plaintext highlighter-rouge">libs</code> directory:</p>
+<p>Copy your just-downloaded <code class="highlighter-rouge">.aar</code> file into your app’s <code class="highlighter-rouge">libs</code> directory:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HelloEarth/app/libs
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>HelloEarth/app/libs
 </code></pre></div></div>
 
-<p>Rename it to <code class="language-plaintext highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
+<p>Rename it to <code class="highlighter-rouge">WhirlyGlobeMaply.aar</code>.</p>
 
-<p>Add the following <code class="language-plaintext highlighter-rouge">flatDir</code> directive to the <code class="language-plaintext highlighter-rouge">build.gradle (Project: HelloEarth)</code> file inside of the <code class="language-plaintext highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
+<p>Add the following <code class="highlighter-rouge">flatDir</code> directive to the <code class="highlighter-rouge">build.gradle (Project: HelloEarth)</code> file inside of the <code class="highlighter-rouge">allprojects &gt; repositories</code> directive.</p>
 
 <div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">allprojects</span> <span class="o">{</span>
     <span class="k">repositories</span> <span class="o">{</span>
@@ -128,11 +128,11 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Next add the following packages to the end of the <code class="language-plaintext highlighter-rouge">dependencies</code> directive in <code class="language-plaintext highlighter-rouge">build.gradle (Module: app)</code>.</p>
+<p>Next add the following packages to the end of the <code class="highlighter-rouge">dependencies</code> directive in <code class="highlighter-rouge">build.gradle (Module: app)</code>.</p>
 
 <ul>
-  <li><code class="language-plaintext highlighter-rouge">implementation 'com.squareup.okhttp3:okhttp:3.14.2'</code></li>
-  <li><code class="language-plaintext highlighter-rouge">implementation(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
+  <li><code class="highlighter-rouge">implementation 'com.squareup.okhttp3:okhttp:3.14.2'</code></li>
+  <li><code class="highlighter-rouge">implementation(name:'WhirlyGlobeMaply', ext:'aar')</code></li>
 </ul>
 
 <div class="language-gradle highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">dependencies</span> <span class="o">{</span>
@@ -153,19 +153,19 @@
 
 <h3 id="set-version-compatibility">Set Version Compatibility</h3>
 
-<p>In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the <code class="language-plaintext highlighter-rouge">File</code> / <code class="language-plaintext highlighter-rouge">Project Structure</code> options dialog.</p>
+<p>In order to avoid errors and conflicts, set the source and target compatibility options for the new application to match those of the maply module in the <code class="highlighter-rouge">File</code> / <code class="highlighter-rouge">Project Structure</code> options dialog.</p>
 
 <p><img src="resources/android-studio-app-sdk-version.png" alt="Set Compatibility Versions" /></p>
 
 <p>In particular, this has been observed to cause the following exception on application start:</p>
 
-<p><code class="language-plaintext highlighter-rouge">java.lang.NoSuchMethodError: No static method metafactory(...); in class ...LambdaMetafactory; or its super classes ...</code></p>
+<p><code class="highlighter-rouge">java.lang.NoSuchMethodError: No static method metafactory(...); in class ...LambdaMetafactory; or its super classes ...</code></p>
 
 <h3 id="example-app">Example App</h3>
 
 <p>To continue building HelloEarth, go to the <a href="your-first-globe-or-map.html">Your First Globe or Map</a> page.</p>
 
-<p>Besides the <a href="hello-earth.html">Hello Earth</a> project, there is an example app you can try out called <code class="language-plaintext highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
+<p>Besides the <a href="hello-earth.html">Hello Earth</a> project, there is an example app you can try out called <code class="highlighter-rouge">AutoTesterAndroid</code>. This is optional, but it is the quickest way to <em>see something work</em>. We have <a href="auto-tester-android.html">brief instructions</a> for you to build AutoTesterAndroid.</p>
 
 <hr />
 
@@ -2281,7 +2281,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 

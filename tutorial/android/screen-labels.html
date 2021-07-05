@@ -107,7 +107,7 @@
             <h2>Screen Labels</h2>
             <p>Adding screen lables is a very similar process to adding screen markers. Screen labels are 2D labels that follow a location on the globe or map. As the user moves, they move, but don’t get any bigger or smaller. You have a lot of control over how they look and interact, but they’re simple to use.</p>
 
-<p>In our last tutorial we added some markers for the five largest cities in Russia. Since WhirlyGlobe-Maply supports UTF-8 strings, we’re going to show off some cyrillic labels. We are going to add to our <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloLabelFragment.java">HelloLabelFragment.java</a>. Just comment out <code class="language-plaintext highlighter-rouge">insertMarkers();</code> in the <code class="language-plaintext highlighter-rouge">controlHasStarted</code> method and put in <code class="language-plaintext highlighter-rouge">insertLabels();</code> instead.</p>
+<p>In our last tutorial we added some markers for the five largest cities in Russia. Since WhirlyGlobe-Maply supports UTF-8 strings, we’re going to show off some cyrillic labels. We are going to add to our <a href="https://github.com/mousebird/AndroidTutorialProject/blob/master/app/src/main/java/com/mousebirdconsulting/helloearth/HelloLabelFragment.java">HelloLabelFragment.java</a>. Just comment out <code class="highlighter-rouge">insertMarkers();</code> in the <code class="highlighter-rouge">controlHasStarted</code> method and put in <code class="highlighter-rouge">insertLabels();</code> instead.</p>
 
 <h3 id="add-labels">Add Labels</h3>
 
@@ -192,7 +192,7 @@
 <span class="o">}</span>
 </code></pre></div></div>
 
-<p>Notice there is a <code class="language-plaintext highlighter-rouge">LabelInfo</code> options object that defines how the text is going to look. <code class="language-plaintext highlighter-rouge">setLayoutPlacement</code> is an important <code class="language-plaintext highlighter-rouge">LabelInfo</code>property to set, because this determines the placement of the label in relation to the <code class="language-plaintext highlighter-rouge">loc</code> point. <code class="language-plaintext highlighter-rouge">LabelInfo.LayoutRight</code> means that the label is placed directly to the right of the <code class="language-plaintext highlighter-rouge">loc</code> point. Your other options are <code class="language-plaintext highlighter-rouge">LabelInfo.LayoutLeft</code> and <code class="language-plaintext highlighter-rouge">LabelInfo.LayoutCenter</code>.</p>
+<p>Notice there is a <code class="highlighter-rouge">LabelInfo</code> options object that defines how the text is going to look. <code class="highlighter-rouge">setLayoutPlacement</code> is an important <code class="highlighter-rouge">LabelInfo</code>property to set, because this determines the placement of the label in relation to the <code class="highlighter-rouge">loc</code> point. <code class="highlighter-rouge">LabelInfo.LayoutRight</code> means that the label is placed directly to the right of the <code class="highlighter-rouge">loc</code> point. Your other options are <code class="highlighter-rouge">LabelInfo.LayoutLeft</code> and <code class="highlighter-rouge">LabelInfo.LayoutCenter</code>.</p>
 
 <p>Then, we create each label, set their properties, and add them to the map controller.</p>
 
@@ -224,9 +224,9 @@
 
 <h3 id="layout-engine">Layout Engine</h3>
 
-<p>In addition to a location and text property for a <code class="language-plaintext highlighter-rouge">ScreenLabel</code>, we have a <code class="language-plaintext highlighter-rouge">layoutImportance</code>. Because labels often overlap or <em>collide</em>, we have a layout engine that helps us figure out which ones we want to draw. When two labels collide, the one that is rendered is the one with the higher <code class="language-plaintext highlighter-rouge">layoutImportance</code> floating point value. If you want all labels rendered regardless of collision, set the <code class="language-plaintext highlighter-rouge">layoutImportance</code> to <code class="language-plaintext highlighter-rouge">Float.MAX_VALUE</code>.</p>
+<p>In addition to a location and text property for a <code class="highlighter-rouge">ScreenLabel</code>, we have a <code class="highlighter-rouge">layoutImportance</code>. Because labels often overlap or <em>collide</em>, we have a layout engine that helps us figure out which ones we want to draw. When two labels collide, the one that is rendered is the one with the higher <code class="highlighter-rouge">layoutImportance</code> floating point value. If you want all labels rendered regardless of collision, set the <code class="highlighter-rouge">layoutImportance</code> to <code class="highlighter-rouge">Float.MAX_VALUE</code>.</p>
 
-<p>Lastly, we can rotate our screen labels in the same way that we did with screen markers. You will see that Нижний Новгород is slightly rotated counter-clockwise becaue we set a rotation of <code class="language-plaintext highlighter-rouge">Math.PI / 8</code>.</p>
+<p>Lastly, we can rotate our screen labels in the same way that we did with screen markers. You will see that Нижний Новгород is slightly rotated counter-clockwise becaue we set a rotation of <code class="highlighter-rouge">Math.PI / 8</code>.</p>
 
 <hr />
 
@@ -2463,7 +2463,7 @@
             An open source geospatial display toolkit<br /> for iOS and Android.
           </p>
           <p class="site-description">
-            <small>Ⓒ 2020 mousebird consulting.</small>
+            <small>Ⓒ 2021 mousebird consulting.</small>
           </p>
         </div>
 
