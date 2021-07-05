@@ -8,11 +8,11 @@ prev_next:
 
 You need to create an Xcode project.  We’ll call it **HelloEarth** and you’ll add all your tutorial code to it.
 
-Open Xcode, select File, New, and then Project.  Use the Single View Application Template.
+Open Xcode, select File, New, and then Project, and the App template.
 
 ![Single View Application]({{ site.baseurl }}/images/tutorial/hello_earth_template.png)
 
-In this case we're using Swift as the language and Storyboards for the UI.  You can use Objective-C and SwiftUI instead.  Not together, obviously.
+In this case we're using Swift as the language and Storyboards for the UI.  You can use Objective-C or SwiftUI instead, if you prefer.
 
 ![Swift Storyboard]({{ site.baseurl }}/images/tutorial/hello_earth_swift.png)
 

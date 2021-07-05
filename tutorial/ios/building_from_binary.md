@@ -11,7 +11,7 @@ The binary distribution is one of the easiest ways to get started with WhirlyGlo
 First, download the [binary distribution](../../builds/builds.html) and unzip it into your projects directory. It should look something like this:
 
 {% highlight bash %}
-projects/WhirlyGlobe_Maply_Distribution_3_3
+projects/WhirlyGlobeMaplyComponent.framework
 {% endhighlight %}
 
 This guide will simply refer to it as **BinaryDirectory** for purposes of indicating paths.
@@ -22,25 +22,26 @@ You will need your HelloEarth project [from earlier](hello_earth.html) for the n
 
 We build WhirlyGlobe-Maply as a binary framework.  Those need to be explicitly imported into the project.
 
-![Adding the Framework]({{ site.baseurl }}/images/tutorial/source_dist_1.png)
+![Adding the Framework]({{ site.baseurl }}/images/tutorial/binary_dist_1.png)
 
 To add an external library in Xcode, select the top level HelloEarth node in the project tab, click the + at the bottom, and then **Add Files** from the **Add Other** dropdown.
 
 Navigate to your  **BinaryDirectory** and select WhirlyGlobeMaplyComponent.framework., then click Open.
 
-We'll need to add some libraries that WG-Maply needs. Click + again and add the following.
+We'll need to add some libraries that WG-Maply needs. Navigate to the HelloEarth target in the project settings, and in the General section click `+` to add the following.
 
 {% highlight bash %}
 + CoreLocation
-+ libc++
-+ libz
-+ libxml2
++ libz.1
++ libxml2.2
 + libsqlite3
++ libc++.1
++ libc++abi
 {% endhighlight %}
 
-Next, we need to indicate where to find the framework and the header files. Open up Build Settings and scroll down to **Framework Search Paths**.  Add your **BinaryDirectory** here.  This should be the level where your _WhirlyGlobeMaplyComponent.framework_ directory lives.
+![Adding the Dependent packages]({{ site.baseurl }}/images/tutorial/binary_dist_2.png)
 
-![Adding the Dependent Project]({{ site.baseurl }}/images/tutorial/binary_dist_2.png)
+Next, we need to indicate where to find the framework and the header files. Open up Build Settings and scroll down to **Framework Search Paths**.  Add your **BinaryDirectory** here.  This should be the level where your _WhirlyGlobeMaplyComponent.framework_ directory lives.
 
 For the header files, find the **Header Search Paths** in your Build Settings.  Add the path to your **BinaryDirectory** plus Headers, like so.
 
