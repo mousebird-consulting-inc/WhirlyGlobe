@@ -9,9 +9,9 @@ WhirlyGlobe-Maply is an open source toolkit for iOS and Android. You can use it 
 
 In these tutorials we’ll walk you through getting set up with WhirlyGlobe-Maply and displaying some simple data.  By the end you’ll have a simple globe or map based app.  The two primary platforms we support are Android and iOS. 
 
-***
+---
 
-These tutorials are for WhirlyGlobe-Maply Version 3.0 and greater.
+These tutorials are for WhirlyGlobe-Maply Version 3.3.
 
 <div class="media">
 <a class="media-left" href= "ios/getting_started.html" border="0"><img src= "{{ site.baseurl }}/images/apple_logo_white.png" alt= "iOS Tutorial" align="left" width="64" height="78" style="margin-left:10px;margin-right:10px" /></a>
