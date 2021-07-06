@@ -1,2 +1,27 @@
-appledoc --project-name "WhirlyGlobe-Maply" --project-company "mousebird consulting inc"  --company-id "com.mousebirdconsulting" --output doc include/Maply* include/NSData* include/Mapnik* include/NSDictionary+StyleRules.h include/WGCoordinate.h include/WhirlyGlobe*
-appledoc --project-name "WhirlyGlobe-Maply" --project-company "mousebird consulting inc"  --company-id "com.mousebirdconsulting" --keep-intermediate-files --output doc include/Maply* include/NSData* include/Mapnik* include/NSDictionary+StyleRules.h include/WGCoordinate.h include/WhirlyGlobe*
+appledoc --project-name "WhirlyGlobe-Maply" --project-company "mousebird consulting inc"  --company-id "com.mousebirdconsulting" --output doc include/Maply* include/UIKit/NSData* include/vector_styles/Mapnik* include/UIKit/NSDictionary* include/math/WGCoordinate.h include/WhirlyGlobe*
+
+--keep-intermediate-files
+
+`brew install appledoc` not working ("Error: appledoc has been disabled because it does not build!")
+
+This works:
+`git clone git://github.com/tomaz/appledoc.git`
+`appledoc/install-appledoc.sh`
+
+But the above produces:
+"ERROR | !> xcrun: error: unable to find utility "docsetutil", not a developer tool or in PATH"
+
+Apparently docsetutil was removed in XCode 9.3
+
+---
+
+I wasn't able to get any results with the instructions at:
+https://github.com/realm/jazzy
+
+Closest I got was:
+
+$ cd ios/library/WhirlyGlobe-MaplyComponent
+$ jazzy --objc --umbrella-header include/WhirlyGlobe-Maply-Umbrella.h --sdk iphoneos --framework-root . --module WhirlyGlobe-MaplyComponent
+.../include/MaplySharedAttributes.h:21:9: fatal error: could not build module 'Foundation'
+.../jazzy/sourcekitten.rb:608:in `block in expand_extensions': undefined method `include?' for nil:NilClass (NoMethodError)
+
