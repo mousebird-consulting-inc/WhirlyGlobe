@@ -76,12 +76,17 @@ public class MarkerInfo extends BaseInfo
 	public native void setColor(float r,float g,float b,float a);
 
 	/**
-	 * The layout engine controls how text is displayed.  It tries to avoid overlaps
-	 * and takes priority into account.  The layout importance controls which markers
-	 * (or other features) are laid out first.  Bigger is more important.
+	 * Set the default layout importance for any markers added with this info.
+	 *
+	 * The layout engine controls how text and screen objects are displayed.
+	 * It tries to avoid overlaps, placing objects with larger importance values first.
 	 * <p>
-	 * Defaults to MAXFLOAT, which is off.  That means the layout engine does not control
-	 * the associated markers.
+	 * Defaults to MAXFLOAT, which means the layout engine does not control the markers.
+	 * <p>
+	 * Note that any value other than MAXFLOAT on an individual marker overrides the value set
+	 * here, but a value other than MAXFLOAT here cannot be overridden by MAXFLOAT on a marker.
+	 * So if some markers in a group added with this info object are to use layout and others not,
+	 * it must be set to MAXFLOAT here.
 	 */
 	public native void setLayoutImportance(float newImport);
 
