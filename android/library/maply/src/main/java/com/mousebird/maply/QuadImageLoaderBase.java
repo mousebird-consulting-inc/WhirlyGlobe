@@ -108,7 +108,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      */
     public void setColor(final int color)
     {
-        QuadSamplingLayer sampleLayer = samplingLayer.get();
+        QuadSamplingLayer sampleLayer = null;
+        if (samplingLayer != null)
+            sampleLayer = samplingLayer.get();
 
         if(sampleLayer == null) {
             setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, null);
