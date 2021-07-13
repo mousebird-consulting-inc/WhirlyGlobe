@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleBackground.mm
+/*  MapboxVectorStyleBackground.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleBackground.h"
@@ -33,7 +31,7 @@ bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
     styleSet->unsupportedCheck("background-image","paint_background",styleEntry);
 
     opacity = styleSet->transDouble("background-opacity",styleEntry,1.0);
-    
+
     return true;
 }
 
@@ -61,14 +59,15 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
     }
     
     drawPriority = inDrawPriority;
-    
+
     return true;
 }
 
 void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,
                                                const std::vector<VectorObjectRef> &vecObjs,
                                                const VectorTileDataRef &tileInfo,
-                                               const Dictionary *desc)
+                                               const Dictionary *desc,
+                                               const CancelFunction &)
 {
     const auto color = styleSet->backgroundColor(inst, tileInfo->ident.level);
     

@@ -833,6 +833,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             }
         } else if (marker.images)
         {
+            texs.reserve(marker.images.count);
             for (id image in marker.images)
             {
                 if ([image isKindOfClass:[UIImage class]])
@@ -869,6 +870,23 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgMarker->orderBy = marker.orderBy;
         }
         wgMarker->layoutImportance = marker.layoutImportance;
+        
+        // Assemble the geometry to lay out a marker along
+        if (marker.layoutVec && !marker.layoutVec->vObj->shapes.empty()) {
+            for (auto shape: marker.layoutVec->vObj->shapes) {
+                auto shapeLin = std::dynamic_pointer_cast<VectorLinear>(shape);
+                if (shapeLin) {
+                    wgMarker->layoutShape = shapeLin->pts;
+                    break;
+                } else {
+                    auto shapeAr = std::dynamic_pointer_cast<VectorAreal>(shape);
+                    if (shapeAr && !shapeAr->loops.empty()) {
+                        wgMarker->layoutShape = shapeAr->loops[0];
+                        break;
+                    }
+                }
+            }
+        }
 
         if (marker.vertexAttributes)
             [self resolveVertexAttrs:wgMarker->vertexAttrs from:marker.vertexAttributes];
@@ -1418,7 +1436,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     if (auto labelManager = scene->getManager<LabelManager>(kWKLabelManager))
     {
         // Set up a description and create the markers in the marker layer
-        SimpleIdentity labelID = labelManager->addLabels(NULL, wgLabels, labelInfo, changes);
+        SimpleIdentity labelID = labelManager->addLabels(nullptr, wgLabels, labelInfo, changes);
         if (labelID != EmptyIdentity)
         {
             compObj->contents->labelIDs.insert(labelID);
@@ -1634,22 +1652,23 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         if (vectorInfo.subdivEps != 0.0)
         {
             const float eps = vectorInfo.subdivEps;
-            NSString *subdivType = inDesc[kMaplySubdivType];
-            const bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
-            const bool grid = ![subdivType compare:kMaplySubdivGrid];
-            const bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
+            const NSString *subdivType = inDesc[kMaplySubdivType];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
-            if (greatCircle)
+            if (![subdivType compare:kMaplySubdivGreatCirclePrecise])
+            {
+                [newVecObj subdivideToGlobeGreatCirclePrecise:eps];
+            }
+            else if (![subdivType compare:kMaplySubdivGreatCircle])
             {
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             }
-            else if (grid)
+            else if (![subdivType compare:kMaplySubdivGrid])
             {
                 // The manager has to handle this one
             }
-            else if (staticSubdiv)
+            else if (![subdivType compare:kMaplySubdivStatic])
             {
                 // Note: Fill this in
             }
@@ -1765,21 +1784,22 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         {
             const float eps = vectorInfo.subdivEps;
             const NSString *subdivType = inDesc[kMaplySubdivType];
-            const bool greatCircle = ![subdivType compare:kMaplySubdivGreatCircle];
-            const bool grid = ![subdivType compare:kMaplySubdivGrid];
-            const bool staticSubdiv = ![subdivType compare:kMaplySubdivStatic];
             MaplyVectorObject *newVecObj = [vecObj deepCopy2];
             // Note: This logic needs to be moved down a level
             //       Along with the subdivision routines above
-            if (greatCircle)
+            if (![subdivType compare:kMaplySubdivGreatCirclePrecise])
+            {
+                [newVecObj subdivideToGlobeGreatCirclePrecise:eps];
+            }
+            else if (![subdivType compare:kMaplySubdivGreatCircle])
             {
                 [newVecObj subdivideToGlobeGreatCircle:eps];
             }
-            else if (grid)
+            else if (![subdivType compare:kMaplySubdivGrid])
             {
                 // The manager has to handle this one
             }
-            else if (staticSubdiv)
+            else if (![subdivType compare:kMaplySubdivStatic])
             {
                 // Note: Fill this in
             }
@@ -3039,6 +3059,11 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             wkPartSys.texIDs.push_back(maplyTex.texID);
             compObj->contents->texs.insert(maplyTex);
         }
+        // For Metal we just pass in a few data arrays and let the calculation shader
+        //  do the rest
+        wkPartSys.totalParticles = partSys.numDataEntries;
+        for (NSData *partData in partSys.dataArrays)
+            wkPartSys.partData.push_back(std::make_shared<RawNSDataReader>(partData));
         
         SimpleIdentity partSysID = partSysManager->addParticleSystem(wkPartSys, changes);
         partSys.ident = partSysID;

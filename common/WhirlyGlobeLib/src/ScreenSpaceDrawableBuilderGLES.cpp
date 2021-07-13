@@ -26,8 +26,12 @@ void ScreenSpaceTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *f
 {
     if (auto programGLES = dynamic_cast<ProgramGLES*>(frameInfo->program))
     {
+        const float zoom = (opacityExp || colorExp || scaleExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
+
+        float scale = scaleExp ? scaleExp->evaluate(zoom, 1.0) : 1.0;
+
         const Point2f fbSize = frameInfo->sceneRenderer->getFramebufferSize();
-        programGLES->setUniform(u_ScaleNameID, Point2f(2.f / fbSize.x(), 2.f / (float) fbSize.y()));
+        programGLES->setUniform(u_ScaleNameID, Point2f(2.f * scale / fbSize.x(), 2.f * scale / (float) fbSize.y()));
         programGLES->setUniform(u_uprightNameID, keepUpright);
         programGLES->setUniform(u_activerotNameID, (activeRot ? 1 : 0));
     }
@@ -67,6 +71,10 @@ void ScreenSpaceDrawableBuilderGLES::setupTweaker(const DrawableTweakerRef &inTw
     // Need to set up both parts of the tweaker
     BasicDrawableBuilderGLES::setupTweaker(inTweaker);
     ScreenSpaceDrawableBuilder::setupTweaker(inTweaker);
+    ScreenSpaceTweakerGLESRef theTweaker = std::dynamic_pointer_cast<ScreenSpaceTweakerGLES>(inTweaker);
+    if (theTweaker && scaleExp) {
+        theTweaker->scaleExp = scaleExp;
+    }
 }
 
 BasicDrawableRef ScreenSpaceDrawableBuilderGLES::getDrawable()

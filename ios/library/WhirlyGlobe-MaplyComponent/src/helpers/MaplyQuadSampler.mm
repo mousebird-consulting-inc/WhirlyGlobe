@@ -39,9 +39,12 @@ using namespace WhirlyKit;
 - (void)setCoordSys:(MaplyCoordinateSystem *)coordSys
 {
     params.coordSys = [coordSys getCoordSystem];
+    
+    // Bounds are in projected coordinates
+    const auto bbox = [coordSys getBounds];
     params.coordBounds.reset();
-    params.coordBounds.addPoint(Point2d(coordSys->ll.x,coordSys->ll.y));
-    params.coordBounds.addPoint(Point2d(coordSys->ur.x,coordSys->ur.y));
+    params.coordBounds.addPoint(Point2d(bbox.ll.x, bbox.ll.y));
+    params.coordBounds.addPoint(Point2d(bbox.ur.x, bbox.ur.y));
 }
 
 - (int)minZoom
@@ -178,6 +181,16 @@ using namespace WhirlyKit;
     params.forceMinLevelHeight = forceMinLevelHeight;
     if (params.forceMinLevelHeight != 0.0)
         params.forceMinLevel = true;
+}
+
+- (void)setBoundScale:(float)scale
+{
+    params.boundsScale = scale;
+}
+
+- (float)boundScale
+{
+    return params.boundsScale;
 }
 
 - (MaplyBoundingBoxD)clipBounds

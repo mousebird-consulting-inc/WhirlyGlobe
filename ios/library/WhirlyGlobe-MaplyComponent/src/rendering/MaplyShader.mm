@@ -42,7 +42,7 @@ using namespace WhirlyKit;
 
 - (instancetype)initMetalWithName:(NSString *)inName vertex:(id<MTLFunction>)vertexFunc fragment:(id<MTLFunction>)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
-    if (!vertexFunc || !fragFunc) {
+    if (!vertexFunc) {
         NSLog(@"Passed in nil function to MaplyShader::initMetalWithName");
         return nil;
     }

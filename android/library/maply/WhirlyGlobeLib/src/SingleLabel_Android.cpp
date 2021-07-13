@@ -30,7 +30,12 @@ std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(
         float &lineHeight,
         ChangeSet &changes)
 {
-	auto fontTexManager = std::dynamic_pointer_cast<FontTextureManager_Android>(inFontTexManager);
+	const auto fontTexManager = dynamic_cast<FontTextureManager_Android*>(inFontTexManager.get());
+	if (!fontTexManager)
+    {
+	    return {};
+    }
+
 	auto labelInfo = (const LabelInfoAndroid *)inLabelInfo;
     auto threadInfo = (PlatformInfo_Android *)inThreadInfo;
 

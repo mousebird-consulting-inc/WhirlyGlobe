@@ -90,7 +90,7 @@ public:
 typedef std::vector<ChangeRequest *> ChangeSet;
 typedef std::shared_ptr<ChangeSet> ChangeSetRef;
 
-typedef struct
+typedef struct ChangeSorter
 {
     bool operator () (const ChangeRequest *a,const ChangeRequest *b) const
     {

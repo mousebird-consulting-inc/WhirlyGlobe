@@ -50,8 +50,8 @@ using namespace WhirlyKit;
         ImageTile_iOSRef imageTile = std::make_shared<ImageTile_iOS>(vc.getRenderControl->renderType);
         imageTile->type = MaplyImgTypeImage;
         imageTile->components = 4;
-        imageTile->width = -1;
-        imageTile->height = -1;
+        imageTile->width = (int)(image.size.width * image.scale);
+        imageTile->height = (int)(image.size.height * image.scale);
         imageTile->borderSize = 0;
         imageTile->imageStuff = image;
 
@@ -217,6 +217,9 @@ using namespace WhirlyKit;
     const auto __strong vc = loader.viewC;
     NSArray<id> *tileData = [loadReturn getTileData];
     for (unsigned int ii=0;ii<[tileData count];ii++) {
+        if (loadReturn.isCancelled) {
+            return;
+        }
         NSData *inData = [tileData objectAtIndex:ii];
         if (![inData isKindOfClass:[NSData class]])
             continue;
@@ -275,17 +278,15 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     float red = (((hexColor) >> 16) & 0xFF)/255.0;
     float green = (((hexColor) >> 8) & 0xFF)/255.0;
     float blue = (((hexColor) >> 0) & 0xFF)/255.0;
-    UIColor *backColor = nil;
-    UIColor *fillColor;// = [UIColor whiteColor];
-    backColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.7];
-    fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.7];
+    UIColor *backColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.7];
+    UIColor *fillColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.7];
     CGContextRef ctx = UIGraphicsGetCurrentContext();
     
     // Draw a rectangle around the edges for testing
     [backColor setFill];
     CGContextFillRect(ctx, CGRectMake(0, 0, size.width, size.height));
-    [fillColor setStroke];
-    CGContextStrokeRect(ctx, CGRectMake(0, 0, size.width-1, size.height-1));
+    [fillColor setFill];
+    CGContextFillRect(ctx, CGRectMake(1, 1, size.width-2, size.height-2));
     
     [fillColor setStroke];
     [fillColor setFill];
@@ -298,7 +299,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
         textStr = [NSString stringWithFormat:@"%d: (%d,%d); %d",tileID.level,tileID.x,tileID.y,loadReturn.frame];
     [[UIColor whiteColor] setStroke];
     [[UIColor whiteColor] setFill];
-    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:24.0]}];
+    [textStr drawInRect:CGRectMake(0,0,size.width,size.height) withAttributes:@{
+        NSFontAttributeName:[UIFont systemFontOfSize:24.0]
+    }];
     
     // Grab the image and shut things down
     UIImage *retImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -345,6 +348,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     loader->setDebugMode(self.debugMode);
 
     samplingLayer = [[vc getRenderControl] findSamplingLayer:params forUser:self->loader];
+    samplingLayer.debugMode = self.debugMode;
     // Do this again in case they changed them
     loader->setSamplingParams(params);
     

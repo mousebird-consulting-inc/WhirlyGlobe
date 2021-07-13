@@ -46,8 +46,12 @@ public class QuadImageLoaderBase extends QuadLoaderBase
 
     protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames)
     {
-        super(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
+        this(control,params,numFrames,(numFrames <= 1 ? Mode.SingleFrame : Mode.MultiFrame));
+    }
 
+    protected QuadImageLoaderBase(BaseController control,SamplingParams params,int numFrames,Mode mode)
+    {
+        super(control,params,numFrames,mode);
         setBaseDrawPriority(BaseDrawPriorityDefault);
         setDrawPriorityPerLevel(DrawPriorityPerLevelDefault);
     }
@@ -64,7 +68,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
             loadInterp = new ImageLoaderInterpreter();
         }
 
-        samplingLayer = new WeakReference<QuadSamplingLayer>(getController().findSamplingLayer(params,this));
+        samplingLayer = new WeakReference<>(getController().findSamplingLayer(params,this));
         loadInterp.setLoader(this);
 
         delayedInitNative(getController().getScene());
@@ -104,7 +108,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      */
     public void setColor(final int color)
     {
-        QuadSamplingLayer sampleLayer = samplingLayer.get();
+        QuadSamplingLayer sampleLayer = null;
+        if (samplingLayer != null)
+            sampleLayer = samplingLayer.get();
 
         if(sampleLayer == null) {
             setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, null);

@@ -1,9 +1,8 @@
-/*
- *  MaplyCoordinate.m
+/*  MaplyCoordinate.mm
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "math/MaplyCoordinate.h"
@@ -28,6 +26,7 @@ MaplyCoordinateD MaplyCoordinateDMake(double radLon,double radLat) { return { ra
 MaplyCoordinate MaplyCoordinateMakeWithDegrees(float degLon,float degLat) { return { DegToRad(degLon), DegToRad(degLat) }; }
 MaplyCoordinateD MaplyCoordinateDMakeWithDegrees(double degLon, double degLat) { return { DegToRad(degLon), DegToRad(degLat) }; }
 MaplyCoordinateD MaplyCoordinateDMakeWithMaplyCoordinate(MaplyCoordinate c) { return { c.x, c.y }; }
+MaplyCoordinate MaplyCoordinateMakeWithMaplyCoordinateD(MaplyCoordinateD c) { return { (float)c.x, (float)c.y }; }
 MaplyCoordinate3d MaplyCoordinate3dMake(float x, float y, float z) { return { x, y, z}; }
 MaplyCoordinate3dD MaplyCoordinate3dDMake(double x, double y, double z) { return { x, y, z }; }
 

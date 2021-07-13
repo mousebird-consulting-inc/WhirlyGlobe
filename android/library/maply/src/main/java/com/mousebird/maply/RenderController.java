@@ -23,6 +23,7 @@ import android.opengl.EGLExt;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,22 +32,40 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
 
+import static javax.microedition.khronos.egl.EGL10.EGL_DRAW;
+import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
+import static javax.microedition.khronos.egl.EGL10.EGL_READ;
+
 /**
  * The Render Controller handles the object manipulation and rendering interface.
  * It can be a standalone object, doing offline rendering or it can be attached
  * to a BaseController and used to manage that controller's rendering.
  */
+@SuppressWarnings({"unused", "UnusedReturnValue", "RedundantSuppression"})
 public class RenderController implements RenderControllerInterface
 {
     public static final String kToolkitDefaultTriangleNoLightingProgram = "Default Triangle;lighting=no";
 
     // Draw priority defaults
-    public static final int ImageLayerDrawPriorityDefault = 100;
-    public static final int FeatureDrawPriorityBase = 20000;
-    public static final int MarkerDrawPriorityDefault = 40000;
-    public static final int LabelDrawPriorityDefault = 60000;
-    public static final int ParticleDrawPriorityDefault = 1000;
-    public static final int VectorDrawPriorityDefault = 50000;
+    public static final int StarsDrawPriorityDefault = 0;                 // kMaplyStarsDrawPriorityDefault
+    public static final int SunDrawPriorityDefault = 2;                   // kMaplySunDrawPriorityDefault
+    public static final int MoonDrawPriorityDefault = 3;                  // kMaplyMoonDrawPriorityDefault
+    public static final int AtmosphereDrawPriorityDefault = 10;           // kMaplyAtmosphereDrawPriorityDefault
+    /// Where we start image layer draw priorities
+    public static final int ImageLayerDrawPriorityDefault = 100;          // kMaplyImageLayerDrawPriorityDefault
+    /// We'll start filling in features right around here
+    public static final int FeatureDrawPriorityBase = 20000;              // kMaplyFeatureDrawPriorityBase
+    public static final int StickerDrawPriorityDefault = 30000;           // kMaplyStickerDrawPriorityDefault
+    public static final int MarkerDrawPriorityDefault = 40000;            // kMaplyMarkerDrawPriorityDefault
+    public static final int VectorDrawPriorityDefault = 50000;            // kMaplyVectorDrawPriorityDefault
+    public static final int ParticleSystemDrawPriorityDefault = 55000;    // kMaplyParticleSystemDrawPriorityDefault
+    public static final int LabelDrawPriorityDefault = 60000;             // kMaplyLabelDrawPriorityDefault
+    public static final int LoftedPolysDrawPriorityDefault = 70000;       // kMaplyLoftedPolysDrawPriorityDefault
+    public static final int ShapeDrawPriorityDefault = 80000;             // kMaplyShapeDrawPriorityDefault
+    public static final int BillboardDrawPriorityDefault = 90000;         // kMaplyBillboardDrawPriorityDefault
+    public static final int ModelDrawPriorityDefault = 100000;            // kMaplyModelDrawPriorityDefault
+    // Unlikely to have any draw priorities here or beyond.
+    public static final int MaxDrawPriorityDefault = 100100;              // kMaplyMaxDrawPriorityDefault
 
     Point2d frameSize = new Point2d(0.0, 0.0);
 
@@ -94,8 +113,7 @@ public class RenderController implements RenderControllerInterface
     /**
      * This constructor assumes we'll be hooking up to surface provided later.
      */
-    RenderController()
-    {
+    RenderController() {
         initialise();
     }
 
@@ -109,6 +127,16 @@ public class RenderController implements RenderControllerInterface
         return offlineMode;
     }
 
+    private static final int[] glAttribList = {
+        BaseController.EGL_CONTEXT_CLIENT_VERSION, 2,
+        EGL10.EGL_NONE
+    };
+    private static final int[] glSurfaceAttrs = {
+        EGL10.EGL_WIDTH, 32,
+        EGL10.EGL_HEIGHT, 32,
+        EGL10.EGL_NONE
+    };
+
     // Construct a new render control based on an existing one
     public RenderController(RenderController baseControl,int width,int height)
     {
@@ -116,59 +144,69 @@ public class RenderController implements RenderControllerInterface
         frameSize = new Point2d(width,height);
         setConfig(baseControl, null);
 
+        if (config == null) {
+            // eglCreateContext will fail, so fail early with a more helpful message
+            throw new InvalidParameterException("No OpenGL ES configuration was selected");
+        }
+
         // Set up our own EGL context for offline work
         EGL10 egl = (EGL10) EGLContext.getEGL();
-        final int[] attributeList = {BaseController.EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE};
-        offlineGLContext = new ContextInfo();
-        offlineGLContext.eglContext = egl.eglCreateContext(display, config, context, attributeList);
-        final int[] surface_attrs =
-        {
-            EGL10.EGL_WIDTH, 32,
-            EGL10.EGL_HEIGHT, 32,
-            //			    EGL10.EGL_COLORSPACE, GL10.GL_RGB,
-            //			    EGL10.EGL_TEXTURE_FORMAT, EGL_TEXTURE_RGB,
-            //			    EGL10.EGL_TEXTURE_TARGET, EGL_TEXTURE_2D,
-            //			    EGL10.EGL_LARGEST_PBUFFER, GL10.GL_TRUE,
-            EGL10.EGL_NONE
-        };
-        offlineGLContext.eglSurface = egl.eglCreatePbufferSurface(display, config, surface_attrs);
 
-        setEGLContext(offlineGLContext);
+        offlineGLContext = new ContextInfo(display, null, null, null);
+        offlineGLContext.eglContext = egl.eglCreateContext(display, config, context, glAttribList);
+        if (LayerThread.checkGLError(egl, "eglCreateContext") || offlineGLContext.eglContext == null) {
+            throw new RuntimeException("Failed to create OpenGLES context");
+        }
 
-        initialise(width,height);
-
-        // Set up a pass-through coordinate system, view, and so on
-        CoordSystem coordSys = new PassThroughCoordSystem();
-        Point3d ll = new Point3d(0.0,0.0,0.0);
-        Point3d ur = new Point3d(width,height,0.0);
-        Point3d scale = new Point3d(1.0, 1.0, 1.0);
-        Point3d center = new Point3d((ll.getX()+ur.getX())/2.0,(ll.getY()+ur.getY())/2.0,(ll.getZ()+ur.getZ())/2.0);
-        coordAdapter = new GeneralDisplayAdapter(coordSys,ll,ur,center,scale);
-        FlatView flatView = new FlatView(null,coordAdapter);
-        Mbr extents = new Mbr(new Point2d(ll.getX(),ll.getY()),new Point2d(ur.getX(),ur.getY()));
-        flatView.setExtents(extents);
-        flatView.setWindow(new Point2d(width,height),new Point2d(0.0,0.0));
-        view = flatView;
-
-        scene = new Scene(coordAdapter,this);
+        offlineGLContext.eglDrawSurface = egl.eglCreatePbufferSurface(display, config, glSurfaceAttrs);
+        offlineGLContext.eglReadSurface = offlineGLContext.eglDrawSurface;
+        if (LayerThread.checkGLError(egl, "eglCreatePbufferSurface") || offlineGLContext.eglDrawSurface == null) {
+            egl.eglDestroyContext(display, offlineGLContext.eglContext);
+            throw new RuntimeException("Failed to create OpenGLES surface");
+        }
 
         // Need a task manager that just runs things on the current thread
         //  after setting the proper context for rendering
-        TaskManager taskMan = (run, mode) -> {
-            EGL10 egl1 = (EGL10) EGLContext.getEGL();
-            setEGLContext(offlineGLContext);
-            run.run();
+        TaskManager ourTaskMan = (run,mode) -> {
+            ContextInfo savedContext = setEGLContext(offlineGLContext);
+            if (savedContext != null) {
+                try {
+                    run.run();
+                } finally {
+                    setEGLContext(savedContext);
+                }
+            }
         };
 
-        // This will properly wire things up
-        Init(scene,coordAdapter,taskMan);
-        setScene(scene);
-        setView(view);
+        ourTaskMan.addTask(() -> {
+            initialise(width, height);
 
-        // Need all the default shaders
-        setupShadersNative();
+            // Set up a pass-through coordinate system, view, and so on
+            final CoordSystem coordSys = new PassThroughCoordSystem();
+            final Point3d ll = new Point3d(0.0, 0.0, 0.0);
+            final Point3d ur = new Point3d(width, height, 0.0);
+            final Point3d scale = new Point3d(1.0, 1.0, 1.0);
+            final Point3d center = new Point3d((ll.getX() + ur.getX()) / 2.0,
+                                            (ll.getY() + ur.getY()) / 2.0,
+                                            (ll.getZ() + ur.getZ()) / 2.0);
+            coordAdapter = new GeneralDisplayAdapter(coordSys, ll, ur, center, scale);
+            final FlatView flatView = new FlatView(null, coordAdapter);
+            final Mbr extents = new Mbr(new Point2d(ll.getX(), ll.getY()),
+                                        new Point2d(ur.getX(), ur.getY()));
+            flatView.setExtents(extents);
+            flatView.setWindow(new Point2d(width, height), new Point2d(0.0, 0.0));
+            view = flatView;
 
-        clearContext();
+            scene = new Scene(coordAdapter, this);
+
+            // This will properly wire things up
+            Init(scene, coordAdapter, ourTaskMan);
+            setScene(scene);
+            setView(view);
+
+            // Need all the default shaders
+            setupShadersNative();
+        }, ThreadMode.ThreadCurrent);
     }
 
     /**
@@ -306,25 +344,47 @@ public class RenderController implements RenderControllerInterface
 
         // If we didn't pass in one, we're in offline mode and need to make one
         if (inConfig == null) {
-            int[] attribList = {
+            // current display produces EGL_BAD_DISPLAY (depending on the thread context?)
+            display = egl.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
+
+            final int[] attribList = {
                     EGL14.EGL_RED_SIZE, 8,
                     EGL14.EGL_GREEN_SIZE, 8,
                     EGL14.EGL_BLUE_SIZE, 8,
                     EGL14.EGL_ALPHA_SIZE, 8,
-                    EGL14.EGL_DEPTH_SIZE, 16,
-                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT, EGLExt.EGL_OPENGL_ES3_BIT_KHR,
+                    //EGL14.EGL_DEPTH_SIZE, 16, // we don't need a depth buffer for offline mode
+                    EGL14.EGL_RENDERABLE_TYPE, EGL14.EGL_OPENGL_ES2_BIT | EGLExt.EGL_OPENGL_ES3_BIT_KHR,
+                    EGL14.EGL_SURFACE_TYPE, EGL14.EGL_PBUFFER_BIT,
                     EGL14.EGL_NONE
             };
-            EGLConfig[] configs = new EGLConfig[1];
-            int[] numConfigs = new int[1];
-            if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs))
-            {
-                Log.e("Maply", "Unable set set up OpenGL ES for offline rendering.");
+
+            final EGLConfig[] configs = new EGLConfig[1];
+            final int[] numConfigs = new int[] { 0 };
+            if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs)) {
+                // "If [EGL_OPENGL_ES3_BIT_KHR] is passed into eglChooseConfig and the implementation
+                //  supports only an older version of the extension, an EGL_BAD_ATTRIBUTE error should
+                //  be generated. Since no matching configs will be found, a robustly-written application
+                //  will fail (or fall back to an ES 2.0 rendering path) at this point.
+                attribList[9] = EGL14.EGL_OPENGL_ES2_BIT;
+                if (!egl.eglChooseConfig(display,attribList,configs, configs.length, numConfigs)) {
+                    Log.e("Maply", "Unable to configure OpenGL ES for offline rendering: " + Integer.toHexString(egl.eglGetError()));
+                }
+                else {
+                    //todo: flag that we only have ES2 support somewhere
+                    config = configs[0];
+                }
             } else {
                 config = configs[0];
             }
         } else {
             config = inConfig;
+        }
+
+        if (display == null || context == null || config == null) {
+            Log.w("Maply", "RenderController::setConfig failed to set" +
+                            ((display == null) ? " display" : "") +
+                            ((context == null) ? " context" : "") +
+                            ((config == null) ? " config" : ""));
         }
     }
 
@@ -347,11 +407,15 @@ public class RenderController implements RenderControllerInterface
     // Manage bitmaps and their conversion to textures
     TextureManager texManager = new TextureManager();
 
-    public void shutdown()
+    public synchronized void shutdown()
     {
+        // signal to end any outstanding async tasks
+        running = false;
+
         // Kill the shaders here because they don't do well being finalized
-        for (Shader shader : shaders)
+        for (Shader shader : shaders) {
             shader.dispose();
+        }
         shaders.clear();
 
         if (vecManager != null)
@@ -389,7 +453,34 @@ public class RenderController implements RenderControllerInterface
 
         texManager = null;
 
-        offlineGLContext = null;
+        if (scene != null) {
+            // Tear down the scene with GL context, if we're standalone.
+            // If we're being used by a BaseController, the addTask won't run because
+            // we're already shutting down, but it will have already cleaned up the scene.
+            taskMan.addTask(() -> {
+                scene.teardownGL();
+                scene = null;
+            }, ThreadMode.ThreadCurrent);
+        }
+
+        if (offlineGLContext != null) {
+            EGL10 egl = (EGL10) EGLContext.getEGL();
+            if (offlineGLContext.eglDrawSurface != null) {
+                Log.d("Maply", "RenderController destroying surface " + offlineGLContext.eglDrawSurface.hashCode());
+                egl.eglDestroySurface(display, offlineGLContext.eglDrawSurface);
+            }
+            if (offlineGLContext.eglContext != null) {
+                Log.d("Maply", "RenderController destroying context " + offlineGLContext.eglContext.hashCode());
+                egl.eglDestroyContext(display, offlineGLContext.eglContext);
+            }
+            offlineGLContext = null;
+        }
+
+        if (scene != null) {
+            scene.teardownGL();
+        }
+
+        teardownNative();
     }
 
     /** RenderControllerInterface **/
@@ -479,16 +570,23 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
-        // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
+
+            int priority = markerInfo.getDrawPriority();
+            if (priority <= 0) {
+                priority = LabelDrawPriorityDefault;
+            }
+            markerInfo.setDrawPriority(priority + screenObjectDrawPriorityOffset);
 
             // Convert to the internal representation of the engine
             ArrayList<InternalMarker> intMarkers = new ArrayList<>(markers.size());
             for (ScreenMarker marker : markers)
             {
+                if (!running) {
+                    return;
+                }
                 if (marker.loc == null)
                 {
                     Log.d("Maply","Missing location for marker.  Skipping.");
@@ -537,7 +635,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -547,20 +645,31 @@ public class RenderController implements RenderControllerInterface
      * Add moving screen markers to the visual display.  These are the same as the regular
      * screen markers, but they have a start and end point and a duration.
      */
-    public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
+    public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,
+                                                  final MarkerInfo markerInfo,
+                                                  RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
+            int priority = markerInfo.getDrawPriority();
+            if (priority <= 0) {
+                priority = LabelDrawPriorityDefault;
+            }
+            markerInfo.setDrawPriority(priority + screenObjectDrawPriorityOffset);
+
             // Convert to the internal representation of the engine
             ArrayList<InternalMarker> intMarkers = new ArrayList<>(markers.size());
             for (ScreenMovingMarker marker : markers)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (marker.loc == null)
                 {
                     Log.d("Maply","Missing location for marker.  Skipping.");
@@ -609,7 +718,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -628,16 +737,23 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
+            if (markerInfo.getDrawPriority() <= 0) {
+                markerInfo.setDrawPriority(MarkerDrawPriorityDefault);
+            }
+
             // Convert to the internal representation of the engine
             ArrayList<InternalMarker> intMarkers = new ArrayList<>(markers.size());
             for (Marker marker : markers)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (marker.loc == null)
                 {
                     Log.d("Maply","Missing location for marker.  Skipping.");
@@ -680,7 +796,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -699,17 +815,24 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
         final LabelManager labelManager = this.labelManager;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
+            if (labelInfo.getDrawPriority() <= 0) {
+                labelInfo.setDrawPriority(LabelDrawPriorityDefault);
+            }
+
             // Convert to the internal representation for the engine
             ArrayList<InternalLabel> intLabels = new ArrayList<>(labels.size());
             for (ScreenLabel label : labels)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (label.text != null && label.text.length() > 0) {
                     InternalLabel intLabel = new InternalLabel(label,labelInfo);
                     intLabels.add(intLabel);
@@ -738,7 +861,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -754,20 +877,28 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the labels for modification or deletion.
      */
-    public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+    public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,
+                                                 final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final double now = System.currentTimeMillis() / 1000.0;
-        final RenderController renderControl = this;
         final LabelManager labelManager = this.labelManager;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
+            if (labelInfo.getDrawPriority() <= 0) {
+                labelInfo.setDrawPriority(LabelDrawPriorityDefault);
+            }
+
             // Convert to the internal representation for the engine
             ArrayList<InternalLabel> intLabels = new ArrayList<>(labels.size());
             for (ScreenMovingLabel label : labels) {
+                if (!running) {
+                    return;
+                }
+
                 if (label.text != null && label.text.length() > 0) {
                     InternalLabel intLabel = new InternalLabel(label,labelInfo,now);
                     intLabels.add(intLabel);
@@ -796,7 +927,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -813,13 +944,17 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
+    public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,
+                                      RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (vecInfo.getDrawPriority() <= 0) {
+                vecInfo.setDrawPriority(VectorDrawPriorityDefault);
+            }
+
             // Vectors are simple enough to just add
             ChangeSet changes = new ChangeSet();
             long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
@@ -831,6 +966,10 @@ public class RenderController implements RenderControllerInterface
             // Keep track of this one for selection
             for (VectorObject vecObj : vecs)
             {
+                if (!running) {
+                    return;
+                }
+
                 if (vecObj.getSelectable()) {
                     compObj.addVector(vecObj);
                     componentManager.addSelectableObject(vecObj.ident, vecObj, compObj);
@@ -846,7 +985,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -867,10 +1006,13 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addLoftedPolys(final List<VectorObject> vecs, final LoftedPolyInfo loftInfo, final ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (loftInfo.getDrawPriority() <= 0) {
+                loftInfo.setDrawPriority(LoftedPolysDrawPriorityDefault);
+            }
+
             // Vectors are simple enough to just add
             ChangeSet changes = new ChangeSet();
             long loftID = loftManager.addPolys(vecs.toArray(new VectorObject[0]), loftInfo, changes);
@@ -896,12 +1038,11 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
     }
-
 
     /**
      * Change the visual representation of the given vectors.
@@ -913,7 +1054,6 @@ public class RenderController implements RenderControllerInterface
     {
         if (vecObj == null)
             return;
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -922,7 +1062,31 @@ public class RenderController implements RenderControllerInterface
             long[] vecIDs = vecObj.getVectorIDs();
             if (vecIDs != null) {
                 vecManager.changeVectors(vecIDs, vecInfo, changes);
-                renderControl.processChangeSet(changes);
+                processChangeSet(changes);
+            }
+        }, mode);
+    }
+
+    /**
+     * Change the visual representation of the given vectors.
+     * @param vecObj The component object returned by the original addVectors() call.
+     * @param vecInfo Visual representation to use for the changes.
+     * @param mode Where to execute the add.  Choose ThreadAny by default.
+     */
+    public void changeWideVector(final ComponentObject vecObj,final WideVectorInfo vecInfo,ThreadMode mode)
+    {
+        if (vecObj == null)
+            return;
+
+        // Do the actual work on the layer thread
+        taskMan.addTask(() -> {
+            // Vectors are simple enough to just add
+            ChangeSet changes = new ChangeSet();
+            long[] vecIDs = vecObj.getVectorIDs();
+            if (vecIDs != null) {
+                // todo: implement this
+                //vecManager.changeWideVectors(vecIDs, vecInfo, changes);
+                processChangeSet(changes);
             }
         }, mode);
     }
@@ -938,10 +1102,13 @@ public class RenderController implements RenderControllerInterface
             return null;
 
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (vecInfo.getDrawPriority() <= 0) {
+                vecInfo.setDrawPriority(VectorDrawPriorityDefault);
+            }
+
             // Vectors are simple enough to just add
             ChangeSet changes = new ChangeSet();
             long[] vecIDs = vecObj.getVectorIDs();
@@ -954,7 +1121,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -975,13 +1142,18 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,ThreadMode mode)
+    public ComponentObject addWideVectors(final List<VectorObject> vecs,
+                                          final WideVectorInfo wideVecInfo,
+                                          ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (wideVecInfo.getDrawPriority() <= 0) {
+                wideVecInfo.setDrawPriority(VectorDrawPriorityDefault);
+            }
+
             // Vectors are simple enough to just add
             ChangeSet changes = new ChangeSet();
             long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
@@ -991,13 +1163,13 @@ public class RenderController implements RenderControllerInterface
                 compObj.addWideVectorID(vecId);
             }
 
-            // TODO: Porting
-            //for (VectorObject vecObj : vecs)
-            //{
-            //    // Keep track of this one for selection
-            //    if (vecObj.getSelectable())
-            //        compObj.addVector(vecObj);
-            //}
+            for (VectorObject vecObj : vecs) {
+                // Keep track of this one for selection
+                if (vecObj.getSelectable()) {
+                    compObj.addVector(vecObj);
+                    componentManager.addSelectableObject(vecObj.ident,vecObj,compObj);
+                }
+            }
 
             if (wideVecInfo.disposeAfterUse || disposeAfterRemoval) {
                 for (VectorObject vecObj : vecs) {
@@ -1008,7 +1180,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1026,17 +1198,26 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the instanced wide vectors.  This is necessary for modifying
      * or deleting the instance once created.
      */
-    public ComponentObject instanceWideVectors(final ComponentObject inCompObj,final WideVectorInfo wideVecInfo,ThreadMode mode)
+    public ComponentObject instanceWideVectors(final ComponentObject inCompObj,
+                                               final WideVectorInfo wideVecInfo,
+                                               ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (wideVecInfo.getDrawPriority() <= 0) {
+                wideVecInfo.setDrawPriority(VectorDrawPriorityDefault);
+            }
+
             // Vectors are simple enough to just add
             ChangeSet changes = new ChangeSet();
 
             for (long vecID : inCompObj.getWideVectorIDs()) {
+                if (!running) {
+                    return;
+                }
+
                 long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
 
                 if (instID != EmptyIdentity)
@@ -1044,7 +1225,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1065,7 +1246,6 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final ChangeSet changes = new ChangeSet();
-        final RenderController renderControl = this;
 
         taskMan.addTask(() -> {
             long shapeId = shapeManager.addShapes(shapes.toArray(new Shape[0]), shapeInfo, changes);
@@ -1074,6 +1254,10 @@ public class RenderController implements RenderControllerInterface
 
             for (Shape shape : shapes) {
                 if (shape.isSelectable()) {
+                    if (!running) {
+                        return;
+                    }
+
                     componentManager.addSelectableObject(shape.getSelectID(), shape, compObj);
                 }
             }
@@ -1085,7 +1269,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1103,11 +1287,14 @@ public class RenderController implements RenderControllerInterface
     public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
+
+            if (stickerInfo.getDrawPriority() <= 0) {
+                stickerInfo.setDrawPriority(StickerDrawPriorityDefault);
+            }
 
             // Stickers are added one at a time for some reason
             long stickerID = stickerManager.addStickers(stickers.toArray(new Sticker[0]), stickerInfo, changes);
@@ -1123,7 +1310,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1137,10 +1324,11 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the stickers for later modification or deletion.
      */
-    public ComponentObject changeSticker(final ComponentObject stickerObj,final StickerInfo stickerInfo,ThreadMode mode)
+    public ComponentObject changeSticker(final ComponentObject stickerObj,
+                                         final StickerInfo stickerInfo,
+                                         ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1148,12 +1336,16 @@ public class RenderController implements RenderControllerInterface
 
             long[] stickerIDs = stickerObj.getStickerIDs();
             if (stickerIDs != null && stickerIDs.length > 0) {
-                for (long stickerID : stickerIDs)
+                for (long stickerID : stickerIDs) {
+                    if (!running) {
+                        return;
+                    }
                     stickerManager.changeSticker(stickerID, stickerInfo, changes);
+                }
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1163,12 +1355,17 @@ public class RenderController implements RenderControllerInterface
      * Billboards are rectangles pointed toward the viewer.  They can either be upright, tied to a
      * surface, or oriented completely toward the user.
      */
-    public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
+    public ComponentObject addBillboards(final List<Billboard> bills,
+                                         final BillboardInfo info,
+                                         final RenderController.ThreadMode threadMode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (info.getDrawPriority() <= 0) {
+                info.setDrawPriority(BillboardDrawPriorityDefault);
+            }
+
             ChangeSet changes = new ChangeSet();
 
             // Have to set the shader ID if it's not already
@@ -1184,6 +1381,9 @@ public class RenderController implements RenderControllerInterface
             }
 
             for (Billboard bill : bills) {
+                if (!running) {
+                    return;
+                }
                 // Convert to display space
                 Point3d center = bill.getCenter();
                 Point3d localPt =coordAdapter.getCoordSystem().geographicToLocal(new Point3d(center.getX(),center.getY(),0.0));
@@ -1212,7 +1412,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, threadMode);
 
         return compObj;
@@ -1224,19 +1424,27 @@ public class RenderController implements RenderControllerInterface
      * @param ptList The points to add.
      * @param geomInfo Parameters to set things up with.
      * @param mode Where to execute the add.  Choose ThreadAny by default.
-     * @return This represents the geometry points for later modifictation or deletion.
+     * @return This represents the geometry points for later modification or deletion.
      */
-    public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
+    public ComponentObject addPoints(final List<Points> ptList,
+                                     final GeometryInfo geomInfo,
+                                     RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
-        final RenderController renderControl = this;
 
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
+            if (geomInfo.getDrawPriority() <= 0) {
+                geomInfo.setDrawPriority(ParticleSystemDrawPriorityDefault);
+            }
+
             ChangeSet changes = new ChangeSet();
 
             // Stickers are added one at a time for some reason
             for (Points pts: ptList) {
+                if (!running) {
+                    return;
+                }
                 //Matrix4d mat = pts.mat != null ? pts.mat : new Matrix4d();
                 long geomID = geomManager.addGeometryPoints(pts.rawPoints,pts.mat,geomInfo,changes);
 
@@ -1252,7 +1460,7 @@ public class RenderController implements RenderControllerInterface
             }
 
             componentManager.addComponentObject(compObj, changes);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return compObj;
@@ -1264,12 +1472,13 @@ public class RenderController implements RenderControllerInterface
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-    public MaplyTexture addTexture(final Bitmap image,final RenderController.TextureSettings settings,RenderController.ThreadMode mode)
+    public MaplyTexture addTexture(final Bitmap image,
+                                   final RenderController.TextureSettings settings,
+                                   RenderController.ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
         texture.texID = rawTex.getID();
-        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         taskMan.addTask(() -> {
@@ -1278,7 +1487,7 @@ public class RenderController implements RenderControllerInterface
             rawTex.setBitmap(image,settings.imageFormat.ordinal());
             rawTex.setSettings(settings.wrapU,settings.wrapV);
             changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return texture;
@@ -1290,17 +1499,18 @@ public class RenderController implements RenderControllerInterface
      * @param settings Settings to use.
      * @param mode Add on the current thread or elsewhere.
      */
-    public MaplyTexture addTexture(final Texture rawTex,final TextureSettings settings,ThreadMode mode)
+    public MaplyTexture addTexture(final Texture rawTex,
+                                   final TextureSettings settings,
+                                   ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
-        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
             texture.texID = rawTex.getID();
             changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return texture;
@@ -1314,14 +1524,16 @@ public class RenderController implements RenderControllerInterface
      * @param mode Which thread to do the work on
      * @return The new texture (or a reference to it, anyway)
      */
-    public MaplyTexture createTexture(final int width,final int height,final TextureSettings settings,ThreadMode mode)
+    public MaplyTexture createTexture(final int width,
+                                      final int height,
+                                      final TextureSettings settings,
+                                      ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
         texture.texID = rawTex.getID();
         texture.width = width;
         texture.height = height;
-        final RenderController renderControl = this;
 
         // Possibly do the work somewhere else
         taskMan.addTask(() -> {
@@ -1330,7 +1542,7 @@ public class RenderController implements RenderControllerInterface
             rawTex.setSize(width,height);
             rawTex.setIsEmpty(true);
             changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
 
         return texture;
@@ -1343,8 +1555,6 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
     {
-        final RenderController renderControl = this;
-
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
@@ -1352,7 +1562,7 @@ public class RenderController implements RenderControllerInterface
             for (MaplyTexture tex : texs) {
                 changes.removeTexture(tex.texID);
             }
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1373,8 +1583,6 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
     {
-        final RenderController renderControl = this;
-
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
@@ -1383,7 +1591,7 @@ public class RenderController implements RenderControllerInterface
                 changes.removeTexture(texID);
             }
 
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1425,12 +1633,10 @@ public class RenderController implements RenderControllerInterface
      */
     public void clearRenderTarget(final RenderTarget renderTarget, ThreadMode mode)
     {
-        final RenderController renderControl = this;
-
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
             changes.clearRenderTarget(renderTarget.renderTargetID);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1448,7 +1654,6 @@ public class RenderController implements RenderControllerInterface
             return;
 
         final ComponentObject[] localCompObjs = compObjs.toArray(new ComponentObject[0]);
-        final RenderController renderControl = this;
 
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
@@ -1457,7 +1662,7 @@ public class RenderController implements RenderControllerInterface
                     componentManager.enableComponentObject(compObj, false, changes);
                 }
             }
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1488,16 +1693,18 @@ public class RenderController implements RenderControllerInterface
         if (compObjs == null || compObjs.length == 0)
             return;
 
-        final RenderController renderControl = this;
-
         taskMan.addTask(() -> {
+            final ComponentManager compMan = componentManager;
+            if (compMan == null || (layoutLayer != null && layoutLayer.isShuttingDown)) {
+                return;
+            }
             ChangeSet changes = new ChangeSet();
             for (ComponentObject compObj : compObjs) {
                 if (compObj != null) {
-                    componentManager.enableComponentObject(compObj, true, changes);
+                    compMan.enableComponentObject(compObj, true, changes);
                 }
             }
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1527,13 +1734,15 @@ public class RenderController implements RenderControllerInterface
         if (compObjs == null || compObjs.length == 0)
             return;
 
-        final RenderController renderControl = this;
-
         taskMan.addTask(() -> {
-            ChangeSet changes = new ChangeSet();
+            final ComponentManager compMan = componentManager;
+            if (compMan == null || (layoutLayer != null && layoutLayer.isShuttingDown)) {
+                return;
+            }
 
+            ChangeSet changes = new ChangeSet();
             componentManager.removeComponentObjects(compObjs,changes,disposeAfterRemoval);
-            renderControl.processChangeSet(changes);
+            processChangeSet(changes);
         }, mode);
     }
 
@@ -1661,44 +1870,50 @@ public class RenderController implements RenderControllerInterface
     ContextInfo offlineGLContext = null;
 
     // Used only in standalone mode
-    public boolean setEGLContext(ContextInfo cInfo) {
-        if (cInfo == null)
+    // Returns previous context, or null if the context could not be changed
+    public ContextInfo setEGLContext(ContextInfo cInfo) {
+        if (cInfo == null) {
             cInfo = offlineGLContext;
-
-        EGL10 egl = (EGL10) EGLContext.getEGL();
-        if (cInfo != null)
-        {
-            if (!egl.eglMakeCurrent(display, cInfo.eglSurface, cInfo.eglSurface, cInfo.eglContext)) {
-                Log.d("Maply", "Failed to make current context.");
-                return false;
-            }
-
-            return true;
-        } else {
-                egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
         }
 
-        return false;
+        EGL10 egl = (EGL10) EGLContext.getEGL();
+        ContextInfo current = getEGLContext();
+
+        Thread t = Thread.currentThread();
+        if (cInfo != null)
+        {
+            if (!egl.eglMakeCurrent(display, cInfo.eglDrawSurface, cInfo.eglReadSurface, cInfo.eglContext)) {
+                return null;
+            }
+        } else {
+            egl.eglMakeCurrent(display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        }
+
+        return current;
     }
 
     // Return a description of the current context
-    static public ContextInfo getEGLContext() {
-        ContextInfo cInfo = new ContextInfo();
+    public static ContextInfo getEGLContext() {
         EGL10 egl = (EGL10) EGLContext.getEGL();
-        cInfo.eglContext = egl.eglGetCurrentContext();
-        cInfo.eglSurface = egl.eglGetCurrentSurface(egl.EGL_DRAW);
-
-        return cInfo;
+        return new ContextInfo(
+                egl.eglGetCurrentDisplay(),
+                egl.eglGetCurrentContext(),
+                egl.eglGetCurrentSurface(EGL_DRAW),
+                egl.eglGetCurrentSurface(EGL_READ));
     }
 
     public void processChangeSet(ChangeSet changes)
     {
         if (changes != null) {
-            if (scene != null) {
+            if (scene != null && running) {
                 changes.process(this, scene);
             }
             changes.dispose();
         }
+    }
+
+    public ContextWrapper wrapTempContext(RenderController.ThreadMode threadMode) {
+        return new ContextWrapper(this, setupTempContext(threadMode));
     }
 
     // Don't need this in standalone mode
@@ -1727,17 +1942,22 @@ public class RenderController implements RenderControllerInterface
      * You should have already set the context at this point
      */
     public Bitmap renderToBitmap() {
-        Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
+        final Bitmap bitmap = Bitmap.createBitmap((int)frameSize.getX(), (int)frameSize.getY(), Bitmap.Config.ARGB_8888);
         renderToBitmapNative(bitmap);
-
         return bitmap;
+    }
+
+    private boolean running = true;
+
+    public boolean isRunning() {
+        return running;
     }
 
     public native void setScene(Scene scene);
     public native void setupShadersNative();
     public native void setViewNative(View view);
     public native void setClearColor(float r,float g,float b,float a);
-    protected native boolean teardown();
+    private native boolean teardownNative();
     protected native boolean resize(int width,int height);
     protected native void render();
     protected native boolean hasChanges();
@@ -1745,6 +1965,10 @@ public class RenderController implements RenderControllerInterface
     public native void addLight(DirectionalLight light);
     public native void replaceLights(DirectionalLight[] lights);
     protected native void renderToBitmapNative(Bitmap outBitmap);
+
+    private int screenObjectDrawPriorityOffset = 1000000;
+    public int getScreenObjectDrawPriorityOffset() { return screenObjectDrawPriorityOffset; }
+    public void setScreenObjectDrawPriorityOffset(int offset) { screenObjectDrawPriorityOffset = offset; }
 
     public void finalize()
     {
@@ -1762,4 +1986,8 @@ public class RenderController implements RenderControllerInterface
 
     @SuppressWarnings({"unused", "RedundantSuppression"})
     private long nativeHandle;
+
+    public void dumpFailureInfo(String failureLocation) {
+        Log.e("Maply", "Context failure in local renderer: " + failureLocation);
+    }
 }

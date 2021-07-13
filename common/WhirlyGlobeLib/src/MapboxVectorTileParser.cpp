@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorTileParser.cpp
+/*  MapboxVectorTileParser.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/25/16.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorTileParser.h"
@@ -25,8 +23,8 @@
 #import "DictionaryC.h"
 #import "VectorTilePBFParser.h"
 
+#include <utility>
 #import <vector>
-#import <string>
 
 using namespace Eigen;
 
@@ -131,7 +129,19 @@ static inline double secondsSince(const std::chrono::steady_clock::time_point &t
     return duration_cast<nanoseconds>(steady_clock::now() - t0).count() / 1.0e9;
 }
 
-bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool)
+static bool noCancel(PlatformThreadInfo*) { return false; }
+
+bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawData,
+                                   VectorTileData *tileData, volatile bool *cancelBool)
+{
+    const CancelFunction cancel = [=](auto){ return *cancelBool; };
+    return parse(styleInst,rawData,tileData,cancelBool ? cancel : noCancel);
+}
+
+bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,
+                                   RawData *rawData,
+                                   VectorTileData *tileData,
+                                   const CancelFunction &cancelFn)
 {
 //#if DEBUG
 //    wkLogLevel(Verbose, "MapboxVectorTileParser: Parse [%d/%d/%d] starting",
@@ -141,8 +151,7 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
 
     VectorTilePBFParser parser(tileData, &*styleDelegate, styleInst, filterName, filterValues,
                                tileData->vecObjsByStyle, localCoords, parseAll,
-                               keepVectors ? &tileData->vecObjs : nullptr,
-                               [=](){ return cancelBool && *cancelBool; });
+                               keepVectors ? &tileData->vecObjs : nullptr, cancelFn);
     if (!parser.parse(rawData->getRawData(), rawData->getLen()))
     {
         if (parser.getParseCancelled())
@@ -202,7 +211,12 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
         auto styleData = std::make_shared<VectorTileData>(*tileData);
 
         // Ask the subclass to run the style and fill in the VectorTileData
-        buildForStyle(styleInst,it.first,vecs,styleData);
+        buildForStyle(styleInst,it.first,vecs,styleData,cancelFn);
+
+        if (cancelFn(styleInst))
+        {
+            return false;
+        }
 
         // Sort the results into categories if needed
         auto catIt = styleCategories.find(it.first);
@@ -272,12 +286,12 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst, RawData *rawDa
 void MapboxVectorTileParser::buildForStyle(PlatformThreadInfo *styleInst,
                                            long long styleID,
                                            const std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &data)
-{
-    if (auto style = styleDelegate->styleForUUID(styleInst,styleID))
+                                           const VectorTileDataRef &data,
+                                           const CancelFunction &cancelFn)
     {
-        style->buildObjects(styleInst,vecObjs,data,nullptr);
+        if (auto style = styleDelegate->styleForUUID(styleInst,styleID))
+        {
+            style->buildObjects(styleInst,vecObjs,data,nullptr,cancelFn);
+        }
     }
-}
-    
 }

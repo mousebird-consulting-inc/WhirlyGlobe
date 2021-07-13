@@ -136,8 +136,6 @@ public:
     /// Moving selectable objects (2D) to pass to the selection manager
     std::vector<MovingRectSelectable2D> movingSelectables2D;
 
-    /// Change requests to pass to the scene
-    ChangeSet changeRequests;
     /// Font texture manager to use if we're doing fonts
     FontTextureManagerRef fontTexManager;
     /// Set if want to use attributed strings (we usually do)
@@ -152,6 +150,12 @@ public:
 
     /// Renders the labels into a big texture and stores the resulting info
     void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);
+
+    /// Renders the labels into a big texture and stores the resulting info
+    void render(PlatformThreadInfo *threadInfo,
+                const std::vector<SingleLabel *> &labels,
+                ChangeSet &changes,
+                const std::function<bool(PlatformThreadInfo*)>& cancelFn);
 };
 
 }

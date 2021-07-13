@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleRaster.mm
+/*  MapboxVectorStyleRaster.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleRaster.h"
@@ -28,17 +26,14 @@ bool MapboxVectorLayerRaster::parse(PlatformThreadInfo *inst,
                                     const MapboxVectorStyleLayerRef &refLayer,
                                     int drawPriority)
 {
-    if (!MapboxVectorStyleLayer::parse(inst,styleEntry,refLayer,drawPriority))
-    {
-        return false;
-    }
-    return true;
+    return MapboxVectorStyleLayer::parse(inst, styleEntry, refLayer, drawPriority);
 }
 
-void MapboxVectorLayerRaster::buildObjects(PlatformThreadInfo *inst,
-                                           const std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &tileInfo,
-                                           const Dictionary *desc)
+void MapboxVectorLayerRaster::buildObjects(__unused PlatformThreadInfo *inst,
+                                           __unused const std::vector<VectorObjectRef> &vecObjs,
+                                           __unused const VectorTileDataRef &tileInfo,
+                                           __unused const Dictionary *desc,
+                                           __unused const CancelFunction &cancelFn)
 {
 }
 

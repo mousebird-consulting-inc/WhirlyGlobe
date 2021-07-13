@@ -79,6 +79,13 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
         c0_index = addAttribute(BDFloatType, StringIndexer::getStringID("a_c0"),numVert);
     }
 }
+
+void WideVectorDrawableBuilder::setValues(const WideVectorInfo &vecInfo)
+{
+    lineWidth = vecInfo.width;
+    lineOffset = vecInfo.offset;
+    edgeSize = vecInfo.edgeSize;
+}
     
 void WideVectorDrawableBuilder::setLineWidth(float inWidth)
 {
@@ -162,11 +169,19 @@ void WideVectorDrawableBuilder::add_c0(float val)
 void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef colorExp)
 {
     this->colorExp = std::move(colorExp);
+    if (basicDrawable)
+    {
+        basicDrawable->setColorExpression(this->colorExp);
+    }
 }
 
 void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef opacityExp)
 {
     this->opacityExp = std::move(opacityExp);
+    if (basicDrawable)
+    {
+        basicDrawable->setOpacityExpression(this->opacityExp);
+    }
 }
 
 void WideVectorDrawableBuilder::setWidthExpression(FloatExpressionInfoRef inWidthExp)
@@ -190,7 +205,9 @@ void WideVectorDrawableBuilder::setupTweaker(BasicDrawable &theDraw) const
 
 void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker) const
 {
+    // Basic drawable sets color, opacity,
     basicDrawable->setupTweaker(inTweaker);
+
     if (auto tweak = dynamic_cast<WideVectorTweaker*>(inTweaker.get()))
     {
         tweak->edgeSize = edgeSize;
@@ -200,7 +217,6 @@ void WideVectorDrawableBuilder::setupTweaker(const DrawableTweakerRef &inTweaker
         tweak->offset = lineOffset;
         tweak->offsetSet = lineOffsetSet;
         tweak->offsetExp = offsetExp;
-        tweak->color = color;
     }
 }
 

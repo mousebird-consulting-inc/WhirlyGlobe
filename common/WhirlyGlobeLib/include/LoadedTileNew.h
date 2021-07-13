@@ -78,16 +78,19 @@ public:
     bool isValidSpatial(TileGeomManager *geomManage);
     
     // Build the drawable(s) to represent this one tile
-    void makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,TileGeomSettings &geomSettings,ChangeSet &changes);
+    void makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,
+                       const TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Utility routine to build skirts around the edges
-    void buildSkirt(BasicDrawableBuilderRef &draw,Point3dVector &pts,std::vector<TexCoord> &texCoords,double skirtFactor,bool haveElev,const Point3d &theCenter);
+    void buildSkirt(const BasicDrawableBuilderRef &draw,const Point3dVector &pts,
+                    const std::vector<TexCoord> &texCoords,double skirtFactor,
+                    bool haveElev,const Point3d &theCenter);
 
     // Enable associated drawables
-    void enable(TileGeomSettings &geomSettings,ChangeSet &changes);
+    void enable(const TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Disable associated drawables
-    void disable(TileGeomSettings &geomSettings,ChangeSet &changes);
+    void disable(const TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Generate commands to remove the associated drawables
     void removeDrawables(ChangeSet &changes);
@@ -124,7 +127,8 @@ public:
     TileGeomManager();
     
     // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
-    void setup(SceneRenderer *sceneRender,TileGeomSettings &geomSettings,QuadTreeNew *quadTree,CoordSystemDisplayAdapter *coordAdapter,CoordSystemRef coordSys,MbrD inMbr);
+    void setup(SceneRenderer *sceneRender,TileGeomSettings &geomSettings,QuadTreeNew *quadTree,
+               CoordSystemDisplayAdapter *coordAdapter,CoordSystemRef coordSys,MbrD inMbr);
     
     // Keep track of nodes added, enabled and disabled
     class NodeChanges
@@ -150,19 +154,21 @@ public:
     // Remove the tiles given, if they're being represented
     NodeChanges removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     
-    // Turn tiles on/off based on their childen
+    // Turn tiles on/off based on their children
     void updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes);
     
     // Remove all the various geometry
     void cleanup(ChangeSet &changes);
-    
+
+protected:
     TileGeomSettings settings;
     
     SceneRenderer *sceneRender;
     
+public:
     QuadTreeNew *quadTree;
     CoordSystemDisplayAdapter *coordAdapter;
-    
+
     // Coordinate system of the tiles (different from the scene)
     CoordSystemRef coordSys;
     
@@ -175,10 +181,11 @@ public:
 
     // Build the skirts for edge matching
     bool buildSkirts;
-    
+
     // Bounding box of the whole area
     MbrD mbr;
     
+protected:
     std::map<QuadTreeNew::Node,LoadedTileNewRef> tileMap;
 };
 

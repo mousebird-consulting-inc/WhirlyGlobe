@@ -1,5 +1,5 @@
 //
-//  GlobeSamplerTestCase.swift
+//  CartoDBLightTestCase.swift
 //  AutoTester
 //
 //  Created by Stephen Gifford on 3/27/18.
@@ -43,8 +43,8 @@ class CartoDBLightTestCase: MaplyTestCase {
 #if !targetEnvironment(simulator)
         imageLoader.imageFormat = .imageUShort565;
 #endif
-        //        imageLoader.debugMode = true
-        
+        //imageLoader.debugMode = true
+
         return imageLoader
     }
     
@@ -54,5 +54,10 @@ class CartoDBLightTestCase: MaplyTestCase {
     
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         imageLoader = setupLoader(mapVC)
+    }
+    
+    override func stop() {
+        imageLoader?.shutdown()
+        imageLoader = nil
     }
 }

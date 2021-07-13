@@ -124,6 +124,17 @@ public:
      This version samples a great circle to display on a flat map.
      */
     void subdivideToFlatGreatCircle(float epsilon);
+    
+    /**
+     Subdivide the edges in this feature to a given tolerance, using great circle math.
+     */
+    void subdivideToGlobeGreatCirclePrecise(float epsilon);
+    
+    /**
+     Subdivide the edges in this feature to a given tolerance, using great circle math.
+     This version samples a great circle to display on a flat map.
+     */
+    void subdivideToFlatGreatCirclePrecise(float epsilon);
 
     /// Tesselate areal features and return a new vector object
     VectorObjectRef tesselate() const;
@@ -183,8 +194,8 @@ public:
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
 
 public:
-    void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool edgeMode);
-    
+    void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool geolib,bool edgeMode);
+
     bool selectable;
     ShapeSet shapes;
 };

@@ -51,48 +51,106 @@ public:
 };
 
 /// Convenience wrapper for geodetic coordinates
-class GeoCoord : public Eigen::Vector2f
+template <typename TBase>
+class GeoCoordBasic : public TBase
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
-	GeoCoord() { }
-	GeoCoord(float lon,float lat) : Eigen::Vector2f(lon,lat) { }
+    using TThis = GeoCoordBasic<TBase>;
+    using TScalar = typename TBase::Scalar;
+    using TBase::x; // not sure why we need these...
+    using TBase::y;
+
+    GeoCoordBasic(TScalar lon = 0, TScalar lat = 0) : TBase(lon,lat) { }
+    GeoCoordBasic(const TBase &other) : TBase(other) { }
+
     /// Longitude
-	float lon() const { return x(); }
-	float &lon() { return x(); }
+    TScalar lon() const { return x(); }
+    TScalar &lon() { return x(); }
     /// Latitude
-	float lat() const { return y(); }
-	float &lat() { return y(); }
-	GeoCoord operator + (const GeoCoord &that) { return GeoCoord(x()+that.x(),y()+that.y()); }
-    bool operator == (const GeoCoord &that) { return x() == that.x() && y() == that.y(); }
-    
+    TScalar lat() const { return y(); }
+    TScalar &lat() { return y(); }
+
+    TThis operator +(const TBase &that) const { return {x()+that.x(), y()+that.y()}; }
+    TThis operator -(const TBase &that) const { return {x()-that.x(), y()-that.y()}; }
+    bool operator ==(const TBase &that) const { return x() == that.x() && y() == that.y(); }
+    bool operator !=(const TBase &that) const { return x() != that.x() || y() != that.y(); }
+
     /// Create a geo coordinate using degrees intead of radians.
     /// Note the order of the arguments
-    static GeoCoord CoordFromDegrees(float lon,float lat);
+    static TThis CoordFromDegrees(TScalar lon,TScalar lat) {
+        return {(TScalar)(lon*M_PI/180), (TScalar)(lat*M_PI/180)};
+    }
 };
-	
+typedef GeoCoordBasic<Point2f> GeoCoord;
+typedef GeoCoordBasic<Point2f> GeoCoordF;
+typedef GeoCoordBasic<Point2d> GeoCoordD;
 typedef std::vector<GeoCoord,Eigen::aligned_allocator<GeoCoord> > GeoCoordVector;
 
 /// Color. RGBA, 8 bits per channel.
 class RGBAColor
 {
 public:
-	RGBAColor() = default;
-	RGBAColor(unsigned char r,unsigned char g,unsigned char b,unsigned char a) : r(r), g(g), b(b), a(a) { }
-	RGBAColor(unsigned char r,unsigned char g,unsigned char b) : r(r), g(g), b(b), a(255) { }
+	RGBAColor() : RGBAColor(0,0,0,0) { }
+
+    RGBAColor(int r,int g,int b,int a) :
+            r((uint8_t)r), g((uint8_t)g), b((uint8_t)b), a((uint8_t)a) { }
+    RGBAColor(int r,int g,int b) :
+            r((uint8_t)r), g((uint8_t)g), b((uint8_t)b), a(255) { }
+
+	template <typename T>
+    RGBAColor(const Eigen::Matrix<T,4,1> &v) :
+        RGBAColor((uint8_t)(v.x()*255),(uint8_t)(v.y()*255),
+                  (uint8_t)(v.z()*255),(uint8_t)(v.w()*255)) { }
 
     RGBAColor withAlpha(int newA) const { return RGBAColor(r,g,b,(uint8_t)newA); }
+    RGBAColor withAlpha(float newA) const { return RGBAColor(r,g,b,(uint8_t)(newA * 255)); }
     RGBAColor withAlpha(double newA) const { return RGBAColor(r,g,b,(uint8_t)(newA * 255)); }
 
-    // Create an RGBColor from unit floats
-    static RGBAColor FromUnitFloats(float *ret) {
-        return RGBAColor(ret[0] * 255.0,ret[1] * 255.0,ret[2] * 255.0,ret[3] * 255.0);
+    RGBAColor withAlphaMultiply(float newA) const {
+        return RGBAColor((uint8_t)(r*newA),(uint8_t)(g*newA),
+                         (uint8_t)(b*newA),(uint8_t)(newA * 255));
+	}
+    RGBAColor withAlphaMultiply(double newA) const {
+        return RGBAColor((uint8_t)(r*newA),(uint8_t)(g*newA),
+                         (uint8_t)(b*newA),(uint8_t)(newA * 255));
     }
 
+    // Create an RGBColor from unit floats
+    static RGBAColor FromUnitFloats(const float *f) {
+        return FromUnitFloats4(f);
+    }
+    static RGBAColor FromUnitFloats3(const float *f) {
+        return FromUnitFloats(f[0],f[1],f[2]);
+    }
+    static RGBAColor FromUnitFloats4(const float *f) {
+        return FromUnitFloats(f[0],f[1],f[2],f[3]);
+    }
+    static RGBAColor FromUnitFloats(float r, float g, float b) {
+        return FromUnitFloats(r,g,b,1.0f);
+    }
+    static RGBAColor FromUnitFloats(float r, float g, float b, float a) {
+        return RGBAColor((uint8_t)(r * 255.0f),(uint8_t)(g * 255.0f),
+                         (uint8_t)(b * 255.0f),(uint8_t)(a * 255.0f));
+    }
+    static RGBAColor FromUnitFloats(double r, double g, double b) {
+        return FromUnitFloats(r,g,b,1.0);
+    }
+    static RGBAColor FromUnitFloats(double r, double g, double b, double a) {
+        return RGBAColor((uint8_t)(r * 255.0),(uint8_t)(g * 255.0),
+                         (uint8_t)(b * 255.0),(uint8_t)(a * 255.0));
+    }
+
+    template <typename T>
+    static RGBAColor FromVec(const Eigen::Matrix<T,4,1> &v) { return RGBAColor(v); }
+
     // Create an RGBAColor from an int
-    static RGBAColor FromInt(int color) {
-	    return RGBAColor((color >> 16) & 0xff,(color >> 8)&0xff,color&0xff, color >> 24);
+    static RGBAColor FromInt(uint32_t color) { return FromARGBInt(color); }
+    static RGBAColor FromARGBInt(uint32_t color) {
+	    return RGBAColor((uint8_t)((color >> 16) & 0xff),
+                         (uint8_t)((color >> 8) & 0xff),
+                         (uint8_t)(color & 0xff),
+                         (uint8_t)(color >> 24));
 	}
     
     // Create an RGBAColor from HSV
@@ -154,15 +212,17 @@ public:
     void asUnitFloats(float *ret) const { ret[0] = (float)r / 255.0;  ret[1] = (float)g / 255.0; ret[2] = (float)b / 255.0; ret[3] = (float)a / 255.0; }
     
     /// Convert to a 32 bit integer (ala Android)
-    int asInt() const { return a << 24 | r << 16 | g << 8 | b; }
-    
+    int asInt() const { return asARGBInt(); }
+    int asARGBInt() const { return a << 24 | r << 16 | g << 8 | b; }
+
     /// Returns as a 4 component array of unsigned chars
     void asUChar4(unsigned char *ret) const { ret[0] = r; ret[1] = g; ret[2] = b; ret[3] = a; }
 
     Eigen::Vector4f asRGBAVecF() const { return {r/255.f,g/255.f,b/255.f,a/255.f}; }
 
     bool operator == (const RGBAColor &that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
-//    bool operator == (RGBAColor that) const { return (r == that.r && g == that.g && b == that.b && a == that.a); }
+    bool operator != (const RGBAColor &that) const { return (r != that.r || g != that.g || b != that.b || a != that.a); }
+
     RGBAColor operator * (float alpha) const { return RGBAColor(r*alpha,g*alpha,b*alpha,a*alpha); }
 	
 	unsigned char r,g,b,a;
@@ -171,7 +231,7 @@ typedef std::shared_ptr<RGBAColor> RGBAColorRef;
     
 class MbrD;
 	
-/** Bounding rectangle.
+/** Bounding rectangle for plane geometry.  No special handling of geographic coordinates.
   */
 class Mbr
 {
@@ -201,24 +261,27 @@ public:
 	const Point2f &ur() const { return pt_ur; }
 	Point2f &ur() { return pt_ur; }
     /// Upper left corner
-    Point2f ul() { return Point2f(pt_ll.x(),pt_ur.y()); }
+    Point2f ul() const { return Point2f(pt_ll.x(),pt_ur.y()); }
     /// Middle
     const Point2f mid() const { return (pt_ll+pt_ur)/2.0; }
 
     /// span
     Point2f span() const;
 
-	/// Check validity
-	bool valid() const { return pt_ur.x() >= pt_ll.x(); }
+    // test if empty in either dimension
+    bool empty() const { return pt_ll.x() == pt_ur.x() || pt_ll.y() == pt_ur.y(); }
+
+    /// Check validity
+	bool valid() const { return pt_ur.x() >= pt_ll.x() && pt_ur.y() >= pt_ll.y(); }
 	
 	/// Calculate area
 	float area() const;
 
 	/// Extend the MBR by the given point
-	void addPoint(Point2f pt);
+	void addPoint(const Point2f &pt);
 
     /// Extend the MBR by the given point
-	void addPoint(Point2d pt);
+	void addPoint(const Point2d &pt);
 
     /// Extend the MBR by the given points
     void addPoints(const Point2fVector &coords);
@@ -230,13 +293,13 @@ public:
 	bool overlaps(const Mbr &that) const;
 
 	/// Check if the given 2d point is inside this MBR
-	bool inside(Point2f pt) const { return ((pt_ll.x() < pt.x()) && (pt_ll.y() < pt.y()) && (pt.x() < pt_ur.x()) && (pt.y() < pt_ur.y())); }
-    
+    bool inside(const Point2f &pt) const;
+
     /// The given MBR is contained within (or on the edge of) this one
     bool contained(const Mbr &that) { return that.insideOrOnEdge(pt_ll) && that.insideOrOnEdge(pt_ur); }
     
     /// Inside or on the edge
-    bool insideOrOnEdge(Point2f pt) const { return ((pt_ll.x() <= pt.x()) && (pt_ll.y() <= pt.y()) && (pt.x() <= pt_ur.x()) && (pt.y() <= pt_ur.y())); }
+    bool insideOrOnEdge(const Point2f &pt) const;
     
     /// Intersection of two MBRs
     Mbr intersect(const Mbr &that) const;
@@ -244,17 +307,21 @@ public:
     /// Return a list of points, for those routines that need just a list of points
     void asPoints(Point2fVector &pts) const;
     void asPoints(Point2dVector &pts) const;
-    
+
     /// Expand with the given MBR
     void expand(const Mbr &that);
 
     /// Expands by a given fraction of the receiver's size
     void expandByFraction(double bufferZone);
 
+    typedef Point2f value_type;
+
 protected:
 	Point2f pt_ll,pt_ur;
 };
-    
+
+// todo: these could be combined into a template class
+
 /** Bounding Rectangle with Doubles
   */
 class MbrD
@@ -289,18 +356,21 @@ public:
     
     /// span
     Point2d span() const;
-    
+
+    // test if empty in either dimension
+    bool empty() const { return pt_ll.x() == pt_ur.x() || pt_ll.y() == pt_ur.y(); }
+
     /// Check validity
-    bool valid() const { return pt_ur.x() >= pt_ll.x(); }
-    
+    bool valid() const { return pt_ur.x() >= pt_ll.x() && pt_ur.y() >= pt_ll.y(); }
+
     /// Calculate area
-    float area() const;
+    double area() const;
     
     /// Extend the MBR by the given point
-    void addPoint(Point2f pt);
+    void addPoint(const Point2f &pt);
     
     /// Extend the MBR by the given point
-    void addPoint(Point2d pt);
+    void addPoint(const Point2d &pt);
     
     /// Extend the MBR by the given points
     void addPoints(const Point2fVector &coords);
@@ -312,13 +382,13 @@ public:
     bool overlaps(const MbrD &that) const;
 
     /// Check if the given 2d point is inside this MBR
-    bool inside(Point2d pt) const { return ((pt_ll.x() < pt.x()) && (pt_ll.y() < pt.y()) && (pt.x() < pt_ur.x()) && (pt.y() < pt_ur.y())); }
+    bool inside(const Point2d &pt) const;
     
     /// The given MBR is contained within (or on the edge of) this one
     bool contained(const MbrD &that) { return that.insideOrOnEdge(pt_ll) && that.insideOrOnEdge(pt_ur); }
     
     /// Inside or on the edge
-    bool insideOrOnEdge(Point2d pt) const { return ((pt_ll.x() <= pt.x()) && (pt_ll.y() <= pt.y()) && (pt.x() <= pt_ur.x()) && (pt.y() <= pt_ur.y())); }
+    bool insideOrOnEdge(const Point2d &pt) const;
     
     /// Intersection of two MBRs
     MbrD intersect(const MbrD &that) const;
@@ -333,6 +403,8 @@ public:
     /// Expands by a given fraction of the receiver's size
     void expandByFraction(double bufferZone);
     
+    typedef Point2d value_type;
+
 protected:
     Point2d pt_ll,pt_ur;
 };
@@ -357,7 +429,7 @@ public:
     void asPoints(Point3fVector &pts) const;
     
     // Check if the given bounding box is valid
-    bool isValid() { return pt_ur.x() >= pt_ll.x(); }
+    bool isValid() const { return pt_ur.y() >= pt_ll.y(); }
     
     const Point3d &ll() const { return pt_ll; }
     const Point3d &ur() const { return pt_ur; }
@@ -365,7 +437,7 @@ public:
 protected:
     Point3d pt_ll,pt_ur;
 };
-	
+
 /** Geographic bounding rectangle.
     Coordinates are restricted to [-180,-90]->[+180,+90], but in radians.
   */
@@ -375,16 +447,16 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Construct invalid
-	GeoMbr() : pt_ll(-1000,-1000), pt_ur(-1000,-1000) { }
+	GeoMbr() : pt_ll(BadVal,BadVal), pt_ur(BadVal,BadVal) { }
     /// Construct with two coordinates to start
-	GeoMbr(GeoCoord ll,GeoCoord ur) : pt_ll(ll), pt_ur(ur) { }
+	GeoMbr(const Point2f &ll,const Point2f &ur) : pt_ll(ll), pt_ur(ur) { }
 	/// Construct from a list of geo coordinates
 	GeoMbr(const std::vector<GeoCoord> &coords);
 	/// Construct with a list of 2d coordinates.  X is lon, Y is lat
 	GeoMbr(const Point2fVector &pts);
 
     /// Resets back to invalid
-    void reset() { pt_ll = GeoCoord(-1000,-1000);  pt_ur = GeoCoord(-1000,-1000); }
+    void reset() { pt_ll = GeoCoord(BadVal,BadVal);  pt_ur = GeoCoord(BadVal,BadVal); }
 
 	/// Fetch the lower left
 	const GeoCoord &ll() const { return pt_ll; }
@@ -393,48 +465,58 @@ public:
 	const GeoCoord &ur() const { return pt_ur; }
 	GeoCoord &ur() { return pt_ur; }
     /// Fetch the lower right
-	GeoCoord lr() const { return GeoCoord(pt_ur.x(),pt_ll.y()); }
+    GeoCoord lr() const { return {pt_ur.x(),pt_ll.y()}; }
     /// Fetch the upper left
-	GeoCoord ul() const { return GeoCoord(pt_ll.x(),pt_ur.y()); }
+    GeoCoord ul() const { return {pt_ll.x(),pt_ur.y()}; }
 	
 	/// Construct the mid point
-	GeoCoord mid() const { return GeoCoord((pt_ll.x()+pt_ur.x())/2,(pt_ll.y()+pt_ur.y())/2); }
-    
+    GeoCoord mid() const;
+
+    // test if empty in either dimension
+    bool empty() const { return pt_ll.x() == pt_ur.x() || pt_ll.y() == pt_ur.y(); }
+
 	/// Check the validity.  Will be invalid after construction
-	bool valid() { return (pt_ll.x() != -1000); }
+	bool valid() const { return pt_ll.x() != BadVal && pt_ur.x() != BadVal && pt_ll.y() <= pt_ur.y(); }
+
+    Point2f span() const;
 
 	/// Calculate area
 	/// This is an approximation, treating the coordinates as Euclidean
 	float area() const;
 	
 	/// Expand the MBR by this amount
-	void addGeoCoord(const GeoCoord &coord);
-        void addGeoCoord(const Point3d &coord);
-	
+	void addGeoCoord(const Point2f &coord);
+    void addGeoCoord(const Point3d &coord);
+
+    void addPoint(const Point2f &coord) { addGeoCoord(coord); }
+    void addPoint(const Point2d &coord) { addGeoCoord(Point2f(coord.x(),coord.y())); }
+
 	/// Expand by the vector of geo coords
 	void addGeoCoords(const std::vector<GeoCoord> &coords);
         /// Expand by a vector of 2d coordinates.  x is lon, y is lat.
 	void addGeoCoords(const Point2fVector &coords);
-        void addGeoCoords(const Point3dVector &coords);
-        void addGeoCoords(const GeoCoordVector &coords);
+    void addGeoCoords(const Point3dVector &coords);
+    void addGeoCoords(const GeoCoordVector &coords);
 	
 	/// Determine overlap.
 	/// This takes into account MBRs that wrap over -180/+180
 	bool overlaps(const GeoMbr &that) const;
 
 	/// See if a single geo coordinate is inside the MBR
-	bool inside(GeoCoord coord) const;
+	bool inside(const Point2f &coord) const;
     
     /// Expand this MBR by the bounds of the other one
     void expand(const GeoMbr &mbr);
     
-    operator Mbr() { return Mbr(pt_ll,pt_ur); }
+    operator Mbr() const { return Mbr(pt_ll,pt_ur); }
 
     /// Break into one or two MBRs
 	void splitIntoMbrs(std::vector<Mbr> &mbrs) const;
 
+    static constexpr float BadVal = -1000;
+    typedef Point2f value_type;
+
 protected:
-	
 	GeoCoord pt_ll,pt_ur;
 };
     

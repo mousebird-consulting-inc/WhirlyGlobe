@@ -37,7 +37,10 @@ public:
     void clearJNI(JNIEnv *env);
 
     /// This version of remove calls back to notify the Java side
-    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,const SimpleIDSet &compIDs,ChangeSet &changes) override;
+    virtual void removeComponentObjects(PlatformThreadInfo *threadInfo,
+                                        const SimpleIDSet &compIDs,
+                                        ChangeSet &changes,
+                                        bool disposeAfterRemoval) override;
 
 protected:
     virtual ComponentObjectRef makeComponentObject(const Dictionary *desc = nullptr) override;

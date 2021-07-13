@@ -1,0 +1,784 @@
+cases:
+- name: ActiveObjectTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Marker icon jumps randomly around 0/0
+  Comments: []
+- name: AirwayTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Shows airspaces with line-following label text
+    - Shows airways with masked intersection points
+  Comments:
+    - Airways, etc., disabled by default, need to recompile to test
+    - Maybe add a way to cycle through what's displayed at runtime, e.g., tapping
+- name: ArealTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays a red square with a "hole" around 0/0
+  Comments: []
+- name: AutoRotateTestCase
+  iOS: Not Implemented
+  Android:
+    Map: 'N/A'
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/296 (closed)
+  Checks:
+    - Rotation starts after 5s, and restarts 5s after being interrupted
+    - Markers (stroked teardrop) and ScreenMarkers, with and without Layout, appear when they rotate into view
+    - ScreenMarkers with layout will appear after a small delay
+    - ScreenMarkers without layout should appear immediately
+  Comments: []
+- name: AnimatedBasemapTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Cycles through 6 precip overlays
+  Comments: []
+- name: AnimatedMarkersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Markers smoothly cycle between stroked and filled
+  Comments: []
+- name: AnimatedScreenMarkersTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Single marker rotates and changes position
+  Comments: []
+- name: AnimationDelegateTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1071 (closed)
+  Checks:
+    - View smoothly zooms to London with rotation
+    - (Android only) View then animates rotation only
+    - (Android globe only) The above repeats with `keepNorthUp` set, disabling rotation
+  Comments: []
+- name: BillboardTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✗
+  Android:
+    Map: 'N/A'
+    Globe: ✗
+  Issues: 
+    - iOS markers are truncated/clipped
+    - Android sun/moon are clipped when within ~2 radii of being "behind" the globe
+  Checks: []
+  Comments: []
+- name: BNGCustomMapTestCase / CustomBNGCoordAdapter
+  iOS:
+    Map: ✓
+    Globe: 'N/A'
+  Android:
+    Map: ✓
+    Globe: 'N/A'
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/519 (open)
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/546 (open)
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1394 (open)
+  Checks:
+    - Tiles in BNG coordinates appear rectangular because the basemap is also in BNG coordinates
+    - Zoom/pan is limited to approximately the area covered
+  Comments: []
+- name: BNGTestCase / CustomBNGTileSource
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Tiles in BNG coordinates are non-rectangular on the flat map
+  Comments:
+    - No actual tile data, they're just placeholders
+- name: BoundsTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1394 (open)
+  Checks: []
+  Comments:
+    - Seems to work reasonably well with a large area (unlike the BNG case)
+- name: CartoDBLightTestCase / CartoLightTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Basic Carto Voyager basemap with labels
+  Comments:
+    - Mostly intended as a base for other test cases
+    - https://carto.com/help/building-maps/basemap-list/
+- name: CartoDBTestCase / CartoTestCase ("Carto New York")
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Shows building overlays in red
+  Comments:
+    - Buildings at tile edges can be drawn multiple times, leading to a grid pattern.  This is expected.
+- name: ComponentObjectLeakTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1332 (closed)
+  Checks:
+    - Adds and removes many screen markers over a set period, use profiling to track memory
+  Comments: 
+    - Some memory leaks still seem to exist between the end of the add/remove cycle and destroying the map controller
+    - JVM profile shows some `ComponentObject` objects active, but no call stacks were available.
+    - Native memory increases with each cycle, even after destroying the controller.
+- name: CoordConversionTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Tap shows tapped coordinate
+  Comments: []
+- name: ChangeVectorsTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Cycles through random combinations of color, enabled, and width on normal, wide, and textured vector lines
+  Comments: []
+- name: ClusteredMarkersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1139
+    - Animation doesn't seem to be working on Android
+  Checks:
+    - Markers grouped as appropriate
+    - Grouping and ungrouping animation
+  Comments:
+    - (iOS) Tap to toggle debug layout outlines
+    - (Android) Tap to cycle through cluster generators
+- name: ESRIRemoteTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks: []
+  Comments: []
+- name: ExtrudedModelTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Shows 3D arrows pointing up from selected cities
+  Comments: []
+- name: FindHeightTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - Android show show the target area
+  Checks:
+    - Zooms to target area on load
+  Comments: []
+- name: GeographyClass
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Simple MBTiles display
+  Comments: []
+- name: GeomPointsTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Doesn't seem to do anything
+  Checks:
+    - '?'
+  Comments: []
+- name: GestureFeedbackTestCase
+  iOS: N/A
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Logs delegate callbacks
+    - Pay particular attention to the `userMotion` value
+  Comments: []
+- name: GeoJSONStyleTestCase / SLDTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - Text looks wrong; glyph outlines overlap other glyphs
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1368 (open)
+  Checks:
+    - (iOS) Enables each styling option automatically
+  Comments:
+    - No interactive UI on Android
+- name: GlobeSamplerTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Shows tile boundaries
+  Comments:
+    - Duplicates rather than referencing the Stamen Watercolor case, should be refactored
+    - Also basically a duplicate of PagingLayerTestCase, maybe just remove this one?
+- name: GlyphProblemTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: '?'
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Screen labels with extended Unicode glyphs
+    - Not clear what the problem is/was
+  Comments:
+    - Toggles between labels on each map movement
+- name: GreatCircleTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Lines subdivided to spherical & ellipsoidal globe
+    - Precise/ellipsoidal line goes through placed marker (currently iOS only)
+  Comments: []
+- name: ImageReloadTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Loads with Stamen Watercolor tiles, switches to Carto Voyager tiles after 10s
+  Comments: []
+- name: ImageSingleLevelTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues: []
+  Checks: []
+  Comments:
+    - Disabled
+    - Never ported from 2.x
+    - Is `setSingleLevelLoading` still relevant?
+- name: Issue721TestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✗
+  Android: 'N/A'
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/pull/721
+  Checks: []
+  Comments: []
+- name: LabelAnimationTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Labels change every 10s
+  Comments: []
+- name: LabelsTestCase
+  iOS:
+    Map: ✗
+    Globe: ✗
+  Android: Not Implemented
+  Issues: []
+  Checks: []
+  Comments:
+    - 3D Labels broken.  Probably going to remove them.
+- name: LayerStartupShutdownTestCase / LayerShutdownTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues: []
+  Checks:
+    - Repeatedly creates and destroys vector MBTiles case
+    - Check memory with profiling
+  Comments: []
+- name: LIDARTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✗
+  Android: Not Implemented
+  Issues: []
+  Checks: []
+  Comments:
+    - Not ported from 2.x
+- name: LightingTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Light locations seem to be wrong
+  Checks:
+    - Lights above selected major cities
+  Comments: []
+- name: LocationTrackingRealTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - iOS tracking takes a long time to start (because position isn't changing and so is reported only occasionally?)
+  Checks:
+    - Shows and optionally tracks current device location
+  Comments: []
+- name: LocationTrackingSimTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Shows and optionally tracks a simulated track in Vienna
+  Comments: []
+- name: LoftedPolysTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✓
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Enabled for flat map on Android, is that expected to work?
+    - Seems to suffer from z-fighting on Android map and globe
+  Checks:
+    - Shows raised outlines for U.S. polygons
+  Comments: []
+- name: MapboxTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Shows hybrid with image background and MapBox styled vectors
+    - Same issues as MapTiler case
+  Comments: []
+- name: MapTilerCircleTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - "Various combinations of circle fill and stroke settings (todo: enumerate specifics to check)"
+  Comments: []
+- name: MapTilerTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+    Issues: 
+      - Loader sometimes not shutting down when cycling styles, leaving map elements behind
+      - Needs `imageVectorHybrid` even when not really appropriate
+  Issues:
+    - Highway shield markers + text don't work correctly
+    - Blocky basemaps sometimes, adjust importance values?
+  Checks:
+    - Vector and hybrid styles display correctly
+    - Expression test sheet demonstrates dynamic line color, widths, offsets; area color (zoom to cities/interstate highways)
+  Comments:
+    - Tap an empty spot to cycle through styles    
+- name: MarkersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays world-coordinate markers (scale and rotate with the map/globe)
+  Comments: []
+- name: MarkersAndLinesTestCase
+  iOS: Not Implemented
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Doesn't seem to do anything
+  Checks: []
+  Comments: []
+- name: MegaMarkersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Lots of markers showing random colored circles
+  Comments:
+    - Uses texture atlas to efficiently handle many small images
+- name: ModelsTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✓
+  Android: Not Implemented
+  Issues:
+    - Model ends up hidden by the globe surface after a while, despite the begin and and coordinates having the same Z value
+  Checks:
+    - Shows aircraft model which moves above selected cities
+  Comments: []
+- name: MovingScreenLabelsTestCase
+  iOS:
+    Map: ✗
+    Globe: ✗
+  Android: Not Implemented
+  Issues:
+    - Does nothing
+  Checks: []
+  Comments: []
+- name: MovingScreenMarkersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1286
+  Checks: []
+  Comments: []
+- name: NASAGIBSTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks: []
+  Comments: []
+- name: OfflineRenderTestCase
+  iOS:
+    Map: 'N/A'
+    Globe: ✗
+  Android: Not Implemented
+  Issues:
+    - `removeSnapshotDelegate` seems to be called before the snapshot occurs asynchronously via `addCompletedHandler` and `dispatch_async`
+  Checks: []
+  Comments: []
+- name: PagingLayerTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Shows tile outlines
+    - That's it.  
+  Comments:
+    - See GlobeSamplerTestCase
+- name: ParticleTestCase (Wind Particle Test)
+  iOS:
+    Map: 'N/A'
+    Globe: ✗
+  Android: Not Implemented
+  Issues: 
+    - Not ported from 2.x
+  Checks: []
+  Comments:
+- name: RepresentationsTestCase (Alternate Representations)
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Cycles through multiple versions of a GC and polygon without removing/re-adding the objects
+  Comments: []
+- name: RunwayBuilderTestCase
+  iOS:
+    Map: ✓
+    Globe: 'N/A'
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Draws a runway
+  Comments: []
+- name: ScreenLabelsTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays labels in screen-space, with and without background
+  Comments:
+    - Tap to toggle debug layout outlines
+- name: ScreenMarkersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays markers in screen-space, with and without layout
+  Comments:
+    - (iOS) Tap to toggle debug layout outlines
+- name: ShapefileTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - (iOS) Shows U.S. roads
+    - (Android) Shows S.F. area elements
+  Comments: []
+- name: ShapesTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Android has z-fighting in both map and globe cases
+  Checks:
+    - Displays parabolic arcs and spheres
+  Comments: []
+- name: SimpleStyleTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays a simple polyline and polygon with styles
+    - Displays a grid of markers with ~1000 combinations of fill, stroke, and marker options
+    - (Android) Displays a grid of markers with positive and negative offsets in both dimensions
+  Comments: []
+- name: "StamenWatercolorRemote (Android: StamenRemoteTestCase)"
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Globe case uses pole covering
+    - Uses RGB 5/6/5 texture format (not really obvious, but if that's broken nothing may appear at all)
+    - Android sets a red overlay after 4 seconds, then clears it after another 4
+    - Android sets dark red clear color
+    - Map/globe rotation disallowed
+  Comments: []
+- name: StarsSunTestCase / MaplyStarModelTestCase
+  iOS:
+    Map: ✗
+    Globe: ✗
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues: []
+  Checks: []
+  Comments:
+    - Atmosphere not showing up
+- name: StartupShutdownTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android: Not Implemented
+  Issues: []
+  Checks:
+    - Repeatedly loads and destroys the controller
+    - Check memory use with profiling
+  Comments:
+    - Hit 'Back' while loaded to cancel
+- name: StickersTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - https://github.com/mousebird-consulting-inc/WhirlyGlobe/issues/1397 (open)
+  Checks:
+    - Stickers sub-divided to surface
+    - (iOS) "green square" sticker appears near Bordeaux, France
+  Comments:
+    - Stickers are distorted by being sized with a fixed lat/lon offset
+- name: TextureVectorTestCase
+  iOS:
+    Map: ✗
+    Globe: ✗
+  Android:
+    Map: ✗
+    Globe: ✗
+  Issues:
+    - Textures seem to be applied incompletely/inconsistently
+    - Texture projection options don't work right
+  Checks: []
+  Comments: []
+- name: VectorHoleTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays a large, red area overlapping West Africa with a hole exposing the area around Sierra Leone
+  Comments: []
+- name: VectorMBTilesTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays streets and labels in SE France with random colors
+  Comments:
+    - Labels are expected to overlap, looks a messy until you zoom in
+- name: VectorsTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues:
+    - Change wide vectors doesn't work yet
+    - Some countries like Russia and Finland don't seem to work correctly
+  Checks: 
+    - Tap to identify
+  Comments: []
+- name: VectorStyleTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays the U.S. overlaid on Carto case
+  Comments: []
+- name: WideVectorsTestCase
+  iOS:
+    Map: ✓
+    Globe: ✓
+  Android:
+    Map: ✓
+    Globe: ✓
+  Issues: []
+  Checks:
+    - Displays GeoJSON from resources with wide vectors
+    - Check full and performance wide vectors
+    - Check edge blending
+    - Check dash pattern
+  Comments: []
+- name: WMSTestCase
+  iOS:
+    Map: ✗
+    Globe: ✗
+  Android: Not Implemented
+  Issues:
+    - Not implemented
+  Checks: []
+  Comments: []

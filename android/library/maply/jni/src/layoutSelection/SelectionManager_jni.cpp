@@ -110,42 +110,44 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
         Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
         Point2d *point = point2DclassInfo->getObject(env,pointObj);
         if (!selectionManager || !compManager || !mapViewState || !point)
-            return NULL;
+            return nullptr;
         
-        std::vector<SelectionManager::SelectedObject> selObjs;
-
-        Point2f frameBufferSizeScaled = (*selectionManager)->getSceneRenderer()->getFramebufferSizeScaled();
-        Point2f frameBufferSize = (*selectionManager)->getSceneRenderer()->getFramebufferSize();
+        const Point2f frameBufferSizeScaled = (*selectionManager)->getSceneRenderer()->getFramebufferSizeScaled();
+        const Point2f frameBufferSize = (*selectionManager)->getSceneRenderer()->getFramebufferSize();
 
         // This takes care of labels, markers, billboards, 3D objects and such.
-        Point2f pt2f(point->x(),point->y());
+        const Point2f pt2f(point->x(),point->y());
+        std::vector<SelectionManager::SelectedObject> selObjs;
+        selObjs.reserve(10);
         (*selectionManager)->pickObjects(pt2f,10.0,*mapViewState,selObjs);
 
         // Need the point in geographic
-        WhirlyGlobe::GlobeViewState *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>((*mapViewState).get());
-        Maply::MapViewState *maplyViewState = dynamic_cast<Maply::MapViewState *>((*mapViewState).get());
+        auto *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(mapViewState->get());
+        auto *maplyViewState = dynamic_cast<Maply::MapViewState *>(mapViewState->get());
         Point3d dispPt;
         if (globeViewState) {
             globeViewState->pointOnSphereFromScreen(Point2f(point->x(),point->y()),globeViewState->fullMatrices[0],frameBufferSize,dispPt);
         } else {
             maplyViewState->pointOnPlaneFromScreen(Point2f(point->x(),point->y()),maplyViewState->fullMatrices[0],frameBufferSize,dispPt,false);
         }
-        Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
+        const Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
 
         // This one does vector features
         auto vecObjs = (*compManager)->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
-        for (auto vecObj : vecObjs) {
-            SelectionManager::SelectedObject selObj;
+
+        selObjs.reserve(selObjs.size() + vecObjs.size());
+        for (const auto &vecObj : vecObjs) {
+            selObjs.emplace_back();
+            SelectionManager::SelectedObject &selObj = selObjs.back();
             selObj.distIn3D = 0.0;
             selObj.isCluster = false;
             selObj.screenDist = 0.0;
             selObj.vecObj = vecObj.second;
             selObj.selectIDs.push_back(vecObj.second->getId());
-            selObjs.push_back(selObj);
         }
 
         if (selObjs.empty())
-            return NULL;
+            return nullptr;
 
         jobjectArray retArray = env->NewObjectArray(selObjs.size(), SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject")->getClass(), NULL);
         int which = 0;

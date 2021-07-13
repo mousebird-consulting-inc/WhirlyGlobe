@@ -23,9 +23,9 @@
 
 
 // Handles fetching and managing the particle source data tiles
-@interface ParticleTileDelegate : NSObject<MaplyPagingDelegate>
+@interface ParticleTileDelegate : NSObject//<MaplyPagingDelegate>
 
-@property(nonatomic,weak) MaplyQuadPagingLayer *layer;
+@property(nonatomic,weak) MaplyQuadPagingLoader *layer;
 @property(nonatomic,strong) MaplyCoordinateSystem *coordSys;
 @property(nonatomic) int minZoom,maxZoom;
 @property(nonatomic) double updateInterval;

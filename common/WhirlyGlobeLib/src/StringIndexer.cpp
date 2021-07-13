@@ -102,6 +102,7 @@ StringIdentity a_maskNameIDs[WhirlyKitMaxMasks];
 StringIdentity a_texCoordNameID;
 StringIdentity u_w2NameID;
 StringIdentity u_Realw2NameID;
+StringIdentity u_wideOffsetNameID;
 StringIdentity u_EdgeNameID;
 StringIdentity u_texScaleNameID;
 StringIdentity u_colorNameID;
@@ -180,6 +181,7 @@ static void SetupDrawableStringsOnce()
     a_texCoordNameID = StringIndexer::getStringID("a_texCoord");
     u_w2NameID = StringIndexer::getStringID("u_w2");
     u_Realw2NameID = StringIndexer::getStringID("u_real_w2");
+    u_wideOffsetNameID = StringIndexer::getStringID("u_wideOffset");
     u_EdgeNameID = StringIndexer::getStringID("u_edge");
     u_texScaleNameID = StringIndexer::getStringID("u_texScale");
     u_colorNameID = StringIndexer::getStringID("u_color");

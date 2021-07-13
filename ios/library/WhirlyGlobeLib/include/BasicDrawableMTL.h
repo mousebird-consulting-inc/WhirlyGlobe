@@ -112,6 +112,9 @@ public:
     BufferEntryMTL triBuffer;           // Metal side buffer for triangles
     std::vector<AttributeDefault> defaultAttrs;
     
+    // These are used for the calculation step.  They are numCalcEntries long, but opaque to us.
+    std::vector<BufferEntryMTL> calcBuffers;
+    
     BufferEntryMTL mainBuffer;        // We're storing all the bits and pieces in here
     ArgBuffContentsMTLRef vertABInfo,fragABInfo;
     bool vertHasTextures,fragHasTextures;

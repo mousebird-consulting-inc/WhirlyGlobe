@@ -1,61 +1,60 @@
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
+import android.content.Context.MODE_PRIVATE
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
-import okio.Okio
+import okio.*
 import java.io.IOException
-import kotlin.math.min
 
 open class MapTilerTestCase : MaplyTestCase
 {
-    constructor(activity: Activity) :
-            this(activity, "MapTiler", TestExecutionImplementation.Both) {
-    }
-    
-    protected constructor(activity: Activity, name: String, impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
-            super(activity, name, impl) {
-    }
-    
     // Maptiler token
-    // Go to maptiler.com, setup an account and get your own
-    private val token = "GetYerOwnToken"
+    // Go to maptiler.com, setup an account, get your token, and paste it here
+    private var token: String = "GetYerOwnToken"
+    
+    constructor(activity: Activity) :
+            this(activity, "MapTiler", TestExecutionImplementation.Both)
+    
+    protected constructor(activity: Activity, name: String,
+                          impl: TestExecutionImplementation = TestExecutionImplementation.Both) :
+            super(activity, name, impl)
     
     // Set up the loader (and all the stuff it needs) for the map tiles
     private fun setupLoader(control: BaseController, whichMap: Int) {
-        // Approximate the effect of `UIScreen.scale` on iOS
-        val dpi = displayDensity ?: Point2d(200.0,200.0)
-        val scale = min(dpi.x,dpi.y) / 225
+        val prefs = activity.getSharedPreferences("com.mousebird.autotester.prefs", MODE_PRIVATE)
+        if (token.isEmpty() || token == "GetYerOwnToken") {
+            token = prefs.getString("MapTilerToken", null) ?: "GetYerOwnToken"
+        }
+        if (token.isEmpty() || token == "GetYerOwnToken") {
+            Toast.makeText(activity.applicationContext, "Missing MapTiler Token", Toast.LENGTH_LONG).show()
+        } else {
+            prefs.edit().putString("MapTilerToken",token).apply()
+        }
         
-        getStyleJson(whichMap)?.let { json ->
-            val settings = VectorStyleSettings(scale).apply {
-                baseDrawPriority = QuadImageLoaderBase.BaseDrawPriorityDefault + 1000
-                drawPriorityPerLevel = 100
-            }
-            map = MapboxKindaMap(json, control, settings).apply {
+        getStyleJson(whichMap)?.let { (json,img) ->
+            loader?.shutdown()
+            loader = null
+            map?.stop()
+            map = null
+            
+            MapboxKindaMap(json, control).apply {
+                map = this
                 mapboxURLFor = { Uri.parse(it.toString().replace("MapTilerKey", token)) }
-                backgroundAllPolys = (control is GlobeController)
+                backgroundAllPolys = !img && (control is GlobeController)
                 imageVectorHybrid = true
-                minImportance = 768.0 * 768.0
+                postSetup = {
+                    // Set up an overlay with the same parameters showing the
+                    // tile boundaries, for debugging/troubleshooting purposes
+                    this@MapTilerTestCase.loader =
+                            QuadPagingLoader(it.sampleParams, OvlDebugImageLoaderInterpreter(), control)
+                }
                 setup(this)
                 start()
             }
-        }
-
-        // Set up an overlay with the same importance showing the
-        // tile boundaries, for debugging/troubleshooting purposes
-        map?.let {
-            // Describes how to break down the space
-            val params = SamplingParams().apply {
-                minZoom = 1
-                maxZoom = 20
-                singleLevel = true
-                minImportance = it.minImportance
-                coordSystem = SphericalMercatorCoordSystem()
-            }
-            loader = QuadPagingLoader(params, OvlDebugImageLoaderInterpreter(), control)
         }
     }
 
@@ -63,29 +62,44 @@ open class MapTilerTestCase : MaplyTestCase
         map.styleSettings.drawPriorityPerLevel = 100
     }
 
-    protected open fun getStyleJson(whichMap: Int): String? =
+    protected open fun getStyleJson(whichMap: Int): Pair<String,Boolean>? =
         getMaps().elementAt(whichMap)?.let {
-            Log.i(javaClass.name, "Loading $it")
+            Toast.makeText(activity.applicationContext, "Loading ${it.first}", Toast.LENGTH_SHORT).show()
             try {
-                Okio.buffer(Okio.source(getActivity().assets.open(it))).readUtf8()
+                activity.assets.open(it.first).use { stream ->
+                    stream.source().use { source ->
+                        source.buffer().use { buffer ->
+                            Pair(buffer.readUtf8(), it.second)
+                        }
+                    }
+                }
             } catch (e: IOException) {
                 Log.w(javaClass.simpleName, "Failed to load style $it", e)
                 return null
             }
-        } ?: customStyle
+        } ?: run {
+            Toast.makeText(activity.applicationContext, "Loading custom stylesheet", Toast.LENGTH_SHORT).show()
+            Pair(customStyle,false)
+        }
     
-    // Switch maps on long press
+    // don't switch on long-press, it's too easy to do accidentally when pinching
     override fun userDidLongPress(globeControl: GlobeController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
-        switchMaps()
     }
     override fun userDidLongPress(mapController: MapController?, selObjs: Array<SelectedObject?>?, loc: Point2d?, screenLoc: Point2d?) {
+    }
+    
+    // Switch maps on long tap
+    override fun userDidTap(globeControl: GlobeController?, loc: Point2d?, screenLoc: Point2d?) {
+        super.userDidTap(globeControl, loc, screenLoc)
         switchMaps()
     }
-
+    
+    override fun userDidTap(mapControl: MapController?, loc: Point2d?, screenLoc: Point2d?) {
+        super.userDidTap(mapControl, loc, screenLoc)
+        switchMaps()
+    }
+    
     private fun switchMaps() {
-        loader = null
-        map?.stop()
-        map = null
         currentMap = (currentMap + 1) % getMaps().size
         baseViewC?.let { setupLoader(it, currentMap) }
     }
@@ -101,17 +115,25 @@ open class MapTilerTestCase : MaplyTestCase
     override fun setUpWithMap(mapVC: MapController?): Boolean {
         baseViewC = mapVC?.also {
             setupLoader(it, currentMap)
-            it.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 0.5)
+            it.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 1.5, 0.0, 0.5)
         }
         return true
     }
     
-    protected open fun getMaps(): Collection<String?> = listOf(
-        "maptiler_basic.json",
-        "maptiler_streets.json",
-        "maptiler_topo.json",
-        "maptiler_hybrid_satellite.json",
-        "maptiler_expr_test.json",
+    override fun shutdown() {
+        loader?.shutdown()
+        loader = null
+        map?.stop()
+        map = null
+        super.shutdown()
+    }
+
+    protected open fun getMaps(): Collection<Pair<String,Boolean>?> = listOf(
+        Pair("maptiler_basic.json", false),
+        Pair("maptiler_streets.json", false),
+        Pair("maptiler_topo.json", false),
+        Pair("maptiler_hybrid_satellite.json", true),
+        Pair("maptiler_expr_test.json", false),
         null        // placeholder for custom stylesheet below
     )
 
@@ -131,7 +153,48 @@ open class MapTilerTestCase : MaplyTestCase
                    "line-color":{"base":1,"stops":[[5,"hsl(26,87%,62%)"],[16,"#0f0"]]},
                    "line-width":{"base":1.2,"stops":[[5,0],[16,60]]}
                  }
-              }
+              },
+    {
+      "id": "road_minor",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "transportation",
+      "filter": [
+        "all",
+        [
+          "==",
+          "${"$"}type",
+          "LineString"
+        ],
+        [
+          "in",
+          "class",
+          "minor",
+          "service"
+        ]
+      ],
+      "layout": {
+        "line-cap": "butt",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "rgba(247, 247, 247, 0.12)",
+        "Xline-color": "rgba(247, 0, 0, 1.0)",
+        "line-width": {
+          "base": 1.55,
+          "stops": [
+            [
+              4,
+              0.25
+            ],
+            [
+              20,
+              10
+            ]
+          ]
+        }
+      }
+    }
            ],"sources":{"openmaptiles":{"type":"vector",
                  "url":"https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}}}
     """.trimIndent()

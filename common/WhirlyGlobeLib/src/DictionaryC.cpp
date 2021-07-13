@@ -384,7 +384,7 @@ RGBAColor parseColor(const char* const p, RGBAColor ret)
     {
 #define DUP4(x) (uint8_t)((uint8_t)(x) | ((uint8_t)(x) << 4))   // 0N => NN
     case 3: // #RGB => R=RR G=GG B=BB A=FF
-        return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v), 0xFF);
+        return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v));
     case 4: // #ARGB => R=RR G=GG B=BB A=AA
         return RGBAColor(DUP4(v >> 8), DUP4(v >> 4), DUP4(v), DUP4(v >> 12));
 #undef DUP4
@@ -949,10 +949,41 @@ bool DictionaryEntryCBasic::isEqual(const DictionaryEntryRef &other) const
     }
 }
 
+int64_t DictionaryEntryCString::getInt64() const
+{
+    char* endp = nullptr;
+    const auto value = (int64_t)strtoull(str.c_str(), &endp, 10);
+    if (endp && *endp != '\0')
+    {
+        wkLogLevel(Warn, "Trailing junk ignored on '%s' as int", str.c_str());
+    }
+    return value;
+}
+
+bool DictionaryEntryCString::getBool() const
+{
+    if (!strcasecmp(str.c_str(), "true") || !strcasecmp(str.c_str(), "yes")) return true;
+    if (!strcasecmp(str.c_str(), "false") || !strcasecmp(str.c_str(), "no")) return false;
+    return getInt64() != 0;
+}
+
 RGBAColor DictionaryEntryCString::getColor() const
 {
     return parseColor(str.c_str(), RGBAColor::white());
 }
+
+/// Return a double, using the default if it's missing
+double DictionaryEntryCString::getDouble() const
+{
+    char* endp = nullptr;
+    const auto value = strtod(str.c_str(), &endp);
+    if (endp && *endp != '\0')
+    {
+        wkLogLevel(Warn, "Trailing junk ignored on '%s' as double", str.c_str());
+    }
+    return value;
+}
+
 
 bool DictionaryEntryCString::isEqual(const DictionaryEntryRef &other) const
 {

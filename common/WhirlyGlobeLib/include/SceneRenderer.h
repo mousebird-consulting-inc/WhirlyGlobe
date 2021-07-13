@@ -119,7 +119,7 @@ public:
     virtual ~RenderTargetContainer() { }
     
     // Sort by draw priority and zbuffer on or off
-    typedef struct {
+    typedef struct PrioritySorter {
         bool operator () (const DrawableRef &a,const DrawableRef &b) const {
             const auto orderA = a->getDrawOrder();
             const auto orderB = b->getDrawOrder();

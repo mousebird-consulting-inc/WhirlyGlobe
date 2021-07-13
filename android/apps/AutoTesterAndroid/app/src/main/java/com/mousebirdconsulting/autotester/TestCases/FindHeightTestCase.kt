@@ -3,23 +3,13 @@ package com.mousebirdconsulting.autotester.TestCases
 import android.app.Activity
 import android.os.Handler
 import com.mousebird.maply.*
-import com.mousebirdconsulting.autotester.ConfigOptions
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
-import java.io.File
-import java.util.*
-import kotlin.concurrent.timer
 
 /**
  * Find Height just tests the findHeight logic for the globe and map.
  */
-class FindHeightTestCase : MaplyTestCase {
-
-    constructor(activity: Activity) : super(activity)
-    {
-        setTestName("Find Height")
-        implementation = TestExecutionImplementation.Both
-    }
-
+class FindHeightTestCase(activity: Activity) : MaplyTestCase(activity, "Find Height") {
+    
     // Run a findHeight
     fun runDelayedFind(vc: BaseController) {
         Handler().postDelayed(Runnable {

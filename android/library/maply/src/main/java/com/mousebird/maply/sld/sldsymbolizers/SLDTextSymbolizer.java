@@ -114,7 +114,8 @@ public class SLDTextSymbolizer extends SLDSymbolizer {
             offset = null;
 
         labelInfo.setDrawPriority(symbolizerParams.getRelativeDrawPriority() + RenderController.LabelDrawPriorityDefault);
-        vectorTileTextStyle = new VectorTileTextStyle(labelInfo, placement, offset, textField, vectorStyleSettings, viewC);
+        vectorTileTextStyle = new VectorTileTextStyle(null,null,labelInfo,
+                                                      placement,offset,textField,vectorStyleSettings,viewC);
         symbolizerParams.incrementRelativeDrawPriority();
     }
 

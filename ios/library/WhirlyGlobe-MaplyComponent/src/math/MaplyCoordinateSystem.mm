@@ -59,7 +59,9 @@ using namespace WhirlyKit;
 
 - (void)setBounds:(MaplyBoundingBox)bounds
 {
-	[self setBoundsLL:&bounds.ll ur:&bounds.ur];
+    auto ll = [self localToGeo:bounds.ll];
+    auto ur = [self localToGeo:bounds.ur];
+	[self setBoundsLL:&ll ur:&ur];
 }
 
 - (void)setBoundsD:(MaplyBoundingBoxD)boundsD
@@ -76,15 +78,9 @@ using namespace WhirlyKit;
 
 - (MaplyBoundingBox)getBounds
 {
-	MaplyBoundingBox box;
-
-	box.ll.x = ll.x;
-	box.ll.y = ll.y;
-
-	box.ur.x = ur.x;
-	box.ur.y = ur.y;
-
-	return box;
+    const Point3d llLoc = coordSystem->geographicToLocal(Point2d(ll.x, ll.y));
+    const Point3d urLoc = coordSystem->geographicToLocal(Point2d(ur.x, ur.y));
+    return {{(float)llLoc.x(),(float)llLoc.y()},{(float)urLoc.x(),(float)urLoc.y()}};
 }
 
 - (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur

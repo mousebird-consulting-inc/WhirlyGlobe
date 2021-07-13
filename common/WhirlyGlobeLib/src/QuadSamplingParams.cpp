@@ -30,6 +30,7 @@ SamplingParams::SamplingParams()
     minImportance(256*256), minImportanceTop(0.0),
     coverPoles(true), edgeMatching(true),
     tessX(10), tessY(10),
+      boundsScale(1.0),
     singleLevel(false),
     forceMinLevel(true),
     forceMinLevelHeight(0.0),
@@ -58,6 +59,7 @@ bool SamplingParams::operator == (const SamplingParams &that) const
         coverPoles == that.coverPoles && edgeMatching == that.edgeMatching &&
         tessX == that.tessX && tessY == that.tessY &&
         singleLevel == that.singleLevel &&
+        boundsScale == that.boundsScale &&
         forceMinLevel == that.forceMinLevel &&
         forceMinLevelHeight == that.forceMinLevelHeight &&
         clipBounds == that.clipBounds &&

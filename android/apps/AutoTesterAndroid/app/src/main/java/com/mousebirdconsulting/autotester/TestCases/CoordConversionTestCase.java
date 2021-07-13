@@ -2,12 +2,15 @@ package com.mousebirdconsulting.autotester.TestCases;
 
 import android.app.Activity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Point2d;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
+
+import java.util.Locale;
 
 /**
  * Test coordinate conversion batch functions.
@@ -16,16 +19,12 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 public class CoordConversionTestCase extends MaplyTestCase
 {
     public CoordConversionTestCase(Activity activity) {
-        super(activity);
-
-        setTestName("Coord Conversion Test");
-        setDelay(4);
-        this.implementation = TestExecutionImplementation.Both;
+        super(activity, "Coord Conversion Test", TestExecutionImplementation.Both);
     }
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
+        baseView.setDoColorChange(false);
         baseView.setUpWithGlobe(globeVC);
 
         globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
@@ -35,7 +34,7 @@ public class CoordConversionTestCase extends MaplyTestCase
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
+        baseView.setDoColorChange(false);
         baseView.setUpWithMap(mapVC);
 
         mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5, 1.0);
@@ -44,19 +43,24 @@ public class CoordConversionTestCase extends MaplyTestCase
         return true;
     }
 
-    protected void processTap(BaseController control, Point2d loc, Point2d screenLoc)
-    {
+    @Override
+    public void shutdown() {
+        baseView.shutdown();
+        super.shutdown();
+    }
+
+    protected void processTap(BaseController control, Point2d loc, Point2d screenLoc) {
         Log.d("Maply","User tapped at (" + loc.getX()*180/Math.PI + "," + loc.getY()*180/Math.PI + ") on screen (" + screenLoc.getX() + "," + screenLoc.getY() + ")");
 
-        int numPts = 5;
-        double[] screenX = new double[5];
-        double[] screenY = new double[5];
-        double[] geoX = new double[5];
-        double[] geoY = new double[5];
-        double[] geoZ = new double[5];
+        final int numPts = 5;
+        final double[] screenX = new double[5];
+        final double[] screenY = new double[5];
+        final double[] geoX = new double[5];
+        final double[] geoY = new double[5];
+        final double[] geoZ = new double[5];
         for (int ii=0;ii<numPts;ii++) {
-            screenX[ii] = screenLoc.getX();
-            screenY[ii] = screenLoc.getY();
+            screenX[ii] = screenLoc.getX() + ii;
+            screenY[ii] = screenLoc.getY() + ii;
         }
         control.geoPointFromScreenBatch(screenX, screenY, geoX, geoY);
         for (int ii=0;ii<numPts;ii++)
@@ -75,15 +79,23 @@ public class CoordConversionTestCase extends MaplyTestCase
         {
             Log.d("Maply","  ScreenPt = (" + screenX[ii] + "," + screenY[ii] + ")");
         }
+
+        Toast.makeText(getActivity().getApplicationContext(),
+                String.format(Locale.getDefault(),
+                        "(%.1f,%.1f) = (%.6f,%.6f) = (%.1f,%.1f)",
+                        screenLoc.getX(), screenLoc.getY(),
+                        geoX[0]*180/Math.PI, geoY[0]*180/Math.PI,
+                        screenX[0], screenY[0]),
+                Toast.LENGTH_SHORT).show();
     }
 
-    public void userDidTap(GlobeController globeControl, Point2d loc, Point2d screenLoc)
-    {
+    public void userDidTap(GlobeController globeControl, Point2d loc, Point2d screenLoc) {
         processTap(globeControl,loc,screenLoc);
     }
 
-    public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc)
-    {
+    public void userDidTap(MapController mapControl,Point2d loc,Point2d screenLoc) {
         processTap(mapControl,loc,screenLoc);
     }
+
+    private final StamenRemoteTestCase baseView = new StamenRemoteTestCase(getActivity());
 }

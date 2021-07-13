@@ -16,58 +16,90 @@
  *  limitations under the License.
  */
 
-#include "../include/VectorStyleSet_Android.h"
+#import "../include/VectorStyleSet_Android.h"
 #import "Maply_jni.h"
 #import "Formats_jni.h"
 #import "Vectors_jni.h"
+#import <climits>
 
 namespace WhirlyKit
 {
 
-long long VectorStyleImpl_Android::getUuid(PlatformThreadInfo *inst)
+std::string VectorStyleImpl_Android::getIdent() const
 {
-    return uuid;
+    const auto entry = styleSet->findEntry(uuid);
+    return entry ? entry->ident : std::string();
+}
+
+std::string VectorStyleImpl_Android::getType() const
+{
+    const auto entry = styleSet->findEntry(uuid);
+    return entry ? entry->type : std::string();
+}
+
+std::string VectorStyleImpl_Android::getLegendText(float zoom) const
+{
+    const auto entry = styleSet->findEntry(uuid);
+    return entry ? entry->legendText : std::string();
+}
+
+RGBAColor VectorStyleImpl_Android::getLegendColor(float zoom) const
+{
+    const auto entry = styleSet->findEntry(uuid);
+    return entry ? entry->legendColor : RGBAColor::clear();
 }
 
 std::string VectorStyleImpl_Android::getCategory(PlatformThreadInfo *inst)
 {
-    const auto entry = styleSet->styles.find(uuid);
-    return (entry != styleSet->styles.end()) ? entry->second.category : std::string();
+    const auto entry = styleSet->findEntry(uuid);
+    return entry ? entry->category : std::string();
+}
+
+std::string VectorStyleImpl_Android::getRepresentation() const
+{
+    const auto entry = styleSet->findEntry(uuid);
+    return entry ? entry->representation : std::string();
 }
 
 bool VectorStyleImpl_Android::geomAdditive(PlatformThreadInfo *inst)
 {
-    const auto entry = styleSet->styles.find(uuid);
-    return (entry != styleSet->styles.end()) && entry->second.geomAdditive;
+    const auto entry = styleSet->findEntry(uuid);
+    return entry && entry->geomAdditive;
 }
 
-void VectorStyleImpl_Android::buildObjects(PlatformThreadInfo *inst, const std::vector<VectorObjectRef> &vecObjs,
-                                           const VectorTileDataRef &tileInfo, const Dictionary *desc)
+void VectorStyleImpl_Android::buildObjects(PlatformThreadInfo *inst,
+                                           const std::vector<VectorObjectRef> &vecObjs,
+                                           const VectorTileDataRef &tileInfo,
+                                           const Dictionary *desc,
+                                           const CancelFunction &cancelFn)
 {
     // Pass through to the parent object, since we're just a wrapper
-    styleSet->buildObjects(inst,uuid,vecObjs,tileInfo,desc);
+    styleSet->buildObjects(inst,uuid,vecObjs,tileInfo,desc,cancelFn);
 }
 
 VectorStyleSetWrapper_Android::VectorStyleSetWrapper_Android(PlatformThreadInfo *platformInfo,
                                                              jobject obj,
                                                              const std::vector<SimpleIdentity> &uuids,
                                                              const std::vector<std::string> &categories,
-                                                             const std::vector<bool> &geomAdditive
-                                                             )
+                                                             const std::vector<bool> &geomAdditive,
+                                                             const std::vector<std::string> &idents)
 {
-    PlatformInfo_Android *info = (PlatformInfo_Android *)platformInfo;
+    auto info = (PlatformInfo_Android *)platformInfo;
     jclass thisClass = VectorStyleSetWrapperClassInfo::getClassInfo()->getClass();
     wrapperObj = info->env->NewGlobalRef(obj);
     layerShouldDisplayMethod = info->env->GetMethodID(thisClass,"layerShouldDisplay","(Ljava/lang/String;III)Z");
     stylesForFeatureMethod = info->env->GetMethodID(thisClass,"stylesForFeature","(Lcom/mousebird/maply/AttrDictionary;IIILjava/lang/String;)[J");
     buildObjectsMethod = info->env->GetMethodID(thisClass,"buildObjects","(J[Lcom/mousebird/maply/VectorObject;Lcom/mousebird/maply/VectorTileData;)V");
 
-    for (unsigned int ii=0;ii<uuids.size();ii++) {
+    for (unsigned int ii=0;ii<uuids.size();ii++)
+    {
         StyleEntry entry;
         entry.category = categories[ii];
         entry.geomAdditive = geomAdditive[ii];
+        entry.ident = idents[ii];
         entry.style = std::make_shared<VectorStyleImpl_Android>();
         entry.style->styleSet = this;
+
         const auto uuid = uuids[ii];
         entry.style->uuid = uuid;
         styles[uuid] = entry;
@@ -86,7 +118,7 @@ std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::stylesForFeature(
                                                          const QuadTreeIdentifier &tileID,
                                                          const std::string &layerName)
 {
-    PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)platformInfo;
+    auto threadInfo = (PlatformInfo_Android *)platformInfo;
 
     // TODO: This is making a copy.  See if we can avoid that
     MutableDictionary_AndroidRef dict = std::make_shared<MutableDictionary_Android>(attrs);
@@ -94,7 +126,7 @@ std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::stylesForFeature(
     // Wrap the layer name and attributes and call the method
     jobject jStr = threadInfo->env->NewStringUTF(layerName.c_str());
     jobject attrObj = MakeAttrDictionary(threadInfo->env,dict);
-    jlongArray longArray = (jlongArray)threadInfo->env->CallObjectMethod(wrapperObj,stylesForFeatureMethod,attrObj,tileID.x,tileID.y,tileID.level,jStr);
+    auto longArray = (jlongArray)threadInfo->env->CallObjectMethod(wrapperObj,stylesForFeatureMethod,attrObj,tileID.x,tileID.y,tileID.level,jStr);
     threadInfo->env->DeleteLocalRef(jStr);
     threadInfo->env->DeleteLocalRef(attrObj);
 
@@ -163,16 +195,23 @@ RGBAColorRef VectorStyleSetWrapper_Android::backgroundColor(PlatformThreadInfo *
 static const int VecBatchSize = 500;
 
 void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInfo,
-        SimpleIdentity styleID,
-        const std::vector<VectorObjectRef> &vecObjs,
-        const VectorTileDataRef &tileInfo,
-        const Dictionary *desc)
+                                                 SimpleIdentity styleID,
+                                                 const std::vector<VectorObjectRef> &vecObjs,
+                                                 const VectorTileDataRef &tileInfo,
+                                                 __unused const Dictionary *desc,
+                                                 const CancelFunction &cancelFn)
 {
-    PlatformInfo_Android *threadInfo = (PlatformInfo_Android *)platformInfo;
+    auto threadInfo = (PlatformInfo_Android *)platformInfo;
 
     jobject tileDataObj = MakeVectorTileDataObject(threadInfo->env,tileInfo);
 
-    for (unsigned int ii=0;ii<vecObjs.size();ii+=VecBatchSize) {
+    for (unsigned int ii=0;ii<vecObjs.size();ii+=VecBatchSize)
+    {
+        if (cancelFn(platformInfo))
+        {
+            break;
+        }
+
         // Make wrapper objects for the vectors and the tile data
         std::vector<jobject> vecObjVec;
         vecObjVec.reserve(VecBatchSize);
@@ -183,10 +222,21 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
             jobject newObj = MakeVectorObject(threadInfo->env,vecObj);
             vecObjVec.push_back(newObj);
         }
+
+        if (cancelFn(platformInfo))
+        {
+            break;
+        }
+
         jobject vecObjArray = BuildObjectArray(threadInfo->env,VectorObjectClassInfo::getClassInfo()->getClass(),vecObjVec);
         // Tear down our object wrappers
         for (auto vecObj: vecObjVec)
             threadInfo->env->DeleteLocalRef(vecObj);
+
+        if (cancelFn(platformInfo))
+        {
+            break;
+        }
 
         threadInfo->env->CallVoidMethod(wrapperObj,buildObjectsMethod,styleID,vecObjArray,tileDataObj);
         threadInfo->env->DeleteLocalRef(vecObjArray);
@@ -197,7 +247,7 @@ void VectorStyleSetWrapper_Android::buildObjects(PlatformThreadInfo *platformInf
 
 void VectorStyleSetWrapper_Android::shutdown(PlatformThreadInfo *platformInfo)
 {
-    PlatformInfo_Android *info = (PlatformInfo_Android *)platformInfo;
+    auto info = (PlatformInfo_Android *)platformInfo;
 
     if (wrapperObj) {
         info->env->DeleteGlobalRef(wrapperObj);

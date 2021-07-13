@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorTileParser.h
+/*  MapboxVectorTileParser.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/25/16.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "vector_tile.pb.h"
@@ -123,12 +121,22 @@ public:
     /// Returns false on failure or cancellation.
     virtual bool parse(PlatformThreadInfo *styleInst, RawData *rawData, VectorTileData *tileData, volatile bool *cancelBool);
 
+    using CancelFunction = std::function<bool(PlatformThreadInfo *)>;
+
+    /// Parse the vector tile and return a list of vectors.
+    /// Returns false on failure or cancellation.
+    virtual bool parse(PlatformThreadInfo *styleInst,
+                       RawData *rawData,
+                       VectorTileData *tileData,
+                       const CancelFunction &cancelFn);
+
     /// The subclass calls the appropriate style to build component objects
     ///  which are then returned in the VectorTileData
     virtual void buildForStyle(PlatformThreadInfo *styleInst,
                                long long styleID,
                                const std::vector<VectorObjectRef> &vecObjs,
-                               const VectorTileDataRef &data);
+                               const VectorTileDataRef &data,
+                               const CancelFunction &cancelFn);
 
     /// Set the name of the uuid field.
     /// When present, the value is set as the kMaplyUUID attribute on generated objects

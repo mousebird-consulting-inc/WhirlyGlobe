@@ -3,12 +3,10 @@ package com.mousebirdconsulting.autotester.TestCases;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.graphics.Color;
 import android.util.Log;
 
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MBTileFetcher;
-import com.mousebird.maply.MBTiles;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.BaseController;
 import com.mousebird.maply.Mbr;
@@ -35,17 +33,14 @@ import java.io.OutputStream;
  */
 public class GeographyClass extends MaplyTestCase {
 
-    private static double RAD_TO_DEG = 180.0 / Math.PI;
+    private static final double RAD_TO_DEG = 180.0 / Math.PI;
 
-    private static String TAG = "AutoTester";
-    private static String MBTILES_DIR = "mbtiles";
+    private static final String TAG = "AutoTester";
+    private static final String MBTILES_DIR = "mbtiles";
 
-    private Activity activity;
-
-
-    private GlobeController.GestureDelegate gestureDelegate = new GlobeController.GestureDelegate() {
+    private final GlobeController.GestureDelegate gestureDelegate = new GlobeController.GestureDelegate() {
         @Override
-        public void userDidSelect(GlobeController controller, SelectedObject objs[], Point2d loc, Point2d screenLoc) {
+        public void userDidSelect(GlobeController controller, SelectedObject[] objs, Point2d loc, Point2d screenLoc) {
             GeographyClass.super.userDidSelect(controller, objs, loc, screenLoc);
         }
 
@@ -74,7 +69,7 @@ public class GeographyClass extends MaplyTestCase {
         public void globeDidStopMoving(GlobeController controller, Point3d[] corners, boolean userInitiated) {
 
             Point3d center = controller.getPositionGeo();
-            GlobeController.ViewState viewState = controller.getViewState();
+            //GlobeController.ViewState viewState = controller.getViewState();
 
             Log.v(TAG, String.format("Globe did stop moving (lat: %.6f° lon: %.6f° z: %.6f)",
                     center.getY() * RAD_TO_DEG, center.getX() * RAD_TO_DEG, center.getZ()));
@@ -103,17 +98,14 @@ public class GeographyClass extends MaplyTestCase {
 
 
     public GeographyClass(Activity activity) {
-        super(activity);
-        setTestName("Geography Class");
+        super(activity, "Geography Class", TestExecutionImplementation.Both);
         setDelay(1000);
-
-        this.activity = activity;
-        this.implementation = TestExecutionImplementation.Both;
     }
 
     VariableTarget varTarget = null;
 
-    private void setupImageLoader(BaseController baseController, String mbTilesName, int drawPriority, boolean useOffscreen, boolean transparent, ConfigOptions.TestType testType) throws Exception
+    private void setupImageLoader(BaseController baseController, String mbTilesName, int drawPriority,
+                                  boolean useOffscreen, boolean transparent, ConfigOptions.TestType testType) throws Exception
     {
         File mbTiles;
 
@@ -133,9 +125,7 @@ public class GeographyClass extends MaplyTestCase {
         Log.d(TAG, String.format("Obtained MBTiles SQLLite database \"%s\"", mbTiles.getAbsolutePath()));
 
         // The fetcher fetches tile from the MBTiles file
-        MBTileFetcher mbTileFetcher = new MBTileFetcher(baseController, mbTiles);
-        if (mbTileFetcher == null)
-            return;
+        mbTileFetcher = new MBTileFetcher(baseController, mbTiles);
 
         // Set up the parameters to match the MBTile file
         SamplingParams params = new SamplingParams();
@@ -158,7 +148,7 @@ public class GeographyClass extends MaplyTestCase {
             varTarget.scale = 1.0;
         }
 
-        QuadImageLoader loader = new QuadImageLoader(params,mbTileFetcher.getTileInfo(),baseController);
+        loader = new QuadImageLoader(params,mbTileFetcher.getTileInfo(),baseController);
         loader.setTileFetcher(mbTileFetcher);
         loader.setBaseDrawPriority(drawPriority);
         if (transparent) {
@@ -169,6 +159,9 @@ public class GeographyClass extends MaplyTestCase {
             loader.setRenderTarget(varTarget.renderTarget);
         }
     }
+
+    private MBTileFetcher mbTileFetcher;
+    private QuadImageLoader loader;
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
@@ -185,12 +178,25 @@ public class GeographyClass extends MaplyTestCase {
         return true;
     }
 
+    @Override
+    public void shutdown() {
+        if (mbTileFetcher != null) {
+            mbTileFetcher.shutdown();
+            mbTileFetcher = null;
+        }
+        if (loader != null) {
+            loader.shutdown();
+            loader = null;
+        }
+        super.shutdown();
+    }
+
     private File getMbTileFile(String assetMbTile, String mbTileFilename) throws IOException {
 
-        ContextWrapper wrapper = new ContextWrapper(activity);
+        ContextWrapper wrapper = new ContextWrapper(getActivity());
         File mbTilesDirectory =  wrapper.getDir(MBTILES_DIR, Context.MODE_PRIVATE);
 
-        InputStream is = activity.getAssets().open(assetMbTile);
+        InputStream is = getActivity().getAssets().open(assetMbTile);
         File of = new File(mbTilesDirectory, mbTileFilename);
 
         if (of.exists()) {

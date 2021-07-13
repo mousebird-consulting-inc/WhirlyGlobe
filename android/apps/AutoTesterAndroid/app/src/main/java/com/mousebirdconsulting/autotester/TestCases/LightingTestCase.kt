@@ -1,9 +1,8 @@
-/*
- *  GlobeRotationTestCase.kt
+/*  LightingTestCase.kt
  *  WhirlyGlobeLib
  *
- *  Created by Tim Sylvester on 9 Feb 2021.
- *  Copyright 2021 mousebird consulting
+ *  Created by jmnavarro
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,36 +14,35 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
-
 package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import com.mousebird.maply.GlobeController
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
-public class GlobeRotationTestCase : MaplyTestCase {
+class LightingTestCase(activity: Activity?) :
+        MaplyTestCase(activity, "Lighting Test", TestExecutionImplementation.Globe) {
 
-    constructor(activity: Activity) : super(activity) {
-        testName = "Globe Rotation (#1286)"
-        implementation = TestExecutionImplementation.Globe
+    private var adapter: LightingAdapter? = null
 
-        baseCase = VectorsTestCase(activity)
-    }
-
-    override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        if (!baseCase.setUpWithGlobe(globeVC)) {
-            return false
+    @Throws(Exception::class)
+    override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
+        baseView.setUpWithGlobe(globeVC)
+        globeVC.addPostSurfaceRunnable {
+            adapter = LightingAdapter(globeVC)
         }
-        globeVC?.animatePositionGeo(0.0, Math.PI/8, 0.75, 0.0, 0.5)
         return true
     }
-
+    
     override fun shutdown() {
-        baseCase.shutdown()
+        adapter = null
+        controller?.clearLights()
+        baseView.shutdown()
         super.shutdown()
     }
-
-    private var baseCase: VectorsTestCase
+    
+    private val baseView = StamenRemoteTestCase(getActivity()).apply {
+        doColorChange = false
+    }
 }

@@ -40,7 +40,7 @@ extern "C" {
 
 /// Solve the direct geodesic problem where the length of the geodesic is specified in terms of distance.
 /// azimuth in radians, distance in meters
-MaplyCoordinateD GeoLibCalcDirectF(MaplyCoordinate origin, double azimuth, double distance);
+MaplyCoordinate GeoLibCalcDirectF(MaplyCoordinate origin, double azimuth, double distance);
 MaplyCoordinateD GeoLibCalcDirectD(MaplyCoordinateD origin, double azimuth, double distance);
 
 // Solve the inverse geodesic problem

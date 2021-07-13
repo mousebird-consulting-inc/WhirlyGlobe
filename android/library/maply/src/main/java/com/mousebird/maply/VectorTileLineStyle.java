@@ -18,41 +18,36 @@
 
 package com.mousebird.maply;
 
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * The VectorTileStyle base class for styling line features.
  */
 public class VectorTileLineStyle extends VectorTileStyle {
 
-    private boolean useWideVectors;
+    private final boolean useWideVectors;
     private WideVectorInfo wideVectorInfo;
     private VectorInfo vectorInfo;
 
-    public VectorTileLineStyle(BaseInfo baseInfo, VectorStyleSettings settings, RenderControllerInterface viewC) {
-        super(viewC);
+    public VectorTileLineStyle(String ident,String category,BaseInfo baseInfo,
+                               VectorStyleSettings settings,RenderControllerInterface viewC) {
+        super(ident,category,viewC);
         if (baseInfo instanceof VectorInfo) {
             useWideVectors = false;
             vectorInfo = (VectorInfo)baseInfo;
         } else if (baseInfo instanceof WideVectorInfo) {
             useWideVectors = true;
             wideVectorInfo = (WideVectorInfo)baseInfo;
-        } else
+        } else {
             throw new IllegalArgumentException();
-
+        }
     }
 
+    public void buildObjects(VectorObject[] objects, VectorTileData tileData, RenderControllerInterface controller) {
+        ArrayList<VectorObject> vecObjs = new ArrayList<>(Arrays.asList(objects));
 
-    public void buildObjects(VectorObject objects[], VectorTileData tileData, RenderControllerInterface controller) {
-        ArrayList<VectorObject> vecObjs = new ArrayList<VectorObject>(Arrays.asList(objects));
-
-        ComponentObject compObj = null;
+        ComponentObject compObj;
         if (useWideVectors) {
             compObj = controller.addWideVectors(vecObjs, wideVectorInfo, RenderController.ThreadMode.ThreadCurrent);
         }

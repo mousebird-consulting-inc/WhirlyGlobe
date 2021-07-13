@@ -21,7 +21,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleWrapper_nativeInit
  * Signature: ([J[Ljava/lang/String;[Z)V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleWrapper_initialise
-  (JNIEnv *, jobject, jlongArray, jobjectArray, jbooleanArray);
+  (JNIEnv *, jobject, jlongArray, jobjectArray, jbooleanArray, jobjectArray);
 
 /*
  * Class:     com_mousebird_maply_VectorStyleWrapper

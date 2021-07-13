@@ -217,19 +217,20 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector &p
     newObj.objEntry = objEntry;
     newObj.center = CalcCenterOfMass(pts);
     newObj.pts = pts;
-    Mbr mbr;  mbr.addPoints(pts);
+
+    const Mbr ptsMbr(pts);
     
     // All the things we might overlap
     std::set<int> objSet;
-    findObjectsWithin(mbr,objSet);
+    findObjectsWithin(ptsMbr, objSet);
     
     // Look for overlaps
     bool found = false;
     for (auto which : objSet)
     {
-        ObjectWithBounds *testObj = NULL;
-        SimpleObject *simpleObj = NULL;
-        ClusterObject *clusterObj = NULL;
+        ObjectWithBounds *testObj;
+        SimpleObject *simpleObj = nullptr;
+        ClusterObject *clusterObj = nullptr;
         if (which >= 0)
         {
             simpleObj = &simpleObjects[which];
@@ -245,7 +246,7 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector &p
             
             if (clusterObj)
             {
-                Mbr clusterOldMbr;  clusterOldMbr.addPoints(clusterObj->pts);
+                const Mbr clusterOldMbr(clusterObj->pts);
                 removeFromCells(clusterOldMbr, which);
 
                 // Hit a cluster, so merge this new object in
@@ -285,7 +286,7 @@ void ClusterHelper::addObject(LayoutObjectEntry *objEntry,const Point2dVector &p
     
     // This object stands alone, so add it to the grid
     if (!found)
-        addToCells(mbr, newID);
+        addToCells(ptsMbr, newID);
 }
 
 void ClusterHelper::resolveClusters()
@@ -346,8 +347,11 @@ void ClusterHelper::resolveClusters()
     
 void ClusterHelper::objectsForCluster(ClusterObject &cluster,std::vector<LayoutObjectEntry *> &layoutObjs)
 {
+    layoutObjs.reserve(layoutObjs.size() + cluster.children.size());
     for (int child : cluster.children)
+    {
         layoutObjs.push_back(simpleObjects[child].objEntry);
+    }
 }
-    
+
 }

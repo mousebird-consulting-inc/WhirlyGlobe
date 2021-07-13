@@ -20,7 +20,12 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This object parses Mapbox Vector Tile format one tile at a time.
@@ -31,7 +36,7 @@ import java.lang.ref.WeakReference;
 public class MapboxVectorTileParser
 {
     VectorStyleInterface styleDelegate = null;
-    VectorStyleWrapper vecStyleWrap = null;
+    //VectorStyleWrapper vecStyleWrap = null;
     WeakReference<RenderControllerInterface> viewC;
 
     private MapboxVectorTileParser() { }
@@ -39,7 +44,7 @@ public class MapboxVectorTileParser
     MapboxVectorTileParser(VectorStyleInterface inStyleDelegate,RenderControllerInterface inViewC)
     {
         styleDelegate = inStyleDelegate;
-        viewC = new WeakReference<RenderControllerInterface>(inViewC);
+        viewC = new WeakReference<>(inViewC);
 
         // If the style delegate is backed by a C++ object, we
         //  can just use that directly.
@@ -65,12 +70,22 @@ public class MapboxVectorTileParser
      * @param tileData A container for the data we parse and the styles create.
      * @return Returns null on failure to parse.
      */
-    public boolean parseData(byte[] data,VectorTileData tileData)
-    {
-        return parseDataNative(data, tileData);
+    public boolean parseData(@NotNull byte[] data,
+                             @NotNull VectorTileData tileData) {
+        return parseData(data,tileData,null);
     }
 
-    native boolean parseDataNative(byte[] data,VectorTileData tileData);
+    /**
+     * Parse the data from a single tile.
+     * This returns a collection of vector objects in DataReturn.
+     *
+     * @param data The input data to parse.  You should have fetched this on your own.
+     * @param tileData A container for the data we parse and the styles create.
+     * @return Returns null on failure to parse.
+     */
+    public native boolean parseData(@NotNull byte[] data,
+                                    @NotNull VectorTileData tileData,
+                                    @Nullable LoaderReturn loadReturn);
 
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
     native void setLocalCoords(boolean localCoords);

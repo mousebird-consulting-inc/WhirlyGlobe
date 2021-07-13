@@ -24,6 +24,9 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseImplementations) {
 
 @interface MaplyTestCase : NSObject <WhirlyGlobeViewControllerDelegate,MaplyViewControllerDelegate>
 
+- (instancetype _Nonnull)init;
+- (instancetype _Nonnull)initWithName:(NSString *_Nonnull)name supporting:(MaplyTestCaseImplementations)types;
+
 - (void)startGlobe:(UINavigationController * __nonnull)nav;
 - (void)startMap:(UINavigationController * __nonnull)nav;
 

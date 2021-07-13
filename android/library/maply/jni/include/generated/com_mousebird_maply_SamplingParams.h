@@ -57,6 +57,22 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getMaxZoom
 
 /*
  * Class:     com_mousebird_maply_SamplingParams
+ * Method:    setReportedMaxZoom
+ * Signature: (I)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setReportedMaxZoom
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_SamplingParams
+ * Method:    getReportedMaxZoom
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getReportedMaxZoom
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SamplingParams
  * Method:    setMaxTiles
  * Signature: (I)V
  */
@@ -153,6 +169,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setTesselation
 
 /*
  * Class:     com_mousebird_maply_SamplingParams
+ * Method:    setForceMinLevel
+ * Signature: (Z)V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
+  (JNIEnv *, jobject, jboolean);
+
+/*
+ * Class:     com_mousebird_maply_SamplingParams
  * Method:    getTesselationX
  * Signature: ()I
  */
@@ -166,9 +190,6 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationX
  */
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationY
   (JNIEnv *, jobject);
-
-JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
-        (JNIEnv *, jobject, jboolean);
 
 /*
  * Class:     com_mousebird_maply_SamplingParams
@@ -193,6 +214,9 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getSingleLeve
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setLevelLoads
   (JNIEnv *, jobject, jintArray);
+
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
+        (JNIEnv *, jobject, jfloat);
 
 /*
  * Class:     com_mousebird_maply_SamplingParams

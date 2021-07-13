@@ -1,4 +1,4 @@
-/*  MaplyBasicClusterGenerator.java
+/*  BasicClusterGenerator.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -44,7 +44,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
      * Initialize unset, must assign colors or bitmap before use
      */
     public BasicClusterGenerator(BaseController viewC) {
-        this(0,new Point2d(16.0,16.0),new Point2d(16.0,16.0),0.0f,viewC);
+        this(0,new Point2d(16.0,16.0),null,0.0f,viewC);
     }
 
     /**
@@ -67,10 +67,6 @@ public class BasicClusterGenerator extends ClusterGenerator {
         this(colors,clusterNumber,markerSize,viewC);
     }
 
-    public BasicClusterGenerator(Bitmap bitmap, int clusterNumber, Point2d markerSize, float textSize, BaseController viewC, Activity activity) {
-        this(bitmap,clusterNumber,markerSize,textSize,viewC);
-    }
-
     public BasicClusterGenerator(int[] colors, int clusterNumber, Point2d markerSize, BaseController viewC) {
         this(clusterNumber,markerSize,markerSize,0.0f,viewC);
         this.colors = colors;
@@ -82,16 +78,16 @@ public class BasicClusterGenerator extends ClusterGenerator {
     }
 
     private BasicClusterGenerator(int clusterNumber, Point2d markerSize, Point2d layoutSize, float textSize, BaseController viewC) {
-        this.baseController = viewC;
+        super(viewC);
         this.size = markerSize;
         this.clusterNumber = clusterNumber;
         this.textSize = textSize;
-        this.clusterLayoutSize = layoutSize;
+        this.clusterLayoutSize = (layoutSize != null) ? layoutSize : markerSize;
     }
 
-    public void shutdown()
-    {
-        baseController = null;
+    @Override
+    public void shutdown() {
+        baseController.clear();
     }
 
     /**
@@ -208,7 +204,8 @@ public class BasicClusterGenerator extends ClusterGenerator {
 
     @Override
     public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo) {
-        if (bitmap == null && (colors == null || colors.length < 1)) {
+        BaseController control = baseController.get();
+        if (control == null || (bitmap == null && (colors == null || colors.length < 1))) {
             return null;
         }
 
@@ -222,7 +219,7 @@ public class BasicClusterGenerator extends ClusterGenerator {
                 if (cacheBitmaps) {
                     imageByNumber.put(clusterInfo.numObjects,image);
                 }
-                tex = baseController.addTexture(image, texSettings, RenderController.ThreadMode.ThreadCurrent);
+                tex = control.addTexture(image, texSettings, RenderController.ThreadMode.ThreadCurrent);
                 if (tex != null) {
                     texByNumber.put(clusterInfo.numObjects, tex);
                 }

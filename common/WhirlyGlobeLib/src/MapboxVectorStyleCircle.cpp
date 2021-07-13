@@ -1,9 +1,8 @@
-/*
-*  MapboxVectorStyleCircle.h
+/* MapboxVectorStyleCircle.h
 *  WhirlyGlobe-MaplyComponent
 *
 *  Created by Steve Gifford on 2/17/15.
-*  Copyright 2011-2015 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
-*
 */
 
 #import "MapboxVectorStyleCircle.h"
@@ -32,7 +30,7 @@ bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *,
         return false;
     
     radius = styleSet->transDouble("circle-radius", styleEntry, 5.0);
-    fillColor = styleSet->colorValue("circle-color",NULL,styleEntry,RGBAColor::black(),false);
+    fillColor = styleSet->colorValue("circle-color",nullptr,styleEntry,RGBAColor::black(),false);
     opacity = styleSet->transDouble("circle-opacity",styleEntry,1.0);
     strokeWidth = styleSet->transDouble("circle-stroke-width",styleEntry,0.0);
     strokeColor = styleSet->colorValue("circle-stroke-color",NULL,styleEntry,RGBAColor::black(),false);
@@ -87,7 +85,8 @@ void MapboxVectorLayerCircle::cleanup(PlatformThreadInfo *inst,ChangeSet &change
 void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                                            const std::vector<VectorObjectRef> &vecObjs,
                                            const VectorTileDataRef &tileInfo,
-                                           const Dictionary *desc)
+                                           const Dictionary *desc,
+                                           const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if ((!visible  && (representation.empty() || repUUIDField.empty())) || circleTexID == EmptyIdentity)
@@ -106,7 +105,7 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     // Default settings
     MarkerInfo markerInfo(/*screenObject=*/true);
     markerInfo.zoomSlot = styleSet->zoomSlot;
-    markerInfo.color = RGBAColor(255,255,255,opacity*255);
+    markerInfo.color = RGBAColor(255,255,255,(int)(opacity*255));
     markerInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
     markerInfo.programID = styleSet->screenMarkerProgramID;
     
@@ -120,12 +119,17 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     const auto emptyVal = std::make_pair(MarkerPtrVec(), VecObjRefVec());
     for (const auto &vecObj : vecObjs)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
         if (vecObj->getVectorType() != VectorPointType)
         {
             continue;
         }
 
         const auto attrs = vecObj->getAttributes();
+        const auto &settings = *styleSet->tileStyleSettings;
 
         for (const VectorShapeRef &shape : vecObj->shapes)
         {
@@ -142,8 +146,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                 auto marker = markerOwner.back().get();
                 marker->loc = GeoCoord(pt.x(),pt.y());
                 marker->texIDs.push_back(circleTexID);
-                marker->width = 2*radius * styleSet->tileStyleSettings->markerScale;
-                marker->height = 2*radius * styleSet->tileStyleSettings->markerScale;
+                marker->width = 2*radius * settings.markerScale * settings.circleScale;
+                marker->height = 2*radius * settings.markerScale * settings.circleScale;
                 marker->layoutWidth = marker->width;
                 marker->layoutHeight = marker->height;
                 marker->layoutImportance = MAXFLOAT;    //importance + (101-tileInfo->ident.level)/100.0;
@@ -170,9 +174,14 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
     for (const auto &kvp : markersByUUID)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
+
         const auto &uuid = kvp.first;
         const auto &markers = kvp.second.first;
-        const auto &vecObjs = kvp.second.second;
+        const auto &markerObjs = kvp.second.second;
 
         // Generate one component object per unique UUID (including blank)
         const auto compObj = styleSet->makeComponentObject(inst, desc);
@@ -183,12 +192,12 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         // Keep the vector objects around if they need to be selectable
         if (selectable)
         {
-            assert(markers.size() == vecObjs.size());
-            const auto count = std::min(markers.size(), vecObjs.size());
+            assert(markers.size() == markerObjs.size());
+            const auto count = std::min(markers.size(), markerObjs.size());
             for (auto i = (size_t)0; i < count; ++i)
             {
                 auto *marker = markers[i];
-                const auto &vecObj = vecObjs[i];
+                const auto &vecObj = markerObjs[i];
 
                 marker->isSelectable = true;
                 marker->selectID = Identifiable::genId();

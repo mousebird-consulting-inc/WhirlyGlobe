@@ -149,6 +149,11 @@ public:
     
     // Return the shader used when moving objects into and out of clusters
     virtual void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams) = 0;
+
+    /**
+     * Indicate that a new clustering run is required
+     */
+    virtual bool hasChanges() { return false; }
 };
     
 #define kWKLayoutManager "WKLayoutManager"
@@ -169,7 +174,7 @@ public:
 };
     
 // Sort more important things to the front
-typedef struct
+typedef struct LayoutEntrySorter
 {
     bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
     {
@@ -217,14 +222,33 @@ public:
     bool hasChanges();
     
     /// Return the active objects in a form the selection manager can handle
-    void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
+    void getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,
+                               std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
     
     /// Add a generator for cluster images
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
-    
+
+    /// Show lines around layout objects for debugging/troubleshooting
+    bool getShowDebugBoundaries() const { return showDebugBoundaries; }
+    void setShowDebugBoundaries(bool show) {
+        showDebugBoundaries = show;
+        hasUpdates = true;
+    }
+
 protected:
-    static bool calcScreenPt(Point2f &objPt,LayoutObject *layoutObj,const ViewStateRef &viewState,const Mbr &screenMbr,const Point2f &frameBufferSize);
-    static Eigen::Matrix2d calcScreenRot(float &screenRot,const ViewStateRef &viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObject *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    static bool calcScreenPt(Point2f &objPt,
+                             const LayoutObject *layoutObj,
+                             const ViewStateRef &viewState,
+                             const Mbr &screenMbr,
+                             const Point2f &frameBufferSize);
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,
+                                         const ViewStateRef &viewState,
+                                         const WhirlyGlobe::GlobeViewState *globeViewState,
+                                         const ScreenSpaceObject *ssObj,
+                                         const Point2f &objPt,
+                                         const Eigen::Matrix4d &modelTrans,
+                                         const Eigen::Matrix4d &normalMat,
+                                         const Point2f &frameBufferSize);
 
     bool runLayoutRules(PlatformThreadInfo *threadInfo,
                         const ViewStateRef &viewState,
@@ -232,12 +256,22 @@ protected:
                         std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
                         ChangeSet &changes);
     
+    void addDebugOutput(const Point2dVector &pts,
+                        WhirlyGlobe::GlobeViewState *globeViewState,
+                        Maply::MapViewState *mapViewState,
+                        const Point2f &frameBufferSize,
+                        ChangeSet &changes,
+                        int priority = 10000000,
+                        RGBAColor color = RGBAColor::black());
+    
     VectorManagerRef vecManage;
     
     /// If non-zero the maximum number of objects we'll display at once
     int maxDisplayObjects;
     /// If there were updates since the last layout
     bool hasUpdates;
+    /// Enable drawing layout boundaries
+    bool showDebugBoundaries;
     /// Objects we're controlling the placement for
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round

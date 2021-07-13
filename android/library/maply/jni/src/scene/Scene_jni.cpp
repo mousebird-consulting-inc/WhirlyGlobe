@@ -46,7 +46,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GlobeScene::initialise()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeScene::initialise()");
     }
 }
 
@@ -67,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose(JNIEnv *env, jobje
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::dispose()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::dispose()");
     }
 }
 
@@ -88,7 +88,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative(JNIEnv *e
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addChanges()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::addChanges()");
 	}
 }
 
@@ -109,7 +109,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram(JNIEnv *e
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addShaderProgram()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::addShaderProgram()");
     }
 }
 
@@ -126,7 +126,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram(JNIEnv
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::removeShaderProgram()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::removeShaderProgram()");
     }
 }
 
@@ -144,7 +144,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL(JNIEnv *env, jo
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::teardownGL()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::teardownGL()");
     }
 }
 
@@ -169,7 +169,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::addRenderTargetNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::addRenderTargetNative()");
     }
 }
 
@@ -188,7 +188,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget(JNIEnv 
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::changeRenderTarget()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::changeRenderTarget()");
     }
 }
 
@@ -207,6 +207,42 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative(J
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Scene::removeRenderTargetNative()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::removeRenderTargetNative()");
+    }
+}
+
+extern "C"
+JNIEXPORT float JNICALL Java_com_mousebird_maply_Scene_getZoomSlotValue(JNIEnv *env, jobject obj, jint slot)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        if (Scene *scene = classInfo->getObject(env,obj))
+        {
+            return scene->getZoomSlotValue(slot);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::getZoomSlotValue()");
+    }
+    return 0.0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_copyZoomSlots(JNIEnv *env, jobject obj, jobject otherObj, jfloat offset)
+{
+    try
+    {
+        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
+        if (Scene *thisScene = classInfo->getObject(env,obj))
+        if (Scene *otherScene = classInfo->getObject(env,otherObj))
+        {
+            thisScene->copyZoomSlotsFrom(otherScene, offset);
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::copyZoomSlots()");
     }
 }

@@ -94,7 +94,7 @@ public:
 };
 
 typedef std::shared_ptr<TileInfo> TileInfoRef;
-typedef struct {
+typedef struct TileInfoSorter {
     bool operator () (const TileInfoRef a,const TileInfoRef b) const {
         return *a < *b;
     }

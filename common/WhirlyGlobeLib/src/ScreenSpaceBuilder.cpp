@@ -99,7 +99,13 @@ ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const DrawableState &state)
     : state(state), center(0,0,0)
 {
+    if (!render)
+    {
+        throw std::invalid_argument("render");
+    }
+
     locDraw = render->makeScreenSpaceDrawableBuilder("ScreenSpace Builder");
+
     locDraw->ScreenSpaceInit(state.motion,state.rotation,state.hasMask);
     locDraw->setType(Triangles);
     // A max of two textures per
@@ -125,11 +131,11 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
         locDraw->setEnableTimeRange(state.startEnable, state.endEnable);
 
     // If we've got more than one texture ID and a period, we need a tweaker
-    if (state.texIDs.size() > 1 && state.period != 0.0)
+    const auto scene = render->getScene();
+    if (scene && state.texIDs.size() > 1 && state.period != 0.0)
     {
-        TimeInterval now = render->getScene()->getCurrentTime();
-        BasicDrawableTexTweaker *tweak = new BasicDrawableTexTweaker(state.texIDs,now,state.period);
-        locDraw->addTweaker(DrawableTweakerRef(tweak));
+        const TimeInterval now = scene->getCurrentTime();
+        locDraw->addTweaker(std::make_shared<BasicDrawableTexTweaker>(state.texIDs,now,state.period));
     }
 }
 
@@ -270,32 +276,45 @@ void ScreenSpaceBuilder::setEnableRange(TimeInterval inStartEnable,TimeInterval 
     curState.endEnable = inEndEnable;
 }
 
-ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center)
+ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTris,const Point3d &center)
 {
     // Look for an existing drawable
     DrawableWrapRef drawWrap;
-    auto it = drawables.find(state);
+    const auto it = drawables.find(state);
     if (it == drawables.end())
     {
         // Nope, create one
-        drawWrap = DrawableWrapRef(new DrawableWrap(sceneRender,state));
-        drawWrap->center = center;
-        Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
-        Eigen::Matrix4d transMat = trans.matrix();
-        drawWrap->locDraw->setMatrix(&transMat);
-        if (state.motion)
-            drawWrap->locDraw->setStartTime(sceneRender->getScene()->getCurrentTime());
-        drawables[state] = (drawWrap);
-    } else {
+        try
+        {
+            drawWrap = std::make_shared<DrawableWrap>(sceneRender, state);
+        }
+        catch (const std::exception &ex)
+        {
+            wkLogLevel(Error, "Failed to create drawable wrapper: %s", ex.what());
+        }
+
+        if (drawWrap)
+        {
+            drawWrap->center = center;
+            const Eigen::Affine3d trans(Eigen::Translation3d(center.x(), center.y(), center.z()));
+            drawWrap->locDraw->setMatrix(trans.matrix());
+            if (state.motion)
+                drawWrap->locDraw->setStartTime(sceneRender->getScene()->getCurrentTime());
+            drawables[state] = (drawWrap);
+        }
+    }
+    else
+    {
         drawWrap = it->second;
         
         // Make sure this one isn't too large
-        if (drawWrap->locDraw->getNumPoints() + numVerts >= MaxDrawablePoints || drawWrap->locDraw->getNumTris() >= MaxDrawableTriangles)
+        if (drawWrap && (drawWrap->locDraw->getNumPoints() + numVerts >= MaxDrawablePoints ||
+                         drawWrap->locDraw->getNumTris()   + numTris  >= MaxDrawableTriangles))
         {
             // It is, so we need to flush it and create a new one
             fullDrawables.push_back(drawWrap);
             drawables.erase(it);
-            drawWrap = DrawableWrapRef(new DrawableWrap(sceneRender,state));
+            drawWrap = std::make_shared<DrawableWrap>(sceneRender,state);
             drawables[state] = drawWrap;
         }
     }
@@ -426,13 +445,14 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
     
 void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawableRef> &draws)
 {
-    for (auto it : fullDrawables)
+    draws.reserve(fullDrawables.size() + drawables.size());
+    for (const auto &it : fullDrawables)
     {
         draws.push_back(it->getDrawableBuilder()->getDrawable());
     }
     fullDrawables.clear();
 
-    for (auto it : drawables)
+    for (const auto &it : drawables)
     {
         draws.push_back(it.second->getDrawableBuilder()->getDrawable());
     }
@@ -443,29 +463,36 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
     std::vector<BasicDrawableRef> draws;
     buildDrawables(draws);
-    for (unsigned int ii=0;ii<draws.size();ii++)
+
+    for (const auto &draw : draws)
     {
-        BasicDrawableRef draw = draws[ii];
         drawIDs.insert(draw->getId());
         changes.push_back(new AddDrawableReq(draw));
     }
     draws.clear();
 }
         
-ScreenSpaceObject::ScreenSpaceObject()
-    : enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0.0), endTime(0.0), offset(0,0), rotation(0), keepUpright(false), orderBy(-1)
+ScreenSpaceObject::ScreenSpaceObject() :
+    enable(true), startEnable(0.0), endEnable(0.0),
+    worldLoc(0,0,0), endWorldLoc(0,0,0),
+    startTime(0.0), endTime(0.0),
+    offset(0,0), rotation(0),
+    keepUpright(false),
+    orderBy(-1)
 {
 }
 
-ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID)
-: Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0), worldLoc(0,0,0), endWorldLoc(0,0,0), startTime(0), endTime(0), offset(0,0), rotation(0), keepUpright(false)
+ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID) :
+    Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0),
+    worldLoc(0,0,0), endWorldLoc(0,0,0),
+    startTime(0), endTime(0),
+    offset(0,0),
+    rotation(0),
+    keepUpright(false),
+    orderBy(-1)
 {
 }
 
-ScreenSpaceObject::~ScreenSpaceObject()
-{
-}
-    
 void ScreenSpaceObject::setEnable(bool inEnable)
 {
     enable = inEnable;
@@ -482,30 +509,30 @@ void ScreenSpaceObject::setWorldLoc(const Point3d &inWorldLoc)
     worldLoc = inWorldLoc;
 }
     
-void ScreenSpaceObject::setMovingLoc(const Point3d &worldLoc,TimeInterval inStartTime,TimeInterval inEndTime)
+void ScreenSpaceObject::setMovingLoc(const Point3d &inWorldLoc,TimeInterval inStartTime,TimeInterval inEndTime)
 {
     state.motion = true;
-    endWorldLoc = worldLoc;
+    endWorldLoc = inWorldLoc;
     startTime = inStartTime;
     endTime = inEndTime;
 }
 
-Point3d ScreenSpaceObject::getEndWorldLoc()
+Point3d ScreenSpaceObject::getEndWorldLoc() const
 {
     return endWorldLoc;
 }
 
-TimeInterval ScreenSpaceObject::getStartTime()
+TimeInterval ScreenSpaceObject::getStartTime() const
 {
     return startTime;
 }
 
-TimeInterval ScreenSpaceObject::getEndTime()
+TimeInterval ScreenSpaceObject::getEndTime() const
 {
     return endTime;
 }
     
-Point3d ScreenSpaceObject::getWorldLoc()
+Point3d ScreenSpaceObject::getWorldLoc() const
 {
     return worldLoc;
 }
@@ -525,17 +552,17 @@ void ScreenSpaceObject::setZoomInfo(int zoomSlot,double minZoomVis,double maxZoo
 
 void ScreenSpaceObject::setOpacityExp(FloatExpressionInfoRef opacityExp)
 {
-    state.opacityExp = opacityExp;
+    state.opacityExp = std::move(opacityExp);
 }
 
 void ScreenSpaceObject::setColorExp(ColorExpressionInfoRef colorExp)
 {
-    state.colorExp = colorExp;
+    state.colorExp = std::move(colorExp);
 }
 
 void ScreenSpaceObject::setScaleExp(FloatExpressionInfoRef scaleExp)
 {
-    state.scaleExp = scaleExp;
+    state.scaleExp = std::move(scaleExp);
 }
 
 void ScreenSpaceObject::setDrawOrder(int64_t drawOrder)
@@ -597,7 +624,7 @@ void ScreenSpaceObject::addGeometry(const std::vector<ScreenSpaceConvexGeometry>
 
 SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
 {
-    for (auto geom : geometry)
+    for (const auto& geom : geometry)
     {
         if (geom.progID != EmptyIdentity)
             return geom.progID;

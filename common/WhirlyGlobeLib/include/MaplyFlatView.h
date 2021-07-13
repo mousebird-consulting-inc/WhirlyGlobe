@@ -1,9 +1,8 @@
-/*
- *  MaplyFlatView.h
+/*  MaplyFlatView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/2/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyView.h"
@@ -39,19 +37,19 @@ public:
     FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
 
     /// Generate the model view matrix for use by OpenGL.
-    Eigen::Matrix4d calcModelMatrix();
+    virtual Eigen::Matrix4d calcModelMatrix() const override;
     
     /// Generate the projection matrix
-    Eigen::Matrix4d calcProjectionMatrix(WhirlyKit::Point2f frameBufferSize,float margin);
+    virtual Eigen::Matrix4d calcProjectionMatrix(WhirlyKit::Point2f frameBufferSize,float margin) const override;
     
     /// Height above the plane.  Always returns 0.
-    double heightAboveSurface();
+    virtual double heightAboveSurface() const override;
 
     /// Minimum valid height above plane.  Always returns 0.
-    double minHeightAboveSurface();
+    virtual double minHeightAboveSurface() const override;
 
     /// Maximum valid height above plane.  Always returns 0.
-    double maxHeightAboveSurface();
+    virtual double maxHeightAboveSurface() const override;
     
     /// Set where the middle of the displayed region is.  Currently disabled.
     void setLoc(const WhirlyKit::Point3d &newLoc);
@@ -64,7 +62,7 @@ public:
     void setWindow(const WhirlyKit::Point2d &size,const WhirlyKit::Point2d &offset);
     
     /// Screen size in display coordinates
-    WhirlyKit::Point2d screenSizeInDisplayCoords(WhirlyKit::Point2f &frameSize);
+    virtual WhirlyKit::Point2d screenSizeInDisplayCoords(const WhirlyKit::Point2f &frameSize) override;
     
 protected:
     /// This view tries to display the given extents in display space

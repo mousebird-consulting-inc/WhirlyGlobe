@@ -83,7 +83,7 @@
     {
         UIColor *color = [colors objectAtIndex:0];
         
-        CGSize scaleSize = CGSizeMake(size.width * scale, size.height * scale);
+        CGSize scaleSize = CGSizeMake((int)(size.width * scale), (int)(size.height * scale));
         UIGraphicsBeginImageContext(scaleSize);
         
         // Clear out the background

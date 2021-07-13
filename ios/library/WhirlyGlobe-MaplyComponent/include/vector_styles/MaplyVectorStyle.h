@@ -1,5 +1,4 @@
-/*
- *  MaplyVectorStyle.h
+/*  MaplyVectorStyle.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -38,8 +36,12 @@
 @property (nonatomic) float lineScale;
 /// Text sizes will be scaled by this amount before display.
 @property (nonatomic) float textScale;
-/// Markers will be scaled by this amount before display.
+/// Markers (symbols+circles) will be scaled by this amount before display.
 @property (nonatomic) float markerScale;
+/// Symbols will be scaled by this amount before display.
+@property (nonatomic) float symbolScale;
+/// Circles will be scaled by this amount before display.
+@property (nonatomic) float circleScale;
 /// Importance for markers in the layout engine
 @property (nonatomic) float markerImportance;
 /// Default marker size when none is specified
@@ -146,6 +148,13 @@
              forTile:(MaplyVectorTileData * __nonnull)tileData
                viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
                 desc:(NSDictionary * _Nullable)desc;
+
+/// Construct objects related to this style based on the input data.
+- (void)buildObjects:(NSArray * _Nonnull)vecObjs
+             forTile:(MaplyVectorTileData * __nonnull)tileData
+               viewC:(NSObject<MaplyRenderControllerProtocol> * _Nonnull)viewC
+                desc:(NSDictionary * _Nullable)desc
+            cancelFn:(bool(^__nullable)(void))cancelFn;
 
 @end
 

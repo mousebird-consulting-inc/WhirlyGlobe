@@ -185,6 +185,9 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     // Uncompress any of the data we recieved
     NSArray *tileData = [loadReturn getTileData];
     for (unsigned int ii=0;ii<[tileData count];ii++) {
+        if (loadReturn.isCancelled) {
+            return;
+        }
         NSData *thisTileData = [tileData objectAtIndex:ii];
         if(thisTileData) {
           if([thisTileData isCompressed]) {
@@ -279,6 +282,10 @@ static int BackImageWidth = 16, BackImageHeight = 16;
     // Parse everything else and turn into vectors
     std::vector<ComponentObjectRef> compObjs,ovlCompObjs;
     for (NSData *thisTileData : pbfDatas) {
+        if (loadReturn.isCancelled) {
+            return;
+        }
+
         // Use a separate work item for each tile, so that we react quickly if told to shut down
         WorkRegion wr(vc);
         if (!wr) {

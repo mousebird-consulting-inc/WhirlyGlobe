@@ -1,9 +1,8 @@
-/*
- *  QuadImageFrameLoader.h
+/*  QuadImageFrameLoader.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadSamplingController.h"
@@ -24,16 +22,16 @@
 
 namespace WhirlyKit
 {
-    
+
 class QuadImageFrameLoader;
-    
+
 // We store cancels and adds to do them all at once
 // The subclass passes its own version of this around
 class QIFBatchOps
 {
 public:
-    QIFBatchOps();
-    virtual ~QIFBatchOps();
+    QIFBatchOps() = default;
+    virtual ~QIFBatchOps() = default;
 
     // Tiles we deleted for callback later
     std::vector<QuadTreeIdentifier> deletes;
@@ -46,19 +44,19 @@ public:
     typedef enum {Empty,Loaded,Loading} State;
     
     QIFFrameAsset(QuadFrameInfoRef frameInfo);
-    virtual ~QIFFrameAsset();
+    virtual ~QIFFrameAsset() = default;
     
     // What the frame is doing
-    State getState();
+    State getState() const { return state; }
     
     // Load priority
-    int getPriority();
+    int getPriority() const { return priority; }
     
     // Texture ID (if loaded)
-    const std::vector<SimpleIdentity> &getTexIDs();
+    const std::vector<SimpleIdentity> &getTexIDs() const { return texIDs; }
     
     // Return information about which frame this is
-    QuadFrameInfoRef getFrameInfo();
+    QuadFrameInfoRef getFrameInfo() const { return frameInfo; }
 
     // Just sets the state to loading
     virtual void setupFetch(QuadImageFrameLoader *loader);
@@ -82,11 +80,14 @@ public:
     virtual void loadSkipped();
 
     // Store the raw data for use later
-    virtual void setLoadReturn(const RawDataRef &data);
+    virtual void setLoadReturn(RawDataRef data);
     
     // Store the data used by the interpreter for processing
     virtual void setLoadReturnRef(const QuadLoaderReturnRef &loadReturnRef);
-    
+
+    // Store the data used by the interpreter for processing
+    virtual void setLoadReturnRef(QuadLoaderReturnRef &&loadReturnRef);
+
     // Return the load return
     virtual RawDataRef getLoadReturn();
     
@@ -124,29 +125,31 @@ class QIFTileAsset
 public:
     QIFTileAsset(const QuadTreeNew::ImportantNode &ident);
     void setupFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int numFrames);
-    virtual ~QIFTileAsset();
+    virtual ~QIFTileAsset() = default;
     
     typedef enum {Waiting,Active} State;
     
-    State getState();
+    State getState() const { return state; }
     
-    bool getShouldEnable();
-    void setShouldEnable(bool newVal);
+    bool getShouldEnable() const { return shouldEnable; }
+    void setShouldEnable(bool newVal) { shouldEnable = newVal; }
     
-    QuadTreeNew::ImportantNode getIdent();
+    QuadTreeNew::ImportantNode getIdent() const { return ident; }
     
-    const std::vector<SimpleIdentity> &getInstanceDrawIDs(int focusID);
+    const std::vector<SimpleIdentity> &getInstanceDrawIDs(int focusID) const;
     const SimpleIDSet &getCompObjs() { return compObjs; }
     const SimpleIDSet &getOvlCompObjs() { return ovlCompObjs; }
     
     // Number of frames in this tile
-    int getNumFrames() { return (int)frames.size(); }
+    int getNumFrames() const { return (int)frames.size(); }
     
     // Return the frame asset corresponding to the frame ID
-    QIFFrameAssetRef getFrame(int frameID);
-    
+    QIFFrameAssetRef getFrame(int frameID) const;
+
     // Find the frame corresponding to the given source
-    virtual QIFFrameAssetRef findFrameFor(QuadFrameInfoRef frameInfo);
+    virtual QIFFrameAssetRef findFrameFor(SimpleIdentity frameID);
+    // Find the frame corresponding to the given source
+    virtual QIFFrameAssetRef findFrameFor(const QuadFrameInfoRef &frameInfo);
 
     // True if any of the frames are in the process of loading
     virtual bool anyFramesLoading(QuadImageFrameLoader *loader);
@@ -161,11 +164,17 @@ public:
     virtual bool anyFramesLoaded(const std::set<QuadFrameInfoRef> &frameInfos);
 
     // True if the given frame is loading
-    virtual bool isFrameLoading(QuadFrameInfoRef frameInfo);
-    
+    virtual bool isFrameLoading(const QuadFrameInfoRef &frameInfo);
+
+    // True if the given frame is loading
+    virtual bool isFrameLoading(SimpleIdentity frameID);
+
     // Set the loader return used by the interpreter so we can cancel it
-    virtual void setLoadReturnRef(QuadFrameInfoRef frame,QuadLoaderReturnRef loadReturnRef);
-    
+    virtual void setLoadReturnRef(SimpleIdentity frameID, const QuadLoaderReturnRef &loadReturnRef);
+
+    // Set the loader return used by the interpreter so we can cancel it
+    virtual void setLoadReturnRef(const QuadFrameInfoRef &frame, const QuadLoaderReturnRef &loadReturnRef);
+
     // True if all frames are loaded (just for single frame + multiple source mode)
     virtual bool allFramesLoaded();
     
@@ -182,11 +191,12 @@ public:
     virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps, ChangeSet &changes);
     
     // Start fetching data for this tile
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadFrameInfoRef frameToLoad,QIFBatchOps *batchOps, ChangeSet &changes);
+    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,
+                               const QuadFrameInfoRef &frameToLoad,QIFBatchOps *batchOps, ChangeSet &changes);
 
     // Set up the geometry for this tile
     virtual void setupContents(QuadImageFrameLoader *loader,
-                               LoadedTileNewRef loadedTile,
+                               const LoadedTileNewRef &loadedTile,
                                int defaultDrawPriority,
                                const std::vector<SimpleIdentity> &shaderIDs,
                                ChangeSet &changes);
@@ -199,7 +209,7 @@ public:
     // Cancel any outstanding fetches
     virtual void cancelFetches(PlatformThreadInfo *threadInfo,
                                QuadImageFrameLoader *loader,
-                               QuadFrameInfoRef frameToCancel,
+                               const QuadFrameInfoRef &frameToCancel,
                                QIFBatchOps *batchOps);
     
     // A single frame loaded successfully
@@ -213,15 +223,18 @@ public:
     virtual void frameFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QuadLoaderReturn *loadReturn,ChangeSet &changes);
     
     // Keep track of the load return data (just for single frame + multiple source mode)
-    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,QuadFrameInfoRef frameInfo,const RawDataRef &data);
-    
+    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,SimpleIdentity frameID, RawDataRef data);
+
+    // Keep track of the load return data (just for single frame + multiple source mode)
+    virtual void mergeLoadedFrame(QuadImageFrameLoader *loader,const QuadFrameInfoRef &frameInfo, RawDataRef data);
+
     // Return all the low level data (and reset it) if we're in that mode
     virtual void getLoadedData(std::vector<RawDataRef> &allData);
             
 protected:
     // Specialized frame asset
     virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,
-                                            QuadFrameInfoRef frameInfo,
+                                            const QuadFrameInfoRef &frameInfo,
                                             QuadImageFrameLoader *) = 0;
 
     State state;
@@ -293,7 +306,7 @@ public:
     // Number of tiles at the lowest level loaded for each frame
     std::vector<bool> topTilesLoaded;
     
-    bool hasUpdate(const std::vector<double> &curFrames);
+    bool hasUpdate(const std::vector<double> &curFrames) const;
     
     std::vector<double> lastCurFrames;
     TimeInterval lastRenderTime;
@@ -318,56 +331,56 @@ public:
     typedef enum {SingleFrame,MultiFrame,Object} Mode;
     
     QuadImageFrameLoader(const SamplingParams &params,Mode);
-    virtual ~QuadImageFrameLoader();
+    virtual ~QuadImageFrameLoader() = default;
     
     /// Add a focus
     void addFocus();
     
     /// Number of focus points (usually 1)
-    int getNumFocus();
+    int getNumFocus() const { return numFocus; }
 
     /// Loading mode we're currently supporting
-    Mode getMode();
+    Mode getMode() const { return mode; }
     
     /// If set, we'll see way too much output
-    void setDebugMode(bool newMode);
-    bool getDebugMode();
+    void setDebugMode(bool newMode) { debugMode = newMode; }
+    bool getDebugMode() const { return debugMode; }
     
     typedef enum {Broad,Narrow} LoadMode;
     
     /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
     void setLoadMode(LoadMode newMode);
-    LoadMode getLoadMode();
+    LoadMode getLoadMode() const { return loadMode; }
     
     /// True if there's loading going on, false if it's settled
-    bool getLoadingStatus();
+    bool getLoadingStatus() const { return loadingStatus; }
     
     // Calculate the load priority for a given tile, respecting the rules
     int calcLoadPriority(const QuadTreeNew::ImportantNode &ident,int frame);
 
-    /// Recalculate the loading default priorites
+    /// Recalculate the loading default priorities
     void updatePriorityDefaults();
 
     /// Set/Change the sampling parameters.
-    virtual void setSamplingParams(const SamplingParams &params);
-    virtual const SamplingParams &getSamplingParams();
+    virtual void setSamplingParams(const SamplingParams &inParams) { params = inParams; }
+    virtual const SamplingParams &getSamplingParams() const { return params; }
     
     /// Set a separate set of zoom limits
     virtual void setZoomLimits(int minZoom,int maxZoom);
     
     // We potentially have a separate set of zoom limits
-    virtual int getMinZoom() { return minZoom; }
-    virtual int getMaxZoom() { return maxZoom; }
+    virtual int getMinZoom() const { return minZoom; }
+    virtual int getMaxZoom() const { return maxZoom; }
 
     /// Set if we need the top tiles to load before we'll display a frame
-    virtual void setRequireTopTilesLoaded(bool newVal);
+    virtual void setRequireTopTilesLoaded(bool newVal) { requiringTopTilesLoaded = newVal; }
 
     /// Return the quad display controller this is attached to
-    QuadDisplayControllerNew *getController();
+    QuadDisplayControllerNew *getController() const { return control; }
 
     /// Color for polygons created during loading
     void setColor(const RGBAColor &inColor,ChangeSet *changes);
-    const RGBAColor &getColor();
+    const RGBAColor &getColor() const { return color; }
     
     /// Render target for the geometry being created
     void setRenderTarget(int focusID,SimpleIdentity renderTargetID);
@@ -378,43 +391,41 @@ public:
     SimpleIdentity getShaderID(int focusID);
     
     /// Return the uniform block (if there is one) that's to be set on all geometry created
-    void setUniBlock(BasicDrawable::UniformBlock &uniBlock);
-    BasicDrawable::UniformBlock &getUniBlock();
-    
-    // Set a block of data to be passed in as uniform to each DrawInstance created
-    void setUniBlock(const WhirlyKit::BasicDrawable::UniformBlock &uniBlock);
+    void setUniBlock(const BasicDrawable::UniformBlock &block) { uniBlock = block; }
+    BasicDrawable::UniformBlock &getUniBlock() { return uniBlock; }
+    const BasicDrawable::UniformBlock &getUniBlock() const { return uniBlock; }
 
     /// In-memory texture type
-    void setTexType(TextureType texType);
+    void setTexType(TextureType type) { texType = type; }
     
     /// If we're using border pixels, set the individual texture size and border size
     void setTexSize(int texSize,int borderSize);
     
     /// Control draw priority assigned to basic drawable instances
-    void setBaseDrawPriority(int newPrior);
-    void setDrawPriorityPerLevel(int newPrior);
-    
+    void setBaseDrawPriority(int newPrior) { baseDrawPriority = newPrior; }
+    void setDrawPriorityPerLevel(int newPrior) { drawPriorityPerLevel = newPrior; }
+
     // What part of the animation we're displaying
     void setCurFrame(PlatformThreadInfo *threadInfo, int focusID, double curFrame);
     double getCurFrame(int focusID);
     
     // Need to know how we're loading the tiles to calculate the render state
-    void setFlipY(bool newFlip);
+    void setFlipY(bool newFlip) { flipY = newFlip; }
     
     // Need to know how we're loading the tiles to calculate the render state
-    bool getFlipY();
+    bool getFlipY() const { return flipY; }
     
     /// Number of frames we're representing
-    virtual int getNumFrames();
+    virtual int getNumFrames() const { return frames.size(); }
     
     // Return the frame info object for a given index
-    virtual QuadFrameInfoRef getFrameInfo(int which);
+    virtual QuadFrameInfoRef getFrameInfo(int which) const;
     
     // Reset all the frames at once
     virtual void setFrames(const std::vector<QuadFrameInfoRef> &newFrames);
     
     /// Current generation of the loader (used for reload lagging)
-    int getGeneration();
+    int getGeneration() const;
     
     /// Reload the given frame (or everything)
     virtual void reload(PlatformThreadInfo *threadInfo,int frame, ChangeSet &changes);
@@ -428,91 +439,100 @@ public:
     /// **** QuadTileBuilderDelegate methods ****
     
     /// Called when the builder first starts up.  Keep this around if you need it.
-    virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control);
+    virtual void setBuilder(QuadTileBuilder *builder,QuadDisplayControllerNew *control) override;
     
     /// Before we tell the delegate to unload tiles, see if they want to keep them around
     /// Returns the tiles we want to preserve after all
-    virtual QuadTreeNew::NodeSet builderUnloadCheck(QuadTileBuilder *builder,
+    virtual QuadTreeNew::NodeSet builderUnloadCheck(QuadTileBuilder *inBuilder,
                                                     const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
                                                     const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
-                                                    int targetLevel);
+                                                    int inTargetLevel) override;
     
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
     virtual void builderLoad(PlatformThreadInfo *threadInfo,
-                             QuadTileBuilder *builder,
+                             QuadTileBuilder *inBuilder,
                              const WhirlyKit::TileBuilderDelegateInfo &updates,
-                             ChangeSet &changes);
+                             ChangeSet &changes) override;
     
     /// Called within builderLoad to let subclasses do other things
     virtual void builderLoadAdditional(PlatformThreadInfo *threadInfo,
-                                       QuadTileBuilder *builder,
+                                       QuadTileBuilder *inBuilder,
                                        const WhirlyKit::TileBuilderDelegateInfo &updates,
                                        ChangeSet &changes);
     
     /// Called right before the layer thread flushes all its current changes
-    virtual void builderPreSceneFlush(QuadTileBuilder *builder,ChangeSet &changes);
+    virtual void builderPreSceneFlush(QuadTileBuilder *inBuilder, ChangeSet &changes) override;
     
     /// Shutdown called on the layer thread if you stuff to clean up
-    virtual void builderShutdown(PlatformThreadInfo *threadInfo,QuadTileBuilder *builder,ChangeSet &changes);
+    virtual void builderShutdown(PlatformThreadInfo *threadInfo, QuadTileBuilder *inBuilder, ChangeSet &changes) override;
     
     /// Returns true if we're in the middle of loading things
-    virtual bool builderIsLoading();
+    virtual bool builderIsLoading() const override { return loadingStatus; }
     
     /// **** Active Model methods ****
 
     /// Returns true if there's an update to process
-    virtual bool hasUpdate();
+    virtual bool hasUpdate() const override;
     
     /// Process the update
-    virtual void updateForFrame(RendererFrameInfo *frameInfo);
+    virtual void updateForFrame(RendererFrameInfo *frameInfo) override;
     
     /** ----- **/
     
     /**
      Instantaneous per-frame stats for the quad image frame loader.
      */
-    class FrameStats
+    struct FrameStats
     {
-    public:
-        FrameStats();
-        
         // Number of tiles this frame is present in
-        int totalTiles;
+        int totalTiles = 0;
         // Tiles yet to load for this frame
-        int tilesToLoad;
+        int tilesToLoad = 0;
     };
 
     /**
      Instantaneous stats for the whole loader.
      */
-    class Stats
+    struct Stats
     {
-    public:
-        Stats();
-        
         // Total number of tiles being managed
-        int numTiles;
+        int numTiles = 0;
         
         // Per frame stats
         std::vector<FrameStats> frameStats;
     };
 
     /// Return the stats (thread safe)
-    Stats getStats();
+    Stats getStats() const;
     
     /// Shut everything down and remove our geometry and resources
     void cleanup(PlatformThreadInfo *threadInfo,ChangeSet &changes);
     
     /// Check if a frame is in the process of loading
-    bool isFrameLoading(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame);
-    
+    bool isFrameLoading(const QuadTreeIdentifier &ident, SimpleIdentity frameID) const;
+
+    /// Check if a frame is in the process of loading
+    bool isFrameLoading(const QuadTreeIdentifier &ident,const QuadFrameInfoRef &frame) const;
+
     /// Set the loader return ref for cancelling while parsing
-    void setLoadReturnRef(const QuadTreeIdentifier &ident,QuadFrameInfoRef frame,QuadLoaderReturnRef loadReturnRef);
+    void setLoadReturnRef(const QuadTreeIdentifier &ident,
+                          const QuadFrameInfoRef &frame,
+                          const QuadLoaderReturnRef &loadReturnRef);
     
     /// Called when the data for a frame comes back
     /// Returns true if that tile is ready for merging
-    bool mergeLoadedFrame(const QuadTreeIdentifier &ident,QuadFrameInfoRef frameInfo,const RawDataRef &data,std::vector<RawDataRef> &allData);
-    
+    bool mergeLoadedFrame(const QuadTreeIdentifier &ident,
+                          SimpleIdentity tileID,
+                          RawDataRef data,
+                          std::vector<RawDataRef> &allData);
+
+    /// Called when the data for a frame comes back
+    /// Returns true if that tile is ready for merging
+    bool mergeLoadedFrame(const QuadTreeIdentifier &ident,
+                          const QuadFrameInfoRef &frameInfo,
+                          RawDataRef data,
+                          std::vector<RawDataRef> &allData);
+
     /// Builds the render state *and* send it over to the main thread via the scene changes
     virtual void buildRenderState(ChangeSet &changes);
 
@@ -526,11 +546,11 @@ public:
 
 protected:
     // Return a set of the active frames
-    virtual const std::set<QuadFrameInfoRef> getActiveFrames();
+    std::set<QuadFrameInfoRef> getActiveFrames() const;
 
     void updateLoadingStatus();
 
-    std::mutex statsLock;
+    mutable std::mutex statsLock;
     Stats stats;
     
     // Periodically generates the stats

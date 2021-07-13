@@ -92,7 +92,7 @@ public:
     /// Print out stats for debugging
     void dumpStats();
     
-    bool getChangedSinceUpdate() { return changedSinceUpdate; }
+    bool getChangedSinceUpdate() const { return changedSinceUpdate; }
             
 protected:
     bool changedSinceUpdate;
@@ -108,22 +108,22 @@ namespace WhirlyKit
 class ViewPlacementActiveModel : public ActiveModel
 {
 public:
-    ViewPlacementActiveModel();
+    ViewPlacementActiveModel() = default;
     
-    ViewPlacementManager *getManager();
+    ViewPlacementManager *getManager() { return &manager; }
     
     /// Create the stuff you need to manipulate in the scene
-    void startWithScene(Scene *scene);
+    virtual void startWithScene(Scene *scene) override;
     
     /// Return true if you have an update that needs to be processed.
     /// Return false if you don't, otherwise we'll be constantly rendering.
-    bool hasUpdate();
+    virtual bool hasUpdate() const override;
     
     /// Update your stuff for display, but be quick!
-    void updateForFrame(RendererFrameInfo *frameInfo);
+    virtual void updateForFrame(RendererFrameInfo *frameInfo) override;
     
     /// Time to clean up your toys
-    void teardown();
+    virtual void teardown(PlatformThreadInfo *) override;
 
 protected:
     ViewPlacementManager manager;

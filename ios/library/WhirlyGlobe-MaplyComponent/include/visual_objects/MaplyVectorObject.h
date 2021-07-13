@@ -472,6 +472,21 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
  */
 - (void)subdivideToFlatGreatCircle:(float)epsilon;
 
+
+/**
+    Subdivide the edges in this feature to a given tolerance, using ellipsoidal great circle math.
+    
+    This will break up long edges in a vector until they lie flat on a globe to a given epsilon using a great circle route.  The epsilon is in display coordinates (radius = 1.0).
+  */
+- (void)subdivideToGlobeGreatCirclePrecise:(float)epsilon;
+
+/**
+    Subdivide the edges in this feature to a given tolerance, using ellipsoidal  great circle math.
+ 
+    This version samples a great circle to display on a flat map.
+ */
+- (void)subdivideToFlatGreatCirclePrecise:(float)epsilon;
+
 /** 
     Tesselate the areal geometry in this vector object and return triangles.
     

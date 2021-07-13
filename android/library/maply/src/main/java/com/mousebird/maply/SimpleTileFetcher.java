@@ -18,21 +18,16 @@
 
 package com.mousebird.maply;
 
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.TreeSet;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Simple Tile Fetcher is meant for sub classing.
@@ -45,10 +40,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SimpleTileFetcher extends HandlerThread implements TileFetcher
 {
-    protected boolean valid = false;
-    protected String name;
     public int minZoom = -1,maxZoom = -1;
-    WeakReference<BaseController> control = new WeakReference<BaseController>(null);
 
     /**
      * Construct with the name, min and max zoom levels.
@@ -56,10 +48,19 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     public SimpleTileFetcher(BaseController inControl,String inName)
     {
         super(inName);
-        control = new WeakReference<BaseController>(inControl);
-
+        control = new WeakReference<>(inControl);
         name = inName;
     }
+
+    /**
+     * Get the limit of concurrent parsing operations
+     */
+    public int getMaxParsing() { return maxParsing; }
+
+    /**
+     * Set the limit of concurrent parsing operations
+     */
+    public void setMaxParsing(int max) { maxParsing = max; }
 
     /**
      * We don't need to describe a remote URL, so this is
@@ -94,8 +95,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     }
 
     /**
-     * No remote URLs to track, so we just keep the
-     * tile ID.
+     * No remote URLs to track, so we just keep the tile ID.
      */
     protected class SimpleTileFetchInfo
     {
@@ -106,8 +106,6 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
 
         public TileID tileID = null;
     }
-
-    protected SimpleTileInfo tileInfo;
 
     /**
      * Wrapper around the fetch request so we can prioritize loads.
@@ -163,11 +161,6 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         }
     }
 
-    // Tiles sorted by priority, importance etc...
-    TreeSet<TileInfo> toLoad = new TreeSet<TileInfo>();
-    // Tiles sorted by fetch request
-    HashMap<TileFetchRequest,TileInfo> tilesByFetchRequest = new HashMap<TileFetchRequest,TileInfo>();
-
     /**
      * Name of this tile fetcher.  Used for coordinating tile sources.
      */
@@ -212,35 +205,21 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         this.tileInfo = new SimpleTileInfo(minZoom, maxZoom);
     }
 
-    boolean scheduled = false;
-
     // Schedule the next loading update
     protected void scheduleLoading()
     {
         if (!scheduled) {
             Handler handler = new Handler(getLooper());
-            handler.post(() -> updateLoading());
+            handler.post(this::updateLoading);
         }
     }
-
-    // Keep track of the number of tiles parsing at once
-    // The ThreadPoolExecutor gets testy beyond a certain number
-    private static final int MaxParsing = 8;
-    private int numParsing = 0;
-    protected Queue<Runnable> tasks = new LinkedList<>();
-    // If set by the subclass, we'll just treat null data as valid
-    // This is helpful when you have sparse data sets
-    protected boolean neverFail = false;
 
     // Load a tile and pass off the results
     protected void updateLoading()
     {
         scheduled = false;
 
-        if (!valid)
-            return;
-
-        if (toLoad.isEmpty())
+        if (!valid || toLoad.isEmpty())
             return;
 
         final TileInfo tileInfo = toLoad.last();
@@ -262,12 +241,9 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
 
                 // Add more tasks, if there are any
                 Handler handler = new Handler(looper);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        numParsing--;
-                        updateTasks();
-                    }
+                handler.post(() -> {
+                    numParsing--;
+                    updateTasks();
                 });
             }
         });
@@ -284,7 +260,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         if (theControl == null)
             return;
 
-        if (numParsing < MaxParsing && !tasks.isEmpty()) {
+        if (numParsing < maxParsing && !tasks.isEmpty()) {
             Runnable task = tasks.remove();
             LayerThread workThread = theControl.getWorkingThread();
             if (workThread != null) {
@@ -358,7 +334,7 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
     {
         valid = false;
         quitSafely();
-        control = null;
+        control.clear();
     }
 
     /**
@@ -371,4 +347,28 @@ public class SimpleTileFetcher extends HandlerThread implements TileFetcher
         Log.e("Maply", "You forgot to fill in dataForTile in your SimpleTileFetcher subclass.");
         return null;
     }
+
+    private boolean scheduled = false;
+    protected SimpleTileInfo tileInfo;
+
+    // Keep track of the number of tiles parsing at once
+    // The ThreadPoolExecutor gets testy beyond a certain number
+    private int maxParsing = 8;
+    private int numParsing = 0;
+    protected Queue<Runnable> tasks = new LinkedList<>();
+
+    // If set by the subclass, we'll just treat null data as valid
+    // This is helpful when you have sparse data sets
+    protected boolean neverFail = false;
+
+    protected boolean valid = false;
+    protected String name;
+
+    private final WeakReference<BaseController> control;
+
+    // Tiles sorted by priority, importance etc...
+    private final TreeSet<TileInfo> toLoad = new TreeSet<>();
+
+    // Tiles sorted by fetch request
+    private final HashMap<TileFetchRequest,TileInfo> tilesByFetchRequest = new HashMap<>();
 }

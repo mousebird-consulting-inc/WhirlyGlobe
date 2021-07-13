@@ -70,7 +70,7 @@ public:
     virtual ~BasicDrawable();
     
     /// We're allowed to turn drawables off completely
-    virtual bool isOn(RendererFrameInfo *frameInfo) const;
+    virtual bool isOn(RendererFrameInfo *frameInfo) const override;
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
@@ -78,10 +78,10 @@ public:
     virtual bool hasMotion() const;
 
     /// Return the local MBR, if we're working in a non-geo coordinate system
-    virtual Mbr getLocalMbr() const;
+    virtual Mbr getLocalMbr() const override;
 
     /// Return the Matrix if there is an active one (ideally not)
-    virtual const Eigen::Matrix4d *getMatrix() const;
+    virtual const Eigen::Matrix4d *getMatrix() const override;
 
     /// Set the time range for enable
     void setEnableTimeRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
@@ -100,12 +100,12 @@ public:
     ///  the surface of the globe as at 1.0
     virtual void setVisibleRange(float minVis,float maxVis,float minVisBand=0.0,float maxVisBand=0.0);
     
-    virtual int64_t getDrawOrder() const;
+    virtual int64_t getDrawOrder() const override;
     
     virtual void setDrawOrder(int64_t newOrder);
     
     /// We use this to sort drawables
-    virtual unsigned int getDrawPriority() const;
+    virtual unsigned int getDrawPriority() const override;
 
     /// Draw priority used for sorting
     virtual void setDrawPriority(unsigned int newPriority);
@@ -114,15 +114,15 @@ public:
     virtual void setMatrix(const Eigen::Matrix4d *inMat);
     
     /// Check if the force Z buffer on mode is on
-    virtual bool getRequestZBuffer() const;
+    virtual bool getRequestZBuffer() const override;
     virtual void setRequestZBuffer(bool val);
     
     /// Set the z buffer mode for this drawable
-    virtual bool getWriteZbuffer() const;
+    virtual bool getWriteZbuffer() const override;
     virtual void setWriteZBuffer(bool val);
 
     /// Drawables can override where they're drawn.  EmptyIdentity is the regular screen.
-    virtual SimpleIdentity getRenderTarget() const;
+    virtual SimpleIdentity getRenderTarget() const override;
     
     // If set, we'll render this data where directed
     void setRenderTarget(SimpleIdentity newRenderTarget);
@@ -200,17 +200,22 @@ public:
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const UniformBlock &uniBlock);
     
+    /// If there's a calculation pass, this is the data we'll pass in.
+    /// This is just for Metal at the moment.
+    virtual void setCalculationData(int numEntries,const std::vector<RawDataRef> &data);
+    
     /// Add a tweaker to be run before each frame
     virtual void addTweaker(const DrawableTweakerRef &tweak);
 
     /// Update anything associated with the renderer.  Probably renderUntil.
-    virtual void updateRenderer(SceneRenderer *renderer);
+    virtual void updateRenderer(SceneRenderer *renderer) override;
         
     /// If present, we'll do a pre-render calculation pass with this program set
-    virtual SimpleIdentity getCalculationProgram() const;
-            
+    virtual SimpleIdentity getCalculationProgram() const override;
+    void setCalculationProgram(SimpleIdentity calcProgramId);
+
     /// For OpenGLES2, this is the program to use to render this drawable.
-    virtual SimpleIdentity getProgram() const;
+    virtual SimpleIdentity getProgram() const override;
     void setProgram(SimpleIdentity progId);
     
 public:
@@ -236,6 +241,7 @@ public:
     int extraFrames;   // This needs to draw a bit longer than normal
     
     SimpleIdentity programId;    // Program to use for rendering
+    SimpleIdentity calcProgramId;  // Program to use for calculation
     SimpleIdentity renderTargetID;
     Mbr localMbr;  // Extents in a local space, if we're not using lat/lon/radius
     std::vector<TexInfo> texInfo;
@@ -260,6 +266,10 @@ public:
     unsigned int numPoints, numTris;
     RGBAColor color;
     bool hasOverrideColor;  // If set, we've changed the default color
+    
+    // For an optional calculation phase, we just pass in raw buffer data
+    int calcDataEntries;
+    std::vector<RawDataRef> calcData;
 
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;

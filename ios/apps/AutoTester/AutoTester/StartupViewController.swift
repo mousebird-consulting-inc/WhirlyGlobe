@@ -11,68 +11,66 @@ import UIKit
 class StartupViewController: UITableViewController, UIPopoverPresentationControllerDelegate {
 
 	let tests = [
-        StamenWatercolorRemote(),
-		GeographyClassTestCase(),
-        NASAGIBSTestCase(),
-		AnimatedBasemapTestCase(),
-        ImageReloadTestCase(),
+        ActiveObjectTestCase(),
+        AirwayTestCase(),
+        AnimatedBasemapTestCase(),
+        AnimatedMarkersTestCase(),
+        AnimationDelegateTestCase(),
         BNGCustomMapTestCase(),
         BNGTestCase(),
-        // Note: Endpoint missing
-//        WMSTestCase(),
-
-        ScreenLabelsTestCase(),
-		ScreenMarkersTestCase(),
-		MarkersTestCase(),
-		AnimatedMarkersTestCase(),
-        ClusteredMarkersTestCase(),
-        LabelAnimationTestCase(),
-        MovingScreenMarkersTestCase(),
-
-        VectorsTestCase(),
-        ChangeVectorsTestCase(),
-        GreatCircleTestCase(),
-		VectorStyleTestCase(),
-		VectorHoleTestCase(),
-        ShapefileTestCase(),
-		WideVectorsTestCase(),
-		TextureVectorTestCase(),
-        SimpleStyleTestCase(),
-        GeoJSONStyleTestCase(),
-        LoftedPolysTestCase(),
-        RepresentationsTestCase(),
-        AirwayTestCase(),
-
-        // Note: 3D labels are currently broken
-        LabelsTestCase(),
-		StickersTestCase(),
-
-        PagingLayerTestCase(),
-        VectorMBTilesTestCase(),
-        CartoDBTestCase(),
-        MapTilerTestCase(),
-        MapTilerCircleTestCase(),
-        MapboxTestCase(),
-
-		ShapesTestCase(),
-        ExtrudedModelTestCase(),
-        ModelsTestCase(),
         BillboardTestCase(),
+        CartoDBLightTestCase(),
+        CartoDBTestCase(),
+        ChangeVectorsTestCase(),
+        ClusteredMarkersTestCase(),
+        ESRIRemoteTestCase(),
+        ExtrudedModelTestCase(),
+        FindHeightTestCase(),
+        GeoJSONStyleTestCase(),
+        GeographyClassTestCase(),
+        GlobeSamplerTestCase(),
+        GlyphProblemTestCase(),
+        GreatCircleTestCase(),
+        ImageReloadTestCase(),
+        Issue721TestCase(),
+        LIDARTestCase(),
+        LabelAnimationTestCase(),
+        LabelsTestCase(),       // Note: 3D labels are currently broken
+        LayerStartupShutdownTestCase(),
+        LocationTrackingRealTestCase(),
+        LocationTrackingSimTestCase(),
+        LoftedPolysTestCase(),
+        MapTilerCircleTestCase(),
+        MapTilerTestCase(),
+        MapboxTestCase(),
+        MarkersTestCase(),
+        MegaMarkersTestCase(),
+        ModelsTestCase(),
+        MovingScreenLabelsTestCase(),
+        MovingScreenMarkersTestCase(),
+        NASAGIBSTestCase(),
+        OfflineRenderTestCase(),
+        PagingLayerTestCase(),
+        ParticleTestCase(),
+        RepresentationsTestCase(),
         RunwayBuilderTestCase(),
+        ScreenLabelsTestCase(),
+        ScreenMarkersTestCase(),
+        ShapefileTestCase(),
+        ShapesTestCase(),
+        SimpleStyleTestCase(),
+        StamenWatercolorRemote(),
         StarsSunTestCase(),
-
-		FindHeightTestCase(),
-		FullAnimationTest(),
-		AnimationDelegateTestCase(),
-        GlobeRotationTestCase(),
-		LocationTrackingSimTestCase(),
-		LocationTrackingRealTestCase(),
-        
-//        OfflineRenderTestCase(),
-        
         StartupShutdownTestCase(),
-        LayerStartupShutdownTestCase()
-	]
+        StickersTestCase(),
+        TextureVectorTestCase(),
+        VectorHoleTestCase(),
+        VectorMBTilesTestCase(),
+        VectorStyleTestCase(),
+        VectorsTestCase(),
+        WideVectorsTestCase(),
+        WMSTestCase(),        // Note: Endpoint missing
+    ].sorted(by: { (a,b) in a.name.caseInsensitiveCompare(b.name) == ComparisonResult.orderedAscending } )
 
 	@IBOutlet weak var testsTable: UITableView!
 
@@ -91,10 +89,17 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         if firstView {
             firstView = false;
             let env = ProcessInfo.processInfo.environment
+            let type = MaplyTestCaseImplementations.init(rawValue:UInt.init(env["START_TEST_TYPE"] ?? "") ?? MaplyTestCaseImplementations.globe.rawValue) // 2=globe, 4=map
             if let autoStartTest = env["START_TEST"], !autoStartTest.isEmpty {
                 if let test = tests.filter({ test -> Bool in return test.name == autoStartTest }).first {
                     self.lastInteractiveTestSelected = test
-                    test.startMap(self.navigationController!)
+                    if (type.contains(MaplyTestCaseImplementations.map) &&
+                            test.implementations.contains(MaplyTestCaseImplementations.map)) {
+                        test.startMap(self.navigationController!)
+                    } else if (type.contains(MaplyTestCaseImplementations.globe) &&
+                                test.implementations.contains(MaplyTestCaseImplementations.globe)) {
+                        test.startGlobe(self.navigationController!)
+                    }
                 }
             }
         }

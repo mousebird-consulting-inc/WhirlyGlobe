@@ -43,7 +43,10 @@ public:
     
     /// Set the base draw ID and type
     void setMasterID(SimpleIdentity baseDrawID,BasicDrawableInstance::Style style);
-    
+
+    /// If this is using another drawable for its instance, point to that
+    void setInstID(SimpleIdentity instDrawID);
+
     /// True to turn it on, false to turn it off
     void setOnOff(bool onOff);
     
@@ -107,6 +110,9 @@ public:
     
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
+    
+    /// Set whether we're doing continuous renders
+    void setContinuousUpdate(bool newVal);
     
     /// Set the texture ID for a specific slot.  You get this from the Texture object.
     virtual void setTexId(unsigned int which,SimpleIdentity inId);

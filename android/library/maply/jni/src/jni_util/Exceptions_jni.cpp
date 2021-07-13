@@ -132,7 +132,7 @@ bool logAndClearJVMException(JNIEnv* env, const char* where, android_LogPriority
 {
     if (auto ex = env->ExceptionOccurred())
     {
-        env->ExceptionClear();
+        env->ExceptionClear();  // exception must be cleared before making any more calls
         logJVMException(env,ex,where,priority);
         return true;
     }

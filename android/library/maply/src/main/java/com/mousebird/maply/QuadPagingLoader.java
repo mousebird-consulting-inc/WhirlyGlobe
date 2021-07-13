@@ -1,6 +1,7 @@
 package com.mousebird.maply;
 
 import android.os.Handler;
+import android.os.Looper;
 
 import java.lang.ref.WeakReference;
 
@@ -55,22 +56,20 @@ public class QuadPagingLoader extends QuadLoaderBase {
      * @param inInterp The loader interpreter takes input data (if any) per tile and turns it into visual objects
      * @param control The globe or map controller we're adding objects to.
      */
-    public QuadPagingLoader(final SamplingParams params,TileInfoNew inTileInfos[],LoaderInterpreter inInterp,BaseController control)
+    public QuadPagingLoader(final SamplingParams params,TileInfoNew[] inTileInfos,LoaderInterpreter inInterp,BaseController control)
     {
-        super(control, params, 1, Mode.Object);
+        super(control, params, inTileInfos.length, Mode.Object);
 
         tileInfos = inTileInfos;
         loadInterp = inInterp;
         valid = true;
 
+        if (control == null)
+            return;
         // Let them change settings before we kick things off
-        Handler handler = new Handler(control.getActivity().getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!valid)
-                    return;
-
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(() -> {
+            if (valid) {
                 delayedInit(params);
             }
         });

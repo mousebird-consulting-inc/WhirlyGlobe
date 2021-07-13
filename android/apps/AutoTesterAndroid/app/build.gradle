@@ -1,6 +1,5 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileOptions {
@@ -12,17 +11,17 @@ android {
     }
     signingConfigs {
         config {
-            keyAlias 'key0'
-            keyPassword 'foofoo'
-            storeFile file('/Users/sjg/dev/WhirlyGlobe/android/apps/AutoTesterAndroid/foo.keystore')
-            storePassword 'foofoo'
+            keyAlias System.getenv('BITRISEIO_ANDROID_KEYSTORE_ALIAS')
+            keyPassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD')
+            storeFile file('../keystore')    // downloaded from BITRISEIO_ANDROID_KEYSTORE_URL
+            storePassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PASSWORD')
         }
     }
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "com.mousebirdconsulting.autotester"
         minSdkVersion 21
-        targetSdkVersion 28
+        targetSdkVersion 29
         versionCode 1
         versionName "1.0"
 
@@ -39,15 +38,18 @@ android {
             jniDebuggable true
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(path: ':maply')
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'com.google.android.material:material:1.3.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.squareup.okhttp3:okhttp:3.14.2'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 }
 repositories {
     mavenCentral()

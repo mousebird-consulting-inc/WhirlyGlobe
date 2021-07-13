@@ -103,6 +103,28 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getBou
 	}
 }
 
+JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getGeoBounds
+  (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
+{
+	try
+	{
+		if (auto coordAdapter = CoordSystemDisplayAdapterInfo::get(env,obj))
+        {
+            if (auto ll = Point2dClassInfo::get(env, llObj))
+            {
+                if (auto ur = Point2dClassInfo::get(env, urObj))
+                {
+                    coordAdapter->getGeoBounds(*ll, *ur);
+                }
+            }
+        }
+	}
+	catch (...)
+	{
+		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystemDisplayAdapter::getBounds()");
+	}
+}
+
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_displayToLocal
   (JNIEnv *env, jobject obj, jobject dispPtObj)
 {

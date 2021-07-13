@@ -123,7 +123,8 @@ void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          const std::vector<VectorObjectRef> &inVecObjs,
                                          const VectorTileDataRef &tileInfo,
-                                         const Dictionary *desc)
+                                         const Dictionary *desc,
+                                         const CancelFunction &cancelFn)
 {
     // If a representation is set, we produce results for non-visible layers
     if (!visible && (representation.empty() || repUUIDField.empty()))
@@ -142,7 +143,10 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         VectorObjectRef newVecObj = vecObj;
         if (dropGridLines)
         {
-            newVecObj = newVecObj->filterClippedEdges();
+            if (auto clipped = newVecObj->filterClippedEdges())
+            {
+                newVecObj = std::move(clipped);
+            }
         }
         
         if (newVecObj->getVectorType() == VectorArealType)
@@ -179,8 +183,20 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     // TODO: We can also have a symbol, where we might do the same thing
     // Problem is, we'll need to pass the sub-texture logic through to the renderer
     //  because right now it's expecting a single texture that can be strung along the line
-    
-    const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityMultiply);
+
+    MBResolveColorType resolveMode = MBResolveColorOpacityComposeAlpha;
+#ifdef __ANDROID__
+    // On Android, pre-multiply the alpha on static colors.
+    // When the color or opacity is dynamic, we need to do it in the tweaker.
+    if ((!paint.color || !paint.color->isExpression()) &&
+        (!paint.opacity || !paint.opacity->isExpression()))
+    {
+        resolveMode = MBResolveColorOpacityMultiply;
+    }
+#endif
+
+    const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode);
+
     const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     const double offset = paint.offset->valForZoom(tileInfo->ident.level) * lineScale;
     
@@ -236,6 +252,10 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         {
             continue;
         }
+        if (cancelFn(inst))
+        {
+            return;
+        }
 
         const auto attrs = vecObj->getAttributes();
         const auto uuid = repUUIDField.empty() ? std::string() : attrs->getString(repUUIDField);
@@ -250,6 +270,11 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
 
     for (const auto &kvp : shapesByUUID)
     {
+        if (cancelFn(inst))
+        {
+            return;
+        }
+
         const auto &uuid = kvp.first;
         const auto &shapes = kvp.second;
 

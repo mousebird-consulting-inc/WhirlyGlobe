@@ -1,9 +1,8 @@
-/*
- *  CartoTestCase.kt
+/*  CartoTestCase.kt
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebirdconsulting.autotester.TestCases
@@ -33,17 +31,12 @@ import kotlin.math.PI
  * Pull the NY city parcel data onto a map.
  * Makes a nice test case for the paging loader.
  */
-class CartoTestCase : MaplyTestCase {
-
-    constructor(activity: Activity) : super(activity) {
-        setTestName("Carto New York")
-        implementation = TestExecutionImplementation.Both
-    }
-
-    var interp : CartoInterp? = null
+class CartoTestCase(activity: Activity) :
+        MaplyTestCase(activity, "Carto New York", TestExecutionImplementation.Both) {
+    
     var loader : QuadPagingLoader? = null
 
-    fun setupCartoLayer(vc: BaseController) {
+    private fun setupCartoLayer(vc: BaseController) {
         val params = SamplingParams()
         params.minZoom = 0
         params.maxZoom = 15
@@ -58,11 +51,10 @@ class CartoTestCase : MaplyTestCase {
         loader = QuadPagingLoader(params,interp,interp,vc)
     }
 
-    var baseCase : CartoLightTestCase? = null
+    private var baseCase : CartoLightTestCase = CartoLightTestCase(activity)
 
     override fun setUpWithGlobe(globeVC: GlobeController?): Boolean {
-        baseCase = CartoLightTestCase(getActivity())
-        baseCase?.setUpWithGlobe(globeVC)
+        baseCase.setUpWithGlobe(globeVC)
 
         setupCartoLayer(globeVC!!)
 
@@ -73,8 +65,7 @@ class CartoTestCase : MaplyTestCase {
     }
 
     override fun setUpWithMap(mapVC: MapController?): Boolean {
-        baseCase = CartoLightTestCase(getActivity())
-        baseCase?.setUpWithMap(mapVC)
+        baseCase.setUpWithMap(mapVC)
 
         setupCartoLayer(mapVC!!)
 
@@ -83,34 +74,34 @@ class CartoTestCase : MaplyTestCase {
 
         return true
     }
-
+    
+    override fun shutdown() {
+        baseCase.shutdown()
+        super.shutdown()
+    }
+    
     /**
      * We've got both a LoaderInterpreter (builds geometry) and a TileInfo (says where to get
      * stuff) rolled into the same object.  For laziness.
      */
-    class CartoInterp : LoaderInterpreter, TileInfoNew {
+    class CartoInterp(srch: String) : LoaderInterpreter, TileInfoNew() {
 
-        val search: String
-
-        constructor(srch: String) {
-            search = srch
-
-            vecInfoFill.setFilled(true)
-            vecInfoFill.setColor(0.25f,0.0f,0.0f,0.25f)
-
-            vecInfoOutline.setColor(Color.RED)
+        private val search: String = srch
+        private var theLoader: QuadLoaderBase? = null
+        private val vecInfoFill = VectorInfo().apply {
+            setFilled(true)
+            setColor(0.25f,0.0f,0.0f,0.25f)
         }
-
-        var theLoader: QuadLoaderBase? = null
-        val vecInfoFill = VectorInfo()
-        val vecInfoOutline = VectorInfo()
-
+        private val vecInfoOutline = VectorInfo().apply {
+            setColor(Color.RED)
+        }
+    
         override fun setLoader(inLoader: QuadLoaderBase) {
             theLoader = inLoader
         }
 
         // Generate the fetch request for the chunk of data we want
-        override fun fetchInfoForTile(tileID: TileID?, flipY: Boolean): Any? {
+        override fun fetchInfoForTile(tileID: TileID?, flipY: Boolean): Any {
             val bbox = theLoader?.geoBoundsForTile(tileID)
 
             // Construct the query string
@@ -133,12 +124,13 @@ class CartoTestCase : MaplyTestCase {
  
             if (loadReturn.isCanceled) return
 
-            val geojson = String(data)
-            val vecObj = VectorObject()
-            vecObj.fromGeoJSON(geojson)
+            val vecObj = VectorObject.createFromGeoJSON(String(data))
     
             if (loadReturn.isCanceled) return
-            
+
+            // Note: items which cross tile boundaries will be returned for multiple tiles.
+            // We don't do anything to account for that, so they appear darker.
+
             val vc = loader.controller
             loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoFill,ThreadMode.ThreadCurrent))
             loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoOutline,ThreadMode.ThreadCurrent))

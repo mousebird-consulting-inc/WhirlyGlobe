@@ -1,9 +1,8 @@
-/*
- *  VectorData.mm
+/*  VectorData.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <string>
@@ -173,129 +171,138 @@ void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,f
         outPts.push_back(inPts.back());
 }
 
-void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &outPts,CoordSystemDisplayAdapter *adapter,float eps)
+void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &outPts,
+        CoordSystemDisplayAdapter *adapter,double eps2,double prevDist2 = std::numeric_limits<double>::max())
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
     if (std::abs(p0.x() - p1.x()) > M_PI)
         return;
-    
-    Point3f dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p0.x(),p0.y())));
-    Point3f dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(p1.x(),p1.y())));
-    Point2f midPt = (p0+p1)/2.0;
-    Point3f dMidPt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(midPt.x(),midPt.y())));
-    Point3f halfPt = (dp0+dp1)/2.0;
-    float dist2 = (halfPt-dMidPt).squaredNorm();
-    if (dist2 > eps*eps)
+
+    const auto coordSys = adapter->getCoordSystem();
+    const Point3f dp0 = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(p0.x(),p0.y())));
+    const Point3f dp1 = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(p1.x(),p1.y())));
+    const Point2f midPt = (p0+p1)/2.0;
+    const Point3f dMidPt = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(midPt.x(),midPt.y())));
+    const Point3f halfPt = (dp0+dp1)/2.0;
+    const auto dist2 = (halfPt-dMidPt).squaredNorm();
+    // Recurse until the distance threshold is met, or until the distance stops decreasing
+    if (dist2 > eps2 && dist2 < prevDist2)
     {
-        subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps);
-        subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
+        subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps2, dist2);
+        subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps2, dist2);
     }
     if (outPts.empty() || outPts.back() != p1)
          outPts.push_back(p1);
 }
 
-void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,CoordSystemDisplayAdapter *adapter,float eps)
+void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,
+        CoordSystemDisplayAdapter *adapter,double eps2,double prevDist2 = std::numeric_limits<double>::max())
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
     if (std::abs(p0.x() - p1.x()) > M_PI)
         return;
-    
-    Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
-    Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
-    Point3d midPt = (p0+p1)/2.0;
-    Point3d dMidPt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(midPt.x(),midPt.y())));
-    Point3d halfPt = (dp0+dp1)/2.0;
-    float dist2 = (halfPt-dMidPt).squaredNorm();
-    if (dist2 > eps*eps)
+
+    const auto coordSys = adapter->getCoordSystem();
+    const Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+    const Point3d dp1 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
+    const Point3d midPt = (p0+p1)/2.0;
+    const Point3d dMidPt = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(midPt.x(),midPt.y())));
+    const Point3d halfPt = (dp0+dp1)/2.0;
+    const auto dist2 = (halfPt-dMidPt).squaredNorm();
+    // Recurse until the distance threshold is met, or until the distance stops decreasing
+    if (dist2 > eps2 && dist2 < prevDist2)
     {
-        subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps);
-        subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps);
+        subdivideToSurfaceRecurse(p0, midPt, outPts, adapter, eps2, dist2);
+        subdivideToSurfaceRecurse(midPt, p1, outPts, adapter, eps2, dist2);
     }
     outPts.push_back(p1);
-}    
-            
-void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
+}
+
+void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,
+        CoordSystemDisplayAdapter *adapter,float eps)
 {
+    const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
         if (outPts.empty() || outPts.back() != p0)
             outPts.push_back(p0);
-        subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
+        subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps2);
     }
 }
 
 void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
 {
+    const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
         const Point3d &p0 = inPts[ii];
         const Point3d &p1 = inPts[(ii+1)%inPts.size()];
         outPts.push_back(p0);
-        subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps);
+        subdivideToSurfaceRecurse(p0,p1,outPts,adapter,eps2);
     }
 }
-            
+
 // Great circle version
-void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,
+        CoordSystemDisplayAdapter *adapter,double eps2,float surfOffset,int minPts,
+        double prevDist2 = std::numeric_limits<double>::max())
 {
-    Point3d midP = (p0+p1)/2.0;
-    Point3d midOnSphere = midP;
-    if (adapter && !adapter->isFlat())
-        midOnSphere = midP.normalized() * (1.0 + surfOffset);
-    float dist2 = (midOnSphere - midP).squaredNorm();
-    if (dist2 > eps*eps || minPts > 0)
+    const Point3d midP = (p0+p1)/2.0;
+    const Point3d midOnSphere = (adapter && !adapter->isFlat()) ? (midP.normalized() * (1.0 + surfOffset)) : midP;
+    const auto dist2 = (midOnSphere - midP).squaredNorm();
+    if ((dist2 > eps2 || minPts > 0) && dist2 < prevDist2)
     {
-        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps, surfOffset,minPts/2);
-        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps, surfOffset,minPts/2);
+        subdivideToSurfaceRecurseGC(p0, midOnSphere, outPts, adapter, eps2, surfOffset,minPts/2,dist2);
+        subdivideToSurfaceRecurseGC(midOnSphere, p1, outPts, adapter, eps2, surfOffset,minPts/2,dist2);
     }
     if (outPts.empty() || outPts.back() != p1)
         outPts.push_back(p1);
 }
 
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,bool closed,
+        CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;
+    const auto coordSys = adapter->getCoordSystem();
     if (inPts.size() < 2)
     {
         const Point2f &p0 = inPts[0];
-        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
-        outPts.push_back(dp0);        
+        const Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+        outPts.push_back(dp0);
         return;
     }
-    
+
+    const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
-        Point3d dp0 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
+        Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
         if (adapter && !adapter->isFlat())
            dp0 = dp0.normalized() * (1.0 + surfOffset);
-        Point3d dp1 = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
+        Point3d dp1 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
         if (adapter && !adapter->isFlat())
            dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
-        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps,surfOffset,minPts);
-    }    
+        subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps2,surfOffset,minPts);
+    }
 }
 
-    
 VectorShape::VectorShape()
 {
     attrDict = MutableDictionaryMake();
 }
    
-VectorShape::~VectorShape()
-{
-}
+VectorShape::~VectorShape() = default;
     
 void VectorShape::setAttrDict(MutableDictionaryRef newDict)
 {
-    attrDict = newDict;
+    attrDict = std::move(newDict);
 }
     
 MutableDictionaryRef VectorShape::getAttrDict()
@@ -303,13 +310,9 @@ MutableDictionaryRef VectorShape::getAttrDict()
     return attrDict;
 }
     
-VectorTriangles::VectorTriangles()
-{
-}
+VectorTriangles::VectorTriangles() = default;
     
-VectorTriangles::~VectorTriangles()
-{
-}
+VectorTriangles::~VectorTriangles() = default;
     
 VectorTrianglesRef VectorTriangles::createTriangles()
 {
@@ -323,11 +326,11 @@ GeoMbr VectorTriangles::calcGeoMbr()
     return geoMbr;
 }
     
-bool VectorTriangles::pointInside(GeoCoord coord)
+bool VectorTriangles::pointInside(const GeoCoord &coord)
 {
     if (geoMbr.inside(coord))
     {
-        for (unsigned int ti=0;ti<tris.size();ti++)
+        for (int ti=0;ti<tris.size();ti++)
         {
             VectorRing ring;
             getTriangle(ti, ring);
@@ -355,10 +358,10 @@ void VectorTriangles::getTriangle(int which,VectorRing &ring)
     
 void VectorTriangles::initGeoMbr()
 {
-    for (unsigned int ii=0;ii<pts.size();ii++)
-        geoMbr.addGeoCoord(GeoCoord(pts[ii].x(),pts[ii].y()));
+    for (auto & pt : pts)
+        geoMbr.addGeoCoord(GeoCoord(pt.x(),pt.y()));
 }
-    
+
 bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt)
 {
     double tMin = std::numeric_limits<double>::max();
@@ -397,14 +400,10 @@ bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const Vec
     
     return false;
 }
+
+VectorAreal::VectorAreal() = default;
     
-VectorAreal::VectorAreal()
-{
-}
-    
-VectorAreal::~VectorAreal()
-{
-}
+VectorAreal::~VectorAreal() = default;
     
 VectorArealRef VectorAreal::createAreal()
 {
@@ -418,8 +417,8 @@ bool VectorAreal::pointInside(GeoCoord coord)
 {
     if (geoMbr.inside(coord))
     {
-        for (unsigned int ii=0;ii<loops.size();ii++)
-            if (PointInPolygon(coord,loops[ii]))
+        for (auto & loop : loops)
+            if (PointInPolygon(coord,loop))
                 return true;
     }
     
@@ -435,28 +434,24 @@ GeoMbr VectorAreal::calcGeoMbr()
     
 void VectorAreal::initGeoMbr()
 {
-    for (unsigned int ii=0;ii<loops.size();ii++)
-        geoMbr.addGeoCoords(loops[ii]);
+    for (auto & loop : loops)
+        geoMbr.addGeoCoords(loop);
 }
     
 void VectorAreal::subdivide(float maxLen)
 {
-    for (unsigned int ii=0;ii<loops.size();ii++)
+    for (auto & loop : loops)
     {
         VectorRing newPts;
-        SubdivideEdges(loops[ii], newPts, true, maxLen);
-        loops[ii] = newPts;
+        SubdivideEdges(loop, newPts, true, maxLen);
+        loop = newPts;
     }
 }
 
-VectorLinear::VectorLinear()
-{
-}
+VectorLinear::VectorLinear() = default;
 
-VectorLinear::~VectorLinear()
-{
-}
-    
+VectorLinear::~VectorLinear() = default;
+
 VectorLinearRef VectorLinear::createLinear()
 {
     return VectorLinearRef(new VectorLinear());
@@ -481,13 +476,9 @@ void VectorLinear::subdivide(float maxLen)
     pts = newPts;
 }
     
-VectorLinear3d::VectorLinear3d()
-{
-}
+VectorLinear3d::VectorLinear3d() = default;
 
-VectorLinear3d::~VectorLinear3d()
-{
-}
+VectorLinear3d::~VectorLinear3d() = default;
 
 VectorLinear3dRef VectorLinear3d::createLinear()
 {
@@ -506,13 +497,9 @@ void VectorLinear3d::initGeoMbr()
     geoMbr.addGeoCoords(pts);
 }
 
-VectorPoints::VectorPoints()
-{
-}
+VectorPoints::VectorPoints() = default;
     
-VectorPoints::~VectorPoints()
-{
-}
+VectorPoints::~VectorPoints() = default;
     
 VectorPointsRef VectorPoints::createPoints()
 {
@@ -780,9 +767,9 @@ bool VectorReadFile(const std::string &fileName,ShapeSet &shapes)
 #endif
 
 using namespace libjson;
-    
+
 // Parse properties out of a node
-bool VectorParseProperties(JSONNode node,MutableDictionaryRef dict)
+static bool VectorParseProperties(JSONNode node,const MutableDictionaryRef &dict)
 {
     for (JSONNode::const_iterator it = node.begin();
          it != node.end(); ++it)
@@ -1026,8 +1013,8 @@ bool VectorParseFeature(JSONNode node,ShapeSet &shapes)
         MutableDictionaryRef properties = MutableDictionaryMake();
         VectorParseProperties(*propIt, properties);
         // Apply the properties to the geometry
-        for (ShapeSet::iterator sit = newShapes.begin(); sit != newShapes.end(); ++sit)
-            (*sit)->setAttrDict(properties);
+        for (const auto & newShape : newShapes)
+            newShape->setAttrDict(properties);
     }
     
     shapes.insert(newShapes.begin(), newShapes.end());
@@ -1178,3 +1165,4 @@ bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,Shap
 }
 
 }
+#include <utility>

@@ -21,6 +21,7 @@
 package com.mousebird.maply;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  *  Passed in to and returned by the Loader Interpreter.
@@ -43,6 +44,11 @@ public class LoaderReturn
     public native void setTileID(int tileX,int tileY,int tileLevel);
 
     /**
+     * Set the tile ID at creation.
+     */
+    public void setTileID(TileID tileID) { setTileID(tileID.x, tileID.y, tileID.level); }
+
+    /**
      * Frames have unique 64 bit IDs as well as their location in the frame array.
      */
     public native void setFrame(long frameID,int frameIndex);
@@ -52,14 +58,11 @@ public class LoaderReturn
      */
     public TileID getTileID()
     {
-        TileID tileID = new TileID();
-
-        int[] tileInfo = getTileIDNative();
-        tileID.x = tileInfo[0];
-        tileID.y = tileInfo[1];
-        tileID.level = tileInfo[2];
-
-        return tileID;
+        final int[] tileInfo = getTileIDNative();
+        if (tileInfo != null && tileInfo.length > 2) {
+            return new TileID(tileInfo[0], tileInfo[1], tileInfo[2]);
+        }
+        return null;
     }
 
     private native int[] getTileIDNative();
@@ -73,12 +76,21 @@ public class LoaderReturn
     private final ArrayList<byte[]> tileData = new ArrayList<>();
 
     /**
-     * Data returned from a tile request.  Unparsed.
+     * Data returned from a tile request.  Un-parsed.
      * You can add multiple of these, but the interpreter should be expecting that.
      */
     public void addTileData(byte[] data)
     {
         tileData.add(data);
+    }
+
+    /**
+     * Data returned from a tile request.  Un-parsed.
+     * You can add multiple of these, but the interpreter should be expecting that.
+     */
+    public void addTileData(Collection<byte[]> data)
+    {
+        tileData.addAll(data);
     }
 
     /**

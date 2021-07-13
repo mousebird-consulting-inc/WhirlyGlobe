@@ -69,10 +69,15 @@ public:
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
-                              const Dictionary *desc) override;
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
-    
+
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        return paint.color ? paint.color->colorForZoom(zoom) : RGBAColor::clear();
+    }
+
 public:
     MapboxVectorLineLayout layout;
     MapboxVectorLinePaint paint;

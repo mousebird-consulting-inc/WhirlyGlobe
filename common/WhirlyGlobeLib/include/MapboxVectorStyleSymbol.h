@@ -63,7 +63,7 @@ public:
     float layoutImportance;
         
     // Text can be expressed in a complex way
-    MapboxRegexField textField;
+    MapboxTransTextRef textField;
 
     // Name of icon, if present, can be expressed the same way as text
     MapboxTransTextRef iconImageField;
@@ -105,11 +105,24 @@ public:
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
-                              const Dictionary *desc) override;
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) override;
     
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
 
-public:
+    virtual std::string getLegendText(float zoom) const override {
+        if (layout.iconImageField) {
+            const auto text = layout.iconImageField->textForZoom(zoom);
+            if (text.valid && !text.chunks.empty()) {
+                return text.chunks[0].str;
+            }
+        }
+        return std::string();
+    }
+    virtual RGBAColor getLegendColor(float zoom) const override {
+        return paint.textColor ? paint.textColor->colorForZoom(zoom) : RGBAColor::clear();
+    }
+
     std::string breakUpText(PlatformThreadInfo *inst,
                             const std::string &text,
                             double textMaxWidth,

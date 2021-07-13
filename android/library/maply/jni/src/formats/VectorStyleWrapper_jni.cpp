@@ -37,24 +37,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleWrapper_nativeInit
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleWrapper_initialise
-(JNIEnv *env, jobject obj, jlongArray idArray, jobjectArray categoryArray, jbooleanArray geomAddArray)
+    (JNIEnv *env, jobject obj, jlongArray idArray, jobjectArray categoryArray,
+     jbooleanArray geomAddArray, jobjectArray identArray)
 {
     try {
         std::vector<SimpleIdentity > idVec;
-        std::vector<std::string> catVec;
+        std::vector<std::string> catVec,identVec;
         std::vector<bool> geomAddVec;
         ConvertLongLongArray(env,idArray,idVec);
         ConvertStringArray(env,categoryArray, catVec);
         ConvertBoolArray(env,geomAddArray,geomAddVec);
+        ConvertStringArray(env,identArray, identVec);
 
         PlatformInfo_Android threadInst(env);
 
         VectorStyleSetWrapper_AndroidRef *inst = new VectorStyleSetWrapper_AndroidRef(
-                new VectorStyleSetWrapper_Android(
-                        &threadInst,
-                        obj,
-                        idVec, catVec, geomAddVec
-                        ));
+                new VectorStyleSetWrapper_Android(&threadInst,obj,
+                        idVec,catVec,geomAddVec,identVec));
         VectorStyleSetWrapperClassInfo::getClassInfo()->setHandle(env,obj,inst);
     }
     catch (...) {

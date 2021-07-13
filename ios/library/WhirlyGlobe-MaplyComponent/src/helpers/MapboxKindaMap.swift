@@ -255,9 +255,8 @@ public class MapboxKindaMap {
                         return
                     }
                     
-                    if let data = data {
+                    if let data = data, !data.isEmpty {
                         self.spriteJSON = data
-
                         self.cacheFile(spriteJSONurl, data: data)
                     }
 
@@ -277,9 +276,8 @@ public class MapboxKindaMap {
                         self.stop()
                         return
                     }
-                    if let data = data {
+                    if let data = data, !data.isEmpty {
                         self.spritePNG = UIImage(data: data)
-                        
                         self.cacheFile(spritePNGurl, data: data)
                     }
 
@@ -472,7 +470,10 @@ public class MapboxKindaMap {
             styleSettings.textScale = Float(textScale)
         } else {
             styleSettings.textScale = Float(0.5 * minImportance / (512.0 * 512.0))
-        }        
+        }
+        
+        // We fetch the @2x versions of markers by default, so we need to scale back down
+        styleSettings.markerScale = Float(UIScreen.main.scale / 2.0) * 2.0 / 3.0
 
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {

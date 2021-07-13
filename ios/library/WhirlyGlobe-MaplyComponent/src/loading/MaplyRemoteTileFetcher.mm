@@ -96,7 +96,7 @@ public:
 
 
 typedef std::shared_ptr<TileInfo> TileInfoRef;
-typedef struct {
+typedef struct TileInfoSorter {
     bool operator () (const TileInfoRef a,const TileInfoRef b) const {
         return *a < *b;
     }
@@ -792,6 +792,8 @@ using namespace WhirlyKit;
         // Failed.  Sad.  :-{
         allStats.totalFails = allStats.totalFails + 1;
         recentStats.totalFails = recentStats.totalFails + 1;
+        if (_debugMode)
+            NSLog(@"Remote fail for: %@",tile->fetchInfo.urlReq.URL.absoluteString);
         // Build an NSError around the status code
         if (!error) {
             error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileFetcher"

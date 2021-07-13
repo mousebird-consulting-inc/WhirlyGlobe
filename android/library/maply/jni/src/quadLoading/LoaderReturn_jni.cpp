@@ -242,7 +242,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjec
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObjects
-		(JNIEnv *env, jobject obj, jobject renderControlObj, jobject compManagerObj, jobject changeSetObj)
+		(JNIEnv *env, jobject obj, jobject renderControlObj,
+		 jobject compManagerObj, jobject changeSetObj)
 {
 	try
 	{
@@ -268,7 +269,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObje
 			idSet.insert(compObj->getId());
 
 		PlatformInfo_Android platformInfo(env);
-		(*compManager)->removeComponentObjects(&platformInfo, idSet, *(*changeSet));
+		(*compManager)->removeComponentObjects(&platformInfo, idSet, **changeSet, true);
 	}
 	catch (...)
 	{

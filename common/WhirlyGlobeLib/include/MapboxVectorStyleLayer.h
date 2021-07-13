@@ -1,9 +1,8 @@
-/*
-*  MapboxVectorStyleLayer.h
+/* MapboxVectorStyleLayer.h
 *  WhirlyGlobeLib
 *
 *  Created by Steve Gifford on 4/8/20.
-*  Copyright 2011-2020 mousebird consulting
+*  Copyright 2011-2021 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
 *  limitations under the License.
-*
 */
 
 #import "MapboxVectorFilter.h"
@@ -36,6 +34,9 @@ class MapboxVectorStyleLayer : public VectorStyleImpl
 public:
     virtual std::string getIdent() const override { return ident; }
     virtual std::string getType() const override { return type; }
+    virtual std::string getLegendText(float zoom) const override { return std::string(); }
+    virtual RGBAColor getLegendColor(float zoom) const override { return RGBAColor::clear(); }
+    virtual std::string getRepresentation() const override { return representation; }
 
     /// @brief Initialize with the style sheet and the entry for this layer
     static MapboxVectorStyleLayerRef VectorStyleLayer(PlatformThreadInfo *inst,
@@ -67,7 +68,8 @@ public:
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
-                              const Dictionary *desc) override = 0;
+                              const Dictionary *desc,
+                              const CancelFunction &cancelFn) override = 0;
     
     /// Clean up any objects (textures, probably)
     virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
@@ -83,6 +85,12 @@ public:
     /// @brief ID on the layer style entry
     std::string ident;
 
+    /// Text for legend entry
+    std::string legendText;
+
+    /// Color for legend entry
+    RGBAColor legendColor = RGBAColor::clear();
+
     /// @brief Source from layer defn
     std::string source;
 
@@ -90,7 +98,8 @@ public:
     std::string sourceLayer;
 
     /// @brief Min/max zoom levels
-    int minzoom,maxzoom;
+    int minzoom;
+    int maxzoom;
 
     /// @brief Filter this layer uses to match up to data
     MapboxVectorFilterRef filter;
@@ -98,8 +107,8 @@ public:
     /// @brief DrawPriority based on location in the style sheet
     int drawPriority;
 
-    // If set, the features produced will be selectable (if they can be)
-    // Inherited from the settings
+    /// If set, the features produced will be selectable (if they can be)
+    /// Inherited from the settings
     bool selectable;
 
     /// @brief Unique Identifier for this style

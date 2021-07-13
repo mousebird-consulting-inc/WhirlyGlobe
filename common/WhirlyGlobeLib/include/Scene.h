@@ -303,8 +303,11 @@ public:
     DrawableRef getDrawable(SimpleIdentity drawId) const;
 
     /// Remove a drawable from the scene
-    virtual void remDrawable(DrawableRef drawable);
-    
+    virtual void remDrawable(const DrawableRef &drawable);
+
+    /// Remove a drawable from the scene
+    virtual void remDrawable(SimpleIdentity id);
+
     /// Add a fully formed texture
     virtual void addTexture(TextureBaseRef texRef);
     
@@ -344,14 +347,14 @@ public:
     void addActiveModel(ActiveModelRef);
     
     /// Remove an active model (if it's in here).  Only call this on the main thread.
-    void removeActiveModel(const ActiveModelRef &);
+    void removeActiveModel(PlatformThreadInfo *, const ActiveModelRef &);
     
     /// Return a dispatch queue that we can use for... stuff.
     /// The idea here is we'll wait for these to drain when we tear down.
 //    dispatch_queue_t getDispatchQueue() { return dispatchQueue; }
     
     // Return all the drawables in a list.  Only call this on the main thread.
-    const std::vector<Drawable *> getDrawables() const;
+    std::vector<Drawable *> getDrawables() const;
     
     // Used for offline frame by frame rendering
     void setCurrentTime(TimeInterval newTime);
@@ -389,8 +392,12 @@ public:
     float getZoomSlotValue(int zoomSlot) const;
     
     /// Copy all the zoom slots into a destination array
-    void copyZoomSlots(float *dest);
-	
+    // dest must be at least MaplyMaxZoomSlots
+    void copyZoomSlots(float *dest) const;
+
+    /// Copy all zoom slot values from the given scene object
+    void copyZoomSlotsFrom(const Scene *otherScene, float offset = 0.0f);
+
     /// Add a shader for reference, but not with a scene name.
     /// Presumably you'll call setSceneProgram() shortly.
     void addProgram(ProgramRef prog);
@@ -462,14 +469,14 @@ protected:
     
     /// Managers for various functionality
     std::map<std::string,SceneManagerRef> managers;
-                
+
     /// Lock for accessing programs
     mutable std::mutex programLock;
-                    
+
     // Sampling layers will set these to talk to shaders
     mutable std::mutex zoomSlotLock;
-    float zoomSlots[MaplyMaxZoomSlots];
-    
+    float zoomSlots[MaplyMaxZoomSlots] = {};
+
 protected:
     
     // If time is being set externally
