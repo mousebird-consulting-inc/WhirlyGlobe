@@ -327,6 +327,8 @@ void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
     bool changes = false;
     
     if (which < texInfo.size()) {
+        if (texInfo[which].texId == inId)
+            return;
         texInfo[which].texId = inId;
         changes = true;
     } else {
