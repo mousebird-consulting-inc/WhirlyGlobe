@@ -364,17 +364,23 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
     if (UseHeaps) {
         {
             std::lock_guard<std::mutex> guardLock(lock);
+            bool keepTrying = true;
+            while (keepTrying)
+            {
+                auto heapInfo = findHeap(heapType,size);
+                buffer.heap = heapInfo->heap;
+                buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
 
-            auto heapInfo = findHeap(heapType,size);
-            buffer.heap = heapInfo->heap;
-            buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+                if (!buffer.buffer) {
+    //                NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
+                    heapInfo->maxAvailSize = 0;  // You lie!!!
+                    keepTrying = true;
+                    continue;
+                }
+                keepTrying = false;
+            }
+            buffer.offset = 0;
         }
-        if (!buffer.buffer) {
-            NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
-            buffer.valid = false;
-            return buffer;
-        }
-        buffer.offset = 0;
     } else {
         size_t extra = size % memAlign;
         if (extra > 0) {
@@ -397,14 +403,20 @@ BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data
         {
             std::lock_guard<std::mutex> guardLock(lock);
 
-            auto heapInfo = findHeap(heapType,size);
-            buffer.heap = heapInfo->heap;
-            buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
-        }
-        if (!buffer.buffer) {
-            NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
-            buffer.valid = false;
-            return buffer;
+            bool keepTrying = true;
+            while (keepTrying) {
+                auto heapInfo = findHeap(heapType,size);
+                buffer.heap = heapInfo->heap;
+                buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+
+                if (!buffer.buffer) {
+//                    NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
+                    heapInfo->maxAvailSize = 0;  // Lies!  It's all lies!
+                    keepTrying = true;
+                    continue;
+                }
+                keepTrying = false;
+            }
         }
         if (data && size) {
             memcpy([buffer.buffer contents], data, size);
