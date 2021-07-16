@@ -185,7 +185,7 @@ protected:
     };
     typedef std::shared_ptr<HeapInfo> HeapInfoRef;
     
-    typedef struct {
+    typedef struct _HeapGroupSorter {
         bool operator() (const HeapInfoRef &a, const HeapInfoRef &b) const {
             if (a->maxAvailSize == b->maxAvailSize)
                 return a->heap < b->heap;

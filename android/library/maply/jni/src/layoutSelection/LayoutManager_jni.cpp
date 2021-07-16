@@ -221,7 +221,7 @@ public:
 
     // Ask the appropriate cluster generator to make a cluster image
     virtual void makeLayoutObject(PlatformThreadInfo *threadInfo,int clusterID,
-                                  const std::vector<LayoutObjectEntry *> &layoutObjects,
+                                  const std::vector<LayoutObjectEntryRef> &layoutObjects,
                                   LayoutObject &retObj) override
     {
         const auto env = ((PlatformInfo_Android*)threadInfo)->env;
