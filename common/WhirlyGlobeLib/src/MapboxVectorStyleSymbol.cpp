@@ -253,6 +253,7 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     // TODO: Move the layout importance into the label itself
     float strHash = calcStringHash(text);
     label->layoutEngine = true;
+    label->layoutImportance = MAXFLOAT;
     if (!layout.textAllowOverlap) {
         // If we're allowing layout, then we need to communicate valid text justification
         //  if the style wanted us to do that
@@ -270,9 +271,7 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
             }
         }
         label->layoutImportance = layout.layoutImportance + 1.0 - (rank + (101-tileInfo->ident.level)/100.0)/1000.0 + strHash/10000.0;
-//            wkLogLevel(Debug,"\ntext: %s import = %f, rank = %d, level = %d, strHash = %f",text.c_str(),label->layoutImportance,rank,tileInfo->ident.level,strHash);
-    } else
-        label->layoutImportance = MAXFLOAT;
+    }
 
     // Anchor options for the layout engine
     switch (layout.textAnchor) {

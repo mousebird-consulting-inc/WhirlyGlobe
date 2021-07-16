@@ -29,15 +29,20 @@ namespace WhirlyKit
 {
 
 // Default constructor for layout object
-LayoutObject::LayoutObject()
-    : ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0), layoutDebug(false),
-    importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject() :
+    ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0),
+    layoutWidth(10.0), layoutDebug(false), importance(MAXFLOAT), clusterGroup(-1),
+    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
+                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
-LayoutObject::LayoutObject(SimpleIdentity theId) : ScreenSpaceObject(theId),
-    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0), layoutDebug(false),
-     importance(MAXFLOAT), clusterGroup(-1), acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(SimpleIdentity theId) :
+    ScreenSpaceObject(theId),
+    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0),
+    layoutDebug(false), importance(MAXFLOAT), clusterGroup(-1),
+    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
+                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
 {
 }
     
@@ -45,7 +50,8 @@ void LayoutObject::setLayoutSize(const Point2d &layoutSize,const Point2d &offset
 {
     if (layoutSize.x() == 0.0 && layoutSize.y() == 0.0)
         return;
-    
+
+    layoutPts.reserve(layoutPts.size() + 4);
     layoutPts.push_back(Point2d(0,0)+offset);
     layoutPts.push_back(Point2d(layoutSize.x(),0.0)+offset);
     layoutPts.push_back(layoutSize+offset);
@@ -56,7 +62,8 @@ void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset
 {
     if (selectSize.x() == 0.0 && selectSize.y() == 0.0)
         return;
-    
+
+    selectPts.reserve(selectPts.size() + 4);
     selectPts.push_back(Point2d(0,0)+offset);
     selectPts.push_back(Point2d(selectSize.x(),0.0)+offset);
     selectPts.push_back(selectSize+offset);
@@ -85,10 +92,6 @@ LayoutManager::~LayoutManager()
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (auto layoutObject : layoutObjects)
-    {
-        delete layoutObject;
-    }
     layoutObjects.clear();
 }
     
@@ -103,7 +106,9 @@ void LayoutManager::setOverrideUUIDs(const std::set<std::string> &uuids)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    overrideUUIDs = uuids;
+    overrideUUIDs.clear();
+    overrideUUIDs.reserve(uuids.size());
+    overrideUUIDs.insert(uuids.begin(), uuids.end());
 }
     
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
@@ -113,9 +118,9 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
     for (const auto & newObject : newObjects)
     {
         const LayoutObject &layoutObj = newObject;
-        auto *entry = new LayoutObjectEntry(layoutObj.getId());
+        auto entry = std::make_shared<LayoutObjectEntry>(layoutObj.getId());
         entry->obj = newObject;
-        layoutObjects.insert(entry);
+        layoutObjects.insert(std::move(entry));
     }
     hasUpdates = true;
 }
@@ -127,25 +132,27 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjec
     for (auto newObject : newObjects)
     {
         const LayoutObject *layoutObj = newObject;
-        auto *entry = new LayoutObjectEntry(layoutObj->getId());
+        auto entry = std::make_shared<LayoutObjectEntry>(layoutObj->getId());
         entry->obj = *newObject;
-        layoutObjects.insert(entry);
+        layoutObjects.insert(std::move(entry));
     }
     hasUpdates = true;
 }
 
 /// Enable/disable layout objects
-void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enable)
+void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjectIds,bool enable)
 {
+    const auto key = std::make_shared<LayoutObjectEntry>(EmptyIdentity);
+
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (const auto &theObject : theObjects)
+    for (const auto theObjectId : theObjectIds)
     {
-        LayoutObjectEntry key(theObject);
-        const auto eit = layoutObjects.find(&key);
+        key->setId(theObjectId);
+        const auto eit = layoutObjects.find(key);
         if (eit != layoutObjects.end())
         {
-            LayoutObjectEntry *entry = *eit;
+            const LayoutObjectEntryRef &entry = *eit;
             if (!enable)
             {
                 entry->newCluster = -1;
@@ -154,22 +161,19 @@ void LayoutManager::enableLayoutObjects(const SimpleIDSet &theObjects,bool enabl
             entry->obj.enable = enable;
         }
     }
-    hasUpdates = true;    
+    hasUpdates = true;
 }
     
-void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
+void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjectIds)
 {
+    const auto key = std::make_shared<LayoutObjectEntry>(EmptyIdentity);
+
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (const auto &oldObject : oldObjects)
+    for (const auto oldObjectId : oldObjectIds)
     {
-        LayoutObjectEntry entry(oldObject);
-        const auto eit = layoutObjects.find(&entry);
-        if (eit != layoutObjects.end())
-        {
-            delete *eit;
-            layoutObjects.erase(eit);
-        }
+        key->setId(oldObjectId);
+        layoutObjects.erase(key);
     }
     hasUpdates = true;
 }
@@ -177,7 +181,8 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjects)
 bool LayoutManager::hasChanges()
 {
     std::lock_guard<std::mutex> guardLock(lock);
-    if (clusterGen->hasChanges()) {
+    if (clusterGen->hasChanges())
+    {
         hasUpdates = true;
     }
     return hasUpdates;
@@ -187,6 +192,9 @@ bool LayoutManager::hasChanges()
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,
                                           std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
 {
+    // Allocate first, we don't care if the sizes aren't exactly right
+    screenSpaceObjs.reserve(layoutObjects.size() + clusters.size());
+
     std::lock_guard<std::mutex> guardLock(lock);
 
     // First the regular screen space objects
@@ -194,7 +202,8 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
     {
         if (entry->currentEnable && entry->obj.enable)
         {
-            ScreenSpaceObjectLocation ssObj;
+            screenSpaceObjs.emplace_back();
+            ScreenSpaceObjectLocation &ssObj = screenSpaceObjs.back();
             ssObj.shapeIDs.push_back(entry->obj.getId());
             ssObj.dispLoc = entry->obj.worldLoc;
             ssObj.rotation = entry->obj.rotation;
@@ -202,23 +211,20 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
             ssObj.offset = entry->offset;
             ssObj.pts = entry->obj.selectPts;
             ssObj.mbr.addPoints(entry->obj.selectPts);
-
-            screenSpaceObjs.push_back(ssObj);
         }
     }
     
     // Then the clusters
     for (const auto &cluster : clusters)
     {
-        ScreenSpaceObjectLocation ssObj;
+        screenSpaceObjs.emplace_back();
+        ScreenSpaceObjectLocation &ssObj = screenSpaceObjs.back();
         ssObj.shapeIDs = cluster.objectIDs;
         ssObj.dispLoc = cluster.layoutObj.worldLoc;
         ssObj.offset = cluster.layoutObj.offset;
         ssObj.pts = cluster.layoutObj.selectPts;
         ssObj.mbr.addPoints(cluster.layoutObj.selectPts);
         ssObj.isCluster = true;
-
-        screenSpaceObjs.push_back(ssObj);
     }
 }
 
@@ -327,13 +333,13 @@ class LayoutObjectContainer
 {
 public:
     LayoutObjectContainer() : importance(-1.0) { }
-    explicit LayoutObjectContainer(LayoutObjectEntry *entry) {
-        objs.push_back(entry);
+    explicit LayoutObjectContainer(LayoutObjectEntryRef entry) {
+        objs.push_back(std::move(entry));
         importance = objs[0]->obj.importance;
     }
     
     // Objects that share the same unique ID
-    std::vector<LayoutObjectEntry *> objs;
+    std::vector<LayoutObjectEntryRef> objs;
     
     bool operator < (const LayoutObjectContainer &that) const {
         if (objs.empty())  // Never happen
@@ -388,7 +394,7 @@ void LayoutManager::addDebugOutput(const Point2dVector &pts,
         debugVecIDs.insert(vecId);
 }
 
-static Point2d offsetForOrientation(int orient, const Point2d &span)
+static Point2d offsetForOrientation(unsigned orient, const Point2d &span)
 {
     // Set up the offset for this orientation
     switch (orient)
@@ -406,11 +412,13 @@ static Point2d offsetForOrientation(int orient, const Point2d &span)
 // Do the actual layout logic.  We'll modify the offset and on value in place.
 bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                    const ViewStateRef &viewState,
+                                   const LayoutEntrySet &localLayoutObjects,
+                                   const std::unordered_set<std::string> &localOverrideUUIDs,
                                    std::vector<ClusterEntry> &clusterEntries,
                                    std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
                                    ChangeSet &changes)
 {
-    if (layoutObjects.empty())
+    if (localLayoutObjects.empty())
         return false;
     
     bool hadChanges = false;
@@ -431,78 +439,85 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     Matrix4d normalMat = viewState->fullMatrices[0].inverse().transpose();
     
     // Turn everything off and sort by importance
-    for (const auto &layoutObject : layoutObjects)
+    for (const auto &layoutObjRef : localLayoutObjects)
     {
-        LayoutObjectEntry *layoutObj = layoutObject;
-        if (layoutObj->obj.enable)
+        auto * const obj = layoutObjRef.get();
+        if (obj->obj.enable)
         {
-            LayoutObjectEntry *obj = layoutObject;
-            bool use = false;
-            if (globeViewState)
+            bool use = obj->obj.state.minVis == DrawVisibleInvalid ||
+                       obj->obj.state.maxVis == DrawVisibleInvalid;
+            if (!use)
             {
-                if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.state.minVis < globeViewState->heightAboveGlobe && globeViewState->heightAboveGlobe < obj->obj.state.maxVis))
-                    use = true;
-            } else {
-                if (obj->obj.state.minVis == DrawVisibleInvalid || obj->obj.state.maxVis == DrawVisibleInvalid ||
-                    (obj->obj.state.minVis < mapViewState->heightAboveSurface && mapViewState->heightAboveSurface < obj->obj.state.maxVis))
-                    use = true;
-            }
-            if (use) {
-                // Make sure this one isn't behind the globe
                 if (globeViewState)
                 {
-                    // Layout shape following doesn't work with this check
-                    if (obj->obj.layoutShape.empty()) {
-                        // Make sure this one is facing toward the viewer
-                        use = CheckPointAndNormFacing(layoutObj->obj.worldLoc,layoutObj->obj.worldLoc.normalized(),fullMatrix,fullNormalMatrix) > 0.0;
-                    }
+                    use = obj->obj.state.minVis < globeViewState->heightAboveGlobe &&
+                          globeViewState->heightAboveGlobe < obj->obj.state.maxVis;
                 }
-
-                if (use)
+                else
                 {
-                    obj->newCluster = -1;
-                    if (obj->obj.clusterGroup > -1)
-                    {
-                        // Put the entry in the right cluster
-                        ClusteredObjects findClusterObj(obj->obj.clusterGroup);
-                        ClusteredObjects *thisClusterObj = nullptr;
-                        auto cit = clusterObjs.find(&findClusterObj);
-                        if (cit == clusterObjs.end())
-                        {
-                            // Create a new cluster object
-                            thisClusterObj = new ClusteredObjects(obj->obj.clusterGroup);
-                            clusterObjs.insert(thisClusterObj);
+                    use = obj->obj.state.minVis < mapViewState->heightAboveSurface &&
+                          mapViewState->heightAboveSurface < obj->obj.state.maxVis;
+                }
+            }
 
-                            hadChanges = true;
-                        } else
-                            thisClusterObj = *cit;
-                        
-                        thisClusterObj->layoutObjects.insert(layoutObj);
-                        
-                        obj->newEnable = false;
-                        obj->newCluster = -1;
-                    } else {
-                        // Not a cluster
-                        if (layoutObj->obj.uniqueID.empty())
-                            layoutObjs.push_back(LayoutObjectContainer(layoutObj));
-                        else {
-                            // Add it to a container for its unique name
-                            auto it = uniqueLayoutObjs.find(layoutObj->obj.uniqueID);
-                            LayoutObjectContainer dest;
-                            if (it != uniqueLayoutObjs.end())
-                                dest = it->second;
-                            // See if we're overriding this importance
-                            dest.importance = layoutObj->obj.importance;
-                            if (!layoutObj->obj.uniqueID.empty() && overrideUUIDs.find(layoutObj->obj.uniqueID) != overrideUUIDs.end())
-                                dest.importance = MAXFLOAT;
-                            dest.objs.push_back(layoutObj);
-                            uniqueLayoutObjs[layoutObj->obj.uniqueID] = dest;
-                        }
-                    }
-                } else {
+            // Make sure this one isn't behind the globe
+            if (use && globeViewState)
+            {
+                // Layout shape following doesn't work with this check
+                if (obj->obj.layoutShape.empty())
+                {
+                    // Make sure this one is facing toward the viewer
+                    use = CheckPointAndNormFacing(obj->obj.worldLoc,obj->obj.worldLoc.normalized(),fullMatrix,fullNormalMatrix) > 0.0;
+                }
+            }
+
+            if (use)
+            {
+                obj->newCluster = -1;
+                if (obj->obj.clusterGroup > -1)
+                {
+                    // Put the entry in the right cluster
+                    ClusteredObjects findClusterObj(obj->obj.clusterGroup);
+                    ClusteredObjects *thisClusterObj = nullptr;
+                    auto cit = clusterObjs.find(&findClusterObj);
+                    if (cit == clusterObjs.end())
+                    {
+                        // Create a new cluster object
+                        thisClusterObj = new ClusteredObjects(obj->obj.clusterGroup);
+                        clusterObjs.insert(thisClusterObj);
+
+                        hadChanges = true;
+                    } else
+                        thisClusterObj = *cit;
+
+                    thisClusterObj->layoutObjects.insert(layoutObjRef);
+
                     obj->newEnable = false;
                     obj->newCluster = -1;
+                }
+                else
+                {
+                    if (layoutObjs.empty())
+                    {
+                        layoutObjs.reserve(localLayoutObjects.size());
+                    }
+
+                    // Not a cluster
+                    if (obj->obj.uniqueID.empty())
+                        layoutObjs.push_back(LayoutObjectContainer(layoutObjRef));
+                    else {
+                        // Add it to a container for its unique name
+                        auto it = uniqueLayoutObjs.find(obj->obj.uniqueID);
+                        LayoutObjectContainer dest;
+                        if (it != uniqueLayoutObjs.end())
+                            dest = it->second;
+                        // See if we're overriding this importance
+                        dest.importance = obj->obj.importance;
+                        if (!obj->obj.uniqueID.empty() && localOverrideUUIDs.find(obj->obj.uniqueID) != localOverrideUUIDs.end())
+                            dest.importance = MAXFLOAT;
+                        dest.objs.push_back(layoutObjRef);
+                        uniqueLayoutObjs[obj->obj.uniqueID] = dest;
+                    }
                 }
             } else {
                 obj->newEnable = false;
@@ -577,18 +592,21 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
             clusterHelper.resolveClusters();
 
             // Toss the unaffected layout objects into the mix
-            for (auto &obj : clusterHelper.simpleObjects)
+            layoutObjs.reserve(layoutObjs.size() + clusterHelper.simpleObjects.size());
+            for (const auto &obj : clusterHelper.simpleObjects)
+            {
                 if (obj.parentObject < 0)
                 {
                     layoutObjs.emplace_back(obj.objEntry);
                     obj.objEntry->newEnable = true;
                     obj.objEntry->newCluster = -1;
                 }
+            }
             
             // Create new objects for the clusters
-            for (auto clusterObj : clusterHelper.clusterObjects)
+            for (const auto &clusterObj : clusterHelper.clusterObjects)
             {
-                std::vector<LayoutObjectEntry *> objsForCluster;
+                std::vector<LayoutObjectEntryRef> objsForCluster;
                 clusterHelper.objectsForCluster(clusterObj,objsForCluster);
                 
                 if (!objsForCluster.empty())
@@ -613,7 +631,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     if (dispPtValid)
                     {
                         clusterEntry.layoutObj.worldLoc = dispPt;
-                        for (auto thisObj : objsForCluster)
+                        for (const auto &thisObj : objsForCluster)
                             clusterEntry.objectIDs.push_back(thisObj->obj.getId());
                         clusterGen->makeLayoutObject(threadInfo,cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
                         if (!params.selectable)
@@ -624,7 +642,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                     // Figure out if all the objects in this new cluster come from the same old cluster
                     //  and assign the new cluster ID
                     int whichOldCluster = -1;
-                    for (auto obj : objsForCluster)
+                    for (const auto &obj : objsForCluster)
                     {
                         if (obj->currentCluster > -1 && whichOldCluster != -2)
                         {
@@ -688,10 +706,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
         if (maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects))
             isActive = false;
         
-        // Sort the objects by importance within their container
+        // Sort the objects by importance within their container, large to small
         std::sort(container.objs.begin(),container.objs.end(),
-                  [](const LayoutObjectEntry *a,LayoutObjectEntry *b) -> bool
-                  {
+                  [](const LayoutObjectEntryRef &a,const LayoutObjectEntryRef &b) -> bool {
                       return a->obj.importance > b->obj.importance;
                   });
 
@@ -699,7 +716,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
         bool pickedOne = false;
 //        wkLog("----");
         
-        for (auto layoutObj : container.objs) {
+        for (auto &layoutObj : container.objs) {
             layoutObj->newEnable = false;
             layoutObj->obj.layoutModelPlaces.clear();
             layoutObj->obj.layoutPlaces.clear();
@@ -729,15 +746,15 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 //                        wkLog("Run %d: %d points",ri++,run.size());
                         
                         // We need the length of the glyphs and their center
-                        Mbr layoutMbr(layoutObj->obj.layoutPts);
-                        float textLen = layoutMbr.ur().x();
-                        float midY = layoutMbr.mid().y();
+                        const Mbr layoutMbr(layoutObj->obj.layoutPts);
+                        const float textLen = layoutMbr.ur().x();
+                        const float midY = layoutMbr.mid().y();
 
                         LinearWalker walk(run);
 
                         // Figure out how many times we could lay this out
-                        float textRoom = walk.getTotalLength() - 2.0f*layoutObj->obj.layoutSpacing;
-                        float textInstance = textRoom / textLen;
+                        const float textRoom = walk.getTotalLength() - 2.0f*layoutObj->obj.layoutSpacing;
+                        const int textInstance = std::max(0, (int)(textRoom / textLen));
                         
                         for (unsigned int ini=0;ini<textInstance;ini++) {
 //                            wkLog(" Text Instance %d",ini);
@@ -811,7 +828,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 if (normAng != 0.0) {
                                     if (normAng < M_PI / 180.0) {
                                         const float height = span.y();
-                                        const float offset = abs(sin(normAng)) * height;
+                                        const auto offset = abs(sin(normAng)) * height;
                                         nudged = true;
                                         if (!walk.nextPoint(resScale * offset,&centerPt,&norm,true)) {
                                             failed = true;
@@ -852,10 +869,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     layoutMats.push_back(overlapMat);
 
                                 // Check for overlap
-                                Point2dVector objPts;  objPts.reserve(4);
+                                Point2dVector thePts;  thePts.reserve(4);
                                 for (unsigned int oii=0; oii < 4; oii++) {
                                     const Point3d pt = testMat * Point3d(geom.coords[oii].x(), geom.coords[oii].y(), 1.0);
-                                    objPts.emplace_back(pt.x()+centerPt.x(),pt.y()+centerPt.y());
+                                    thePts.emplace_back(pt.x() + centerPt.x(), pt.y() + centerPt.y());
                                 }
                                 
 //                                if (!failed) {
@@ -865,12 +882,12 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 //                                    }
 //                                }
 
-                                if (!overlapMan.checkObject(objPts)) {
+                                if (!overlapMan.checkObject(thePts)) {
                                     failed = true;
                                     break;
                                 }
                                 
-                                overlapPts.push_back(objPts);
+                                overlapPts.push_back(thePts);
                             }
                             
                             if (!failed) {
@@ -911,17 +928,21 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                     // Debugging visual output
                     ShapeSet dispShapes = textBuilder.getVisualVecs();
-                    if (!dispShapes.empty() && layoutObj->obj.layoutDebug) {
+                    if (!dispShapes.empty() && layoutObj->obj.layoutDebug)
+                    {
                         // Turn them back into vectors to debug
                         VectorInfo vecInfo;
                         vecInfo.color = RGBAColor::red();
                         vecInfo.lineWidth = 1.0;
                         vecInfo.drawPriority = 10000000;
+
                         vecInfo.programID = vecProgID;
-                        
-                        SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
+
+                        const SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
                         if (vecId != EmptyIdentity)
+                        {
                             debugVecIDs.insert(vecId);
+                        }
                     }
                 }
             } else {
@@ -957,7 +978,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                             for (unsigned int orient=0;orient<6;orient++)
                             {
                                 // May only want to be placed certain ways.  Fair enough.
-                                if (!(layoutObj->obj.acceptablePlacement & (1<<orient)))
+                                if (!(layoutObj->obj.acceptablePlacement & (1U<<orient)))
                                     continue;
 
                                 // Layout points are relative to the object, figure out where they are on the screen
@@ -1053,9 +1074,9 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         {
             vecProgID = program->getId();
         }
-        else if (auto program = scene->findProgramByName(MaplyNoBackfaceLineShader))
+        else if (auto theProgram = scene->findProgramByName(MaplyNoBackfaceLineShader))
         {
-            vecProgID = program->getId();
+            vecProgID = theProgram->getId();
         }
     }
     
@@ -1065,16 +1086,28 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         debugVecIDs.clear();
     }
 
-    std::lock_guard<std::mutex> guardLock(lock);
+    // Make copies of the layout objects
+    std::unique_lock<std::mutex> guardLock(lock);
+    LayoutEntrySet localLayoutObjects(layoutObjects.begin(), layoutObjects.end());
+    std::unordered_set<std::string> localOverrideUUIDs(overrideUUIDs.begin(), overrideUUIDs.end());
+
+    // Release the external lock to allow objects to be added and removed while we're doing the
+    // layout on our copies, and replace it with a separate lock to make sure we're only run once.
+    guardLock = std::unique_lock<std::mutex>(internalLock);
 
     const TimeInterval curTime = scene->getCurrentTime();
-    
+    //const auto t0 = std::chrono::steady_clock::now();
+
     std::vector<ClusterEntry> oldClusters = std::move(clusters);
     std::vector<ClusterGenerator::ClusterClassParams> oldClusterParams = std::move(clusterParams);
 
+
     // This will recalculate the offsets and enables
     // If there were any changes, we need to regenerate
-    bool layoutChanges = runLayoutRules(threadInfo,viewState,clusters,clusterParams,changes);
+    bool layoutChanges = runLayoutRules(threadInfo,viewState,
+                                        localLayoutObjects,
+                                        localOverrideUUIDs,
+                                        clusters,clusterParams,changes);
     
     // Compare old and new clusters
     if (!layoutChanges && clusters.size() != oldClusters.size())
@@ -1105,6 +1138,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     // Generate the drawables
     ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+    const auto numLayoutObjects = layoutObjects.size();
     for (const auto &layoutObj : layoutObjects)
     {
         layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
@@ -1123,7 +1157,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             ClusterGenerator::ClusterClassParams &params = oldClusterParams[cluster->clusterParamID];
 
             // Animate from the old position to the new cluster position
-            ScreenSpaceObject animObj = layoutObj->obj;
+            ScreenSpaceObject animObj = layoutObj->obj;     // NOLINT slicing LayoutObject to ScreenSpaceObject
             animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
             animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
             animObj.setFade(curTime, curTime+params.markerAnimationTime);
@@ -1145,7 +1179,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             ClusterGenerator::ClusterClassParams &params = oldClusterParams[oldCluster->clusterParamID];
 
             // Animate from the old cluster position to the new real position
-            ScreenSpaceObject animObj = layoutObj->obj;
+            ScreenSpaceObject animObj = layoutObj->obj; // NOLINT slicing LayoutObject to ScreenSpaceObject
             animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
             animObj.worldLoc = oldCluster->layoutObj.worldLoc;
             animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
@@ -1157,7 +1191,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
 
             // And hold off on adding it
-            ScreenSpaceObject shortObj = layoutObj->obj;
+            ScreenSpaceObject shortObj = layoutObj->obj;    // NOLINT slicing LayoutObject to ScreenSpaceObject
             //shortObj.setDrawOrder(?)
             shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
             ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry);
@@ -1185,6 +1219,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 //        NSLog(@"Got %lu clusters",clusters.size());
 
     // Add in the clusters
+    const auto numClusters = clusters.size();
     for (const auto &cluster : clusters)
     {
         // Animate from the old cluster if there is one
@@ -1200,7 +1235,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             const auto &params = oldClusterParams[oldCluster->clusterParamID];
 
             // Animate from the old cluster to the new one
-            ScreenSpaceObject animObj = cluster.layoutObj;
+            ScreenSpaceObject animObj = cluster.layoutObj;  // NOLINT slicing LayoutObject to ScreenSpaceObject
             animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
             animObj.worldLoc = oldCluster->layoutObj.worldLoc;
             animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
@@ -1211,7 +1246,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             ssBuild.addScreenObject(animObj, animObj.worldLoc, &animObj.geometry);
 
             // Hold off on adding the new one
-            ScreenSpaceObject shortObj = cluster.layoutObj;
+            ScreenSpaceObject shortObj = cluster.layoutObj; // NOLINT slicing LayoutObject to ScreenSpaceObject
             //shortObj.setDrawOrder(?)
             shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
             ssBuild.addScreenObject(shortObj, shortObj.worldLoc, &shortObj.geometry);
@@ -1225,7 +1260,8 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     ssBuild.flushChanges(changes, drawIDs);
 
-    //NSLog(@"  Adding new drawIDs = %lu",drawIDs.size());
+    //wkLog("Layout of %d objects, %d clusters took %f", numLayoutObjects, numClusters,
+    // std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - t0).count() / 1.0e9);
 }
 
 }

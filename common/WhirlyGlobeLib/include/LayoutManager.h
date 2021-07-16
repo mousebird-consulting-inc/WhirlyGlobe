@@ -114,8 +114,8 @@ public:
     // Set if we changed something during evaluation
     bool changed;
 };
-
-typedef std::set<LayoutObjectEntry *,IdentifiableSorter> LayoutEntrySet;
+typedef std::shared_ptr<LayoutObjectEntry> LayoutObjectEntryRef;
+typedef std::set<LayoutObjectEntryRef,IdentifiableRefSorter> LayoutEntrySet;
 
 /**  The cluster generator is a callback used to make the images (or whatever)
      for a group of objects.
@@ -132,7 +132,7 @@ public:
     virtual void makeLayoutObject(
             PlatformThreadInfo *,
             int clusterID,
-            const std::vector<LayoutObjectEntry *> &layoutObjects,
+            const std::vector<LayoutObjectEntryRef> &layoutObjects,
             LayoutObject &newObj) = 0;
 
     // Called right after all the layout objects are generated
@@ -176,14 +176,14 @@ public:
 // Sort more important things to the front
 typedef struct LayoutEntrySorter
 {
-    bool operator () (const LayoutObjectEntry *a,const LayoutObjectEntry *b) const
+    bool operator () (const LayoutObjectEntryRef &a,const LayoutObjectEntryRef &b) const
     {
         if (a->obj.importance == b->obj.importance)
             return a > b;
         return a->obj.importance > b->obj.importance;
     }
 } LayoutEntrySorter;
-typedef std::set<LayoutObjectEntry *,LayoutEntrySorter> LayoutSortingSet;
+typedef std::set<LayoutObjectEntryRef,LayoutEntrySorter> LayoutSortingSet;
 
 /** The layout manager handles 2D text and marker layout.  We feed it objects
     we want to be drawn and it will figure out which ones should be visible
@@ -202,7 +202,7 @@ public:
     
     /// Mark the UUIDs that we'll force to always display
     void setOverrideUUIDs(const std::set<std::string> &uuids);
-    
+
     /// Add objects for layout (thread safe)
     void addLayoutObjects(const std::vector<LayoutObject> &newObjects);
 
@@ -252,6 +252,8 @@ protected:
 
     bool runLayoutRules(PlatformThreadInfo *threadInfo,
                         const ViewStateRef &viewState,
+                        const LayoutEntrySet &localLayoutObjects,
+                        const std::unordered_set<std::string> &localOverrideUUIDs,
                         std::vector<ClusterEntry> &clusterEntries,
                         std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
                         ChangeSet &changes);
@@ -283,10 +285,13 @@ protected:
     /// Cluster generators
     ClusterGenerator *clusterGen;
     /// Features we'll force to always display
-    std::set<std::string> overrideUUIDs;
+    std::unordered_set<std::string> overrideUUIDs;
     
     SimpleIDSet debugVecIDs;  // Used to display debug lines for text layout
     SimpleIdentity vecProgID;
+
+    // Scene manager lock protects some things, this protects others
+    std::mutex internalLock;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 
