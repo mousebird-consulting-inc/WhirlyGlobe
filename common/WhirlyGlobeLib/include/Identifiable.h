@@ -82,7 +82,7 @@ typedef struct IdentifiableSorter
 /// Used to sort identifiable Refs in a container
 typedef struct IdentifiableRefSorter
 {
-	bool operator () (const IdentifiableRef a,const IdentifiableRef b) const { return a->getId() < b->getId(); }
+	bool operator () (const IdentifiableRef &a,const IdentifiableRef &b) const { return a->getId() < b->getId(); }
 } IdentifiableRefSorter;
 
 }

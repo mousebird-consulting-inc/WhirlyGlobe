@@ -34,7 +34,8 @@ namespace WhirlyKit
 {
 class LayoutObjectEntry;
 class LayoutObject;
-    
+using LayoutObjectEntryRef = std::shared_ptr<LayoutObjectEntry>;
+
 // We use this to avoid overlapping labels
 class OverlapHelper
 {
@@ -53,6 +54,9 @@ public:
     void addObject(const Point2dVector &pts);
     
 protected:
+    void calcCells(const Mbr &objMbr, int &sx, int &sy, int &ex, int &ey);
+    bool checkObject(const Point2dVector &pts, const Mbr &objMbr, int sx, int sy, int ex, int ey);
+
     // Object and its bounds
     class BoundedObject
     {
@@ -74,19 +78,17 @@ class ClusterHelper
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, const Point2d &clusterMarkerSize);
+    ClusterHelper(const Mbr &mbr,int sizeX, int sizeY, float resScale, Point2d clusterMarkerSize);
     
     // Add an object, possibly forming a group
-    void addObject(LayoutObjectEntry *objEntry,const Point2dVector &pts);
+    void addObject(LayoutObjectEntryRef objEntry,const Point2dVector &pts);
 
     // Deal with cluster to cluster overlap
     void resolveClusters();
     
     // Single object with its bounds
-    class ObjectWithBounds
+    struct ObjectWithBounds
     {
-    public:
-        ObjectWithBounds();
         Point2dVector pts;
         Point2d center;
     };
@@ -96,26 +98,25 @@ public:
     {
     public:
         SimpleObject();
-        LayoutObjectEntry *objEntry;
+        std::shared_ptr<LayoutObjectEntry> objEntry;
         int parentObject;
     };
     
     // Object we create when there are overlaps
-    class ClusterObject : public ObjectWithBounds
+    struct ClusterObject : public ObjectWithBounds
     {
-    public:
-        ClusterObject();
         std::vector<int> children;
     };
     
     // List of objects for this cluster
-    void objectsForCluster(ClusterObject &cluster,std::vector<LayoutObjectEntry *> &layoutObjs);
+    void objectsForCluster(const ClusterObject &cluster,
+                           std::vector<LayoutObjectEntryRef> &layoutObjs);
 
     // Add the given index to the cells it covers
-    void addToCells(const Mbr &mbr,int index);
+    void addToCells(const Mbr &objMbr, int index);
     
     // Remove the given index from the cells it covers
-    void removeFromCells(const Mbr &mbr,int index);
+    void removeFromCells(const Mbr &objMbr, int index);
     
     // Return all the objects within the overlap
     void findObjectsWithin(const Mbr &mbr,std::set<int> &objSet);
