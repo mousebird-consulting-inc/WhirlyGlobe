@@ -754,7 +754,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
                         // Figure out how many times we could lay this out
                         const float textRoom = walk.getTotalLength() - 2.0f*layoutObj->obj.layoutSpacing;
-                        const int textInstance = (int)(textRoom / textLen);
+                        const int textInstance = std::max(0, (int)(textRoom / textLen));
                         
                         for (unsigned int ini=0;ini<textInstance;ini++) {
 //                            wkLog(" Text Instance %d",ini);
