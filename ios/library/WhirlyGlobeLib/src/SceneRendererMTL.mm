@@ -671,7 +671,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     }
     
     // Keeps us from stomping on the last frame's uniforms
-    if (renderEvent == nil)
+    if (renderEvent == nil && drawGetter)
         renderEvent = [mtlDevice newEvent];
     
     // Workgroups force us to draw things in order
@@ -701,13 +701,15 @@ void SceneRendererMTL::render(TimeInterval duration,
 
             // Each render target needs its own buffer and command queue
             if (lastCmdBuff) {
-                [lastCmdBuff commit];
+                // Otherwise we'll commit twice
+                if (drawGetter)
+                    [lastCmdBuff commit];
                 lastCmdBuff = nil;
             }
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
 
             // Keeps us from stomping on the last frame's uniforms
-            if (lastRenderNo > 0)
+            if (lastRenderNo > 0 && drawGetter)
                 [cmdBuff encodeWaitForEvent:renderEvent value:lastRenderNo];
 
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
@@ -981,8 +983,10 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     // Notify anyone waiting that this frame is complete
     if (lastCmdBuff) {
-        [lastCmdBuff encodeSignalEvent:renderEvent value:lastRenderNo+1];
-        [lastCmdBuff commit];
+        if (drawGetter) {
+            [lastCmdBuff encodeSignalEvent:renderEvent value:lastRenderNo+1];
+            [lastCmdBuff commit];
+        }
         lastCmdBuff = nil;
     }
     lastRenderNo++;

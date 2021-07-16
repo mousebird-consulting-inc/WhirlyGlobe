@@ -302,6 +302,10 @@ void HeapManagerMTL::updateHeaps()
             heap->maxAvailSize = [heap->heap maxAvailableSizeWithAlignment:memAlign];
         }
     }
+    
+    for (auto texHeap : texGroups.heaps) {
+        texHeap->maxAvailSize = [texHeap->heap maxAvailableSizeWithAlignment:memAlign];
+    }
 }
 
 HeapManagerMTL::HeapInfoRef HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
@@ -437,18 +441,24 @@ TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *d
     TextureEntryMTL tex;
     
     if (UseHeaps) {
-        // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
-        for (unsigned int ii=0;ii<3;ii++)
-            if (!tex.tex) {
-                std::lock_guard<std::mutex> guardLock(texLock);
+        {
+            std::lock_guard<std::mutex> guardLock(texLock);
 
-                auto heapInfo = findTextureHeap(desc, (1<<ii)*size);
+            // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
+            bool keepTrying = true;
+            while (keepTrying) {
+                auto heapInfo = findTextureHeap(desc, size);
                 tex.heap = heapInfo->heap;
                 tex.tex = [tex.heap newTextureWithDescriptor:desc];
 
-                if (tex.tex)
-                    break;
+                if (!tex.tex) {
+                    heapInfo->maxAvailSize = 0;  // Lies!
+                    keepTrying = true;
+                    continue;;
+                }
+                keepTrying = false;
             }
+        }
     } else {
         tex.tex = [mtlDevice newTextureWithDescriptor:desc];
     }
