@@ -1138,8 +1138,8 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     // Generate the drawables
     ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
-    const auto numLayoutObjects = layoutObjects.size();
-    for (const auto &layoutObj : layoutObjects)
+    const auto numLayoutObjects = localLayoutObjects.size();
+    for (const auto &layoutObj : localLayoutObjects)
     {
         layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
         if (!layoutObj->currentEnable)
