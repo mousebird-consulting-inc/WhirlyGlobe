@@ -31,10 +31,10 @@ class VectorsTestCase(activity: Activity?) :
             }
             VectorObject.createFromGeoJSON(json)?.apply {
                 selectable = true
-            }?.let {
-                vectors.add(it)
-                baseVC.addWideVector(it, vectorInfo, ThreadMode.ThreadAny)?.let {
-                    compObjs.add(it)
+            }?.let { vec ->
+                vectors.add(vec)
+                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadAny)?.let { co ->
+                    compObjs.add(co)
                 }
             }
         }
@@ -56,6 +56,8 @@ class VectorsTestCase(activity: Activity?) :
             baseVC.changeWideVector(compObj, newVectorInfo, ThreadMode.ThreadAny)
         }
     }
+
+    var onVectorsLoaded: ((Collection<VectorObject>)->Unit)? = null
     
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
@@ -63,6 +65,7 @@ class VectorsTestCase(activity: Activity?) :
         baseCase.setForwardMapDelegate(this)
         mapVC.addPostSurfaceRunnable {
             overlayCountries(mapVC)
+            onVectorsLoaded?.invoke(vectors)
         }
         return true
     }
@@ -73,6 +76,7 @@ class VectorsTestCase(activity: Activity?) :
         baseCase.setForwardGlobeDelegate(this)
         globeVC.addPostSurfaceRunnable {
             overlayCountries(globeVC)
+            onVectorsLoaded?.invoke(vectors)
         }
         return true
     }
