@@ -173,22 +173,41 @@ public:
     int clusterParamID;
 };
     
-// Sort more important things to the front
+// Sort more important things to the front.
+// Items with equal importance are sorted by their unique IDs, then
+// by their pointer values, so only the same instance is equal.
 typedef struct LayoutEntrySorter
 {
-    bool operator () (const LayoutObjectEntryRef &a,const LayoutObjectEntryRef &b) const
+    bool operator () (const LayoutObjectEntryRef &refA,const LayoutObjectEntryRef &refB) const
     {
-        if (a->obj.importance == b->obj.importance)
-            return a > b;
-        return a->obj.importance > b->obj.importance;
+        const auto &a = refA->obj;
+        const auto &b = refB->obj;
+        if (a.importance == b.importance) {
+            if (a.uniqueID == b.uniqueID) return refA > refB;
+            return a.uniqueID < b.uniqueID;
+        }
+        return a.importance > b.importance;
     }
 } LayoutEntrySorter;
 typedef std::set<LayoutObjectEntryRef,LayoutEntrySorter> LayoutSortingSet;
 
+typedef struct LayoutEntryUUIDSorter
+{
+    bool operator () (const LayoutObjectEntryRef &a,const LayoutObjectEntryRef &b) const
+    {
+        const auto &idA = a->obj.uniqueID;
+        const auto &idB = b->obj.uniqueID;
+        if (idA.empty() && idB.empty()) return a < b;       // items with no IDs sort arbitrarily (we don't care)
+        if (!idA.empty() && !idB.empty()) return idA < idB; // items with IDs sort by those IDs
+        return idA.empty() < idB.empty();                   // items with IDs sort before items without
+    }
+} LayoutEntryUUIDSorter;
+typedef std::set<LayoutObjectEntryRef,LayoutEntryUUIDSorter> LayoutUniqueIDSet;
+
 /** The layout manager handles 2D text and marker layout.  We feed it objects
     we want to be drawn and it will figure out which ones should be visible
     and which shouldn't.
- 
+
     This manager is entirely thread safe except for destruction.
   */
 class LayoutManager : public SceneManager

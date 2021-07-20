@@ -249,7 +249,7 @@ void ClusterHelper::addObject(LayoutObjectEntryRef objEntry,const Point2dVector 
                 clusterID = -(which+1);
             } else {
                 // Hit another test object.  Remove it from the grid
-                Mbr testMbr;  testMbr.addPoints(testObj->pts);
+                const Mbr testMbr(testObj->pts);
                 removeFromCells(testMbr, which);
                 
                 // Make up a cluster for the two of them.
@@ -264,12 +264,14 @@ void ClusterHelper::addObject(LayoutObjectEntryRef objEntry,const Point2dVector 
             }
 
             newObj.parentObject = clusterID;
+            clusterObj->pts.clear();
             clusterObj->pts.reserve(4);
             clusterObj->pts.push_back(clusterObj->center + Point2d(-clusterMarkerSize.x()*resScale/2.0,-clusterMarkerSize.y()*resScale/2.0));
             clusterObj->pts.push_back(clusterObj->center + Point2d(clusterMarkerSize.x()*resScale/2.0,-clusterMarkerSize.y()*resScale/2.0));
             clusterObj->pts.push_back(clusterObj->center + Point2d(clusterMarkerSize.x()*resScale/2.0,clusterMarkerSize.y()*resScale/2.0));
             clusterObj->pts.push_back(clusterObj->center + Point2d(-clusterMarkerSize.x()*resScale/2.0,clusterMarkerSize.y()*resScale/2.0));
-            Mbr clusterMbr;  clusterMbr.addPoints(clusterObj->pts);
+
+            const Mbr clusterMbr(clusterObj->pts);
             addToCells(clusterMbr,-(clusterID+1));
             
             found = true;
@@ -291,17 +293,19 @@ void ClusterHelper::resolveClusters()
         SimpleObject *simpleObj = &simpleObjects[so];
         if (simpleObj->parentObject < 0)
         {
-            Mbr simpleMbr;  simpleMbr.addPoints(simpleObj->pts);
+            const Mbr simpleMbr(simpleObj->pts);
+
             std::set<int> testObjs;
             findObjectsWithin(simpleMbr, testObjs);
-            for (auto which : testObjs)
+
+            for (int which : testObjs)
             {
                 // Only care about the clusters
                 if (which < 0)
                 {
                     ClusterObject *clusterObj = &clusterObjects[-(which+1)];
 
-                    if (ConvexPolyIntersect(simpleObj->pts,clusterObj->pts))
+                    if (!clusterObj->children.empty() && ConvexPolyIntersect(simpleObj->pts,clusterObj->pts))
                     {
                         simpleObj->parentObject = -(which + 1);
                         clusterObj->children.push_back(so);
@@ -318,9 +322,11 @@ void ClusterHelper::resolveClusters()
         ClusterObject *clusterObj = &clusterObjects[ci];
         if (!clusterObj->children.empty())
         {
-            Mbr thisMbr;  thisMbr.addPoints(clusterObj->pts);
+            const Mbr thisMbr(clusterObj->pts);
+
             std::set<int> testObjs;
             findObjectsWithin(thisMbr, testObjs);
+
             for (auto which : testObjs)
             {
                 if (which < 0 && ci != -(which + 1))
