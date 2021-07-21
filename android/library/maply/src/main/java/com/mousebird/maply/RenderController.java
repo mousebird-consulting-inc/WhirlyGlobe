@@ -1811,10 +1811,12 @@ public class RenderController implements RenderControllerInterface
      */
     public void removeShader(Shader shader)
     {
-        synchronized (shaders) {
-            if (shaders.contains(shader)) {
-                scene.removeShaderProgram(shader.getID());
-                shaders.remove(shader);
+        if (shader != null) {
+            synchronized (shaders) {
+                if (shaders.contains(shader)) {
+                    scene.removeShaderProgram(shader.getID());
+                    shaders.remove(shader);
+                }
             }
         }
     }

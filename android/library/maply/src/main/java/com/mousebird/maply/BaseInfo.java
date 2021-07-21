@@ -169,7 +169,7 @@ public class BaseInfo
      */
     public void setShader(Shader shader)
     {
-        setShaderID(shader.getID());
+        setShaderID((shader != null) ? shader.getID() : 0);
     }
 
     /**
