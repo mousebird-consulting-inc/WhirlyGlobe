@@ -1229,8 +1229,10 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     std::unique_lock<std::mutex> guardLock(lock);
 
-    // The layout run can only be canceled after it starts
-    cancelLayout = false;
+    if (cancelLayout)
+    {
+        return;
+    }
 
     // Make copies of the layout objects
     const LayoutEntrySet localLayoutObjects(layoutObjects.begin(), layoutObjects.end());
@@ -1431,8 +1433,6 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     ssBuild.flushChanges(changes, drawIDs);
 
     //wkLog("Layout of %d objects, %d clusters took %f", localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);
-
-    cancelLayout = false;
 }
 
 }
