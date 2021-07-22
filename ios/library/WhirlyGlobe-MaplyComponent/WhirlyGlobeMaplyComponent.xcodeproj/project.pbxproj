@@ -993,6 +993,7 @@
 		31942FE2254B5C0A0006B499 /* maply_pb.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC0254B5C0A0006B499 /* maply_pb.h */; };
 		31942FE7254B5C0A0006B499 /* maply_pb_decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC5254B5C0A0006B499 /* maply_pb_decode.h */; };
 		3194300A254B77F00006B499 /* vector_tile.pb.c in Sources */ = {isa = PBXBuildFile; fileRef = 31943009254B77F00006B499 /* vector_tile.pb.c */; };
+		31A2B37F26AA136A00221CFF /* Expect.h in Headers */ = {isa = PBXBuildFile; fileRef = 31A2B37E26AA136900221CFF /* Expect.h */; };
 		E56DB3D51D6B1B17007000D2 /* SLDStyleSet.h in Headers */ = {isa = PBXBuildFile; fileRef = E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */; };
 		E56E02A71E11F99500C1DD85 /* GeoJSONSource.h in Headers */ = {isa = PBXBuildFile; fileRef = E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */; };
 		E5D2D6631DE67B1400E02305 /* MaplyLocationTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */; };
@@ -2006,6 +2007,7 @@
 		31942FC0254B5C0A0006B499 /* maply_pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maply_pb.h; sourceTree = "<group>"; };
 		31942FC5254B5C0A0006B499 /* maply_pb_decode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maply_pb_decode.h; sourceTree = "<group>"; };
 		31943009254B77F00006B499 /* vector_tile.pb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vector_tile.pb.c; path = ../../../../common/WhirlyGlobeLib/src/vector_tile.pb.c; sourceTree = "<group>"; };
+		31A2B37E26AA136900221CFF /* Expect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Expect.h; path = ../../../../common/WhirlyGlobeLib/include/Expect.h; sourceTree = "<group>"; };
 		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
 		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
 		E56E02A61E11F99500C1DD85 /* GeoJSONSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoJSONSource.h; sourceTree = "<group>"; };
@@ -2088,6 +2090,7 @@
 		2B23133121F9371F006AA344 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				31A2B37E26AA136900221CFF /* Expect.h */,
 				2BD6FA63254B477F00FD8374 /* DictionaryC.h */,
 				2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */,
 				2B23133721F942D1006AA344 /* Dictionary.h */,
@@ -4095,6 +4098,7 @@
 				2BE5383B1D249A1200B60FAD /* MaplyComponentObject_private.h in Headers */,
 				2BE5384B1D249A1200B60FAD /* MaplyShape_private.h in Headers */,
 				2B82B6001E82E2490095FB14 /* JSONAllocator.h in Headers */,
+				31A2B37F26AA136A00221CFF /* Expect.h in Headers */,
 				2BE538671D249A1200B60FAD /* MaplyVectorTileMarkerStyle.h in Headers */,
 				2B82B6D91E82E24A0095FB14 /* UIImage+Stuff.h in Headers */,
 				2BC90D6622405DD200D8B606 /* Sun.h in Headers */,
