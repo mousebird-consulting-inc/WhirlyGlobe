@@ -36,15 +36,15 @@ public:
     // Used to keep track of cluster objects for callbacks
     struct ClusterInfo
     {
-        ClusterInfo(int clusterID = 0) :
+        explicit ClusterInfo(int clusterID = 0) :
             clusterID(clusterID),
-            clusterObj(nullptr)
+            layoutSize(0, 0)
         {
         }
 
         // Move only
         ClusterInfo(const ClusterInfo &) = delete;
-        ClusterInfo(ClusterInfo &&other) noexcept
+        ClusterInfo(ClusterInfo &&other) noexcept : ClusterInfo()
         {
             copy(other);
             other.clusterObj = nullptr;
@@ -52,7 +52,8 @@ public:
 
         ~ClusterInfo()
         {
-            if (clusterObj) {
+            if (clusterObj)
+            {
                 wkLogLevel(Warn, "ClusterInfo not cleaned up");
             }
         }
@@ -61,10 +62,13 @@ public:
 
         // Move only
         ClusterInfo& operator =(const ClusterInfo &) = delete;
-        ClusterInfo& operator =(ClusterInfo &&other) noexcept {
-            if (this != &other) {
-                if (clusterObj) {
-                    // Replacing this one leaks it
+        ClusterInfo& operator =(ClusterInfo &&other) noexcept
+        {
+            if (this != &other)
+            {
+                if (clusterObj)
+                {
+                    // Replacing this one leaks it, we need a JNI env to release it
                     wkLogLevel(Warn, "ClusterInfo not cleaned up");
                 }
                 copy(other);
@@ -73,20 +77,48 @@ public:
             return *this;
         }
 
-        void init(JNIEnv *env,int inClusterID,const Point2d &inLayoutSize,jobject inClusterObj)
+        bool init(JNIEnv *env,int inClusterID,const Point2d &inLayoutSize,jobject inClusterObj)
         {
             clusterID = inClusterID;
             layoutSize = inLayoutSize;
-            clusterObj = env->NewGlobalRef(inClusterObj);
-            
+
+            if (inClusterObj && !env->ExceptionCheck())
+            {
+                clusterObj = env->NewGlobalRef(inClusterObj);
+            }
+            if (!clusterObj)
+            {
+                return false;
+            }
+
             // Methods can be saved without consequence
             // (as long as the class isn't unloaded and reloaded)
-            jclass theClass = env->GetObjectClass(clusterObj);
-            startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
-            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI", "(I[Ljava/lang/String;)J");
-            endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
-            shutdownClusterGroupJava = env->GetMethodID(theClass, "shutdown", "()V");
-            env->DeleteLocalRef(theClass);
+            if (jclass theClass = env->GetObjectClass(clusterObj))
+            {
+                startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
+                if (!startClusterGroupJava || env->ExceptionCheck())
+                {
+                    return false;
+                }
+                makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
+                if (!startClusterGroupJava || env->ExceptionCheck())
+                {
+                    return false;
+                }
+                endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
+                if (!startClusterGroupJava || env->ExceptionCheck())
+                {
+                    return false;
+                }
+                shutdownClusterGroupJava = env->GetMethodID(theClass, "shutdown", "()V");
+                if (!startClusterGroupJava || env->ExceptionCheck())
+                {
+                    return false;
+                }
+                env->DeleteLocalRef(theClass);
+                return true;
+            }
+            return false;
         }
         
         void clear(JNIEnv *env)
@@ -102,16 +134,16 @@ public:
             }
         }
 
-        int clusterID;
+        int clusterID = 0;
         Point2d layoutSize;
-        jobject clusterObj;
-        bool selectable;
+        jobject clusterObj = nullptr;
+        bool selectable = false;
 
         // Methods we'll use to call into the Java cluster generator
-        jmethodID startClusterGroupJava;
-        jmethodID makeClusterGroupJNIJava;
-        jmethodID endClusterGroupJava;
-        jmethodID shutdownClusterGroupJava;
+        jmethodID startClusterGroupJava = nullptr;
+        jmethodID makeClusterGroupJNIJava = nullptr;
+        jmethodID endClusterGroupJava = nullptr;
+        jmethodID shutdownClusterGroupJava = nullptr;
 
     private:
         void copy(const ClusterInfo &other) {
@@ -134,10 +166,8 @@ public:
         this->layoutManager->addClusterGenerator(threadInfo,this);
     }
 
-    virtual ~LayoutManagerWrapper()
-    {
-    }
-    
+    ~LayoutManagerWrapper() override = default;
+
     void updateShader()
     {
         if (motionShaderID == EmptyIdentity)
@@ -152,10 +182,18 @@ public:
     }
 
     // Add a cluster generator for callback
-    void addClusterGenerator(JNIEnv* env, jobject clusterObj, jint clusterID,bool selectable, double sizeX, double sizeY)
+    bool addClusterGenerator(JNIEnv* env, jobject clusterObj, jint clusterID,bool selectable, double sizeX, double sizeY)
     {
+        if (!clusterObj)
+        {
+            return false;
+        }
+
         ClusterInfo clusterInfo;
-        clusterInfo.init(env,clusterID,Point2d(sizeX,sizeY),clusterObj);
+        if (!clusterInfo.init(env,clusterID,Point2d(sizeX,sizeY),clusterObj))
+        {
+            return false;
+        }
         clusterInfo.selectable = selectable;
 
         const auto hit = clusterGens.find(clusterInfo);
@@ -168,6 +206,8 @@ public:
 
         clusterGens.insert(std::move(clusterInfo));
         generatorChanges = true;
+
+        return true;
     }
 
     const ClusterInfo* getClusterGenerator(JNIEnv*, int clusterID)
@@ -205,7 +245,7 @@ public:
     /** ClusterGenerator virtual methods.
       */
     // Called right before we start generating layout objects
-    virtual void startLayoutObjects(PlatformThreadInfo *threadInfo) override
+    void startLayoutObjects(PlatformThreadInfo *threadInfo) override
     {
         const auto env = ((PlatformInfo_Android*)threadInfo)->env;
 
@@ -220,9 +260,9 @@ public:
     }
 
     // Ask the appropriate cluster generator to make a cluster image
-    virtual void makeLayoutObject(PlatformThreadInfo *threadInfo,int clusterID,
-                                  const std::vector<LayoutObjectEntryRef> &layoutObjects,
-                                  LayoutObject &retObj) override
+    void makeLayoutObject(PlatformThreadInfo *threadInfo,int clusterID,
+                          const std::vector<LayoutObjectEntryRef> &layoutObjects,
+                          LayoutObject &retObj) override
     {
         const auto env = ((PlatformInfo_Android*)threadInfo)->env;
 
@@ -298,7 +338,7 @@ public:
     }
     
     // Called right after all the layout objects are generated
-    virtual void endLayoutObjects(PlatformThreadInfo *threadInfo) override
+    void endLayoutObjects(PlatformThreadInfo *threadInfo) override
     {
         const auto env = ((PlatformInfo_Android*)threadInfo)->env;
 
@@ -309,7 +349,7 @@ public:
         }
     }
     
-    virtual void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams) override
+    void paramsForClusterClass(PlatformThreadInfo *,int clusterID,ClusterClassParams &clusterParams) override
     {
         ClusterInfo dummyInfo;
         dummyInfo.clusterID = clusterID;
@@ -326,7 +366,7 @@ public:
         clusterParams.clusterSize = clusterGenerator.layoutSize;
     }
 
-    virtual bool hasChanges() override {
+    bool hasChanges() override {
         if (generatorChanges) {
             generatorChanges = false;
             return true;
