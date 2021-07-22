@@ -30,13 +30,11 @@ class LayoutManager
 	@SuppressWarnings("unused")		// Referenced by JNI
 	private LayoutManager() { }
 	
-	protected LayoutManager(Scene scene)
-	{
+	protected LayoutManager(Scene scene) {
 		initialise(scene);
 	}
 	
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 	
@@ -55,7 +53,12 @@ class LayoutManager
 	 * @param changes Changes to propagate to the scene.
 	 */
 	public native void updateLayout(ViewState viewState,ChangeSet changes);
-	
+
+	/**
+	 * Cancel the update in progress, if any.
+	 */
+	public native void cancelUpdate();
+
 	/**
 	 * True if there were any changes since layout was last run.
 	 */
@@ -92,5 +95,7 @@ class LayoutManager
 	private static native void nativeInit();
 	native void initialise(Scene scene);
 	native void dispose();
+
+	@SuppressWarnings("unused")		// Referenced by JNI
 	private long nativeHandle;
 }

@@ -25,6 +25,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
 
 /*
  * Class:     com_mousebird_maply_LayoutManager
+ * Method:    cancelUpdate
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_cancelUpdate
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_LayoutManager
  * Method:    hasChanges
  * Signature: ()Z
  */

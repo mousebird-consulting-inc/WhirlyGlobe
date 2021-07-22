@@ -19,6 +19,7 @@
 #import "OverlapHelper.h"
 #import "WhirlyGeometry.h"
 #import "VectorData.h"
+#import "Expect.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -284,12 +285,17 @@ void ClusterHelper::addObject(LayoutObjectEntryRef objEntry,const Point2dVector 
         addToCells(ptsMbr, newID);
 }
 
-void ClusterHelper::resolveClusters()
+void ClusterHelper::resolveClusters(volatile bool &cancel)
 {
     // Find single objects that overlap existing clusters.
     // We won't move the clusters here to keep it simpler
     for (int so=0;so<simpleObjects.size();so++)
     {
+        if (UNLIKELY(cancel))
+        {
+            return;
+        }
+
         SimpleObject *simpleObj = &simpleObjects[so];
         if (simpleObj->parentObject < 0)
         {
@@ -319,6 +325,11 @@ void ClusterHelper::resolveClusters()
     // Look for clusters that overlap one another
     for (int ci=0;ci<clusterObjects.size();ci++)
     {
+        if (UNLIKELY(cancel))
+        {
+            return;
+        }
+
         ClusterObject *clusterObj = &clusterObjects[ci];
         if (!clusterObj->children.empty())
         {

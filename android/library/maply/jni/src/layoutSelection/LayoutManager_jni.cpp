@@ -435,6 +435,27 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
     }
 }
 
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_cancelUpdate
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            if (auto lm = wrap->layoutManager)
+            {
+                lm->cancelUpdate();
+            }
+        }
+    }
+    catch (...)
+    {
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::cancelUpdate()");
+    }
+}
+
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges(JNIEnv *env, jobject obj)
 {
