@@ -33,7 +33,8 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		maplyControl = new WeakReference<>(inMaplyControl);
 		layoutManager = inLayoutManager;
 	}
-	
+
+	@Override
 	public void startLayer(LayerThread inLayerThread)
 	{
 		super.startLayer(inLayerThread);
@@ -46,13 +47,21 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 			layerThread.addWatcher(this);
 		}
 	}
-	
-	public void shutdown()
-	{
+
+	@Override
+	public void preShutdown() {
+		super.preShutdown();
+		
+		// stop any update pass currently in progress
+		layoutManager.cancelUpdate();
+	}
+
+	@Override
+	public void shutdown() {
 		// prevent any more tasks from being started
 		maplyControl.clear();
 
-		// cancel anything already pending
+		// cancel any tasks already pending
 		cancelUpdate();
 
 		layoutManager.clearClusterGenerators();
@@ -125,13 +134,17 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 		synchronized(this)
 		{
 			cancelUpdate();
-			if (layerThread != null) {
-				if (maplyControl.get() != null && layoutManager.hasChanges()) {
+			if (layerThread != null && !isShuttingDown && maplyControl.get() != null) {
+				// We're able to cancel a running update, so run it outside of a startOfWork/endOfWork
+				// region. Otherwise, the cancellation on shutdown will be delayed until we're finished,
+				// making it ineffective.
+				final boolean unitOfWork = false;
+				if (layoutManager.hasChanges()) {
 					// Triggers if we haven't moved again in a while
-					updateHandle = layerThread.addDelayedTask(updateRun, DelayPeriod);
+					updateHandle = layerThread.addDelayedTask(updateRun, DelayPeriod, unitOfWork);
 				}
 				// Run this again in twice as long
-				checkHandle = layerThread.addDelayedTask(checkRun, 2 * DelayPeriod);
+				checkHandle = layerThread.addDelayedTask(checkRun, 2 * DelayPeriod, unitOfWork);
 			}
 		}
 	}
@@ -162,13 +175,13 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	}
 
 	private void runUpdateNow(ViewState state) {
-		if (state != null) {
+		if (state != null && !isShuttingDown) {
 			BaseController control = maplyControl.get();
 			Scene scene = (control != null) ? control.scene : null;
 			if (scene != null && control.isRunning()) {
 				ChangeSet changes = new ChangeSet();
 				layoutManager.updateLayout(state, changes);
-				control.scene.addChanges(changes);
+				scene.addChanges(changes);
 			}
 			lastUpdateTime = System.nanoTime();
 		}

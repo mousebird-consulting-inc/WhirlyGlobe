@@ -28,6 +28,7 @@ import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -243,8 +244,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 	// Used to shut down cleaning without cutting off outstanding work threads
 	public boolean isShuttingDown = false;
-	private final Semaphore workLock = new Semaphore(1, true);
-	private int numActiveWorkers = 0;
+	private final AtomicInteger numActiveWorkers = new AtomicInteger(0);
 
 	/**
 	 * Something is requesting a lock on shutting down while working
@@ -258,42 +258,17 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			return false;
 		}
 
-		try {
-			workLock.acquire();
-		} catch (Exception ignored) {
-			return false;
-		}
-
-		try {
-			// Check it again now that we might have waited for a while
-			if (!isShuttingDown) {
-				numActiveWorkers = numActiveWorkers + 1;
-				return true;
-			}
-		} finally {
-			try {
-				workLock.release();
-			} catch (Exception ignored) {
-			}
-		}
-
-		return false;
+		numActiveWorkers.incrementAndGet();
+		return true;
 	}
 
 	// End of an external work block.  Safe to shut down.
 	public void endOfWork()
 	{
-		try {
-			workLock.acquire();
-			numActiveWorkers = numActiveWorkers - 1;
-			if (numActiveWorkers < 0) {
-				// If you see this, it probably means you called `startOfWork` and didn't
-				// check the result.  If it returns false, you must not call `endOfWork`.
-				Log.e("Maply", "Unbalanced endOfWork");
-			}
-			workLock.release();
-		}
-		catch (Exception ignored) {
+		if (numActiveWorkers.decrementAndGet() < 0) {
+			// If you see this, it probably means you called `startOfWork` and didn't
+			// check the result.  If it returns false, you must not call `endOfWork`.
+			Log.e("Maply", "Unbalanced endOfWork");
 		}
 	}
 	
@@ -320,20 +295,21 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		// Wait for anything outstanding to finish before we shut down
 		try {
 			final long t0 = System.nanoTime();
-			do {
-				workLock.acquire();
-				if (numActiveWorkers <= 0) {
-					workLock.release();
+			while (true) {
+				final long t1 = System.nanoTime();
+				final int count = numActiveWorkers.get();
+				if (count <= 0) {
 					break;
 				}
-				workLock.release();
-				if (System.nanoTime() - t0 > 2L * 1000L * 1000L * 1000L) {
-					Log.w("Maply", "LayerThread timed out waiting for workers");
+				if (t1 - t0 > 2L * 1000L * 1000L * 1000L) {
+					Log.w("Maply",
+							String.format("LayerThread timed out waiting for %d workers after %f s",
+										  count, (t1 - t0) / 1.0e9));
 					break;
 				}
 				//noinspection BusyWait
-				sleep(10);
-			} while (true);
+				sleep(25);
+			}
 		} catch (InterruptedException ignored) {
 			// we took too long
 			Log.w("Maply", "LayerThread interrupted while waiting for workers");
@@ -344,7 +320,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 		synchronized (layers) {
 			for (final Layer layer : layers) {
-				layer.isShuttingDown = true;
+				layer.preShutdown();
 			}
 		}
 
@@ -525,8 +501,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @param run Runnable to run
 	 * @return The Handler if you want to cancel this at some point in the future.
 	 */
-	public Handler addTask(Runnable run)
-	{
+	public Handler addTask(Runnable run) {
 		return addTask(run,false);
 	}
 	
@@ -537,11 +512,23 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @param time time Number of milliseconds to wait before running.
 	 * @return The Handler if you want to cancel this at some point in the future.
 	 */
-	public Handler addDelayedTask(Runnable run,long time)
-	{
+	public Handler addDelayedTask(Runnable run,long time) {
+		return addDelayedTask(run, time, true);
+	}
+
+	/**
+	 * Add a Runnable to the queue, but only execute after the given amount of time.
+	 *
+	 * @param run Runnable to add to the queue
+	 * @param time time Number of milliseconds to wait before running.
+	 * @param unitOfWork If true, the runnable will be bracketed with
+	 *                   <c>startOfWork</c> and <c>endOfWork</c> calls
+	 * @return The Handler if you want to cancel this at some point in the future.
+	 */
+	public Handler addDelayedTask(Runnable run,long time,boolean unitOfWork) {
 		if (valid && run != null) {
 			Handler handler = new Handler(getLooper());
-			handler.postDelayed(() -> runWorkRunnable(run, true), time);
+			handler.postDelayed(unitOfWork ? () -> runWorkRunnable(run, true) : run, time);
 			return handler;
 		}
 		return null;

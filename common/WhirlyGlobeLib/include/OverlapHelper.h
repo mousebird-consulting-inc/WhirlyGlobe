@@ -84,7 +84,7 @@ public:
     void addObject(LayoutObjectEntryRef objEntry,const Point2dVector &pts);
 
     // Deal with cluster to cluster overlap
-    void resolveClusters();
+    void resolveClusters(volatile bool &cancel);
     
     // Single object with its bounds
     struct ObjectWithBounds

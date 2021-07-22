@@ -236,7 +236,10 @@ public:
     
     /// Run the layout logic for everything we're aware of (thread safe)
     void updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes);
-    
+
+    /// Cancel the update in progress
+    void cancelUpdate();
+
     /// True if we've got changes since the last update
     bool hasChanges();
     
@@ -291,6 +294,8 @@ protected:
     int maxDisplayObjects;
     /// If there were updates since the last layout
     bool hasUpdates;
+    /// Cancel a layout run in progress
+    bool cancelLayout;
     /// Enable drawing layout boundaries
     bool showDebugBoundaries;
     /// Objects we're controlling the placement for

@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.CallSuper;
+
 /**
  * The Layer subclass is used by the LayerThread to track Maply
  * objects that need to be updated on a regular basis.  The various
@@ -38,7 +40,7 @@ public class Layer
 	 * been started on the thread and can hook itself into the system, generating
 	 * geometry or registering for view changes and such.
 	 * 
-	 * @param inLayerThread
+	 * @param inLayerThread The thread to run on
 	 */
 	public void startLayer(LayerThread inLayerThread)
 	{
@@ -58,6 +60,8 @@ public class Layer
 	 * This method is called when a layer is to be removed.  The layer should
 	 * clean up any objects it may have created.
 	 * <p>
+	 * Called from the layer thread.
+	 * <p>
 	 * If the MaplyController is shut down, you may not get this call and instead
 	 * may simply be deleted.
 	 */
@@ -65,5 +69,14 @@ public class Layer
 	{
 	}
 
-	boolean isShuttingDown = false;
+	/**
+	 * This method is called when the layer will soon be shut down,
+	 * but outside any lock context and from another thread.
+	 */
+	@CallSuper
+	public void preShutdown() {
+		isShuttingDown = true;
+	}
+
+	protected boolean isShuttingDown = false;
 }
