@@ -643,10 +643,14 @@ int ScreenSpaceObject::getDrawPriority() const
     return state.drawPriority;
 }
 
-ScreenSpaceObjectLocation::ScreenSpaceObjectLocation()
-: isCluster(false), dispLoc(0,0,0), offset(0,0), keepUpright(false), rotation(0.0)
+ScreenSpaceObjectLocation::ScreenSpaceObjectLocation() :
+    dispLoc(0,0,0),
+    offset(0,0),
+    keepUpright(false),
+    rotation(0.0),
+    clusterGroup(-1),
+    clusterId(EmptyIdentity)
 {
-    
 }
 
 }

@@ -277,10 +277,10 @@ public:
     
     ScreenSpaceObjectLocation();
 
+    bool isCluster() const { return clusterId != EmptyIdentity; }
+
     // IDs for selected objects (one if regular, more than one for cluster)
     std::vector<SimpleIdentity> shapeIDs;
-    // Set if this is a cluster
-    bool isCluster;
     // Location of object in display space
     Point3d dispLoc;
     // Offset on the screen (presumably if it's been moved around during layout)
@@ -293,6 +293,11 @@ public:
     Point2dVector pts;
     // Bounding box, for quick testing
     Mbr mbr;
+
+    // The cluster group that this cluster came from, if it's a cluster.
+    int clusterGroup;
+    // The ID of the cluster object, for re-grouping objects later
+    SimpleIdentity clusterId;
 };
     
 }

@@ -201,19 +201,25 @@ public:
     virtual ~SelectionManager();
     
     /// When we're selecting multiple objects we'll return a list of these
-    class SelectedObject
+    struct SelectedObject
     {
-    public:
-        SelectedObject();
-        SelectedObject(SimpleIdentity selectID,double distIn3D,double screenDist) :
-                distIn3D(distIn3D), screenDist(screenDist) { selectIDs.push_back(selectID); }
-        SelectedObject(const std::vector<SimpleIdentity> &selectIDs,double distIn3D,double screenDist) :
-                selectIDs(selectIDs), distIn3D(distIn3D), screenDist(screenDist) { }
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+        SelectedObject(double distIn3D = 0.0, double screenDist = 0.0);
+        SelectedObject(SimpleIdentity selectID, double distIn3D, double screenDist);
+        SelectedObject(std::vector<SimpleIdentity> selectIDs, double distIn3D, double screenDist);
+        SelectedObject(const SelectedObject&) = default;
+        SelectedObject &operator=(const SelectedObject&) = default;
+        SelectedObject &operator=(SelectedObject&&);
+
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         VectorObjectRef vecObj;     // On the Android side, we use this as a container for selected vectors
+        GeoCoord center;            // geo location
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
         bool isCluster = false;     // Set if this is a cluster
+        int clusterGroup = -1;
+        SimpleIdentity clusterId = EmptyIdentity;
     };
 
     /// Add a rectangle (in 3-space) for selection
@@ -310,9 +316,17 @@ public:
     };
 
 protected:
-    static Eigen::Matrix2d calcScreenRot(float &screenRot,ViewStateRef viewState,WhirlyGlobe::GlobeViewState *globeViewState,ScreenSpaceObjectLocation *ssObj,const Point2f &objPt,const Eigen::Matrix4d &modelTrans,const Eigen::Matrix4d &normalMat,const Point2f &frameBufferSize);
+    static Eigen::Matrix2d calcScreenRot(float &screenRot,
+                                         const ViewStateRef &viewState,
+                                         const WhirlyGlobe::GlobeViewState *globeViewState,
+                                         const ScreenSpaceObjectLocation *ssObj,
+                                         const Point2f &objPt,
+                                         const Eigen::Matrix4d &modelTrans,
+                                         const Eigen::Matrix4d &normalMat,
+                                         const Point2f &frameBufferSize);
+
     // Projects a world coordinate to one or more points on the screen (wrapping)
-    void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
+    static void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,TimeInterval now);
     // Internal object picking method

@@ -41,6 +41,30 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SelectedObject_isPartOfClust
 
 /*
  * Class:     com_mousebird_maply_SelectedObject
+ * Method:    getClusterGroup
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_SelectedObject_getClusterGroup
+    (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SelectedObject
+ * Method:    getClusterID
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectedObject_getClusterID
+    (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SelectedObject
+ * Method:    getClusterCenter
+ * Signature: ()Lcom/mousebird/maply/Point2d;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SelectedObject_getClusterCenter
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_SelectedObject
  * Method:    nativeInit
  * Signature: ()V
  */

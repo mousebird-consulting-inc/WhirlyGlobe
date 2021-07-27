@@ -1,9 +1,8 @@
-/*
- *  SelectionManager_jni.cpp
+/*  SelectionManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LayoutSelection_jni.h"
@@ -23,6 +21,7 @@
 #import "Scene_jni.h"
 #import "View_jni.h"
 #import "Components_jni.h"
+#import "Selection_jni.h"
 #import "com_mousebird_maply_SelectionManager.h"
 
 using namespace WhirlyKit;
@@ -30,14 +29,16 @@ using namespace Maply;
 
 //static const char *SceneHandleName = "nativeSceneHandle";
 
-template<> SelectionManagerClassInfo *SelectionManagerClassInfo::classInfoObj = NULL;
+template<> SelectionManagerClassInfo *SelectionManagerClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	SelectionManagerClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
   (JNIEnv *env, jobject obj, jobject sceneObj)
 {
@@ -46,17 +47,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
         Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
         if (!scene)
             return;
-		SelectionManagerRef selectionManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+		const auto selectionManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 		SelectionManagerClassInfo::getClassInfo()->setHandle(env,obj,new SelectionManagerRef(selectionManager));
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::initialise()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::initialise()");
 	}
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
   (JNIEnv *env, jobject obj)
 {
@@ -64,16 +66,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
 	{
         SelectionManagerClassInfo *classInfo = SelectionManagerClassInfo::getClassInfo();
         SelectionManagerRef *selectionManager = classInfo->getObject(env,obj);
-        if (selectionManager)
-            delete selectionManager;
+        delete selectionManager;
         classInfo->clearHandle(env,obj);
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::dispose()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::dispose()");
 	}
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
   (JNIEnv *env, jobject obj, jobject viewStateObj, jobject pointObj)
 {
@@ -92,12 +94,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 	}
 	catch (...)
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::pickObject()");
+		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::pickObject()");
 	}
     
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
 (JNIEnv *env, jobject selManageObj, jobject compManageObj, jobject viewStateObj, jobject pointObj)
 {
@@ -127,35 +130,35 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
         Point3d dispPt;
         if (globeViewState) {
             globeViewState->pointOnSphereFromScreen(Point2f(point->x(),point->y()),globeViewState->fullMatrices[0],frameBufferSize,dispPt);
-        } else {
+        } else if (mapViewState) {
             maplyViewState->pointOnPlaneFromScreen(Point2f(point->x(),point->y()),maplyViewState->fullMatrices[0],frameBufferSize,dispPt,false);
+        } else {
+            return nullptr;
         }
+
         const Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
 
         // This one does vector features
         auto vecObjs = (*compManager)->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
 
         selObjs.reserve(selObjs.size() + vecObjs.size());
-        for (const auto &vecObj : vecObjs) {
-            selObjs.emplace_back();
-            SelectionManager::SelectedObject &selObj = selObjs.back();
-            selObj.distIn3D = 0.0;
-            selObj.isCluster = false;
-            selObj.screenDist = 0.0;
-            selObj.vecObj = vecObj.second;
-            selObj.selectIDs.push_back(vecObj.second->getId());
+        for (const auto &vecObj : vecObjs)
+        {
+            selObjs.emplace_back(vecObj.second->getId(), 0.0, 0.0);
+            selObjs.back().vecObj = vecObj.second;
         }
 
         if (selObjs.empty())
             return nullptr;
 
-        jobjectArray retArray = env->NewObjectArray(selObjs.size(), SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject")->getClass(), NULL);
+        const jclass jc = SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject")->getClass();
+        const jobjectArray retArray = env->NewObjectArray(selObjs.size(), jc, nullptr);
         int which = 0;
         for (auto &selObj : selObjs)
         {
-            jobject newObj = MakeSelectedObject(env,selObj);
+            jobject newObj = MakeSelectedObject(env,std::move(selObj));
             env->SetObjectArrayElement(retArray,which,newObj);
-            env->DeleteLocalRef( newObj);
+            env->DeleteLocalRef(newObj);
             which++;
         }
 
@@ -163,8 +166,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
     }
     catch (...)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SelectionManager::pickObjects()");
+        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::pickObjects()");
     }
     
-    return NULL;
+    return nullptr;
 }
