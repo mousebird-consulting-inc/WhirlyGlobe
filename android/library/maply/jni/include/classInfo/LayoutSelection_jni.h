@@ -1,9 +1,8 @@
-/*
- *  LayoutSelection_jni.h
+/*  LayoutSelection_jni.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/13/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -24,5 +22,3 @@
 typedef JavaClassInfo<WhirlyKit::LayoutManager> LayoutManagerClassInfo;
 typedef JavaClassInfo<WhirlyKit::SelectionManager::SelectedObject> SelectedObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::SelectionManagerRef> SelectionManagerClassInfo;
-
-JNIEXPORT jobject JNICALL MakeSelectedObject(JNIEnv *env,const WhirlyKit::SelectionManager::SelectedObject &selObj);

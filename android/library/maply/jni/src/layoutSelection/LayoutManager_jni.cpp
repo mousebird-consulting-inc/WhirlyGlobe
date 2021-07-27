@@ -319,17 +319,13 @@ public:
         // Geometry for the new cluster object
         ScreenSpaceConvexGeometry smGeom;
         smGeom.progID = progID;
-        smGeom.coords.push_back(Point2d(- size.x()/2.0,-size.y()/2.0));
-        smGeom.texCoords.emplace_back(0,1);
-        smGeom.coords.push_back(Point2d(size.x()/2.0,-size.y()/2.0));
-        smGeom.texCoords.emplace_back(1,1);
-        smGeom.coords.push_back(Point2d(size.x()/2.0,size.y()/2.0));
-        smGeom.texCoords.emplace_back(1,0);
-        smGeom.coords.push_back(Point2d(-size.x()/2.0,size.y()/2.0));
-        smGeom.texCoords.emplace_back(0,0);
+        smGeom.coords.emplace_back(-size.x()/2.0,-size.y()/2.0); smGeom.texCoords.emplace_back(0,1);
+        smGeom.coords.emplace_back( size.x()/2.0,-size.y()/2.0); smGeom.texCoords.emplace_back(1,1);
+        smGeom.coords.emplace_back( size.x()/2.0, size.y()/2.0); smGeom.texCoords.emplace_back(1,0);
+        smGeom.coords.emplace_back(-size.x()/2.0, size.y()/2.0); smGeom.texCoords.emplace_back(0,0);
         smGeom.color = RGBAColor(255,255,255,255);
         smGeom.texIDs.push_back(texID);
-        
+
         retObj.layoutPts = smGeom.coords;
         retObj.selectPts = smGeom.coords;
 

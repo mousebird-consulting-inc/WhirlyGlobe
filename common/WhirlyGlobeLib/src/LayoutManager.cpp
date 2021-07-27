@@ -246,7 +246,8 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
         ssObj.offset = cluster.layoutObj.offset;
         ssObj.pts = cluster.layoutObj.selectPts;
         ssObj.mbr.addPoints(cluster.layoutObj.selectPts);
-        ssObj.isCluster = true;
+        ssObj.clusterGroup = cluster.layoutObj.clusterGroup;
+        ssObj.clusterId = cluster.layoutObj.getId();
     }
 }
 
