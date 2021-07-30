@@ -44,12 +44,7 @@ public:
 
         // Move only
         ClusterInfo(const ClusterInfo &) = delete;
-        ClusterInfo(ClusterInfo &&other) noexcept : ClusterInfo()
-        {
-            copy(other);
-            other.clusterObj = nullptr;
-        }
-
+        ClusterInfo(ClusterInfo &&other) noexcept { operator=(std::move(other)); }
         ~ClusterInfo()
         {
             if (clusterObj)
@@ -58,7 +53,7 @@ public:
             }
         }
 
-        bool operator < (const ClusterInfo &that) const { return clusterID < that.clusterID; }
+        bool operator <(const ClusterInfo &that) const { return clusterID < that.clusterID; }
 
         // Move only
         ClusterInfo& operator =(const ClusterInfo &) = delete;
@@ -71,8 +66,19 @@ public:
                     // Replacing this one leaks it, we need a JNI env to release it
                     wkLogLevel(Warn, "ClusterInfo not cleaned up");
                 }
-                copy(other);
+
+                clusterID                = other.clusterID;
+                layoutSize               = other.layoutSize;
+                clusterObj               = other.clusterObj;
+                clusterObjClass          = other.clusterObjClass;
+                selectable               = other.selectable;
+                startClusterGroupJava    = other.startClusterGroupJava;
+                makeClusterGroupJNIJava  = other.makeClusterGroupJNIJava;
+                endClusterGroupJava      = other.endClusterGroupJava;
+                shutdownClusterGroupJava = other.shutdownClusterGroupJava;
+
                 other.clusterObj = nullptr;
+                other.clusterObjClass = nullptr;
             }
             return *this;
         }
@@ -82,43 +88,73 @@ public:
             clusterID = inClusterID;
             layoutSize = inLayoutSize;
 
-            if (inClusterObj && !env->ExceptionCheck())
+            logAndClearJVMException(env, "ClusterInfo::init");
+
+            if (clusterObj)
             {
-                clusterObj = env->NewGlobalRef(inClusterObj);
+                wkLogLevel(Warn, "ClusterInfo already initialized");
+                env->DeleteGlobalRef(clusterObj);
+                clusterObj = nullptr;
             }
-            if (!clusterObj)
+            if (clusterObjClass)
             {
+                env->DeleteGlobalRef(clusterObjClass);
+                clusterObjClass = nullptr;
+            }
+
+            clusterObj = inClusterObj ? env->NewGlobalRef(inClusterObj) : nullptr;
+            if (logAndClearJVMException(env) || !clusterObj)
+            {
+                wkLogLevel(Warn, "Bad cluster object");
                 return false;
             }
 
-            // Methods can be saved without consequence
-            // (as long as the class isn't unloaded and reloaded)
-            if (jclass theClass = env->GetObjectClass(clusterObj))
+            // Retain a global ref to the class to keep it from being unloaded.
+            // This shouldn't be necessary as the object ref should keep the class loaded,
+            // but we keep getting unexplained MethodNotFound exceptions here.
+            const jclass theClass = env->GetObjectClass(clusterObj);
+            if (logAndClearJVMException(env) || !theClass)
             {
-                startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
-                if (!startClusterGroupJava || env->ExceptionCheck())
-                {
-                    return false;
-                }
-                makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
-                if (!startClusterGroupJava || env->ExceptionCheck())
-                {
-                    return false;
-                }
-                endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
-                if (!startClusterGroupJava || env->ExceptionCheck())
-                {
-                    return false;
-                }
-                shutdownClusterGroupJava = env->GetMethodID(theClass, "shutdown", "()V");
-                if (!startClusterGroupJava || env->ExceptionCheck())
-                {
-                    return false;
-                }
-                env->DeleteLocalRef(theClass);
-                return true;
+                wkLogLevel(Warn, "Bad cluster object class");
+                clear(env);
+                return false;
             }
-            return false;
+            const jclass classRef = (jclass)env->NewGlobalRef(theClass);
+            if (logAndClearJVMException(env) || !classRef)
+            {
+                wkLogLevel(Warn, "Bad cluster object class ref");
+                clear(env);
+                return false;
+            }
+
+            clusterObjClass = classRef;
+
+            startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
+            if (logAndClearJVMException(env) || !startClusterGroupJava)
+            {
+                clear(env);
+                return false;
+            }
+            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
+            if (logAndClearJVMException(env) || !makeClusterGroupJNIJava)
+            {
+                clear(env);
+                return false;
+            }
+            endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
+            if (logAndClearJVMException(env) || !endClusterGroupJava)
+            {
+                clear(env);
+                return false;
+            }
+            shutdownClusterGroupJava = env->GetMethodID(theClass, "shutdown", "()V");
+            if (logAndClearJVMException(env) || !shutdownClusterGroupJava)
+            {
+                clear(env);
+                return false;
+            }
+            env->DeleteLocalRef(theClass);
+            return true;
         }
         
         void clear(JNIEnv *env)
@@ -128,15 +164,22 @@ public:
                 if (shutdownClusterGroupJava)
                 {
                     env->CallVoidMethod(clusterObj, shutdownClusterGroupJava);
+                    logAndClearJVMException(env);
                 }
                 env->DeleteGlobalRef(clusterObj);
                 clusterObj = nullptr;
+            }
+            if (clusterObjClass)
+            {
+                env->DeleteGlobalRef(clusterObjClass);
+                clusterObjClass = nullptr;
             }
         }
 
         int clusterID = 0;
         Point2d layoutSize;
         jobject clusterObj = nullptr;
+        jclass clusterObjClass = nullptr;
         bool selectable = false;
 
         // Methods we'll use to call into the Java cluster generator
@@ -146,16 +189,6 @@ public:
         jmethodID shutdownClusterGroupJava = nullptr;
 
     private:
-        void copy(const ClusterInfo &other) {
-            clusterID = other.clusterID;
-            layoutSize = other.layoutSize;
-            clusterObj = other.clusterObj;
-            selectable = other.selectable;
-            startClusterGroupJava = other.startClusterGroupJava;
-            makeClusterGroupJNIJava = other.makeClusterGroupJNIJava;
-            endClusterGroupJava = other.endClusterGroupJava;
-            shutdownClusterGroupJava = other.shutdownClusterGroupJava;
-        }
         friend class LayoutManagerWrapper;
     };
     typedef std::set<ClusterInfo> ClusterInfoSet;
