@@ -31,9 +31,6 @@ import static com.mousebird.maply.RenderController.EmptyIdentity;
  */
 public class ClusterGenerator
 {
-    protected final WeakReference<BaseController> baseController;
-    private HashSet<Long> currentTextures,oldTextures;
-
     protected ClusterGenerator(BaseController control) {
         baseController = new WeakReference<>(control);
     }
@@ -43,8 +40,8 @@ public class ClusterGenerator
      * <p>
      * Called right before we start generating clusters.  Do you setup here if need be.
      */
-    public void startClusterGroup()
-    {
+    @SuppressWarnings("unused")		// Used from JNI
+    public void startClusterGroup() {
         if (oldTextures != null) {
             BaseController control = baseController.get();
             if (control != null) {
@@ -70,9 +67,8 @@ public class ClusterGenerator
     }
 
     // The C++ code calls this to get a Bitmap then we call makeClusterGroup
-    @SuppressWarnings("unused")
-    private long makeClusterGroupJNI(int num, String[] uniqueIDs)
-    {
+    @SuppressWarnings("unused")		// Used from JNI
+    private long makeClusterGroupJNI(int num, String[] uniqueIDs) {
         ClusterInfo clusterInfo = new ClusterInfo(num, uniqueIDs);
         ClusterGroup newGroup = makeClusterGroup(clusterInfo);
         if (newGroup != null) {
@@ -87,8 +83,15 @@ public class ClusterGenerator
      * <p>
      * If you were doing optimization (for image reuse, say) clean it up here.
      */
-    public void endClusterGroup()
-    {
+    @SuppressWarnings("unused")		// Used from JNI
+    public void endClusterGroup() {
+    }
+
+    /**
+     * Clean up resources on removal
+     */
+    @SuppressWarnings("unused")		// Used from JNI
+    public void shutdown() {
     }
 
     /**
@@ -96,8 +99,7 @@ public class ClusterGenerator
      * share a cluster number together.
      * @return the cluster number we're covering
      */
-    public int clusterNumber()
-    {
+    public int clusterNumber() {
         return 0;
     }
 
@@ -107,8 +109,7 @@ public class ClusterGenerator
      * This is the biggest cluster you're likely to create.  We use it to figure overlaps between clusters.
      * @return The size of the cluster that will be created.
      */
-    public Point2d clusterLayoutSize()
-    {
+    public Point2d clusterLayoutSize() {
         return new Point2d(32.0,32.0);
     }
 
@@ -116,8 +117,7 @@ public class ClusterGenerator
      * Set this if you want cluster to be user selectable.  On by default.
      * @return true
      */
-    public boolean selectable()
-    {
+    public boolean selectable() {
         return true;
     }
 
@@ -125,8 +125,7 @@ public class ClusterGenerator
      * How long to animate markers the join and leave a cluster
      * @return time in seconds
      */
-    public double markerAnimationTime()
-    {
+    public double markerAnimationTime() {
         return 1.0;
     }
 
@@ -136,15 +135,10 @@ public class ClusterGenerator
      * If you're doing animation from point to cluster you need to provide a suitable shader.
      * @return null
      */
-    public Shader motionShader()
-    {
+    public Shader motionShader() {
         return null;
     }
 
-    /**
-     * Clean up resources on removal
-     */
-    public void shutdown() {
-
-    }
+    protected final WeakReference<BaseController> baseController;
+    private HashSet<Long> currentTextures,oldTextures;
 }

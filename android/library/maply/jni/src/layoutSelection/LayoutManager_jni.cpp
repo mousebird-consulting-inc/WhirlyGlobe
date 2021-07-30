@@ -105,7 +105,7 @@ public:
             clusterObj = inClusterObj ? env->NewGlobalRef(inClusterObj) : nullptr;
             if (logAndClearJVMException(env) || !clusterObj)
             {
-                wkLogLevel(Warn, "Bad cluster object");
+                wkLogLevel(Error, "Bad cluster object");
                 return false;
             }
 
@@ -115,14 +115,14 @@ public:
             const jclass theClass = env->GetObjectClass(clusterObj);
             if (logAndClearJVMException(env) || !theClass)
             {
-                wkLogLevel(Warn, "Bad cluster object class");
+                wkLogLevel(Error, "Bad cluster object class");
                 clear(env);
                 return false;
             }
-            const jclass classRef = (jclass)env->NewGlobalRef(theClass);
+            jclass classRef = (jclass)env->NewGlobalRef(theClass);
             if (logAndClearJVMException(env) || !classRef)
             {
-                wkLogLevel(Warn, "Bad cluster object class ref");
+                wkLogLevel(Error, "Bad cluster object class ref");
                 clear(env);
                 return false;
             }
@@ -132,24 +132,53 @@ public:
             startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
             if (logAndClearJVMException(env) || !startClusterGroupJava)
             {
-                clear(env);
-                return false;
+                wkLogLevel(Error, "Failed to find ClusterGenerator::startClusterGroup");
+                if (jclass classClass = env->GetObjectClass(theClass))
+                {
+                    if (jmethodID methodId = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;"))
+                    {
+                        if (auto className = JavaString(env, (jstring)env->CallObjectMethod(theClass, methodId)))
+                        {
+                            wkLogLevel(Error, "Failed to find %s::startClusterGroup", className.getCString());
+                        }
+                    }
+                }
+
+                // Look up the base class instead of using the provided object's class.
+                // According to the JNI documentation, this should make no difference.
+                classRef = env->FindClass("com/mousebird/maply/ClusterGenerator");
+                if (logAndClearJVMException(env) || !classRef) {
+                    wkLogLevel(Error, "Failed to find ClusterGenerator class");
+                    clear(env);
+                    return false;
+                }
+                // Try again
+                startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
+                if (logAndClearJVMException(env) || !startClusterGroupJava)
+                {
+                    wkLogLevel(Error, "Failed to find ClusterGenerator::startClusterGroup");
+                    clear(env);
+                    return false;
+                }
             }
             makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
             if (logAndClearJVMException(env) || !makeClusterGroupJNIJava)
             {
+                wkLogLevel(Error, "Failed to find ClusterGenerator::makeClusterGroupJNI");
                 clear(env);
                 return false;
             }
             endClusterGroupJava = env->GetMethodID(theClass, "endClusterGroup", "()V");
             if (logAndClearJVMException(env) || !endClusterGroupJava)
             {
+                wkLogLevel(Error, "Failed to find ClusterGenerator::endClusterGroup");
                 clear(env);
                 return false;
             }
             shutdownClusterGroupJava = env->GetMethodID(theClass, "shutdown", "()V");
             if (logAndClearJVMException(env) || !shutdownClusterGroupJava)
             {
+                wkLogLevel(Error, "Failed to find ClusterGenerator::shutdown");
                 clear(env);
                 return false;
             }
