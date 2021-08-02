@@ -20,6 +20,7 @@
 package com.mousebird.maply
 
 import android.Manifest.permission
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.*
 import android.graphics.Shader
@@ -77,20 +78,34 @@ class LocationTracker : LocationCallback {
     
         val defLooper = baseController.get()?.workingThread?.looper ?: Looper.myLooper()!!
         val theHandler = Handler(looper ?: defLooper)
+
         this.handler = theHandler
-        
+        this.context = WeakReference(context)
+        request?.let { locationRequest = it }
+
         simulatorDelegate.get()?.let {
             simulating = true
             theHandler.post(simTask)
         } ?: trackerDelegate.get()?.let {
-            locationClient = LocationServices.getFusedLocationProviderClient(context).also { client ->
-                val req = request ?: create().apply {
-                    priority = PRIORITY_BALANCED_POWER_ACCURACY
-                    interval = (1000.0 * updateInterval).toLong()
-                    maxWaitTime = 2 * interval - 1
-                    numUpdates = Int.MAX_VALUE
+            initLocationRequest()
+        }
+    }
+
+    @RequiresPermission(anyOf = [permission.ACCESS_COARSE_LOCATION, permission.ACCESS_FINE_LOCATION])
+    private fun initLocationRequest() {
+        locationTask = null
+        locationClient?.removeLocationUpdates(this)
+        context.get()?.let { c ->
+            handler?.let { h ->
+                locationClient = LocationServices.getFusedLocationProviderClient(c).also { client ->
+                    val req = locationRequest ?: create().apply {
+                        priority = PRIORITY_BALANCED_POWER_ACCURACY
+                        interval = (1000.0 * updateInterval).toLong()
+                        maxWaitTime = maxUpdateInterval?.let { (1000.0 * updateInterval).toLong() } ?: (2 * interval - 1)
+                        numUpdates = Int.MAX_VALUE
+                    }
+                    locationTask = client.requestLocationUpdates(req, this, h.looper)
                 }
-                locationTask = client.requestLocationUpdates(req, this, theHandler.looper)
             }
         }
     }
@@ -142,7 +157,7 @@ class LocationTracker : LocationCallback {
             // Limit to at least 16 and ensure that it's even
             val newValue = (value.coerceAtLeast(8))
             if (newValue != field) {
-                field = newValue;
+                field = newValue
                 imagesInvalidated = true
             }
         }
@@ -171,6 +186,7 @@ class LocationTracker : LocationCallback {
             }
         }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     var markerColorShadow = Color.argb(48, 0, 0, 0)
         set(value) {
             if (field != value) {
@@ -186,9 +202,20 @@ class LocationTracker : LocationCallback {
                 clearInfoObjects()
             }
         }
-    
+
+    /**
+     * Enable or disable animation of the location marker
+     */
+    var animateMarker = true
+
+    /**
+     * Delegate for location tracking callbacks
+     */
     var trackerDelegate = WeakReference<LocationTrackerDelegate>(null)
-    
+
+    /**
+     * Delegate for simulated locations
+     */
     var simulatorDelegate = WeakReference<LocationSimulatorDelegate>(null)
     
     /**
@@ -216,6 +243,53 @@ class LocationTracker : LocationCallback {
      * Get the current device location
      */
     var lastLocation: LocationTrackerPoint? = null
+
+    /** Set the update interval used in the default location request
+     */
+    var updateInterval = 1.0
+        @SuppressLint("MissingPermission")
+        set (value) {
+            val newValue = value.coerceAtLeast(0.1)
+            if (newValue != field) {
+                field = newValue
+                imagesInvalidated = true
+                // Re-create the location client, if necessary
+                if (locationClient != null) {
+                    initLocationRequest()
+                }
+            }
+        }
+
+    /**
+     * Set the maximum update interval used in the default location request.
+     * Defaults to just less than twice the update interval.
+     */
+    var maxUpdateInterval: Double? = null
+        @SuppressLint("MissingPermission")
+        set (value) {
+            if (value != field) {
+                field = value
+                // Re-create the location client, if necessary
+                if (locationClient != null) {
+                    initLocationRequest()
+                }
+            }
+        }
+
+    /**
+     * Set a custom location request
+     */
+    var locationRequest: LocationRequest? = null
+        @SuppressLint("MissingPermission")
+        set (value) {
+            if (value != field) {
+                field = value
+                // Re-create the location client, if necessary
+                if (locationClient != null) {
+                    initLocationRequest()
+                }
+            }
+        }
 
     /**
      * Set the current location.
@@ -310,7 +384,7 @@ class LocationTracker : LocationCallback {
             oldDirectionalImages = directionalImages
             markerImages = null
             directionalImages = null
-            imagesInvalidated = false;
+            imagesInvalidated = false
         }
 
         try {
@@ -340,6 +414,10 @@ class LocationTracker : LocationCallback {
             movingMarker.images = if (orientation != null) directionalImages else markerImages
             movingMarker.layoutImportance = Float.MAX_VALUE
             movingMarkerInfo.setEnableTimes(now, now + movingMarker.duration)
+
+            if (!animateMarker) {
+                movingMarker.images = arrayOf(movingMarker.images[0])
+            }
 
             val marker = ScreenMarker()
             marker.loc = movingMarker.endLoc
@@ -511,7 +589,7 @@ class LocationTracker : LocationCallback {
         val gradRad = markerGradRad(idx, size, markerSize, 4)
         val outlineWidth = (markerSize / 8f).coerceAtLeast(1f).coerceAtMost(10f)
         val image = radialGradientMarkerImage(size, gradLoc, gradRad, outlineWidth, directional)
-        return vc.addTexture(image, RenderControllerInterface.TextureSettings(), RenderControllerInterface.ThreadMode.ThreadCurrent)
+        return vc.addTexture(image, RenderControllerInterface.TextureSettings(), ThreadMode.ThreadCurrent)
     }
 
     @Suppress("SameParameterValue")
@@ -643,18 +721,15 @@ class LocationTracker : LocationCallback {
     private var circleObj: ComponentObject? = null
 
     private var simulating = false
-    private var updateInterval = 1.0
-        set (value) {
-            field = value.coerceAtLeast(0.1)
-        }
 
     private var locationClient: FusedLocationProviderClient? = null
     private var locationTask: Task<Void>? = null
     private var locationUpdatePending = false
     private var prevLocation: LocationTrackerPoint? = null
 
+    private var context: WeakReference<Context> = WeakReference(null)
     private var handler: Handler? = null
 
-    private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
-    private val threadAny = RenderControllerInterface.ThreadMode.ThreadAny
+    private val threadCurrent = ThreadMode.ThreadCurrent
+    private val threadAny = ThreadMode.ThreadAny
 }
