@@ -86,8 +86,8 @@ SelectionManager::SelectedObject::SelectedObject(std::vector<SimpleIdentity> sel
 {
 }
 
-SelectionManager::SelectedObject &SelectionManager::SelectedObject::SelectedObject::operator=(SelectedObject&& other)
-{
+SelectionManager::SelectedObject &
+SelectionManager::SelectedObject::SelectedObject::operator=(SelectedObject&& other) noexcept {
     selectIDs    = std::move(other.selectIDs);
     vecObj       = std::move(other.vecObj);
     center       = other.center;
@@ -102,11 +102,6 @@ SelectionManager::SelectedObject &SelectionManager::SelectedObject::SelectedObje
 SelectionManager::SelectionManager(Scene *scene)
     : scene(scene)
 {
-}
-
-SelectionManager::~SelectionManager()
-{
-    //std::lock_guard<std::mutex> guardLock(lock);
 }
 
 // Add a rectangle (in 3-space) available for selection
@@ -127,7 +122,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,const Point3f *
     }
 
     std::lock_guard<std::mutex> guardLock(lock);
-    rect3Dselectables.insert(newSelect);
+    rect3Dselectables.insert(std::move(newSelect));
 }
 
 // Add a rectangle (in 3-space) for selection, but only between the given visibilities
@@ -149,7 +144,7 @@ void SelectionManager::addSelectableRect(SimpleIdentity selectId,const Point3f *
     }
 
     std::lock_guard<std::mutex> guardLock(lock);
-    rect3Dselectables.insert(newSelect);
+    rect3Dselectables.insert(std::move(newSelect));
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
@@ -175,7 +170,7 @@ void SelectionManager::addSelectableScreenRect(SimpleIdentity selectId,const Poi
     }
     
     std::lock_guard<std::mutex> guardLock(lock);
-    rect2Dselectables.insert(newSelect);
+    rect2Dselectables.insert(std::move(newSelect));
 }
 
 /// Add a screen space rectangle (2D) for selection, between the given visibilities
@@ -206,7 +201,7 @@ void SelectionManager::addSelectableMovingScreenRect(SimpleIdentity selectId,con
     }
     
     std::lock_guard<std::mutex> guardLock(lock);
-    movingRect2Dselectables.insert(newSelect);
+    movingRect2Dselectables.insert(std::move(newSelect));
 }
 
 static const int corners[6][4] = {{0,1,2,3},{7,6,5,4},{1,0,4,5},{1,5,6,2},{2,6,7,3},{3,7,4,0}};
@@ -232,22 +227,23 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const Poin
         }
     }
     newSelect.centerPt /= 8;
-    
-    for (unsigned int ii=0;ii<6;ii++)
+
+    newSelect.polys.reserve(sizeof(corners)/sizeof(corners[0]));
+    for (const auto &corner : corners)
     {
         newSelect.polys.emplace_back();
         Point3fVector &poly = newSelect.polys.back();
         poly.reserve(4);
         const Point3f center3f = newSelect.centerPt.cast<float>();
-        for (unsigned int jj=0;jj<4;jj++)
+        for (int jj : corner)
         {
-            poly.push_back(pts[corners[ii][jj]] - center3f);
+            poly.push_back(pts[jj] - center3f);
         }
     }
     
     {
         std::lock_guard<std::mutex> guardLock(lock);
-        polytopeSelectables.insert(newSelect);
+        polytopeSelectables.insert(std::move(newSelect));
     }
 }
 
@@ -272,19 +268,21 @@ void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const Poin
         }
     }
     newSelect.centerPt /= 8;
-    
-    for (unsigned int ii=0;ii<6;ii++)
+
+    newSelect.polys.reserve(sizeof(corners)/sizeof(corners[0]));
+    for (const auto &corner : corners)
     {
         newSelect.polys.emplace_back();
         Point3fVector &poly = newSelect.polys.back();
-        for (unsigned int jj=0;jj<4;jj++)
+        poly.reserve(4);
+        for (int jj : corner)
         {
-            poly.push_back((pts[corners[ii][jj]] - newSelect.centerPt).cast<float>());
+            poly.push_back((pts[jj] - newSelect.centerPt).cast<float>());
         }
     }
     
     std::lock_guard<std::mutex> guardLock(lock);
-    polytopeSelectables.insert(newSelect);
+    polytopeSelectables.insert(std::move(newSelect));
 }
 
 void SelectionManager::addSelectableRectSolid(SimpleIdentity selectId,const BBox &bbox,
@@ -319,7 +317,8 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,
         }
     }
     newSelect.centerPt /= numPts;
-    
+
+    newSelect.polys.reserve(surfaces.size());
     for (const Point3dVector &surface : surfaces)
     {
         newSelect.polys.emplace_back();
@@ -332,7 +331,7 @@ void SelectionManager::addPolytope(SimpleIdentity selectId,
     }
     
     std::lock_guard<std::mutex> guardLock(lock);
-    polytopeSelectables.insert(newSelect);
+    polytopeSelectables.insert(std::move(newSelect));
 }
 
 void SelectionManager::addPolytopeFromBox(SimpleIdentity selectId,const Point3d &ll,const Point3d &ur,
@@ -395,7 +394,8 @@ void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vect
     newSelect.startTime = startTime;
     newSelect.duration = duration;
     newSelect.enable = enable;
-    
+
+    newSelect.polys.reserve(surfaces.size());
     for (const Point3dVector &surface : surfaces)
     {
         newSelect.polys.emplace_back();
@@ -408,7 +408,7 @@ void SelectionManager::addMovingPolytope(SimpleIdentity selectId,const std::vect
     }
     
     std::lock_guard<std::mutex> guardLock(lock);
-    movingPolytopeSelectables.insert(newSelect);
+    movingPolytopeSelectables.insert(std::move(newSelect));
 }
 
 void SelectionManager::addMovingPolytopeFromBox(SimpleIdentity selectID, const Point3d &ll, const Point3d &ur,
@@ -470,7 +470,7 @@ void SelectionManager::addSelectableLinear(SimpleIdentity selectId,const Point3d
     newSelect.pts = pts;
 
     std::lock_guard<std::mutex> guardLock(lock);
-    linearSelectables.insert(newSelect);
+    linearSelectables.insert(std::move(newSelect));
 }
 
 void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Point3d &center,
@@ -491,7 +491,7 @@ void SelectionManager::addSelectableBillboard(SimpleIdentity selectId,const Poin
     newSelect.maxVis = maxVis;
     
     std::lock_guard<std::mutex> guardLock(lock);
-    billboardSelectables.insert(newSelect);
+    billboardSelectables.insert(std::move(newSelect));
 }
 
 void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
@@ -505,7 +505,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         RectSelectable3D sel = *it;
         rect3Dselectables.erase(it);
         sel.enable = enable;
-        rect3Dselectables.insert(sel);
+        rect3Dselectables.insert(std::move(sel));
     }
 
     const auto it2 = rect2Dselectables.find(RectSelectable2D(selectID));
@@ -514,7 +514,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         RectSelectable2D sel = *it2;
         rect2Dselectables.erase(it2);
         sel.enable = enable;
-        rect2Dselectables.insert(sel);
+        rect2Dselectables.insert(std::move(sel));
     }
 
     const auto itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
@@ -523,7 +523,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         MovingRectSelectable2D sel = *itM;
         movingRect2Dselectables.erase(itM);
         sel.enable = enable;
-        movingRect2Dselectables.insert(sel);
+        movingRect2Dselectables.insert(std::move(sel));
     }
 
     const auto it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
@@ -532,7 +532,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         PolytopeSelectable sel = *it3;
         polytopeSelectables.erase(it3);
         sel.enable = enable;
-        polytopeSelectables.insert(sel);
+        polytopeSelectables.insert(std::move(sel));
     }
 
     const auto it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
@@ -541,7 +541,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         MovingPolytopeSelectable sel = *it3a;
         movingPolytopeSelectables.erase(it3a);
         sel.enable = enable;
-        movingPolytopeSelectables.insert(sel);
+        movingPolytopeSelectables.insert(std::move(sel));
     }
 
     const auto it5 = linearSelectables.find(LinearSelectable(selectID));
@@ -550,7 +550,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         LinearSelectable sel = *it5;
         linearSelectables.erase(it5);
         sel.enable = enable;
-        linearSelectables.insert(sel);
+        linearSelectables.insert(std::move(sel));
     }
 
     const auto it4 = billboardSelectables.find(BillboardSelectable(selectID));
@@ -559,7 +559,7 @@ void SelectionManager::enableSelectable(SimpleIdentity selectID,bool enable)
         BillboardSelectable sel = *it4;
         billboardSelectables.erase(it4);
         sel.enable = enable;
-        billboardSelectables.insert(sel);
+        billboardSelectables.insert(std::move(sel));
     }
 }
 
@@ -576,7 +576,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             RectSelectable3D sel = *it;
             rect3Dselectables.erase(it);
             sel.enable = enable;
-            rect3Dselectables.insert(sel);
+            rect3Dselectables.insert(std::move(sel));
         }
 
         const auto it2 = rect2Dselectables.find(RectSelectable2D(selectID));
@@ -585,7 +585,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             RectSelectable2D sel = *it2;
             rect2Dselectables.erase(it2);
             sel.enable = enable;
-            rect2Dselectables.insert(sel);
+            rect2Dselectables.insert(std::move(sel));
         }
 
         const auto itM = movingRect2Dselectables.find(MovingRectSelectable2D(selectID));
@@ -594,7 +594,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             MovingRectSelectable2D sel = *itM;
             movingRect2Dselectables.erase(itM);
             sel.enable = enable;
-            movingRect2Dselectables.insert(sel);
+            movingRect2Dselectables.insert(std::move(sel));
         }
 
         const auto it3 = polytopeSelectables.find(PolytopeSelectable(selectID));
@@ -603,7 +603,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             PolytopeSelectable sel = *it3;
             polytopeSelectables.erase(it3);
             sel.enable = enable;
-            polytopeSelectables.insert(sel);
+            polytopeSelectables.insert(std::move(sel));
         }
 
         const auto it3a = movingPolytopeSelectables.find(MovingPolytopeSelectable(selectID));
@@ -612,7 +612,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             MovingPolytopeSelectable sel = *it3a;
             movingPolytopeSelectables.erase(it3a);
             sel.enable = enable;
-            movingPolytopeSelectables.insert(sel);
+            movingPolytopeSelectables.insert(std::move(sel));
         }
 
         const auto it5 = linearSelectables.find(LinearSelectable(selectID));
@@ -621,7 +621,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             LinearSelectable sel = *it5;
             linearSelectables.erase(it5);
             sel.enable = enable;
-            linearSelectables.insert(sel);
+            linearSelectables.insert(std::move(sel));
         }
 
         const auto it4 = billboardSelectables.find(BillboardSelectable(selectID));
@@ -630,7 +630,7 @@ void SelectionManager::enableSelectables(const SimpleIDSet &selectIDs,bool enabl
             BillboardSelectable sel = *it4;
             billboardSelectables.erase(it4);
             sel.enable = enable;
-            billboardSelectables.insert(sel);
+            billboardSelectables.insert(std::move(sel));
         }
     }
 }
@@ -641,7 +641,6 @@ void SelectionManager::removeSelectable(SimpleIdentity selectID)
     std::lock_guard<std::mutex> guardLock(lock);
 
     const auto it = rect3Dselectables.find(RectSelectable3D(selectID));
-    
     if (it != rect3Dselectables.end())
         rect3Dselectables.erase(it);
 
@@ -678,7 +677,6 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
     for (const SimpleIdentity selectID : selectIDs)
     {
         const auto it = rect3Dselectables.find(RectSelectable3D(selectID));
-        
         if (it != rect3Dselectables.end())
         {
             //found = true;
@@ -734,7 +732,7 @@ void SelectionManager::removeSelectables(const SimpleIDSet &selectIDs)
 
 void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenPts,TimeInterval now)
 {
-    screenPts.reserve(rect2Dselectables.size() + movingRect2Dselectables.size());
+    screenPts.reserve(screenPts.size() + rect2Dselectables.size() + movingRect2Dselectables.size());
     for (const auto &sel : rect2Dselectables)
     {
         if (sel.selectID != EmptyIdentity && sel.enable)
@@ -853,18 +851,20 @@ static const struct SelectedSorter_t
 } selectedSorter;
 
 // Return a list of objects that pass the selection criteria
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef theView,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(const Point2f &touchPt,float maxDist,
+                                   const ViewStateRef &theView,
+                                   std::vector<SelectedObject> &selObjs)
 {
-    pickObjects(std::move(touchPt), maxDist, std::move(theView), true, selObjs);
+    pickObjects(touchPt, maxDist, theView, true, selObjs);
 
     std::sort(selObjs.begin(),selObjs.end(),selectedSorter);
 }
 
 // Look for the single closest object
-SimpleIdentity SelectionManager::pickObject(Point2f touchPt,float maxDist,ViewStateRef theView)
+SimpleIdentity SelectionManager::pickObject(const Point2f &touchPt,float maxDist,const ViewStateRef &theView)
 {
     std::vector<SelectedObject> selObjs;
-    pickObjects(std::move(touchPt), maxDist, std::move(theView), false, selObjs);
+    pickObjects(touchPt, maxDist, theView, false, selObjs);
 
     std::sort(selObjs.begin(),selObjs.end(),selectedSorter);
     
@@ -913,18 +913,19 @@ Matrix2d SelectionManager::calcScreenRot(float &screenRot,const ViewStateRef &vi
 }
 
 /// Pass in the screen point where the user touched.  This returns the closest hit within the given distance
-void SelectionManager::pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs)
+void SelectionManager::pickObjects(const Point2f &touchPt,float maxDist,const ViewStateRef &viewState,
+                                   bool multi,std::vector<SelectedObject> &selObjs)
 {
     if (!renderer)
         return;
-    const double maxDist2 = maxDist * maxDist;
-    
+
     // All the various parameters we need to evaluate... stuff
-    PlacementInfo pInfo(std::move(viewState),renderer);
+    PlacementInfo pInfo(viewState,renderer);
     if (!pInfo.globeViewState && !pInfo.mapViewState)
         return;
     
     const TimeInterval now = scene->getCurrentTime();
+    const double maxDist2 = maxDist * maxDist;
 
     // And the eye vector for billboards
     const Vector4d eyeVec4 = pInfo.viewState->fullMatrices[0].inverse() * Vector4d(0,0,1,0);

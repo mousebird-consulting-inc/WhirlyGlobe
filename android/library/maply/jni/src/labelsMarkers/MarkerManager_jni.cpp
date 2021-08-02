@@ -123,7 +123,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addMarkers
 }
 
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_MarkerManager_addScreenMarkers
-(JNIEnv *env, jobject obj, jobjectArray markerArray, jobject markerInfoObj, jobject changeSetObj)
+	(JNIEnv *env, jobject obj, jobjectArray markerArray,
+	 jobject markerInfoObj, jobject changeSetObj)
 {
     try
     {

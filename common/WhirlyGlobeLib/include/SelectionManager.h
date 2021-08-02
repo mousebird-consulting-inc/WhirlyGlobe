@@ -1,9 +1,8 @@
-/*
- *  SelectionManager.h
+/*  SelectionManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/26/11.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -37,29 +35,29 @@ class Scene;
 class SceneManager;
 
 /// Base class for selectable geometry
-class Selectable
+struct Selectable
 {
-public:
-    Selectable() : enable(true), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid) { }
-    Selectable(SimpleIdentity theID) : selectID(theID), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid) { }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    Selectable() = default;
+    Selectable(SimpleIdentity theID) : selectID(theID) { }
     
-    bool enable;
+    bool enable = true;
     /// Used to identify this selectable
-    SimpleIdentity selectID;
-    float minVis,maxVis;  // Range over which this is visible
+    SimpleIdentity selectID = EmptyIdentity;
+    float minVis = DrawVisibleInvalid;
+    float maxVis = DrawVisibleInvalid;  // Range over which this is visible
 };
 
 /** This is used internally to the selection layer to track a
     selectable rectangle.  It consists of geometry and an
     ID to track it.
   */
-class RectSelectable3D : public Selectable
+struct RectSelectable3D : public Selectable
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
-    RectSelectable3D() : Selectable() { }
+    RectSelectable3D() = default;
     RectSelectable3D(SimpleIdentity theID) : Selectable(theID) { }
+
     // Comparison operator for sorting
     bool operator < (const RectSelectable3D &that) const;
     
@@ -71,17 +69,22 @@ typedef std::set<WhirlyKit::RectSelectable3D> RectSelectable3DSet;
 
 /** This is 3D solid.
   */
-class PolytopeSelectable : public Selectable
+struct PolytopeSelectable : public Selectable
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    PolytopeSelectable() : Selectable() { }
+    PolytopeSelectable() = default;
     PolytopeSelectable(SimpleIdentity theID) : Selectable(theID) { }
+    PolytopeSelectable(const PolytopeSelectable&) = default;
+    PolytopeSelectable(PolytopeSelectable&& other) noexcept :
+            Selectable(other.selectID),
+            centerPt(other.centerPt),
+            polys(std::move(other.polys))
+    {
+    }
+
     // Comparison operator for sorting
     bool operator < (const PolytopeSelectable &that) const;
-    
-    std::vector<Point3fVector > polys;
+
+    std::vector<Point3fVector> polys;
     Point3d centerPt;        // The polygons are offsets of this center
 };
 
@@ -89,32 +92,42 @@ typedef std::set<WhirlyKit::PolytopeSelectable> PolytopeSelectableSet;
     
 /** 3D solid that can move over time.
   */
-class MovingPolytopeSelectable : public PolytopeSelectable
+struct MovingPolytopeSelectable : public PolytopeSelectable
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    MovingPolytopeSelectable() : PolytopeSelectable() { }
+    MovingPolytopeSelectable() = default;
     MovingPolytopeSelectable(SimpleIdentity theID) : PolytopeSelectable(theID) { }
+    MovingPolytopeSelectable(const MovingPolytopeSelectable &) = default;
+    MovingPolytopeSelectable(MovingPolytopeSelectable&& other) noexcept :
+        PolytopeSelectable(std::move(other)),
+        endCenterPt(other.endCenterPt),
+        startTime(other.startTime),
+        duration(other.duration)
+    {
+    }
+
     // Comparison operator for sorting
     bool operator < (const MovingPolytopeSelectable &that) const;
     
     Point3d endCenterPt;
-    TimeInterval startTime;
-    double duration;
+    TimeInterval startTime = 0.0;
+    TimeInterval duration = 0.0;
 };
     
 typedef std::set<WhirlyKit::MovingPolytopeSelectable> MovingPolytopeSelectableSet;
     
 /** This is a linear features with arbitrary 3D points.
   */
-class LinearSelectable : public Selectable
+struct LinearSelectable : public Selectable
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    LinearSelectable() : Selectable() { }
+    LinearSelectable() = default;
     LinearSelectable(SimpleIdentity theID) : Selectable(theID) { }
+    LinearSelectable(const LinearSelectable &) = default;
+    LinearSelectable(LinearSelectable &&other) noexcept :
+        Selectable(other.selectID),
+        pts(std::move(other.pts))
+    {
+    }
+
     // Comparison operator for sorting
     bool operator < (const LinearSelectable &that) const;
     
@@ -125,13 +138,12 @@ typedef std::set<WhirlyKit::LinearSelectable> LinearSelectableSet;
 
 /** Rectangle Selectable (screen space version).
  */
-class RectSelectable2D : public Selectable
+struct RectSelectable2D : public Selectable
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    RectSelectable2D() : Selectable() { }
+    RectSelectable2D() = default;
     RectSelectable2D(SimpleIdentity theID) : Selectable(theID) { }
+    RectSelectable2D(const RectSelectable2D &) = default;
+
     // Comparison operator for sorting
     bool operator < (const RectSelectable2D &that) const;
     
@@ -143,30 +155,26 @@ typedef std::set<WhirlyKit::RectSelectable2D> RectSelectable2DSet;
 
 /** Rectangle selectable that moves over time.
   */
-class MovingRectSelectable2D : public RectSelectable2D
+struct MovingRectSelectable2D : public RectSelectable2D
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    MovingRectSelectable2D() : RectSelectable2D() { }
+    MovingRectSelectable2D() = default;
     MovingRectSelectable2D(SimpleIdentity theID) : RectSelectable2D(theID) { }
+    MovingRectSelectable2D(const MovingRectSelectable2D &) = default;
     
     // Calculate the center based on the time
     Point3d centerForTime(TimeInterval now) const;
     
     Point3d endCenter;                  // Location at the end of the time period
-    TimeInterval startTime,endTime;   // Start and end time
+    TimeInterval startTime = 0.0;
+    TimeInterval endTime = 0.0;         // Start and end time
 };
 
 typedef std::set<WhirlyKit::MovingRectSelectable2D> MovingRectSelectable2DSet;
 
 /// Billboard selectable (3D object that turns towards the viewer)
-class BillboardSelectable : public Selectable
+struct BillboardSelectable : public Selectable
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    BillboardSelectable() : Selectable() { }
+    BillboardSelectable() = default;
     BillboardSelectable(SimpleIdentity theID) : Selectable(theID) { }
     // Comparison operator for sorting
     bool operator < (const BillboardSelectable &that) const;
@@ -198,7 +206,7 @@ public:
 
     /// Pass in the content scaling (not 1.0 if we're on retina)
     SelectionManager(Scene *scene);
-    virtual ~SelectionManager();
+    virtual ~SelectionManager() = default;
     
     /// When we're selecting multiple objects we'll return a list of these
     struct SelectedObject
@@ -210,7 +218,7 @@ public:
         SelectedObject(std::vector<SimpleIdentity> selectIDs, double distIn3D, double screenDist);
         SelectedObject(const SelectedObject&) = default;
         SelectedObject &operator=(const SelectedObject&) = default;
-        SelectedObject &operator=(SelectedObject&&);
+        SelectedObject &operator=(SelectedObject&&) noexcept;
 
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         VectorObjectRef vecObj;     // On the Android side, we use this as a container for selected vectors
@@ -243,7 +251,7 @@ public:
     void addSelectableRectSolid(SimpleIdentity selectId,const Point3f *pts,
                                 float minVis,float maxVis,bool enable);
 
-    /// This verison takes Point3d
+    /// This version takes Point3d
     void addSelectableRectSolid(SimpleIdentity selectId,const Point3d *pts,
                                 float minVis,float maxVis,bool enable);
 
@@ -292,10 +300,11 @@ public:
     void enableSelectables(const SimpleIDSet &selectIDs,bool enable);
     
     /// Pass in the view point where the user touched.  This returns the closest hit within the given distance
-    SimpleIdentity pickObject(Point2f touchPt,float maxDist,ViewStateRef viewState);
+    SimpleIdentity pickObject(const Point2f &touchPt,float maxDist,const ViewStateRef &viewState);
     
     /// Find all the objects within a given distance and return them, sorted by distance
-    void pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,std::vector<SelectedObject> &selObjs);
+    void pickObjects(const Point2f &touchPt,float maxDist,
+                     const ViewStateRef &viewState,std::vector<SelectedObject> &selObjs);
     
     // Everything we need to project a world coordinate to one or more screen locations
     class PlacementInfo
@@ -327,10 +336,13 @@ protected:
 
     // Projects a world coordinate to one or more points on the screen (wrapping)
     static void projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale);
+
     // Convert rect selectables into more generic screen space objects
     void getScreenSpaceObjects(const PlacementInfo &pInfo,std::vector<ScreenSpaceObjectLocation> &screenObjs,TimeInterval now);
+
     // Internal object picking method
-    void pickObjects(Point2f touchPt,float maxDist,ViewStateRef viewState,bool multi,std::vector<SelectedObject> &selObjs);
+    void pickObjects(const Point2f &touchPt,float maxDist,const ViewStateRef &viewState,
+                     bool multi,std::vector<SelectedObject> &selObjs);
 
     Scene *scene;
     /// The selectable objects themselves
