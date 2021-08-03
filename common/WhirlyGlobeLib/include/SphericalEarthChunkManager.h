@@ -163,7 +163,7 @@ public:
     void enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes);
     
     /// Remove the given chunks
-    void removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes);
+    void removeChunks(const SimpleIDSet &chunkIDs,ChangeSet &changes);
     
     /// Number of chunks we're representing
     int getNumChunks();

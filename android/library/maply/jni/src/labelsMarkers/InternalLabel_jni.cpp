@@ -178,7 +178,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_addText(JNIEnv *en
 	{
 		if (auto label = LabelClassInfo::get(env,obj))
 		{
-			JavaIntArray intArray(env, textArray);
+			JavaIntArray intArray(env, textArray, false);
 			std::vector<int> codePoints;
 			codePoints.resize(len);
 			for (int ii = 0; ii < intArray.len; ii++)

@@ -61,117 +61,163 @@ JavaLongClassInfo *JavaLongClassInfo::classInfoObj = nullptr;
 JavaHashMapInfo *JavaHashMapInfo::classInfoObj = nullptr;
 JavaListInfo *JavaListInfo::classInfoObj = nullptr;
 
+template <typename T>
+static inline void copy(std::vector<T> &vec, const T *elements, int len)
+{
+    vec.reserve(len);
+    vec.assign(&elements[0], &elements[len]);
+}
+
 void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec)
 {
-	int *ints = env->GetIntArrayElements(intArray, nullptr);
-	const int len = env->GetArrayLength(intArray);
-	intVec.resize(len);
-	for (int ii=0;ii<len;ii++)
-		intVec[ii] = ints[ii];
-	env->ReleaseIntArrayElements(intArray,ints,0);
+    if (const int len = env->GetArrayLength(intArray))
+	if (int *ints = env->GetIntArrayElements(intArray, nullptr))
+	{
+        copy(intVec, ints, len);
+        env->ReleaseIntArrayElements(intArray, ints, JNI_ABORT);
+    }
 }
 
 void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec)
 {
-    jlong *longs = env->GetLongArrayElements(longArray, NULL);
-    const int len = env->GetArrayLength(longArray);
-    longVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        longVec[ii] = longs[ii];
-    env->ReleaseLongArrayElements(longArray,longs,0);
+    if (const int len = env->GetArrayLength(longArray))
+    if (jlong *longs = env->GetLongArrayElements(longArray, nullptr))
+    {
+        copy(longVec, (WhirlyKit::SimpleIdentity*)longs, len);
+        env->ReleaseLongArrayElements(longArray, longs, JNI_ABORT);
+    }
 }
 
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec)
 {
-    float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    const int len = env->GetArrayLength(floatArray);
-    floatVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        floatVec[ii] = floats[ii];
-    env->ReleaseFloatArrayElements(floatArray,floats,0);
+    if (const int len = env->GetArrayLength(floatArray))
+    if (float *floats = env->GetFloatArrayElements(floatArray, nullptr))
+    {
+        copy(floatVec, floats, len);
+        env->ReleaseFloatArrayElements(floatArray, floats, JNI_ABORT);
+    }
 }
 
 void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec)
 {
-    double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
-    const int len = env->GetArrayLength(doubleArray);
-    doubleVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        doubleVec[ii] = doubles[ii];
-    env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
+    if (const int len = env->GetArrayLength(doubleArray))
+    if (double *doubles = env->GetDoubleArrayElements(doubleArray, nullptr))
+    {
+        copy(doubleVec, doubles, len);
+        env->ReleaseDoubleArrayElements(doubleArray, doubles, JNI_ABORT);
+    }
 }
 
 void ConvertBoolArray(JNIEnv *env,jbooleanArray &boolArray,std::vector<bool> &boolVec)
 {
-    jboolean *bools = env->GetBooleanArrayElements(boolArray, NULL);
     const int len = env->GetArrayLength(boolArray);
-    boolVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        boolVec[ii] = bools[ii];
-    env->ReleaseBooleanArrayElements(boolArray,bools,0);
+    if (jboolean *bools = env->GetBooleanArrayElements(boolArray, nullptr))
+    {
+        copy(boolVec, (bool*)bools, len);
+        env->ReleaseBooleanArrayElements(boolArray, bools, JNI_ABORT);
+    }
 }
 
 void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::string> &strVec)
 {
     const jsize count = env->GetArrayLength(objArray);
+    strVec.reserve(strVec.size() + count);
     for (unsigned int ii=0;ii<count;ii++)
     {
-        const jstring string = (jstring) env->GetObjectArrayElement(objArray,ii);
+        const auto string = (jstring)env->GetObjectArrayElement(objArray,ii);
         strVec.emplace_back(string ? env->GetStringUTFChars(string, nullptr) : std::string());
     }
 }
 
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)
 {
-    float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    const int len = env->GetArrayLength(floatArray)/2;
-    ptVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        ptVec[ii] = Eigen::Vector2f(floats[2*ii],floats[2*ii+1]);
-    env->ReleaseFloatArrayElements(floatArray,floats,0);
+    if (const int len = env->GetArrayLength(floatArray) / 2)
+    if (float *floats = env->GetFloatArrayElements(floatArray, nullptr))
+    {
+        ptVec.resize(len);
+        for (int ii = 0; ii < len; ii++) {
+            ptVec[ii] = Eigen::Vector2f(floats[2 * ii],
+                                        floats[2 * ii + 1]);
+        }
+        env->ReleaseFloatArrayElements(floatArray, floats, JNI_ABORT);
+    }
 }
 
 void ConvertFloat3fArray(JNIEnv *env,jfloatArray &floatArray,Point3fVector &ptVec)
 {
-    float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    const int len = env->GetArrayLength(floatArray)/3;
-    ptVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        ptVec[ii] = Eigen::Vector3f(floats[3*ii],floats[3*ii+1],floats[3*ii+2]);
-    env->ReleaseFloatArrayElements(floatArray,floats,0);
+    if (const int len = env->GetArrayLength(floatArray) / 3)
+    if (float *floats = env->GetFloatArrayElements(floatArray, nullptr))
+    {
+        ptVec.resize(len);
+        for (int ii = 0; ii < len; ii++)
+        {
+            ptVec[ii] = Eigen::Vector3f(floats[3 * ii],
+                                        floats[3 * ii + 1],
+                                        floats[3 * ii + 2]);
+        }
+        env->ReleaseFloatArrayElements(floatArray, floats, JNI_ABORT);
+    }
 }
 
 void ConvertFloat3dArray(JNIEnv *env,jdoubleArray &doubleArray,Point3dVector &ptVec)
 {
-    double *doubles = env->GetDoubleArrayElements(doubleArray, NULL);
-    const int len = env->GetArrayLength(doubleArray)/34;
-    ptVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        ptVec[ii] = Eigen::Vector3d(doubles[3*ii],doubles[3*ii+1],doubles[3*ii+2]);
-    env->ReleaseDoubleArrayElements(doubleArray,doubles,0);
+    if (const int len = env->GetArrayLength(doubleArray) / 3)
+    if (double *doubles = env->GetDoubleArrayElements(doubleArray, nullptr))
+    {
+        ptVec.resize(len);
+        for (int ii = 0; ii < len; ii++)
+        {
+            ptVec[ii] = Eigen::Vector3d(doubles[3 * ii],
+                                        doubles[3 * ii + 1],
+                                        doubles[3 * ii + 2]);
+        }
+        env->ReleaseDoubleArrayElements(doubleArray, doubles, JNI_ABORT);
+    }
 }
 
 void ConvertFloat4fArray(JNIEnv *env,jfloatArray &floatArray,Vector4fVector &ptVec)
 {
-    float *floats = env->GetFloatArrayElements(floatArray, NULL);
-    const int len = env->GetArrayLength(floatArray)/4;
-    ptVec.resize(len);
-    for (int ii=0;ii<len;ii++)
-        ptVec[ii] = Eigen::Vector4f(floats[4*ii],floats[4*ii+1],floats[4*ii+2],floats[4*ii+3]);
-    env->ReleaseFloatArrayElements(floatArray,floats,0);
+    if (const int len = env->GetArrayLength(floatArray) / 4)
+    if (float *floats = env->GetFloatArrayElements(floatArray, nullptr))
+    {
+        ptVec.resize(len);
+        for (int ii = 0; ii < len; ii++)
+        {
+            ptVec[ii] = Eigen::Vector4f(floats[4 * ii],
+                                        floats[4 * ii + 1],
+                                        floats[4 * ii + 2],
+                                        floats[4 * ii + 3]);
+        }
+        env->ReleaseFloatArrayElements(floatArray, floats, JNI_ABORT);
+    }
 }
 
-
-void ConvertLongArrayToSet(JNIEnv *env,jlongArray &idArrayObj,std::set<WhirlyKit::SimpleIdentity> &intSet)
+void ConvertLongArrayToSet(JNIEnv *env,const jlongArray &idArrayObj,std::set<WhirlyKit::SimpleIdentity> &intSet)
 {
-    const int idCount = env->GetArrayLength(idArrayObj);
-    if (idCount == 0)
-        return;
+    if (const int idCount = env->GetArrayLength(idArrayObj))
+    if (jlong *ids = env->GetLongArrayElements(idArrayObj, nullptr))
+    {
+        intSet.insert(&ids[0], &ids[idCount]);
+        env->ReleaseLongArrayElements(idArrayObj, ids, JNI_ABORT);
+    }
+}
 
-    jlong *ids = env->GetLongArrayElements(idArrayObj, NULL);
-    for (int ii=0;ii<idCount;ii++)
-        intSet.insert((WhirlyKit::SimpleIdentity)ids[ii]);
-    env->ReleaseLongArrayElements(idArrayObj,ids, 0);
+std::set<WhirlyKit::SimpleIdentity> ConvertLongArrayToSet(JNIEnv *env,const jlongArray &idArrayObj)
+{
+    std::set<WhirlyKit::SimpleIdentity> idSet;
+    ConvertLongArrayToSet(env, idArrayObj, idSet);
+    return idSet;
+}
+
+void ConvertLongArrayToSet(JNIEnv *env,const jlongArray &idArrayObj,std::unordered_set<WhirlyKit::SimpleIdentity> &intSet)
+{
+    if (const int idCount = env->GetArrayLength(idArrayObj))
+    if (jlong *ids = env->GetLongArrayElements(idArrayObj, nullptr))
+    {
+        intSet.reserve(intSet.size() + idCount);
+        intSet.insert(&ids[0], &ids[idCount]);
+        env->ReleaseLongArrayElements(idArrayObj, ids, JNI_ABORT);
+    }
 }
 
 JavaString::JavaString(JNIEnv *env,jstring str) : str(str), env(env)
@@ -194,67 +240,68 @@ JavaString::~JavaString()
     if (cStr)
     {
         env->ReleaseStringUTFChars(str, cStr);
+        cStr = nullptr;
     }
 }
 
-JavaBooleanArray::JavaBooleanArray(JNIEnv *env,jbooleanArray &array)
-: array(array), env(env)
+JavaBooleanArray::JavaBooleanArray(JNIEnv *env,jbooleanArray &array,bool save)
+    : array(array), env(env), save(save)
 {
-    rawBool = env->GetBooleanArrayElements(array, NULL);
+    rawBool = env->GetBooleanArrayElements(array, nullptr);
     len = env->GetArrayLength(array);
 }
 
 JavaBooleanArray::~JavaBooleanArray()
 {
-    env->ReleaseBooleanArrayElements(array,rawBool, 0);
+    env->ReleaseBooleanArrayElements(array,rawBool, save ? 0 : JNI_ABORT);
 }
 
-JavaIntArray::JavaIntArray(JNIEnv *env,jintArray &array)
-: array(array), env(env)
+JavaIntArray::JavaIntArray(JNIEnv *env,jintArray &array,bool save)
+    : array(array), env(env), save(save)
 {
-    rawInt = env->GetIntArrayElements(array, NULL);
+    rawInt = env->GetIntArrayElements(array, nullptr);
     len = env->GetArrayLength(array);
 }
 
 JavaIntArray::~JavaIntArray()
 {
-    env->ReleaseIntArrayElements(array,rawInt, 0);
+    env->ReleaseIntArrayElements(array,rawInt, save ? 0 : JNI_ABORT);
 }
 
-JavaLongArray::JavaLongArray(JNIEnv *env,jlongArray &array)
-: array(array), env(env)
+JavaLongArray::JavaLongArray(JNIEnv *env,jlongArray &array,bool save)
+    : array(array), env(env), save(save)
 {
-    rawLong = env->GetLongArrayElements(array, NULL);
+    rawLong = env->GetLongArrayElements(array, nullptr);
     len = env->GetArrayLength(array);
 }
 
 JavaLongArray::~JavaLongArray()
 {
-    env->ReleaseLongArrayElements(array,rawLong, 0);
+    env->ReleaseLongArrayElements(array,rawLong, save ? 0 : JNI_ABORT);
 }
 
-JavaFloatArray::JavaFloatArray(JNIEnv *env,jfloatArray &array)
-: array(array), env(env)
+JavaFloatArray::JavaFloatArray(JNIEnv *env,jfloatArray &array,bool save)
+    : array(array), env(env), save(save)
 {
-    rawFloat = env->GetFloatArrayElements(array, NULL);
+    rawFloat = env->GetFloatArrayElements(array, nullptr);
     len = env->GetArrayLength(array);
 }
 
 JavaFloatArray::~JavaFloatArray()
 {
-    env->ReleaseFloatArrayElements(array,rawFloat, 0);
+    env->ReleaseFloatArrayElements(array,rawFloat, save ? 0 : JNI_ABORT);
 }
 
-JavaDoubleArray::JavaDoubleArray(JNIEnv *env,jdoubleArray &array)
-: array(array), env(env)
+JavaDoubleArray::JavaDoubleArray(JNIEnv *env,jdoubleArray &array,bool save)
+    : array(array), env(env), save(save)
 {
-    rawDouble = env->GetDoubleArrayElements(array, NULL);
+    rawDouble = env->GetDoubleArrayElements(array, nullptr);
     len = env->GetArrayLength(array);
 }
 
 JavaDoubleArray::~JavaDoubleArray()
 {
-    env->ReleaseDoubleArrayElements(array,rawDouble, 0);
+    env->ReleaseDoubleArrayElements(array,rawDouble, save ? 0 : JNI_ABORT);
 }
 
 jlongArray BuildLongArray(JNIEnv *env,const std::vector<SimpleIdentity> &longVec)

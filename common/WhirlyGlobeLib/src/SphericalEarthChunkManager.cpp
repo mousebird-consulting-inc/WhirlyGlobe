@@ -445,7 +445,7 @@ void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,Chang
 }
 
 /// Remove the given chunks
-void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes)
+void SphericalChunkManager::removeChunks(const SimpleIDSet &chunkIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
     for (auto chunkID : chunkIDs) {

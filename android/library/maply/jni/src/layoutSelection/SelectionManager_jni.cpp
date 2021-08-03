@@ -102,7 +102,8 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 
 extern "C"
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
-(JNIEnv *env, jobject selManageObj, jobject compManageObj, jobject viewStateObj, jobject pointObj)
+  (JNIEnv *env, jobject selManageObj, jobject compManageObj,
+   jobject viewStateObj, jobject pointObj)
 {
     try
     {

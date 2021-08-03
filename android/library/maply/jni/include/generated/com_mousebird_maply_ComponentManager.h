@@ -44,8 +44,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
  * Method:    findVectors
  * Signature:
  */
-JNIEXPORT jlongArray JNICALL Java_com_mousebird_maply_ComponentManager_findVectors
-        (JNIEnv *, jobject, jobject, jdouble, jobject, jobject, jboolean);
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ComponentManager_findVectors
+        (JNIEnv *, jobject, jobject, jdouble, jobject, jobject, jint);
 
 /*
  * Class:     com_mousebird_maply_ComponentManager

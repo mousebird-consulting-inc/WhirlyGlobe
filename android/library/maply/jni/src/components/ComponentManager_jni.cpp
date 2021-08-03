@@ -19,6 +19,7 @@
 #import <classInfo/Geometry_jni.h>
 #import <classInfo/Maply_jni.h>
 #import <classInfo/View_jni.h>
+#import <classInfo/Selection_jni.h>
 #import <classInfo/Components_jni.h>
 #import <classInfo/Scene_jni.h>
 #import <com_mousebird_maply_ComponentManager.h>
@@ -49,10 +50,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_initialise
             classInfo->setHandle(env, obj,new ComponentManager_AndroidRef(compManager));
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::initialise()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -72,10 +70,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
         }
         classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::dispose()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -91,10 +86,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_addComponentObj
             (*compManager)->addComponentObject(*compObj, **changeSet);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::addComponentObject()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -108,11 +100,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_ComponentManager_hasComponen
             return (*compManager)->hasComponentObject(compObjID);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::hasComponentObject()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -144,10 +132,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_removeComponent
         PlatformInfo_Android platformInfo(env);
         (*compManager)->removeComponentObjects(&platformInfo,compObjIDs,**changeSet, disposeAfterRemoval);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::removeComponentObjectsNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -176,16 +161,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
 
         (*compManager)->enableComponentObjects(compObjIDs,enable,**changeSet);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::enableComponentObjects()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jlongArray JNICALL Java_com_mousebird_maply_ComponentManager_findVectors
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ComponentManager_findVectors
   (JNIEnv *env, jobject obj, jobject geoPtObj, jdouble maxDist,
-   jobject viewStateObj, jobject frameSizeObj, jboolean multi)
+   jobject viewStateObj, jobject frameSizeObj, jint limit)
 {
     try
     {
@@ -202,18 +184,31 @@ JNIEXPORT jlongArray JNICALL Java_com_mousebird_maply_ComponentManager_findVecto
             return nullptr;
         }
 
-        std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> results =
-            (*compManager)->findVectors(*geoPt, maxDist, *viewState, frameSize->cast<float>(), multi);
+        const auto frameSize2f = frameSize->cast<float>();
+        const std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> results =
+            (*compManager)->findVectors(*geoPt, maxDist, *viewState, frameSize2f, limit);
 
-        // todo: ?
+        std::vector<jobject> selObjs;
+        selObjs.reserve(results.size());
+        for (const auto &item : results)
+        {
+            //const auto compObj = item.first;
+            const auto vectorObj = item.second;
 
-        std::vector<SimpleIdentity> ids;
-        return BuildLongArray(env,ids);
+            SelectionManager::SelectedObject selObj;
+            selObj.selectIDs.push_back(vectorObj->getId());
+            selObj.screenDist = 0.0;    // todo
+            selObj.distIn3D = 0.0;      // todo
+
+            if (const auto selJObj = MakeSelectedObject(env, std::move(selObj)))
+            {
+                selObjs.push_back(selJObj);
+            }
+        }
+
+        return BuildObjectArray(env,SelectedObjectClassInfo::getClassInfo()->getClass(),selObjs);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ComponentManager::findVectors()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 

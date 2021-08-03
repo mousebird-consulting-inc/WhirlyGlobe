@@ -32,15 +32,34 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_nativeInit(JNIEnv
 	AttrDictClassInfo::getClassInfo(env,theClass);
 }
 
-JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,const MutableDictionary_AndroidRef &dict)
+JNIEXPORT jobject JNICALL MakeAttrDictionaryRef(JNIEnv *env,const MutableDictionary_AndroidRef &dict)
 {
-	AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
+	const auto classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
+	return classInfo->makeWrapperObject(env, new MutableDictionary_AndroidRef(dict));
+}
+JNIEXPORT jobject JNICALL MakeAttrDictionaryRef(JNIEnv *env, MutableDictionary_AndroidRef &&dict)
+{
+	const auto classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
+	return classInfo->makeWrapperObject(env, new MutableDictionary_AndroidRef(std::move(dict)));
+}
+
+JNIEXPORT jobject JNICALL MakeAttrDictionaryCopy(JNIEnv *env,const MutableDictionary_AndroidRef &dict)
+{
+	const auto classInfo = AttrDictClassInfo::getClassInfo(env,"com/mousebird/maply/AttrDictionary");
 
 	jobject dictObj = classInfo->makeWrapperObject(env,nullptr);
-	auto inst = classInfo->getObject(env,dictObj);
-    *(inst->get()) = *(dict.get());
-
+	if (auto inst = classInfo->getObject(env,dictObj))
+	{
+		**inst = *dict.get();
+	}
 	return dictObj;
+}
+
+JNIEXPORT jobject JNICALL MakeAttrDictionaryRefOrCopy(JNIEnv *env,const WhirlyKit::DictionaryRef &dict)
+{
+	return !dict ? nullptr : MakeAttrDictionaryRef(env,
+		std::dynamic_pointer_cast<MutableDictionary_Android>(dict) ?:
+		std::make_shared<MutableDictionary_Android>(*dict));
 }
 
 extern "C"
@@ -51,10 +70,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_initialise(JNIEnv
 		auto dict = new MutableDictionary_AndroidRef(new MutableDictionary_Android());
 		AttrDictClassInfo::getClassInfo()->setHandle(env,obj,dict);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -75,10 +91,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_dispose(JNIEnv *e
             classInfo->clearHandle(env,obj);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -95,11 +108,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_parseFromJSON
 
 		return (*dict)->parseJSON(jsonStr.getCString());
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::parseFromJSON()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return true;	// ?
 }
 
@@ -117,11 +126,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_AttrDictionary_hasField(JNIE
 
 		return (*dict)->hasField(attrName.getCString());
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::hasField()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -143,11 +148,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_getString(JNIE
 			return env->NewStringUTF(str.c_str());
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getString()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -169,11 +170,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getInt(JNIEnv 
 			return JavaIntegerClassInfo::getClassInfo(env)->makeInteger(env,val);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getInt()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -207,12 +204,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getArray(
             return retArray;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getArray()");
-    }
-
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
 extern "C"
@@ -233,11 +226,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDouble(JNIE
 		    return JavaDoubleClassInfo::getClassInfo(env)->makeDouble(env,val);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getDouble()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -259,35 +248,25 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getIdentity(JN
 		    return JavaLongClassInfo::getClassInfo(env)->makeLong(env,val);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getIdentity()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
 extern "C"
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDict(JNIEnv *env, jobject obj, jstring attrNameStr)
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getDict
+  (JNIEnv *env, jobject obj, jstring attrNameStr)
 {
 	try
 	{
-		AttrDictClassInfo *classInfo = AttrDictClassInfo::getClassInfo();
-		MutableDictionary_AndroidRef *dict = classInfo->getObject(env,obj);
-		if (!dict)
-			return nullptr;
-
-		JavaString attrName(env,attrNameStr);
-
-		MutableDictionary_AndroidRef subDict = std::dynamic_pointer_cast<MutableDictionary_Android>((*dict)->getDict(attrName.getCString()));
-		if (subDict)
-		    return MakeAttrDictionary(env,subDict);
+		if (const auto attrName =JavaString(env, attrNameStr))
+		if (const auto dict = AttrDictClassInfo::get(env,obj))
+		if (const auto subDict = (*dict)->getDict(attrName.getCString()))
+		{
+			// Cast shared pointer type, or make a copy if that fails
+			return MakeAttrDictionaryRefOrCopy(env, subDict);
+		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getDict()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -307,11 +286,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_getEntry(JNIEn
 		if (entry)
 			return MakeAttrDictionaryEntry(env,entry);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getEntry()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -328,13 +303,8 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_AttrDictionary_getKeys(J
 		auto keys = (*dict)->getKeys();
 		return BuildStringArray(env,keys);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::getKeys()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
-
 }
 
 extern "C"
@@ -352,10 +322,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setString(JNIEnv 
 
         (*dict)->setString(attrName.getCString(),attrVal.getCString());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setString()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -372,10 +339,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setInt(JNIEnv *en
         
         (*dict)->setInt(attrName.getCString(),iVal);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setInt()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -392,10 +356,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDouble(JNIEnv 
         
         (*dict)->setDouble(attrName.getCString(),dVal);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -413,14 +374,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setDict(JNIEnv *e
 
 		(*dict)->setDict(attrName.getCString(),*otherDict);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDict()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionaryEntry_2(JNIEnv *env, jobject obj, jstring attrNameObj, jobjectArray entryArrObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionaryEntry_2
+  (JNIEnv *env, jobject obj, jstring attrNameObj, jobjectArray entryArrObj)
 {
 	try
 	{
@@ -442,14 +401,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_l
 
 		(*dict)->setArray(attrName.getCString(),entries);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setArray()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionary_2(JNIEnv *env, jobject obj, jstring attrNameObj, jobjectArray dictArrayObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_lang_String_2_3Lcom_mousebird_maply_AttrDictionary_2
+  (JNIEnv *env, jobject obj, jstring attrNameObj, jobjectArray dictArrayObj)
 {
 	try
 	{
@@ -471,10 +428,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_setArray__Ljava_l
 
 		(*dict)->setArray(attrName.getCString(),entries);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setArray()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -490,11 +444,7 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_AttrDictionary_toString(JNIEn
         std::string str = (*dict)->toString();
         return env->NewStringUTF(str.c_str());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::setDouble()");
-    }
-    
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -535,11 +485,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_AttrDictionary_get(JNIEnv *en
             }
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::get()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -556,8 +502,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_AttrDictionary_addEntries(JNIEnv
 			(*dict)->addEntries(otherDict->get());
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Dictionary::addEntries()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }

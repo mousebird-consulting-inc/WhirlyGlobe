@@ -22,7 +22,7 @@ public class SelectedObject
     public Object selObj = null;
 
     /**
-     * The distanced in 3D from the tap point to the selected object.
+     * The distance in 3D from the tap point to the selected object.
      */
     native public double getDistIn3d();
 

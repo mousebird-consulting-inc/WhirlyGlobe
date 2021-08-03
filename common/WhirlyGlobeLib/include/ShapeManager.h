@@ -1,9 +1,8 @@
-/*
- *  ShapeManager.h
+/*  ShapeManager.h
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 #import "Identifiable.h"
 #import "WhirlyVector.h"
@@ -31,18 +29,17 @@ namespace WhirlyKit {
 class GeometryRaw;
 
 /// Used internally to track shape related resources
-class ShapeSceneRep : public Identifiable
+struct ShapeSceneRep : public Identifiable
 {
-public:
-    ShapeSceneRep(){};
-    ShapeSceneRep(SimpleIdentity inId): Identifiable(inId){};
-    ~ShapeSceneRep(){};
+    ShapeSceneRep() = default;
+    ShapeSceneRep(SimpleIdentity inId): Identifiable(inId) { }
+    ~ShapeSceneRep() = default;
 
     // Enable/disable the contents
-    void enableContents(WhirlyKit::SelectionManagerRef &selectManager,bool enable,ChangeSet &changes);
+    void enableContents(const SelectionManagerRef &selectManager,bool enable,ChangeSet &changes);
 
     // Clear the contents out of the scene
-    void clearContents(WhirlyKit::SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
+    void clearContents(const SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
@@ -232,13 +229,13 @@ public:
     void convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw> &rawGeom);
 
     /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-    SimpleIdentity addShapes(std::vector<Shape*> shapes, const ShapeInfo &shapeInfo,ChangeSet &changes);
+    SimpleIdentity addShapes(const std::vector<Shape*> &shapes, const ShapeInfo &shapeInfo,ChangeSet &changes);
 
     /// Remove a group of shapes named by the given ID
-    void removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes);
+    void removeShapes(const SimpleIDSet &shapeIDs,ChangeSet &changes);
 
     /// Enable/disable a group of shapes
-    void enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes);
+    void enableShapes(const SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes);
     
     /// Pass through a uniform block to use on the given shapes
     void setUniformBlock(const SimpleIDSet &shapeIDs,const RawDataRef &uniBlock,int bufferID,ChangeSet &changes);

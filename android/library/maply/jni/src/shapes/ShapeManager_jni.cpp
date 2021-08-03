@@ -1,9 +1,8 @@
-/*
- *  ShapeManager_jni.cpp
+/*  ShapeManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Shapes_jni.h"
@@ -26,16 +24,18 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
+template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     ShapeManagerClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
-(JNIEnv *env, jobject obj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
@@ -53,8 +53,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -70,8 +71,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
     }
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
-(JNIEnv *env, jobject obj, jobjectArray arrayObj, jobject shapeInfoObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jobjectArray arrayObj, jobject shapeInfoObj, jobject changeObj)
 {
     try
     {
@@ -120,8 +122,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeObj)
 {
     try
     {
@@ -131,24 +134,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
         if (!inst || !changeSet)
             return;
 
-        JavaLongArray ids(env,idArrayObj);
-        SimpleIDSet idSet;
-        for (unsigned int ii=0;ii<ids.len;ii++)
-        {
-            idSet.insert(ids.rawLong[ii]);
-        }
-        
-        (*inst)->removeShapes(idSet, *(changeSet->get()));
+        const SimpleIDSet idSet = ConvertLongArrayToSet(env, idArrayObj);
+        (*inst)->removeShapes(idSet, **changeSet);
     }
-    
     catch (...)
     {
         __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::removeShapes()");
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeObj)
 {
     try
     {
@@ -158,14 +155,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
         if (!inst || !changeSet)
             return;
 
-        JavaLongArray ids(env,idArrayObj);
-        SimpleIDSet idSet;
-        for (unsigned int ii=0;ii<ids.len;ii++)
-        {
-            idSet.insert(ids.rawLong[ii]);
-        }
-        
-        (*inst)->enableShapes(idSet, enable, *(changeSet->get()));
+        const SimpleIDSet idSet = ConvertLongArrayToSet(env, idArrayObj);
+
+        (*inst)->enableShapes(idSet, enable, **changeSet);
     }
     
     catch (...)

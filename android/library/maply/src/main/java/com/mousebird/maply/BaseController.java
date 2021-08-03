@@ -40,8 +40,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -132,20 +135,32 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public @Nullable CoordSystem getCoordSystem() { return (coordAdapter != null) ? coordAdapter.coordSys : null; }
 
-	public void takeScreenshot(ScreenshotListener listener)
-	{
+	protected double vectorSelectDistance = 20.0;
+
+	/**
+	 * Get the distance to search for vector objects when processing a touch, in screen coordinates
+	 */
+	public double getVectorSelectDistance() {
+		return vectorSelectDistance;
+	}
+
+	/**
+	 * Set the distance to search for vector objects when processing a touch, in screen coordinates
+	 */
+	public void setVectorSelectDistance(double distance) {
+		vectorSelectDistance = distance;
+	}
+
+	/**
+	 * Capture the next frame as an image
+	 */
+	public void takeScreenshot(ScreenshotListener listener) {
 		if (baseView instanceof GLTextureView) {
 			GLTextureView textureView = (GLTextureView) baseView;
-
 			listener.onScreenshotResult(textureView.getBitmap());
-		} else {
-			GLSurfaceView surfaceView = null;
-
-			if (baseView instanceof GLSurfaceView) {
-				surfaceView = (GLSurfaceView) baseView;
-			}
-
-			RendererWrapper wrapper = renderWrapper;
+		} else if (baseView instanceof GLSurfaceView) {
+			GLSurfaceView surfaceView = (GLSurfaceView) baseView;
+			final RendererWrapper wrapper = renderWrapper;
 			if (wrapper != null) {
 				wrapper.takeScreenshot(listener, surfaceView);
 			}
@@ -1727,10 +1742,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the geometry points for later modification or deletion.
 	 */
-	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
-	{
-		if (!running)
+	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,RenderController.ThreadMode mode) {
+		if (!running) {
 			return null;
+		}
 
 		List<Points> ptList = new ArrayList<>(1);
 		ptList.add(pts);
@@ -1739,26 +1754,23 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	// Filled in by the subclass
-	public Point2d geoPointFromScreen(Point2d screenPt)
-	{
+	public Point2d geoPointFromScreen(Point2d screenPt) {
 		return null;
 	}
 
 	// Filled in by the subclass
-	public Point2d screenPointFromGeo(Point2d geoCoord)
-	{
+	public Point2d screenPointFromGeo(Point2d geoCoord) {
 		return null;
 	}
 
 	// Returns all the objects near a point
-	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
-	{
-		com.mousebird.maply.View theView = view;
+	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc,double maxDist) {
+		final com.mousebird.maply.View theView = view;
 		if (renderWrapper == null || theView == null) {
 			return null;
 		}
 
-		Point2d geoPt = geoPointFromScreen(screenLoc);
+		final Point2d geoPt = geoPointFromScreen(screenLoc);
 		if (geoPt == null) {
 			return null;
 		}
@@ -1768,26 +1780,66 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		final Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		final Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		// Ask the selection manager about markers, labels, etc.
 		final ViewState theViewState = theView.makeViewState(renderControl);
-		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState,frameLoc);
+
+		// Ask the selection manager about markers, labels, etc.
+		final SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState,frameLoc);
 
 		// Search vectors separately
-		final boolean multi = true;
-		final double maxDist = 20.0;	// units?
-		renderControl.componentManager.findVectors(geoPt, maxDist, theViewState, frameSize, multi);
+		final SelectedObject[] selVecObjs = renderControl.componentManager.findVectors(geoPt, maxDist, theViewState, frameSize);
 
-		// Combine results
+		theViewState.dispose();
+
+		// Combine
+		final SelectedObject[] selObjs = concat(selManObjs, selVecObjs);
 
 		// Look up the Java objects, remove anything that doesn't match.
 		// (Probably deleted just as we found it.)
-		if (selManObjs != null) {
-			renderControl.componentManager.remapSelectableObjects(selManObjs);
-			selManObjs = filterMissingObjects(selManObjs);
+		if (selObjs != null && selObjs.length > 0) {
+			renderControl.componentManager.remapSelectableObjects(selObjs);
+			return filterMissingObjects(selObjs);
 		}
-		theViewState.dispose();
 
-		return selManObjs;
+		return selObjs;
+	}
+
+	/**
+	 * Return an array containing all the elements in the provided arrays in the same order.
+	 * Individual arguments may be null or empty.
+	 * @return The new array, null if an error occurred or all arguments are null.
+	 */
+	@SafeVarargs @Nullable
+	private static <T> T[] concat(@NotNull T[]... arrays) {
+		int length = 0;
+		T[] array0 = null;
+		for (T[] array : arrays) {
+			if (array != null) {
+				length += array.length;
+				array0 = array;
+			}
+		}
+
+		if (array0 == null) {
+			return null;
+		}
+
+		final T[] result;
+		try {
+			//noinspection unchecked
+			result = (T[])Array.newInstance(array0.getClass().getComponentType(), length);
+		} catch (ClassCastException ignored) {
+			return null;
+		}
+
+		int offset = 0;
+		for (final T[] array : arrays) {
+			if (array != null && array.length > 0) {
+				System.arraycopy(array, 0, result, offset, array.length);
+				offset += array.length;
+			}
+		}
+
+		return result;
 	}
 
 	/**

@@ -16,6 +16,7 @@
  *  limitations under the License.
  */
 
+#import "Maply_jni.h"
 #import "Vectors_jni.h"
 #import "Geometry_jni.h"
 #import "CoordSystem_jni.h"
@@ -56,10 +57,7 @@ void Java_com_mousebird_maply_VectorObject_initialise(JNIEnv *env, jobject obj, 
         auto inst = new VectorObjectRef(new VectorObject(ident));
 		classInfo->setHandle(env,obj,inst);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::initialise()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -80,10 +78,7 @@ void Java_com_mousebird_maply_VectorObject_dispose(JNIEnv *env, jobject obj)
             classInfo->clearHandle(env,obj);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::dispose()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -97,10 +92,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_getVectorTypeNative
             return VectorNoneType;
 		return (*vecObj)->getVectorType();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::clipToMbrNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 	return VectorNoneType;
 }
 
@@ -115,10 +107,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setSelectable(JNIEn
             return;
         (*vecObj)->selectable = newVal;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::setSelectable()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -132,41 +121,44 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_getSelectable(J
             return false;
         return (*vecObj)->selectable;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::getSelectable()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
 extern "C"
-JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes(JNIEnv *env, jobject obj)
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
-		if (!vecObj)
-			return nullptr;
-
-		MutableDictionary_AndroidRef dict = std::dynamic_pointer_cast<MutableDictionary_Android>((*vecObj)->getAttributes());
-		// Have to convert to our sort of attributes
-		if (!dict) {
-		    if (!(*vecObj)->getAttributes())
-		        return nullptr;
-		    dict = std::make_shared<MutableDictionary_Android>(*((*vecObj)->getAttributes().get()));
-		}
-		if (!dict)
-		    return nullptr;
-		jobject dictObj = MakeAttrDictionary(env,dict);
-	    return dictObj;
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        if (const auto vecAttrs = (*vecObj)->getAttributes())
+        {
+            // Cast shared pointer type, or make a copy if that fails.  If we make a copy, any
+            // Java-side changes will not be applied to this vector object unless the resulting
+            // attribute dictionary is later passed back to setAttributes()
+            return MakeAttrDictionaryRefOrCopy(env, vecAttrs);
+        }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::getAttributes()");
-	}
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
 
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributesRef
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        if (const auto vecAttrs = (*vecObj)->getAttributes())
+        if (const auto dict = std::dynamic_pointer_cast<MutableDictionary_Android>(vecAttrs))
+        {
+            // Make a new JNI-wrapped reference to the same object
+            return MakeAttrDictionaryRef(env, dict);
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -175,17 +167,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setAttributes(JNIEn
 {
     try
     {
-        VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        VectorObjectRef *vecObj = classInfo->getObject(env,obj);
-		MutableDictionary_AndroidRef *dict = AttrDictClassInfo::getClassInfo()->getObject(env,attrObj);
-		if (!vecObj || !dict)
-            return;
-        (*vecObj)->setAttributes(*dict);
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+		if (auto dict = AttrDictClassInfo::get(env,attrObj))
+        {
+		    (*vecObj)->setAttributes(*dict);
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::getAttributes()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -203,10 +191,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint(JNIEnv *en
 		pts->initGeoMbr();
         (*vecObj)->shapes.insert(pts);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::addPoint()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -227,10 +212,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear(JNIEnv *e
 		lin->initGeoMbr();
         (*vecObj)->shapes.insert(lin);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::addLinear()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -253,10 +235,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
 		ar->initGeoMbr();
         (*vecObj)->shapes.insert(ar);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::addAreal()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -290,10 +269,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
         ar->initGeoMbr();
         (*vecObj)->shapes.insert(ar);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::addArealWithHoles()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -309,10 +285,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_mergeVectorsFrom(JN
 
         (*vecObj)->mergeVectorsFrom(*(*otherVecObj).get());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::mergeVectorsFrom()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -331,11 +304,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_center(JNIEnv *e
 		} else
 			return nullptr;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::center()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -355,11 +324,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_centroid(JNIEnv 
 		} else
 			return nullptr;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::centroid()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -380,14 +345,13 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_largestLoopCente
 		if ((*vecObj)->largestLoopCenter(center,*ll,*ur))
 		{
 			return MakePoint2d(env,center);
-		} else
-			return nullptr;
+		}
+		else
+        {
+		    return nullptr;
+        }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::largestLoopCenter()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -409,11 +373,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle__Lc
 		} else
 			return 0.0;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::linearMiddle()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -442,11 +402,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_linearMiddle__Lc
         } else
             return 0.0;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::linearMiddle()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -463,11 +419,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_middleCoordinat
             }
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::middleCoordinate()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -484,11 +436,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_pointInside(JNI
 
         return (*vecObj)->pointInside(*pt);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::pointInside()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -503,11 +451,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorObject_areaOfOuterLoops
 
         return (*vecObj)->areaOfOuterLoops();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::areaOfOuterLoops()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -540,11 +484,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_countPoints(JNIEnv 
 
         return numPts;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::countPoints()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -562,11 +502,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_boundingBox(JNI
 
         return (*vecObj)->boundingBox(*ll,*ur);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::boundingBox()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -587,11 +523,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlob
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::subdivideToGlobeNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -612,10 +544,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlob
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::subdivideToGlobeGreatCircleNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -636,10 +565,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlat
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::subdivideToFlatGreatCircleNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -660,10 +586,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToGlob
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::subdivideToGlobeGreatCirclePreciseNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -684,10 +607,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_subdivideToFlat
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::subdivideToFlatGreatCirclePreciseNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -708,11 +628,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_tesselateNative
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::tesselateNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -733,11 +649,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToGridNativ
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::clipToGridNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -759,11 +671,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_clipToMbrNative
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::clipToMbrNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -788,11 +696,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_reprojectNative
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::reprojectNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -813,11 +717,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_filterClippedEd
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::filterClippedEdgesNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -838,11 +738,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_linearsToAreals
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::linearsToArealsNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -863,11 +759,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_arealsToLinears
 
         return true;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::arealsToLinearsNative()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -890,11 +782,7 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON(JNIEnv *env, jobject 
         std::string crs;
 		return (*vecObj)->fromGeoJSON(jsonStr,crs);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::fromGeoJSON()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -916,11 +804,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile(J
 
         return (*vecObj)->fromShapeFile(jsonStr);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::fromShapeFile()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -936,10 +820,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_canSplit(JNIEnv
             return ((*vecObjPtr)->shapes.size() > 1);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::canSplit()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -958,10 +839,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_deepCopyNative
         VectorObjectRef newVecObj = (*vecObj)->deepCopy();
         *destVecObj = newVecObj;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::deepCopyNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -990,11 +868,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_FromGeoJSONAssem
 			return hashMap;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorObject::FromGeoJSONAssembly()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 

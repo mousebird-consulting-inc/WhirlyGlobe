@@ -1,9 +1,8 @@
-/*
- *  VectorManager_jni.h
+/*  VectorManager_jni.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -27,14 +25,18 @@ typedef JavaClassInfo<WhirlyKit::VectorInfoRef> VectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::WideVectorInfoRef> WideVectorInfoClassInfo;
 typedef JavaClassInfo<WhirlyKit::VectorObjectRef> VectorObjectClassInfo;
 typedef JavaClassInfo<WhirlyKit::LoftedPolyInfoRef> LoftedPolyInfoClassInfo;
-//typedef JavaClassInfo<WhirlyKit::MapboxVectorTileParser> MapboxVectorTileParserClassInfo;
 
-// Construct a Java-side AttrDictionary wrapper
-JNIEXPORT jobject JNICALL MakeAttrDictionary(JNIEnv *env,const WhirlyKit::MutableDictionary_AndroidRef &dict);
+/// Construct a Java-side AttrDictionary wrapper around an existing attribute dictionary
+JNIEXPORT jobject JNICALL MakeAttrDictionaryRef(JNIEnv *env,const WhirlyKit::MutableDictionary_AndroidRef &dict);
+JNIEXPORT jobject JNICALL MakeAttrDictionaryRef(JNIEnv *env,WhirlyKit::MutableDictionary_AndroidRef &&dict);
+/// Construct a Java-side AttrDictionary and copy the attribute dictionary into its wrapped instance
+JNIEXPORT jobject JNICALL MakeAttrDictionaryCopy(JNIEnv *env,const WhirlyKit::MutableDictionary_AndroidRef &dict);
+/// Wrap an Android attribute dictionary if possible, or construct a copy if not
+JNIEXPORT jobject JNICALL MakeAttrDictionaryRefOrCopy(JNIEnv *env,const WhirlyKit::DictionaryRef &dict);
+/// Construct a Java-side AttrDictionaryEntry and copy the attribute into its wrapped instance
 JNIEXPORT jobject JNICALL MakeAttrDictionaryEntry(JNIEnv *env,const WhirlyKit::DictionaryEntry_AndroidRef &dict);
 
 // Construct a Java-side Vector Object
-JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,WhirlyKit::VectorObject *vec);
 JNIEXPORT jobject JNICALL MakeVectorObject(JNIEnv *env,const WhirlyKit::VectorObjectRef &vec);
 
 // This one takes the classInfo object which skips a lookup

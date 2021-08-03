@@ -33,7 +33,7 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit {
 
-void ShapeSceneRep::enableContents(WhirlyKit::SelectionManagerRef &selectManager, bool enable, ChangeSet &changes)
+void ShapeSceneRep::enableContents(const SelectionManagerRef &selectManager, bool enable, ChangeSet &changes)
 {
     for (const SimpleIdentity idIt : drawIDs){
         changes.push_back(new OnOffChangeRequest(idIt, enable));
@@ -43,7 +43,7 @@ void ShapeSceneRep::enableContents(WhirlyKit::SelectionManagerRef &selectManager
     }
 }
 
-void ShapeSceneRep::clearContents(SelectionManagerRef &selectManager, ChangeSet &changes,TimeInterval when)
+void ShapeSceneRep::clearContents(const SelectionManagerRef &selectManager, ChangeSet &changes,TimeInterval when)
 {
     for (const SimpleIdentity idIt : drawIDs){
         changes.push_back(new RemDrawableReq(idIt,when));
@@ -654,7 +654,7 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
         drawBuildTri.clipCoords = true;
     }
     auto selectManage = SelectionManagerRef();
-    shape.makeGeometryWithBuilder(&drawBuildReg,&drawBuildTri,scene,selectManage,NULL);
+    shape.makeGeometryWithBuilder(&drawBuildReg,&drawBuildTri,scene,selectManage,nullptr);
     
     // Scrape out the triangles
     drawBuildTri.flush();
@@ -694,7 +694,7 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
 }
 
 /// Add an array of shapes.  The returned ID can be used to remove or modify the group of shapes.
-SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeInfo &shapeInfo, ChangeSet &changes)
+SimpleIdentity ShapeManager::addShapes(const std::vector<Shape*> &shapes, const ShapeInfo &shapeInfo, ChangeSet &changes)
 {
     auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 
@@ -740,7 +740,7 @@ SimpleIdentity ShapeManager::addShapes(std::vector<Shape*> shapes, const ShapeIn
     return shapeID;
 }
 
-void ShapeManager::enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes)
+void ShapeManager::enableShapes(const SimpleIDSet &shapeIDs,bool enable,ChangeSet &changes)
 {
     SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
 
@@ -757,13 +757,13 @@ void ShapeManager::enableShapes(SimpleIDSet &shapeIDs,bool enable,ChangeSet &cha
 }
 
 /// Remove a group of shapes named by the given ID
-void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
+void ShapeManager::removeShapes(const SimpleIDSet &shapeIDs,ChangeSet &changes)
 {
-    SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
+    const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 
     std::lock_guard<std::mutex> guardLock(lock);
 
-    TimeInterval curTime = scene->getCurrentTime();
+    const TimeInterval curTime = scene->getCurrentTime();
     for (auto shapeID : shapeIDs) {
         ShapeSceneRep dummyRep(shapeID);
         auto sit = shapeReps.find(&dummyRep);
@@ -772,7 +772,7 @@ void ShapeManager::removeShapes(SimpleIDSet &shapeIDs,ChangeSet &changes)
 
             TimeInterval removeTime = 0.0;
             if (shapeRep->fade > 0.0) {
-                for (SimpleIDSet::iterator idIt = shapeRep->drawIDs.begin(); idIt != shapeRep->drawIDs.end(); ++idIt)
+                for (auto idIt = shapeRep->drawIDs.begin(); idIt != shapeRep->drawIDs.end(); ++idIt)
                     changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+shapeRep->fade));
             }
             

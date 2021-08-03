@@ -876,35 +876,38 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	public GestureDelegate gestureDelegate = null;
 	
 	// Called by the gesture handler to let us know the user tapped
-	public void processTap(Point2d screenLoc)
+	public void processTap(final Point2d screenLoc)
 	{
-		if (!isCompletelySetup())
+		if (!isCompletelySetup()) {
 			return;
+		}
 
-		if (gestureDelegate != null)
-		{
-			Matrix4d globeTransform = globeView.calcModelViewMatrix();
-			Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, getViewSize(), false);
-			if (loc == null) {
-				gestureDelegate.userDidTapOutside(this, screenLoc);
-				return;
-			}
-			Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
-			Point3d geoPt = null;
-			if (localPt != null)
-				geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
+		final GestureDelegate delegate = running ? gestureDelegate : null;
+		if (gestureDelegate == null) {
+			return;
+		}
 
-//			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
+		final Matrix4d globeTransform = globeView.calcModelViewMatrix();
+		final Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, getViewSize(), false);
+		if (loc == null) {
+			gestureDelegate.userDidTapOutside(this, screenLoc);
+			return;
+		}
 
-			if (selObjs != null)
-			{
-				if (geoPt != null)
-					gestureDelegate.userDidSelect(this, selObjs, geoPt.toPoint2d(), screenLoc);
+		final Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
+		Point3d geoPt = null;
+		if (localPt != null) {
+			geoPt = globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
+		}
+
+		final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc, vectorSelectDistance);
+
+		if (geoPt != null) {
+			if (selObjs != null) {
+				gestureDelegate.userDidSelect(this, selObjs, geoPt.toPoint2d(), screenLoc);
 			} else {
 				// Just a simple tap, then
-				if (geoPt != null)
-					gestureDelegate.userDidTap(this, geoPt.toPoint2d(), screenLoc);
+				gestureDelegate.userDidTap(this, geoPt.toPoint2d(), screenLoc);
 			}
 		}
 	}
@@ -914,10 +917,15 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * Set the gesture delegate to fire callbacks when the user did long press somewhere
 	 * @param screenLoc Screen point of the press
      */
-    public void processLongPress(Point2d screenLoc)
-	{
-		if (!isCompletelySetup())
+    public void processLongPress(final Point2d screenLoc) {
+		if (!isCompletelySetup()) {
 			return;
+		}
+
+		final GestureDelegate delegate = running ? gestureDelegate : null;
+		if (delegate == null) {
+			return;
+		}
 
 		final Matrix4d globeTransform = globeView.calcModelViewMatrix();
 		final Point3d loc = globeView.pointOnSphereFromScreen(screenLoc, globeTransform, renderControl.frameSize, false);
@@ -927,22 +935,17 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		final Point3d localPt = globeView.getCoordAdapter().displayToLocal(loc);
 		final Point3d geoPt = (localPt != null) ? globeView.getCoordAdapter().getCoordSystem().localToGeographic(localPt) : null;
 
-		if (gestureDelegate != null)
-		{
-			final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
-			final Point2d pt2d = (geoPt != null) ? geoPt.toPoint2d() : null;
-			gestureDelegate.userDidLongPress(this, selObjs, pt2d, screenLoc);
-
-		}
-
+		final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc, vectorSelectDistance);
+		final Point2d pt2d = (geoPt != null) ? geoPt.toPoint2d() : null;
+		gestureDelegate.userDidLongPress(this, selObjs, pt2d, screenLoc);
 	}
 
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {
-		if (gestureHandler != null)
-			return gestureHandler.onTouch(view, e);
-		return false;
+    	view.performClick();
+		final GlobeGestureHandler handler = running ? gestureHandler : null;
+		return (handler != null) && handler.onTouch(view, e);
 	}
 
     boolean isTilting = false, isPanning = false, isZooming = false, isRotating = false,
