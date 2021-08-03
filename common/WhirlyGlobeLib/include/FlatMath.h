@@ -49,7 +49,7 @@ public:
     virtual Point3d geocentricToLocal(Point3d) const override;
         
     /// Return true if the other coordinate system is also Plate Carree
-    virtual bool isSameAs(CoordSystem *coordSys) const override;
+    virtual bool isSameAs(const CoordSystem *coordSys) const override;
 };
     
 /** Flat Earth refers to the MultiGen flat earth coordinate system.
@@ -79,7 +79,7 @@ public:
     virtual Point3d geocentricToLocal(Point3d) const override;
     
     /// Return true if the other coordinate system is Flat Earth with the same origin
-    virtual bool isSameAs(CoordSystem *coordSys) const override;
+    virtual bool isSameAs(const CoordSystem *coordSys) const override;
 
     /// Return the origin
     GeoCoord getOrigin() const { return origin; }
@@ -119,7 +119,7 @@ public:
     virtual Point3d geocentricToLocal(Point3d p) const override { return p; }
     
     /// Return true if the other coordinate system is Flat Earth with the same origin
-    virtual bool isSameAs(CoordSystem *coordSys) const override;
+    virtual bool isSameAs(const CoordSystem *coordSys) const override;
 };
 
 typedef std::shared_ptr<PassThroughCoordSystem> PassThroughCoordSystemRef;

@@ -224,8 +224,8 @@ private:
 	{
 		jclass longLocalClass = env->FindClass("java/lang/Long");
 		longClass = (jclass)env->NewGlobalRef(longLocalClass);
-	    longClassInitID = env->GetMethodID(longClass, "<init>", "(L)V");
-	    longGetID = env->GetMethodID(longClass,"longValue","()L");
+	    longClassInitID = env->GetMethodID(longClass, "<init>", "(J)V");
+	    longGetID = env->GetMethodID(longClass,"longValue","()J");
         env->DeleteLocalRef(longLocalClass);
 	}
 

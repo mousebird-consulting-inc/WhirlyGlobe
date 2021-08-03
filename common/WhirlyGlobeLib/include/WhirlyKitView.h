@@ -54,7 +54,7 @@ public:
     
     View();
     View(const View &);
-    virtual ~View();
+    virtual ~View() = default;
 
     /// Calculate the viewing frustum (which is also the image plane)
     /// Need the framebuffer size in pixels as input
@@ -156,7 +156,7 @@ class ViewState
 public:
     ViewState() : near(0), far(0) { }
     ViewState(View *view,WhirlyKit::SceneRenderer *renderer);
-    virtual ~ViewState();
+    virtual ~ViewState() = default;
     
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
@@ -173,10 +173,10 @@ public:
     Point2f pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize);
     
     /// Compare this view state to the other one.  Returns true if they're identical.
-    bool isSameAs(WhirlyKit::ViewState *other);
+    bool isSameAs(const ViewState *other) const;
     
     /// Return true if the view state has been set to something
-    bool isValid() { return near != far; }
+    bool isValid() const { return near != far; }
     
     /// Dump out info about the view state
     void log();

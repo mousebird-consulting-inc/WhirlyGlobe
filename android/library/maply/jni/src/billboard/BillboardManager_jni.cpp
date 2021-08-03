@@ -63,8 +63,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
         BillboardManagerRef *billManager = classInfo->getObject(env, obj);
-        if (billManager)
-            delete billManager;
+        delete billManager;
 		classInfo->clearHandle(env, obj);
     }
     catch (...)
@@ -98,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         // Resolve a missing program
         if ((*billInfo)->programID == EmptyIdentity)
         {
-            Program *prog = nullptr;
+            Program *prog;
             if ((*billInfo)->orient == BillboardInfo::Orient::Eye)
                 prog = (*billManager)->getScene()->findProgramByName(MaplyBillboardEyeShader);
             else

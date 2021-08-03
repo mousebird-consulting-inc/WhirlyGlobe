@@ -56,7 +56,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     Shape();
-    virtual ~Shape();
+    virtual ~Shape() = default;
 
 	virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
@@ -76,7 +76,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     Circle();
-    virtual ~Circle();
+    virtual ~Circle() = default;
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
@@ -99,7 +99,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     Sphere();
-    virtual ~Sphere();
+    virtual ~Sphere() = default;
 
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
@@ -111,14 +111,14 @@ public:
     int sampleX, sampleY;
 };
     
-/// This puts a cylinder with its base at the locaton
+/// This puts a cylinder with its base centered at the location
 class Cylinder : public Shape
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     Cylinder();
-    virtual ~Cylinder();
+    virtual ~Cylinder() = default;
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
@@ -146,7 +146,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     Linear();
-    virtual ~Linear();
+    virtual ~Linear() = default;
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
@@ -169,7 +169,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     Extruded();
-    virtual ~Extruded();
+    virtual ~Extruded() = default;
     
     virtual void makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, SelectionManagerRef &selectManager, ShapeSceneRep *sceneRep);
     virtual Point3d displayCenter(CoordSystemDisplayAdapter *coordAdapter, const ShapeInfo &shapeInfo);
@@ -195,7 +195,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     Rectangle();
-    virtual ~Rectangle();
+    virtual ~Rectangle() = default;
 
 	void setLL(const Point3d &inLL) { ll = inLL; }
 	Point3d getLL() { return ll; }
@@ -222,7 +222,7 @@ public:
 class ShapeManager : public SceneManager
 {
 public:
-    ShapeManager();
+    ShapeManager() = default;
     virtual ~ShapeManager();
     
     /// Convert shape to raw geometry

@@ -99,7 +99,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
         // Resolve a missing program
         if ((*vecInfo)->programID == EmptyIdentity)
         {
-            ProgramGLES *prog = nullptr;
+            ProgramGLES *prog;
             if ((*vecInfo)->filled)
 				prog = (ProgramGLES *)(*vecManager)->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             else

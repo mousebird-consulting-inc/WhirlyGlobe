@@ -58,7 +58,7 @@ public:
     static Mbr GeographicMbrToLocal(GeoMbr);
 
     /// Return true if the other coordinate system is also Geographic
-    virtual bool isSameAs(CoordSystem *coordSys) const override;
+    virtual bool isSameAs(const CoordSystem *coordSys) const override;
 };
 
 /** The Fake Geocentric Display Adapter is used by WhirlyGlobe to represent

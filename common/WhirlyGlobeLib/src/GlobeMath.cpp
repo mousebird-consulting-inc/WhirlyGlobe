@@ -92,9 +92,9 @@ Mbr GeoCoordSystem::GeographicMbrToLocal(GeoMbr geoMbr)
     return localMbr;
 }
 
-bool GeoCoordSystem::isSameAs(CoordSystem *coordSys) const
+bool GeoCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
-    const auto other = dynamic_cast<GeoCoordSystem *>(coordSys);
+    const auto other = dynamic_cast<const GeoCoordSystem *>(coordSys);
     return (other != nullptr);
 }
 

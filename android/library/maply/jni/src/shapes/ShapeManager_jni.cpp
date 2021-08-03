@@ -61,8 +61,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
         ShapeManagerRef *inst = classInfo->getObject(env, obj);
-        if (inst)
-            delete inst;
+        delete inst;
         classInfo->clearHandle(env, obj);
     }
     catch (...)
@@ -90,25 +89,31 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         // Work through the shapes
         std::vector<Shape *> shapes;
         JavaObjectArrayHelper arrayHelp(env,arrayObj);
-        while (jobject shapeObj = arrayHelp.getNextObject()) {
+        shapes.reserve(arrayHelp.numObjects());
+        while (jobject shapeObj = arrayHelp.getNextObject())
+        {
             Shape *shape = shapeClassInfo->getObject(env,shapeObj);
 
             // Great circle is just a concept, not an actual object
-            GreatCircle_Android *greatCircle = dynamic_cast<GreatCircle_Android *>(shape);
-            if (greatCircle)
+            if (auto greatCircle = dynamic_cast<GreatCircle_Android *>(shape))
             {
-                Linear *lin = greatCircle->asLinear((*inst)->getScene()->getCoordAdapter());
-                if (lin)
+                if (Linear *lin = greatCircle->asLinear((*inst)->getScene()->getCoordAdapter()))
+                {
                     shapes.push_back(lin);
-            } else {
+                }
+            }
+            else
+            {
                 shapes.push_back(shape);
             }
         }
 
-        if ((*shapeInfo)->programID == EmptyIdentity) {
-            ProgramGLES *prog = (ProgramGLES *)(*inst)->getScene()->findProgramByName(MaplyDefaultModelTriShader);
-            if (prog)
+        if ((*shapeInfo)->programID == EmptyIdentity)
+        {
+            if (ProgramGLES *prog = (ProgramGLES *)(*inst)->getScene()->findProgramByName(MaplyDefaultModelTriShader))
+            {
                 (*shapeInfo)->programID = prog->getId();
+            }
         }
 
         SimpleIdentity shapeId = (*inst)->addShapes(shapes, *(*shapeInfo), *(changeSet->get()));

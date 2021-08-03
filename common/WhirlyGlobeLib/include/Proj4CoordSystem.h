@@ -52,7 +52,7 @@ public:
     virtual Point3d geocentricToLocal(Point3d) const override;
     
     /// True if the other system is Spherical Mercator with the same origin
-    virtual bool isSameAs(CoordSystem *coordSys) const override;
+    virtual bool isSameAs(const CoordSystem *coordSys) const override;
     
     /// Check that it actually created the pj structures
     bool isValid() const { return pj != nullptr; }

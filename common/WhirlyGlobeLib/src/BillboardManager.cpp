@@ -17,7 +17,6 @@
  */
 
 #import "BillboardManager.h"
-#import "WhirlyKitLog.h"
 #import "SharedAttributes.h"
 
 using namespace Eigen;
