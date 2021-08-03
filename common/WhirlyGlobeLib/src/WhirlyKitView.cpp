@@ -337,7 +337,7 @@ Point3d ViewState::pointUnproject(Point2d screenPt,unsigned int frameWidth,unsig
     if (ll.x() == ur.x())
         calcFrustumWidth(frameWidth,frameHeight);
     
-    // Calculate a parameteric value and flip the y/v
+    // Calculate a parametric value and flip the y/v
     double u = screenPt.x() / frameWidth;
     if (clip)
     {
@@ -351,8 +351,8 @@ Point3d ViewState::pointUnproject(Point2d screenPt,unsigned int frameWidth,unsig
     v = 1.0 - v;
     
     // Now come up with a point in 3 space between ll and ur
-    Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-    return Point3d(mid.x(),mid.y(),-near);
+    const Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
+    return { mid.x(),mid.y(),-near };
 }
 
 Point2f ViewState::pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
@@ -367,20 +367,15 @@ Point2f ViewState::pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen:
     
     // Now we need to scale that to the frame
     if (ll.x() == ur.x())
-        calcFrustumWidth(frameSize.x(),frameSize.y());
-    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
-    v = 1.0 - v;
-    
-    Point2f retPt;
-    if (ray.z() < 0.0)
     {
-        retPt.x() = u * frameSize.x();
-        retPt.y() = v * frameSize.y();
-    } else
-        retPt = Point2f(-100000, -100000);
-    
-    return retPt;
+        calcFrustumWidth((int)frameSize.x(),(int)frameSize.y());
+    }
+
+    const auto u = (float)((ray.x() - ll.x()) / (ur.x() - ll.x()));
+    const auto v = (float)(1.0 - (ray.y() - ll.y()) / (ur.y() - ll.y()));
+
+    return (ray.z() < 0.0) ? Point2f{ u * frameSize.x(), v * frameSize.y() } :
+                             Point2f{ -100000.0f, -100000.0f };
 }
 
 bool ViewState::isSameAs(WhirlyKit::ViewState *other)

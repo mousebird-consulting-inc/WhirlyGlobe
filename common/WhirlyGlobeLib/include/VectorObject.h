@@ -101,7 +101,9 @@ public:
     
     // Fuzzy matching for selecting Linear features
     // This will project the features to the screen
-    bool pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameBufferSize) const;
+    bool pointNearLinear(const Point2d &coord,float maxDistance,
+                         const ViewStateRef &viewState,
+                         const Point2f &frameBufferSize) const;
     
     /// Calculate the area of all the loops together
     double areaOfOuterLoops() const;

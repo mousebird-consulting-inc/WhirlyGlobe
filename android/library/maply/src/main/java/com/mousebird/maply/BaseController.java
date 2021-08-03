@@ -1768,9 +1768,19 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		final Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
 		final Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
 
-		// Ask the selection manager
+		// Ask the selection manager about markers, labels, etc.
 		final ViewState theViewState = theView.makeViewState(renderControl);
 		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState,frameLoc);
+
+		// Search vectors separately
+		final boolean multi = true;
+		final double maxDist = 20.0;	// units?
+		renderControl.componentManager.findVectors(geoPt, maxDist, theViewState, frameSize, multi);
+
+		// Combine results
+
+		// Look up the Java objects, remove anything that doesn't match.
+		// (Probably deleted just as we found it.)
 		if (selManObjs != null) {
 			renderControl.componentManager.remapSelectableObjects(selManObjs);
 			selManObjs = filterMissingObjects(selManObjs);

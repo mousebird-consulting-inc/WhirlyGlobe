@@ -456,9 +456,9 @@ bool VectorObject::pointInside(const Point2d &pt) const
     
 // Helper routine to convert and check geographic points (globe version)
 static bool ScreenPointFromGeo(const Point2d &geoCoord,
-                               WhirlyGlobe::GlobeViewStateRef globeView,
-                               Maply::MapViewStateRef mapView,
-                               CoordSystemDisplayAdapter *coordAdapter,
+                               WhirlyGlobe::GlobeViewState* globeView,
+                               Maply::MapViewState* mapView,
+                               const CoordSystemDisplayAdapter *coordAdapter,
                                const Point2f &frameSize,
                                const Eigen::Matrix4f &modelAndViewMat,
                                const Eigen::Matrix4d &modelAndViewMat4d,
@@ -467,21 +467,43 @@ static bool ScreenPointFromGeo(const Point2d &geoCoord,
                                Point2d *screenPt)
 {
     const Point3d pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x(),geoCoord.y())));
-    const Point3f pt3f(pt.x(),pt.y(),pt.z());
+    const Point3f pt3f = pt.cast<float>();
     
     Point2f screenPt2f;
-    if (globeView) {
+    if (globeView)
+    {
         if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
+        {
             return false;
+        }
         
         screenPt2f = globeView->pointOnScreenFromDisplay(pt, &modelAndViewMat4d, frameSize);
-    } else {
+    }
+    else
+    {
         screenPt2f = mapView->pointOnScreenFromDisplay(pt, &modelAndViewMat4d, frameSize);
     }
-    screenPt->x() = screenPt2f.x();  screenPt->y() = screenPt2f.y();
-
-    return !(screenPt->x() < 0 || screenPt->y() < 0 || screenPt->x() > frameSize.x() || screenPt->y() > frameSize.y());
+    *screenPt = screenPt2f.cast<double>();
+    return (screenPt2f.x() >= 0.0f &&
+            screenPt2f.y() >= 0.0f &&
+            screenPt2f.x() < frameSize.x() &&
+            screenPt2f.y() < frameSize.y());
 }
+
+//static bool ScreenPointFromGeo(const Point2d &geoCoord,
+//                               WhirlyGlobe::GlobeViewStateRef globeView,
+//                               Maply::MapViewStateRef mapView,
+//                               CoordSystemDisplayAdapter *coordAdapter,
+//                               const Point2f &frameSize,
+//                               const Eigen::Matrix4f &modelAndViewMat,
+//                               const Eigen::Matrix4d &modelAndViewMat4d,
+//                               const Eigen::Matrix4d &modelMatFull,
+//                               const Eigen::Matrix4f &modelAndViewNormalMat,
+//                               Point2d *screenPt) {
+//    return ScreenPointFromGeo(geoCoord, globeView.get(), mapView.get(), coordAdapter, frameSize,
+//                              modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat,
+//                              screenPt);
+//}
 
 // Return the square of the hypotenuse, i.e., hypot() without the sqrt()
 inline static double hypotSq(double dx, double dy)
@@ -489,26 +511,29 @@ inline static double hypotSq(double dx, double dy)
     return dx * dx + dy * dy;
 }
 
-bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameSize) const
+bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,const ViewStateRef &viewState,const Point2f &frameSize) const
 {
     CoordSystemDisplayAdapter *coordAdapter = viewState->coordAdapter;
    
-    WhirlyGlobe::GlobeViewStateRef globeView = std::dynamic_pointer_cast<WhirlyGlobe::GlobeViewState>(viewState);
-    Maply::MapViewStateRef mapView = std::dynamic_pointer_cast<Maply::MapViewState>(viewState);
-    
-    Eigen::Matrix4d modelTrans4d = viewState->modelMatrix;
+    const auto globeView = dynamic_cast<WhirlyGlobe::GlobeViewState*>(viewState.get());
+    const auto mapView = dynamic_cast<Maply::MapViewState*>(viewState.get());
+
+    const Eigen::Matrix4d &modelTrans4d = viewState->modelMatrix;
     // Note: This won't work if there's more than one matrix
-    Eigen::Matrix4d viewTrans4d = viewState->viewMatrices[0];
-    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
-    Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+    const Eigen::Matrix4d &viewTrans4d = viewState->viewMatrices[0];
+    const Eigen::Matrix4d &modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    const Eigen::Matrix4f &modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    const Eigen::Matrix4f &modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
     // Note: This is probably redundant
-    Eigen::Matrix4d modelMatFull = viewState->fullMatrices[0];
+    const Eigen::Matrix4d &modelMatFull = viewState->fullMatrices[0];
 
     // Point we're searching around
     Point2d p;
-    if (!ScreenPointFromGeo(coord, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &p))
+    if (!ScreenPointFromGeo(coord, globeView, mapView, coordAdapter, frameSize, modelAndViewMat,
+                            modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &p))
+    {
         return false;
+    }
 
     const double maxDistSq = (double)maxDistance * maxDistance;
     for (const auto &shape : shapes)
@@ -522,76 +547,104 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
                 for (int ii=0;ii<pts.size()-1;ii++)
                 {
                     const Point2f &p0 = pts[ii];
-                    Point2d pc(p0.x(),p0.y());
+                    Point2d pc = p0.cast<double>();
                     Point2d a;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &a))
+                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize,
+                                            modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                            modelAndViewNormalMat, &a))
+                    {
                         continue;
+                    }
                     
                     const Point2f &p1 = pts[ii + 1];
-                    pc = Point2d(p1.x(),p1.y());
+                    pc = p1.cast<double>();
                     Point2d b;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &b))
+                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize,
+                                            modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                            modelAndViewNormalMat, &b))
+                    {
                         continue;
+                    }
                     
                     const Point2d aToP = a - p;
                     const Point2d aToB = a - b;
-                    const double aToBMagitude = hypotSq(aToB.x(), aToB.y());
-                    const double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
-                    const double d = dot/aToBMagitude;
+                    const double aToBMagnitudeSq = hypotSq(aToB.x(), aToB.y());
+                    const double d = aToP.dot(aToB) / aToBMagnitudeSq;
 
                     double distance = std::numeric_limits<double>::max();
                     if(d < 0)
                     {
                         distance = hypotSq(p.x() - a.x(), p.y() - a.y());
-                    } else if(d > 1) {
+                    }
+                    else if(d > 1)
+                    {
                         distance = hypotSq(p.x() - b.x(), p.y() - b.y());
-                    } else {
+                    }
+                    else
+                    {
                         distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
-                                         p.y() - a.y() + (aToB.y() * d));
+                                           p.y() - a.y() + (aToB.y() * d));
                     }
                     
                     if (distance < maxDistSq)
+                    {
                         return true;
+                    }
                 }
             }
-        } else if (const auto linear3d = dynamic_cast<VectorLinear3d*>(shape.get())) {
+        }
+        else if (const auto linear3d = dynamic_cast<VectorLinear3d*>(shape.get()))
+        {
             const GeoMbr geoMbr = linear3d->calcGeoMbr();
             if(geoMbr.inside(GeoCoord(coord.x(),coord.y())))
             {
                 const VectorRing3d &pts = linear3d->pts;
                 for (int ii=0;ii<pts.size()-1;ii++)
                 {
-                    Point3d p0 = pts[ii];
-                    Point2d pc(p0.x(),p0.y());
+                    const Point3d &p0 = pts[ii];
+                    const Point2d pc { p0.x(), p0.y() };
                     Point2d a;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &a))
+                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize,
+                                            modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                            modelAndViewNormalMat, &a))
+                    {
                         continue;
+                    }
 
-                    Point3d p1 = pts[ii + 1];
-                    pc = Point2d(p1.x(),p1.y());
+                    const Point3d &p1 = pts[ii + 1];
+                    const Point2d pd { p1.x(), p1.y() };
                     Point2d b;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &b))
+                    if (!ScreenPointFromGeo(pd, globeView, mapView, coordAdapter, frameSize,
+                                            modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                            modelAndViewNormalMat, &b))
+                    {
                         continue;
+                    }
 
                     const Point2d aToP = a - p;
                     const Point2d aToB = a - b;
-                    const double aToBMagitude = hypotSq(aToB.x(), aToB.y());
-                    const double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
-                    const double d = dot/aToBMagitude;
+                    const double aToBMagnitudeSq = hypotSq(aToB.x(), aToB.y());
+                    const double d = aToP.dot(aToB)/aToBMagnitudeSq;
 
                     double distance = std::numeric_limits<double>::max();
                     if(d < 0)
                     {
                         distance = hypotSq(p.x() - a.x(), p.y() - a.y());
-                    } else if(d > 1) {
+                    }
+                    else if(d > 1)
+                    {
                         distance = hypotSq(p.x() - b.x(), p.y() - b.y());
-                    } else {
+                    }
+                    else
+                    {
                         distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
-                                         p.y() - a.y() + (aToB.y() * d));
+                                           p.y() - a.y() + (aToB.y() * d));
                     }
                     
                     if (distance < maxDistSq)
+                    {
                         return true;
+                    }
                 }
             }
         }
@@ -606,7 +659,7 @@ double VectorObject::areaOfOuterLoops() const
     for (const auto& shape : shapes)
     {
         const auto areal = dynamic_cast<VectorAreal*>(shape.get());
-        if (areal && areal->loops.size() > 0)
+        if (areal && !areal->loops.empty())
         {
             area = CalcLoopArea(areal->loops[0]);
         }
