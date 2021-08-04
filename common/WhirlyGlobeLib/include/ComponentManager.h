@@ -183,7 +183,7 @@ public:
      */
     std::vector<CompObjVectorObjPair> findVectors(
             const Point2d &pt,double maxDist,const ViewStateRef &viewState,
-            const Point2f &frameSize,int resultLimit);
+            const Point2f &frameSize,int resultLimit = 0);
 
     // These are here for convenience
     LayoutManagerRef layoutManager;

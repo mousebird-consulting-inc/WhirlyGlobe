@@ -43,8 +43,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -1777,21 +1775,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 
 		final Point2d viewSize = getViewSize();
 		final Point2d frameSize = renderControl.frameSize;
-		final Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
-		final Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
+		final double scaleX = frameSize.getX()/viewSize.getX();
+		final double scaleY = frameSize.getY()/viewSize.getY();
+		final Point2d frameLoc = new Point2d(scaleX * screenLoc.getX(),scaleY * screenLoc.getY());
 
 		final ViewState theViewState = theView.makeViewState(renderControl);
 
 		// Ask the selection manager about markers, labels, etc.
-		final SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState,frameLoc);
-
-		// Search vectors separately
-		final SelectedObject[] selVecObjs = renderControl.componentManager.findVectors(geoPt, maxDist, theViewState, frameSize);
+		// Also searches the Component Manager for selectable vectors.
+		final SelectedObject[] selObjs = renderControl.selectionManager.pickObjects(
+				renderControl.componentManager,theViewState,frameLoc);
 
 		theViewState.dispose();
-
-		// Combine
-		final SelectedObject[] selObjs = concat(selManObjs, selVecObjs);
 
 		// Look up the Java objects, remove anything that doesn't match.
 		// (Probably deleted just as we found it.)
@@ -1819,6 +1814,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			}
 		}
 
+		// At least one array must be non-null so we can get type information
 		if (array0 == null) {
 			return null;
 		}
