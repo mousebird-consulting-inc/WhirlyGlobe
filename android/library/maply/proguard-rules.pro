@@ -19,3 +19,18 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep com.mousebird.maply.ClusterGenerator
+
+-keepclassmembers class com.mousebird.maply.ClusterGenerator {
+   *;
+}
+-keepclassmembernames class com.mousebird.** {
+   nativeHandle;
+}
+-keepclassmembers class com.mousebird.** {
+   nativeHandle;
+}
+-keepclasseswithmembers class com.mousebird.** {
+   nativeHandle;
+}

@@ -129,17 +129,17 @@ public:
 
             clusterObjClass = classRef;
 
-            startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
-            if (logAndClearJVMException(env) || !startClusterGroupJava)
+            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
+            if (logAndClearJVMException(env) || !makeClusterGroupJNIJava)
             {
-                wkLogLevel(Error, "Failed to find ClusterGenerator::startClusterGroup");
+                wkLogLevel(Error, "Failed to find ClusterGenerator::makeClusterGroupJNI");
                 if (jclass classClass = env->GetObjectClass(theClass))
                 {
                     if (jmethodID methodId = env->GetMethodID(classClass, "getName", "()Ljava/lang/String;"))
                     {
                         if (auto className = JavaString(env, (jstring)env->CallObjectMethod(theClass, methodId)))
                         {
-                            wkLogLevel(Error, "Failed to find %s::startClusterGroup", className.getCString());
+                            wkLogLevel(Error, "Failed to find %s::makeClusterGroupJNI", className.getCString());
                         }
                     }
                 }
@@ -153,16 +153,16 @@ public:
                     return false;
                 }
                 // Try again
-                startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
-                if (logAndClearJVMException(env) || !startClusterGroupJava)
+                makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
+                if (logAndClearJVMException(env) || !makeClusterGroupJNIJava)
                 {
-                    wkLogLevel(Error, "Failed to find ClusterGenerator::startClusterGroup");
+                    wkLogLevel(Error, "Failed to find ClusterGenerator::makeClusterGroupJNIJava");
                     clear(env);
                     return false;
                 }
             }
-            makeClusterGroupJNIJava = env->GetMethodID(theClass, "makeClusterGroupJNI","(I[Ljava/lang/String;)J");
-            if (logAndClearJVMException(env) || !makeClusterGroupJNIJava)
+            startClusterGroupJava = env->GetMethodID(theClass, "startClusterGroup", "()V");
+            if (logAndClearJVMException(env) || !startClusterGroupJava)
             {
                 wkLogLevel(Error, "Failed to find ClusterGenerator::makeClusterGroupJNI");
                 clear(env);

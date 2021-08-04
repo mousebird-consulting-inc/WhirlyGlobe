@@ -85,6 +85,7 @@ public:
 		if (!nativeHandleField)
 		{
 			nativeHandleField = env->GetFieldID(theClass, "nativeHandle", "J");
+			WhirlyKit::logAndClearJVMException(env);
 		}
 		return nativeHandleField;
 	}
