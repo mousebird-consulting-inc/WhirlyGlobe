@@ -13,13 +13,13 @@ import com.mousebird.maply.MarkerInfo;
 import com.mousebird.maply.Point2d;
 import com.mousebird.maply.MaplyTexture;
 import com.mousebird.maply.RenderController;
-import com.mousebird.maply.RenderControllerInterface;
 import com.mousebird.maply.ScreenMarker;
 import com.mousebird.maply.VectorObject;
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Created by jmnavarro on 30/12/15.
@@ -33,9 +33,12 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		baseCase = new VectorsTestCase(getActivity());
+		controller = mapVC;
+		baseCase.setOnVectorsLoaded(vectors -> {
+			insertMarkers(vectors, mapVC);
+			return null;
+		});
 		baseCase.setUpWithMap(mapVC);
-		insertMarkers(baseCase.getVectors(), mapVC);
 		Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
 		mapVC.setPositionGeo(loc.getX(), loc.getX(), 2);
 		mapVC.setAllowRotateGesture(true);
@@ -44,9 +47,12 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		baseCase = new VectorsTestCase(getActivity());
+		controller = globeVC;
+		baseCase.setOnVectorsLoaded(vectors -> {
+			insertMarkers(vectors, globeVC);
+			return null;
+		});
 		baseCase.setUpWithGlobe(globeVC);
-		insertMarkers(baseCase.getVectors(), globeVC);
 		Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
 		globeVC.animatePositionGeo(loc.getX(), loc.getX(), 0.9, 1);
 		globeVC.setKeepNorthUp(false);
@@ -55,31 +61,28 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 
 	@Override
 	public void shutdown() {
-		controller.removeObjects(componentObjects, RenderControllerInterface.ThreadMode.ThreadCurrent);
+		controller.removeObjects(componentObjects, RenderController.ThreadMode.ThreadCurrent);
 		componentObjects.clear();
-		if (baseCase != null) {
-			baseCase.shutdown();
-			baseCase = null;
-		}
+		baseCase.shutdown();
 		super.shutdown();
 	}
 
-	private void insertMarkers(ArrayList<VectorObject> vectors, BaseController baseVC) {
-		MarkerInfo markerInfo = new MarkerInfo();
-		Bitmap[] icons = new Bitmap[]{
+	private void insertMarkers(Collection<? extends VectorObject> vectors, BaseController baseVC) {
+		final MarkerInfo markerInfo = new MarkerInfo();
+		final Bitmap[] icons = new Bitmap[]{
 				BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget),
 				BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.teardrop),
 		};
-		MaplyTexture[] textures = new MaplyTexture[] {
-				baseVC.addTexture(icons[0],null, RenderControllerInterface.ThreadMode.ThreadCurrent),
-				baseVC.addTexture(icons[1],null, RenderControllerInterface.ThreadMode.ThreadCurrent),
+		final MaplyTexture[] textures = new MaplyTexture[] {
+				baseVC.addTexture(icons[0],null, RenderController.ThreadMode.ThreadCurrent),
+				baseVC.addTexture(icons[1],null, RenderController.ThreadMode.ThreadCurrent),
 		};
 //		markerInfo.setMinVis(0.f);
 //		markerInfo.setMaxVis(2.5f);
 
-		ArrayList<ScreenMarker> markers = new ArrayList<>();
-		for (VectorObject vector : vectors) {
-			Point2d centroid = vector.centroid();
+		final ArrayList<ScreenMarker> markers = new ArrayList<>();
+		for (final VectorObject vector : vectors) {
+			final Point2d centroid = vector.centroid();
 			if (centroid != null) {
 				ScreenMarker marker = new ScreenMarker();
 				marker.tex = textures[markers.size() % textures.length];
@@ -93,7 +96,7 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 
 //				marker.offset = new Point2d(0.0,-200);
 //				marker.layoutSize = new Point2d(0.0, 64.0);
-				AttrDictionary attrs = vector.getAttributes();
+				final AttrDictionary attrs = vector.getAttributes();
 				if (attrs != null) {
 					marker.userObject = attrs.getString("ADMIN");
 					markers.add(marker);
@@ -107,6 +110,6 @@ public class ScreenMarkersTestCase extends MaplyTestCase
 		}
 	}
 
-	private VectorsTestCase baseCase;
+	private final VectorsTestCase baseCase = new VectorsTestCase(getActivity());
 	private final ArrayList<ComponentObject> componentObjects = new ArrayList<>();
 }

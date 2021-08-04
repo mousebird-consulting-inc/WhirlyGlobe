@@ -140,7 +140,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
         const Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
 
         // This one does vector features
-        auto vecObjs = (*compManager)->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
+        auto vecObjs = (*compManager)->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled);
 
         selObjs.reserve(selObjs.size() + vecObjs.size());
         for (const auto &vecObj : vecObjs)

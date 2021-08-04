@@ -18,11 +18,11 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 public class MarkersTestCase extends MaplyTestCase
 {
-    private ArrayList<ComponentObject> componentObjects = new ArrayList<>();
-
     public MarkersTestCase(Activity activity) {
         super(activity);
         setTestName("Markers");
@@ -30,15 +30,17 @@ public class MarkersTestCase extends MaplyTestCase
         this.implementation = MaplyTestCase.TestExecutionImplementation.Both;
     }
 
-    public ArrayList<ComponentObject> getComponentObjects() {
+    public Collection<ComponentObject> getComponentObjects() {
         return componentObjects;
     }
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        VectorsTestCase baseView = new VectorsTestCase(getActivity());
-        baseView.setUpWithMap(mapVC);
-        insertMarkers(baseView.getVectors(), mapVC);
+        baseCase.setOnVectorsLoaded(vectors -> {
+            insertMarkers(vectors, mapVC);
+            return null;
+        });
+        baseCase.setUpWithMap(mapVC);
         Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
         mapVC.setPositionGeo(loc.getX(), loc.getX(), 2);
         return true;
@@ -46,27 +48,37 @@ public class MarkersTestCase extends MaplyTestCase
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        VectorsTestCase baseView = new VectorsTestCase(getActivity());
-        baseView.setUpWithGlobe(globeVC);
-        insertMarkers(baseView.getVectors(), globeVC);
+        baseCase.setOnVectorsLoaded(vectors -> {
+            insertMarkers(vectors, globeVC);
+            return null;
+        });
+        baseCase.setUpWithGlobe(globeVC);
         Point2d loc = Point2d.FromDegrees(-3.6704803, 40.5023056);
         globeVC.animatePositionGeo(loc.getX(), loc.getX(), 0.9, 1);
         return true;
     }
 
-    private void insertMarkers(ArrayList<VectorObject> vectors, BaseController baseVC) {
-        MarkerInfo markerInfo = new MarkerInfo();
-        Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
+    @Override
+    public void shutdown() {
+        controller.removeObjects(componentObjects, RenderController.ThreadMode.ThreadCurrent);
+        componentObjects.clear();
+        baseCase.shutdown();
+        super.shutdown();
+    }
+
+    private void insertMarkers(Collection<? extends VectorObject> vectors, BaseController baseVC) {
+        final MarkerInfo markerInfo = new MarkerInfo();
+        final Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.testtarget);
 //		markerInfo.setMinVis(0.f);
 //		markerInfo.setMaxVis(2.5f);
         markerInfo.setClusterGroup(0);
         markerInfo.setLayoutImportance(1.f);
 
-        ArrayList<Marker> markers = new ArrayList<Marker>();
+        final ArrayList<Marker> markers = new ArrayList<>();
         for (VectorObject vector : vectors) {
             Marker marker = new Marker();
             marker.image = icon;
-            Point2d centroid = vector.centroid();
+            final Point2d centroid = vector.centroid();
             if (centroid != null) {
                 marker.loc = centroid;
                 marker.size = new Point2d(0.05,0.05);
@@ -80,9 +92,12 @@ public class MarkersTestCase extends MaplyTestCase
             }
         }
 
-        ComponentObject object = baseVC.addMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadAny);
+        final ComponentObject object = baseVC.addMarkers(markers, markerInfo, RenderController.ThreadMode.ThreadCurrent);
         if (object != null) {
             componentObjects.add(object);
         }
     }
+
+    private final VectorsTestCase baseCase = new VectorsTestCase(getActivity());
+    private final List<ComponentObject> componentObjects = new ArrayList<>();
 }
