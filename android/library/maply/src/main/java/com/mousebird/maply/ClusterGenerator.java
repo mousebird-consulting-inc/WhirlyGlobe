@@ -17,6 +17,7 @@
  */
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -27,7 +28,8 @@ import static com.mousebird.maply.RenderController.EmptyIdentity;
 /**
  * Fill in this protocol to provide images when individual markers/labels are clustered.
  * <p>
- * This is the protocol for marker/label clustering.  You must fill this in and register the cluster
+ * This is the protocol for marker/label clustering.
+ * You must fill this in and register the cluster generator.
  */
 public class ClusterGenerator
 {
@@ -40,6 +42,7 @@ public class ClusterGenerator
      * <p>
      * Called right before we start generating clusters.  Do you setup here if need be.
      */
+    @Keep
     @SuppressWarnings("unused")		// Used from JNI
     public void startClusterGroup() {
         if (oldTextures != null) {
@@ -61,12 +64,12 @@ public class ClusterGenerator
      * @param clusterInfo Description of the cluster
      * @return a cluster group for a given collection of markers.
      */
-    public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo)
-    {
+    public ClusterGroup makeClusterGroup(ClusterInfo clusterInfo) {
         return null;
     }
 
     // The C++ code calls this to get a Bitmap then we call makeClusterGroup
+    @Keep
     @SuppressWarnings("unused")		// Used from JNI
     private long makeClusterGroupJNI(int num, String[] uniqueIDs) {
         ClusterInfo clusterInfo = new ClusterInfo(num, uniqueIDs);
@@ -83,6 +86,7 @@ public class ClusterGenerator
      * <p>
      * If you were doing optimization (for image reuse, say) clean it up here.
      */
+    @Keep
     @SuppressWarnings("unused")		// Used from JNI
     public void endClusterGroup() {
     }
@@ -90,6 +94,7 @@ public class ClusterGenerator
     /**
      * Clean up resources on removal
      */
+    @Keep
     @SuppressWarnings("unused")		// Used from JNI
     public void shutdown() {
     }
