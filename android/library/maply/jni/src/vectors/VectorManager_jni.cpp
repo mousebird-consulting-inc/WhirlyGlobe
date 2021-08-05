@@ -1,9 +1,8 @@
-/*
- *  VectorManager_jni.cpp
+/*  VectorManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Vectors_jni.h"
@@ -27,14 +25,16 @@ using namespace WhirlyKit;
 using namespace Maply;
 
 typedef JavaClassInfo<VectorManagerRef> VectorManagerClassInfo;
-template<> VectorManagerClassInfo *VectorManagerClassInfo::classInfoObj = NULL;
+template<> VectorManagerClassInfo *VectorManagerClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	VectorManagerClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
   (JNIEnv *env, jobject obj, jobject sceneObj)
 {
@@ -54,6 +54,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
   (JNIEnv *env, jobject obj)
 {
@@ -63,8 +64,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
 			VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
-			if (vecManager)
-				delete vecManager;
+			delete vecManager;
             classInfo->clearHandle(env,obj);
         }
 	}
@@ -74,6 +74,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_dispose
 	}
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
   (JNIEnv *env, jobject obj, jobjectArray vecObjArray, jobject vecInfoObj, jobject changeSetObj)
 {
@@ -98,7 +99,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
         // Resolve a missing program
         if ((*vecInfo)->programID == EmptyIdentity)
         {
-            ProgramGLES *prog = NULL;
+            ProgramGLES *prog;
             if ((*vecInfo)->filled)
 				prog = (ProgramGLES *)(*vecManager)->getScene()->findProgramByName(MaplyDefaultTriangleShader);
             else
@@ -119,18 +120,19 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_addVectors
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject vecInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject vecInfoObj, jobject changeSetObj)
 {
-    try {
+    try
+    {
         VectorManagerRef *vecManager = VectorManagerClassInfo::getClassInfo()->getObject(env,obj);
 		VectorInfoRef *vecInfo = VectorInfoClassInfo::getClassInfo()->getObject(env,vecInfoObj);
         ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,changeSetObj);
         if (!vecManager || !vecInfo || !changeSet)
             return;
         
-        JavaLongArray ids(env,idArrayObj);
-        SimpleIDSet idSet;
+        const JavaLongArray ids(env,idArrayObj,false);
         for (unsigned int ii=0;ii<ids.len;ii++)
         {
 			(*vecManager)->changeVectors(ids.rawLong[ii],*(*vecInfo),*(changeSet->get()));
@@ -142,6 +144,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_changeVectors
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
   (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeSetObj)
 {
@@ -163,6 +166,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_removeVectors
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
   (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeSetObj)
 {
@@ -184,6 +188,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorManager_enableVectors
 	}
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_VectorManager_instanceVectors
   (JNIEnv *env, jobject obj, jlong vecID, jobject vecInfoObj, jobject changeSetObj)
 {

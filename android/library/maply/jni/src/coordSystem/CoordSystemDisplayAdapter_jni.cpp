@@ -1,9 +1,8 @@
-/*
- *  CoordSystemDisplayAdapter_jni.cpp
+/*  CoordSystemDisplayAdapter_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -24,17 +22,19 @@
 #import "View_jni.h"
 #import "com_mousebird_maply_CoordSystemDisplayAdapter.h"
 
-template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = NULL;
+template<> CoordSystemDisplayAdapterInfo *CoordSystemDisplayAdapterInfo::classInfoObj = nullptr;
 
 using namespace WhirlyKit;
 using namespace Eigen;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	CoordSystemDisplayAdapterInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_initialise
   (JNIEnv *env, jobject obj, jobject coordSysObj)
 {
@@ -58,6 +58,7 @@ static std::mutex disposeMutex;
  * Method:    dispose
  * Signature: ()V
  */
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_dispose
   (JNIEnv *env, jobject obj)
 {
@@ -80,6 +81,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_dispos
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getBounds
   (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
 {
@@ -103,6 +105,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getBou
 	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getGeoBounds
   (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
 {
@@ -125,6 +128,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_getGeo
 	}
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_displayToLocal
   (JNIEnv *env, jobject obj, jobject dispPtObj)
 {
@@ -149,6 +153,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_dis
     return NULL;
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_localToDisplay
   (JNIEnv *env, jobject obj, jobject localPtObj)
 {
@@ -159,7 +164,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_loc
 		Point3dClassInfo *pt3dClassInfo = Point3dClassInfo::getClassInfo();
 		Point3d *localPt = pt3dClassInfo->getObject(env,localPtObj);
 		if (!coordAdapter || !localPt)
-			return NULL;
+			return nullptr;
 		Point3d dispPt = coordAdapter->localToDisplay(*localPt);
 		jobject dispPtObj = MakePoint3d(env,dispPt);
 
@@ -170,9 +175,10 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_loc
 		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystemDisplayAdapter::localToDisplay()");
 	}
     
-    return NULL;
+    return nullptr;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_screenPointFromGeoBatch
 (JNIEnv *env, jobject obj,jobject viewObj,int frameSizeX,int frameSizeY,jdoubleArray gxArray, jdoubleArray gyArray, jdoubleArray gzArray, jdoubleArray sxArray, jdoubleArray syArray)
 {
@@ -187,23 +193,23 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_sc
         Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(view);
         WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(view);
         
-        JavaDoubleArray geoX(env,gxArray), geoY(env,gyArray);
-        JavaDoubleArray sx(env,sxArray), sy(env,syArray);
+        const JavaDoubleArray geoX(env,gxArray,false), geoY(env,gyArray,false);
+        JavaDoubleArray sx(env,sxArray,true), sy(env,syArray,true);
         
         if (geoX.len != geoY.len || geoX.len != sx.len || geoX.len != sy.len)
             return false;
 
-        CoordSystem *coordSys = coordAdapter->getCoordSystem();
-        Matrix4d modelMat = view->calcModelMatrix();
-        Matrix4d viewMat = view->calcViewMatrix();
-        Matrix4d fullMat = viewMat * modelMat;
-        Matrix4d fullNormalMat = fullMat.inverse().transpose();
-        Point2f frameSize(frameSizeX,frameSizeY);
+        const CoordSystem *coordSys = coordAdapter->getCoordSystem();
+        const Matrix4d modelMat = view->calcModelMatrix();
+        const Matrix4d viewMat = view->calcViewMatrix();
+        const Matrix4d fullMat = viewMat * modelMat;
+        const Matrix4d fullNormalMat = fullMat.inverse().transpose();
+        const Point2f frameSize(frameSizeX,frameSizeY);
         
         for (unsigned int ii=0;ii<geoX.len;ii++)
         {
-            Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(geoX.rawDouble[ii],geoY.rawDouble[ii]));
-            Point3d dispPt = coordAdapter->localToDisplay(localPt);
+            const Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(geoX.rawDouble[ii],geoY.rawDouble[ii]));
+            const Point3d dispPt = coordAdapter->localToDisplay(localPt);
             Point2f screenPt;
             bool valid = true;
             if (globeView)
@@ -240,6 +246,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_sc
  * Method:    geoPointFromScreenBatch
  * Signature: ([D[D[D[D[D)Z
  */
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_geoPointFromScreenBatch
 (JNIEnv *env, jobject obj, jobject viewObj,int frameSizeX,int frameSizeY, jdoubleArray sxArray, jdoubleArray syArray, jdoubleArray gxArray, jdoubleArray gyArray)
 {
@@ -254,8 +261,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_ge
         Maply::MapView *mapView = dynamic_cast<Maply::MapView *>(view);
         WhirlyGlobe::GlobeView *globeView = dynamic_cast<WhirlyGlobe::GlobeView *>(view);
         
-        JavaDoubleArray sx(env,sxArray), sy(env,syArray);
-        JavaDoubleArray geoX(env,gxArray), geoY(env,gyArray);
+        const JavaDoubleArray sx(env,sxArray,false), sy(env,syArray,false);
+        JavaDoubleArray geoX(env,gxArray,true), geoY(env,gyArray,true);
         
         if (geoX.len != geoY.len || geoX.len != sx.len || geoX.len != sy.len)
             return false;

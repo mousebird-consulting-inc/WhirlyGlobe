@@ -1,9 +1,8 @@
-/*
- *  Sticker_jni.cpp
+/*  Sticker_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/16/15.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Stickers_jni.h"
@@ -27,20 +25,22 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> SphericalChunkClassInfo *SphericalChunkClassInfo::classInfoObj = NULL;
+template<> SphericalChunkClassInfo *SphericalChunkClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     SphericalChunkClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_initialise
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        SphericalChunk *chunk = new SphericalChunk();
+        auto *chunk = new SphericalChunk();
         SphericalChunkClassInfo::getClassInfo()->setHandle(env,obj,chunk);
     }
     catch (...)
@@ -51,8 +51,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -74,6 +75,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_dispose
 }
 
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setLowerLeft
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -93,6 +95,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setLowerLeft
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setUpperRight
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -112,8 +115,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setUpperRight
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setRotation
-(JNIEnv *env, jobject obj, jdouble rot)
+  (JNIEnv *env, jobject obj, jdouble rot)
 {
     try
     {
@@ -129,8 +133,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setRotation
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setCoordSys
-(JNIEnv *env, jobject obj, jobject coordSysObj)
+  (JNIEnv *env, jobject obj, jobject coordSysObj)
 {
     try
     {
@@ -149,8 +154,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setCoordSys
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setSampling
-(JNIEnv *env, jobject obj, jint sampleX, jint sampleY)
+  (JNIEnv *env, jobject obj, jint sampleX, jint sampleY)
 {
     try
     {
@@ -168,8 +174,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setSampling
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
-(JNIEnv *env, jobject obj, jdouble eps, jint minSampleX, jint minSampleY, jint maxSampleX, jint maxSampleY)
+  (JNIEnv *env, jobject obj, jdouble eps, jint minSampleX, jint minSampleY, jint maxSampleX, jint maxSampleY)
 {
     try
     {
@@ -188,6 +195,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setEpsilon
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setTextureIDs
   (JNIEnv *env, jobject obj, jlongArray texIDs)
 {
@@ -200,9 +208,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Sticker_setTextureIDs
 
         chunk->texIDs.clear();
         
-        JavaLongArray texArray(env,texIDs);
+        const JavaLongArray texArray(env,texIDs,false);
         for (int ii=0;ii<texArray.len;ii++)
+        {
             chunk->texIDs.push_back(texArray.rawLong[ii]);
+        }
     }
     catch (...)
     {

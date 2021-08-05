@@ -121,29 +121,36 @@ std::vector<VectorStyleImplRef> VectorStyleSetWrapper_Android::stylesForFeature(
     auto threadInfo = (PlatformInfo_Android *)platformInfo;
 
     // TODO: This is making a copy.  See if we can avoid that
-    MutableDictionary_AndroidRef dict = std::make_shared<MutableDictionary_Android>(attrs);
+    const auto dict = std::make_shared<MutableDictionary_Android>(attrs);
 
     // Wrap the layer name and attributes and call the method
     jobject jStr = threadInfo->env->NewStringUTF(layerName.c_str());
-    jobject attrObj = MakeAttrDictionary(threadInfo->env,dict);
+    jobject attrObj = MakeAttrDictionaryRef(threadInfo->env,dict);
     auto longArray = (jlongArray)threadInfo->env->CallObjectMethod(wrapperObj,stylesForFeatureMethod,attrObj,tileID.x,tileID.y,tileID.level,jStr);
     threadInfo->env->DeleteLocalRef(jStr);
     threadInfo->env->DeleteLocalRef(attrObj);
 
     // Turn the resulting IDs into a list of styles we can return
     std::vector<VectorStyleImplRef> retStyles;
-    if (longArray) {
-        std::set<SimpleIdentity> uuids;
+    if (longArray)
+    {
+        std::unordered_set<SimpleIdentity> uuids;
         ConvertLongArrayToSet(threadInfo->env,longArray,uuids);
         threadInfo->env->DeleteLocalRef(longArray);
+        longArray = nullptr;
 
-        for (auto uuid: uuids) {
+        retStyles.reserve(uuids.size());
+        for (auto uuid: uuids)
+        {
             auto entry = styles.find(uuid);
-            if (entry == styles.end()) {
-                wkLogLevel(Warn,"Failed to find style for UUID in VectorStyleSet_Android.  Features will disappear.");
-                continue;
+            if (entry != styles.end())
+            {
+                retStyles.push_back(entry->second.style);
             }
-            retStyles.push_back(entry->second.style);
+            else
+            {
+                wkLogLevel(Warn,"Failed to find style for UUID in VectorStyleSet_Android.  Features will disappear.");
+            }
         }
     }
 

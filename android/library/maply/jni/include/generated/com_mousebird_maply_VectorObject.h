@@ -41,6 +41,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributes
 
 /*
  * Class:     com_mousebird_maply_VectorObject
+ * Method:    getAttributesRef
+ * Signature: ()Lcom/mousebird/maply/AttrDictionary;
+ */
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_getAttributesRef
+        (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_VectorObject
  * Method:    setAttributes
  * Signature: (Lcom/mousebird/maply/AttrDictionary;)V
  */

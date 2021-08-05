@@ -39,8 +39,8 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 import com.mousebirdconsulting.autotester.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
 
 public class StickersTestCase extends MaplyTestCase {
 
@@ -52,22 +52,33 @@ public class StickersTestCase extends MaplyTestCase {
 
 	@Override
 	public boolean setUpWithMap(MapController mapVC) throws Exception {
-		VectorsTestCase baseView = new VectorsTestCase(getActivity());
-		baseView.setUpWithMap(mapVC);
-		addStickers(baseView.getVectors(), mapVC);
+		baseCase.setOnVectorsLoaded(vectors -> {
+			addStickers(vectors, mapVC);
+			return null;
+		});
+		baseCase.setUpWithMap(mapVC);
 		return true;
 	}
 
 
 	@Override
 	public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-		VectorsTestCase baseView = new VectorsTestCase(getActivity());
-		baseView.setUpWithGlobe(globeVC);
-		addStickers(baseView.getVectors(), globeVC);
+		baseCase.setOnVectorsLoaded(vectors -> {
+			addStickers(vectors, globeVC);
+			return null;
+		});
+		baseCase.setUpWithGlobe(globeVC);
 		return true;
 	}
 
-	private void addStickers(ArrayList<VectorObject> vectors, BaseController baseVC) {
+	@Override
+	public void shutdown() {
+		controller.removeObjects(componentObjects, RenderController.ThreadMode.ThreadCurrent);
+		baseCase.shutdown();
+		super.shutdown();
+	}
+
+	private void addStickers(Collection<? extends VectorObject> vectors, BaseController baseVC) {
 		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
 		MaplyTexture maplyTexture = baseVC.addTexture(icon, null, RenderController.ThreadMode.ThreadAny);
 		ArrayList<MaplyTexture> textures = new ArrayList<>();
@@ -88,8 +99,14 @@ public class StickersTestCase extends MaplyTestCase {
 		StickerInfo info = new StickerInfo();
 		info.setDrawPriority(VectorInfo.VectorPriorityDefault+1000);
 		ComponentObject compObj = baseVC.addStickers(stickers, info, RenderController.ThreadMode.ThreadCurrent);
+		if (compObj != null) {
+			componentObjects.add(compObj);
+		}
 		StickerInfo info2 = new StickerInfo();
 		info2.setDrawPriority(VectorInfo.VectorPriorityDefault-1);
 		baseVC.changeSticker(compObj, info2, RenderController.ThreadMode.ThreadCurrent);
 	}
+
+	private final VectorsTestCase baseCase = new VectorsTestCase(getActivity());
+	private final List<ComponentObject> componentObjects = new ArrayList<>();
 }

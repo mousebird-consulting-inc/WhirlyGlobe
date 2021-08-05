@@ -185,9 +185,9 @@ Point3d Proj4CoordSystem::geocentricToLocal(Point3d geocPt) const
     return {x,y,z};
 }
 
-bool Proj4CoordSystem::isSameAs(CoordSystem *coordSys) const
+bool Proj4CoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
-    const auto other = dynamic_cast<Proj4CoordSystem *>(coordSys);
+    const auto other = dynamic_cast<const Proj4CoordSystem *>(coordSys);
     return other && proj4Str == other->proj4Str;
 }
 

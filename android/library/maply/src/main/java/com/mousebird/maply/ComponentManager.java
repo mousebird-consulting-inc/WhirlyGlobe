@@ -146,6 +146,14 @@ public class ComponentManager
         compObjMap.remove(objID);
     }
 
+    public SelectedObject[] findVectors(Point2d geoPt, double maxDist, ViewState viewState,
+                                               Point2d  frameSize) {
+        return findVectors(geoPt, maxDist, viewState, frameSize, 0);
+    }
+
+    public native SelectedObject[] findVectors(Point2d geoPt, double maxDist, ViewState viewState,
+                                               Point2d  frameSize, int limit);
+
     static {
         nativeInit();
     }

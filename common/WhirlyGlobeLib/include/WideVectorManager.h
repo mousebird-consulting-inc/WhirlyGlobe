@@ -76,19 +76,19 @@ public:
 typedef std::shared_ptr<WideVectorInfo> WideVectorInfoRef;
     
 /// Used to track the
-class WideVectorSceneRep : public Identifiable
+struct WideVectorSceneRep : public Identifiable
 {
-public:
-    WideVectorSceneRep();
-    WideVectorSceneRep(SimpleIdentity inId);
-    ~WideVectorSceneRep();
+    WideVectorSceneRep() = default;
+    WideVectorSceneRep(SimpleIdentity inId) : Identifiable(inId), fade(0.0) {
+    }
+    ~WideVectorSceneRep() = default;
     
     void enableContents(bool enable,ChangeSet &changes);
     void clearContents(ChangeSet &changes,TimeInterval when);
     
     SimpleIDSet drawIDs;
     SimpleIDSet instIDs;    // Instances if we're doing that
-    float fade;
+    float fade = 0.0f;
 };
 
 typedef std::set<WideVectorSceneRep *,IdentifiableSorter> WideVectorSceneRepSet;
@@ -101,7 +101,7 @@ typedef std::set<WideVectorSceneRep *,IdentifiableSorter> WideVectorSceneRepSet;
 class WideVectorManager : public SceneManager
 {
 public:
-    WideVectorManager();
+    WideVectorManager() = default;
     virtual ~WideVectorManager();
 
     /// Add widened vectors for display

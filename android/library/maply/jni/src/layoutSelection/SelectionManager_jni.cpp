@@ -50,10 +50,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_initialise
 		const auto selectionManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 		SelectionManagerClassInfo::getClassInfo()->setHandle(env,obj,new SelectionManagerRef(selectionManager));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::initialise()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -69,10 +66,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SelectionManager_dispose
         delete selectionManager;
         classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::dispose()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -92,54 +86,72 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_SelectionManager_pickObject
 
 		return (jlong)(*selectionManager)->pickObject(Point2f(point->x(),point->y()),10.0,*mapViewState);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::pickObject()");
-	}
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
 extern "C"
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObjects
-(JNIEnv *env, jobject selManageObj, jobject compManageObj, jobject viewStateObj, jobject pointObj)
+  (JNIEnv *env, jobject selManageObj, jobject compManageObj,
+   jobject viewStateObj, jobject pointObj, jdouble maxDist)
 {
     try
     {
-        SelectionManagerRef *selectionManager = SelectionManagerClassInfo::getClassInfo()->getObject(env,selManageObj);
-        ComponentManager_AndroidRef *compManager = ComponentManagerClassInfo::getClassInfo()->getObject(env,compManageObj);
-		ViewStateRefClassInfo *viewStateRefClassInfo = ViewStateRefClassInfo::getClassInfo();
-		ViewStateRef *mapViewState = viewStateRefClassInfo->getObject(env,viewStateObj);
-        Point2dClassInfo *point2DclassInfo = Point2dClassInfo::getClassInfo();
-        Point2d *point = point2DclassInfo->getObject(env,pointObj);
-        if (!selectionManager || !compManager || !mapViewState || !point)
-            return nullptr;
-        
-        const Point2f frameBufferSizeScaled = (*selectionManager)->getSceneRenderer()->getFramebufferSizeScaled();
-        const Point2f frameBufferSize = (*selectionManager)->getSceneRenderer()->getFramebufferSize();
-
-        // This takes care of labels, markers, billboards, 3D objects and such.
-        const Point2f pt2f(point->x(),point->y());
-        std::vector<SelectionManager::SelectedObject> selObjs;
-        selObjs.reserve(10);
-        (*selectionManager)->pickObjects(pt2f,10.0,*mapViewState,selObjs);
-
-        // Need the point in geographic
-        auto *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(mapViewState->get());
-        auto *maplyViewState = dynamic_cast<Maply::MapViewState *>(mapViewState->get());
-        Point3d dispPt;
-        if (globeViewState) {
-            globeViewState->pointOnSphereFromScreen(Point2f(point->x(),point->y()),globeViewState->fullMatrices[0],frameBufferSize,dispPt);
-        } else if (mapViewState) {
-            maplyViewState->pointOnPlaneFromScreen(Point2f(point->x(),point->y()),maplyViewState->fullMatrices[0],frameBufferSize,dispPt,false);
-        } else {
+        const auto selectionManager = SelectionManagerClassInfo::get(env,selManageObj);
+        const auto compManager = ComponentManagerClassInfo::get(env,compManageObj);
+		const auto viewState = ViewStateRefClassInfo::get(env, viewStateObj);
+        const auto point = Point2dClassInfo::get(env,pointObj);
+        if (!selectionManager || !compManager || !viewState || !point)
+        {
             return nullptr;
         }
 
-        const Point3d locPoint = (*mapViewState)->coordAdapter->displayToLocal(dispPt);
+        const auto renderer = (*selectionManager)->getSceneRenderer();
+        const auto coordAdapter = (*viewState)->coordAdapter;
+        const auto coordSystem = coordAdapter ? coordAdapter->getCoordSystem() : nullptr;
+        if (!renderer || !coordSystem)
+        {
+            return nullptr;
+        }
+
+        // This takes care of labels, markers, billboards, 3D objects and such.
+        std::vector<SelectionManager::SelectedObject> selObjs;
+        selObjs.reserve(10);
+        const Point2f pt2f = point->cast<float>();
+        (*selectionManager)->pickObjects(pt2f, maxDist, *viewState, selObjs);
+
+        const Point2f frameBufSize = renderer->getFramebufferSize();
+        const Point2f frameBufSizeScaled = renderer->getFramebufferSizeScaled();
+
+        // Need the point in geographic
+        Point3d dispPt;
+        if (auto *globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState->get()))
+        {
+            const auto &matrix = globeViewState->fullMatrices[0];
+            if (!globeViewState->pointOnSphereFromScreen(pt2f, matrix, frameBufSize,dispPt))
+            {
+                return nullptr;
+            }
+        }
+        else if (auto *mapViewState = dynamic_cast<Maply::MapViewState *>(viewState->get()))
+        {
+            const auto &matrix = mapViewState->fullMatrices[0];
+            if (!mapViewState->pointOnPlaneFromScreen(pt2f, matrix, frameBufSize, dispPt, false))
+            {
+                return nullptr;
+            }
+        }
+        else
+        {
+            return nullptr;
+        }
+
+        const Point3d locPoint = coordAdapter->displayToLocal(dispPt);
+        const Point2f geoPoint = coordSystem->localToGeographic(locPoint);
+        const Point2d geoPoint2d = geoPoint.cast<double>();
 
         // This one does vector features
-        auto vecObjs = (*compManager)->findVectors(Point2d(locPoint.x(),locPoint.y()),20.0,*mapViewState,frameBufferSizeScaled,true);
+        auto vecObjs = (*compManager)->findVectors(geoPoint2d, maxDist, *viewState, frameBufSizeScaled);
 
         selObjs.reserve(selObjs.size() + vecObjs.size());
         for (const auto &vecObj : vecObjs)
@@ -149,10 +161,12 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
         }
 
         if (selObjs.empty())
+        {
             return nullptr;
+        }
 
-        const jclass jc = SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject")->getClass();
-        const jobjectArray retArray = env->NewObjectArray(selObjs.size(), jc, nullptr);
+        jclass jc = SelectedObjectClassInfo::getClassInfo(env,"com/mousebird/maply/SelectedObject")->getClass();
+        jobjectArray retArray = env->NewObjectArray(selObjs.size(), jc, nullptr);
         int which = 0;
         for (auto &selObj : selObjs)
         {
@@ -164,10 +178,6 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_SelectionManager_pickObj
 
         return retArray;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SelectionManager::pickObjects()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }

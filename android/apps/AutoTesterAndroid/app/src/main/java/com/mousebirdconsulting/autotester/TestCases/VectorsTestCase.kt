@@ -35,6 +35,7 @@ class VectorsTestCase(activity: Activity?) :
                 vectors.add(vec)
                 baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadAny)?.let { co ->
                     compObjs.add(co)
+                    onVectorLoaded?.invoke(vec,co)
                 }
             }
         }
@@ -58,6 +59,7 @@ class VectorsTestCase(activity: Activity?) :
     }
 
     var onVectorsLoaded: ((Collection<VectorObject>)->Unit)? = null
+    var onVectorLoaded: ((VectorObject,ComponentObject)->Unit)? = null
     
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
@@ -116,5 +118,5 @@ class VectorsTestCase(activity: Activity?) :
     
     val baseCase: MaplyTestCase = GeographyClass(activity)
 
-    val vectors = ArrayList<VectorObject>()
+    private val vectors = ArrayList<VectorObject>()
 }

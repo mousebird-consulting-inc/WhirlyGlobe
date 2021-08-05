@@ -32,9 +32,9 @@ namespace WhirlyKit
 View::View() :
     coordAdapter(nullptr)
 {
-    fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
+    fieldOfView = 60.0 / 360.0 * 2 * M_PI;  // 60 degree field of view
     nearPlane = 0.001;
-    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0f);
+    imagePlaneSize = nearPlane * std::tan(fieldOfView / 2.0f);
     farPlane = 10.0;
     centerOffset = Point2d(0.0,0.0);
     lastChangedTime = TimeGetCurrent();
@@ -48,15 +48,11 @@ View::View(const View &that)
 {
 }
     
-View::~View()
-{
-}
-
 void View::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,Point2d &ll,Point2d &ur,double & near,double &far)
 {
 	ll.x() = -imagePlaneSize;
 	ur.x() = imagePlaneSize;
-	double ratio =  ((double)frameHeight / (double)frameWidth);
+	const double ratio =  ((double)frameHeight / (double)frameWidth);
 	ll.y() = -imagePlaneSize * ratio;
 	ur.y() = imagePlaneSize * ratio ;
 	near = nearPlane;
@@ -73,20 +69,18 @@ void View::animate()
 
 float View::calcZbufferRes()
 {
-    return 1.0;
+    return 1.0f;
 }
 
 /// Generate the model view matrix for use by OpenGL.
 Eigen::Matrix4d View::calcModelMatrix() const
 {
-    Eigen::Matrix4d ident = ident.Identity();
-    return ident;
+    return Eigen::Matrix4d::Identity();
 }
 
 Eigen::Matrix4d View::calcViewMatrix() const
 {
-    Eigen::Matrix4d ident = ident.Identity();
-    return ident;
+    return Eigen::Matrix4d::Identity();
 }
 
 Eigen::Matrix4d View::calcFullMatrix() const
@@ -102,8 +96,8 @@ Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
 	const double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
 	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
 	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
-	const float near = nearPlane;
-	const float far = farPlane;
+	const auto near = (float)nearPlane;
+	const auto far = (float)farPlane;
     
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
@@ -127,10 +121,10 @@ Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
     return projMat;
 }
 
-void View::getOffsetMatrices(std::vector<Eigen::Matrix4d> &matrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX) const
+void View::getOffsetMatrices(std::vector<Eigen::Matrix4d> &matrices,
+                             const WhirlyKit::Point2f &frameBufferSize,float bufferX) const
 {
-    Eigen::Matrix4d ident;
-    matrices.push_back(ident.Identity());
+    matrices.emplace_back(Eigen::Matrix4d::Identity());
 }
 
 WhirlyKit::Point2f View::unwrapCoordinate(const WhirlyKit::Point2f &pt) const
@@ -145,7 +139,7 @@ double View::heightAboveSurface() const
 
 Eigen::Vector3d View::eyePos() const
 {
-    return Eigen::Vector3d(0,0,0);
+    return { 0.0, 0.0, 0.0 };
 }
 
 Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned int frameHeight,bool clip)
@@ -154,13 +148,13 @@ Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned i
 	double near,far;
 	calcFrustumWidth(frameWidth,frameHeight,ll,ur,near,far);
 	
-	// Calculate a parameteric value and flip the y/v
-	double u = screenPt.x() / frameWidth;
+	// Calculate a parametric value and flip the y/v
+	double u = screenPt.x() / (float)frameWidth;
     if (clip)
     {
         u = std::max(0.0,u);	u = std::min(1.0,u);
     }
-	double v = screenPt.y() / frameHeight;
+	double v = screenPt.y() / (float)frameHeight;
     if (clip)
     {
         v = std::max(0.0,v);	v = std::min(1.0,v);
@@ -168,8 +162,8 @@ Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned i
 	v = 1.0 - v;
 	
 	// Now come up with a point in 3 space between ll and ur
-	Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-	return Point3d(mid.x(),mid.y(),-near);
+	const Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
+	return { mid.x(), mid.y(), -near };
 }
 
 //- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight
@@ -317,10 +311,6 @@ ViewState::ViewState(WhirlyKit::View *view,SceneRenderer *renderer) :
     coordAdapter = view->coordAdapter;
 }
 
-ViewState::~ViewState()
-{
-}
-
 void ViewState::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight)
 {
     ll.x() = -imagePlaneSize;
@@ -337,7 +327,7 @@ Point3d ViewState::pointUnproject(Point2d screenPt,unsigned int frameWidth,unsig
     if (ll.x() == ur.x())
         calcFrustumWidth(frameWidth,frameHeight);
     
-    // Calculate a parameteric value and flip the y/v
+    // Calculate a parametric value and flip the y/v
     double u = screenPt.x() / frameWidth;
     if (clip)
     {
@@ -351,8 +341,8 @@ Point3d ViewState::pointUnproject(Point2d screenPt,unsigned int frameWidth,unsig
     v = 1.0 - v;
     
     // Now come up with a point in 3 space between ll and ur
-    Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
-    return Point3d(mid.x(),mid.y(),-near);
+    const Point2d mid(u * (ur.x()-ll.x()) + ll.x(), v * (ur.y()-ll.y()) + ll.y());
+    return { mid.x(),mid.y(),-near };
 }
 
 Point2f ViewState::pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen::Matrix4d *transform,const Point2f &frameSize)
@@ -367,23 +357,18 @@ Point2f ViewState::pointOnScreenFromDisplay(const Point3d &worldLoc,const Eigen:
     
     // Now we need to scale that to the frame
     if (ll.x() == ur.x())
-        calcFrustumWidth(frameSize.x(),frameSize.y());
-    double u = (ray.x() - ll.x()) / (ur.x() - ll.x());
-    double v = (ray.y() - ll.y()) / (ur.y() - ll.y());
-    v = 1.0 - v;
-    
-    Point2f retPt;
-    if (ray.z() < 0.0)
     {
-        retPt.x() = u * frameSize.x();
-        retPt.y() = v * frameSize.y();
-    } else
-        retPt = Point2f(-100000, -100000);
-    
-    return retPt;
+        calcFrustumWidth((int)frameSize.x(),(int)frameSize.y());
+    }
+
+    const auto u = (float)((ray.x() - ll.x()) / (ur.x() - ll.x()));
+    const auto v = (float)(1.0 - (ray.y() - ll.y()) / (ur.y() - ll.y()));
+
+    return (ray.z() < 0.0) ? Point2f{ u * frameSize.x(), v * frameSize.y() } :
+                             Point2f{ -100000.0f, -100000.0f };
 }
 
-bool ViewState::isSameAs(WhirlyKit::ViewState *other)
+bool ViewState::isSameAs(const ViewState *other) const
 {
     if (fieldOfView != other->fieldOfView || imagePlaneSize != other->imagePlaneSize ||
         nearPlane != other->nearPlane || farPlane != other->farPlane)

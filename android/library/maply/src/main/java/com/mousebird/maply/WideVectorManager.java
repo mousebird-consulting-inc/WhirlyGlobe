@@ -1,31 +1,24 @@
 package com.mousebird.maply;
 
-import java.util.List;
-
 /**
  * The Wide Vector Manager is an interface to the Maply C++
  * wide vector manager and should be invisible to toolkit users.
  */
 public class WideVectorManager {
-    private WideVectorManager()
-    {
+    @SuppressWarnings("unused")     // Used by JNI
+    private WideVectorManager() {
     }
 
     WideVectorManager(Scene scene) { initialise(scene); }
 
-    public void finalize()
-    {
-        dispose();
-    }
-
     // Add vectors to the scene and return an ID to track them
-    public native long addVectors(VectorObject[] vecs, WideVectorInfo vecInfo, ChangeSet changes);
+    public native long addVectors(VectorObject[] objects, WideVectorInfo vecInfo, ChangeSet changes);
 
     // Remove vectors by ID
-    public native void removeVectors(long ids[],ChangeSet changes);
+    public native void removeVectors(long[] ids, ChangeSet changes);
 
     // Enable/disable vectors by ID
-    public native void enableVectors(long ids[],boolean enable,ChangeSet changes);
+    public native void enableVectors(long[] ids, boolean enable, ChangeSet changes);
 
     // Instance the given wide vectors with the given changes
     public native long instanceVectors(long vecId,WideVectorInfo vecInfo,ChangeSet changes);
@@ -37,5 +30,10 @@ public class WideVectorManager {
     private static native void nativeInit();
     native void initialise(Scene scene);
     native void dispose();
+    public void finalize() {
+        dispose();
+    }
+
+    @SuppressWarnings("unused")     // Used by JNI
     private long nativeHandle;
 }

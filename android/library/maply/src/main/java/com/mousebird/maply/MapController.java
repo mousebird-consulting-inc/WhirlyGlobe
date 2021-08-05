@@ -742,65 +742,62 @@ public class MapController extends BaseController implements View.OnTouchListene
 	
 	// Called by the gesture handler to let us know the user tapped
 	// screenLoc is in view coordinates
-	public void processTap(Point2d screenLoc)
-	{
-		if (gestureDelegate != null) {
+	public void processTap(final Point2d screenLoc) {
+		final GestureDelegate delegate = running ? gestureDelegate : null;
+		if (gestureDelegate == null) {
+			return;
+		}
 
-			Matrix4d mapTransform = mapView.calcModelViewMatrix();
-			Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, getViewSize(), false);
+		final Matrix4d mapTransform = mapView.calcModelViewMatrix();
+		final Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, getViewSize(), false);
 
-			Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
-			Point3d geoPt = null;
-			if (localPt != null)
-				geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
+		final Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
+		Point3d geoPt = null;
+		if (localPt != null) {
+			geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
+		}
 
-//			Object selObj = this.getObjectAtScreenLoc(screenLoc);
-			SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
+		if (geoPt != null) {
+			final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc, vectorSelectDistance);
 
 			if (selObjs != null) {
-				if (geoPt != null)
-					gestureDelegate.userDidSelect(this, selObjs, geoPt.toPoint2d(), screenLoc);
+				gestureDelegate.userDidSelect(this, selObjs, geoPt.toPoint2d(), screenLoc);
 			} else {
 				// Just a simple tap, then
-				if (geoPt != null)
-					gestureDelegate.userDidTap(this, geoPt.toPoint2d(), screenLoc);
+				gestureDelegate.userDidTap(this, geoPt.toPoint2d(), screenLoc);
 			}
 		}
 	}
-
-
 
 	/**
 	 * Called by the gesture handler to let us know the user long pressed somewhere
 	 * @param screenLoc Screen coordinates of the press
      */
-    public void processLongPress(Point2d screenLoc) {
-
-		Matrix4d mapTransform = mapView.calcModelViewMatrix();
-		Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderControl.frameSize, false);
-
-		if (gestureDelegate != null)
-		{
-			final Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
-			Point3d geoPt = null;
-			if (localPt != null)
-				geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
-			if (geoPt != null) {
-				//Object selObj = this.getObjectAtScreenLoc(screenLoc);
-				final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc);
-				gestureDelegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
-			}
+    public void processLongPress(final Point2d screenLoc) {
+		final GestureDelegate delegate = running ? gestureDelegate : null;
+		if (delegate == null) {
+			return;
 		}
 
+		final Matrix4d mapTransform = mapView.calcModelViewMatrix();
+		final Point3d loc = mapView.pointOnPlaneFromScreen(screenLoc, mapTransform, renderControl.frameSize, false);
+		final Point3d localPt = mapView.getCoordAdapter().displayToLocal(loc);
+		Point3d geoPt = null;
+		if (localPt != null) {
+			geoPt = mapView.getCoordAdapter().getCoordSystem().localToGeographic(localPt);
+		}
+		if (geoPt != null) {
+			final SelectedObject[] selObjs = this.getObjectsAtScreenLoc(screenLoc, vectorSelectDistance);
+			delegate.userDidLongPress(this, selObjs, geoPt.toPoint2d(), screenLoc);
+		}
 	}
 
 	// Pass the touches on to the gesture handler
 	@Override
 	public boolean onTouch(View view, MotionEvent e) {
 		view.performClick();
-		if (running & gestureHandler != null)
-			return gestureHandler.onTouch(view, e);
-		return false;
+		final MapGestureHandler handler = running ? gestureHandler : null;
+		return handler != null && handler.onTouch(view, e);
 	}
 
     boolean isPanning = false, isZooming = false, isRotating = false,

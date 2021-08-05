@@ -43,173 +43,140 @@ Point3d PlateCarreeCoordSystem::geocentricToLocal(Point3d geocPt) const
     return GeoCoordSystem::GeocentricToLocal(geocPt);
 }
     
-bool PlateCarreeCoordSystem::isSameAs(CoordSystem *coordSys) const
+bool PlateCarreeCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
-    const auto other = dynamic_cast<PlateCarreeCoordSystem *>(coordSys);
+    const auto other = dynamic_cast<const PlateCarreeCoordSystem *>(coordSys);
     return (other != nullptr);
 }
 
 
-FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoord &origin)
-    : origin(origin)
+FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoord &origin) :
+    origin(origin),
+    converge(std::cos(origin.lat()))
 {
-    converge = cosf(origin.lat());
 }
 
 // Works for flat earth, but not ideal
-static constexpr float MetersPerRadian = 111120.0 * 180.0 / M_PI;
+static constexpr double MetersPerRadian = 111120.0 * 180.0 / M_PI;
 
 GeoCoord FlatEarthCoordSystem::localToGeographic(Point3f pt) const
 {
-    GeoCoord coord;
-    coord.lon() = pt.x() / (MetersPerRadian * converge) + origin.lon();
-    coord.lat() = pt.y() / MetersPerRadian + origin.lat();
-    
-    return coord;
+    return {
+        (float)(pt.x() / (MetersPerRadian * converge) + origin.lon()),
+        (float)(pt.y() / MetersPerRadian + origin.lat())
+    };
 }
 
 GeoCoord FlatEarthCoordSystem::localToGeographic(Point3d pt) const
 {
-    GeoCoord coord;
-    coord.lon() = pt.x() / (MetersPerRadian * converge) + origin.lon();
-    coord.lat() = pt.y() / MetersPerRadian + origin.lat();
-    
-    return coord;
+    return {
+            (float)(pt.x() / (MetersPerRadian * converge) + origin.lon()),
+            (float)(pt.y() / MetersPerRadian + origin.lat())
+    };
 }
 
 Point2d FlatEarthCoordSystem::localToGeographicD(Point3d pt) const
 {
-    Point2d coord;
-    coord.x() = pt.x() / (MetersPerRadian * converge) + origin.lon();
-    coord.y() = pt.y() / MetersPerRadian + origin.lat();
-    
-    return coord;
+    return {
+        pt.x() / (MetersPerRadian * converge) + origin.lon(),
+        pt.y() / MetersPerRadian + origin.lat()
+    };
 }
 
 Point3f FlatEarthCoordSystem::geographicToLocal(GeoCoord geo) const
 {
-    Point3f pt;
-    pt.x() = (geo.lon() - origin.lon()) * converge * MetersPerRadian;
-    pt.y() = (geo.lat() - origin.lat()) * MetersPerRadian;
-    pt.z() = 0.0;
-    
-    return pt;
+    return {
+        (geo.lon() - origin.lon()) * converge * MetersPerRadian,
+        (geo.lat() - origin.lat()) * MetersPerRadian,
+        0.0,
+    };
 }
 
 Point3d FlatEarthCoordSystem::geographicToLocal3d(GeoCoord geo) const
 {
-    Point3d pt;
-    pt.x() = (geo.lon() - origin.lon()) * converge * MetersPerRadian;
-    pt.y() = (geo.lat() - origin.lat()) * MetersPerRadian;
-    pt.z() = 0.0;
-    
-    return pt;
+    return {
+        (geo.lon() - origin.lon()) * converge * MetersPerRadian,
+           (geo.lat() - origin.lat()) * MetersPerRadian,
+           0.0
+    };
 }
 
 Point3d FlatEarthCoordSystem::geographicToLocal(Point2d geo) const
 {
-    Point3d pt;
-    pt.x() = (geo.x() - origin.lon()) * converge * MetersPerRadian;
-    pt.y() = (geo.y() - origin.lat()) * MetersPerRadian;
-    pt.z() = 0.0;
-    
-    return pt;
+    return {
+        (geo.x() - origin.lon()) * converge * MetersPerRadian,
+        (geo.y() - origin.lat()) * MetersPerRadian,
+        0.0
+    };
 }
 
 /// Convert from local coordinates to WGS84 geocentric
 Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt) const
 {
-    GeoCoord geoCoord = localToGeographic(localPt);
+    const GeoCoord geoCoord = localToGeographic(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
 
 Point3d FlatEarthCoordSystem::localToGeocentric(Point3d localPt) const
 {
-    GeoCoord geoCoord = localToGeographic(localPt);
+    const GeoCoord geoCoord = localToGeographic(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3d(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
     
 /// Convert from WGS84 geocentric to local coordinates
 Point3f FlatEarthCoordSystem::geocentricToLocal(Point3f geocPt) const
 {
-    Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
-    Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
-    return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());
+    const Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    const Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return { localPt.x(),localPt.y(),geoCoordPlus.z() };
 }
 
 Point3d FlatEarthCoordSystem::geocentricToLocal(Point3d geocPt) const
 {
-    Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
-    Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
-    return Point3d(localPt.x(),localPt.y(),geoCoordPlus.z());
+    const Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    const Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return { localPt.x(),localPt.y(),geoCoordPlus.z() };
 }
     
-bool FlatEarthCoordSystem::isSameAs(CoordSystem *coordSys) const
+bool FlatEarthCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
-    const auto other = dynamic_cast<FlatEarthCoordSystem *>(coordSys);
+    const auto other = dynamic_cast<const FlatEarthCoordSystem *>(coordSys);
     return other && other->origin == origin;
 }
 
 GeoCoord PassThroughCoordSystem::localToGeographic(Point3f pt) const
 {
-    GeoCoord coord;
-    coord.lon() = pt.x();
-    coord.lat() = pt.y();
-    
-    return coord;
+    return { pt.x(), pt.y() };
 }
 
 GeoCoord PassThroughCoordSystem::localToGeographic(Point3d pt) const
 {
-    GeoCoord coord;
-    coord.lon() = pt.x();
-    coord.lat() = pt.y();
-    
-    return coord;
+    return { (float)pt.x(), (float)pt.y() };
 }
 
 Point2d PassThroughCoordSystem::localToGeographicD(Point3d pt) const
 {
-    Point2d coord;
-    coord.x() = pt.x();
-    coord.y() = pt.y();
-    
-    return coord;
+    return { pt.x(), pt.y() };
 }
 
 Point3f PassThroughCoordSystem::geographicToLocal(GeoCoord geo) const
 {
-    Point3f pt;
-    pt.x() = geo.lon();
-    pt.y() = geo.lat();
-    pt.z() = 0.0;
-    
-    return pt;
+    return { geo.lon(), geo.lat(), 0.0f };
 }
 
 Point3d PassThroughCoordSystem::geographicToLocal3d(GeoCoord geo) const
 {
-    Point3d pt;
-    pt.x() = geo.lon();
-    pt.y() = geo.lat();
-    pt.z() = 0.0;
-    
-    return pt;
+    return { geo.lon(), geo.lat(), 0.0 };
 }
 
 Point3d PassThroughCoordSystem::geographicToLocal(Point2d geo) const
 {
-    Point3d pt;
-    pt.x() = geo.x();
-    pt.y() = geo.y();
-    pt.z() = 0.0;
-    
-    return pt;
+    return { geo.x(), geo.y(), 0.0 };
 }
 
-bool PassThroughCoordSystem::isSameAs(CoordSystem *coordSys) const
+bool PassThroughCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
-    const auto other = dynamic_cast<PassThroughCoordSystem *>(coordSys);
+    const auto other = dynamic_cast<const PassThroughCoordSystem *>(coordSys);
     return (other != nullptr);
 }
 }

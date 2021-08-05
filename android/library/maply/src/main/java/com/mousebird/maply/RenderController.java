@@ -1163,19 +1163,16 @@ public class RenderController implements RenderControllerInterface
                 compObj.addWideVectorID(vecId);
             }
 
+            // todo: should we still produce a component object and add it as selectable if addVectors returned zero?
+
             for (VectorObject vecObj : vecs) {
-                // Keep track of this one for selection
                 if (vecObj.getSelectable()) {
+                    // Keep track of this one for selection
                     compObj.addVector(vecObj);
                     componentManager.addSelectableObject(vecObj.ident,vecObj,compObj);
-                }
-            }
-
-            if (wideVecInfo.disposeAfterUse || disposeAfterRemoval) {
-                for (VectorObject vecObj : vecs) {
-                    if (!vecObj.getSelectable()) {
-                        vecObj.dispose();
-                    }
+                } else if (wideVecInfo.disposeAfterUse || disposeAfterRemoval) {
+                    // Discard it
+                    vecObj.dispose();
                 }
             }
 

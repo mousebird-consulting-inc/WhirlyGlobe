@@ -92,7 +92,6 @@ typedef std::map<SimpleIdentity,ComponentObjectRef> ComponentObjectMap;
 /** Component Object Manager
  
     Manages component objects, particular enable/disable and deletion.
-    The
   */
 class ComponentManager : public SceneManager
 {
@@ -157,10 +156,35 @@ public:
 
     /// We're done with the given mask target
     virtual void releaseMaskIDs(const SimpleIDSet &maskIDs);
-    
-    /// Find all the vectors that fall within or near the given point
-    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool muti);
-    
+
+    using CompObjVectorObjPair = std::pair<ComponentObjectRef,VectorObjectRef>;
+
+    /** Find all the vectors that fall within or near the given point
+     *
+     *  @param pt The point to search in geographic coordinates
+     *  @param maxDist The maximum distance from the point within which a vector must be. (todo: units?)
+     *  @param viewState The view state to use for scaling
+     *  @param frameSize The frame size in device coordinates to use for scaling
+     *  @param multi If true, return all matches; if false return the first match.
+     */
+    std::vector<CompObjVectorObjPair> findVectors(
+            const Point2d &pt,double maxDist,const ViewStateRef &viewState,
+            const Point2f &frameSize,bool multi) {
+        return findVectors(pt,maxDist,viewState,frameSize,multi?0:1);
+    }
+
+    /** Find all the vectors that fall within or near the given point
+     *
+     *  @param pt The point to search in geographic coordinates
+     *  @param maxDist The maximum distance from the point, in device units.
+     *  @param viewState The view state to use for scaling
+     *  @param frameSize The frame size in device coordinates to use for scaling
+     *  @param resultLimit The maximum number of results to return, zero or less for unlimited.
+     */
+    std::vector<CompObjVectorObjPair> findVectors(
+            const Point2d &pt,double maxDist,const ViewStateRef &viewState,
+            const Point2f &frameSize,int resultLimit = 0);
+
     // These are here for convenience
     LayoutManagerRef layoutManager;
     MarkerManagerRef markerManager;

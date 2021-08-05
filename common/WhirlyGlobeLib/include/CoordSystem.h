@@ -71,14 +71,14 @@ public:
     virtual Point3d geocentricToLocal(Point3d) const = 0;
     
     /// Return true if the given coordinate system is the same as the one passed in
-    virtual bool isSameAs(CoordSystem *coordSys) const { return false; }
+    virtual bool isSameAs(const CoordSystem *coordSys) const { return false; }
 };
     
 typedef std::shared_ptr<CoordSystem> CoordSystemRef;
     
 /// Convert a point from one coordinate system to another
-Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord);
-Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3d inCoord);
+Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3f &inCoord);
+Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3d &inCoord);
     
 /** The Coordinate System Display Adapter handles the task of
     converting coordinates in the native system to data values we

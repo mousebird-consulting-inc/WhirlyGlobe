@@ -625,13 +625,13 @@ void ComponentManager::releaseMaskIDs(const SimpleIDSet &maskIDs)
     }
 }
     
-std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool multi)
+std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> ComponentManager::findVectors(
+        const Point2d &pt,double maxDist,const ViewStateRef &viewState,
+        const Point2f &frameSize,int resultLimit)
 {
-    std::vector<ComponentObjectRef> compRefs;
-    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
-
     // not locked, we don't care if the size is off, we just want
     // to typically do the allocations outside the locked region.
+    std::vector<ComponentObjectRef> compRefs;
     compRefs.reserve(compObjsById.size());
 
     // Copy out the vectors that might be candidates
@@ -646,27 +646,25 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
             }
         }
     }
-    
+
+    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
+    rets.reserve((resultLimit > 0) ? resultLimit : compRefs.size());
+
     // Work through the vector objects
-    rets.reserve(multi ? compRefs.size() : 1);
     for (const auto &compObj: compRefs)
     {
-        const auto &center = compObj->vectorOffset;
-        const Point2d coord = { pt.x()-center.x(), pt.y()-center.y() };
+        const Point2d coord = pt - compObj->vectorOffset;
 
         for (const auto &vecObj: compObj->vecObjs)
         {
-            if (vecObj->pointInside(pt))
-            {
-                rets.emplace_back(compObj, vecObj);
-            }
-            else if (vecObj->pointNearLinear(coord, (float)maxDist, viewState, frameSize))
+            if (vecObj->pointInside(pt) ||
+                vecObj->pointNearLinear(coord, (float)maxDist, viewState, frameSize))
             {
                 rets.emplace_back(compObj, vecObj);
             }
         }
         
-        if (!multi && !rets.empty())
+        if (resultLimit > 0 && rets.size() >= resultLimit)
         {
             break;
         }
