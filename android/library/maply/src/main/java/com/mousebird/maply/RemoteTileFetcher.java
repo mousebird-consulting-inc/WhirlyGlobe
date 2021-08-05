@@ -73,6 +73,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
     /**
      * A single tile that we're supposed to be loading.
      */
+    @SuppressWarnings("unused")
     public static class TileInfo implements Comparable<TileInfo>
     {
         TileInfoState state;
@@ -435,11 +436,13 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                     return;
 
                 // Ignore cancels, because we do those a lot
+                // noinspection ConstantConditions
                 if (e != null) {
-                    String mess = e.getLocalizedMessage();
+                    final String mess = e.getLocalizedMessage();
                     if (mess != null && mess.contains("Canceled")) {
-                        if (debugMode)
-                            Log.d("RemoteTileFetcher","Ignoring a cancel for: " + call.request());
+                        if (debugMode) {
+                            Log.d("RemoteTileFetcher", "Ignoring a cancel for: " + call.request());
+                        }
                         return;
                     }
                 }
@@ -490,7 +493,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
 
                 if (success) {
                     try (final ResponseBody body = response.body()) {
-                        final byte[] bodyBytes = body.bytes();
+                        final byte[] bodyBytes = (body != null) ? body.bytes() : null;
                         // body.contentLength() is -1 for streamed responses (transfer-encoding:chunked)
                         final int bodyLength = (bodyBytes != null) ? bodyBytes.length : 0;
                         if (bodyLength > 0) {
@@ -548,7 +551,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         try {
             try (FileInputStream fileStream = new FileInputStream(tile.fetchInfo.cacheFile)) {
                 try (BufferedInputStream buf = new BufferedInputStream(fileStream)) {
-                    int bytesRead = buf.read(data, 0, data.length);
+                    final int bytesRead = buf.read(data, 0, data.length);
                     if (bytesRead == data.length) {
                         success = true;
                     }
@@ -562,7 +565,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             if (!valid)
                 return;
 
-            Handler handler = new Handler(getLooper());
+            final Handler handler = new Handler(getLooper());
             handler.post(() -> {
                 allStats.localData = allStats.localData + size;
                 recentStats.localData = recentStats.localData + size;
@@ -570,14 +573,16 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 handleFinishLoading(tile,data,null);
             });
 
-            if (debugMode)
+            if (debugMode) {
                 Log.d("RemoteTileFetcher","Read from cache: " + tile.fetchInfo.urlReq);
+            }
         } else {
             // Didn't read it, so go get it
             startFetch(tile);
 
-            if (debugMode)
+            if (debugMode) {
                 Log.d("RemoteTileFetcher","Failed to reach from cache: " + tile.fetchInfo.urlReq);
+            }
         }
     }
 
@@ -595,48 +600,53 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
             return;
         }
 
-        BaseController theControl = control.get();
+        final BaseController theControl = control.get();
 
         // Let the caller know on a random thread because parsing may take a while
         // Has to be a worker thread because we need an OpenGL context
-        LayerThread backThread = theControl.getWorkingThread();
-        if (backThread != null) {
-            backThread.addTask(() -> {
-                if (!valid)
-                    return;
-
-                if (debugMode)
-                    Log.d("RemoteTileFetcher", "Returning fetch: " + tile.fetchInfo.urlReq);
-
-                if (error == null) {
-                    writeToCache(tile, data);
-                    tile.request.callback.success(tile.request, data);
-                } else
-                    tile.request.callback.failure(tile.request, error.toString());
-
-                if (!valid)
-                    return;
-
-                // Now get rid of the tile and kick off a new request
-                Handler handler = new Handler(getLooper());
-                handler.post(() -> {
-                    finishTile(tile);
-                    scheduleLoading();
-                });
-            });
+        final LayerThread backThread = (theControl != null) ? theControl.getWorkingThread() : null;
+        if (backThread == null) {
+            return;
         }
+
+        backThread.addTask(() -> {
+            if (!valid) {
+                return;
+            }
+
+            if (debugMode) {
+                Log.d("RemoteTileFetcher", "Returning fetch: " + tile.fetchInfo.urlReq);
+            }
+
+            if (error == null) {
+                writeToCache(tile, data);
+                tile.request.callback.success(tile.request, data);
+            } else
+                tile.request.callback.failure(tile.request, error.toString());
+
+            if (!valid) {
+                return;
+            }
+
+            // Now get rid of the tile and kick off a new request
+            final Handler handler = new Handler(getLooper());
+            handler.post(() -> {
+                finishTile(tile);
+                scheduleLoading();
+            });
+        });
     }
 
     // Write to the local cache.  Called on a random thread.
     protected void writeToCache(TileInfo tile,byte[] data)
     {
-        RemoteTileFetchInfo info = (tile != null) ? tile.fetchInfo : null;
-        File cacheFile = (info != null) ? info.cacheFile : null;
+        final RemoteTileFetchInfo info = (tile != null) ? tile.fetchInfo : null;
+        final File cacheFile = (info != null) ? info.cacheFile : null;
         if (cacheFile == null || data == null || data.length < 1)
             return;
 
-        File parent = cacheFile.getParentFile();
-        if (!parent.isDirectory() && !parent.mkdirs()) {
+        final File parent = cacheFile.getParentFile();
+        if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
             return;
         }
 
