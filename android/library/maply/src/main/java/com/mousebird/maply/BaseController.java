@@ -1784,7 +1784,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		// Ask the selection manager about markers, labels, etc.
 		// Also searches the Component Manager for selectable vectors.
 		final SelectedObject[] selObjs = renderControl.selectionManager.pickObjects(
-				renderControl.componentManager,theViewState,frameLoc);
+				renderControl.componentManager,theViewState,frameLoc,vectorSelectDistance);
 
 		theViewState.dispose();
 
