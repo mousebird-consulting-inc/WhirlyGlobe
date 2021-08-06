@@ -80,7 +80,7 @@ public class StickersTestCase extends MaplyTestCase {
 
 	private void addStickers(Collection<? extends VectorObject> vectors, BaseController baseVC) {
 		Bitmap icon = BitmapFactory.decodeResource(getActivity().getResources(), R.drawable.sticker);
-		MaplyTexture maplyTexture = baseVC.addTexture(icon, null, RenderController.ThreadMode.ThreadAny);
+		MaplyTexture maplyTexture = baseVC.addTexture(icon, null, RenderController.ThreadMode.ThreadCurrent);
 		ArrayList<MaplyTexture> textures = new ArrayList<>();
 		textures.add(maplyTexture);
 		List<Sticker> stickers = new ArrayList<>();
