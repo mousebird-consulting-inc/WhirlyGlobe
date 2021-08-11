@@ -1,9 +1,8 @@
-/*
- *  Scene.mm
+/*  Scene.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyKitLog.h"
@@ -43,31 +41,35 @@
 namespace WhirlyKit
 {
 
-SceneManager::SceneManager()
-: scene(nullptr), renderer(nullptr)
+SceneManager::SceneManager() :
+    scene(nullptr),
+    renderer(nullptr)
 {
+}
+
+SceneManager::~SceneManager()
+{
+    if (scene || renderer)
+    {
+        wkLogLevel(Warn, "Scene Manager not shut down");
+    }
 }
 
 void SceneManager::setRenderer(SceneRenderer *inRenderer)
 {
-//    std::lock_guard<std::mutex> guardLock(lock);  // ?
     renderer = inRenderer;
 }
 
 void SceneManager::setScene(Scene *inScene)
 {
-//    std::lock_guard<std::mutex> guardLock(lock);
     scene = inScene;
 }
 
-Scene *SceneManager::getScene() const
+void SceneManager::teardown()
 {
-    return scene;
-}
-
-SceneRenderer *SceneManager::getSceneRenderer() const
-{
-    return renderer;
+    shutdown = true;
+    setRenderer(nullptr);
+    setScene(nullptr);
 }
 
 Scene::Scene(CoordSystemDisplayAdapter *adapter) :
@@ -136,7 +138,11 @@ Scene::~Scene()
 #endif
 
     textures.clear();
-    
+
+    for (auto &manager : managers)
+    {
+        manager.second->setScene(nullptr);
+    }
     managers.clear();
     
     auto theChangeRequests = changeRequests;
@@ -155,7 +161,19 @@ Scene::~Scene()
     
     fontTextureManager = nullptr;
 }
-    
+
+void Scene::teardown(PlatformThreadInfo*)
+{
+    {
+        std::lock_guard<std::mutex> guardLock(managerLock);
+        for (auto &manager : managers)
+        {
+            manager.second->teardown();
+        }
+    }
+    setRenderer(nullptr);
+}
+
 CoordSystemDisplayAdapter *Scene::getCoordAdapter() const
 {
     return coordAdapter;
@@ -223,8 +241,11 @@ void Scene::addLocalMbr(const Mbr &localMbr)
 
 void Scene::setRenderer(SceneRenderer *renderer)
 {
-    setupInfo = renderer->getRenderSetupInfo();
-    
+    if (renderer)
+    {
+        setupInfo = renderer->getRenderSetupInfo();
+    }
+
     std::lock_guard<std::mutex> guardLock(managerLock);
 
     for (const auto &kvp : managers)
@@ -247,15 +268,17 @@ SceneManagerRef Scene::getManagerNoLock(const std::string &name)
 
 void Scene::addManager(const std::string &name,const SceneManagerRef &manager)
 {
-    std::lock_guard<std::mutex> guardLock(managerLock);
-
-    // If there's one here, we'll clear it out first
-    const auto result = managers.insert(std::make_pair(name, manager));
-    if (!result.second)
     {
-        // Entry was already present, replace it.
-        // Previous manager reference is released, possibly destroying it.
-        result.first->second = manager;
+        std::lock_guard<std::mutex> guardLock(managerLock);
+
+        // If there's one here, we'll clear it out first
+        const auto result = managers.insert(std::make_pair(name, manager));
+        if (!result.second)
+        {
+            // Entry was already present, replace it.
+            // Previous manager reference is released, possibly destroying it.
+            result.first->second = manager;
+        }
     }
     manager->setScene(this);
 }

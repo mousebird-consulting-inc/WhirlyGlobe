@@ -221,7 +221,7 @@ class SceneManager
 {
 public:
     SceneManager();
-    virtual ~SceneManager() = default;
+    virtual ~SceneManager();
     
     /// Set (or reset) the current renderer
     virtual void setRenderer(SceneRenderer *inRenderer);
@@ -230,16 +230,23 @@ public:
     virtual void setScene(Scene *inScene);
     
     /// Return the scene this is part of
-    Scene *getScene() const;
+    Scene *getScene() const { return scene; }
 
     /// Return the renderer
-    SceneRenderer *getSceneRenderer() const;
-    
+    SceneRenderer *getSceneRenderer() const { return renderer; }
+
+    /// Clean up resources and stop operations in progress
+    virtual void teardown();
+
+    bool isShuttingDown() const { return shutdown; }
+
 protected:
     std::mutex lock;
     
     Scene *scene;
     SceneRenderer *renderer;
+
+    volatile bool shutdown = false;
 };
 typedef std::shared_ptr<SceneManager> SceneManagerRef;
 
@@ -374,7 +381,7 @@ public:
     void dumpStats() const;
     
     /// Tear down renderer related assets
-    virtual void teardown(PlatformThreadInfo*) = 0;
+    virtual void teardown(PlatformThreadInfo*);
     
     /// Mark any changed programs as acknowledged (used in Metal)
     void markProgramsUnchanged();

@@ -257,6 +257,12 @@ public:
         hasUpdates = true;
     }
 
+    virtual void setRenderer(SceneRenderer *inRenderer) override;
+
+    virtual void setScene(Scene *inScene) override;
+
+    virtual void teardown() override;
+
 protected:
     static bool calcScreenPt(Point2f &objPt,
                              const LayoutObject *layoutObj,
@@ -295,7 +301,7 @@ protected:
     /// If there were updates since the last layout
     bool hasUpdates;
     /// Cancel a layout run in progress
-    bool cancelLayout;
+    volatile bool cancelLayout;
     /// Enable drawing layout boundaries
     bool showDebugBoundaries;
     /// Objects we're controlling the placement for

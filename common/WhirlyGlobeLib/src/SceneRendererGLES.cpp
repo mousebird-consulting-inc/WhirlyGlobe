@@ -155,7 +155,7 @@ void SceneRendererGLES::setScene(Scene *newScene)
 {
     SceneRenderer::setScene(newScene);
     auto *sceneGL = (SceneGLES *)newScene;
-    setupInfo.memManager = sceneGL->getMemManager();
+    setupInfo.memManager = sceneGL ? sceneGL->getMemManager() : nullptr;
 }
     
 bool SceneRendererGLES::resize(int sizeX,int sizeY)

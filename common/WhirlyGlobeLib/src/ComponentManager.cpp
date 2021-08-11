@@ -65,30 +65,27 @@ void ComponentObject::clear()
     drawStringIDs.clear();
 }
 
-ComponentManager::ComponentManager()
-: lastMaskID(0)
+ComponentManager::ComponentManager() :
+    lastMaskID(0)
 {
-}
-
-ComponentManager::~ComponentManager()
-{
-    //std::lock_guard<std::mutex> guardLock(lock);
 }
 
 void ComponentManager::setScene(Scene *scene)
 {
-    layoutManager = scene->getManagerNoLock<LayoutManager>(kWKLayoutManager);
-    markerManager = scene->getManagerNoLock<MarkerManager>(kWKMarkerManager);
-    labelManager = scene->getManagerNoLock<LabelManager>(kWKLabelManager);
-    vectorManager = scene->getManagerNoLock<VectorManager>(kWKVectorManager);
-    wideVectorManager = scene->getManagerNoLock<WideVectorManager>(kWKWideVectorManager);
-    shapeManager = scene->getManagerNoLock<ShapeManager>(kWKShapeManager);
-    chunkManager = scene->getManagerNoLock<SphericalChunkManager>(kWKSphericalChunkManager);
-    loftManager = scene->getManagerNoLock<LoftManager>(kWKLoftedPolyManager);
-    billManager = scene->getManagerNoLock<BillboardManager>(kWKBillboardManager);
-    geomManager = scene->getManagerNoLock<GeometryManager>(kWKGeometryManager);
-    fontTexManager = scene->getFontTextureManager();
-    partSysManager = scene->getManagerNoLock<ParticleSystemManager>(kWKParticleSystemManager);
+    SceneManager::setScene(scene);
+
+    layoutManager     = scene ? scene->getManager<LayoutManager>(kWKLayoutManager) : nullptr;
+    markerManager     = scene ? scene->getManager<MarkerManager>(kWKMarkerManager) : nullptr;
+    labelManager      = scene ? scene->getManager<LabelManager>(kWKLabelManager) : nullptr;
+    vectorManager     = scene ? scene->getManager<VectorManager>(kWKVectorManager) : nullptr;
+    wideVectorManager = scene ? scene->getManager<WideVectorManager>(kWKWideVectorManager) : nullptr;
+    shapeManager      = scene ? scene->getManager<ShapeManager>(kWKShapeManager) : nullptr;
+    chunkManager      = scene ? scene->getManager<SphericalChunkManager>(kWKSphericalChunkManager) : nullptr;
+    loftManager       = scene ? scene->getManager<LoftManager>(kWKLoftedPolyManager) : nullptr;
+    billManager       = scene ? scene->getManager<BillboardManager>(kWKBillboardManager) : nullptr;
+    geomManager       = scene ? scene->getManager<GeometryManager>(kWKGeometryManager) : nullptr;
+    fontTexManager    = scene ? scene->getFontTextureManager() : nullptr;
+    partSysManager    = scene ? scene->getManager<ParticleSystemManager>(kWKParticleSystemManager) : nullptr;
 }
 
 void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, ChangeSet &changes)
