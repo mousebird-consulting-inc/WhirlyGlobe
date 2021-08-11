@@ -220,6 +220,13 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public native void clearLoadReturn(LoaderReturn loadReturn);
 
+    /**
+     * Check if the shutdown process has started
+     */
+    public boolean isShuttingDown() {
+        return isShuttingDown;
+    }
+
     protected boolean isShuttingDown = false;
 
     /**
@@ -229,13 +236,14 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public void shutdown()
     {
+        isShuttingDown = true;
+
         loadInterp = null;
         QuadSamplingLayer layer = getSamplingLayer();
         if (layer == null || control == null || getController() == null) {
             return;
         }
 
-        isShuttingDown = true;
         layer.removeClient(this);
         final QuadLoaderBase loaderBase = this;
 

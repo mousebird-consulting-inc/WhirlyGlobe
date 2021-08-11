@@ -161,8 +161,8 @@ void QuadDisplayControllerNew::stop(PlatformThreadInfo *threadInfo,ChangeSet &ch
     loader->quadLoaderShutdown(threadInfo,changes);
     dataStructure = nullptr;
     loader = nullptr;
-    
     scene = nullptr;
+    coordSys = nullptr;
 }
     
 bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,ViewStateRef inViewState,ChangeSet &changes)
