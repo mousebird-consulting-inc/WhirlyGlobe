@@ -97,7 +97,7 @@ class ComponentManager : public SceneManager
 {
 public:
     ComponentManager();
-    virtual ~ComponentManager();
+    virtual ~ComponentManager() = default;
     
     // Called when the scene sets up the managers
     void setScene(Scene *inScene);

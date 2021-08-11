@@ -258,6 +258,30 @@ void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGenerator *
     hasUpdates = true;
 }
 
+void LayoutManager::setRenderer(SceneRenderer *inRenderer)
+{
+    SceneManager::setRenderer(inRenderer);
+    if (!inRenderer)
+    {
+        cancelUpdate();
+    }
+}
+
+void LayoutManager::setScene(Scene *inScene)
+{
+    SceneManager::setScene(inScene);
+    if (!inScene)
+    {
+        cancelUpdate();
+    }
+}
+
+void LayoutManager::teardown()
+{
+    cancelUpdate();
+    SceneManager::teardown();
+}
+
 void LayoutManager::cancelUpdate()
 {
     std::lock_guard<std::mutex> guardLock(lock);
@@ -371,7 +395,7 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewS
                                       const Point2f &frameBufferSize)
 {
     // Switch from counter-clockwise to clockwise
-    double rot = 2*M_PI-ssObj->rotation;
+    const double rot = 2*M_PI-ssObj->rotation;
 
     Point3d upVec,northVec,eastVec;
     if (!globeViewState)
@@ -380,7 +404,7 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewS
         northVec = Point3d(0,1,0);
         eastVec = Point3d(1,0,0);
     } else {
-        Point3d worldLoc = ssObj->getWorldLoc();
+        const Point3d worldLoc = ssObj->getWorldLoc();
         upVec = worldLoc.normalized();
         // Vector pointing north
         northVec = Point3d(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
@@ -389,22 +413,20 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewS
     }
 
     // This vector represents the rotation in world space
-    Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
+    const Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
 
     // Project down into screen space
-    Vector4d projRot = normalMat * Vector4d(rotVec.x(),rotVec.y(),rotVec.z(),0.0);
+    const Vector4d projRot = normalMat * Vector4d(rotVec.x(),rotVec.y(),rotVec.z(),0.0);
 
     // Use the resulting x & y
-    screenRot = (float)(atan2(projRot.y(),projRot.x())-M_PI/2.0);
+    screenRot = (float)(atan2(projRot.y(),projRot.x())-M_PI_2);
     // Keep the labels upright
-    if (ssObj->keepUpright && screenRot > M_PI/2 && screenRot < 3*M_PI/2)
+    if (ssObj->keepUpright && screenRot > M_PI_2 && screenRot < 3*M_PI_2)
     {
         screenRot = (float)(screenRot + M_PI);
     }
-    Matrix2d screenRotMat;
-    screenRotMat = Eigen::Rotation2Dd(screenRot);
 
-    return screenRotMat;
+    return Matrix2d(Eigen::Rotation2Dd(screenRot));
 }
 
 // Used for sorting layout objects
@@ -1306,10 +1328,18 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 //        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
     drawIDs.clear();
 
-    // Generate the drawables
+    // Generate the drawables.
+    // Note that the renderer is not managed by a shared pointer, and will be destroyed
+    // during shutdown, so we must stop using it quickly if controller shutdown is initiated.
     ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+
     for (const auto &layoutObj : localLayoutObjects)
     {
+        if (UNLIKELY(cancelLayout))
+        {
+            break;
+        }
+
         layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
         if (!layoutObj->currentEnable)
         {
@@ -1396,6 +1426,11 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     // Add in the clusters
     for (const auto &cluster : clusters)
     {
+        if (UNLIKELY(cancelLayout))
+        {
+            break;
+        }
+
         // Animate from the old cluster if there is one
         if (cluster.childOfCluster > -1)
         {

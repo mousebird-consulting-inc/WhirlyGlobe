@@ -1969,14 +1969,12 @@ public class RenderController implements RenderControllerInterface
     public int getScreenObjectDrawPriorityOffset() { return screenObjectDrawPriorityOffset; }
     public void setScreenObjectDrawPriorityOffset(int offset) { screenObjectDrawPriorityOffset = offset; }
 
-    public void finalize()
-    {
-        dispose();
-    }
-
-    static
-    {
+    static {
         nativeInit();
+    }
+    public void finalize() {
+        setScene(null);
+        dispose();
     }
     private static native void nativeInit();
     native void initialise(int width,int height);

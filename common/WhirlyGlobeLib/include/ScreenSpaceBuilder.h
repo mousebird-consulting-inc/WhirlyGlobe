@@ -47,7 +47,7 @@ public:
     virtual ~ScreenSpaceBuilder();
     
     // State information we're keeping around.
-    // Defaults to something resonable
+    // Defaults to something reasonable
     class DrawableState
     {
     public:
@@ -81,7 +81,7 @@ public:
     };
     
     /// Draw priorities can mix and match with other objects, but we probably don't want that
-    void setDrawPriorityOffset(int drawPriorityOffset);
+    //void setDrawPriorityOffset(int drawPriorityOffset);
     
     /// Set the active texture ID
     void setTexID(SimpleIdentity texID);

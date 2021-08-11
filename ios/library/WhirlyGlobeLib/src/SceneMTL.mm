@@ -62,6 +62,7 @@ void SceneMTL::teardown(PlatformThreadInfo *inst)
     if (fontTextureManager) {
         fontTextureManager->teardown(inst);
     }
+    Scene::teardown(inst);
 }
     
 }

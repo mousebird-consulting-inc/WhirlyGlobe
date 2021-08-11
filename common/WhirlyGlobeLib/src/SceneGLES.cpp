@@ -72,6 +72,8 @@ void SceneGLES::teardown(PlatformThreadInfo* threadInfo)
     {
         fontTextureManager->teardown(threadInfo);
     }
+
+    Scene::teardown(threadInfo);
 }
 
 }
