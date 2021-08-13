@@ -77,11 +77,16 @@ public class QuadPagingLoader extends QuadLoaderBase {
 
     // Called a tick after creation to let users modify settings before we start
     public void delayedInit(final SamplingParams params) {
-        if (tileFetcher == null && !noFetcher) {
-            tileFetcher = getController().addTileFetcher("Image Fetcher");
+        final BaseController control = getController();
+        if (control == null) {
+            return;
         }
 
-        samplingLayer = new WeakReference<>(getController().findSamplingLayer(params, this));
+        if (tileFetcher == null && !noFetcher) {
+            tileFetcher = control.addTileFetcher("Image Fetcher");
+        }
+
+        samplingLayer = new WeakReference<>(control.findSamplingLayer(params, this));
         loadInterp.setLoader(this);
     }
 

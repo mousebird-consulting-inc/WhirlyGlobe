@@ -559,7 +559,7 @@ protected:
     // Construct a platform specific tile/frame assets in the subclass
     virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) = 0;
     
-    // Contruct a platform specific BatchOps for passing to tile fetcher
+    // Construct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
     virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) = 0;
     

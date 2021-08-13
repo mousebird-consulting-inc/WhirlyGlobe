@@ -423,7 +423,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
 
         // We're on an AsyncTask in the background here, so do the loading
-        if (loadInterp != null && layer != null && layer.layerThread.startOfWork()) {
+        if (loadInterp != null && layer.layerThread.startOfWork()) {
             try {
                 theLoadInterp.dataForTile(loadReturn, this);
 
@@ -432,13 +432,15 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             }
         }
 
-        // Merge the data back in on the sampling layer's thread
-        if (!isShuttingDown && !layer.isShuttingDown && !loadReturn.isCanceled()) {
+        // Merge the data back in on the sampling layer's thread.
+        // Note that we need to do this even if the loaderReturn is in the canceled state,
+        // in order to correctly update the state of the associated tile and frames.
+        if (!isShuttingDown && !layer.isShuttingDown) {
             layer.layerThread.addTask(() -> {
                 BaseController control = getController();
                 if (control != null && layer.layerThread.startOfWork()) {
                     try {
-                        if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
+                        if (loadInterp != null && !isShuttingDown) {
                             ChangeSet changes = new ChangeSet();
                             mergeLoaderReturn(loadReturn, changes);
                             layer.layerThread.addChanges(changes);
