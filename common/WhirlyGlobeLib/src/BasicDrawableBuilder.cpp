@@ -447,10 +447,8 @@ void BasicDrawableBuilder::setCalculationData(int numEntries,const std::vector<R
 
 void BasicDrawableBuilder::addNormal(const Point3d &norm)
 {
-    if (basicDraw->normalEntry < 0)
-        return;
-    
-    basicDraw->vertexAttributes[basicDraw->normalEntry]->addVector3f(Point3f(norm.x(),norm.y(),norm.z()));
+    const Point3f pf = norm.cast<float>();
+    addNormal(pf);
 }
 
 bool BasicDrawableBuilder::compareVertexAttributes(const SingleVertexAttributeSet &attrs) const
