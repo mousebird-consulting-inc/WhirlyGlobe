@@ -125,6 +125,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getDebugMode(
         }
     }
     MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"
