@@ -114,27 +114,26 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
         if (isShuttingDown || layerThread.isShuttingDown)
             return;
 
-        generation++;
-        final int thisGeneration = generation;
+        final int thisGeneration = ++generation;
 
-        ChangeSet changes = new ChangeSet();
 //        Log.d("Maply", "QuadSamplingLayer: pre-viewUpdatedNative + " + ident);
-        if (!layerThread.startOfWork())
-            return;
-        if (viewUpdatedNative(viewState,changes)) {
-            // Have a few things left to process.  So come back in a bit and do them.
-            layerThread.addDelayedTask(new Runnable() {
-                @Override
-                public void run() {
-                    // If we've moved on, then cancel
-                    if (thisGeneration < generation)
-                        return;
-                    viewUpdated(viewState);
+        if (layerThread.startOfWork()) {
+            try {
+                ChangeSet changes = new ChangeSet();
+                if (viewUpdatedNative(viewState, changes)) {
+                    // Have a few things left to process.  So come back in a bit and do them.
+                    layerThread.addDelayedTask(() -> {
+                        // If we've moved on, then skip it
+                        if (thisGeneration >= generation) {
+                            viewUpdated(viewState);
+                        }
+                    }, LayerThread.UpdatePeriod);
                 }
-            },LayerThread.UpdatePeriod);
+                layerThread.addChanges(changes);
+            } finally {
+                layerThread.endOfWork();
+            }
         }
-        layerThread.addChanges(changes);
-        layerThread.endOfWork();
     }
 
     // Called no more often than 1/10 of a second
@@ -157,12 +156,10 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
     private native void preSceneFlushNative(ChangeSet changes);
     private native void shutdownNative(ChangeSet changes);
 
-    public void finalize()
-    {
+    public void finalize() {
         dispose();
     }
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();

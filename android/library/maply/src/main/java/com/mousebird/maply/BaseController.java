@@ -190,26 +190,24 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// MapView defines how we're looking at the data
 	protected @Nullable com.mousebird.maply.View view = null;
 
-	// Layer thread we use for data manipulation
+	// Layer threads we use for data manipulation
 	protected final @NotNull ArrayList<LayerThread> layerThreads = new ArrayList<>();
 	protected final @NotNull ArrayList<LayerThread> workerThreads = new ArrayList<>();
-		
+
 	// Bounding box we're allowed to move within
 	protected @Nullable Point2d[] viewBounds = null;
 	
 	/**
-	 * Returns the layer thread we used for processing requests.
+	 * Returns the layer thread we use for processing requests.
 	 */
-	public LayerThread getLayerThread()
-	{
+	@Nullable
+	public LayerThread getLayerThread() {
 		synchronized (layerThreads) {
-			if (layerThreads.size() == 0)
-				return null;
-			return layerThreads.get(0);
+			return layerThreads.isEmpty() ? null : layerThreads.get(0);
 		}
 	}
 
-	private int lastLayerThreadReturned = 0;
+	private int lastWorkerThreadReturned = 0;
 
 	/**
 	 * Utility routine to run a task on the main thread.
@@ -252,7 +250,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		synchronized (workerThreads) {
 			// The first one is for use by the toolkit
-			int numAvailable = workerThreads.size();
+			final int numAvailable = workerThreads.size();
 
 			if (numAvailable == 0)
 				return null;
@@ -260,7 +258,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			if (numAvailable == 1)
 				return workerThreads.get(0);
 
-			return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+			return workerThreads.get((lastWorkerThreadReturned++) % numAvailable);
 		}
 	}
 
@@ -269,10 +267,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public Thread getRenderThread()
 	{
-		RendererWrapper wrap = renderWrapper;
-		if (wrap == null)
-			return null;
-		return wrap.renderThread;
+		final RendererWrapper wrap = renderWrapper;
+		return (wrap != null) ? wrap.renderThread : null;
 	}
 
 
@@ -614,8 +610,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 
 		layerThread.shutdown();
+
 		synchronized (layerThreads) {
 			layerThreads.remove(layerThread);
+		}
+
+		if (layerThreads.isEmpty() && running) {
+			Log.w("Maply", "Layer threads removed before shutdown");
+			running = false;
 		}
 	}
 
@@ -677,17 +679,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 //		Log.d("Maply", "BaseController: Shutdown");
 
 		startupAborted = true;
+		running = false;
 		synchronized (this) {
-			running = false;
+			for (QuadSamplingLayer sampleLayer : samplingLayers) {
+				sampleLayer.isShuttingDown = true;
+			}
 
 			// This will make sure we have a valid context
 			setEGLContext(glContext);
 
-			for (QuadSamplingLayer sampleLayer : samplingLayers)
-				sampleLayer.isShuttingDown = true;
+			//Choreographer.getInstance().removeFrameCallback(this);
 
-			//		Choreographer.getInstance().removeFrameCallback(this);
-			ArrayList<LayerThread> layerThreadsToRemove;
+			final ArrayList<LayerThread> layerThreadsToRemove;
 			synchronized (layerThreads) {
 				layerThreadsToRemove = new ArrayList<>(layerThreads);
 				layerThreads.clear();
@@ -696,18 +699,21 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				layerThreadsToRemove.addAll(workerThreads);
 				workerThreads.clear();
 			}
-			for (LayerThread layerThread : layerThreadsToRemove)
+			for (LayerThread layerThread : layerThreadsToRemove) {
 				layerThread.shutdown();
+			}
 
 //			Log.d("Maply", "BaseController: LayerThreads shutdown");
 
 			// Shut down the tile fetchers
-			for (RemoteTileFetcher tileFetcher : tileFetchers)
+			for (RemoteTileFetcher tileFetcher : tileFetchers) {
 				tileFetcher.shutdown();
+			}
 			tileFetchers.clear();
 
-			if (renderWrapper != null)
+			if (renderWrapper != null) {
 				renderWrapper.stopRendering();
+			}
 
 			if (metroThread != null) {
 				metroThread.shutdown();
@@ -719,10 +725,12 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				scene = null;
 			}
 
-			if (coordAdapter != null)
+			if (coordAdapter != null) {
 				coordAdapter.shutdown();
-			if (renderControl != null)
+			}
+			if (renderControl != null) {
 				renderControl.shutdown();
+			}
 
 			// Shut down the contexts
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -744,8 +752,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// Clean up OpenGL ES resources
 			setEGLContext(null);
 
-			if (renderWrapper != null)
+			if (renderWrapper != null) {
 				renderWrapper.shutdown();
+				renderWrapper = null;
+			}
 
 			if (httpClient != null)
 			{
@@ -762,7 +772,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			}
 
 			baseView = null;
-			renderWrapper = null;
 			coordAdapter = null;
 			view = null;
 			tempBackground = null;
@@ -1004,9 +1013,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			renderControl.setPerfInterval(perfInterval);
 
 			// Kick off the layout layer
-			final LayerThread baseLayerThread;
-			synchronized (layerThreads) {
-				baseLayerThread = layerThreads.get(0);
+			final LayerThread baseLayerThread = getLayerThread();
+			if (baseLayerThread == null) {
+				return;
 			}
 
 			layoutLayer = new LayoutLayer(this, renderControl.layoutManager);
@@ -1414,12 +1423,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return;
 		}
 
-		final LayerThread baseLayerThread;
-		synchronized (layerThreads) {
-			baseLayerThread = layerThreads.get(0);
-		}
 		if (mode == RenderController.ThreadMode.ThreadCurrent) {
-
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
 			final EGLContext oldContext = egl.eglGetCurrentContext();
 			final EGLSurface oldDrawSurface = egl.eglGetCurrentSurface(EGL10.EGL_DRAW);
@@ -1442,7 +1446,12 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				}
 			}
         } else {
-			baseLayerThread.addTask(run, true);
+			final LayerThread baseLayerThread = getLayerThread();
+			if (baseLayerThread != null) {
+				baseLayerThread.addTask(run, true);
+			} else if (running) {
+				Log.w("Maply", "Task discarded, no layer threads available");
+			}
 		}
 	}
 

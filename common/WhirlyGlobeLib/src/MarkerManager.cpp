@@ -144,6 +144,11 @@ Point3dVector MarkerManager::convertGeoPtsToModelSpace(const VectorRing &inPts)
 
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
+    if (shutdown || !scene)
+    {
+        return EmptyIdentity;
+    }
+
     auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
     if (!selectManager || !layoutManager)
