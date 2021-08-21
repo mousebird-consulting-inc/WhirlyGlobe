@@ -60,7 +60,13 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate, 
         mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(16.382910,48.211350), height: 0.0025, time: 0.5)
         mapVC.setZoomLimitsMin(0.0001, max: 4.0)
     }
-    
+
+    override func stop() {
+        baseViewController?.stopLocationTracking()
+        baseLayer?.stop()
+        super.stop()
+    }
+
     @objc func onSegChange() {
         if (segCtrl?.selectedSegmentIndex == 0) {
             baseViewController?.changeLocationTrackingLockType(MaplyLocationLockNone)
