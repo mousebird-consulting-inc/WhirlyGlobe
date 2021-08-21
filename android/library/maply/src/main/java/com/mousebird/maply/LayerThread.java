@@ -23,8 +23,13 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -247,7 +252,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	private final AtomicInteger numActiveWorkers = new AtomicInteger(0);
 
 	/**
-	 * Something is requesting a lock on shutting down while working
+	 * Something is requesting a lock on shutting down while working.
+	 *
+	 * Prefer <c>startOfWorkWrapper</c> and a try-with-resource construct.
 	 *
 	 * @return True if the work was started and can proceed, and <c>endOfWork</c> *must* be called.
 	 *         False if the work should be canceled, and <c>endOfWork</c> must *not* be called.
@@ -266,12 +273,51 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	public void endOfWork()
 	{
 		if (numActiveWorkers.decrementAndGet() < 0) {
-			// If you see this, it probably means you called `startOfWork` and didn't
-			// check the result.  If it returns false, you must not call `endOfWork`.
+			// If you see this, it probably means you called `startOfWork` and didn't check the
+			// result.  If it returns false, you must not do the work and not call `endOfWork`.
 			Log.e("Maply", "Unbalanced endOfWork");
 		}
 	}
-	
+
+	@Nullable
+	public WorkWrapper startOfWorkWrapper() {
+		return startOfWork() ? new WorkWrapper() : null;
+	}
+
+	public class WorkWrapper implements AutoCloseable {
+		public WorkWrapper() {
+		}
+		public void close() {
+			LayerThread.this.endOfWork();
+			if (checkWorkTimes) {
+				final double e = elapsed();
+				if (e > warnWorkTimeLimit) {
+					Log.w("Maply", "Work region took " + e +
+							((trackWorkStacks && e > stackWorkTimeLimit) ? ": " + getStackTrace() : ""));
+				}
+			}
+		}
+		public double elapsed() { return (System.nanoTime() - t0) / 1.0e9; }
+
+		private String getStackTrace() {
+			try (StringWriter sw = new StringWriter()) {
+				try (PrintWriter pw = new PrintWriter(sw)) {
+					throwable.printStackTrace(pw);
+					return sw.toString();
+				}
+			} catch (IOException ex) {
+				return "Failed to get stack trace: " + ex.getMessage();
+			}
+		}
+
+		private final long t0 = System.nanoTime();
+		private final Throwable throwable = trackWorkStacks ? new Throwable("for stack") : null;
+		private static final boolean checkWorkTimes = false;
+		private static final boolean trackWorkStacks = false;
+		private static final double warnWorkTimeLimit = 0.5;
+		private static final double stackWorkTimeLimit = 1.0;
+	}
+
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
@@ -290,6 +336,13 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 		} catch (IllegalMonitorStateException ignored) {
 			return;
+		}
+
+		// Signal the layers, giving them a chance to stop ongoing operations
+		synchronized (layers) {
+			for (final Layer layer : layers) {
+				layer.preShutdown();
+			}
 		}
 
 		// Wait for anything outstanding to finish before we shut down
@@ -316,12 +369,6 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		} catch (Exception exp) {
 			// Not sure why this would ever happen
 			Log.w("Maply", "LayerThread exception while waiting for workers", exp);
-		}
-
-		synchronized (layers) {
-			for (final Layer layer : layers) {
-				layer.preShutdown();
-			}
 		}
 
 		// Run the shutdowns on the thread itself

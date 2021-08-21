@@ -145,17 +145,25 @@ public:
     virtual bool visible(const Node &node) = 0;
     
     // Recursively visit the quad tree evaluating as we go
-    void evalNodeImportance(ImportantNode node,const std::vector<double> &minImportance,
+    void evalNodeImportance(ImportantNode &node,const std::vector<double> &minImportance,
                             ImportantNodeSet &importSet,std::vector<double> &maxRejectedImport);
+
     // This version uses pure visibility and goes down to a predefined level
     bool evalNodeVisible(ImportantNode node,const std::vector<double> &minImportance,int maxNodes,
                          const std::set<int> &levelsToLoad,int maxLevel,ImportantNodeSet &visibleSet);
-    
+
+    virtual void stopping() {
+        shutdown = true;
+    }
+
     /// Bounding box
     MbrD mbr;
     
     /// Min/max zoom levels
     int minLevel,maxLevel;
+
+protected:
+    volatile bool shutdown = false;
 };
 
 }

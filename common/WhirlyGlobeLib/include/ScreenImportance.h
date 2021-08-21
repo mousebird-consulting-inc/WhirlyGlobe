@@ -72,6 +72,8 @@ bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &fr
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const QuadTreeIdentifier &nodeIdent);
+/// This one is for reusing the <c>DisplaySolid</c>
 double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSold);
 
 /// Utility function to calculate importance based on pixel screen size.

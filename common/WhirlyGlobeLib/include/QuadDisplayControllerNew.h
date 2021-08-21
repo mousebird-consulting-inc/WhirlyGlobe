@@ -118,13 +118,13 @@ public:
     virtual ~QuadDisplayControllerNew() = default;
     
     /// Scene we're modifying
-    Scene *getScene();
+    Scene *getScene() const;
     /// The renderer we need for frame sizes
-    SceneRenderer *getRenderer();
+    SceneRenderer *getRenderer() const;
     /// Quad tree used for paging advice
     QuadTreeNew *getQuadTree();
     /// Coordinate system we're using
-    CoordSystem *getCoordSys();
+    CoordSystem *getCoordSys() const;
     
     /// Maximum number of tiles loaded in at once
     int getMaxTiles() const;
@@ -147,7 +147,7 @@ public:
     
     /// Minimum screen area to consider for a tile per level
     std::vector<double> getMinImportancePerLevel() const;
-    void setMinImportancePerLevel(const std::vector<double> &imports);
+    void setMinImportancePerLevel(std::vector<double> imports);
 
     /// Set the MBR scale factor
     void setMBRScaling(double newScale);
@@ -169,11 +169,11 @@ public:
     
     // Called when the view updates.  Does the heavy lifting.
     // Returns true if it wants to be called again in a bit
-    virtual bool viewUpdate(PlatformThreadInfo *threadInfo,ViewStateRef viewState,ChangeSet &changes);
+    virtual bool viewUpdate(PlatformThreadInfo *,const ViewStateRef &viewState,ChangeSet &changes);
     
     // Called right before we flush the layer thread changes to the scene
     virtual void preSceneFlush(ChangeSet &changes);
-    
+
 protected:
     // QuadTreeNew overrides
     virtual double importance(const Node &node) override;
@@ -181,27 +181,27 @@ protected:
     
     QuadDataStructure *dataStructure;
     QuadLoaderNew *loader;
-
     Scene *scene;
     SceneRenderer *renderer;
     CoordSystem *coordSys;
     Mbr mbr;
-    int maxTiles;
+    int maxTiles = 128;
     std::vector<double> minImportancePerLevel;
     std::vector<double> reportedMinImportancePerLevel;
     int minZoom,maxZoom,reportedMaxZoom;
-    TimeInterval viewUpdatePeriod;
-    bool keepMinLevel;
-    double mbrScaling;
-    double keepMinLevelHeight;
-    bool singleLevel;
+    TimeInterval viewUpdatePeriod = 0.1;    // TODO: Set this to 0.2 for older devices
+    bool running = false;
+    bool keepMinLevel = true;
+    double mbrScaling = 1.0;
+    double keepMinLevelHeight = 0.0;
+    bool singleLevel = false;
     std::vector<int> levelLoads;
 
     QuadTreeNew::ImportantNodeSet currentNodes;
     
-    float lastTargetLevel;   // For tracking continuous zoom
-    float lastTargetDecimal; 
-    int zoomSlot;
+    float lastTargetLevel = 1.0f;   // For tracking continuous zoom
+    float lastTargetDecimal = -1.0f;
+    int zoomSlot = -1;
 
     ViewStateRef viewState;
 };
