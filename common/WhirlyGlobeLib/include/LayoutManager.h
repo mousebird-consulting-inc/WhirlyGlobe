@@ -321,7 +321,7 @@ protected:
     SimpleIdentity vecProgID;
 
     // Scene manager lock protects some things, this protects others
-    std::mutex internalLock;
+    std::timed_mutex internalLock;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 

@@ -52,7 +52,8 @@ void LayoutObject::setLayoutSize(const Point2d &layoutSize,const Point2d &offset
     if (layoutSize.x() == 0.0 && layoutSize.y() == 0.0)
         return;
 
-    layoutPts.reserve(layoutPts.size() + 4);
+    layoutPts.clear();
+    layoutPts.reserve(4);
     layoutPts.push_back(Point2d(0,0)+offset);
     layoutPts.push_back(Point2d(layoutSize.x(),0.0)+offset);
     layoutPts.push_back(layoutSize+offset);
@@ -64,7 +65,8 @@ void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset
     if (selectSize.x() == 0.0 && selectSize.y() == 0.0)
         return;
 
-    selectPts.reserve(selectPts.size() + 4);
+    selectPts.clear();
+    selectPts.reserve(4);
     selectPts.push_back(Point2d(0,0)+offset);
     selectPts.push_back(Point2d(selectSize.x(),0.0)+offset);
     selectPts.push_back(selectSize+offset);
@@ -122,7 +124,7 @@ void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects
 
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (const auto & newObject : newObjects)
+    for (const auto &newObject : newObjects)
     {
         const LayoutObject &layoutObj = newObject;
         auto entry = std::make_shared<LayoutObjectEntry>(layoutObj.getId());
@@ -260,11 +262,18 @@ void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGenerator *
 
 void LayoutManager::setRenderer(SceneRenderer *inRenderer)
 {
-    SceneManager::setRenderer(inRenderer);
-    if (!inRenderer)
+    if (!inRenderer && renderer && !cancelLayout)
     {
+        // An `updateLayout` may be running right now, and clearing `renderer` could crash.
+        // The scene should have canceled already, but try to handle it by setting the cancel
+        // flag and waiting just a little while for layout to not be running.
         cancelUpdate();
+        constexpr auto wait = std::chrono::milliseconds(50);
+        const auto lock = std::unique_lock<std::timed_mutex>(internalLock, wait);
+        wkLogLevel(Warn, "Layout teardown without cancellation, %s",
+                   lock.owns_lock() ? "successfully canceled" : "proceeding unsafely");
     }
+    SceneManager::setRenderer(inRenderer);
 }
 
 void LayoutManager::setScene(Scene *inScene)
@@ -1250,14 +1259,14 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         }
     }
 
-    std::unique_lock<std::mutex> guardLock(lock);
+    std::unique_lock<std::mutex> extLock(lock);
 
     if (cancelLayout)
     {
         return;
     }
 
-    // Make copies of the layout objects
+    // Make local copies of the layout objects
     const LayoutEntrySet localLayoutObjects(layoutObjects.begin(), layoutObjects.end());
     const std::unordered_set<std::string> localOverrideUUIDs(overrideUUIDs.begin(), overrideUUIDs.end());
 
@@ -1266,14 +1275,23 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     // Release the external lock to allow objects to be added and removed while we're doing the
     // layout on our copies, and replace it with a separate lock to make sure we're only run once.
-    guardLock = std::unique_lock<std::mutex>(internalLock, std::try_to_lock);
+    // If we can't acquire the internal mutex instantly, we're already running on another thread.
+    extLock.unlock();
+    std::unique_lock<std::timed_mutex> intLock(internalLock, std::chrono::seconds(0));
 
     // If we couldn't acquire the lock, layout is already running on another thread.
     // Bail out immediately rather than waiting.  Even if it finished immediately, we wouldn't
     // want to run a layout pass on the now-obsolete copy of the layout items we have.
-    if (!guardLock.owns_lock())
+    if (!intLock.owns_lock())
     {
         wkLogLevel(Warn, "Layout called on multiple threads");
+        return;
+    }
+
+    // Locking may have taken some time, check for cancellation again
+    if (cancelLayout)
+    {
+        cancelLayout = false;
         return;
     }
 
