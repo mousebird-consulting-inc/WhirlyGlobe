@@ -72,6 +72,7 @@ public class Layer
 	/**
 	 * This method is called when the layer will soon be shut down,
 	 * but outside any lock context and from another thread.
+	 * This should not block or do any real work.
 	 */
 	@CallSuper
 	public void preShutdown() {

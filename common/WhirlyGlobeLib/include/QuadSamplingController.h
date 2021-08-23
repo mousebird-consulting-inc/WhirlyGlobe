@@ -54,6 +54,9 @@ public:
     // Called right before we start using the controller
     void start(const SamplingParams &params,Scene *scene,SceneRenderer *renderer);
 
+    // About to stop, cancel operations in progress and don't start any new ones
+    void stopping();
+
     // Unhook everything and shut it down
     void stop();
     

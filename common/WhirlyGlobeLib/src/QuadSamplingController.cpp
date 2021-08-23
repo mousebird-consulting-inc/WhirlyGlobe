@@ -55,10 +55,19 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     displayControl->setMinImportancePerLevel(importance);
     displayControl->setMBRScaling(params.boundsScale);
     displayControl->setMaxTiles(params.maxTiles);
+
+    valid = true;
+}
+
+void QuadSamplingController::stopping()
+{
+    valid = false;
 }
 
 void QuadSamplingController::stop()
 {
+    valid = false;
+    builderStarted = false;
     builder = nullptr;
     displayControl = nullptr;
     builderDelegates.clear();
@@ -78,19 +87,26 @@ void QuadSamplingController::notifyDelegateStartup(PlatformThreadInfo *threadInf
         std::lock_guard<std::mutex> guardLock(lock);
         
         for (const auto& thisDelegate : builderDelegates)
-            if (thisDelegate->getId() == delegateID) {
+        {
+            if (thisDelegate->getId() == delegateID)
+            {
                 delegate = thisDelegate;
                 break;
             }
-        if (!delegate)
-            return;
+        }
     }
-    
-    delegate->setBuilder(builder.get(), displayControl.get());
-    
-    // Pretend we just loaded everything (to the delegate)
-    WhirlyKit::TileBuilderDelegateInfo updates = builder->getLoadingState();
-    delegate->builderLoad(threadInfo,builder.get(), updates, changes);
+
+    if (delegate)
+    {
+        if (auto b = this->builder)
+        {
+            delegate->setBuilder(b.get(), displayControl.get());
+
+            // Pretend we just loaded everything (to the delegate)
+            WhirlyKit::TileBuilderDelegateInfo updates = b->getLoadingState();
+            delegate->builderLoad(threadInfo, b.get(), updates, changes);
+        }
+    }
 }
 
 void QuadSamplingController::removeBuilderDelegate(PlatformThreadInfo *threadInfo,
@@ -112,6 +128,7 @@ void QuadSamplingController::removeBuilderDelegate(PlatformThreadInfo *threadInf
 bool QuadSamplingController::builderIsLoading() const
 {
     std::lock_guard<std::mutex> guardLock(lock);
+
     for (const auto& delegate : builderDelegates)
     {
         if (delegate->builderIsLoading())
@@ -142,9 +159,8 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
         return MAXFLOAT;
     }
     
-    DisplaySolidRef dispSolid;
     return ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1,
-                 params.coordSys.get(), coordAdapter, mbr, ident, dispSolid);
+                 params.coordSys.get(), coordAdapter, mbr, ident);
 }
 
 void QuadSamplingController::newViewState(ViewStateRef viewState)
@@ -169,13 +185,16 @@ bool QuadSamplingController::visibilityForTile(const QuadTreeIdentifier &ident,
 void QuadSamplingController::setBuilder(QuadTileBuilder *inBuilder, QuadDisplayControllerNew *control)
 {
     std::vector<QuadTileBuilderDelegateRef> delegates;
+    delegates.reserve(builderDelegates.size());
+
     {
         std::lock_guard<std::mutex> guardLock(lock);
         builderStarted = true;
         delegates = builderDelegates;
     }
     
-    for (const auto& delegate : delegates) {
+    for (const auto& delegate : delegates)
+    {
         delegate->setBuilder(inBuilder, displayControl.get());
     }
 
@@ -189,7 +208,7 @@ QuadTreeNew::NodeSet QuadSamplingController::builderUnloadCheck(QuadTileBuilder 
     QuadTreeNew::NodeSet toKeep;
     for (const auto& delegate : builderDelegates)
     {
-        auto thisToKeep = delegate->builderUnloadCheck(inBuilder, loadTiles, unloadTiles, targetLevel);
+        const auto thisToKeep = delegate->builderUnloadCheck(inBuilder, loadTiles, unloadTiles, targetLevel);
         toKeep.insert(thisToKeep.begin(),thisToKeep.end());
     }
     
@@ -202,23 +221,29 @@ void QuadSamplingController::builderLoad(PlatformThreadInfo *threadInfo,
                                          ChangeSet &changes)
 {
     std::vector<QuadTileBuilderDelegateRef> delegates;
+    delegates.reserve(builderDelegates.size());
+
     {
         std::lock_guard<std::mutex> guardLock(lock);
         delegates = builderDelegates;
     }
 
     // Disable the tiles.  The delegates will instance them.
-    for (const auto& tile : updates.loadTiles) {
-        for (auto di : tile->drawInfo) {
+    for (const auto& tile : updates.loadTiles)
+    {
+        for (auto di : tile->drawInfo)
+        {
             changes.push_back(new OnOffChangeRequest(di.drawID,false));
         }
     }
     
-    for (const auto& delegate : delegates) {
+    for (const auto& delegate : delegates)
+    {
         delegate->builderLoad(threadInfo, inBuilder, updates, changes);
     }
     
-    if (debugMode) {
+    if (debugMode)
+    {
         wkLogLevel(Debug,"SamplingLayer quadBuilder:update changes = %d",(int)changes.size());
     }
 }
@@ -231,14 +256,16 @@ void QuadSamplingController::builderPreSceneFlush(QuadTileBuilder *inBuilder, Ch
         delegates = builderDelegates;
     }
 
-    for (const auto& delegate : delegates) {
+    for (const auto& delegate : delegates)
+    {
         delegate->builderPreSceneFlush(inBuilder, changes);
     }
 }
     
-void QuadSamplingController::builderShutdown(PlatformThreadInfo *threadInfo, QuadTileBuilder *inBuilder, ChangeSet &changes)
+void QuadSamplingController::builderShutdown(PlatformThreadInfo *, QuadTileBuilder *inBuilder, ChangeSet &changes)
 {
-    inBuilder = nullptr;
+    // Note: builder must not be destroyed here
+    builderStarted = false;
 }
 
 }

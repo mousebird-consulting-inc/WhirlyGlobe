@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preSceneFlushN
 
 /*
  * Class:     com_mousebird_maply_QuadSamplingLayer
+ * Method:    preShutdownNative
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preShutdownNative
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_mousebird_maply_QuadSamplingLayer
  * Method:    shutdownNative
  * Signature: (Lcom/mousebird/maply/ChangeSet;)V
  */
