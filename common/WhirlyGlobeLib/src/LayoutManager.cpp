@@ -262,7 +262,7 @@ void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGenerator *
 
 void LayoutManager::setRenderer(SceneRenderer *inRenderer)
 {
-    if (!inRenderer && renderer && !cancelLayout)
+    if (!inRenderer && renderer && !shutdown)
     {
         // An `updateLayout` may be running right now, and clearing `renderer` could crash.
         // The scene should have canceled already, but try to handle it by setting the cancel
@@ -1261,7 +1261,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     std::unique_lock<std::mutex> extLock(lock);
 
-    if (cancelLayout)
+    if (cancelLayout || shutdown)
     {
         return;
     }
