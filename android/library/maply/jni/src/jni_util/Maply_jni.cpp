@@ -332,13 +332,18 @@ jdoubleArray BuildDoubleArray(JNIEnv *env,const std::vector<double> &doubleVec)
 
 jintArray BuildIntArray(JNIEnv *env,const std::vector<int> &intVec)
 {
-    if (intVec.empty())
-        return nullptr;
+    return BuildIntArray(env, &intVec[0], (int)intVec.size());
+}
 
-    if (jintArray newArray = env->NewIntArray(intVec.size()))
+jintArray BuildIntArray(JNIEnv *env,const int* intVec,int size)
+{
+    if (intVec && size > 0)
     {
-        env->SetIntArrayRegion(newArray, 0, intVec.size(), (jint *)&intVec[0]);
-        return newArray;
+        if (jintArray newArray = env->NewIntArray(size))
+        {
+            env->SetIntArrayRegion(newArray, 0, size, intVec);
+            return newArray;
+        }
     }
     return nullptr;
 }

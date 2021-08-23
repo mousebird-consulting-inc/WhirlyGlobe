@@ -585,7 +585,8 @@ jlongArray BuildLongArray(JNIEnv *env,const std::vector<WhirlyKit::SimpleIdentit
 // Return a Java double array
 jdoubleArray BuildDoubleArray(JNIEnv *env,const std::vector<double> &doubleVec);
 // Return a Java int array
-jintArray BuildIntArray(JNIEnv *env,const std::vector<int> &longVec);
+jintArray BuildIntArray(JNIEnv *env, const int* intVec, int size);
+jintArray BuildIntArray(JNIEnv *env, const std::vector<int> &intVec);
 // Return a new Java object array
 jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,jobject singleObj);
 jobjectArray BuildObjectArray(JNIEnv *env,jclass cls,const std::vector<jobject> &objVec);

@@ -1,9 +1,8 @@
-/*
- *  VectorTileData.java
+/*  VectorTileData.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/12/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,21 +14,15 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
-import android.graphics.Point;
-import android.widget.CompoundButton;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * When parsing a tile of vector data, we need to pass input and output data around.
- * This encapulates the extent information and output data.  It's passed to the individual
+ * This encapsulates the extent information and output data.  It's passed to the individual
  * styles which do the work.
  */
 public class VectorTileData
@@ -37,25 +30,16 @@ public class VectorTileData
     public VectorTileData() { initialise(); }
 
     // Initialize with a specific tile and bounds
-    public VectorTileData(TileID tileID,Mbr bounds,Mbr geoBounds)
-    {
+    public VectorTileData(TileID tileID,Mbr bounds,Mbr geoBounds) {
         initialise(tileID.x,tileID.y,tileID.level,bounds.ll,bounds.ur,geoBounds.ll,geoBounds.ur);
-    }
-
-    public void finalize()
-    {
-        dispose();
     }
 
     /**
      * Tile ID for this tile
      */
     public TileID getTileID() {
-        int[] info = getTileIDNative();
-        TileID ident = new TileID();
-        ident.x = info[0];  ident.y = info[1];  ident.level = info[2];
-
-        return ident;
+        final int[] info = getTileIDNative();
+        return (info != null) ? new TileID(info[0], info[1], info[2]) : null;
     }
 
     private native int[] getTileIDNative();
@@ -123,14 +107,15 @@ public class VectorTileData
      */
     public native VectorObject[] getVectors();
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();
     native void initialise();
     native void initialise(int x,int y,int level,Point2d boundsLL,Point2d boundsUR,Point2d geoBoundsLL,Point2d geoBoundsUR);
+    public void finalize() { dispose(); }
     native void dispose();
 
+    @SuppressWarnings("unused")
     private long nativeHandle;
 }

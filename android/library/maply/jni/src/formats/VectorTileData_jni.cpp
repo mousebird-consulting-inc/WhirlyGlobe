@@ -45,14 +45,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__(JNIE
 {
     try
     {
-        VectorTileDataRef *tileData = new VectorTileDataRef(new VectorTileData());
-        VectorTileDataClassInfo::getClassInfo()->setHandle(env,obj,tileData);
+        const auto vectorTileClassInfo = VectorTileDataClassInfo::getClassInfo();
+        if (vectorTileClassInfo->getObject(env, obj))
+        {
+            wkLogLevel(Warn, "VectorTileData.initialise called on initialised object");
+            // previous object will be leaked
+        }
+        vectorTileClassInfo->setHandle(env,obj,new VectorTileDataRef(std::make_shared<VectorTileData>()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
+
+static std::mutex disposeMutex;
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILcom_mousebird_maply_Point2d_2Lcom_mousebird_maply_Point2d_2Lcom_mousebird_maply_Point2d_2Lcom_mousebird_maply_Point2d_2
@@ -60,28 +64,41 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILc
 {
     try
     {
-        Point2dClassInfo *pt2dClassInfo = Point2dClassInfo::getClassInfo();
-        Point2d *boundLL = pt2dClassInfo->getObject(env,bllobj);
-        Point2d *boundUR = pt2dClassInfo->getObject(env,burobj);
-        Point2d *geoLL = pt2dClassInfo->getObject(env,geollobj);
-        Point2d *geoUR = pt2dClassInfo->getObject(env,geourobj);
+        const auto tileDataClassInfo = VectorTileDataClassInfo::getClassInfo();
+        const auto pt2dClassInfo = Point2dClassInfo::getClassInfo();
+        const Point2d *boundLL = pt2dClassInfo->getObject(env,bllobj);
+        const Point2d *boundUR = pt2dClassInfo->getObject(env,burobj);
+        const Point2d *geoLL = pt2dClassInfo->getObject(env,geollobj);
+        const Point2d *geoUR = pt2dClassInfo->getObject(env,geourobj);
         if (!boundLL || !boundUR || !geoLL || !geoUR)
+        {
             return;
-        VectorTileDataRef *tileData = new VectorTileDataRef(new VectorTileData());
-        (*tileData)->ident = QuadTreeIdentifier(x,y,level);
-        (*tileData)->bbox.ll() = *boundLL;
-        (*tileData)->bbox.ur() = *boundUR;
-        (*tileData)->geoBBox.ll() = *geoLL;
-        (*tileData)->geoBBox.ur() = *geoUR;
-        VectorTileDataClassInfo::getClassInfo()->setHandle(env,obj,tileData);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::initialise()");
-    }
-}
+        }
 
-static std::mutex disposeMutex;
+        auto tileData = std::make_shared<VectorTileData>();
+        tileData->ident = QuadTreeIdentifier(x,y,level);
+        tileData->bbox.ll() = *boundLL;
+        tileData->bbox.ur() = *boundUR;
+        tileData->geoBBox.ll() = *geoLL;
+        tileData->geoBBox.ur() = *geoUR;
+
+        // Make sure the get/set are atomic.
+        std::lock_guard<std::mutex> lock(disposeMutex);
+
+        if (auto existingPtr = tileDataClassInfo->getObject(env, obj))
+        {
+            // Swap the new data into the existing shared_ptr.  The old value (if any)
+            // controlled by the shared_ptr will be released outside of the mutex region.
+            existingPtr->swap(tileData);
+        }
+        else
+        {
+            // Called from a constructor or after a dispose, we need a new shared_ptr
+            tileDataClassInfo->setHandle(env, obj, new VectorTileDataRef(tileData));
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_dispose(JNIEnv *env, jobject obj)
@@ -89,18 +106,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_dispose(JNIEnv *e
     try
     {
         const auto classInfo = VectorTileDataClassInfo::getClassInfo();
+        VectorTileDataRef *inst;
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            auto inst = classInfo->getObject(env,obj);
-            delete inst;
+            inst = classInfo->getObject(env,obj);
+            classInfo->clearHandle(env,obj);
         }
-
-        classInfo->clearHandle(env,obj);
+        delete inst;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -108,18 +122,14 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_VectorTileData_getTileIDNat
 {
     try
     {
-        const auto tileData = VectorTileDataClassInfo::get(env,obj);
-        if (tileData)
+        if (const auto tileData = VectorTileDataClassInfo::get(env,obj))
         {
-            const auto tileID = (*tileData)->ident;
-            const std::vector<int> ints{tileID.x, tileID.y, tileID.level};
-            return BuildIntArray(env, ints);
+            const auto &tileID = (*tileData)->ident;
+            const int ints[] = { tileID.x, tileID.y, tileID.level };
+            return BuildIntArray(env, ints, (int)(sizeof(ints)/sizeof(ints[0])));
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::getTileIDNative");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -140,10 +150,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_getBoundsNative(J
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply","Crash in VectorTileData::getBoundsNative");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -163,10 +170,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_getGeoBoundsNativ
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply","Crash in VectorTileData::getGeoBoundsNative");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -194,10 +198,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getCompon
             return retArray;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::getComponentObjects");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -229,10 +230,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getCompon
             return BuildObjectArray(env, classInfo->getClass(), outCompObjs);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply","Crash in VectorTileData::getComponentObjects (by category)");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -249,10 +247,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_addComponentObjec
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::addComponentObject");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -262,18 +257,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_addComponentObjec
     {
         if (const auto tileData = VectorTileDataClassInfo::get(env,obj))
         {
+            const auto compObjClassInfo = ComponentObjectRefClassInfo::getClassInfo();
+
             JavaObjectArrayHelper compObjHelp(env, compObjArray);
             while (jobject compObjObj = compObjHelp.getNextObject())
             {
-                const auto compObj = ComponentObjectRefClassInfo::get(env, compObjObj);
-                (*tileData)->compObjs.push_back(*compObj);
+                if (const auto compObj = compObjClassInfo->getObject(env, compObjObj))
+                {
+                    (*tileData)->compObjs.push_back(*compObj);
+                }
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::addComponentObjects");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -294,10 +290,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_VectorTileData_getVector
             return BuildObjectArray(env, vecObjClassInfo->getClass(), outVecs);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::getVectors");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -308,14 +301,13 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorTileData_getChangeSet(J
     {
         if (const auto tileData = VectorTileDataClassInfo::get(env,obj))
         {
-            const jobject newObj = MakeChangeSet(env, (*tileData)->changes);
-            (*tileData)->changes.clear();
-            return newObj;
+            if (jobject newObj = MakeChangeSet(env, (*tileData)->changes))
+            {
+                (*tileData)->changes.clear();
+                return newObj;
+            }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorTileData::getChangeSet");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
