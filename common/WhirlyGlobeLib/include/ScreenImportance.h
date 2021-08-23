@@ -41,7 +41,12 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Create a display solid, including height.
-    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter);
+    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,
+                 float minZ,float maxZ,
+                 const CoordSystem *,const CoordSystemDisplayAdapter *);
+    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const MbrD &nodeMbr,
+                 float minZ,float maxZ,
+                 const CoordSystem *,const CoordSystemDisplayAdapter *);
     
     /// Returns true if the given point (in display space) is inside the volume
     bool isInside(const Point3d &pt);

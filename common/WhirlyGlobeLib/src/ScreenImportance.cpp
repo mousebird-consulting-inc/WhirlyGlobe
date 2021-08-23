@@ -1,9 +1,8 @@
-/*
- *  ScreenImportance.mm
+/*  ScreenImportance.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/11/13.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ScreenImportance.h"
@@ -23,6 +21,7 @@
 #import "GlobeMath.h"
 #import "VectorData.h"
 #import "SceneRenderer.h"
+#import <array>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -31,54 +30,62 @@ namespace WhirlyKit
 {
 
 // Calculate the number of samples required to represent the given line to a tolerance
-int calcNumSamples(const Point3d &p0,const Point3d &p1,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter,int level)
+static inline int calcNumSamples(const Point3d &p0,const Point3d &p1,int level)
 {
     switch (level) {
-    case 0:
-        return 10;
+    case 0:  return 10;
     case 1:
-        return 4;
     case 2:
-        return 4;
     case 3:
-        return 4;
-    case 4:
-        return 4;
-    case 5:
-        return 3;
-    case 6:
-        return 2;
-    default:
-        return 1;
+    case 4:  return 4;
+    case 5:  return 3;
+    case 6:  return 2;
+    default: return 1;
     }
 }
 
-DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter)
-    : valid(false)
+DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,
+                           const Mbr &nodeMbr,
+                           float minZ, float maxZ,
+                           const CoordSystem *srcSystem,
+                           const CoordSystemDisplayAdapter *coordAdapter) :
+    DisplaySolid(nodeIdent, MbrD(nodeMbr), minZ, maxZ, srcSystem, coordAdapter)
+{
+}
+
+DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,
+                           const MbrD &nodeMbr,
+                           float minZ,
+                           __unused float maxZ,
+                           const CoordSystem *srcSystem,
+                           const CoordSystemDisplayAdapter *coordAdapter) :
+    valid(false)
 {
     // Start with the corner points in the source
-    WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
-    Point3dVector srcBounds;
-    srcBounds.reserve(4);
-    srcBounds.emplace_back(nodeMbr.ll().x(),nodeMbr.ll().y(),minZ);
-    srcBounds.emplace_back(nodeMbr.ur().x(),nodeMbr.ll().y(),minZ);
-    srcBounds.emplace_back(nodeMbr.ur().x(),nodeMbr.ur().y(),minZ);
-    srcBounds.emplace_back(nodeMbr.ll().x(),nodeMbr.ur().y(),minZ);
+    const WhirlyKit::CoordSystem *displaySystem = coordAdapter->getCoordSystem();
+    const Point3d srcBounds[] = {
+        {nodeMbr.ll().x(), nodeMbr.ll().y(), minZ},
+        {nodeMbr.ur().x(), nodeMbr.ll().y(), minZ},
+        {nodeMbr.ur().x(), nodeMbr.ur().y(), minZ},
+        {nodeMbr.ll().x(), nodeMbr.ur().y(), minZ},
+    };
 
     // Number of samples in X and Y we need for a decent surface
-    int numSamplesX = std::max(calcNumSamples(srcBounds[0],srcBounds[1],srcSystem,coordAdapter,nodeIdent.level),
-                               calcNumSamples(srcBounds[3],srcBounds[2],srcSystem,coordAdapter,nodeIdent.level))+1;
-    int numSamplesY = std::max(calcNumSamples(srcBounds[0],srcBounds[3],srcSystem,coordAdapter,nodeIdent.level),
-                               calcNumSamples(srcBounds[1],srcBounds[2],srcSystem,coordAdapter,nodeIdent.level))+1;
+    const int numSamplesX = std::max(calcNumSamples(srcBounds[0],srcBounds[1],nodeIdent.level),
+                                     calcNumSamples(srcBounds[3],srcBounds[2],nodeIdent.level))+1;
+    const int numSamplesY = std::max(calcNumSamples(srcBounds[0],srcBounds[3],nodeIdent.level),
+                                     calcNumSamples(srcBounds[1],srcBounds[2],nodeIdent.level))+1;
 
     // Build a grid of samples
     Point3dVector dispPoints;
     dispPoints.reserve(numSamplesX*numSamplesY);
-    for (int ix=0;ix<numSamplesX;ix++) {
+    for (int ix=0;ix<numSamplesX;ix++)
+    {
         const double xt = ix/(double)(numSamplesX-1);
         const Point3d srcPtx0 = (srcBounds[1] - srcBounds[0]) * xt + srcBounds[0];
         const Point3d srcPtx1 = (srcBounds[2] - srcBounds[3]) * xt + srcBounds[3];
-        for (int iy=0;iy<numSamplesY;iy++) {
+        for (int iy=0;iy<numSamplesY;iy++)
+        {
             const double yt = iy/(double)(numSamplesY-1);
             const Point3d srcPt = (srcPtx1 - srcPtx0) * yt + srcPtx0;
             const Point3d localPt = CoordSystemConvert3d(srcSystem, displaySystem, srcPt);
@@ -90,8 +97,10 @@ DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMb
     bool boundingBoxValid = false;
     polys.reserve(numSamplesX*numSamplesY);
     normals.reserve(numSamplesX*numSamplesY);
-    for (int ix=0;ix<numSamplesX-1;ix++) {
-        for (int iy=0;iy<numSamplesY-1;iy++) {
+    for (int ix=0;ix<numSamplesX-1;ix++)
+    {
+        for (int iy=0;iy<numSamplesY-1;iy++)
+        {
             // Surface polygon
             polys.emplace_back();
             Point3dVector &poly = polys.back();
@@ -102,11 +111,16 @@ DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMb
             poly.push_back(dispPoints[iy*numSamplesX+(ix+1)]);
 
             // Update bounding box
-            for (const auto &pt: poly) {
-                if (!boundingBoxValid) {
-                    bbox0 = pt;  bbox1 = pt;
+            for (const auto &pt: poly)
+            {
+                if (!boundingBoxValid)
+                {
+                    bbox0 = pt;
+                    bbox1 = pt;
                     boundingBoxValid = true;
-                } else {
+                }
+                else
+                {
                     bbox0.x() = std::min(pt.x(),bbox0.x());
                     bbox0.y() = std::min(pt.y(),bbox0.y());
                     bbox0.z() = std::min(pt.z(),bbox0.z());
@@ -118,14 +132,15 @@ DisplaySolid::DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMb
             
             // And a normal
             if (coordAdapter->isFlat())
-                normals.push_back(Vector3d(0,0,1));
-            else {
-                Point3d &p0 = poly[0];
-                Point3d &p1 = poly[1];
-                Point3d &p2 = poly[poly.size()-1];
-                Vector3d norm = (p1-p0).cross(p2-p0);
-                norm.normalize();
-                normals.push_back(norm);
+            {
+                normals.emplace_back(0,0,1);
+            }
+            else
+            {
+                const Point3d &p0 = poly[0];
+                const Point3d &p1 = poly[1];
+                const Point3d &p2 = poly[poly.size()-1];
+                normals.push_back(((p1-p0).cross(p2-p0)).normalized());
             }
         }
     }
@@ -205,8 +220,12 @@ double PolyImportance(const Point3dVector &poly,const Point3d &norm,ViewState *v
 
 bool DisplaySolid::isInside(const Point3d &pt)
 {
-    return bbox0.x() <= pt.x() && bbox0.y() <= pt.y() && bbox0.z() <= pt.z() &&
-        pt.x() < bbox1.x() && pt.y() < bbox1.y() && pt.z() < bbox1.z();
+    return bbox0.x() <= pt.x() &&
+           bbox0.y() <= pt.y() &&
+           bbox0.z() <= pt.z() &&
+           pt.x() < bbox1.x() &&
+           pt.y() < bbox1.y() &&
+           pt.z() < bbox1.z();
 }
 
 double DisplaySolid::importanceForViewState(ViewState *viewState,const Point2f &frameSize)

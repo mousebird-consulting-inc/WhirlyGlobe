@@ -31,8 +31,7 @@ Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSys
         return inCoord;
     
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
-    const Point3f geoCPt = inSystem->localToGeocentric(inCoord);
-    return outSystem->geocentricToLocal(geoCPt);
+    return outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
 }
 
 Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3d &inCoord)
@@ -42,8 +41,7 @@ Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outS
         return inCoord;
     
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
-    const Point3d geoCPt = inSystem->localToGeocentric(inCoord);
-    return outSystem->geocentricToLocal(geoCPt);
+    return outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
 }
 
 GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,
