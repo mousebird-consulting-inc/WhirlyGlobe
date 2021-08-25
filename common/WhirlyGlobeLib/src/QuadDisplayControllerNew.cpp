@@ -174,6 +174,12 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,const V
     viewState = inViewState;
     dataStructure->newViewState(viewState);
 
+    // View state update can be slow, check again
+    if (!running)
+    {
+        return true;
+    }
+
     // We may want to force the min level in, always
     // Or we may vary that by height
     bool localKeepMinLevel = keepMinLevel;
@@ -262,7 +268,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,const V
     currentNodes = newNodes;
     for (const auto &node : removesToKeep)
     {
-        currentNodes.insert(QuadTreeNew::ImportantNode(node,0.0));
+        currentNodes.emplace(node,0.0);
     }
 
     // If we're at the max level, we may want to reach beyond

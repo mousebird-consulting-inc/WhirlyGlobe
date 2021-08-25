@@ -955,7 +955,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,
 
 void QuadImageFrameLoader::removeTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes)
 {
-    auto it = tiles.find(ident);
+    const auto it = tiles.find(ident);
     // If it's here, let's get rid of it.
     if (it != tiles.end()) {
         if (debugMode)
@@ -1342,22 +1342,22 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
     
     // Add new tiles
     for (auto it = updates.loadTiles.rbegin(); it != updates.loadTiles.rend(); ++it) {
-        auto tile = *it;
+        auto &tile = *it;
         // If it's already there, clear it out
         removeTile(threadInfo,tile->ident,batchOps,changes);
         
         // Create the new tile and put in the toLoad queue
-        auto newTile = addNewTile(threadInfo,tile->ident, batchOps, changes);
+        /*auto newTile = */addNewTile(threadInfo,tile->ident, batchOps, changes);
         somethingChanged = true;
     }
     
     // Remove old tiles
     for (const auto& inTile: updates.unloadTiles) {
-        auto it = tiles.find(inTile);
+        const auto it = tiles.find(inTile);
         // Don't know about this one.  Punt
         if (it == tiles.end())
             continue;
-        auto tile = it->second;
+        auto &tile = it->second;
         
         // Clear out any associated data and remove it from our list
         removeTile(threadInfo,inTile, batchOps, changes);
@@ -1367,7 +1367,7 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
     // Note: Not processing changes in importance
 
     builderLoadAdditional(threadInfo, inBuilder, updates, changes);
-    
+
     // Process all the fetches and cancels at once
     processBatchOps(threadInfo,batchOps);
     delete batchOps;
