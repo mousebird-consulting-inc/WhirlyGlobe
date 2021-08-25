@@ -141,6 +141,9 @@ extern NSString * _Nonnull const MaplyQuadImageLoaderFetcherName;
 // Read from the z buffer when rendering.  Off by default
 @property (nonatomic,assign) bool zBufferRead;
 
+// Turn display of loader on or off.  Will still load, though.
+@property bool enable;
+
 /**
  Shader to use for rendering the image frames.
  

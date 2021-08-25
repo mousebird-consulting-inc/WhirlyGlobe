@@ -531,7 +531,7 @@ QIFTileState::FrameInfo::FrameInfo() :
 { }
 
 QIFRenderState::QIFRenderState()
-: lastUpdate(0.0), lastRenderTime(0.0), texSize(0), borderSize(0)
+: lastUpdate(0.0), lastRenderTime(0.0), lastMasterEnable(false), texSize(0), borderSize(0)
 { }
 
 QIFRenderState::QIFRenderState(int numFocus,int numFrames) :
@@ -545,10 +545,10 @@ QIFRenderState::QIFRenderState(int numFocus,int numFrames) :
     topTilesLoaded.resize(numFrames,false);
 }
 
-bool QIFRenderState::hasUpdate(const std::vector<double> &curFrames) const
+bool QIFRenderState::hasUpdate(const std::vector<double> &curFrames, bool masterEnable) const
 {
     // Current frame moved or we got an update from the layer thread
-    return (curFrames != lastCurFrames || lastUpdate > lastRenderTime);
+    return (curFrames != lastCurFrames || lastUpdate > lastRenderTime || lastMasterEnable != masterEnable);
 }
 
 // Update what the scene is looking at.  Ideally not every frame.
@@ -557,6 +557,7 @@ void QIFRenderState::updateScene(Scene *,
                                  TimeInterval now,
                                  __unused bool flipY,
                                  const RGBAColor &color,
+                                 bool masterEnable,
                                  ChangeSet &changes)
 {
     if (tiles.empty())
@@ -566,6 +567,7 @@ void QIFRenderState::updateScene(Scene *,
     
     lastRenderTime = now;
     lastCurFrames = curFrames;
+    lastMasterEnable = masterEnable;
     
     // We allow one or more points in the time slices where we're rendering
     // Useful if we're doing multi-stage rendering
@@ -610,7 +612,7 @@ void QIFRenderState::updateScene(Scene *,
                 numFrames = 0;
         }
         
-        const bool bigEnable = numFrames > 0;
+        const bool bigEnable = numFrames > 0 && masterEnable;
         
         //        NSLog(@"numFrames = %d, activeFrames[0] = %d, activeFrames[1] = %d",numFrames,activeFrames[0],activeFrames[1]);
         
@@ -688,7 +690,7 @@ void QIFRenderState::updateScene(Scene *,
 }
     
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode) :
-    mode(mode), loadMode(Narrow), debugMode(false), params(params),
+    mode(mode), loadMode(Narrow), debugMode(false), masterEnable(true), params(params),
     requiringTopTilesLoaded(true),
     texType(TexTypeUnsignedByte), texSize(0), borderSize(0), flipY(true),
     baseDrawPriority(100), drawPriorityPerLevel(1),
@@ -1433,13 +1435,13 @@ void QuadImageFrameLoader::builderShutdown(PlatformThreadInfo *threadInfo, QuadT
 /// Returns true if there's an update to process
 bool QuadImageFrameLoader::hasUpdate() const
 {
-    return renderState.hasUpdate(curFrames);
+    return renderState.hasUpdate(curFrames,masterEnable);
 }
 
 /// Process the update
 void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
 {
-    if (!control || !renderState.hasUpdate(curFrames))
+    if (!control || !renderState.hasUpdate(curFrames,masterEnable))
         return;
     Scene *scene = control->getScene();
     if (!scene)
@@ -1448,7 +1450,7 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
     ChangeSet changes;
 
     TimeInterval now = control->getScene()->getCurrentTime();
-    renderState.updateScene(frameInfo->scene, curFrames, now, flipY, color, changes);
+    renderState.updateScene(frameInfo->scene, curFrames, now, flipY, color, masterEnable, changes);
 
     frameInfo->scene->addChangeRequests(changes);
 }
