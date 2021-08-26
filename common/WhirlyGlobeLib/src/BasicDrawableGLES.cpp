@@ -497,7 +497,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
             }
         } else {
             // Vertex Array Objects can't hold the defaults, so we build them earlier
-            for (auto attrDef : vertArrayDefaults) {
+            for (const auto& attrDef : vertArrayDefaults) {
                 // The program is expecting it, so we need a default
                 attrDef.attr.glSetDefault(attrDef.progAttrIndex);
                 CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
@@ -505,7 +505,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         }
     } else {
         vertAttr = prog->findAttribute(a_PositionNameID);
-        progAttrs.resize(vertexAttributes.size(),NULL);
+        progAttrs.resize(vertexAttributes.size(),nullptr);
         
         // We're using a single buffer for all of our vertex attributes
         if (sharedBuffer)
@@ -513,8 +513,14 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
             glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
-        } else {
+        }
+        else if (!points.empty())
+        {
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
+        }
+        else
+        {
+            wkLogLevel(Warn, "Empty drawable");
         }
         usedLocalVertices = true;
         glEnableVertexAttribArray ( vertAttr->index );
@@ -523,10 +529,9 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         // All the rest of the attributes
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
-            progAttrs[ii] = NULL;
-            VertexAttributeGLES *attr = (VertexAttributeGLES *)vertexAttributes[ii];
-            const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID);
-            if (thisAttr)
+            progAttrs[ii] = nullptr;
+            const auto attr = (VertexAttributeGLES *)vertexAttributes[ii];
+            if (const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID))
             {
                 if (attr->buffer != 0 || attr->numElements() != 0)
                 {
