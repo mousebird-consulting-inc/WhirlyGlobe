@@ -318,6 +318,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 {
     self = [super initWithViewC:inViewC];
     
+    _enable = true;
     _zBufferRead = false;
     _zBufferWrite = true;
     _baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
@@ -351,6 +352,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     samplingLayer.debugMode = self.debugMode;
     // Do this again in case they changed them
     loader->setSamplingParams(params);
+    loader->setMasterEnable(_enable);
     
     [loadInterp setLoader:self];
     
@@ -473,6 +475,17 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     loader->setColor(color,&changes);
     
     [samplingLayer.layerThread addChangeRequests:changes];
+}
+         
+- (void)setEnable:(bool)newEnable
+{
+    if (_enable == newEnable)
+        return;
+    _enable = newEnable;
+    if (loader) {
+        loader->setMasterEnable(newEnable);
+        [samplingLayer.layerThread addChangeRequest:nullptr];
+    }
 }
          
 
