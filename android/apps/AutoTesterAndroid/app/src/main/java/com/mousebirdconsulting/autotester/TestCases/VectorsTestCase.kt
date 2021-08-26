@@ -32,6 +32,9 @@ class VectorsTestCase(activity: Activity?) :
                 }
             }
             Log.d("Maply", "Loading $path")
+            if (!baseVC.isRunning || canceled) {
+                break
+            }
             VectorObject.createFromGeoJSON(json)?.apply {
                 selectable = true
             }?.let { vec ->
@@ -66,28 +69,36 @@ class VectorsTestCase(activity: Activity?) :
     
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
+        controller = mapVC
+        mapController = mapVC
         baseCase.setUpWithMap(mapVC)
         baseCase.setForwardMapDelegate(this)
-        mapVC.addPostSurfaceRunnable {
-            Handler(activity.mainLooper).postDelayed({
-                overlayCountries(mapVC)
-                onVectorsLoaded?.invoke(vectors)
-            }, 500)
-        }
+        loadVectorsDelayed()
         return true
     }
     
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
+        controller = globeVC
+        globeController = globeVC
         baseCase.setUpWithGlobe(globeVC)
         baseCase.setForwardGlobeDelegate(this)
-        globeVC.addPostSurfaceRunnable {
-            Handler(activity.mainLooper).postDelayed({
-                overlayCountries(globeVC)
-                onVectorsLoaded?.invoke(vectors)
-            }, 500)
-        }
+        loadVectorsDelayed()
         return true
+    }
+
+    private fun loadVectorsDelayed() {
+        controller?.addPostSurfaceRunnable {
+            // Load vectors on a separate thread so that you can
+            // back out of the test case before they're all loaded.
+            Thread({
+                Thread.sleep(500)
+                if (!canceled) {
+                    overlayCountries(controller)
+                    onVectorsLoaded?.invoke(vectors)
+                }
+            }, "vector loader").start()
+        }
     }
     
     override fun shutdown() {

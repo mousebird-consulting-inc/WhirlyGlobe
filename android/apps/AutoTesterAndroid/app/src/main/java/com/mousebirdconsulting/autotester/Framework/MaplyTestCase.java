@@ -13,6 +13,8 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.CallSuper;
+
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MapController;
 import com.mousebird.maply.BaseController;
@@ -211,6 +213,7 @@ public class MaplyTestCase
 	// Run start/shutdown in a loop
 	public void start()
 	{
+		canceled = false;
 		if (multiTest) {
 			startControl();
 
@@ -230,6 +233,7 @@ public class MaplyTestCase
 	// Create the test case and start it
 	public void startControl()
 	{
+		canceled = false;
 		numRuns++;
 		if (multiTest)
 			Log.d("Maply","Run " + numRuns + " times.");
@@ -316,6 +320,20 @@ public class MaplyTestCase
 		}
 
 		return null;
+	}
+
+	@Override
+	@CallSuper
+	protected void onCancelled() {
+		super.onCancelled();
+		canceled = true;
+	}
+
+	@Override
+	@CallSuper
+	protected void onCancelled(Void unused) {
+		super.onCancelled(unused);
+		canceled = true;
 	}
 
 	public void shutdown()
@@ -567,4 +585,6 @@ public class MaplyTestCase
 	protected static float degToRad(float deg) { return (float)(deg * Math.PI / 180); }
 	protected static double radToDeg(double rad) { return rad * 180 / Math.PI; }
 	protected static double degToRad(double deg) { return deg * Math.PI / 180; }
+
+	protected boolean canceled = false;
 }

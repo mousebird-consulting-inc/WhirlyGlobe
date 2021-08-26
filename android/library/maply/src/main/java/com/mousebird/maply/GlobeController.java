@@ -105,7 +105,10 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		Choreographer c = Choreographer.getInstance();
 		if (c != null)
 			c.removeFrameCallback(this);
-		globeView.cancelAnimation();
+
+		if (globeView != null) {
+			globeView.cancelAnimation();
+		}
 
 		// superclass shuts down the scene
 
