@@ -2,6 +2,8 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.graphics.Color
+import android.os.Handler
+import android.util.Log
 import android.widget.Toast
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
@@ -12,7 +14,7 @@ import java.util.*
 class VectorsTestCase(activity: Activity?) :
         MaplyTestCase(activity, "Vectors Test", TestExecutionImplementation.Both) {
 
-    val compObjs = ArrayList<ComponentObject>()
+    private val compObjs = ArrayList<ComponentObject>()
 
     @Throws(Exception::class)
     private fun overlayCountries(baseVC: BaseController) {
@@ -29,6 +31,7 @@ class VectorsTestCase(activity: Activity?) :
                     }
                 }
             }
+            Log.d("Maply", "Loading $path")
             VectorObject.createFromGeoJSON(json)?.apply {
                 selectable = true
             }?.let { vec ->
@@ -66,8 +69,10 @@ class VectorsTestCase(activity: Activity?) :
         baseCase.setUpWithMap(mapVC)
         baseCase.setForwardMapDelegate(this)
         mapVC.addPostSurfaceRunnable {
-            overlayCountries(mapVC)
-            onVectorsLoaded?.invoke(vectors)
+            Handler(activity.mainLooper).postDelayed({
+                overlayCountries(mapVC)
+                onVectorsLoaded?.invoke(vectors)
+            }, 500)
         }
         return true
     }
@@ -77,8 +82,10 @@ class VectorsTestCase(activity: Activity?) :
         baseCase.setUpWithGlobe(globeVC)
         baseCase.setForwardGlobeDelegate(this)
         globeVC.addPostSurfaceRunnable {
-            overlayCountries(globeVC)
-            onVectorsLoaded?.invoke(vectors)
+            Handler(activity.mainLooper).postDelayed({
+                overlayCountries(globeVC)
+                onVectorsLoaded?.invoke(vectors)
+            }, 500)
         }
         return true
     }
