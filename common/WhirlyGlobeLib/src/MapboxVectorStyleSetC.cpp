@@ -26,6 +26,8 @@
 namespace WhirlyKit
 {
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err58-cpp" // NOLINT static initializers can throw
 static const std::string strUnderbar("_");
 static const std::string strBase("base");
 static const std::string strStops("stops");
@@ -36,6 +38,7 @@ static const std::string strBackground("background");
 static const std::regex colorSeparatorPattern("[(),]");
 static const std::regex fieldSeparatorPattern(R"([{}]+)");
 static const std::regex colonPattern(":\\w+$");
+#pragma clang diagnostic pop
 
 bool MapboxRegexField::parse(const std::string &textField)
 {
@@ -76,22 +79,24 @@ bool MapboxRegexField::parse(const std::string &textField)
 }
 
 bool MapboxRegexField::parse(const std::string &fieldName,
-                             MapboxVectorStyleSetImpl *styleSet,
+                             MapboxVectorStyleSetImpl *,
                              const DictionaryRef &styleEntry)
 {
-    const std::string textField = styleSet->stringValue(fieldName, styleEntry, std::string());
+    const std::string textField = MapboxVectorStyleSetImpl::stringValue(fieldName, styleEntry, std::string());
     return textField.empty() || parse(textField);
 }
 
 static void trim(std::string &s)
 {
+    // trim right
     while (!s.empty() && std::isspace(s.back()))
     {
         s.pop_back();
     }
-    for (auto i = s.begin(); ; ++i)
+    // trim left
+    for (auto i = s.begin(); i != s.end(); ++i)
     {
-        if (!std::isspace(*i) || i == s.end())
+        if (!std::isspace(*i))
         {
             s.erase(s.begin(), i);
             break;
@@ -159,7 +164,7 @@ MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 {
 }
 
-bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *styleSet,bool isText)
+bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *,bool isText)
 {
     base = entry->getDouble(strBase,1.0);
     
@@ -188,7 +193,8 @@ bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,MapboxVectorStyl
                         if (isText)
                             fStop.textField.parse(stopEntries[1]->getString());
                         else
-                            fStop.color = styleSet->colorValue(std::string(), stopEntries[1], nullptr, nullptr, false);
+                            fStop.color = MapboxVectorStyleSetImpl::colorValue(std::string(), stopEntries[1],
+                                                                               nullptr, nullptr, false);
                         break;
                     case DictTypeObject:
                         fStop.color = std::make_shared<RGBAColor>(stopEntries[1]->getColor());
@@ -258,7 +264,7 @@ RGBAColorRef MaplyVectorFunctionStops::colorForZoom(double zoom)
             b->color->asUnitFloats(bc);
             float res[4];
             for (unsigned int ii=0;ii<4;ii++)
-                res[ii] = ratio * (bc[ii]-ac[ii]) + ac[ii];
+                res[ii] = (float)ratio * (bc[ii]-ac[ii]) + ac[ii];
             return std::make_shared<RGBAColor>(RGBAColor::FromUnitFloats(res));
         }
         a = b;
@@ -336,10 +342,11 @@ FloatExpressionInfoRef MapboxTransDouble::expression()
     
     auto floatExp = std::make_shared<FloatExpressionInfo>();
     floatExp->type = ExpressionExponential;
-    floatExp->base = stops->base;
+    floatExp->base = (float)stops->base;
     floatExp->stopInputs.resize(stops->stops.size());
     floatExp->stopOutputs.resize(stops->stops.size());
-    for (unsigned int ii=0;ii<stops->stops.size();ii++) {
+    for (size_t ii=0;ii<stops->stops.size();++ii)
+    {
         floatExp->stopInputs[ii] = stops->stops[ii].zoom;
         floatExp->stopOutputs[ii] = stops->stops[ii].val;
     }
@@ -382,8 +389,9 @@ RGBAColor MapboxTransColor::colorForZoom(double zoom)
 {
     RGBAColor theColor = *(stops ? stops->colorForZoom(zoom) : color);
 
-    if (useAlphaOverride) {
-        theColor.a = alpha * 255.0;
+    if (useAlphaOverride)
+    {
+        theColor.a = (uint8_t)(alpha * 255.0);
     }
     
     return theColor;
@@ -401,7 +409,7 @@ ColorExpressionInfoRef MapboxTransColor::expression()
     
     auto colorExp = std::make_shared<ColorExpressionInfo>();
     colorExp->type = ExpressionExponential;
-    colorExp->base = stops->base;
+    colorExp->base = (float)stops->base;
     colorExp->stopInputs.resize(stops->stops.size());
     colorExp->stopOutputs.resize(stops->stops.size());
     for (unsigned int ii=0;ii<stops->stops.size();ii++) {
@@ -537,12 +545,18 @@ double MapboxVectorStyleSetImpl::doubleValue(const DictionaryEntryRef &thing,dou
 {
     if (!thing)
         return defVal;
-    
-    if (thing->getType() == DictTypeDouble || thing->getType() == DictTypeInt || thing->getType() == DictTypeIdentity)
-        return thing->getDouble();
 
-    wkLogLevel(Warn, "Expected double for %s but got something else",name.c_str());
-    return defVal;
+    switch (thing->getType())
+    {
+        case DictTypeDouble:
+        case DictTypeInt:
+        case DictTypeIdentity:
+        case DictTypeInt64:
+            return thing->getDouble();
+        default:
+            wkLogLevel(Warn, "Expected double but got something else: %s", thing->getString().c_str());
+            return defVal;
+    }
 }
 
 double MapboxVectorStyleSetImpl::doubleValue(const std::string &valName, const DictionaryRef &dict, double defVal)
@@ -633,8 +647,8 @@ static RGBAColorRef parseColor(const std::string &str, const std::string &inName
             return defVal;
         }
 
-        int red,green,blue;
-        int alpha = 255;
+        uint8_t red,green,blue;
+        uint8_t alpha = 255;
         if (str.size() == 4)            // #RGB => FFRRGGBB
         {
             red = (iVal >> 8) & 0xf;    red |= red << 4;
@@ -708,8 +722,8 @@ static RGBAColorRef parseColor(const std::string &str, const std::string &inName
         const int hue = std::stoi(toks[0]);
         const int sat = std::stoi(toks[1]);
         const int light = std::stoi(toks[2]);
-        const float newLight = light / 100.0;
-        const float newSat = sat / 100.0;
+        const float newLight = (float)light / 100.0f;
+        const float newSat = (float)sat / 100.0f;
 
         return std::make_shared<RGBAColor>(RGBAColor::FromHSL(hue, newSat, newLight));
     } else if (str.find("hsla(") == 0) {
@@ -725,8 +739,8 @@ static RGBAColorRef parseColor(const std::string &str, const std::string &inName
         const int sat = std::stoi(toks[1]);
         const int light = std::stoi(toks[2]);
         const auto alpha = (float)std::stod(toks[3]);
-        const auto newLight = light / 100.0f;
-        const auto newSat = sat / 100.0f;
+        const auto newLight = (float)light / 100.0f;
+        const auto newSat = (float)sat / 100.0f;
 
         const auto c = RGBAColor::FromHSL(hue, newSat, newLight);
         return std::make_shared<RGBAColor>(multiplyAlpha ? c.withAlphaMultiply(alpha) : c.withAlpha(alpha));
@@ -878,7 +892,8 @@ MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &inName
 
 void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *what,const DictionaryRef &styleEntry)
 {
-    if (styleEntry && styleEntry->hasField(field)) {
+    if (styleEntry && styleEntry->hasField(field))
+    {
 #if DEBUG
         wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field,what);
 #endif
@@ -911,7 +926,9 @@ RGBAColorRef MapboxVectorStyleSetImpl::resolveColor(const MapboxTransColorRef &c
             return std::make_shared<RGBAColor>(vals[0]*255,vals[1]*255,vals[2]*255,vals[3]*thisOpacity);
         default:
             assert(!"Invalid color resolve type");
+#ifdef NDEBUG
             return RGBAColorRef();
+#endif
     }
 }
 
