@@ -121,7 +121,7 @@ void QuadDisplayControllerNew::setMinImportancePerLevel(std::vector<double> impo
     // Version we'll use for reaching deeper down
     if (reportedMaxZoom > maxZoom)
     {
-        reportedMinImportancePerLevel.resize(reportedMaxZoom);
+        reportedMinImportancePerLevel.resize(reportedMaxZoom + 1);
         for (unsigned int ii=0;ii<reportedMinImportancePerLevel.size();ii++)
         {
             const auto idx = (ii >= minImportancePerLevel.size()) ? (minImportancePerLevel.size() - 1) : ii;
@@ -194,7 +194,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,const V
     // Nodes to load are different for single level vs regular loading
     QuadTreeNew::ImportantNodeSet newNodes;
     int targetLevel = -1;
-    std::vector<double> maxRejectedImport((reportedMaxZoom > 0 ? reportedMaxZoom : maxLevel) +1,0.0);
+    std::vector<double> maxRejectedImport(std::max(reportedMaxZoom, maxLevel) + 1,0.0);
     if (singleLevel)
     {
         std::tie(targetLevel,newNodes) = calcCoverageVisible(minImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImport);
@@ -281,7 +281,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,const V
         std::vector<double> maxRejectedImportLocal(reportedMaxZoom + 1, 0.0);
         std::tie(testTargetLevel,testNodes) = calcCoverageVisible(reportedMinImportancePerLevel, maxTiles, levelLoads, localKeepMinLevel, maxRejectedImportLocal);
         maxLevel = oldMaxLevel;
-        maxRatio = (testTargetLevel >= maxRejectedImportLocal.size()) ? 0.0 : maxRejectedImportLocal[testTargetLevel + 1];
+        maxRatio = (testTargetLevel + 1 < maxRejectedImportLocal.size()) ? maxRejectedImportLocal[testTargetLevel + 1] : 0.0;
     }
 
     // We take the largest importance for a tile beyond the one we're loading and use

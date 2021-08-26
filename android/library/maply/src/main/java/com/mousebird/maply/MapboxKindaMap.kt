@@ -554,7 +554,7 @@ open class MapboxKindaMap(
             it.minZoom = minZoom
             it.maxZoom = maxZoom
             // Let the reported zoom go beyond the maximum
-            it.reportedMaxZoom = 21
+            it.reportedMaxZoom = maxZoom + 1
         }
         sampleParams = params
 

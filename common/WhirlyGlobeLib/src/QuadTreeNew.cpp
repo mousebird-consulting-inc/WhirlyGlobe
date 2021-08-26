@@ -162,13 +162,17 @@ void QuadTreeNew::evalNodeImportance(ImportantNode &node,const std::vector<doubl
 
     node.importance = (node.level >= minLevel) ? importance(node) : 0;
 
-    //wkLogLevel(Warn,"tree %llx node %d:(%d,%d) importance=%f",this,node.level,node.x,node.y,node.importance);
+    //wkLogLevel(Verbose,"tree %llx node %d:(%d,%d) importance=%f",this,node.level,node.x,node.y,node.importance);
+    assert(node.level < minImportance.size() && node.level < maxRejectedImport.size());
 
     const auto levelMinImport = minImportance[node.level];
     if (node.importance < levelMinImport && levelMinImport != MAXFLOAT)
     {
         const double ratio = (levelMinImport > 0.0) ? (node.importance / levelMinImport) : 1.0;
-        maxRejectedImport[node.level] = std::max(ratio,maxRejectedImport[node.level]);
+        if (ratio > 0)
+        {
+            maxRejectedImport[node.level] = std::max(ratio, maxRejectedImport[node.level]);
+        }
         return;
     }
 
