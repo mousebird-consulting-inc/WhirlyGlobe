@@ -21,6 +21,7 @@ class BoundsTestCase(activity: Activity?) :
             setPositionGeo(0.0, 0.0, 0.5)
             //allowPan = false
             //allowZoom = false
+            allowRotateGesture = true
             setViewExtents(Point2d.FromDegrees(-60.0, -40.0),
                            Point2d.FromDegrees(60.0, 70.0))
         }

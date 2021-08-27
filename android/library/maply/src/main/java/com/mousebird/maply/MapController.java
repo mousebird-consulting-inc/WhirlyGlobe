@@ -635,7 +635,7 @@ public class MapController extends BaseController implements View.OnTouchListene
      */
 	public void setAllowRotateGesture(boolean allowRotate)
 	{
-		if (running && gestureHandler != null && gestureHandler.allowRotate) {
+		if (running && gestureHandler != null) {
 			gestureHandler.allowRotate = allowRotate;
 		}
 

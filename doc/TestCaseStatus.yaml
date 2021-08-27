@@ -372,7 +372,8 @@ cases:
   Android:
     Map: ✗
     Globe: ✗
-  Issues: []
+  Issues:
+    - Exhibits a significant memory leak
   Checks:
     - Repeatedly creates and destroys vector MBTiles case
     - Check memory with profiling
