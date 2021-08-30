@@ -327,7 +327,7 @@ public class MapboxKindaMap {
             // Go get the style sheet (this will also handle local
             let fetchIdx = self.outstandingFetches.count
             let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(styleURL)) { (data, _, error) in
-                guard error == nil, var data = data else {
+                guard error == nil, var data = data, !data.isEmpty else {
                     print("Error fetching style sheet:\n\(String(describing: error))")
                     
                     self.stop()
@@ -346,6 +346,13 @@ public class MapboxKindaMap {
                     }
                 } catch {
                     print("Failed to parse stylesheet: \(String(describing: error))")
+                }
+
+                if (jsonDict == nil) {
+                    print("Failed to get stylesheet")
+
+                    self.stop()
+                    return
                 }
 
                 DispatchQueue.main.async {

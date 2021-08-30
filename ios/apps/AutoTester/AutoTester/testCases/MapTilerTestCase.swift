@@ -11,9 +11,7 @@ import UIKit
 class MapTilerTestCase: MaplyTestCase {
 
     init(_ name: String, _ impl: MaplyTestCaseImplementations = [.map,.globe]) {
-        super.init()
-        self.name = name
-        self.implementations = impl
+        super.init(name: name, supporting: impl)
         self.styles = getStyles()
     }
 
@@ -31,25 +29,50 @@ class MapTilerTestCase: MaplyTestCase {
             ("Hybrid Satellite", "maptiler_hybrid_satellite", true),
             ("Streets", "maptiler_streets", false),
             ("Topo", "maptiler_topo", false),
-            ("Custom", "maptiler_expr_test", false)
+            ("Expr Test", "maptiler_expr_test", false),
+            ("Custom", bgTestStyle, false),
         ]
     }
 
     var styles = [(name: String, sheet: String, bg: Bool)]()
     var mapTilerStyle = 2
+    var light = true
     var mapboxMap : MapboxKindaMap? = nil
 
-    // Start fetching the required pieces for a Mapbox style map
     func startMap(_ style: (name: String, sheet: String, bg: Bool), viewC: MaplyBaseViewController) {
-        guard let fileName = Bundle.main.url(forResource: style.sheet, withExtension: "json") else {
-            print("Style sheet missing from bundle: \(style.sheet)")
-            return
+        var url: URL? = nil
+        if (style.sheet.contains("{")) {
+            url = NSURL.fileURL(withPath: NSTemporaryDirectory(), isDirectory: true)
+                       .appendingPathComponent("custom-style.json", isDirectory: false)
+            do {
+                let file = url!.standardizedFileURL.absoluteString.replacingOccurrences(of: "file://", with: "")
+                try style.sheet.write(toFile: file, atomically: true, encoding: String.Encoding.utf8)
+            } catch {
+                print("Failed to write stylesheet: " + error.localizedDescription)
+                return
+            }
+        } else {
+            url = Bundle.main.url(forResource: style.sheet, withExtension: "json")
+            if (url == nil) {
+                print("Style sheet missing from bundle: \(style.sheet)")
+                return
+            }
         }
-        
-        print("Starting map with \(style.name) / \(style.sheet)")
+        print("Starting map with \(style.name) - w/\(light ?"":"o") light")
+        startMap(url!, bg: style.bg, viewC: viewC)
+    }
+
+    // Start fetching the required pieces for a Mapbox style map
+    func startMap(_ styleUrl: URL, bg: Bool, viewC: MaplyBaseViewController) {
 
         globeViewController?.autoMoveToTap = false
         mapViewController?.autoMoveToTap = false
+
+        if (light) {
+            viewC.resetLights()
+        } else {
+            viewC.clearLights()
+        }
 
         // Maptiler token
         // Go to maptiler.com, setup an account and get your own.  Paste it here, or in the environment:
@@ -75,8 +98,8 @@ class MapTilerTestCase: MaplyTestCase {
         UserDefaults.standard.setValue(token, forKey: key)
 
         // Parse it and then let it start itself
-        let mapboxMap = MapboxKindaMap(fileName, viewC: viewC)
-        mapboxMap.backgroundAllPolys = globeViewController != nil && !style.bg
+        let mapboxMap = MapboxKindaMap(styleUrl, viewC: viewC)
+        mapboxMap.backgroundAllPolys = globeViewController != nil && !bg
         mapboxMap.cacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
         // Replace the MapTilerKey in any URL with the actual token
         mapboxMap.fileOverride = {
@@ -193,6 +216,9 @@ class MapTilerTestCase: MaplyTestCase {
         mapboxMap = nil
 
         mapTilerStyle = (mapTilerStyle + 1) % styles.count
+        if (mapTilerStyle == 0) {
+            light = !light
+        }
         if let vc = baseViewController {
             startMap(styles[mapTilerStyle], viewC: vc)
         }
@@ -204,5 +230,40 @@ class MapTilerTestCase: MaplyTestCase {
     override func maplyViewController(_ viewC: MaplyViewController, didTapAt coord: MaplyCoordinate) {
         switchMaps()
     }
+    
+    let bgTestStyle = """
+        {"version": 8, "name": "custom", "layers": [{
+          "id": "background","type": "background",
+          "paint": { "background-color": "rgba(239, 237, 230, 1)" }
+         }
+      ,{
+         "filter":[
+            "in",
+            "admin_level",
+            4,
+            6,
+            8
+         ],
+         "id":"admin_sub",
+         "layout":{
+            "visibility":"visible"
+         },
+         "paint":{
+            "line-color":"hsla(0, 0%, 60%, 0.5)",
+            "line-dasharray":[
+               2,
+               1
+            ]
+         },
+         "source":"openmaptiles",
+         "source-layer":"boundary",
+         "type":"line"
+      }
+    ],
+        "sources": {
+          "openmaptiles": {"type": "vector",
+            "url": "https://api.maptiler.com/tiles/v3/tiles.json?key=MapTilerKey"}
+        }}
+    """;
 }
 
