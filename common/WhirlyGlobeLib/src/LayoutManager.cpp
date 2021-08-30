@@ -1260,8 +1260,8 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
 }
 
 // Time we'll take to disappear objects
-static float const NewObjectFadeIn = 0.0;
-//static float const OldObjectFadeOut = 0.0;
+static float const NewObjectFadeIn = 1.0;
+static float const OldObjectFadeOut = 1.0;
 
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes)
@@ -1364,7 +1364,9 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     // Get rid of the last set of drawables
     for (const auto &it : drawIDs)
-        changes.push_back(new RemDrawableReq(it));
+    {
+        changes.push_back(new RemDrawableReq(it, OldObjectFadeOut));
+    }
 //        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
     drawIDs.clear();
 
