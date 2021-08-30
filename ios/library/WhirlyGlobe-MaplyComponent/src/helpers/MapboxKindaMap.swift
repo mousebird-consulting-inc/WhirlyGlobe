@@ -509,6 +509,7 @@ public class MapboxKindaMap {
                     self.stop()
                     return
                 }
+                offlineRender.clearLights()
                 self.offlineRender = offlineRender
                 let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
                 imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
