@@ -700,7 +700,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
         Point2dVector objPts(4);
 
         // Start with a max objects check
-        bool isActive = !(maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects));
+        bool isActive = (maxDisplayObjects == 0 || (numSoFar < maxDisplayObjects));
 
         // Sort the objects by importance within their container, large to small
         std::sort(container.objs.begin(),container.objs.end(),
@@ -1317,8 +1317,6 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         return;
     }
 
-    const TimeInterval curTime = scene->getCurrentTime();
-
     // Clear out any debug outlines we accumulated on the previous update
     if (!debugVecIDs.empty())
     {
@@ -1362,13 +1360,11 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 //    if (layoutChanges)
 //        NSLog(@"LayoutChanges");
 
-    // Get rid of the last set of drawables
-    for (const auto &it : drawIDs)
-    {
-        changes.push_back(new RemDrawableReq(it, OldObjectFadeOut));
-    }
-//        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
-    drawIDs.clear();
+    const TimeInterval curTime = scene->getCurrentTime();
+
+    // Save the drawable mapping from the previous iteration
+    const auto oldUniqueDrawableMap = std::move(uniqueDrawableMap);
+    uniqueDrawableMap.clear();
 
     // Generate the drawables.
     // Note that the renderer is not managed by a shared pointer, and will be destroyed
@@ -1382,8 +1378,38 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             break;
         }
 
-        layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
-        if (!layoutObj->currentEnable)
+        auto fadeIn = true;
+
+        SimpleIDUnorderedSet *drawMapPtr = nullptr;
+        if (!layoutObj->obj.uniqueID.empty())
+        {
+            if (uniqueDrawableMap.empty())
+            {
+                uniqueDrawableMap.reserve(localLayoutObjects.size());
+            }
+
+            // Look up or create the set of drawable IDs associated with this Unique ID
+            const auto result = uniqueDrawableMap.insert(std::make_pair(
+                std::ref(layoutObj->obj.uniqueID), SimpleIDUnorderedSet()));
+            drawMapPtr = &result.first->second;
+            if (result.second)
+            {
+                drawMapPtr->reserve(10);
+            }
+
+            // See if this object generated any drawables in the previous run.
+            const auto hit = oldUniqueDrawableMap.find(layoutObj->obj.uniqueID);
+            if (hit != oldUniqueDrawableMap.end() && !hit->second.empty())
+            {
+                // Not new, don't fade it in
+                fadeIn = false;
+            }
+        }
+
+        // Fade in if the object wasn't in the previous set
+        
+        layoutObj->obj.offset = layoutObj->offset;
+        if (!layoutObj->currentEnable && fadeIn)
         {
             layoutObj->obj.state.fadeDown = curTime;
             layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
@@ -1392,7 +1418,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         // Note: The animation below doesn't handle offsets
 
         // Just moved into a cluster
-        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
+        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster >= 0)
         {
             ClusterEntry *cluster = &clusters[layoutObj->newCluster];
             const auto &params = oldClusterParams[cluster->clusterParamID];
@@ -1405,7 +1431,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             animObj.state.progID = params.motionShaderID;
             for (auto &geom : animObj.geometry)
                 geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr,drawMapPtr);
         }
         else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
         {
@@ -1429,24 +1455,31 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             //animObj.setDrawOrder(?)
             for (auto &geom : animObj.geometry)
                 geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr,drawMapPtr);
 
             // And hold off on adding it
             ScreenSpaceObject shortObj = layoutObj->obj;    // NOLINT slicing LayoutObject to ScreenSpaceObject
             //shortObj.setDrawOrder(?)
             shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry);
-        } else {
-            // It's boring, just add it
-            if (layoutObj->newEnable) {
-                // It's a single point placement
-                if (layoutObj->obj.layoutShape.empty())
-                    ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,&layoutObj->obj.geometry);
-                else {
-                    // One or more placements along a path
-                    for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++) {
-                        ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
-                    }
+            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry,nullptr,drawMapPtr);
+        }
+        // It's boring, just add it
+        else if (layoutObj->newEnable)
+        {
+            // It's a single point placement
+            if (layoutObj->obj.layoutShape.empty())
+            {
+                ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,
+                                        &layoutObj->obj.geometry,nullptr,drawMapPtr);
+            }
+            else
+            {
+                // One or more placements along a path
+                for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
+                {
+                    ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii],
+                                            &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii],
+                                            drawMapPtr);
                 }
             }
         }
@@ -1508,6 +1541,43 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         }
     }
 
+    if (!drawIDs.empty())
+    {
+        // Reverse the map so we can look up drawable IDs
+        std::unordered_map<SimpleIdentity,const std::string*> oldUniqueIDsByDrawable(drawIDs.size());
+        for (const auto &kv : oldUniqueDrawableMap)
+        {
+            for (SimpleIdentity drawID : kv.second)
+            {
+                oldUniqueIDsByDrawable.insert(std::make_pair(drawID, &kv.first));
+            }
+        }
+
+        // Get rid of the last set of drawables
+        for (const auto &drawID : drawIDs)
+        {
+            // Fade out by default
+            auto fade = curTime + OldObjectFadeOut;
+
+            // Find the unique ID that generated this old drawable, if any.
+            const auto oldUIDMatch = oldUniqueIDsByDrawable.find(drawID);
+            if (oldUIDMatch != oldUniqueIDsByDrawable.end())
+            {
+                const auto newUIDMatch = uniqueDrawableMap.find(*oldUIDMatch->second);
+                if (newUIDMatch != uniqueDrawableMap.end() && !newUIDMatch->second.empty())
+                {
+                    // The same object generated drawables in this run as well,
+                    // so don't fade out the old one, just make it disappear.
+                    fade = 0.0;
+                }
+            }
+            changes.push_back(new RemDrawableReq(drawID, fade));
+        }
+    }
+    //NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
+    drawIDs.clear();
+
+    // Add the new ones
     ssBuild.flushChanges(changes, drawIDs);
 
     //wkLog("Layout of %d objects, %d clusters took %f", localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);

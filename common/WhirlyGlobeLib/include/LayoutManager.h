@@ -375,6 +375,9 @@ protected:
 
     // Scene manager lock protects some things, this protects others
     std::timed_mutex internalLock;
+    
+    // Mapping of object unique IDs to drawables from the previous run
+    std::unordered_map<std::string,SimpleIDUnorderedSet> uniqueDrawableMap;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 

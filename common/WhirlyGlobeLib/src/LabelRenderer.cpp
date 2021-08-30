@@ -296,6 +296,9 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
             // If it's being passed to the layout engine, do that as well
             if (layoutEngine)
             {
+                // Propagate the unique ID to the layout object
+                layoutObject->uniqueID = label->uniqueID;
+
                 // Put together the layout info
                 //layoutObject->hint = label->text;
                 layoutObject->layoutPts = geomCoords;
@@ -307,7 +310,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                 layoutObject->setEnable(labelInfo->enable);
                 
                 // Setup layout points if we have them
-                if (!label->layoutShape.empty()) {
+                if (!label->layoutShape.empty())
+                {
                     layoutObject->layoutShape = convertGeoPtsToModelSpace(label->layoutShape);
                     layoutObject->layoutRepeat = labelInfo->layoutRepeat;
                     layoutObject->layoutOffset = labelInfo->layoutOffset;

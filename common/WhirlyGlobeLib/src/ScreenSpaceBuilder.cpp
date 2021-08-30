@@ -1,9 +1,8 @@
-/*
- *  ScreenSpaceManager.mm
+/*  ScreenSpaceManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ScreenSpaceBuilder.h"
@@ -25,15 +23,15 @@
 namespace WhirlyKit
 {
 
-ScreenSpaceBuilder::DrawableState::DrawableState()
-    : period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0),
-    enable(true), startEnable(0.0), endEnable(0.0),
-    drawPriority(0), renderTargetID(EmptyIdentity), minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-    zoomSlot(-1), minZoomVis(DrawVisibleInvalid), maxZoomVis(DrawVisibleInvalid),
+ScreenSpaceBuilder::DrawableState::DrawableState() :
+    period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0), enable(true),
+    startEnable(0.0), endEnable(0.0), drawPriority(0), renderTargetID(EmptyIdentity),
+    minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), zoomSlot(-1),
+    minZoomVis(DrawVisibleInvalid), maxZoomVis(DrawVisibleInvalid),
     motion(false), rotation(false), keepUpright(false), hasMask(false)
 {
 }
-    
+
 bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) const
 {
     if (texIDs != that.texIDs)
@@ -76,16 +74,16 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
         return hasMask < that.hasMask;
     if (vertexAttrs != that.vertexAttrs)
         return vertexAttrs < that.vertexAttrs;
-    SimpleIdentity opacityExp0 = opacityExp ? opacityExp->getId() : EmptyIdentity,
-                    opacityExp1 = that.opacityExp ? that.opacityExp->getId() : EmptyIdentity;
+    const SimpleIdentity opacityExp0 = opacityExp ? opacityExp->getId() : EmptyIdentity;
+    const SimpleIdentity opacityExp1 = that.opacityExp ? that.opacityExp->getId() : EmptyIdentity;
     if (opacityExp0 != opacityExp1)
         return opacityExp0 < opacityExp1;
-    SimpleIdentity colorExp0 = colorExp ? colorExp->getId() : EmptyIdentity,
-                    colorExp1 = that.colorExp ? that.colorExp->getId() : EmptyIdentity;
+    const SimpleIdentity colorExp0 = colorExp ? colorExp->getId() : EmptyIdentity;
+    const SimpleIdentity colorExp1 = that.colorExp ? that.colorExp->getId() : EmptyIdentity;
     if (colorExp0 != colorExp1)
         return colorExp0 < colorExp1;
-    SimpleIdentity scaleExp0 = scaleExp ? scaleExp->getId() : EmptyIdentity,
-                    scaleExp1 = that.scaleExp ? that.scaleExp->getId() : EmptyIdentity;
+    const SimpleIdentity scaleExp0 = scaleExp ? scaleExp->getId() : EmptyIdentity;
+    const SimpleIdentity scaleExp1 = that.scaleExp ? that.scaleExp->getId() : EmptyIdentity;
     if (scaleExp0 != scaleExp1)
         return scaleExp0 < scaleExp1;
     
@@ -190,21 +188,20 @@ void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
     locDraw->addTriangle(BasicDrawable::Triangle(v0,v1,v2));
 }
     
-ScreenSpaceBuilder::ScreenSpaceBuilder(SceneRenderer *sceneRender,CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist)
-    : sceneRender(sceneRender), coordAdapter(coordAdapter), scale(scale), drawPriorityOffset(0), centerDist(centerDist)
+ScreenSpaceBuilder::ScreenSpaceBuilder(SceneRenderer *sceneRender,
+                                       CoordSystemDisplayAdapter *coordAdapter,
+                                       float scale,float centerDist) :
+    sceneRender(sceneRender), coordAdapter(coordAdapter),
+    scale(scale), drawPriorityOffset(0), centerDist(centerDist)
 {
 }
 
-ScreenSpaceBuilder::~ScreenSpaceBuilder()
-{
-}
-    
 void ScreenSpaceBuilder::setTexID(SimpleIdentity texID)
 {
     curState.texIDs.clear();
     curState.texIDs.push_back(texID);
 }
-    
+
 void ScreenSpaceBuilder::setTexIDs(const std::vector<SimpleIdentity> &texIDs,double period)
 {
     curState.texIDs = texIDs;
@@ -276,7 +273,8 @@ void ScreenSpaceBuilder::setEnableRange(TimeInterval inStartEnable,TimeInterval 
     curState.endEnable = inEndEnable;
 }
 
-ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTris,const Point3d &center)
+ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(
+    const DrawableState &state,int numVerts,int numTris,const Point3d &center)
 {
     // Look for an existing drawable
     DrawableWrapRef drawWrap;
@@ -313,89 +311,110 @@ ScreenSpaceBuilder::DrawableWrapRef ScreenSpaceBuilder::findOrAddDrawWrap(const 
         {
             // It is, so we need to flush it and create a new one
             fullDrawables.push_back(drawWrap);
-            drawables.erase(it);
             drawWrap = std::make_shared<DrawableWrap>(sceneRender,state);
-            drawables[state] = drawWrap;
+            it->second = drawWrap;
         }
     }
     
     return drawWrap;
 }
-    
-void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color)
+
+void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coords,
+                                      const TexCoord *texCoords,const RGBAColor &color,
+                                      SimpleIDUnorderedSet *drawIDs)
 {
-    DrawableWrapRef drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
-    
-    int baseVert = drawWrap->getDrawableBuilder()->getNumPoints();
+    const DrawableWrapRef drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
+    auto &builder = drawWrap->getDrawableBuilder();
+
+    if (drawIDs)
+    {
+        drawIDs->insert(builder->getDrawableID());
+    }
+
+    const int baseVert = builder->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        Point2d coord(coords[ii].x(),coords[ii].y());
-        const TexCoord *texCoord = (texCoords ? &texCoords[ii] : NULL);
-        drawWrap->addVertex(coordAdapter,scale,worldLoc, NULL, 0.0, coord, texCoord, &color, NULL);
+        const Point2d &coord = coords[ii];
+        const TexCoord *texCoord = (texCoords ? &texCoords[ii] : nullptr);
+        drawWrap->addVertex(coordAdapter,scale,worldLoc, nullptr, 0.0, coord, texCoord, &color, nullptr);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
 }
 
-void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color)
+void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,
+                                      bool keepUpright,const Point2d *coords,
+                                      const TexCoord *texCoords,const RGBAColor &color,
+                                      SimpleIDUnorderedSet *drawIDs)
 {
-    DrawableWrapRef drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
-    
+    const DrawableWrapRef drawWrap = findOrAddDrawWrap(curState,4,2,worldLoc);
+    auto &builder = drawWrap->getDrawableBuilder();
+
+    if (drawIDs)
+    {
+        drawIDs->insert(builder->getDrawableID());
+    }
+
     // Note: Do something with keepUpright
-    int baseVert = drawWrap->getDrawableBuilder()->getNumPoints();
+    const int baseVert = builder->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
-        Point2d coord(coords[ii].x(),coords[ii].y());
-        const TexCoord *texCoord = (texCoords ? &texCoords[ii] : NULL);
-        drawWrap->addVertex(coordAdapter,scale,worldLoc, NULL, rotation, coord, texCoord, &color, NULL);
+        const Point2d &coord = coords[ii];
+        const TexCoord *texCoord = (texCoords ? &texCoords[ii] : nullptr);
+        drawWrap->addVertex(coordAdapter,scale,worldLoc, nullptr, rotation, coord, texCoord, &color, nullptr);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
 }
 
-void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects)
+void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects,
+                                          const std::vector<Eigen::Matrix3d> *places,
+                                          SimpleIDUnorderedSet *drawIDs)
 {
     std::sort(screenObjects.begin(),screenObjects.end(),
-                  [](const ScreenSpaceObject &a, const ScreenSpaceObject &b) {return a.orderBy < b.orderBy; });
-    
-    for (unsigned int ii=0;ii<screenObjects.size();ii++)
+          [](const auto &a, const auto &b) { return a.orderBy < b.orderBy; });
+
+    for (const auto &ssObj : screenObjects)
     {
-        ScreenSpaceObject &ssObj = screenObjects[ii];
-        
-        addScreenObject(ssObj,ssObj.worldLoc,&ssObj.geometry);
+        addScreenObject(ssObj,ssObj.worldLoc,&ssObj.geometry,places,drawIDs);
     }
 }
     
-void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects)
+void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects,
+                                          const std::vector<Eigen::Matrix3d> *places,
+                                          SimpleIDUnorderedSet *drawIDs)
 {
     std::sort(screenObjects.begin(),screenObjects.end(),
-                  [](const ScreenSpaceObject *a, const ScreenSpaceObject *b) {return a->orderBy < b->orderBy; });
+          [](const auto *a, const auto *b) { return a->orderBy < b->orderBy; });
 
-    for (unsigned int ii=0;ii<screenObjects.size();ii++)
+    for (const auto &ssObj : screenObjects)
     {
-        ScreenSpaceObject *ssObj = screenObjects[ii];
-        
-        addScreenObject(*ssObj, ssObj->worldLoc, &ssObj->geometry);
+        addScreenObject(*ssObj, ssObj->worldLoc, &ssObj->geometry,places,drawIDs);
     }
 }
 
 void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
                                          const Point3d &worldLoc,
                                          const std::vector<ScreenSpaceConvexGeometry> *geoms,
-                                         const std::vector<Eigen::Matrix3d> *places)
+                                         const std::vector<Eigen::Matrix3d> *places,
+                                         SimpleIDUnorderedSet *drawIDs)
 {
     for (unsigned int ii=0;ii<geoms->size();ii++)
     {
-        ScreenSpaceConvexGeometry geom = geoms->at(ii);
+        ScreenSpaceConvexGeometry geom = geoms->at(ii); // make a copy
+
         // Apply a matrix to the geometry for a given version of the placement
-        if (places) {
-            Eigen::Matrix3d placeMat = places->at(ii);
-            for (auto &pt: geom.coords) {
-                Point3d pt2d = placeMat * Point3d(pt.x(),pt.y(),1.0);
-                pt = Point2d(pt2d.x(),pt2d.y());
+        if (places)
+        {
+            const Eigen::Matrix3d &placeMat = places->at(ii);
+            for (auto &pt: geom.coords)
+            {
+                const Point3d pt3d = placeMat * Point3d(pt.x(),pt.y(),1.0);
+                pt = Point2d(pt3d.x(),pt3d.y());
             }
         }
-        DrawableState state = ssObj.state;
+
+        DrawableState state = ssObj.state;  // make a copy
         state.texIDs = geom.texIDs;
         if (geom.progID != EmptyIdentity)
             state.progID = geom.progID;
@@ -409,37 +428,40 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
         state.startEnable = ssObj.startEnable;
         state.endEnable = ssObj.endEnable;
         VertexAttributeSetConvert(geom.vertexAttrs,state.vertexAttrs);
+
         DrawableWrapRef drawWrap = findOrAddDrawWrap(state,(int)geom.coords.size(),(int)(geom.coords.size()-2),worldLoc);
-        
+        auto &builder = drawWrap->getDrawableBuilder();
+
+        if (drawIDs)
+        {
+            drawIDs->insert(builder->getDrawableID());
+        }
+
         // May need to adjust things based on time
         Point3d startLoc3d = worldLoc;
         Point3f dir(0,0,0);
         if (state.motion && ssObj.startTime < ssObj.endTime)
         {
             const double dur = ssObj.endTime - ssObj.startTime;
-            Point3d dir3d = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
+            const Point3d dir3d = (ssObj.endWorldLoc - ssObj.worldLoc)/dur;
             // May need to knock the start back a bit
             const double dt = drawWrap->locDraw->getStartTime() - ssObj.startTime;
             startLoc3d = dir3d * dt + startLoc3d;
-            dir = Point3f(dir3d.x(),dir3d.y(),dir3d.z());
+            dir = dir3d.cast<float>();
         }
-        Point3d startLoc(startLoc3d.x(),startLoc3d.y(),startLoc3d.z());
 
-        int baseVert = drawWrap->locDraw->getNumPoints();
+        const int baseVert = builder->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
-            Point2d coord = geom.coords[jj] + ssObj.offset;
-            const TexCoord *texCoord = geom.texCoords.size() > jj ? &geom.texCoords[jj] : NULL;
-            if (state.motion)
-            {
-                Point3f dir3f(dir.x(),dir.y(),dir.z());
-                drawWrap->addVertex(coordAdapter,scale,startLoc, &dir3f, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
-            } else {
-                drawWrap->addVertex(coordAdapter,scale,startLoc, NULL, ssObj.rotation, Point2d(coord.x(),coord.y()), texCoord, &geom.color, &geom.vertexAttrs);
-            }
+            const Point2d coord = geom.coords[jj] + ssObj.offset;
+            const TexCoord *texCoord = (jj < geom.texCoords.size()) ? &geom.texCoords[jj] : nullptr;
+            drawWrap->addVertex(coordAdapter,scale,startLoc3d, state.motion ? &dir : nullptr,
+                                ssObj.rotation, coord, texCoord, &geom.color, &geom.vertexAttrs);
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
+        {
             drawWrap->addTri(0+baseVert, jj+1+baseVert, jj+2+baseVert);
+        }
     }
 }
     
