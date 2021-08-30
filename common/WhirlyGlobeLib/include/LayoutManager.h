@@ -16,9 +16,6 @@
  *  limitations under the License.
  */
 
-#import <math.h>
-#import <set>
-#import <map>
 #import "Identifiable.h"
 #import "BasicDrawable.h"
 #import "Scene.h"
@@ -27,6 +24,12 @@
 #import "SelectionManager.h"
 #import "OverlapHelper.h"
 #import "VectorManager.h"
+
+#import <math.h>
+#import <map>
+#import <set>
+#import <unordered_set>
+#import <vector>
 
 namespace WhirlyKit
 {
@@ -285,7 +288,57 @@ protected:
                         std::vector<ClusterEntry> &clusterEntries,
                         std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
                         ChangeSet &changes);
-    
+
+    struct LayoutObjectContainer;
+    typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
+    typedef std::unordered_map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
+
+    struct ClusteredObjects
+    {
+        explicit ClusteredObjects(int clusterID) : clusterID(clusterID) { }
+
+        std::pair<LayoutObjectEntryRef,bool> addObject(LayoutObjectEntryRef obj);
+
+        const LayoutSortingSet &getLayoutObjects() const { return layoutObjects; }
+        const int clusterID;
+
+    private:
+        LayoutSortingSet layoutObjects;
+        LayoutUniqueIDSet uniqueLayoutObjects;
+    };
+
+    struct ClusteredObjectsSorter
+    {
+        // Comparison operator
+        bool operator () (const ClusteredObjects *lhs,const ClusteredObjects *rhs) const
+        {
+            return lhs->clusterID < rhs->clusterID;
+        }
+    };
+
+    typedef std::set<ClusteredObjects *,ClusteredObjectsSorter> ClusteredObjectsSet;
+
+    void runLayoutClustering(PlatformThreadInfo *threadInfo,
+                             LayoutContainerVec layoutObjs,
+                             ClusteredObjectsSet &clusterGroups,
+                             std::vector<ClusterEntry> &clusterEntries,
+                             std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
+                             const ViewStateRef &viewState,
+                             Maply::MapViewState *mapViewState,
+                             WhirlyGlobe::GlobeViewState *globeViewState,
+                             const Point2f &frameBufferSize,
+                             const Mbr &screenMbr,
+                             const Eigen::Matrix4d &modelTrans,
+                             const Eigen::Matrix4d &normalMat);
+
+    void layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
+                          const ViewStateRef &viewState,
+                          const Point2f &frameBufferSize,
+                          OverlapHelper &overlapMan,
+                          ChangeSet &changes,
+                          bool &isActive,
+                          bool &hadChanges);
+
     void addDebugOutput(const Point2dVector &pts,
                         WhirlyGlobe::GlobeViewState *globeViewState,
                         Maply::MapViewState *mapViewState,
