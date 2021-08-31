@@ -66,16 +66,22 @@ public class Point2d
 		return getX() == that.getX() && getY() == that.getY();
 	}
 
-	public Point2d addTo(Point2d that)
-	{
+	public Point2d addTo(Point2d that) {
 		return new Point2d(getX()+that.getX(),getY()+that.getY());
 	}
-	
-	public Point2d multiplyBy(double t)
-	{
+	public Point2d subtract(Point2d that) {
+		return new Point2d(getX() - that.getX(), getY() - that.getY());
+	}
+	public Point2d negate() {
+		return new Point2d(-getX(), -getY());
+	}
+	public Point2d multiplyBy(double t) {
 		return new Point2d(getX()*t,getY()*t);
 	}
-	
+	public Point2d divideBy(double t) {
+		return new Point2d(getX()/t,getY()/t);
+	}
+
 	/**
 	 * Create a Point2D geo coordinate from degrees.
 	 * @param lon Longitude first in degrees.

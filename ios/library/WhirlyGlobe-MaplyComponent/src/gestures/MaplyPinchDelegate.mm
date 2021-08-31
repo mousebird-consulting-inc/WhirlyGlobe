@@ -29,8 +29,8 @@ using namespace Maply;
 {
     /// If we're zooming, where we started
     float startZ;
-    Point2f startingMidPoint;
-    Point3d startingGeoPoint;
+    Point2f startingMidPoint;       // screen coordinates
+    Point3d startingGeoPoint;       // actually in display coordinates
 }
 
 + (MaplyPinchDelegate *)pinchDelegateForView:(UIView *)view mapView:(MapView_iOSRef)mapView

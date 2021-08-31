@@ -93,8 +93,10 @@ class VectorsTestCase(activity: Activity?) :
             // back out of the test case before they're all loaded.
             Thread({
                 Thread.sleep(500)
-                if (!canceled) {
+                if (!canceled && controller != null) {
                     overlayCountries(controller)
+                }
+                if (!canceled && controller != null) {
                     onVectorsLoaded?.invoke(vectors)
                 }
             }, "vector loader").start()
