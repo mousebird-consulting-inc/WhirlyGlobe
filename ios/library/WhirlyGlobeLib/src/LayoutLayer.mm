@@ -158,12 +158,17 @@ static const float MaxDelay = 1.0;
         return;
     lastUpdate = scene->getCurrentTime();
 
-    LayoutManagerRef layoutManager = std::dynamic_pointer_cast<LayoutManager>(scene->getManager(kWKLayoutManager));
-    if (layoutManager)
+    if (const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
     {
         ChangeSet changes;
         layoutManager->updateLayout(nullptr,viewState,changes);
-        [layerThread addChangeRequests:changes];
+        if (auto __strong thread = layerThread)
+        {
+            [thread addChangeRequests:changes];
+            // These requests are likely time-sensitive, so flush them immediately
+            // instead of posting to the thread queue and flushing them later.
+            [thread flushChangeRequests];
+        }
     }
 }
 

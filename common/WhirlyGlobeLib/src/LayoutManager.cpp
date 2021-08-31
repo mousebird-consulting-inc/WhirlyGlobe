@@ -822,6 +822,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                 }
             }
 
+            //wkLog("%d n=%lld id=%s active=%s picked=%s", numSoFar,
+            //      container.objs.size(), layoutObj->obj.uniqueID.c_str(),
+            //      isActive?"T":"F", pickedOne?"T":"F");
+            
             if (isActive)
                 numSoFar++;
 
@@ -1259,9 +1263,9 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
     }
 }
 
-// Time we'll take to disappear objects
-static float const NewObjectFadeIn = 1.0;
-static float const OldObjectFadeOut = 1.0;
+// Time we'll take to appear/disappear objects
+static float const NewObjectFadeIn = 0.2f;
+static float const OldObjectFadeOut = 0.2f;
 
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes)
@@ -1285,6 +1289,12 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     if (cancelLayout || shutdown)
     {
+        return;
+    }
+    
+    if (scene->getCurrentTime() < minLayoutTime)
+    {
+        // Animations/fades from previous layouts are still running.
         return;
     }
 
@@ -1361,6 +1371,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 //        NSLog(@"LayoutChanges");
 
     const TimeInterval curTime = scene->getCurrentTime();
+    TimeInterval maxAnimTime = 0.0;
 
     // Save the drawable mapping from the previous iteration
     const auto oldUniqueDrawableMap = std::move(uniqueDrawableMap);
@@ -1371,6 +1382,8 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     // during shutdown, so we must stop using it quickly if controller shutdown is initiated.
     ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
 
+    //wkLog("Starting Layout t=%f", curTime);
+
     for (const auto &layoutObj : localLayoutObjects)
     {
         if (UNLIKELY(cancelLayout))
@@ -1378,11 +1391,14 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             break;
         }
 
-        auto fadeIn = true;
+        // Don't fade by default
+        auto fadeIn = false;
 
         SimpleIDUnorderedSet *drawMapPtr = nullptr;
+        //size_t drawCount = 0;
         if (!layoutObj->obj.uniqueID.empty())
         {
+            layoutObj->obj.state.uniqueID = layoutObj->obj.uniqueID;
             if (uniqueDrawableMap.empty())
             {
                 uniqueDrawableMap.reserve(localLayoutObjects.size());
@@ -1396,23 +1412,38 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             {
                 drawMapPtr->reserve(10);
             }
+            //drawCount = drawMapPtr->size();
 
             // See if this object generated any drawables in the previous run.
             const auto hit = oldUniqueDrawableMap.find(layoutObj->obj.uniqueID);
-            if (hit != oldUniqueDrawableMap.end() && !hit->second.empty())
+            //if (hit != oldUniqueDrawableMap.end())
+            //{
+            //    wkLog("%d, %s, prev=%lld", n, layoutObj->obj.uniqueID.c_str(), hit->second.size());
+            //}
+            if (hit == oldUniqueDrawableMap.end() || hit->second.empty())
             {
-                // Not new, don't fade it in
-                fadeIn = false;
+                // It's new, fade it in
+                fadeIn = true;
             }
+            //wkLog("%d, %s, fadeIn=%s curEnable=%s newEnable=%s enable=%s/%f-%f", n, layoutObj->obj.uniqueID.c_str(),
+            //      fadeIn?"T":"F", layoutObj->currentEnable?"T":"F", layoutObj->newEnable?"T":"F", layoutObj->obj.enable?"T":"F",
+            //      layoutObj->obj.startEnable,layoutObj->obj.endEnable);
         }
 
+        //SimpleIDUnorderedSet prevState;
+        //if (drawMapPtr) {
+        //    prevState = *drawMapPtr;
+        //}
+        
         // Fade in if the object wasn't in the previous set
         
         layoutObj->obj.offset = layoutObj->offset;
-        if (!layoutObj->currentEnable && fadeIn)
+        if (/*layoutObj->newEnable &&*/ fadeIn)
         {
-            layoutObj->obj.state.fadeDown = curTime;
-            layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
+            layoutObj->obj.setFade(curTime+NewObjectFadeIn, curTime);
+
+            // Don't run again before the fades are complete
+            maxAnimTime = std::max(maxAnimTime, curTime+NewObjectFadeIn);
         }
 
         // Note: The animation below doesn't handle offsets
@@ -1431,7 +1462,10 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             animObj.state.progID = params.motionShaderID;
             for (auto &geom : animObj.geometry)
                 geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr,drawMapPtr);
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
+
+            // Don't run again before the animations are complete
+            maxAnimTime = std::max(maxAnimTime, curTime+params.markerAnimationTime);
         }
         else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
         {
@@ -1455,22 +1489,26 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             //animObj.setDrawOrder(?)
             for (auto &geom : animObj.geometry)
                 geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr,drawMapPtr);
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
 
             // And hold off on adding it
             ScreenSpaceObject shortObj = layoutObj->obj;    // NOLINT slicing LayoutObject to ScreenSpaceObject
             //shortObj.setDrawOrder(?)
             shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry,nullptr,drawMapPtr);
+            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry,nullptr);
+            
+            // Don't run again before the animations are complete
+            maxAnimTime = std::max(maxAnimTime, curTime+params.markerAnimationTime);
         }
         // It's boring, just add it
         else if (layoutObj->newEnable)
         {
+            const bool enabled = layoutObj->obj.enable || (layoutObj->obj.endEnable > layoutObj->obj.startEnable);
             // It's a single point placement
             if (layoutObj->obj.layoutShape.empty())
             {
-                ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,
-                                        &layoutObj->obj.geometry,nullptr,drawMapPtr);
+                ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.worldLoc,
+                                        &layoutObj->obj.geometry,nullptr, enabled ? drawMapPtr : nullptr);
             }
             else
             {
@@ -1479,7 +1517,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 {
                     ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii],
                                             &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii],
-                                            drawMapPtr);
+                                            enabled ? drawMapPtr : nullptr);
                 }
             }
         }
@@ -1488,6 +1526,21 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         layoutObj->currentCluster = layoutObj->newCluster;
 
         layoutObj->changed = false;
+        
+        //if (drawMapPtr && drawMapPtr->size() > drawCount)
+        //{
+        //    std::vector<SimpleIdentity> newIDs;
+        //    std::set_difference(drawMapPtr->begin(),drawMapPtr->end(),
+        //                        prevState.begin(),prevState.end(),
+        //                        std::back_inserter(newIDs));
+        //    std::ostringstream ss;
+        //    for (auto id : newIDs) {
+        //        ss << id << ",";
+        //    }
+        //    wkLog("%d, %s, added %lld drawables: %s fade=%f",
+        //          n, layoutObj->obj.uniqueID.c_str(), drawMapPtr->size() - drawCount,
+        //          ss.str().c_str(), layoutObj->obj.state.fadeUp);
+        //}
     }
 
     if (cancelLayout)
@@ -1541,6 +1594,11 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         }
     }
 
+    // That may have taken a while, update some relative times for animation.
+    const auto newCurTime = scene->getCurrentTime();
+    const auto deltaT = newCurTime - curTime;
+    //wkLog("Layout deltaT = %f", deltaT);
+
     if (!drawIDs.empty())
     {
         // Reverse the map so we can look up drawable IDs
@@ -1556,25 +1614,28 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         // Get rid of the last set of drawables
         for (const auto &drawID : drawIDs)
         {
-            // Fade out by default
-            auto fade = curTime + OldObjectFadeOut;
+            // Don't fade out by default
+            auto fade = 0.0;
 
             // Find the unique ID that generated this old drawable, if any.
             const auto oldUIDMatch = oldUniqueIDsByDrawable.find(drawID);
             if (oldUIDMatch != oldUniqueIDsByDrawable.end())
             {
                 const auto newUIDMatch = uniqueDrawableMap.find(*oldUIDMatch->second);
-                if (newUIDMatch != uniqueDrawableMap.end() && !newUIDMatch->second.empty())
+                if (newUIDMatch == uniqueDrawableMap.end() || newUIDMatch->second.empty())
                 {
-                    // The same object generated drawables in this run as well,
-                    // so don't fade out the old one, just make it disappear.
-                    fade = 0.0;
+                    // This object generated drawables in the previous
+                    // run but not this one, so fade those drawables out.
+                    fade = newCurTime + OldObjectFadeOut;
+                    changes.push_back(new FadeChangeRequest(drawID, newCurTime, fade));
+                    
+                    // Don't run again before the fades are complete
+                    maxAnimTime = std::max(maxAnimTime, fade);
                 }
-            }
-            if (fade > 0.0)
-            {
-                changes.push_back(new FadeChangeRequest(drawID, curTime, fade));
-            }
+                //wkLog("Remove draw %lld, %s, %f", drawID, oldUIDMatch->second->c_str(), fade);
+            }// else {
+            //    wkLog("Remove draw %lld, ?, %f", drawID, fade);
+            //}
             changes.push_back(new RemDrawableReq(drawID, fade));
         }
     }
@@ -1582,9 +1643,29 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     drawIDs.clear();
 
     // Add the new ones
-    ssBuild.flushChanges(changes, drawIDs);
+    const auto newDraws = ssBuild.flushChanges(changes, drawIDs);
 
-    //wkLog("Layout of %d objects, %d clusters took %f", localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);
+    if (deltaT > 0.01)
+    {
+        for (auto &draw : newDraws)
+        {
+            if (auto dp = draw.get())
+            {
+                if (dp->fadeUp > 0.0) dp->fadeUp += deltaT;
+                if (dp->fadeDown > 0.0) dp->fadeDown += deltaT;
+                if (dp->startEnable > 0.0) dp->startEnable += deltaT;
+                if (dp->endEnable > 0.0) dp->endEnable += deltaT;
+            }
+        }
+    }
+
+    if (maxAnimTime > 0.0)
+    {
+        std::unique_lock<std::mutex> guard(lock);
+        minLayoutTime = std::max(minLayoutTime, maxAnimTime + deltaT);
+    }
+    wkLogLevel(Verbose, "Layout of %d objects, %d clusters took %.4f s",
+               localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);
 }
 
 }

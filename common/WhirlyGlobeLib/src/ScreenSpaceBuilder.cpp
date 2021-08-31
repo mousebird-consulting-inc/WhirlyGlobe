@@ -34,6 +34,8 @@ ScreenSpaceBuilder::DrawableState::DrawableState() :
 
 bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) const
 {
+    if (uniqueID != that.uniqueID)
+        return uniqueID < that.uniqueID;
     if (texIDs != that.texIDs)
         return texIDs < that.texIDs;
     if (period != that.period)
@@ -481,7 +483,7 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawableRef> &draws)
     drawables.clear();
 }
     
-void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
+std::vector<BasicDrawableRef> ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
     std::vector<BasicDrawableRef> draws;
     buildDrawables(draws);
@@ -491,9 +493,10 @@ void ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
         drawIDs.insert(draw->getId());
         changes.push_back(new AddDrawableReq(draw));
     }
-    draws.clear();
+
+    return draws;
 }
-        
+
 ScreenSpaceObject::ScreenSpaceObject() :
     enable(true), startEnable(0.0), endEnable(0.0),
     worldLoc(0,0,0), endWorldLoc(0,0,0),

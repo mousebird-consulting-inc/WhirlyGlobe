@@ -60,6 +60,7 @@ public:
         // Comparison operator for set
         bool operator < (const DrawableState &that) const;
 
+        std::string uniqueID;
         std::vector<SimpleIdentity> texIDs;
         double period;
         SimpleIdentity progID;
@@ -143,7 +144,7 @@ public:
     void buildDrawables(std::vector<BasicDrawableRef> &draws);
     
     /// Build drawables and add them to the change list
-    void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
+    std::vector<BasicDrawableRef> flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
     
     /// Calculate the rotation vector for a rotation
     static Point3d CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);

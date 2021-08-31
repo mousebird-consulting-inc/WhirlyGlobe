@@ -357,6 +357,8 @@ protected:
     volatile bool cancelLayout;
     /// Enable drawing layout boundaries
     bool showDebugBoundaries;
+    /// Don't run again until at least this time
+    TimeInterval minLayoutTime = 0.0;
     /// Objects we're controlling the placement for
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round
