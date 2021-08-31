@@ -1571,6 +1571,10 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                     fade = 0.0;
                 }
             }
+            if (fade > 0.0)
+            {
+                changes.push_back(new FadeChangeRequest(drawID, curTime, fade));
+            }
             changes.push_back(new RemDrawableReq(drawID, fade));
         }
     }
