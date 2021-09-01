@@ -114,6 +114,13 @@ using namespace WhirlyKit;
 @implementation MaplyBaseViewController
 {
     MaplyLocationTracker *_locationTracker;
+    bool _layoutFade;
+}
+
+- (instancetype)init{
+    self = [super init];
+    _layoutFade = false;
+    return self;
 }
 
 - (void) clear
@@ -185,6 +192,22 @@ using namespace WhirlyKit;
 - (int)screenObjectDrawPriorityOffset
 {
     return renderControl.screenObjectDrawPriorityOffset;
+}
+
+- (void)setLayoutFade:(bool)enable
+{
+    _layoutFade = enable;
+    if (auto rc = renderControl)
+    if (auto scene = rc->scene)
+    if (auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
+    {
+        layoutManager->setFadeEnabled(enable);
+    }
+}
+
+- (bool)layoutFade
+{
+    return _layoutFade;
 }
 
 // Kick off the analytics logic.  First we need the server name.
@@ -284,11 +307,14 @@ using namespace WhirlyKit;
     // View placement manager
     viewPlacementModel = ViewPlacementActiveModelRef(new ViewPlacementActiveModel());
     renderControl->scene->addActiveModel(viewPlacementModel);
-    
+
+    // Apply layout fade option set before init to the newly-created manager
+    [self setLayoutFade:_layoutFade];
+
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
     [self setHints:newHints];
-        
+
     _selection = true;
 
     [[NSNotificationCenter defaultCenter] addObserver:self

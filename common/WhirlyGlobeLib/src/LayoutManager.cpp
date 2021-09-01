@@ -82,13 +82,7 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
     changed = true;
 }
 
-LayoutManager::LayoutManager() :
-    maxDisplayObjects(0),
-    hasUpdates(false),
-    cancelLayout(false),
-    showDebugBoundaries(false),
-    clusterGen(nullptr),
-    vecProgID(EmptyIdentity)
+LayoutManager::LayoutManager()
 {
 }
 
@@ -210,6 +204,27 @@ bool LayoutManager::hasChanges()
         hasUpdates = true;
     }
     return hasUpdates;
+}
+
+void LayoutManager::setFadeEnabled(bool enable)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    fadeEnabled = enable;
+    hasUpdates = true;
+}
+
+void LayoutManager::setFadeInTime(TimeInterval time)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    newObjectFadeIn = time;
+    hasUpdates = true;
+}
+
+void LayoutManager::setFadeOutTime(TimeInterval time)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    oldObjectFadeOut = time;
+    hasUpdates = true;
 }
 
 // Return the screen space objects in a form the selection manager can understand
@@ -1263,10 +1278,6 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
     }
 }
 
-// Time we'll take to appear/disappear objects
-static float const NewObjectFadeIn = 0.2f;
-static float const OldObjectFadeOut = 0.2f;
-
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes)
 {
@@ -1396,7 +1407,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
         SimpleIDUnorderedSet *drawMapPtr = nullptr;
         //size_t drawCount = 0;
-        if (!layoutObj->obj.uniqueID.empty())
+        if (fadeEnabled && !layoutObj->obj.uniqueID.empty())
         {
             layoutObj->obj.state.uniqueID = layoutObj->obj.uniqueID;
             if (uniqueDrawableMap.empty())
@@ -1440,10 +1451,10 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         layoutObj->obj.offset = layoutObj->offset;
         if (/*layoutObj->newEnable &&*/ fadeIn)
         {
-            layoutObj->obj.setFade(curTime+NewObjectFadeIn, curTime);
+            layoutObj->obj.setFade(curTime+newObjectFadeIn, curTime);
 
             // Don't run again before the fades are complete
-            maxAnimTime = std::max(maxAnimTime, curTime+NewObjectFadeIn);
+            maxAnimTime = std::max(maxAnimTime, curTime+newObjectFadeIn);
         }
 
         // Note: The animation below doesn't handle offsets
@@ -1601,13 +1612,16 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     if (!drawIDs.empty())
     {
-        // Reverse the map so we can look up drawable IDs
         std::unordered_map<SimpleIdentity,const std::string*> oldUniqueIDsByDrawable(drawIDs.size());
-        for (const auto &kv : oldUniqueDrawableMap)
+        if (fadeEnabled)
         {
-            for (SimpleIdentity drawID : kv.second)
+            // Reverse the map so we can look up unique IDs from drawables
+            for (const auto &kv : oldUniqueDrawableMap)
             {
-                oldUniqueIDsByDrawable.insert(std::make_pair(drawID, &kv.first));
+                for (SimpleIdentity drawID : kv.second)
+                {
+                    oldUniqueIDsByDrawable.insert(std::make_pair(drawID, &kv.first));
+                }
             }
         }
 
@@ -1626,7 +1640,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 {
                     // This object generated drawables in the previous
                     // run but not this one, so fade those drawables out.
-                    fade = newCurTime + OldObjectFadeOut;
+                    fade = newCurTime + oldObjectFadeOut;
                     changes.push_back(new FadeChangeRequest(drawID, newCurTime, fade));
                     
                     // Don't run again before the fades are complete
@@ -1664,6 +1678,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         std::unique_lock<std::mutex> guard(lock);
         minLayoutTime = std::max(minLayoutTime, maxAnimTime + deltaT);
     }
+
     wkLogLevel(Verbose, "Layout of %d objects, %d clusters took %.4f s",
                localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);
 }

@@ -253,6 +253,16 @@ public:
     /// Add a generator for cluster images
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
 
+    /// Control whether objects with unique IDs are faded in and out
+    void setFadeEnabled(bool enabled);
+    bool getFadeEnabled() const { return fadeEnabled; }
+
+    void setFadeInTime(TimeInterval time);
+    TimeInterval getFadeInTime() const { return newObjectFadeIn; }
+
+    void setFadeOutTime(TimeInterval time);
+    TimeInterval getFadeOutTime() const { return oldObjectFadeOut; }
+
     /// Show lines around layout objects for debugging/troubleshooting
     bool getShowDebugBoundaries() const { return showDebugBoundaries; }
     void setShowDebugBoundaries(bool show) {
@@ -350,13 +360,18 @@ protected:
     VectorManagerRef vecManage;
     
     /// If non-zero the maximum number of objects we'll display at once
-    int maxDisplayObjects;
+    int maxDisplayObjects = 0;
     /// If there were updates since the last layout
-    bool hasUpdates;
+    bool hasUpdates = false;
     /// Cancel a layout run in progress
-    volatile bool cancelLayout;
+    volatile bool cancelLayout = false;
     /// Enable drawing layout boundaries
-    bool showDebugBoundaries;
+    bool showDebugBoundaries = false;
+    /// Fade in/out labels?
+    bool fadeEnabled = false;
+    /// Time we'll take to appear/disappear objects
+    TimeInterval newObjectFadeIn = 0.2f;
+    TimeInterval oldObjectFadeOut = 0.2f;
     /// Don't run again until at least this time
     TimeInterval minLayoutTime = 0.0;
     /// Objects we're controlling the placement for
@@ -368,12 +383,12 @@ protected:
     /// Display parameter for the clusters
     std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
     /// Cluster generators
-    ClusterGenerator *clusterGen;
+    ClusterGenerator *clusterGen = nullptr;
     /// Features we'll force to always display
     std::unordered_set<std::string> overrideUUIDs;
     
     SimpleIDSet debugVecIDs;  // Used to display debug lines for text layout
-    SimpleIdentity vecProgID;
+    SimpleIdentity vecProgID = EmptyIdentity;
 
     // Scene manager lock protects some things, this protects others
     std::timed_mutex internalLock;
