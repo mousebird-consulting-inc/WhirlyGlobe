@@ -152,7 +152,9 @@ class DrawableMTL : virtual public Drawable
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-        
+
+    DrawableMTL();
+
     // An all-purpose pre-render that sets up textures, uniforms and such in preparation for rendering
     // Also adds to the list of resources being used by this drawable
     virtual bool preProcess(SceneRendererMTL *sceneRender,
