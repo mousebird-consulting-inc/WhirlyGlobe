@@ -36,9 +36,10 @@ public:
     virtual Point2d localToGeographicD(Point3d p) const override { return Point2d(p.x(),p.y()); }
     
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord p) const override { return Point3f(p.lon(),p.lat(),0.0); }
-    virtual Point3d geographicToLocal3d(GeoCoord p) const override { return Point3d(p.lon(),p.lat(),0.0); }
-    virtual Point3d geographicToLocal(Point2d p) const override { return Point3d(p.x(),p.y(),0.0); }
+    virtual Point3f geographicToLocal(GeoCoord p) const override { return {p.lon(),p.lat(),0.0}; }
+    virtual Point3d geographicToLocal3d(GeoCoord p) const override { return {p.lon(),p.lat(),0.0}; }
+    virtual Point3d geographicToLocal(Point2d p) const override { return {p.x(),p.y(),0.0}; }
+    virtual Point2d geographicToLocal2(const Point2d &p) const override { return {p.x(),p.y()}; }
 
     /// Convert from local coordinates to WGS84 geocentric
     virtual Point3f localToGeocentric(Point3f p) const override { return LocalToGeocentric(p); }

@@ -110,6 +110,12 @@ Point3d FlatEarthCoordSystem::geographicToLocal(Point2d geo) const
     };
 }
 
+Point2d FlatEarthCoordSystem::geographicToLocal2(const Point2d &geo) const
+{
+    return {(geo.x() - origin.lon()) * converge * MetersPerRadian,
+            (geo.y() - origin.lat()) * MetersPerRadian };
+}
+
 /// Convert from local coordinates to WGS84 geocentric
 Point3f FlatEarthCoordSystem::localToGeocentric(Point3f localPt) const
 {
@@ -172,6 +178,11 @@ Point3d PassThroughCoordSystem::geographicToLocal3d(GeoCoord geo) const
 Point3d PassThroughCoordSystem::geographicToLocal(Point2d geo) const
 {
     return { geo.x(), geo.y(), 0.0 };
+}
+
+Point2d PassThroughCoordSystem::geographicToLocal2(const Point2d &geo) const
+{
+    return { geo.x(), geo.y() };
 }
 
 bool PassThroughCoordSystem::isSameAs(const CoordSystem *coordSys) const

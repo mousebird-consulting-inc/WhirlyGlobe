@@ -1,9 +1,8 @@
-/*
- *  PlateCarreeCoordSystem.java
+/*  PlateCarreeCoordSystem.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -35,18 +33,19 @@ public class PlateCarreeCoordSystem extends CoordSystem
 	/**
 	 * Construct the coordinate system to cover the whole world.
 	 */
-	public PlateCarreeCoordSystem()
-	{
+	public PlateCarreeCoordSystem() {
 		initialise();
 		// Initialize to cover the whole world
 		ll = geographicToLocal(new Point3d(-Math.PI,-Math.PI/2.0,0.0));
 		ur = geographicToLocal(new Point3d(Math.PI,Math.PI/2.0,0.0));
 	}
 
-	static
-	{
+	static {
 		nativeInit();
 	}
+
+	// Note: uses inherited finalize/dispose
+
 	private static native void nativeInit();
 	native void initialise();
 }

@@ -87,17 +87,18 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo) const
 
 Point3d SphericalMercatorCoordSystem::geographicToLocal(Point2d geo) const
 {
-    Point3d coord;
-    coord.x() = geo.x() - originLon;
-    double lat = geo.y();
-    if (lat < -PoleLimit) lat = -PoleLimit;
-    if (lat > PoleLimit) lat = PoleLimit;
-    coord.y() = log((1.0f+sin(lat))/cos(lat));
-    coord.z() = 0.0;
-    
-    return coord;    
+    const double lat = std::min(PoleLimit, std::max(-PoleLimit, geo.y()));
+    return { geo.x() - originLon,
+             std::log((1.0 + std::sin(lat)) / std::cos(lat)),
+             0.0 };
 }
-    
+
+Point2d SphericalMercatorCoordSystem::geographicToLocal2(const Point2d &geo) const
+{
+    const double lat = std::min(PoleLimit, std::max(-PoleLimit, geo.y()));
+    return { geo.x() - originLon, std::log((1.0 + std::sin(lat)) / std::cos(lat)) };
+}
+
 /// Convert from the local coordinate system to geocentric
 Point3f SphericalMercatorCoordSystem::localToGeocentric(Point3f localPt) const
 {
