@@ -16,9 +16,6 @@
  *  limitations under the License.
  */
 
-#import <math.h>
-#import <set>
-#import <map>
 #import "Identifiable.h"
 #import "BasicDrawable.h"
 #import "Scene.h"
@@ -27,6 +24,12 @@
 #import "SelectionManager.h"
 #import "OverlapHelper.h"
 #import "VectorManager.h"
+
+#import <math.h>
+#import <map>
+#import <set>
+#import <unordered_set>
+#import <vector>
 
 namespace WhirlyKit
 {
@@ -250,6 +253,16 @@ public:
     /// Add a generator for cluster images
     void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
 
+    /// Control whether objects with unique IDs are faded in and out
+    void setFadeEnabled(bool enabled);
+    bool getFadeEnabled() const { return fadeEnabled; }
+
+    void setFadeInTime(TimeInterval time);
+    TimeInterval getFadeInTime() const { return newObjectFadeIn; }
+
+    void setFadeOutTime(TimeInterval time);
+    TimeInterval getFadeOutTime() const { return oldObjectFadeOut; }
+
     /// Show lines around layout objects for debugging/troubleshooting
     bool getShowDebugBoundaries() const { return showDebugBoundaries; }
     void setShowDebugBoundaries(bool show) {
@@ -285,7 +298,57 @@ protected:
                         std::vector<ClusterEntry> &clusterEntries,
                         std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
                         ChangeSet &changes);
-    
+
+    struct LayoutObjectContainer;
+    typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
+    typedef std::unordered_map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
+
+    struct ClusteredObjects
+    {
+        explicit ClusteredObjects(int clusterID) : clusterID(clusterID) { }
+
+        std::pair<LayoutObjectEntryRef,bool> addObject(LayoutObjectEntryRef obj);
+
+        const LayoutSortingSet &getLayoutObjects() const { return layoutObjects; }
+        const int clusterID;
+
+    private:
+        LayoutSortingSet layoutObjects;
+        LayoutUniqueIDSet uniqueLayoutObjects;
+    };
+
+    struct ClusteredObjectsSorter
+    {
+        // Comparison operator
+        bool operator () (const ClusteredObjects *lhs,const ClusteredObjects *rhs) const
+        {
+            return lhs->clusterID < rhs->clusterID;
+        }
+    };
+
+    typedef std::set<ClusteredObjects *,ClusteredObjectsSorter> ClusteredObjectsSet;
+
+    void runLayoutClustering(PlatformThreadInfo *threadInfo,
+                             LayoutContainerVec layoutObjs,
+                             ClusteredObjectsSet &clusterGroups,
+                             std::vector<ClusterEntry> &clusterEntries,
+                             std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
+                             const ViewStateRef &viewState,
+                             Maply::MapViewState *mapViewState,
+                             WhirlyGlobe::GlobeViewState *globeViewState,
+                             const Point2f &frameBufferSize,
+                             const Mbr &screenMbr,
+                             const Eigen::Matrix4d &modelTrans,
+                             const Eigen::Matrix4d &normalMat);
+
+    void layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
+                          const ViewStateRef &viewState,
+                          const Point2f &frameBufferSize,
+                          OverlapHelper &overlapMan,
+                          ChangeSet &changes,
+                          bool &isActive,
+                          bool &hadChanges);
+
     void addDebugOutput(const Point2dVector &pts,
                         WhirlyGlobe::GlobeViewState *globeViewState,
                         Maply::MapViewState *mapViewState,
@@ -297,13 +360,20 @@ protected:
     VectorManagerRef vecManage;
     
     /// If non-zero the maximum number of objects we'll display at once
-    int maxDisplayObjects;
+    int maxDisplayObjects = 0;
     /// If there were updates since the last layout
-    bool hasUpdates;
+    bool hasUpdates = false;
     /// Cancel a layout run in progress
-    volatile bool cancelLayout;
+    volatile bool cancelLayout = false;
     /// Enable drawing layout boundaries
-    bool showDebugBoundaries;
+    bool showDebugBoundaries = false;
+    /// Fade in/out labels?
+    bool fadeEnabled = false;
+    /// Time we'll take to appear/disappear objects
+    TimeInterval newObjectFadeIn = 0.2f;
+    TimeInterval oldObjectFadeOut = 0.2f;
+    /// Don't run again until at least this time
+    TimeInterval minLayoutTime = 0.0;
     /// Objects we're controlling the placement for
     LayoutEntrySet layoutObjects;
     /// Drawables created on the last round
@@ -313,15 +383,18 @@ protected:
     /// Display parameter for the clusters
     std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
     /// Cluster generators
-    ClusterGenerator *clusterGen;
+    ClusterGenerator *clusterGen = nullptr;
     /// Features we'll force to always display
     std::unordered_set<std::string> overrideUUIDs;
     
     SimpleIDSet debugVecIDs;  // Used to display debug lines for text layout
-    SimpleIdentity vecProgID;
+    SimpleIdentity vecProgID = EmptyIdentity;
 
     // Scene manager lock protects some things, this protects others
     std::timed_mutex internalLock;
+    
+    // Mapping of object unique IDs to drawables from the previous run
+    std::unordered_map<std::string,SimpleIDUnorderedSet> uniqueDrawableMap;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 

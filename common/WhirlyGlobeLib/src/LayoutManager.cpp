@@ -82,13 +82,7 @@ LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
     changed = true;
 }
 
-LayoutManager::LayoutManager() :
-    maxDisplayObjects(0),
-    hasUpdates(false),
-    cancelLayout(false),
-    showDebugBoundaries(false),
-    clusterGen(nullptr),
-    vecProgID(EmptyIdentity)
+LayoutManager::LayoutManager()
 {
 }
 
@@ -212,6 +206,27 @@ bool LayoutManager::hasChanges()
     return hasUpdates;
 }
 
+void LayoutManager::setFadeEnabled(bool enable)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    fadeEnabled = enable;
+    hasUpdates = true;
+}
+
+void LayoutManager::setFadeInTime(TimeInterval time)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    newObjectFadeIn = time;
+    hasUpdates = true;
+}
+
+void LayoutManager::setFadeOutTime(TimeInterval time)
+{
+    std::lock_guard<std::mutex> guardLock(lock);
+    oldObjectFadeOut = time;
+    hasUpdates = true;
+}
+
 // Return the screen space objects in a form the selection manager can understand
 void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo &pInfo,
                                           std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs)
@@ -297,78 +312,53 @@ void LayoutManager::cancelUpdate()
     cancelLayout = true;
 }
 
-// Collection of objects we'll cluster together
-class ClusteredObjects
+// Add the object, unless it's already present.
+//
+// If the object replaces an existing object, that replaced object and true are returned.
+// If the object is already present and is not added, the existing object and false are returned.
+// Otherwise, the inserted object and true are returned.
+std::pair<LayoutObjectEntryRef,bool> LayoutManager::ClusteredObjects::addObject(LayoutObjectEntryRef obj)
 {
-public:
-    explicit ClusteredObjects(int clusterID) : clusterID(clusterID) { }
-
-    // Add the object, unless it's already present.
-    //
-    // If the object replaces an existing object, that replaced object and true are returned.
-    // If the object is already present and is not added, the existing object and false are returned.
-    // Otherwise, the inserted object and true are returned.
-    std::pair<LayoutObjectEntryRef,bool> addObject(LayoutObjectEntryRef obj)
+    // If it has a unique ID...
+    if (!obj->obj.uniqueID.empty())
     {
-        // If it has a unique ID...
-        if (!obj->obj.uniqueID.empty())
+        // Try adding it to the unique ID set
+        const auto result = uniqueLayoutObjects.insert(obj);
+        if (!result.second)
         {
-            // Try adding it to the unique ID set
-            const auto result = uniqueLayoutObjects.insert(obj);
-            if (!result.second)
+            // An item with this ID already exists, check the importance
+            const LayoutObjectEntryRef otherObj = *result.first;    // Note: Copy the ref, the iterator's value will change
+            if (obj->obj.importance > otherObj->obj.importance)
             {
-                // An item with this ID already exists, check the importance
-                const LayoutObjectEntryRef otherObj = *result.first;    // Note: Copy the ref, the iterator's value will change
-                if (obj->obj.importance > otherObj->obj.importance)
-                {
-                    // The new object is more important.  Remove the existing
-                    // object from both sets and add the new one in its place.
-                    uniqueLayoutObjects.insert(uniqueLayoutObjects.erase(result.first), obj);
+                // The new object is more important.  Remove the existing
+                // object from both sets and add the new one in its place.
+                uniqueLayoutObjects.insert(uniqueLayoutObjects.erase(result.first), obj);
 
-                    // The layout objects are arranged by importance, and `set::find` won't match
-                    // anything, so search the range of not-less and not-greater for the unique ID.
-                    for (auto range = layoutObjects.equal_range(otherObj);
-                         range.first != range.second; ++range.first)
-                    {
-                        if ((*range.first)->obj.uniqueID == otherObj->obj.uniqueID)
-                        {
-                            layoutObjects.erase(range.first);
-                            break;  // We only expect one match
-                        }
-                    }
-                    layoutObjects.insert(obj);
-                    return std::make_pair(otherObj, true);
-                }
-                else
+                // The layout objects are arranged by importance, and `set::find` won't match
+                // anything, so search the range of not-less and not-greater for the unique ID.
+                for (auto range = layoutObjects.equal_range(otherObj);
+                     range.first != range.second; ++range.first)
                 {
-                    // This object is less important than one already present.
-                    return std::make_pair(otherObj, false);
+                    if ((*range.first)->obj.uniqueID == otherObj->obj.uniqueID)
+                    {
+                        layoutObjects.erase(range.first);
+                        break;  // We only expect one match
+                    }
                 }
+                layoutObjects.insert(obj);
+                return std::make_pair(otherObj, true);
+            }
+            else
+            {
+                // This object is less important than one already present.
+                return std::make_pair(otherObj, false);
             }
         }
-        const auto result = layoutObjects.insert(std::move(obj));
-        assert(result.second);  // We expect it to always be inserted
-        return std::make_pair(*result.first, true);
     }
-
-    const LayoutSortingSet &getLayoutObjects() const { return layoutObjects; }
-    const int clusterID;
-
-private:
-    LayoutSortingSet layoutObjects;
-    LayoutUniqueIDSet uniqueLayoutObjects;
-};
-
-struct ClusteredObjectsSorter
-{
-    // Comparison operator
-    bool operator () (const ClusteredObjects *lhs,const ClusteredObjects *rhs) const
-    {
-        return lhs->clusterID < rhs->clusterID;
-    }
-};
-
-typedef std::set<ClusteredObjects *,ClusteredObjectsSorter> ClusteredObjectsSet;
+    const auto result = layoutObjects.insert(std::move(obj));
+    assert(result.second);  // We expect it to always be inserted
+    return std::make_pair(*result.first, true);
+}
 
 // Size of the overlap sampler
 static const int OverlapSampleX = 10;
@@ -439,9 +429,8 @@ Matrix2d LayoutManager::calcScreenRot(float &screenRot,const ViewStateRef &viewS
 }
 
 // Used for sorting layout objects
-class LayoutObjectContainer
+struct LayoutManager::LayoutObjectContainer
 {
-public:
     LayoutObjectContainer() : importance(-1.0) { }
     explicit LayoutObjectContainer(LayoutObjectEntryRef entry) {
         objs.push_back(std::move(entry));
@@ -459,9 +448,6 @@ public:
 
     float importance;
 };
-typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
-
-typedef std::map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
 void LayoutManager::addDebugOutput(const Point2dVector &pts,
                                    WhirlyGlobe::GlobeViewState *globeViewState,
@@ -536,17 +522,17 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     ClusteredObjectsSet clusterGroups;
     LayoutContainerVec layoutObjs;
     // Special snowflake layout objects (with unique names)
-    UniqueLayoutObjectMap uniqueLayoutObjs;
+    UniqueLayoutObjectMap uniqueLayoutObjs(localLayoutObjects.size());
 
     // The globe has some special requirements
     auto globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
     auto mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
 
     // View related matrix stuff
-    Matrix4d modelTrans = viewState->fullMatrices[0];
-    Matrix4d fullMatrix = viewState->fullMatrices[0];
-    Matrix4d fullNormalMatrix = viewState->fullNormalMatrices[0];
-    Matrix4d normalMat = viewState->fullMatrices[0].inverse().transpose();
+    const Matrix4d modelTrans = viewState->fullMatrices[0];
+    const Matrix4d fullMatrix = viewState->fullMatrices[0];
+    const Matrix4d fullNormalMatrix = viewState->fullNormalMatrices[0];
+    const Matrix4d normalMat = viewState->fullMatrices[0].inverse().transpose();
 
     // Turn everything off and sort by importance
     for (const auto &layoutObjRef : localLayoutObjects)
@@ -582,7 +568,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                 if (obj->obj.layoutShape.empty())
                 {
                     // Make sure this one is facing toward the viewer
-                    use = CheckPointAndNormFacing(obj->obj.worldLoc,obj->obj.worldLoc.normalized(),fullMatrix,fullNormalMatrix) > 0.0;
+                    use = CheckPointAndNormFacing(obj->obj.worldLoc,obj->obj.worldLoc.normalized(),
+                                                  fullMatrix,fullNormalMatrix) > 0.0;
                 }
             }
 
@@ -680,154 +667,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
     if (clusterGen)
     {
-        clusterGen->startLayoutObjects(threadInfo);
-
-        // Lay out the cluster groups in order
-        for (const auto &cluster : clusterGroups)
-        {
-            outClusterParams.resize(outClusterParams.size() + 1);
-            ClusterGenerator::ClusterClassParams &params = outClusterParams.back();
-            clusterGen->paramsForClusterClass(threadInfo,cluster->clusterID,params);
-
-            ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,resScale,params.clusterSize);
-
-            // Add all the various objects to the cluster and figure out overlaps
-            for (const auto &entry : cluster->getLayoutObjects())
-            {
-                // Project the point and figure out the rotation
-                bool isActive = true;
-                Point2f objPt;
-                bool isInside = calcScreenPt(objPt,&entry->obj,viewState,screenMbr,frameBufferSize);
-
-                isActive &= isInside;
-
-                if (isActive)
-                {
-                    // Deal with the rotation
-                    float screenRot = 0.0;
-                    Matrix2d screenRotMat;
-                    if (entry->obj.rotation != 0.0)
-                    {
-                        screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&entry->obj,objPt,modelTrans,normalMat,frameBufferSize);
-                    }
-
-                    // Rotate the rectangle
-                    Point2dVector objPts(4);
-                    if (screenRot == 0.0)
-                    {
-                        for (unsigned int ii=0;ii<4;ii++)
-                            objPts[ii] = Point2d(objPt.x(),objPt.y()) + entry->obj.layoutPts[ii] * resScale;
-                    }
-                    else
-                    {
-                        Point2d center = objPt.cast<double>();
-                        for (unsigned int ii=0;ii<4;ii++)
-                        {
-                            const Point2d &thisObjPt = entry->obj.layoutPts[ii];
-                            const Point2d offPt = screenRotMat * (thisObjPt * resScale);
-                            objPts[ii] = Point2d(offPt.x(),-offPt.y()) + center;
-                        }
-                    }
-
-                    clusterHelper.addObject(entry,objPts);
-                }
-            }
-
-            // Deal with the clusters and their own overlaps
-            clusterHelper.resolveClusters(cancelLayout);
-
-            if (UNLIKELY(cancelLayout))
-            {
-                break;
-            }
-
-            // Toss the unaffected layout objects into the mix
-            layoutObjs.reserve(layoutObjs.size() + clusterHelper.simpleObjects.size());
-            for (const auto &obj : clusterHelper.simpleObjects)
-            {
-                if (obj.parentObject < 0)
-                {
-                    layoutObjs.emplace_back(obj.objEntry);
-                    obj.objEntry->newEnable = true;
-                    obj.objEntry->newCluster = -1;
-                }
-            }
-
-            // Create new objects for the clusters
-            for (const auto &clusterObj : clusterHelper.clusterObjects)
-            {
-                std::vector<LayoutObjectEntryRef> objsForCluster;
-                clusterHelper.objectsForCluster(clusterObj,objsForCluster);
-
-                if (!objsForCluster.empty())
-                {
-                    const int clusterEntryID = (int)clusterEntries.size();
-                    clusterEntries.emplace_back();
-                    ClusterEntry &clusterEntry = clusterEntries.back();
-
-                    const Point2f clusterLoc = clusterObj.center.cast<float>();
-
-                    // Project the cluster back into a geolocation so we can place it.
-                    Point3d dispPt;
-                    bool dispPtValid = false;
-                    if (globeViewState)
-                    {
-                        dispPtValid = globeViewState->pointOnSphereFromScreen(clusterLoc,modelTrans,frameBufferSize,dispPt);
-                    }
-                    else
-                    {
-                        dispPtValid = mapViewState->pointOnPlaneFromScreen(clusterLoc,modelTrans,frameBufferSize,dispPt,false);
-                    }
-
-                    // Note: What happens if the display point isn't valid?
-                    if (dispPtValid)
-                    {
-                        clusterEntry.layoutObj.worldLoc = dispPt;
-                        for (const auto &thisObj : objsForCluster)
-                        {
-                            clusterEntry.objectIDs.push_back(thisObj->obj.getId());
-                        }
-                        clusterGen->makeLayoutObject(threadInfo,cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
-                        if (!params.selectable)
-                        {
-                            clusterEntry.layoutObj.selectPts.clear();
-                        }
-                    }
-                    clusterEntry.clusterParamID = (int)(outClusterParams.size() - 1);
-
-                    // Figure out if all the objects in this new cluster come from the same old cluster
-                    //  and assign the new cluster ID
-                    int whichOldCluster = -1;
-                    for (const auto &obj : objsForCluster)
-                    {
-                        if (obj->currentCluster > -1 && whichOldCluster != -2)
-                        {
-                            if (whichOldCluster == -1)
-                            {
-                                whichOldCluster = obj->currentCluster;
-                            }
-                            else if (whichOldCluster != obj->currentCluster)
-                            {
-                                whichOldCluster = -2;
-                            }
-                        }
-                        obj->newCluster = clusterEntryID;
-                    }
-
-                    // If the children all agree about the old cluster, let's reflect that
-                    clusterEntry.childOfCluster = (whichOldCluster == -2) ? -1 : whichOldCluster;
-                }
-            }
-        }
-
-        // Tear down the clusters
-        for (auto clusterObj : clusterGroups)
-        {
-            delete clusterObj;
-        }
-        clusterGroups.clear();
-
-        clusterGen->endLayoutObjects(threadInfo);
+        runLayoutClustering(threadInfo, layoutObjs, clusterGroups, clusterEntries,
+                            outClusterParams, viewState, mapViewState, globeViewState,
+                            frameBufferSize, screenMbr, modelTrans, normalMat);
     }
 
     if (UNLIKELY(cancelLayout))
@@ -873,7 +715,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
         Point2dVector objPts(4);
 
         // Start with a max objects check
-        bool isActive = !(maxDisplayObjects != 0 && (numSoFar >= maxDisplayObjects));
+        bool isActive = (maxDisplayObjects == 0 || (numSoFar < maxDisplayObjects));
 
         // Sort the objects by importance within their container, large to small
         std::sort(container.objs.begin(),container.objs.end(),
@@ -899,232 +741,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
             // Layout along a shape
             if (!layoutObj->obj.layoutShape.empty())
             {
-                // Sometimes there are just a few instances
-                int numInstances = 0;
-
-                for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++)
-                {
-                    // Set up the text builder to get a set of individual runs to follow
-                    LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,
-                                                  layoutObj->obj.layoutWidth*1.5f,
-                                                  &layoutObj->obj);
-                    textBuilder.setPoints(layoutObj->obj.layoutShape);
-                    textBuilder.process();
-                    // Sort the runs by length and get rid of the ones too short
-//                    textBuilder.sortRuns(2.0*layoutObj->obj.layoutSpacing);
-
-                    // Follow the individual runs
-                    std::vector<std::vector<Eigen::Matrix3d> > layoutInstances;
-                    std::vector<Point3d> layoutModelInstances;
-
-                    auto runs = textBuilder.getScreenVecs();
-//                    unsigned int ri=0;
-                    for (const auto& run: runs)
-                    {
-//                        wkLog("Run %d: %d points",ri++,run.size());
-
-                        // We need the length of the glyphs and their center
-                        const Mbr layoutMbr(layoutObj->obj.layoutPts);
-                        const float textLen = layoutMbr.ur().x();
-                        const float midY = layoutMbr.mid().y();
-
-                        LinearWalker walk(run);
-
-                        // Figure out how many times we could lay this out
-                        const float textRoom = walk.getTotalLength() - 2.0f*layoutObj->obj.layoutSpacing;
-                        const int textInstance = std::max(0, (int)(textRoom / textLen));
-
-                        for (unsigned int ini=0;ini<textInstance;ini++)
-                        {
-//                            wkLog(" Text Instance %d",ini);
-
-                            // Start with an initial offset
-                            if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr, true))
-                                continue;
-
-                            // Check the normal right in the middle
-                            Point2f normAtMid;
-                            if (!walk.nextPoint(textLen/2.0, nullptr, &normAtMid, false))
-                                continue;
-
-                            std::vector<Eigen::Matrix3d> layoutMats;
-
-                            // Center around the world point on the screen
-                            Point2f midRun;
-                            if (!walk.nextPoint(resScale * layoutMbr.span().x()/2.0, &midRun, nullptr, false))
-                                continue;
-//                            wkLogLevel(Info, "midRun = (%f,%f)",midRun.x(),midRun.y());
-                            Point2f worldScreenPt = midRun;
-                            Point3d worldPt(0.0,0.0,0.0);
-                            if (!textBuilder.screenToWorld(midRun, worldPt))
-                                continue;
-
-                            std::vector<Point2dVector> overlapPts;
-
-                            // Walk through the individual glyphs
-                            bool failed = false;
-                            int gStart = 0, gEnd = (int)layoutObj->obj.geometry.size()-1, gIncr = 1;
-                            bool flipped = false;
-                            // If it's upside down, then run it backwards
-                            if (normAtMid.y() < 0.0) {
-                                flipped = true;
-                                gStart = gEnd;  gEnd = 0;  gIncr = -1;
-                            }
-
-                            Point2f lastNorm;
-                            bool lastNormValid = false;
-                            for (int ig=gStart;gIncr > 0 ? ig<=gEnd : ig>=gEnd;ig+=gIncr) {
-                                const auto &geom = layoutObj->obj.geometry[ig];
-                                const Mbr glyphMbr(geom.coords);
-                                const Point2f span = glyphMbr.span();
-                                const Point2f midGlyph = glyphMbr.mid();
-                                const Affine2d transOrigin(Translation2d(-midGlyph.x(),flipped ? -midY/2.0 : -1.5*midY));
-
-                                // Walk along the line to get a good center
-                                Point2f centerPt;
-                                Point2f norm;
-                                if (!walk.nextPoint(resScale * span.x()/2.0,&centerPt,&norm,true)) {
-                                    failed = true;
-                                    break;
-                                }
-
-                                // If we're too far from the last normal, bail.  The text will look jumbled.
-                                double normAng = 0.0;
-                                if (lastNormValid) {
-                                    // Nifty trick to get a clockwise angle between the two
-                                    const double dot = norm.x()*lastNorm.x() + norm.y()*lastNorm.y();
-                                    const double det = norm.x()*lastNorm.y() - norm.y()*lastNorm.x();
-                                    normAng = atan2(det, dot);
-                                    //wkLogLevel(Debug,"normAng = %f",normAng);
-                                    if (normAng != 0.0 && abs(normAng) > 45.0 * M_PI / 180.0) {
-                                        failed = true;
-                                        break;
-                                    }
-                                }
-
-                                // And let's nudge it over a bit if we're looming in on the previous glyph
-                                bool nudged = false;
-                                if (normAng != 0.0) {
-                                    if (normAng < M_PI / 180.0) {
-                                        const float height = span.y();
-                                        const auto offset = abs(sin(normAng)) * height;
-                                        nudged = true;
-                                        if (!walk.nextPoint(resScale * offset,&centerPt,&norm,true)) {
-                                            failed = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                lastNormValid = true;  lastNorm = norm;
-
-                                // Other half of glyph
-                                if (!walk.nextPoint(resScale * span.x()/2.0,nullptr,nullptr,true)) {
-                                    failed = true;
-                                    break;
-                                }
-
-                                // Don't forget the space between glyphs
-                                if (ig < layoutObj->obj.geometry.size()-1) {
-                                    const Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
-                                    const float padX = std::abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
-                                    walk.nextPoint(resScale * padX, nullptr, nullptr,true);
-                                }
-
-                                // Translate the glyph into that position
-                                const Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
-                                                                        (worldScreenPt.y()-centerPt.y())/2.0));
-                                const double ang = -(atan2(norm.y(),norm.x()) - M_PI_2 + (flipped ? M_PI : 0.0));
-                                const Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
-                                Matrix3d screenRotMat = Matrix3d::Identity();
-                                for (unsigned ix=0;ix<2;ix++)
-                                    for (unsigned iy=0;iy<2;iy++)
-                                        screenRotMat(ix, iy) = screenRot(ix, iy);
-                                const Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
-                                const Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
-                                const Matrix3d testMat = screenRotMat * scaleMat * transOrigin.matrix();
-                                if (flipped)
-                                    layoutMats.insert(layoutMats.begin(),overlapMat);
-                                else
-                                    layoutMats.push_back(overlapMat);
-
-                                // Check for overlap
-                                Point2dVector thePts;  thePts.reserve(4);
-                                for (unsigned int oii=0; oii < 4; oii++) {
-                                    const Point3d pt = testMat * Point3d(geom.coords[oii].x(), geom.coords[oii].y(), 1.0);
-                                    thePts.emplace_back(pt.x() + centerPt.x(), pt.y() + centerPt.y());
-                                }
-
-//                                if (!failed) {
-//                                    wkLog("  Geometry %d",ig);
-//                                    for (unsigned int ip=0;ip<objPts.size();ip++) {
-//                                        wkLog("    (%f,%f)",objPts[ip].x(),objPts[ip].y());
-//                                    }
-//                                }
-
-                                if (!overlapMan.checkObject(thePts)) {
-                                    failed = true;
-                                    break;
-                                }
-
-                                overlapPts.push_back(thePts);
-                            }
-
-                            if (!failed) {
-//                                layoutObj->obj.setRotation(textBuilder.getViewStateRotation());
-                                layoutModelInstances.push_back(worldPt);
-                                layoutInstances.push_back(layoutMats);
-                                numInstances++;
-
-                                // Add the individual glyphs to the overlap manager
-                                for (auto &glyph: overlapPts)
-                                    overlapMan.addObject(glyph);
-                            }
-
-                            if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
-                                break;
-                        }
-
-                        if (layoutObj->obj.layoutRepeat > 0 && numInstances >= layoutObj->obj.layoutRepeat)
-                            break;
-                    }
-
-                    if (!layoutInstances.empty()) {
-                        isActive = true;
-                        hadChanges = true;
-                        layoutObj->newEnable = true;
-                        layoutObj->changed = true;
-                        layoutObj->obj.layoutPlaces = layoutInstances;
-                        layoutObj->obj.layoutModelPlaces = layoutModelInstances;
-                        layoutObj->newCluster = -1;
-                        layoutObj->offset = Point2d(0.0,0.0);
-                    } else {
-                        isActive = false;
-                    }
-
-                    if (layoutObj->currentEnable != isActive) {
-                        layoutObj->changed = true;
-                    }
-
-                    // Debugging visual output
-                    ShapeSet dispShapes = textBuilder.getVisualVecs();
-                    if (!dispShapes.empty() && layoutObj->obj.layoutDebug)
-                    {
-                        // Turn them back into vectors to debug
-                        VectorInfo vecInfo;
-                        vecInfo.color = RGBAColor::red();
-                        vecInfo.lineWidth = 1.0;
-                        vecInfo.drawPriority = 10000000;
-
-                        vecInfo.programID = vecProgID;
-
-                        const SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
-                        if (vecId != EmptyIdentity)
-                        {
-                            debugVecIDs.insert(vecId);
-                        }
-                    }
-                }
-            } else {
+                layoutAlongShape(layoutObj, viewState, frameBufferSize, overlapMan, changes, isActive, hadChanges);
+            }
+            else
+            {
                 // Layout at a point
 
                 // Figure out the rotation situation
@@ -1217,6 +837,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                 }
             }
 
+            //wkLog("%d n=%lld id=%s active=%s picked=%s", numSoFar,
+            //      container.objs.size(), layoutObj->obj.uniqueID.c_str(),
+            //      isActive?"T":"F", pickedOne?"T":"F");
+            
             if (isActive)
                 numSoFar++;
 
@@ -1237,9 +861,422 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     return hadChanges;
 }
 
-// Time we'll take to disappear objects
-static float const NewObjectFadeIn = 0.0;
-//static float const OldObjectFadeOut = 0.0;
+void LayoutManager::runLayoutClustering(PlatformThreadInfo *threadInfo,
+                                        LayoutContainerVec layoutObjs,
+                                        ClusteredObjectsSet &clusterGroups,
+                                        std::vector<ClusterEntry> &clusterEntries,
+                                        std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
+                                        const ViewStateRef &viewState,
+                                        Maply::MapViewState *mapViewState,
+                                        WhirlyGlobe::GlobeViewState *globeViewState,
+                                        const Point2f &frameBufferSize,
+                                        const Mbr &screenMbr,
+                                        const Matrix4d &modelTrans,
+                                        const Matrix4d &normalMat)
+{
+    const float resScale = renderer->getScale();
+
+    clusterGen->startLayoutObjects(threadInfo);
+
+    // Lay out the cluster groups in order
+    for (const auto &cluster : clusterGroups)
+    {
+        outClusterParams.resize(outClusterParams.size() + 1);
+        ClusterGenerator::ClusterClassParams &params = outClusterParams.back();
+        clusterGen->paramsForClusterClass(threadInfo,cluster->clusterID,params);
+
+        ClusterHelper clusterHelper(screenMbr,OverlapSampleX,OverlapSampleY,resScale,params.clusterSize);
+
+        // Add all the various objects to the cluster and figure out overlaps
+        for (const auto &entry : cluster->getLayoutObjects())
+        {
+            // Project the point and figure out the rotation
+            bool isActive = true;
+            Point2f objPt;
+            bool isInside = calcScreenPt(objPt,&entry->obj,viewState,screenMbr,frameBufferSize);
+
+            isActive &= isInside;
+
+            if (isActive)
+            {
+                // Deal with the rotation
+                float screenRot = 0.0;
+                Matrix2d screenRotMat;
+                if (entry->obj.rotation != 0.0)
+                {
+                    screenRotMat = calcScreenRot(screenRot,viewState,globeViewState,&entry->obj,
+                                                 objPt,modelTrans,normalMat,frameBufferSize);
+                }
+
+                // Rotate the rectangle
+                Point2dVector objPts(4);
+                if (screenRot == 0.0)
+                {
+                    for (unsigned int ii=0;ii<4;ii++)
+                        objPts[ii] = Point2d(objPt.x(),objPt.y()) + entry->obj.layoutPts[ii] * resScale;
+                }
+                else
+                {
+                    Point2d center = objPt.cast<double>();
+                    for (unsigned int ii=0;ii<4;ii++)
+                    {
+                        const Point2d &thisObjPt = entry->obj.layoutPts[ii];
+                        const Point2d offPt = screenRotMat * (thisObjPt * resScale);
+                        objPts[ii] = Point2d(offPt.x(),-offPt.y()) + center;
+                    }
+                }
+
+                clusterHelper.addObject(entry,objPts);
+            }
+        }
+
+        // Deal with the clusters and their own overlaps
+        clusterHelper.resolveClusters(cancelLayout);
+
+        if (UNLIKELY(cancelLayout))
+        {
+            break;
+        }
+
+        // Toss the unaffected layout objects into the mix
+        layoutObjs.reserve(layoutObjs.size() + clusterHelper.simpleObjects.size());
+        for (const auto &obj : clusterHelper.simpleObjects)
+        {
+            if (obj.parentObject < 0)
+            {
+                layoutObjs.emplace_back(obj.objEntry);
+                obj.objEntry->newEnable = true;
+                obj.objEntry->newCluster = -1;
+            }
+        }
+
+        // Create new objects for the clusters
+        for (const auto &clusterObj : clusterHelper.clusterObjects)
+        {
+            std::vector<LayoutObjectEntryRef> objsForCluster;
+            clusterHelper.objectsForCluster(clusterObj,objsForCluster);
+
+            if (!objsForCluster.empty())
+            {
+                const int clusterEntryID = (int)clusterEntries.size();
+                clusterEntries.emplace_back();
+                ClusterEntry &clusterEntry = clusterEntries.back();
+
+                const Point2f clusterLoc = clusterObj.center.cast<float>();
+
+                // Project the cluster back into a geolocation so we can place it.
+                Point3d dispPt;
+                bool dispPtValid = false;
+                if (globeViewState)
+                {
+                    dispPtValid = globeViewState->pointOnSphereFromScreen(clusterLoc,modelTrans,frameBufferSize,dispPt);
+                }
+                else
+                {
+                    dispPtValid = mapViewState->pointOnPlaneFromScreen(clusterLoc,modelTrans,frameBufferSize,dispPt,false);
+                }
+
+                // Note: What happens if the display point isn't valid?
+                if (dispPtValid)
+                {
+                    clusterEntry.layoutObj.worldLoc = dispPt;
+                    for (const auto &thisObj : objsForCluster)
+                    {
+                        clusterEntry.objectIDs.push_back(thisObj->obj.getId());
+                    }
+                    clusterGen->makeLayoutObject(threadInfo,cluster->clusterID, objsForCluster, clusterEntry.layoutObj);
+                    if (!params.selectable)
+                    {
+                        clusterEntry.layoutObj.selectPts.clear();
+                    }
+                }
+                clusterEntry.clusterParamID = (int)(outClusterParams.size() - 1);
+
+                // Figure out if all the objects in this new cluster come from the same old cluster
+                //  and assign the new cluster ID
+                int whichOldCluster = -1;
+                for (const auto &obj : objsForCluster)
+                {
+                    if (obj->currentCluster > -1 && whichOldCluster != -2)
+                    {
+                        if (whichOldCluster == -1)
+                        {
+                            whichOldCluster = obj->currentCluster;
+                        }
+                        else if (whichOldCluster != obj->currentCluster)
+                        {
+                            whichOldCluster = -2;
+                        }
+                    }
+                    obj->newCluster = clusterEntryID;
+                }
+
+                // If the children all agree about the old cluster, let's reflect that
+                clusterEntry.childOfCluster = (whichOldCluster == -2) ? -1 : whichOldCluster;
+            }
+        }
+    }
+
+    // Tear down the clusters
+    for (auto clusterObj : clusterGroups)
+    {
+        delete clusterObj;
+    }
+    clusterGroups.clear();
+
+    clusterGen->endLayoutObjects(threadInfo);
+}
+
+void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
+                                     const ViewStateRef &viewState,
+                                     const Point2f &frameBufferSize,
+                                     OverlapHelper &overlapMan,
+                                     ChangeSet &changes,
+                                     bool &isActive,
+                                     bool &hadChanges)
+{
+    const float resScale = renderer->getScale();
+
+    for (unsigned int oi=0;oi<viewState->viewMatrices.size();oi++)
+    {
+        // Set up the text builder to get a set of individual runs to follow
+        LinearTextBuilder textBuilder(viewState,oi,frameBufferSize,
+                                      layoutObj->obj.layoutWidth*1.5f,
+                                      &layoutObj->obj);
+        textBuilder.setPoints(layoutObj->obj.layoutShape);
+        textBuilder.process();
+        // Sort the runs by length and get rid of the ones too short
+//                    textBuilder.sortRuns(2.0*layoutObj->obj.layoutSpacing);
+
+        // Follow the individual runs
+        std::vector<std::vector<Eigen::Matrix3d> > layoutInstances;
+        std::vector<Point3d> layoutModelInstances;
+
+        // We need the length of the glyphs and their center
+        const Mbr layoutMbr(layoutObj->obj.layoutPts);
+        const float textLen = layoutMbr.ur().x();
+        const float midY = layoutMbr.mid().y();
+
+        // Storage reused for each instance
+        std::vector<Eigen::Matrix3d> layoutMats;
+        std::vector<Point2dVector> overlapPts;
+
+        const auto &runs = textBuilder.getScreenVecsRef();
+        for (const auto& run: runs)
+        {
+            //wkLog("Run %d: %d points",ri++,run.size());
+
+            LinearWalker walk(run);
+
+            // Figure out how many times we could lay this out
+            const float textRoom = walk.getTotalLength() - 2.0f*layoutObj->obj.layoutSpacing;
+            const int textInstance = std::max(0, (int)(textRoom / textLen));
+
+            for (unsigned int ini=0;ini<textInstance;ini++)
+            {
+                //wkLog(" Text Instance %d",ini);
+
+                // Start with an initial offset
+                if (!walk.nextPoint(layoutObj->obj.layoutSpacing, nullptr, nullptr, true))
+                    continue;
+
+                // Check the normal right in the middle
+                Point2f normAtMid;
+                if (!walk.nextPoint(textLen/2.0, nullptr, &normAtMid, false))
+                    continue;
+
+                // Center around the world point on the screen
+                Point2f midRun;
+                if (!walk.nextPoint(resScale * layoutMbr.span().x()/2.0, &midRun, nullptr, false))
+                    continue;
+//                            wkLogLevel(Info, "midRun = (%f,%f)",midRun.x(),midRun.y());
+                Point2f worldScreenPt = midRun;
+                Point3d worldPt(0.0,0.0,0.0);
+                if (!textBuilder.screenToWorld(midRun, worldPt))
+                    continue;
+
+                layoutMats.clear();
+                overlapPts.clear();
+
+                // Walk through the individual glyphs
+                bool failed = false;
+                int gStart = 0, gEnd = (int)layoutObj->obj.geometry.size()-1, gIncr = 1;
+                bool flipped = false;
+                // If it's upside down, then run it backwards
+                if (normAtMid.y() < 0.0) {
+                    flipped = true;
+                    gStart = gEnd;  gEnd = 0;  gIncr = -1;
+                }
+
+                Point2f lastNorm;
+                bool lastNormValid = false;
+                for (int ig=gStart;gIncr > 0 ? ig<=gEnd : ig>=gEnd;ig+=gIncr) {
+                    const auto &geom = layoutObj->obj.geometry[ig];
+                    const Mbr glyphMbr(geom.coords);
+                    const Point2f span = glyphMbr.span();
+                    const Point2f midGlyph = glyphMbr.mid();
+                    const Affine2d transOrigin(Translation2d(-midGlyph.x(),flipped ? -midY/2.0 : -1.5*midY));
+
+                    // Walk along the line to get a good center
+                    Point2f centerPt;
+                    Point2f norm;
+                    if (!walk.nextPoint(resScale * span.x()/2.0,&centerPt,&norm,true)) {
+                        failed = true;
+                        break;
+                    }
+
+                    // If we're too far from the last normal, bail.  The text will look jumbled.
+                    double normAng = 0.0;
+                    if (lastNormValid) {
+                        // Nifty trick to get a clockwise angle between the two
+                        const double dot = norm.x()*lastNorm.x() + norm.y()*lastNorm.y();
+                        const double det = norm.x()*lastNorm.y() - norm.y()*lastNorm.x();
+                        normAng = std::atan2(det, dot);
+                        //wkLogLevel(Debug,"normAng = %f",normAng);
+                        if (normAng != 0.0 && std::abs(normAng) > 45.0 * M_PI / 180.0) {
+                            failed = true;
+                            break;
+                        }
+                    }
+
+                    // And let's nudge it over a bit if we're looming in on the previous glyph
+                    bool nudged = false;
+                    if (normAng != 0.0) {
+                        if (normAng < M_PI / 180.0) {
+                            const float height = span.y();
+                            const auto offset = std::abs(std::sin(normAng)) * height;
+                            nudged = true;
+                            if (!walk.nextPoint(resScale * offset,&centerPt,&norm,true)) {
+                                failed = true;
+                                break;
+                            }
+                        }
+                    }
+                    lastNormValid = true;  lastNorm = norm;
+
+                    // Other half of glyph
+                    if (!walk.nextPoint(resScale * span.x()/2.0,nullptr,nullptr,true)) {
+                        failed = true;
+                        break;
+                    }
+
+                    // Don't forget the space between glyphs
+                    if (ig < layoutObj->obj.geometry.size()-1) {
+                        const Mbr glyphNextMbr(layoutObj->obj.geometry[ig+1].coords);
+                        const float padX = std::abs(glyphNextMbr.ll().x() - glyphMbr.ur().x());
+                        walk.nextPoint(resScale * padX, nullptr, nullptr,true);
+                    }
+
+                    // Translate the glyph into that position
+                    const Affine2d transPlace(Translation2d((centerPt.x()-worldScreenPt.x())/2.0,
+                                                            (worldScreenPt.y()-centerPt.y())/2.0));
+                    const double ang = -(std::atan2(norm.y(),norm.x()) - M_PI_2 + (flipped ? M_PI : 0.0));
+                    const Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
+                    Matrix3d screenRotMat = Matrix3d::Identity();
+                    for (unsigned ix=0;ix<2;ix++)
+                        for (unsigned iy=0;iy<2;iy++)
+                            screenRotMat(ix, iy) = screenRot(ix, iy);
+                    const Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
+                    const Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);
+                    const Matrix3d testMat = screenRotMat * scaleMat * transOrigin.matrix();
+                    if (flipped)
+                        layoutMats.insert(layoutMats.begin(),overlapMat);
+                    else
+                        layoutMats.push_back(overlapMat);
+
+                    // Check for overlap
+                    Point2dVector thePts;  thePts.reserve(4);
+                    for (unsigned int oii=0; oii < 4; oii++) {
+                        const Point3d pt = testMat * Point3d(geom.coords[oii].x(), geom.coords[oii].y(), 1.0);
+                        thePts.emplace_back(pt.x() + centerPt.x(), pt.y() + centerPt.y());
+                    }
+
+//                                if (!failed) {
+//                                    wkLog("  Geometry %d",ig);
+//                                    for (unsigned int ip=0;ip<objPts.size();ip++) {
+//                                        wkLog("    (%f,%f)",objPts[ip].x(),objPts[ip].y());
+//                                    }
+//                                }
+
+                    if (!overlapMan.checkObject(thePts)) {
+                        failed = true;
+                        break;
+                    }
+
+                    overlapPts.push_back(thePts);
+                }
+
+                if (failed)
+                {
+                    continue;
+                }
+                
+                if (layoutInstances.empty())
+                {
+                    layoutInstances.reserve(runs.size() * std::max(1, layoutObj->obj.layoutRepeat));
+                }
+                
+                //layoutObj->obj.setRotation(textBuilder.getViewStateRotation());
+
+                layoutModelInstances.push_back(worldPt);
+                layoutInstances.push_back(layoutMats);
+
+                // Add the individual glyphs to the overlap manager
+                for (auto &glyph: overlapPts)
+                    overlapMan.addObject(glyph);
+
+                if (layoutObj->obj.layoutRepeat > 0 && layoutInstances.size() >= layoutObj->obj.layoutRepeat)
+                    break;
+            }
+
+            if (layoutObj->obj.layoutRepeat > 0 && layoutInstances.size() >= layoutObj->obj.layoutRepeat)
+                break;
+        }
+
+        if (!layoutInstances.empty())
+        {
+            isActive = true;
+            hadChanges = true;
+            layoutObj->newEnable = true;
+            layoutObj->changed = true;
+            layoutObj->obj.layoutPlaces = std::move(layoutInstances);
+            layoutObj->obj.layoutModelPlaces = std::move(layoutModelInstances);
+            layoutObj->newCluster = -1;
+            layoutObj->offset = Point2d(0.0,0.0);
+        }
+        else
+        {
+            isActive = false;
+        }
+
+        if (layoutObj->currentEnable != isActive)
+        {
+            layoutObj->changed = true;
+        }
+
+        // Debugging visual output
+        if (layoutObj->obj.layoutDebug)
+        {
+            const ShapeSet dispShapes = textBuilder.getVisualVecs();
+            if (!dispShapes.empty())
+            {
+                // Turn them back into vectors to debug
+                VectorInfo vecInfo;
+                vecInfo.color = RGBAColor::red();
+                vecInfo.lineWidth = 1.0;
+                vecInfo.drawPriority = 10000000;
+
+                vecInfo.programID = vecProgID;
+
+                const SimpleIdentity vecId = vecManage->addVectors(&dispShapes, vecInfo, changes);
+                if (vecId != EmptyIdentity)
+                {
+                    debugVecIDs.insert(vecId);
+                }
+            }
+        }
+    }
+}
 
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes)
@@ -1263,6 +1300,12 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     if (cancelLayout || shutdown)
     {
+        return;
+    }
+    
+    if (scene->getCurrentTime() < minLayoutTime)
+    {
+        // Animations/fades from previous layouts are still running.
         return;
     }
 
@@ -1294,8 +1337,6 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         cancelLayout = false;
         return;
     }
-
-    const TimeInterval curTime = scene->getCurrentTime();
 
     // Clear out any debug outlines we accumulated on the previous update
     if (!debugVecIDs.empty())
@@ -1340,16 +1381,19 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 //    if (layoutChanges)
 //        NSLog(@"LayoutChanges");
 
-    // Get rid of the last set of drawables
-    for (const auto &it : drawIDs)
-        changes.push_back(new RemDrawableReq(it));
-//        NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
-    drawIDs.clear();
+    const TimeInterval curTime = scene->getCurrentTime();
+    TimeInterval maxAnimTime = 0.0;
+
+    // Save the drawable mapping from the previous iteration
+    const auto oldUniqueDrawableMap = std::move(uniqueDrawableMap);
+    uniqueDrawableMap.clear();
 
     // Generate the drawables.
     // Note that the renderer is not managed by a shared pointer, and will be destroyed
     // during shutdown, so we must stop using it quickly if controller shutdown is initiated.
     ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+
+    //wkLog("Starting Layout t=%f", curTime);
 
     for (const auto &layoutObj : localLayoutObjects)
     {
@@ -1358,17 +1402,65 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             break;
         }
 
-        layoutObj->obj.offset = Point2d(layoutObj->offset.x(),layoutObj->offset.y());
-        if (!layoutObj->currentEnable)
+        // Don't fade by default
+        auto fadeIn = false;
+
+        SimpleIDUnorderedSet *drawMapPtr = nullptr;
+        //size_t drawCount = 0;
+        if (fadeEnabled && !layoutObj->obj.uniqueID.empty())
         {
-            layoutObj->obj.state.fadeDown = curTime;
-            layoutObj->obj.state.fadeUp = curTime+NewObjectFadeIn;
+            layoutObj->obj.state.uniqueID = layoutObj->obj.uniqueID;
+            if (uniqueDrawableMap.empty())
+            {
+                uniqueDrawableMap.reserve(localLayoutObjects.size());
+            }
+
+            // Look up or create the set of drawable IDs associated with this Unique ID
+            const auto result = uniqueDrawableMap.insert(std::make_pair(
+                std::ref(layoutObj->obj.uniqueID), SimpleIDUnorderedSet()));
+            drawMapPtr = &result.first->second;
+            if (result.second)
+            {
+                drawMapPtr->reserve(10);
+            }
+            //drawCount = drawMapPtr->size();
+
+            // See if this object generated any drawables in the previous run.
+            const auto hit = oldUniqueDrawableMap.find(layoutObj->obj.uniqueID);
+            //if (hit != oldUniqueDrawableMap.end())
+            //{
+            //    wkLog("%d, %s, prev=%lld", n, layoutObj->obj.uniqueID.c_str(), hit->second.size());
+            //}
+            if (hit == oldUniqueDrawableMap.end() || hit->second.empty())
+            {
+                // It's new, fade it in
+                fadeIn = true;
+            }
+            //wkLog("%d, %s, fadeIn=%s curEnable=%s newEnable=%s enable=%s/%f-%f", n, layoutObj->obj.uniqueID.c_str(),
+            //      fadeIn?"T":"F", layoutObj->currentEnable?"T":"F", layoutObj->newEnable?"T":"F", layoutObj->obj.enable?"T":"F",
+            //      layoutObj->obj.startEnable,layoutObj->obj.endEnable);
+        }
+
+        //SimpleIDUnorderedSet prevState;
+        //if (drawMapPtr) {
+        //    prevState = *drawMapPtr;
+        //}
+        
+        // Fade in if the object wasn't in the previous set
+        
+        layoutObj->obj.offset = layoutObj->offset;
+        if (/*layoutObj->newEnable &&*/ fadeIn)
+        {
+            layoutObj->obj.setFade(curTime+newObjectFadeIn, curTime);
+
+            // Don't run again before the fades are complete
+            maxAnimTime = std::max(maxAnimTime, curTime+newObjectFadeIn);
         }
 
         // Note: The animation below doesn't handle offsets
 
         // Just moved into a cluster
-        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster > -1)
+        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster >= 0)
         {
             ClusterEntry *cluster = &clusters[layoutObj->newCluster];
             const auto &params = oldClusterParams[cluster->clusterParamID];
@@ -1381,7 +1473,10 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             animObj.state.progID = params.motionShaderID;
             for (auto &geom : animObj.geometry)
                 geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
+
+            // Don't run again before the animations are complete
+            maxAnimTime = std::max(maxAnimTime, curTime+params.markerAnimationTime);
         }
         else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
         {
@@ -1405,24 +1500,35 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
             //animObj.setDrawOrder(?)
             for (auto &geom : animObj.geometry)
                 geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry);
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
 
             // And hold off on adding it
             ScreenSpaceObject shortObj = layoutObj->obj;    // NOLINT slicing LayoutObject to ScreenSpaceObject
             //shortObj.setDrawOrder(?)
             shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry);
-        } else {
-            // It's boring, just add it
-            if (layoutObj->newEnable) {
-                // It's a single point placement
-                if (layoutObj->obj.layoutShape.empty())
-                    ssBuild.addScreenObject(layoutObj->obj,layoutObj->obj.worldLoc,&layoutObj->obj.geometry);
-                else {
-                    // One or more placements along a path
-                    for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++) {
-                        ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii], &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii]);
-                    }
+            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry,nullptr);
+            
+            // Don't run again before the animations are complete
+            maxAnimTime = std::max(maxAnimTime, curTime+params.markerAnimationTime);
+        }
+        // It's boring, just add it
+        else if (layoutObj->newEnable)
+        {
+            const bool enabled = layoutObj->obj.enable || (layoutObj->obj.endEnable > layoutObj->obj.startEnable);
+            // It's a single point placement
+            if (layoutObj->obj.layoutShape.empty())
+            {
+                ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.worldLoc,
+                                        &layoutObj->obj.geometry,nullptr, enabled ? drawMapPtr : nullptr);
+            }
+            else
+            {
+                // One or more placements along a path
+                for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
+                {
+                    ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii],
+                                            &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii],
+                                            enabled ? drawMapPtr : nullptr);
                 }
             }
         }
@@ -1431,6 +1537,21 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         layoutObj->currentCluster = layoutObj->newCluster;
 
         layoutObj->changed = false;
+        
+        //if (drawMapPtr && drawMapPtr->size() > drawCount)
+        //{
+        //    std::vector<SimpleIdentity> newIDs;
+        //    std::set_difference(drawMapPtr->begin(),drawMapPtr->end(),
+        //                        prevState.begin(),prevState.end(),
+        //                        std::back_inserter(newIDs));
+        //    std::ostringstream ss;
+        //    for (auto id : newIDs) {
+        //        ss << id << ",";
+        //    }
+        //    wkLog("%d, %s, added %lld drawables: %s fade=%f",
+        //          n, layoutObj->obj.uniqueID.c_str(), drawMapPtr->size() - drawCount,
+        //          ss.str().c_str(), layoutObj->obj.state.fadeUp);
+        //}
     }
 
     if (cancelLayout)
@@ -1484,9 +1605,82 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         }
     }
 
-    ssBuild.flushChanges(changes, drawIDs);
+    // That may have taken a while, update some relative times for animation.
+    const auto newCurTime = scene->getCurrentTime();
+    const auto deltaT = newCurTime - curTime;
+    //wkLog("Layout deltaT = %f", deltaT);
 
-    //wkLog("Layout of %d objects, %d clusters took %f", localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);
+    if (!drawIDs.empty())
+    {
+        std::unordered_map<SimpleIdentity,const std::string*> oldUniqueIDsByDrawable(drawIDs.size());
+        if (fadeEnabled)
+        {
+            // Reverse the map so we can look up unique IDs from drawables
+            for (const auto &kv : oldUniqueDrawableMap)
+            {
+                for (SimpleIdentity drawID : kv.second)
+                {
+                    oldUniqueIDsByDrawable.insert(std::make_pair(drawID, &kv.first));
+                }
+            }
+        }
+
+        // Get rid of the last set of drawables
+        for (const auto &drawID : drawIDs)
+        {
+            // Don't fade out by default
+            auto fade = 0.0;
+
+            // Find the unique ID that generated this old drawable, if any.
+            const auto oldUIDMatch = oldUniqueIDsByDrawable.find(drawID);
+            if (oldUIDMatch != oldUniqueIDsByDrawable.end())
+            {
+                const auto newUIDMatch = uniqueDrawableMap.find(*oldUIDMatch->second);
+                if (newUIDMatch == uniqueDrawableMap.end() || newUIDMatch->second.empty())
+                {
+                    // This object generated drawables in the previous
+                    // run but not this one, so fade those drawables out.
+                    fade = newCurTime + oldObjectFadeOut;
+                    changes.push_back(new FadeChangeRequest(drawID, newCurTime, fade));
+                    
+                    // Don't run again before the fades are complete
+                    maxAnimTime = std::max(maxAnimTime, fade);
+                }
+                //wkLog("Remove draw %lld, %s, %f", drawID, oldUIDMatch->second->c_str(), fade);
+            }// else {
+            //    wkLog("Remove draw %lld, ?, %f", drawID, fade);
+            //}
+            changes.push_back(new RemDrawableReq(drawID, fade));
+        }
+    }
+    //NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
+    drawIDs.clear();
+
+    // Add the new ones
+    const auto newDraws = ssBuild.flushChanges(changes, drawIDs);
+
+    if (deltaT > 0.01)
+    {
+        for (auto &draw : newDraws)
+        {
+            if (auto dp = draw.get())
+            {
+                if (dp->fadeUp > 0.0) dp->fadeUp += deltaT;
+                if (dp->fadeDown > 0.0) dp->fadeDown += deltaT;
+                if (dp->startEnable > 0.0) dp->startEnable += deltaT;
+                if (dp->endEnable > 0.0) dp->endEnable += deltaT;
+            }
+        }
+    }
+
+    if (maxAnimTime > 0.0)
+    {
+        std::unique_lock<std::mutex> guard(lock);
+        minLayoutTime = std::max(minLayoutTime, maxAnimTime + deltaT);
+    }
+
+    wkLogLevel(Verbose, "Layout of %d objects, %d clusters took %.4f s",
+               localLayoutObjects.size(), clusters.size(), scene->getCurrentTime() - curTime);
 }
 
 }

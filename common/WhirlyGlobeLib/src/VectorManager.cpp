@@ -603,7 +603,7 @@ VectorManager::~VectorManager()
 }
 
 // TODO: Get rid of this version
-SimpleIdentity VectorManager::addVectors(ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
+SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInfo &vecInfo, ChangeSet &changes)
 {
     if (shapes->empty())
         return EmptyIdentity;

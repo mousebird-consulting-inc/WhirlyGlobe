@@ -625,11 +625,16 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,T
 void FadeChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
-    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
+    if (const auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
     {
+        //const auto now = scene->getCurrentTime();
+        //wkLog("Executing fade %.3f-%.3f => %.3f-%.3f (now=%.3f%s)",
+        //      now - basicDrawable->fadeDown, now - basicDrawable->fadeUp,
+        //      now - fadeDown, now - fadeUp,
+        //      now, (fadeDown<now&&fadeUp<now)?" (late)":"");
         basicDrawable->setFade(fadeDown, fadeUp);
     }
-    
+
     // And let the renderer know
     renderer->setRenderUntil(fadeDown);
     renderer->setRenderUntil(fadeUp);

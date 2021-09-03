@@ -1,9 +1,8 @@
-/*
- *  ScreenSpaceBuild.h
+/*  ScreenSpaceBuild.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import <math.h>
-#import <set>
-#import <map>
 #import "Identifiable.h"
 #import "BasicDrawable.h"
 #import "TextureAtlas.h"
@@ -28,13 +23,20 @@
 #import "Scene.h"
 #import "BaseInfo.h"
 
+#import <math.h>
+#import <map>
+#import <set>
+#import <unordered_set>
+
 namespace WhirlyKit
 {
-    
+
 class ScreenSpaceObject;
 class ScreenSpaceConvexGeometry;
 class ScreenSpaceObjectLocation;
-    
+
+typedef std::unordered_set<SimpleIdentity> SimpleIDUnorderedSet;
+
 /** Screen space objects are used for both labels and markers.  This builder
     helps construct the drawables needed to represent them.
   */
@@ -43,33 +45,34 @@ class ScreenSpaceBuilder
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    ScreenSpaceBuilder(SceneRenderer *sceneRender,CoordSystemDisplayAdapter *coordAdapter,float scale,float centerDist=10e2);
-    virtual ~ScreenSpaceBuilder();
+    ScreenSpaceBuilder(SceneRenderer *,CoordSystemDisplayAdapter *,
+                       float scale, float centerDist = 10e2f);
+    virtual ~ScreenSpaceBuilder() = default;
     
     // State information we're keeping around.
     // Defaults to something reasonable
-    class DrawableState
+    struct DrawableState
     {
-    public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         
         DrawableState();
         
         // Comparison operator for set
         bool operator < (const DrawableState &that) const;
-        
+
+        std::string uniqueID;
         std::vector<SimpleIdentity> texIDs;
         double period;
         SimpleIdentity progID;
         TimeInterval fadeUp,fadeDown;
-        bool enable;
         TimeInterval startEnable,endEnable;
         int64_t drawOrder;
-        int drawPriority;
         SimpleIdentity renderTargetID;
+        double minZoomVis,maxZoomVis;
+        int drawPriority;
         float minVis,maxVis;
         int zoomSlot;
-        double minZoomVis,maxZoomVis;
+        bool enable;
         bool motion;
         bool rotation;
         bool keepUpright;
@@ -113,53 +116,62 @@ public:
     void setEnableRange(TimeInterval inStartEnable,TimeInterval inEndEnable);
 
     /// Add a single rectangle with no rotation
-    void addRectangle(const Point3d &worldLoc,const Point2d *coords,const TexCoord *texCoords,const RGBAColor &color);
+    void addRectangle(const Point3d &worldLoc,const Point2d *coords,
+                      const TexCoord *texCoords,const RGBAColor &color,
+                      SimpleIDUnorderedSet *drawIDs = nullptr);
     /// Add a single rectangle with rotation, possibly keeping upright
-    void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,const Point2d *coord,const TexCoord *texCoords,const RGBAColor &color);
+    void addRectangle(const Point3d &worldLoc,double rotation,bool keepUpright,
+                      const Point2d *coord,const TexCoord *texCoords,const RGBAColor &color,
+                      SimpleIDUnorderedSet *drawIDs = nullptr);
 
     /// Add a whole bunch of predefined Scene Objects
     /// These will be sorted by orderBy
-    void addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects);
-    void addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects);
+    void addScreenObjects(std::vector<ScreenSpaceObject> &screenObjects,
+                          const std::vector<Eigen::Matrix3d> *places = nullptr,
+                          SimpleIDUnorderedSet *drawIDs = nullptr);
+    void addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects,
+                          const std::vector<Eigen::Matrix3d> *places = nullptr,
+                          SimpleIDUnorderedSet *drawIDs = nullptr);
     
     /// Add a single screen space object
     void addScreenObject(const ScreenSpaceObject &screenObject,
                          const Point3d &worldLoc,
                          const std::vector<ScreenSpaceConvexGeometry> *geoms,
-                         const std::vector<Eigen::Matrix3d> *places = nullptr);
-    
+                         const std::vector<Eigen::Matrix3d> *places = nullptr,
+                         SimpleIDUnorderedSet *drawIDs = nullptr);
+
     /// Return the drawables constructed.  Caller responsible for deletion.
     void buildDrawables(std::vector<BasicDrawableRef> &draws);
     
     /// Build drawables and add them to the change list
-    void flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
+    std::vector<BasicDrawableRef> flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
     
     /// Calculate the rotation vector for a rotation
     static Point3d CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot);
     
 protected:
     // Wrapper used to track
-    class DrawableWrap
+    struct DrawableWrap
     {
-    public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         
         DrawableWrap(SceneRenderer *sceneRender,const DrawableState &state);
         ~DrawableWrap();
         
-        void addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs);
+        void addVertex(CoordSystemDisplayAdapter *,float scale, const Point3d &worldLoc,
+                       const Point3f *dir,float rot, const Point2d &inVert,
+                       const TexCoord *texCoord, const RGBAColor *color,
+                       const SingleVertexAttributeSet *vertAttrs);
         void addTri(int v0,int v1,int v2);
         
         Point3d center;
         DrawableState state;
         
-        ScreenSpaceDrawableBuilderRef getDrawableBuilder() { return locDraw; }
+        const ScreenSpaceDrawableBuilderRef &getDrawableBuilder() const { return locDraw; }
         ScreenSpaceDrawableBuilderRef locDraw;
-
-    protected:
     };
+
     typedef std::shared_ptr<DrawableWrap> DrawableWrapRef;
-    
     typedef std::map<DrawableState,DrawableWrapRef> DrawableWrapMap;
     
     DrawableWrapRef findOrAddDrawWrap(const DrawableState &state,int numVerts,int numTri,const Point3d &center);
