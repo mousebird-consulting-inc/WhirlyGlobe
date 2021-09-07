@@ -1,9 +1,8 @@
-/*
- *  SceneRendererMTL.mm
+/*  SceneRendererMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneRendererMTL.h"
@@ -66,16 +64,7 @@ RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget)
 
 RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer(RenderTargetRef renderTarget)
 {
-    return RenderTargetContainerRef(new RenderTargetContainerMTL(renderTarget));
-}
-    
-RendererFrameInfoMTL::RendererFrameInfoMTL()
-{
-}
-    
-RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
-: RendererFrameInfo(that)
-{
+    return std::make_shared<RenderTargetContainerMTL>(renderTarget);
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
@@ -461,6 +450,63 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
     }
 }
 
+RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
+{
+    if (!theView || !scene)
+    {
+        return RendererFrameInfoMTLRef();
+    }
+
+    // Get the model and view matrices
+    const Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
+    const Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
+    const Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
+    const Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
+    
+    // Set up a projection matrix
+    const Point2f frameSize(framebufferWidth,framebufferHeight);
+    const Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
+
+    const Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    const Eigen::Matrix4d pvMat4d = projMat4d * viewTrans4d;
+    const Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+    const Eigen::Matrix4d mvpMat4d = projMat4d * modelAndViewMat4d;
+
+    const Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
+    const Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    const Eigen::Matrix4f mvpMat = Matrix4dToMatrix4f(mvpMat4d);
+    const Eigen::Matrix4f mvpNormalMat4f = Matrix4dToMatrix4f(mvpMat4d.inverse().transpose());
+    const Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
+
+    auto frameInfo = std::make_shared<RendererFrameInfoMTL>();
+
+    frameInfo->sceneRenderer = this;
+    frameInfo->theView = theView;
+    frameInfo->viewTrans = viewTrans;
+    frameInfo->viewTrans4d = viewTrans4d;
+    frameInfo->modelTrans = modelTrans;
+    frameInfo->modelTrans4d = modelTrans4d;
+    frameInfo->scene = scene;
+    frameInfo->frameLen = 1.0 / 60.0;
+    frameInfo->currentTime = scene->getCurrentTime();
+    frameInfo->projMat = projMat;
+    frameInfo->projMat4d = projMat4d;
+    frameInfo->mvpMat = mvpMat;
+    frameInfo->mvpMat4d = mvpMat4d;
+    frameInfo->mvpInvMat = mvpMat.inverse();
+    frameInfo->mvpNormalMat = mvpNormalMat4f;
+    frameInfo->viewModelNormalMat = modelAndViewNormalMat;
+    frameInfo->viewAndModelMat = modelAndViewMat;
+    frameInfo->viewAndModelMat4d = modelAndViewMat4d;
+    frameInfo->pvMat = Matrix4dToMatrix4f(pvMat4d);
+    frameInfo->pvMat4d = pvMat4d;
+    frameInfo->screenSizeInDisplayCoords = theView->screenSizeInDisplayCoords(frameSize);
+    frameInfo->lights = &lights;
+    frameInfo->renderTarget = nullptr;
+
+    return frameInfo;
+}
+
 void SceneRendererMTL::render(TimeInterval duration,
                               MTLRenderPassDescriptor *renderPassDesc,
                               id<SceneRendererMTLDrawableGetter> drawGetter)
@@ -505,7 +551,6 @@ void SceneRendererMTL::render(TimeInterval duration,
     Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
     Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
@@ -516,9 +561,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4d mvpMat4d = projMat4d * modelAndViewMat4d;
 
-    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-    Eigen::Matrix4f mvpMat = Matrix4dToMatrix4f(mvpMat4d);
     Eigen::Matrix4f mvpNormalMat4f = Matrix4dToMatrix4f(mvpMat4d.inverse().transpose());
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
@@ -536,35 +579,14 @@ void SceneRendererMTL::render(TimeInterval duration,
     id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
 
     int numDrawables = 0;
-    
-    RendererFrameInfoMTL baseFrameInfo;
-    baseFrameInfo.sceneRenderer = this;
-    baseFrameInfo.theView = theView;
-    baseFrameInfo.viewTrans = viewTrans;
-    baseFrameInfo.viewTrans4d = viewTrans4d;
-    baseFrameInfo.modelTrans = modelTrans;
-    baseFrameInfo.modelTrans4d = modelTrans4d;
-    baseFrameInfo.scene = scene;
+
+    const auto frameInfoRef = makeFrameInfo();
+    auto &baseFrameInfo = *frameInfoRef;
     baseFrameInfo.frameLen = duration;
     baseFrameInfo.currentTime = now;
-    baseFrameInfo.projMat = projMat;
-    baseFrameInfo.projMat4d = projMat4d;
-    baseFrameInfo.mvpMat = mvpMat;
-    baseFrameInfo.mvpMat4d = mvpMat4d;
-    Eigen::Matrix4f mvpInvMat = mvpMat.inverse();
-    baseFrameInfo.mvpInvMat = mvpInvMat;
-    baseFrameInfo.mvpNormalMat = mvpNormalMat4f;
-    baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
-    baseFrameInfo.viewAndModelMat = modelAndViewMat;
-    baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
-    Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat4d);
-    baseFrameInfo.pvMat = pvMat4f;
-    baseFrameInfo.pvMat4d = pvMat4d;
     theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
-    Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
-    baseFrameInfo.screenSizeInDisplayCoords = screenSize;
-    baseFrameInfo.lights = &lights;
-    baseFrameInfo.renderTarget = NULL;
+
+    lastFrameInfo = frameInfoRef;
 
     // We need a reverse of the eye vector in model space
     // We'll use this to determine what's pointed away
@@ -589,7 +611,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     if (perfInterval > 0)
         perfTimer.startTiming("Scene preprocessing");
     
-    RenderTeardownInfoMTLRef frameTeardownInfo = RenderTeardownInfoMTLRef(new RenderTeardownInfoMTL());
+    const auto frameTeardownInfo = std::make_shared<RenderTeardownInfoMTL>();
     teardownInfo = frameTeardownInfo;
     
     // Run the preprocess for the changes.  These modify things the active models need.

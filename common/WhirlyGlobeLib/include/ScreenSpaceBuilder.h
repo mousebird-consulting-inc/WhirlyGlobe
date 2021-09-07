@@ -144,6 +144,7 @@ public:
     void buildDrawables(std::vector<BasicDrawableRef> &draws);
     
     /// Build drawables and add them to the change list
+    std::vector<BasicDrawableRef> flushChanges(ChangeSet &changes,SimpleIDSet *drawIDs = nullptr);
     std::vector<BasicDrawableRef> flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs);
     
     /// Calculate the rotation vector for a rotation

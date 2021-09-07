@@ -251,17 +251,17 @@ void ScreenSpaceBuilder::setZoomInfo(int zoomSlot,double minZoomVis,double maxZo
 
 void ScreenSpaceBuilder::setOpacityExp(FloatExpressionInfoRef opacityExp)
 {
-    curState.opacityExp = opacityExp;
+    curState.opacityExp = std::move(opacityExp);
 }
 
 void ScreenSpaceBuilder::setColorExp(ColorExpressionInfoRef colorExp)
 {
-    curState.colorExp = colorExp;
+    curState.colorExp = std::move(colorExp);
 }
 
 void ScreenSpaceBuilder::setScaleExp(FloatExpressionInfoRef scaleExp)
 {
-    curState.scaleExp = scaleExp;
+    curState.scaleExp = std::move(scaleExp);
 }
 
 void ScreenSpaceBuilder::setEnable(bool inEnable)
@@ -485,12 +485,20 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawableRef> &draws)
     
 std::vector<BasicDrawableRef> ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
+    return flushChanges(changes, &drawIDs);
+}
+
+std::vector<BasicDrawableRef> ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet *drawIDs)
+{
     std::vector<BasicDrawableRef> draws;
     buildDrawables(draws);
 
     for (const auto &draw : draws)
     {
-        drawIDs.insert(draw->getId());
+        if (drawIDs)
+        {
+            drawIDs->insert(draw->getId());
+        }
         changes.push_back(new AddDrawableReq(draw));
     }
 

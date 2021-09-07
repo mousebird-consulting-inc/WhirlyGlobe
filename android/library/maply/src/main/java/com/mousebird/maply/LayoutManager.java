@@ -88,6 +88,12 @@ class LayoutManager
 	public native void setShowDebugLayoutBoundaries(boolean show);
 	public native boolean getShowDebugLayoutBoundaries();
 
+	/**
+	 * Fade labels in and out
+	 */
+	public native void setFadeEnabled(boolean enable);
+	public native boolean getFadeEnabled();
+
 	static
 	{
 		nativeInit();

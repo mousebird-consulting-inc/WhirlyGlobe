@@ -1,9 +1,8 @@
-/*
- *  SceneRenderer.cpp
+/*  SceneRenderer.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneRenderer.h"
@@ -37,17 +35,6 @@ bool matrixAisSameAsB(Matrix4d &a,Matrix4d &b)
             return false;
     
     return true;
-}
-    
-RendererFrameInfo::RendererFrameInfo()
-: sceneRenderer(NULL), theView(NULL), scene(NULL), frameLen(0), currentTime(0),
-heightAboveSurface(0), screenSizeInDisplayCoords(0,0), lights(NULL), program(NULL)
-{
-}
-
-RendererFrameInfo::RendererFrameInfo(const RendererFrameInfo &that)
-{
-    *this = that;
 }
 
 WorkGroup::~WorkGroup()

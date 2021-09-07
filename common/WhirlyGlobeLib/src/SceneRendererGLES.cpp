@@ -56,12 +56,7 @@ RenderTargetContainerRef WorkGroupGLES::makeRenderTargetContainer(RenderTargetRe
 {
     return std::make_shared<RenderTargetContainerGLES>(renderTarget);
 }
-    
-RendererFrameInfoGLES::RendererFrameInfoGLES()
-    : glesVersion(0)
-{
-}
-    
+
 SceneRendererGLES::SceneRendererGLES() :
     extraFrameCount(0)
 {
@@ -346,8 +341,9 @@ void SceneRendererGLES::render(TimeInterval duration)
     if (scene)
     {
         int numDrawables = 0;
-        
-        RendererFrameInfoGLES baseFrameInfo;
+
+        const auto frameInfoRef = std::make_shared<RendererFrameInfoGLES>();
+        auto &baseFrameInfo = *frameInfoRef;
         baseFrameInfo.glesVersion = setupInfo.glesVersion;
         baseFrameInfo.sceneRenderer = this;
         baseFrameInfo.theView = theView;
@@ -373,7 +369,9 @@ void SceneRendererGLES::render(TimeInterval duration)
         const Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
         baseFrameInfo.screenSizeInDisplayCoords = screenSize;
         baseFrameInfo.lights = &lights;
-        
+
+        lastFrameInfo = frameInfoRef;
+
         // We need a reverse of the eye vector in model space
         // We'll use this to determine what's pointed away
         Eigen::Matrix4f modelTransInv = modelTrans.inverse();

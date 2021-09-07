@@ -270,6 +270,10 @@ public:
         hasUpdates = true;
     }
 
+    /// Don't run a layout pass until at least the specified absolute time
+    /// (e.g., when scheduled animations complete)
+    void deferUntil(TimeInterval minTime);
+
     virtual void setRenderer(SceneRenderer *inRenderer) override;
 
     virtual void setScene(Scene *inScene) override;
@@ -277,6 +281,9 @@ public:
     virtual void teardown() override;
 
 protected:
+    using UnorderedIDSetbyUID = std::unordered_map<std::string,SimpleIDUnorderedSet>;
+    using UnorderedUIDSet = std::unordered_set<std::string>;
+
     static bool calcScreenPt(Point2f &objPt,
                              const LayoutObject *layoutObj,
                              const ViewStateRef &viewState,
@@ -301,7 +308,6 @@ protected:
 
     struct LayoutObjectContainer;
     typedef std::vector<LayoutObjectContainer> LayoutContainerVec;
-    typedef std::unordered_map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
 
     struct ClusteredObjects
     {
@@ -349,6 +355,28 @@ protected:
                           bool &isActive,
                           bool &hadChanges);
 
+    void buildDrawables(ScreenSpaceBuilder &ssBuild,
+                        bool doFades,
+                        bool doClusters,
+                        TimeInterval curTime,
+                        TimeInterval *maxAnimTime,
+                        const LayoutEntrySet &localLayoutObjects,
+                        const std::vector<ClusterEntry> &oldClusters,
+                        const std::vector<ClusterGenerator::ClusterClassParams> &oldClusterParams,
+                        UnorderedIDSetbyUID *newUniqueDrawableMap,
+                        const UnorderedIDSetbyUID *oldUniqueDrawableMap);
+
+    void handleFadeOut(const TimeInterval curTime,
+                       TimeInterval &maxAnimTime,
+                       const LayoutEntrySet &localLayoutObjects,
+                       const SimpleIDSet &oldDrawIDs,
+                       const std::vector<BasicDrawableRef> &newDrawables,
+                       const std::vector<ClusterEntry> &oldClusters,
+                       const std::vector<ClusterGenerator::ClusterClassParams> &oldClusterParams,
+                       const UnorderedIDSetbyUID &oldUniqueDrawableMap,
+                       const UnorderedIDSetbyUID &newUniqueDrawableMap,
+                       ChangeSet &changes);
+    
     void addDebugOutput(const Point2dVector &pts,
                         WhirlyGlobe::GlobeViewState *globeViewState,
                         Maply::MapViewState *mapViewState,
@@ -369,13 +397,17 @@ protected:
     bool showDebugBoundaries = false;
     /// Fade in/out labels?
     bool fadeEnabled = false;
+    /// Consider the "on" state of the drawables in the scene when checking visibility
+    bool checkDrawableOn = true;
     /// Time we'll take to appear/disappear objects
     TimeInterval newObjectFadeIn = 0.2f;
     TimeInterval oldObjectFadeOut = 0.2f;
     /// Don't run again until at least this time
-    TimeInterval minLayoutTime = 0.0;
+    std::atomic<TimeInterval> minLayoutTime;
     /// Objects we're controlling the placement for
     LayoutEntrySet layoutObjects;
+    /// Layout objects from the previous run
+    LayoutEntrySet prevLayoutObjects;
     /// Drawables created on the last round
     SimpleIDSet drawIDs;
     /// Clusters on the current round
@@ -394,7 +426,7 @@ protected:
     std::timed_mutex internalLock;
     
     // Mapping of object unique IDs to drawables from the previous run
-    std::unordered_map<std::string,SimpleIDUnorderedSet> uniqueDrawableMap;
+    UnorderedIDSetbyUID uniqueDrawableIDs;
 };
 typedef std::shared_ptr<LayoutManager> LayoutManagerRef;
 

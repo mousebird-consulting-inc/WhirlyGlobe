@@ -1,9 +1,8 @@
-/*
- *  ESRenderer.h
+/*  SceneRendererGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "UtilsGLES.h"
@@ -36,15 +34,12 @@ class SceneRendererGLES;
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
  */
-class RendererFrameInfoGLES : public RendererFrameInfo
+struct RendererFrameInfoGLES : public RendererFrameInfo
 {
-public:
-    RendererFrameInfoGLES();
-    RendererFrameInfoGLES(const RendererFrameInfoGLES &that);
-    
     /// Renderer version (e.g. OpenGL ES 1 vs 2)
-    int glesVersion;
+    int glesVersion = 0;
 };
+using RendererFrameInfoGLESRef = std::shared_ptr<RendererFrameInfoGLES>;
 
 class WorkGroupGLES : public WorkGroup
 {
@@ -70,13 +65,13 @@ public:
     virtual ~SceneRendererGLES();
     
     // GL (obviously)
-    virtual Type getType();
+    virtual Type getType() override;
 
     // Various information about the renderer passed around to call
-    virtual const RenderSetupInfo *getRenderSetupInfo() const;
+    virtual const RenderSetupInfo *getRenderSetupInfo() const override;
     
-    virtual void setView(View *newView);
-    virtual void setScene(Scene *newScene);
+    virtual void setView(View *newView) override;
+    virtual void setScene(Scene *newScene) override;
 
     /// Called right after the constructor
     virtual bool setup(int apiVersion,int sizeX,int sizeY,float scale);
@@ -85,7 +80,7 @@ public:
     virtual bool resize(int sizeX,int sizeY);
 
     /// Return true if we have changes to process or display
-    virtual bool hasChanges();
+    virtual bool hasChanges() override;
 
     /// If set, we'll draw one more frame than needed after updates stop
     virtual void setExtraFrameMode(bool newMode);
@@ -94,41 +89,42 @@ public:
     void render(TimeInterval period);
     
     /// Construct a basic drawable builder for the appropriate rendering type
-    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const;
+    virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const override;
     
     /// Construct a basic drawables instance builder for the current rendering type
-    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const;
+    virtual BasicDrawableInstanceBuilderRef makeBasicDrawableInstanceBuilder(const std::string &name) const override;
     
     /// Construct a billboard drawable builder for the current rendering type
-    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const;
+    virtual BillboardDrawableBuilderRef makeBillboardDrawableBuilder(const std::string &name) const override;
     
     /// Construct a screen-space drawable builder for the current rendering type
-    virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const;
+    virtual ScreenSpaceDrawableBuilderRef makeScreenSpaceDrawableBuilder(const std::string &name) const override;
     
     /// Construct a particle system builder of the appropriate rendering type
-    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const;
+    virtual ParticleSystemDrawableBuilderRef  makeParticleSystemDrawableBuilder(const std::string &name) const override;
     
     /// Construct a wide vector drawable builder of the appropriate rendering type
-    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const;
+    virtual WideVectorDrawableBuilderRef makeWideVectorDrawableBuilder(const std::string &name) const override;
     
     /// Construct a renderer-specific render target
-    virtual RenderTargetRef makeRenderTarget() const;
+    virtual RenderTargetRef makeRenderTarget() const override;
     
     /// Construct a renderer-specific dynamic texture
-    virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const;
+    virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const override;
 
     /** Return the snapshot for the given render target.
      *  EmptyIdentity refers to the whole
      *  width <= 0 means the whole screen.
      */
     virtual RawDataRef getSnapshotAt(SimpleIdentity renderTargetID, int x, int y, int width, int height);
-    
+
+    virtual RendererFrameInfoRef getFrameInfo() override { return lastFrameInfo; }
 public:
     // Possible post-target creation init
-    virtual void defaultTargetInit(RenderTarget *) { };
+    virtual void defaultTargetInit(RenderTarget *) override { }
     
     // Presentation, if required
-    virtual void presentRender() { };
+    virtual void presentRender() override { }
     
     // Information about the renderer passed around to various calls
     RenderSetupInfoGLES setupInfo;
@@ -136,6 +132,8 @@ public:
     // If set we draw one extra frame after updates stop
     bool extraFrameMode;
     int extraFrameCount;
+
+    RendererFrameInfoGLESRef lastFrameInfo;
 };
     
 typedef std::shared_ptr<SceneRendererGLES> SceneRendererGLESRef;
