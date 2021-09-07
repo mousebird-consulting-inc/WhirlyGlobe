@@ -177,9 +177,8 @@ public:
 
 protected:
     // Info about a single heap
-    class HeapInfo
+    struct HeapInfo
     {
-    public:
         size_t maxAvailSize;
         id<MTLHeap> heap;
     };
@@ -192,16 +191,18 @@ protected:
             return a->maxAvailSize < b->maxAvailSize;
         }
     } HeapGroupSorter;
+    using HeapSet = std::set<HeapInfoRef, HeapGroupSorter>;
     
     // Group of heaps sorted by max available size
-    class HeapGroup
+    struct HeapGroup
     {
-    public:
-        std::set<HeapInfoRef, HeapGroupSorter> heaps;
+        HeapSet heaps;
     };
     
-    HeapInfoRef findHeap(HeapType heapType,size_t &size);
-    HeapInfoRef findTextureHeap(MTLTextureDescriptor *desc,size_t size);
+    HeapInfoRef allocateHeap(unsigned size, unsigned minSize, MTLStorageMode mode);
+    HeapInfoRef findHeap(HeapType heapType,size_t &size,id<MTLHeap> prevHeap = nil);
+    HeapInfoRef findHeap(HeapSet &heapSet,size_t &size,id<MTLHeap> prevHeap = nil);
+    HeapInfoRef findTextureHeap(MTLTextureDescriptor *desc,size_t size,id<MTLHeap> prevHeap = nil);
 
     std::mutex lock;
     std::mutex texLock;
@@ -211,6 +212,9 @@ protected:
 
     // Keep Metal allocations aligned to this
     size_t memAlign;
+    
+    static constexpr size_t MB = 1024 * 1024;
+    static constexpr size_t TextureOverhead = 64;
 };
 
 /// Passed around to various init and teardown routines
