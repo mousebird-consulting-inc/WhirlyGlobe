@@ -535,8 +535,6 @@ void SceneRendererMTL::render(TimeInterval duration,
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
     id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
 
-    int numDrawables = 0;
-    
     RendererFrameInfoMTL baseFrameInfo;
     baseFrameInfo.sceneRenderer = this;
     baseFrameInfo.theView = theView;
@@ -897,18 +895,16 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 firstDepthState = false;
                             }
                             
-                            for (unsigned int off=0;off<offFrameInfos.size();off++) {
+                            //for (unsigned int off=0;off<offFrameInfos.size();off++) {
                                 // Set up transforms to use right now (one per offset matrix)
 //                                baseFrameInfo.mvpMat = mvpMats4f[off];
 //                                baseFrameInfo.mvpInvMat = mvpInvMats4f[off];
                                 
                                 baseFrameInfo.program = program;
-                                                                                            
+
                                 // "Draw" using the given program
                                 drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
-                                                                
-                                numDrawables++;
-                            }
+                            //}
                         }
                     }
                 }
