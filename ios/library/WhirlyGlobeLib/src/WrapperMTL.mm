@@ -338,7 +338,7 @@ HeapManagerMTL::HeapInfoRef HeapManagerMTL::findHeap(HeapType heapType,size_t &s
 
 HeapManagerMTL::HeapInfoRef HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t size,id<MTLHeap> prevHeap)
 {
-    size += TextureOverhead;
+    size += memAlign;   // Add one alignment size for metadata overhead
     return findHeap(texGroups.heaps,size,prevHeap);
 }
 

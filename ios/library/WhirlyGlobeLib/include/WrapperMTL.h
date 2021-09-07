@@ -214,7 +214,6 @@ protected:
     size_t memAlign;
     
     static constexpr size_t MB = 1024 * 1024;
-    static constexpr size_t TextureOverhead = 64;
 };
 
 /// Passed around to various init and teardown routines
