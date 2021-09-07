@@ -308,127 +308,132 @@ void HeapManagerMTL::updateHeaps()
     }
 }
 
-HeapManagerMTL::HeapInfoRef HeapManagerMTL::findHeap(HeapType heapType,size_t &size)
+HeapManagerMTL::HeapInfoRef HeapManagerMTL::allocateHeap(unsigned size, unsigned minSize, MTLStorageMode mode)
 {
-    HeapGroup &heapGroup = heapGroups[heapType];
-    for (auto heap : heapGroup.heaps) {
-        MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
-        size = sAlign.size;
-        if (heap->maxAvailSize > size) {
-            heap->maxAvailSize -= size;
-            return heap;
+    MTLHeapDescriptor *heapDesc = [[MTLHeapDescriptor alloc] init];
+    heapDesc.size = size;
+    heapDesc.storageMode = mode;
+
+    for (; heapDesc.size >= minSize; heapDesc.size /= 2)
+    {
+        if (const id <MTLHeap> heap = [mtlDevice newHeapWithDescriptor:heapDesc])
+        {
+            const NSUInteger availableSize = [heap maxAvailableSizeWithAlignment:memAlign];
+            if (availableSize > 0)
+            {
+                HeapInfoRef heapInfo = std::make_shared<HeapManagerMTL::HeapInfo>();
+                heapInfo->heap = heap;
+                heapInfo->maxAvailSize = availableSize;
+                return heapInfo;
+            }
         }
     }
-    MTLHeapDescriptor *heapDesc = [[MTLHeapDescriptor alloc] init];
-    heapDesc.size = 32*1024*1024;  // 32MB, at a guess
-    if (size > heapDesc.size) {
-        heapDesc.size = size + 1024*1024;   // Silly to make a heap just for this, but this works
-    }
-    // TODO: Don't need this for most things
-    heapDesc.storageMode = MTLStorageModeShared;
-    HeapInfoRef heapInfo = std::make_shared<HeapInfo>();
-    heapInfo->heap = [mtlDevice newHeapWithDescriptor:heapDesc];
-    heapInfo->maxAvailSize = [heapInfo->heap maxAvailableSizeWithAlignment:memAlign];
-    if (heapInfo->heap)
-        heapGroup.heaps.insert(heapInfo);
-    
-    return heapInfo;
+    return HeapInfoRef();
 }
 
-HeapManagerMTL::HeapInfoRef HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t size)
+HeapManagerMTL::HeapInfoRef HeapManagerMTL::findHeap(HeapType heapType,size_t &size,id<MTLHeap> prevHeap)
 {
-    for (auto heap : texGroups.heaps) {
-        MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
-        size = sAlign.size;
-        if (heap->maxAvailSize >= size) {
+    return findHeap(heapGroups[heapType].heaps,size,prevHeap);
+}
+
+HeapManagerMTL::HeapInfoRef HeapManagerMTL::findTextureHeap(MTLTextureDescriptor *desc,size_t size,id<MTLHeap> prevHeap)
+{
+    size += memAlign;   // Add one alignment size for metadata overhead
+    return findHeap(texGroups.heaps,size,prevHeap);
+}
+
+HeapManagerMTL::HeapInfoRef HeapManagerMTL::findHeap(HeapSet &heapSet,size_t &size,id<MTLHeap> prevHeap)
+{
+    const MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
+    size = std::max(size, sAlign.size);
+
+    for (const auto &heap : heapSet)
+    {
+        if (prevHeap)
+        {
+            // Caller doesn't want this one or any before it, so keep trying.
+            if (heap->heap == prevHeap)
+            {
+                prevHeap = nil;
+            }
+            continue;
+        }
+        if (heap->maxAvailSize >= size)
+        {
             heap->maxAvailSize -= size;
             return heap;
         }
     }
     
-    MTLHeapDescriptor *heapDesc = [[MTLHeapDescriptor alloc] init];
-    heapDesc.size = 32*1024*1024;  // 32MB, at a guess
-    if (size > heapDesc.size) {
-        heapDesc.size = size + 1024*1024;   // Silly to make a heap just for this, but this works
-    }
     // TODO: Don't need this for most things
-    heapDesc.storageMode = MTLStorageModeShared;
-    HeapInfoRef heapInfo = std::make_shared<HeapInfo>();
-    heapInfo->heap = [mtlDevice newHeapWithDescriptor:heapDesc];
-    heapInfo->maxAvailSize = [heapInfo->heap maxAvailableSizeWithAlignment:memAlign];
-    if (heapInfo->heap)
-        texGroups.heaps.insert(heapInfo);
-
-    return heapInfo;
+    const auto mode = MTLStorageModeShared;
+    const auto maxSize = std::max(32U * MB, size + 1U * MB);
+    const auto minSize = std::max(4U * MB, size + 1U * MB);
+    auto newHeap = allocateHeap(maxSize, minSize, mode);
+    if (newHeap)
+    {
+        heapSet.insert(newHeap);
+    }
+    return newHeap;
 }
 
 BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,size_t size)
 {
-    BufferEntryMTL buffer;
-    if (UseHeaps) {
-        {
-            std::lock_guard<std::mutex> guardLock(lock);
-            bool keepTrying = true;
-            while (keepTrying)
-            {
-                auto heapInfo = findHeap(heapType,size);
-                buffer.heap = heapInfo->heap;
-                buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
-
-                if (!buffer.buffer) {
-    //                NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
-                    heapInfo->maxAvailSize = 0;  // You lie!!!
-                    keepTrying = true;
-                    continue;
-                }
-                keepTrying = false;
-            }
-            buffer.offset = 0;
-        }
-    } else {
-        size_t extra = size % memAlign;
-        if (extra > 0) {
-            size += memAlign - extra;
-        }
-
-        buffer.buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
-        buffer.heap = nil;
-        buffer.offset = 0;
-    }
-    
-    buffer.valid = true;
-    return buffer;
+    return allocateBuffer(heapType,nullptr,size);
 }
 
 BufferEntryMTL HeapManagerMTL::allocateBuffer(HeapType heapType,const void *data,size_t size)
 {
     BufferEntryMTL buffer;
-    if (UseHeaps) {
+    if (UseHeaps)
+    {
         {
+            id<MTLHeap> prevHeap = nil;
             std::lock_guard<std::mutex> guardLock(lock);
+            while (true)
+            {
+                auto heapInfo = findHeap(heapType,size,prevHeap);
+                if (!heapInfo)
+                {
+                    return buffer;
+                }
 
-            bool keepTrying = true;
-            while (keepTrying) {
-                auto heapInfo = findHeap(heapType,size);
-                buffer.heap = heapInfo->heap;
-                buffer.buffer = [buffer.heap newBufferWithLength:size options:MTLResourceStorageModeShared];
-
-                if (!buffer.buffer) {
-//                    NSLog(@"Uh oh!  Ran out of buffer space [heap type %d, alloc %zu]", heapType, size);
-                    heapInfo->maxAvailSize = 0;  // Lies!  It's all lies!
-                    keepTrying = true;
+                buffer.buffer = [heapInfo->heap newBufferWithLength:size options:MTLResourceStorageModeShared];
+                if (buffer.buffer)
+                {
+                    buffer.heap = heapInfo->heap;
+                    break;
+                }
+                else
+                {
+                    prevHeap = heapInfo->heap;
                     continue;
                 }
-                keepTrying = false;
             }
         }
-        if (data && size) {
+        if (data && size)
+        {
             memcpy([buffer.buffer contents], data, size);
         }
         buffer.offset = 0;
-    } else {
+    }
+    else
+    {
+        const size_t extra = size % memAlign;
+        if (extra > 0)
+        {
+            size += memAlign - extra;
+        }
+
         buffer.heap = nil;
-        buffer.buffer = [mtlDevice newBufferWithBytes:data length:size options:MTLResourceStorageModeShared];
+        if (data)
+        {
+            buffer.buffer = [mtlDevice newBufferWithBytes:data length:size options:MTLResourceStorageModeShared];
+        }
+        else
+        {
+            buffer.buffer = [mtlDevice newBufferWithLength:size options:MTLResourceStorageModeShared];
+        }
         buffer.offset = 0;
     }
 
@@ -440,26 +445,36 @@ TextureEntryMTL HeapManagerMTL::newTextureWithDescriptor(MTLTextureDescriptor *d
 {
     TextureEntryMTL tex;
     
-    if (UseHeaps) {
+    if (UseHeaps)
+    {
+        std::lock_guard<std::mutex> guardLock(texLock);
+
+        // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
+        id<MTLHeap> prevHeap = nil;
+        for (int i = 0; i < 3; ++i)
         {
-            std::lock_guard<std::mutex> guardLock(texLock);
+            auto heapInfo = findTextureHeap(desc, size * (1 << i), prevHeap);
+            if (!heapInfo)
+            {
+                return tex;
+            }
 
-            // It turns out that our estimates on size aren't valid for some formats, so try a few times with bigger estimates
-            bool keepTrying = true;
-            while (keepTrying) {
-                auto heapInfo = findTextureHeap(desc, size);
+            tex.tex = [heapInfo->heap newTextureWithDescriptor:desc];
+            if (tex.tex)
+            {
                 tex.heap = heapInfo->heap;
-                tex.tex = [tex.heap newTextureWithDescriptor:desc];
-
-                if (!tex.tex) {
-                    heapInfo->maxAvailSize = 0;  // Lies!
-                    keepTrying = true;
-                    continue;;
-                }
-                keepTrying = false;
+                break;
+            }
+            else
+            {
+                // Try again with a different one
+                prevHeap = heapInfo->heap;
+                continue;
             }
         }
-    } else {
+    }
+    else
+    {
         tex.tex = [mtlDevice newTextureWithDescriptor:desc];
     }
 
