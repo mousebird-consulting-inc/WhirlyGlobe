@@ -289,8 +289,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     {
         imgWidth = image.size.width * image.scale;
         imgHeight = image.size.height * image.scale;
-        imgWidth = NextPowOf2(imgWidth);
-        imgHeight = NextPowOf2(imgHeight);
+        // No longer necessary
+        //imgWidth = NextPowOf2(imgWidth);
+        //imgHeight = NextPowOf2(imgHeight);
     } else {
         imgWidth = [desc intForKey:kMaplyTexSizeX default:0];
         imgHeight = [desc intForKey:kMaplyTexSizeY default:0];

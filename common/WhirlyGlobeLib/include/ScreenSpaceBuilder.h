@@ -32,8 +32,8 @@ namespace WhirlyKit
 {
 
 class ScreenSpaceObject;
-class ScreenSpaceConvexGeometry;
-class ScreenSpaceObjectLocation;
+struct ScreenSpaceConvexGeometry;
+struct ScreenSpaceObjectLocation;
 
 typedef std::unordered_set<SimpleIdentity> SimpleIDUnorderedSet;
 
@@ -54,29 +54,37 @@ public:
     struct DrawableState
     {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-        
-        DrawableState();
-        
-        // Comparison operator for set
-        bool operator < (const DrawableState &that) const;
 
-        std::string uniqueID;
+        DrawableState() = default;
+        DrawableState(const DrawableState&) = default;
+        DrawableState(DrawableState&&) noexcept;
+        DrawableState& operator=(const DrawableState &) = default;
+        DrawableState& operator=(DrawableState &&) noexcept;
+
+        // Comparison operator for set
+        bool operator <(const DrawableState &that) const;
+
+		std::string uniqueID;
         std::vector<SimpleIdentity> texIDs;
-        double period;
-        SimpleIdentity progID;
-        TimeInterval fadeUp,fadeDown;
-        TimeInterval startEnable,endEnable;
-        int64_t drawOrder;
-        SimpleIdentity renderTargetID;
-        double minZoomVis,maxZoomVis;
-        int drawPriority;
-        float minVis,maxVis;
-        int zoomSlot;
-        bool enable;
-        bool motion;
-        bool rotation;
-        bool keepUpright;
-        bool hasMask;
+        double period = 0.0;
+        SimpleIdentity progID = EmptyIdentity;
+        TimeInterval fadeUp = 0.0;
+        TimeInterval fadeDown = 0.0;
+        TimeInterval startEnable = 0.0;
+        TimeInterval endEnable = 0.0;
+        int64_t drawOrder = 0;
+        SimpleIdentity renderTargetID = EmptyIdentity;
+        double minZoomVis = DrawVisibleInvalid;
+        double maxZoomVis = DrawVisibleInvalid;
+        float minVis = DrawVisibleInvalid;
+        float maxVis = DrawVisibleInvalid;
+        int zoomSlot = -1;
+        int drawPriority = 0;
+        bool enable = true;
+        bool motion = false;
+        bool rotation = false;
+        bool keepUpright = false;
+        bool hasMask = false;
         FloatExpressionInfoRef opacityExp;
         ColorExpressionInfoRef colorExp;
         FloatExpressionInfoRef scaleExp;
@@ -157,7 +165,7 @@ protected:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         
         DrawableWrap(SceneRenderer *sceneRender,const DrawableState &state);
-        ~DrawableWrap();
+        ~DrawableWrap() = default;
         
         void addVertex(CoordSystemDisplayAdapter *,float scale, const Point3d &worldLoc,
                        const Point3f *dir,float rot, const Point2d &inVert,
@@ -188,13 +196,16 @@ protected:
 };
 
 /// Represents a simple set of convex geometry
-class ScreenSpaceConvexGeometry
+struct ScreenSpaceConvexGeometry
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
+
     ScreenSpaceConvexGeometry() = default;
-    
+    ScreenSpaceConvexGeometry(const ScreenSpaceConvexGeometry &) = default;
+    ScreenSpaceConvexGeometry& operator=(const ScreenSpaceConvexGeometry &) = default;
+    ScreenSpaceConvexGeometry(ScreenSpaceConvexGeometry&&) noexcept;
+    ScreenSpaceConvexGeometry& operator=(ScreenSpaceConvexGeometry &&) noexcept;
+
     /// Texture ID used for just this object
     std::vector<SimpleIdentity> texIDs;
     /// Program ID used to render this geometry
@@ -224,9 +235,13 @@ public:
     friend class LayoutManager;
     friend class SelectionManager;
     friend class ScreenSpaceBuilder;
-    
-    ScreenSpaceObject();
+
+    ScreenSpaceObject() = default;
     ScreenSpaceObject(SimpleIdentity theId);
+    ScreenSpaceObject(const ScreenSpaceObject &) = default;
+    ScreenSpaceObject(ScreenSpaceObject &&) noexcept;
+    ScreenSpaceObject &operator=(const ScreenSpaceObject&) = default;
+    ScreenSpaceObject &operator=(ScreenSpaceObject&&) noexcept;
     virtual ~ScreenSpaceObject() = default;
         
     /// Center of the object in world coordinates
@@ -259,8 +274,10 @@ public:
     void setOffset(const Point2d &offset);
     void setPeriod(TimeInterval period);
     void setOrderBy(long orderBy);
-    
+
     void addGeometry(const ScreenSpaceConvexGeometry &geom);
+    void addGeometry(ScreenSpaceConvexGeometry &&geom);
+    void addGeometry(std::vector<ScreenSpaceConvexGeometry> &&geom);
     void addGeometry(const std::vector<ScreenSpaceConvexGeometry> &geom);
     const std::vector<ScreenSpaceConvexGeometry> *getGeometry() const { return &geometry; }
     
@@ -268,14 +285,17 @@ public:
     SimpleIdentity getTypicalProgramID();
     
 protected:
-    bool enable;
-    TimeInterval startEnable,endEnable;
-    Point3d worldLoc,endWorldLoc;
-    TimeInterval startTime,endTime;
-    Point2d offset;
-    double rotation;
-    long orderBy;
-    bool keepUpright;
+    bool enable = true;
+    TimeInterval startEnable = 0.0;
+    TimeInterval endEnable = 0.0;
+    Point3d worldLoc {0,0,0};
+    Point3d endWorldLoc { 0, 0, 0 };
+    TimeInterval startTime = 0.0;
+    TimeInterval endTime = 0.0;
+    Point2d offset { 0, 0 };
+    double rotation = 0.0;
+    long orderBy = -1;
+    bool keepUpright = false;
     ScreenSpaceBuilder::DrawableState state;
     std::vector<ScreenSpaceConvexGeometry> geometry;
 };
@@ -283,34 +303,37 @@ protected:
 /** We use the screen space object location to communicate where
     a screen space object is on the screen.
   */
-class ScreenSpaceObjectLocation
+struct ScreenSpaceObjectLocation
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
-    ScreenSpaceObjectLocation();
+
+    ScreenSpaceObjectLocation() = default;
+    ScreenSpaceObjectLocation(const ScreenSpaceObjectLocation &) = default;
+    ScreenSpaceObjectLocation& operator=(const ScreenSpaceObjectLocation &) = default;
+    ScreenSpaceObjectLocation(ScreenSpaceObjectLocation &&) noexcept;
+    ScreenSpaceObjectLocation& operator=(ScreenSpaceObjectLocation &&) noexcept;
 
     bool isCluster() const { return clusterId != EmptyIdentity; }
 
     // IDs for selected objects (one if regular, more than one for cluster)
     std::vector<SimpleIdentity> shapeIDs;
     // Location of object in display space
-    Point3d dispLoc;
+    Point3d dispLoc {0,0,0};
     // Offset on the screen (presumably if it's been moved around during layout)
-    Point2d offset;
-    // Set if we're sup
-    bool keepUpright;
+    Point2d offset {0,0};
+    // Set if we're supposed to stay vertical
+    bool keepUpright = false;
     // Rotation if there is one
-    double rotation;
+    double rotation = 0.0;
     // Size of the object in screen space
     Point2dVector pts;
     // Bounding box, for quick testing
     Mbr mbr;
 
     // The cluster group that this cluster came from, if it's a cluster.
-    int clusterGroup;
+    int clusterGroup = -1;
     // The ID of the cluster object, for re-grouping objects later
-    SimpleIdentity clusterId;
+    SimpleIdentity clusterId = EmptyIdentity;
 };
     
 }

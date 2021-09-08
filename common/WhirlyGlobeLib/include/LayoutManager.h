@@ -54,8 +54,12 @@ namespace WhirlyKit
 class LayoutObject : public ScreenSpaceObject
 {
 public:
-    LayoutObject();
+    LayoutObject() = default;
     LayoutObject(SimpleIdentity theId);
+    LayoutObject(const LayoutObject &) = default;
+    LayoutObject(LayoutObject &&) noexcept;
+    LayoutObject &operator=(const LayoutObject &) = default;
+    LayoutObject &operator=(LayoutObject &&) noexcept;
     
     // Set the layout size from width/height
     void setLayoutSize(const Point2d &layoutSize,const Point2d &offset);
@@ -70,27 +74,35 @@ public:
     Point2dVector selectPts;
 
     std::string uniqueID;
-        
-    /// This is used to sort objects for layout.  Bigger is more important.
-    float importance;
-    /// If set, this is clustering group to sort into
-    int clusterGroup;
 
-    int layoutRepeat;      // How many instances
-    float layoutOffset;   // Offset left/right
-    float layoutSpacing;  // Start/end spacing along line
-    float layoutWidth;   // Used in generalization
-    bool layoutDebug;    // Turn this on for layout debugging
+    /// This is used to sort objects for layout.  Bigger is more important.
+    float importance = MAXFLOAT;
+
+    /// If set, this is clustering group to sort into
+    int clusterGroup = -1;
+
+    int layoutRepeat = 0;      // How many instances
+    float layoutOffset = 0.0f;   // Offset left/right
+    float layoutSpacing = 20.0f;  // Start/end spacing along line
+    float layoutWidth = 10.0f;   // Used in generalization
+    bool layoutDebug = false;    // Turn this on for layout debugging
+
     Point3dVector layoutShape;
+
     /// If we're placing glyphs individually we'll do it with matrices
     std::vector<std::vector<Eigen::Matrix3d> > layoutPlaces;
     std::vector<Point3d> layoutModelPlaces;
 
     /// Options for where to place this object:  WhirlyKitLayoutPlacementLeft, WhirlyKitLayoutPlacementRight,
     ///  WhirlyKitLayoutPlacementAbove, WhirlyKitLayoutPlacementBelow
-    unsigned acceptablePlacement;
+    unsigned acceptablePlacement = defaultPlacement;
+
     /// Debugging hint
     std::string hint;
+
+    static constexpr unsigned defaultPlacement =
+            WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
+            WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
 };
 
 // Private fields we use for object layout
@@ -98,24 +110,27 @@ class LayoutObjectEntry : public Identifiable
 {
 public:
     LayoutObjectEntry(SimpleIdentity theId);
-    
+    LayoutObjectEntry(const LayoutObject&);
+    LayoutObjectEntry(LayoutObject&&) noexcept;
+
     // The layout objects as passed in by the original caller
     LayoutObject obj;
-    
+
     // Set if it's currently on
-    bool currentEnable;
+    bool currentEnable = false;
     // Set if it's going to be on
-    bool newEnable;
+    bool newEnable = false;
 
     // Set if the object is part of an existing cluster
-    int currentCluster;
+    int currentCluster = -1;
     // Set if the object is going into a new cluster
-    int newCluster;
+    int newCluster = -1;
 
     // The offset, as calculated
-    WhirlyKit::Point2d offset;
+    WhirlyKit::Point2d offset {MAXFLOAT,MAXFLOAT};
+
     // Set if we changed something during evaluation
-    bool changed;
+    bool changed = true;
 };
 typedef std::shared_ptr<LayoutObjectEntry> LayoutObjectEntryRef;
 typedef std::set<LayoutObjectEntryRef,IdentifiableRefSorter> LayoutEntrySet;
@@ -163,17 +178,22 @@ public:
  
 /** A bookkeeping entry for a single cluster to track its location.
   */
-class ClusterEntry
+struct ClusterEntry
 {
-public:
+    ClusterEntry() = default;
+    ClusterEntry(const ClusterEntry &) = default;
+    ClusterEntry &operator=(const ClusterEntry &) = default;
+    ClusterEntry(ClusterEntry &&) noexcept;
+    ClusterEntry &operator=(ClusterEntry &&) noexcept;
+
     // The layout object for the cluster itself
     LayoutObject layoutObj;
     // Object IDs for all the objects clustered together
     std::vector<SimpleIdentity> objectIDs;
     // If set, the cluster is a child of this older one
-    int childOfCluster;
+    int childOfCluster = -1;
     // Pointer into cluster parameters
-    int clusterParamID;
+    int clusterParamID = -1;
 };
     
 // Sort more important things to the front.
@@ -231,6 +251,9 @@ public:
     /// Add objects for layout (thread safe)
     void addLayoutObjects(const std::vector<LayoutObject *> &newObjects);
 
+    /// Move objects for layout (thread safe)
+    void addLayoutObjects(std::vector<LayoutObject> &&newObjects);
+
     /// Remove objects for layout (thread safe)
     void removeLayoutObjects(const SimpleIDSet &oldObjects);
     
@@ -282,7 +305,9 @@ public:
 
 protected:
     using UnorderedIDSetbyUID = std::unordered_map<std::string,SimpleIDUnorderedSet>;
-    using UnorderedUIDSet = std::unordered_set<std::string>;
+    using UnorderedUIDSet = std::unordered_set<std::string>;          
+
+    void addLayoutObjects(std::vector<LayoutObjectEntryRef> &&toAdd);
 
     static bool calcScreenPt(Point2f &objPt,
                              const LayoutObject *layoutObj,

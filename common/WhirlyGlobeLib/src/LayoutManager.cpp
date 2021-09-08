@@ -29,22 +29,53 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-// Default constructor for layout object
-LayoutObject::LayoutObject() :
-    ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0),
-    layoutWidth(10.0), layoutDebug(false), importance(MAXFLOAT), clusterGroup(-1),
-    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
-                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(SimpleIdentity theId) :
+    ScreenSpaceObject(theId)
 {
 }
 
-LayoutObject::LayoutObject(SimpleIdentity theId) :
-    ScreenSpaceObject(theId),
-    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0),
-    layoutDebug(false), importance(MAXFLOAT), clusterGroup(-1),
-    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
-                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(LayoutObject &&other) noexcept :
+        ScreenSpaceObject(std::forward<ScreenSpaceObject>(other)),
+        layoutPts          (std::move(other.layoutPts)),
+        selectPts          (std::move(other.selectPts)),
+        uniqueID           (std::move(other.uniqueID)),
+        importance         (other.importance),
+        clusterGroup       (other.clusterGroup),
+        layoutRepeat       (other.layoutRepeat),
+        layoutOffset       (other.layoutOffset),
+        layoutSpacing      (other.layoutSpacing),
+        layoutWidth        (other.layoutWidth),
+        layoutDebug        (other.layoutDebug),
+        layoutShape        (std::move(other.layoutShape)),
+        layoutPlaces       (std::move(other.layoutPlaces)),
+        layoutModelPlaces  (std::move(other.layoutModelPlaces)),
+        acceptablePlacement(other.acceptablePlacement),
+        hint               (std::move(other.hint))
 {
+}
+
+LayoutObject &LayoutObject::operator=(LayoutObject &&other) noexcept
+{
+    if (this != &other)
+    {
+        this->ScreenSpaceObject::operator=(std::forward<LayoutObject&&>(other));
+        layoutPts           = std::move(other.layoutPts);
+        selectPts           = std::move(other.selectPts);
+        uniqueID            = std::move(other.uniqueID);
+        importance          = other.importance;
+        clusterGroup        = other.clusterGroup;
+        layoutRepeat        = other.layoutRepeat;
+        layoutOffset        = other.layoutOffset;
+        layoutSpacing       = other.layoutSpacing;
+        layoutWidth         = other.layoutWidth;
+        layoutDebug         = other.layoutDebug;
+        layoutShape         = std::move(other.layoutShape);
+        layoutPlaces        = std::move(other.layoutPlaces);
+        layoutModelPlaces   = std::move(other.layoutModelPlaces);
+        acceptablePlacement = other.acceptablePlacement;
+        hint                = std::move(other.hint);
+    }
+    return *this;
 }
 
 void LayoutObject::setLayoutSize(const Point2d &layoutSize,const Point2d &offset)
@@ -74,16 +105,45 @@ void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset
 }
 
 LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
-: Identifiable(theId)
+    : Identifiable(theId)
 {
-    currentEnable = newEnable = false;
-    currentCluster = newCluster = -1;
-    offset = Point2d(MAXFLOAT,MAXFLOAT);
-    changed = true;
 }
 
-LayoutManager::LayoutManager()
-    : minLayoutTime(0.0)
+LayoutObjectEntry::LayoutObjectEntry(const LayoutObject &inObj) : //NOLINT
+    Identifiable(inObj.getId()),
+    obj(inObj)
+{
+}
+
+LayoutObjectEntry::LayoutObjectEntry(LayoutObject &&inObj) noexcept :
+    Identifiable(inObj.getId()),
+    obj(std::move(inObj))
+{
+}
+
+ClusterEntry::ClusterEntry(ClusterEntry &&other) noexcept :
+    layoutObj(std::move(other.layoutObj)),
+    objectIDs(std::move(other.objectIDs)),
+    childOfCluster(other.childOfCluster),
+    clusterParamID(other.clusterParamID)
+{
+}
+
+ClusterEntry &ClusterEntry::operator=(ClusterEntry &&other) noexcept
+{
+    if (this != &other)
+    {
+        layoutObj = std::move(other.layoutObj);
+        objectIDs = std::move(other.objectIDs);
+        childOfCluster = other.childOfCluster;
+        clusterParamID = other.clusterParamID;
+    }
+    return *this;
+}
+
+LayoutManager::LayoutManager() :
+    SceneManager(),
+    minLayoutTime(0.0)
 {
 }
 
@@ -112,39 +172,56 @@ void LayoutManager::setOverrideUUIDs(const std::set<std::string> &uuids)
 
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
 {
-    if (newObjects.empty())
+    if (!newObjects.empty() && !shutdown)
     {
-        return;
-    }
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (const auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(newObject));
+        }
 
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (const auto &newObject : newObjects)
-    {
-        const LayoutObject &layoutObj = newObject;
-        auto entry = std::make_shared<LayoutObjectEntry>(layoutObj.getId());
-        entry->obj = newObject;
-        layoutObjects.insert(std::move(entry));
+        // then dump them into the set
+        addLayoutObjects(std::move(toAdd));
     }
-    hasUpdates = true;
 }
 
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjects)
 {
-    if (newObjects.empty())
+    if (!newObjects.empty() && !shutdown)
     {
-        return;
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (const auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(*newObject));
+        }
+        addLayoutObjects(std::move(toAdd));
     }
+}
 
+void LayoutManager::addLayoutObjects(std::vector<LayoutObject> &&newObjects)
+{
+    if (!newObjects.empty() && !shutdown)
+    {
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(std::move(newObject)));
+        }
+        addLayoutObjects(std::move(toAdd));
+    }
+}
+
+void LayoutManager::addLayoutObjects(std::vector<LayoutObjectEntryRef> &&toAdd)
+{
     std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto newObject : newObjects)
-    {
-        const LayoutObject *layoutObj = newObject;
-        auto entry = std::make_shared<LayoutObjectEntry>(layoutObj->getId());
-        entry->obj = *newObject;
-        layoutObjects.insert(std::move(entry));
-    }
+    layoutObjects.insert(std::make_move_iterator(toAdd.begin()),
+                         std::make_move_iterator(toAdd.end()));
     hasUpdates = true;
 }
 
@@ -1655,7 +1732,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     // Make local copies of the layout objects
     LayoutEntrySet localLayoutObjects(layoutObjects.begin(), layoutObjects.end());
-    const std::unordered_set<std::string> localOverrideUUIDs(overrideUUIDs.begin(), overrideUUIDs.end());
+    const std::unordered_set<std::string> localOverrideUUIDs(overrideUUIDs.begin(), overrideUUIDs.end(), overrideUUIDs.size());
 
     // Any changes made after this will require another round of layout
     hasUpdates = false;
