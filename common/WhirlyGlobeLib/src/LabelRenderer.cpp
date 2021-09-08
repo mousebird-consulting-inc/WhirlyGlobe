@@ -278,8 +278,12 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
 
                 smGeom.drawPriority = labelInfo->drawPriority;
                 smGeom.color = theBackColor;
-                backGeom = smGeom;
-                screenShape->addGeometry(smGeom);
+                if (label->maskID != EmptyIdentity && label->maskRenderTargetID != EmptyIdentity)
+                {
+                    // Make a copy for masking
+                    backGeom = smGeom;
+                }
+                screenShape->addGeometry(std::move(smGeom));
             }
             
             // Handle the mask rendering if needed
@@ -290,7 +294,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                 backGeom.vertexAttrs.emplace(a_maskNameID, slot, (int)label->maskID);
                 backGeom.renderTargetID = label->maskRenderTargetID;
                 backGeom.progID = maskProgID;
-                screenShape->addGeometry(backGeom);
+                screenShape->addGeometry(std::move(backGeom));
             }
 
             // If it's being passed to the layout engine, do that as well
@@ -361,7 +365,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                     iconGeom.texCoords.push_back(texCoord[ii]);
                 }
                 screenShape->addGeometry(iconGeom);
-
             }
             
             // Register the main label as selectable
@@ -468,7 +471,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                         smGeom.texIDs.push_back(poly.subTex.texId);
                         smGeom.color = color;
                         poly.subTex.processTexCoords(smGeom.texCoords);
-                        screenShape->addGeometry(smGeom);
+                        screenShape->addGeometry(std::move(smGeom));
                     }
                 }
             }
@@ -477,9 +480,21 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
         }
         
         if (layoutObject)
-            layoutObjects.push_back(*layoutObject);
+        {
+            if (layoutObjects.empty())
+            {
+                layoutObjects.reserve(labels.size());
+            }
+            layoutObjects.emplace_back(std::move(*layoutObject));
+        }
         else if (screenShape)
-            screenObjects.push_back(*screenShape);
+        {
+            if (screenObjects.empty())
+            {
+                screenObjects.reserve(labels.size());
+            }
+            screenObjects.emplace_back(std::move(*screenShape));
+        }
         
         for (auto drawStr : drawStrs)
         {

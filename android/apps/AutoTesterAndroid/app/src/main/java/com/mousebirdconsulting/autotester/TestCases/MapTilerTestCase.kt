@@ -34,7 +34,7 @@ open class MapTilerTestCase : MaplyTestCase
         } else {
             prefs.edit().putString("MapTilerToken",token).apply()
         }
-        
+
         getStyleJson(whichMap)?.let { (json,img) ->
             loader?.shutdown()
             loader = null

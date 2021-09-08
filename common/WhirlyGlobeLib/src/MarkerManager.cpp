@@ -330,7 +330,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 shape->setEnableTime(markerInfo.startEnable, markerInfo.endEnable);
             }
 
-            shape->addGeometry(smGeom);
+            shape->addGeometry(std::move(smGeom));
             markerRep->screenShapeIDs.insert(shape->getId());
             
             // Setup layout points if we have them
@@ -354,7 +354,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     entry.vertexAttrs.emplace(a_maskNameID, renderer->getSlotForNameID(a_maskNameID), (int)marker->maskID);
                     entry.renderTargetID = marker->maskRenderTargetID;
                     entry.progID = maskProgID;
-                    shape->addGeometry(entry);
+                    shape->addGeometry(std::move(entry));
                 }
             }
             
@@ -572,6 +572,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     }
     
     // And any layout constraints to the layout engine
+    // todo: use shared_ptr and move instead of copy and delete
     if (layoutManager && !layoutObjects.empty() && !cancel)
     {
         layoutManager->addLayoutObjects(layoutObjects);
@@ -581,6 +582,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     {
         delete layoutObject;
     }
+    layoutObjects.clear();
 
     if (!cancel && renderer)
     {
