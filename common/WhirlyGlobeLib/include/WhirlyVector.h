@@ -77,7 +77,7 @@ public:
     bool operator ==(const TBase &that) const { return x() == that.x() && y() == that.y(); }
     bool operator !=(const TBase &that) const { return x() != that.x() || y() != that.y(); }
 
-    /// Create a geo coordinate using degrees intead of radians.
+    /// Create a geo coordinate using degrees instead of radians.
     /// Note the order of the arguments
     static TThis CoordFromDegrees(TScalar lon,TScalar lat) {
         return {(TScalar)(lon*M_PI/180), (TScalar)(lat*M_PI/180)};

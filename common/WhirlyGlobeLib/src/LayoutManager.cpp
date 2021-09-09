@@ -29,22 +29,53 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-// Default constructor for layout object
-LayoutObject::LayoutObject() :
-    ScreenSpaceObject(), layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0),
-    layoutWidth(10.0), layoutDebug(false), importance(MAXFLOAT), clusterGroup(-1),
-    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
-                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(SimpleIdentity theId) :
+    ScreenSpaceObject(theId)
 {
 }
 
-LayoutObject::LayoutObject(SimpleIdentity theId) :
-    ScreenSpaceObject(theId),
-    layoutRepeat(0), layoutOffset(0.0), layoutSpacing(20.0), layoutWidth(10.0),
-    layoutDebug(false), importance(MAXFLOAT), clusterGroup(-1),
-    acceptablePlacement(WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
-                        WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow)
+LayoutObject::LayoutObject(LayoutObject &&other) noexcept :
+        ScreenSpaceObject(std::forward<ScreenSpaceObject>(other)),
+        layoutPts          (std::move(other.layoutPts)),
+        selectPts          (std::move(other.selectPts)),
+        uniqueID           (std::move(other.uniqueID)),
+        importance         (other.importance),
+        clusterGroup       (other.clusterGroup),
+        layoutRepeat       (other.layoutRepeat),
+        layoutOffset       (other.layoutOffset),
+        layoutSpacing      (other.layoutSpacing),
+        layoutWidth        (other.layoutWidth),
+        layoutDebug        (other.layoutDebug),
+        layoutShape        (std::move(other.layoutShape)),
+        layoutPlaces       (std::move(other.layoutPlaces)),
+        layoutModelPlaces  (std::move(other.layoutModelPlaces)),
+        acceptablePlacement(other.acceptablePlacement),
+        hint               (std::move(other.hint))
 {
+}
+
+LayoutObject &LayoutObject::operator=(LayoutObject &&other) noexcept
+{
+    if (this != &other)
+    {
+        this->ScreenSpaceObject::operator=(std::forward<LayoutObject&&>(other));
+        layoutPts           = std::move(other.layoutPts);
+        selectPts           = std::move(other.selectPts);
+        uniqueID            = std::move(other.uniqueID);
+        importance          = other.importance;
+        clusterGroup        = other.clusterGroup;
+        layoutRepeat        = other.layoutRepeat;
+        layoutOffset        = other.layoutOffset;
+        layoutSpacing       = other.layoutSpacing;
+        layoutWidth         = other.layoutWidth;
+        layoutDebug         = other.layoutDebug;
+        layoutShape         = std::move(other.layoutShape);
+        layoutPlaces        = std::move(other.layoutPlaces);
+        layoutModelPlaces   = std::move(other.layoutModelPlaces);
+        acceptablePlacement = other.acceptablePlacement;
+        hint                = std::move(other.hint);
+    }
+    return *this;
 }
 
 void LayoutObject::setLayoutSize(const Point2d &layoutSize,const Point2d &offset)
@@ -74,15 +105,45 @@ void LayoutObject::setSelectSize(const Point2d &selectSize,const Point2d &offset
 }
 
 LayoutObjectEntry::LayoutObjectEntry(SimpleIdentity theId)
-: Identifiable(theId)
+    : Identifiable(theId)
 {
-    currentEnable = newEnable = false;
-    currentCluster = newCluster = -1;
-    offset = Point2d(MAXFLOAT,MAXFLOAT);
-    changed = true;
 }
 
-LayoutManager::LayoutManager()
+LayoutObjectEntry::LayoutObjectEntry(const LayoutObject &inObj) : //NOLINT
+    Identifiable(inObj.getId()),
+    obj(inObj)
+{
+}
+
+LayoutObjectEntry::LayoutObjectEntry(LayoutObject &&inObj) noexcept :
+    Identifiable(inObj.getId()),
+    obj(std::move(inObj))
+{
+}
+
+ClusterEntry::ClusterEntry(ClusterEntry &&other) noexcept :
+    layoutObj(std::move(other.layoutObj)),
+    objectIDs(std::move(other.objectIDs)),
+    childOfCluster(other.childOfCluster),
+    clusterParamID(other.clusterParamID)
+{
+}
+
+ClusterEntry &ClusterEntry::operator=(ClusterEntry &&other) noexcept
+{
+    if (this != &other)
+    {
+        layoutObj = std::move(other.layoutObj);
+        objectIDs = std::move(other.objectIDs);
+        childOfCluster = other.childOfCluster;
+        clusterParamID = other.clusterParamID;
+    }
+    return *this;
+}
+
+LayoutManager::LayoutManager() :
+    SceneManager(),
+    minLayoutTime(0.0)
 {
 }
 
@@ -111,39 +172,56 @@ void LayoutManager::setOverrideUUIDs(const std::set<std::string> &uuids)
 
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject> &newObjects)
 {
-    if (newObjects.empty())
+    if (!newObjects.empty() && !shutdown)
     {
-        return;
-    }
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (const auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(newObject));
+        }
 
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (const auto &newObject : newObjects)
-    {
-        const LayoutObject &layoutObj = newObject;
-        auto entry = std::make_shared<LayoutObjectEntry>(layoutObj.getId());
-        entry->obj = newObject;
-        layoutObjects.insert(std::move(entry));
+        // then dump them into the set
+        addLayoutObjects(std::move(toAdd));
     }
-    hasUpdates = true;
 }
 
 void LayoutManager::addLayoutObjects(const std::vector<LayoutObject *> &newObjects)
 {
-    if (newObjects.empty())
+    if (!newObjects.empty() && !shutdown)
     {
-        return;
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (const auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(*newObject));
+        }
+        addLayoutObjects(std::move(toAdd));
     }
+}
 
+void LayoutManager::addLayoutObjects(std::vector<LayoutObject> &&newObjects)
+{
+    if (!newObjects.empty() && !shutdown)
+    {
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(std::move(newObject)));
+        }
+        addLayoutObjects(std::move(toAdd));
+    }
+}
+
+void LayoutManager::addLayoutObjects(std::vector<LayoutObjectEntryRef> &&toAdd)
+{
     std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto newObject : newObjects)
-    {
-        const LayoutObject *layoutObj = newObject;
-        auto entry = std::make_shared<LayoutObjectEntry>(layoutObj->getId());
-        entry->obj = *newObject;
-        layoutObjects.insert(std::move(entry));
-    }
+    layoutObjects.insert(std::make_move_iterator(toAdd.begin()),
+                         std::make_move_iterator(toAdd.end()));
     hasUpdates = true;
 }
 
@@ -360,6 +438,16 @@ std::pair<LayoutObjectEntryRef,bool> LayoutManager::ClusteredObjects::addObject(
     return std::make_pair(*result.first, true);
 }
 
+void LayoutManager::deferUntil(TimeInterval minTime)
+{
+    auto curMinTime = minLayoutTime.load(std::memory_order_relaxed);
+    while (!minLayoutTime.compare_exchange_weak(
+            curMinTime,std::max(curMinTime, minTime),
+            std::memory_order_release, std::memory_order_relaxed)) {
+        // no-op
+    }
+}
+
 // Size of the overlap sampler
 static const int OverlapSampleX = 10;
 static const int OverlapSampleY = 60;
@@ -499,9 +587,9 @@ static Point2d offsetForOrientation(unsigned orient, const Point2d &span)
         case 0: return {           0,            0 }; // Don't move at all
         case 1: return { -span.x()/2,  -span.y()/2 }; // Center
         case 2: return {         0.0,  -span.y()/2 }; // Right
-        case 3: return {   -span.x(),  -span.y()/2 }; // Left
+        case 3: return { -span.x(),    -span.y()/2 }; // Left
         case 4: return { -span.x()/2,          0.0 }; // Above
-        case 5: return { -span.x()/2,    -span.y() }; // Below
+        case 5: return { -span.x()/2,  -span.y()   }; // Below
     }
 }
 
@@ -521,7 +609,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
     ClusteredObjectsSet clusterGroups;
     LayoutContainerVec layoutObjs;
+
     // Special snowflake layout objects (with unique names)
+    typedef std::unordered_map<std::string,LayoutObjectContainer> UniqueLayoutObjectMap;
     UniqueLayoutObjectMap uniqueLayoutObjs(localLayoutObjects.size());
 
     // The globe has some special requirements
@@ -1278,6 +1368,337 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
     }
 }
 
+void LayoutManager::buildDrawables(ScreenSpaceBuilder &ssBuild,
+                    bool doFades, bool doClusters,
+                    TimeInterval curTime, TimeInterval *maxAnimTime,
+                    const LayoutEntrySet &localLayoutObjects,
+                    const std::vector<ClusterEntry> &oldClusters,
+                    const std::vector<ClusterGenerator::ClusterClassParams> &oldClusterParams,
+                    UnorderedIDSetbyUID *newUniqueDrawableMap,
+                    const UnorderedIDSetbyUID *oldUniqueDrawableMap)
+{
+    for (const auto &layoutObj : localLayoutObjects)
+    {
+        if (UNLIKELY(cancelLayout || !renderer))
+        {
+            break;
+        }
+
+        if (doFades && !layoutObj->obj.uniqueID.empty() && oldUniqueDrawableMap)
+        {
+            const auto frameInfo = renderer->getFrameInfo();
+
+            // See if this object generated any drawables in the previous run.
+            const auto hit = oldUniqueDrawableMap->find(layoutObj->obj.uniqueID);
+            bool isNew = (hit == oldUniqueDrawableMap->end() || hit->second.empty());
+            if (!isNew && checkDrawableOn && frameInfo)
+            {
+                // Only consider the first drawable, assuming that they are all shown/hidden together
+                if (auto draw = scene->getDrawable(*hit->second.begin()))
+                {
+                    if (!draw->isOn(frameInfo.get()))
+                    {
+                        // The drawable existed, but (probably) wasn't being shown, so treat it as not present.
+                        isNew = true;
+                    }
+                }
+            }
+            if (isNew)
+            {
+                // It's new, fade it in
+                layoutObj->obj.setFade(curTime+newObjectFadeIn, curTime);
+
+                // Don't run again before the fades are complete
+                if (maxAnimTime)
+                {
+                    *maxAnimTime = std::max(*maxAnimTime, curTime+newObjectFadeIn);
+                }
+            }
+        }
+
+        layoutObj->obj.offset = layoutObj->offset;
+
+        // Note: The animation below doesn't handle offsets
+
+        // Just moved into a cluster
+        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster >= 0)
+        {
+            ClusterEntry *cluster = &clusters[layoutObj->newCluster];
+            const auto &params = oldClusterParams[cluster->clusterParamID];
+
+            // Animate from the old position to the new cluster position
+            ScreenSpaceObject animObj = layoutObj->obj;     // NOLINT slicing LayoutObject to ScreenSpaceObject
+            animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+            animObj.setFade(curTime, curTime+params.markerAnimationTime);
+            animObj.state.progID = params.motionShaderID;
+            for (auto &geom : animObj.geometry)
+                geom.progID = params.motionShaderID;
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
+
+            // Don't run again before the animations are complete
+            if (maxAnimTime)
+            {
+                *maxAnimTime = std::max(*maxAnimTime, curTime+params.markerAnimationTime);
+            }
+        }
+        else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
+        {
+            // Just moved out of a cluster
+            if (layoutObj->currentCluster >= oldClusters.size())
+            {
+                wkLogLevel(Warn,"Cluster ID mismatch");
+                continue;
+            }
+
+            const ClusterEntry *oldCluster = &oldClusters[layoutObj->currentCluster];
+            const auto &params = oldClusterParams[oldCluster->clusterParamID];
+
+            // Animate from the old cluster position to the new real position
+            ScreenSpaceObject animObj = layoutObj->obj; // NOLINT slicing LayoutObject to ScreenSpaceObject
+            animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+            animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+            animObj.setFade(curTime+params.markerAnimationTime,curTime);
+            animObj.state.progID = params.motionShaderID;
+            //animObj.setDrawOrder(?)
+            for (auto &geom : animObj.geometry)
+                geom.progID = params.motionShaderID;
+            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
+
+            // And hold off on adding it
+            ScreenSpaceObject shortObj = layoutObj->obj;    // NOLINT slicing LayoutObject to ScreenSpaceObject
+            //shortObj.setDrawOrder(?)
+            shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
+            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry,nullptr);
+
+            // Don't run again before the animations are complete
+            if (maxAnimTime)
+            {
+                *maxAnimTime = std::max(*maxAnimTime, curTime+params.markerAnimationTime);
+            }
+        }
+        // It's boring, just add it
+        else if (layoutObj->newEnable)
+        {
+            SimpleIDUnorderedSet *drawIDSet = nullptr;
+            if (newUniqueDrawableMap && !layoutObj->obj.uniqueID.empty())
+            {
+                if (newUniqueDrawableMap->empty())
+                {
+                    newUniqueDrawableMap->reserve(localLayoutObjects.size());
+                }
+
+                // Look up or create the set of drawable IDs associated with this Unique ID
+                const auto result = newUniqueDrawableMap->insert(std::make_pair(
+                    std::ref(layoutObj->obj.uniqueID), SimpleIDUnorderedSet()));
+                drawIDSet = &result.first->second;
+                if (result.second)
+                {
+                    drawIDSet->reserve(10);  // ?
+                }
+            }
+
+            // It's a single point placement
+            SimpleIDUnorderedSet tempSet;
+            if (layoutObj->obj.layoutShape.empty())
+            {
+                ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.worldLoc,
+                                        &layoutObj->obj.geometry, nullptr, &tempSet);
+            }
+            else
+            {
+                // One or more placements along a path
+                for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
+                {
+                    ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii],
+                                            &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii],
+                                            &tempSet);
+                }
+            }
+            if (drawIDSet)
+            {
+                drawIDSet->insert(tempSet.begin(), tempSet.end());
+            }
+        }
+
+        layoutObj->currentEnable = layoutObj->newEnable;
+        layoutObj->currentCluster = layoutObj->newCluster;
+
+        layoutObj->changed = false;
+    }
+
+    if (cancelLayout)
+    {
+        cancelLayout = false;
+        return;
+    }
+
+    if (!doClusters)
+    {
+        return;
+    }
+
+    // Add in the clusters
+    for (const auto &cluster : clusters)
+    {
+        if (UNLIKELY(cancelLayout))
+        {
+            break;
+        }
+
+        // Animate from the old cluster if there is one
+        if (cluster.childOfCluster > -1)
+        {
+            if (cluster.childOfCluster >= oldClusters.size())
+            {
+                wkLogLevel(Warn,"Cluster ID mismatch");
+                continue;
+            }
+            const ClusterEntry *oldCluster = &oldClusters[cluster.childOfCluster];
+            const auto &params = oldClusterParams[oldCluster->clusterParamID];
+
+            // Animate from the old cluster to the new one
+            ScreenSpaceObject animObj = cluster.layoutObj;  // NOLINT slicing LayoutObject to ScreenSpaceObject
+            animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
+            animObj.worldLoc = oldCluster->layoutObj.worldLoc;
+            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
+            animObj.state.progID = params.motionShaderID;
+            //animObj.setDrawOrder(?)
+            for (auto &geom : animObj.geometry)
+                geom.progID = params.motionShaderID;
+            ssBuild.addScreenObject(animObj, animObj.worldLoc, &animObj.geometry);
+
+            // Hold off on adding the new one
+            ScreenSpaceObject shortObj = cluster.layoutObj; // NOLINT slicing LayoutObject to ScreenSpaceObject
+            //shortObj.setDrawOrder(?)
+            shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
+            ssBuild.addScreenObject(shortObj, shortObj.worldLoc, &shortObj.geometry);
+        }
+        else
+        {
+            ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, &cluster.layoutObj.geometry);
+        }
+    }
+}
+
+void LayoutManager::handleFadeOut(const TimeInterval curTime,
+                                  TimeInterval &maxAnimTime,
+                                  const LayoutEntrySet &localLayoutObjects,
+                                  const SimpleIDSet &oldDrawIDs,
+                                  const std::vector<BasicDrawableRef> &newDrawables,
+                                  const std::vector<ClusterEntry> &oldClusters,
+                                  const std::vector<ClusterGenerator::ClusterClassParams> &oldClusterParams,
+                                  const UnorderedIDSetbyUID &oldUniqueDrawableMap,
+                                  const UnorderedIDSetbyUID &newUniqueDrawableMap,
+                                  ChangeSet &changes)
+{
+    if (!fadeEnabled || oldObjectFadeOut <= 0 || oldDrawIDs.empty() || prevLayoutObjects.empty())
+    {
+        return;
+    }
+    
+    // Reverse the map so we can look up unique IDs from drawables
+    std::unordered_map<SimpleIdentity,const std::string*> oldUniqueIDsByDrawable(oldDrawIDs.size());
+    for (const auto &kv : oldUniqueDrawableMap)
+    {
+        for (SimpleIdentity drawID : kv.second)
+        {
+            oldUniqueIDsByDrawable.insert(std::make_pair(drawID, &kv.first));
+        }
+    }
+
+    std::unordered_map<SimpleIdentity,BasicDrawableRef> newDrawsByID;
+    
+    const auto frameInfo = renderer->getFrameInfo();
+    UnorderedUIDSet rebuildLayoutIDs(oldUniqueIDsByDrawable.size());
+    for (const auto &drawID : oldDrawIDs)
+    {
+        // Find the unique ID that generated this old drawable, if any.
+        const auto oldUIDMatch = oldUniqueIDsByDrawable.find(drawID);
+        if (oldUIDMatch != oldUniqueIDsByDrawable.end() && !oldUIDMatch->second->empty())
+        {
+            // Now see if that unique ID also generated any drawables in this round.
+            const auto newUIDMatch = newUniqueDrawableMap.find(*oldUIDMatch->second);
+            bool hasNewDrawables = (newUIDMatch != newUniqueDrawableMap.end() && newUIDMatch->second.empty());
+
+            bool wasOn = true;
+            if (hasNewDrawables && checkDrawableOn && frameInfo)
+            {
+                // See if the old one was actually on. If not, we don't need to fade it out.
+                if (const auto oldDraw = scene->getDrawable(drawID))
+                {
+                    wasOn = oldDraw->isOn(frameInfo.get());
+                }
+            }
+
+            if (wasOn && hasNewDrawables && frameInfo)
+            {
+                if (newDrawsByID.empty())
+                {
+                    for (const auto &draw : newDrawables)
+                    {
+                        newDrawsByID.insert(std::make_pair(draw->getId(), draw));
+                    }
+                }
+
+                if (checkDrawableOn)
+                {
+                    // Yes, it did generate drawables.  But if they're "off" they don't count.
+                    // Again, assume multiple drawables are in the same state.
+                    const auto hit = newDrawsByID.find(*newUIDMatch->second.begin());
+                    if (hit != newDrawsByID.end() && !hit->second->isOn(frameInfo.get()))
+                    {
+                        hasNewDrawables = false;
+                    }
+                }
+            }
+
+            if (wasOn && !hasNewDrawables)
+            {
+                // It wasn't around in the previous frame, so fade it out.  Since some of
+                // the fading and non-fading objects may have shared drawables in the previous
+                // round, we need to re-construct just those for things we want to fade.
+                rebuildLayoutIDs.insert(*oldUIDMatch->second);
+            }
+        }
+    }
+
+    // Are there items we need to rebuild to fade out?
+    if (!rebuildLayoutIDs.empty() && renderer && !cancelLayout)
+    {
+        auto *coordAdapter = scene->getCoordAdapter();
+
+        // Copy layout items to the new set if their ID is a match
+        LayoutEntrySet rebuildLayoutObjs;
+        for (const auto &entry : prevLayoutObjects)
+        {
+            const auto &uid = entry->obj.uniqueID;
+            if (!uid.empty() && rebuildLayoutIDs.find(uid) != rebuildLayoutIDs.end())
+            {
+                rebuildLayoutObjs.insert(entry);
+            }
+        }
+
+        // Build drawables for them...
+        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+        buildDrawables(ssBuild, /*doFades*/false, /*doClusters=*/false, curTime, nullptr,
+                       rebuildLayoutObjs, oldClusters, oldClusterParams, nullptr, nullptr);
+        const auto newDraws = ssBuild.flushChanges(changes);
+
+        // ... and then remove them
+        const auto fade = curTime + oldObjectFadeOut;
+        for (auto &draw : newDraws)
+        {
+            const auto drawID = draw->getId();
+            changes.push_back(new FadeChangeRequest(drawID, curTime, fade));
+            changes.push_back(new RemDrawableReq(drawID, fade));
+        }
+        // Don't run again before the fades are complete
+        maxAnimTime = std::max(maxAnimTime, fade);
+    }
+}
+
 // Layout all the objects we're tracking
 void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateRef &viewState,ChangeSet &changes)
 {
@@ -1303,15 +1724,15 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         return;
     }
     
-    if (scene->getCurrentTime() < minLayoutTime)
+    if (scene->getCurrentTime() < minLayoutTime.load(std::memory_order_relaxed))
     {
         // Animations/fades from previous layouts are still running.
         return;
     }
 
     // Make local copies of the layout objects
-    const LayoutEntrySet localLayoutObjects(layoutObjects.begin(), layoutObjects.end());
-    const std::unordered_set<std::string> localOverrideUUIDs(overrideUUIDs.begin(), overrideUUIDs.end());
+    LayoutEntrySet localLayoutObjects(layoutObjects.begin(), layoutObjects.end());
+    const std::unordered_set<std::string> localOverrideUUIDs(overrideUUIDs.begin(), overrideUUIDs.end(), overrideUUIDs.size());
 
     // Any changes made after this will require another round of layout
     hasUpdates = false;
@@ -1385,8 +1806,8 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     TimeInterval maxAnimTime = 0.0;
 
     // Save the drawable mapping from the previous iteration
-    const auto oldUniqueDrawableMap = std::move(uniqueDrawableMap);
-    uniqueDrawableMap.clear();
+    const auto oldUniqueDrawableMap = std::move(uniqueDrawableIDs);
+    uniqueDrawableIDs.clear();
 
     // Generate the drawables.
     // Note that the renderer is not managed by a shared pointer, and will be destroyed
@@ -1395,164 +1816,9 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     //wkLog("Starting Layout t=%f", curTime);
 
-    for (const auto &layoutObj : localLayoutObjects)
-    {
-        if (UNLIKELY(cancelLayout))
-        {
-            break;
-        }
-
-        // Don't fade by default
-        auto fadeIn = false;
-
-        SimpleIDUnorderedSet *drawMapPtr = nullptr;
-        //size_t drawCount = 0;
-        if (fadeEnabled && !layoutObj->obj.uniqueID.empty())
-        {
-            layoutObj->obj.state.uniqueID = layoutObj->obj.uniqueID;
-            if (uniqueDrawableMap.empty())
-            {
-                uniqueDrawableMap.reserve(localLayoutObjects.size());
-            }
-
-            // Look up or create the set of drawable IDs associated with this Unique ID
-            const auto result = uniqueDrawableMap.insert(std::make_pair(
-                std::ref(layoutObj->obj.uniqueID), SimpleIDUnorderedSet()));
-            drawMapPtr = &result.first->second;
-            if (result.second)
-            {
-                drawMapPtr->reserve(10);
-            }
-            //drawCount = drawMapPtr->size();
-
-            // See if this object generated any drawables in the previous run.
-            const auto hit = oldUniqueDrawableMap.find(layoutObj->obj.uniqueID);
-            //if (hit != oldUniqueDrawableMap.end())
-            //{
-            //    wkLog("%d, %s, prev=%lld", n, layoutObj->obj.uniqueID.c_str(), hit->second.size());
-            //}
-            if (hit == oldUniqueDrawableMap.end() || hit->second.empty())
-            {
-                // It's new, fade it in
-                fadeIn = true;
-            }
-            //wkLog("%d, %s, fadeIn=%s curEnable=%s newEnable=%s enable=%s/%f-%f", n, layoutObj->obj.uniqueID.c_str(),
-            //      fadeIn?"T":"F", layoutObj->currentEnable?"T":"F", layoutObj->newEnable?"T":"F", layoutObj->obj.enable?"T":"F",
-            //      layoutObj->obj.startEnable,layoutObj->obj.endEnable);
-        }
-
-        //SimpleIDUnorderedSet prevState;
-        //if (drawMapPtr) {
-        //    prevState = *drawMapPtr;
-        //}
-        
-        // Fade in if the object wasn't in the previous set
-        
-        layoutObj->obj.offset = layoutObj->offset;
-        if (/*layoutObj->newEnable &&*/ fadeIn)
-        {
-            layoutObj->obj.setFade(curTime+newObjectFadeIn, curTime);
-
-            // Don't run again before the fades are complete
-            maxAnimTime = std::max(maxAnimTime, curTime+newObjectFadeIn);
-        }
-
-        // Note: The animation below doesn't handle offsets
-
-        // Just moved into a cluster
-        if (layoutObj->currentEnable && !layoutObj->newEnable && layoutObj->newCluster >= 0)
-        {
-            ClusterEntry *cluster = &clusters[layoutObj->newCluster];
-            const auto &params = oldClusterParams[cluster->clusterParamID];
-
-            // Animate from the old position to the new cluster position
-            ScreenSpaceObject animObj = layoutObj->obj;     // NOLINT slicing LayoutObject to ScreenSpaceObject
-            animObj.setMovingLoc(cluster->layoutObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-            animObj.setFade(curTime, curTime+params.markerAnimationTime);
-            animObj.state.progID = params.motionShaderID;
-            for (auto &geom : animObj.geometry)
-                geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
-
-            // Don't run again before the animations are complete
-            maxAnimTime = std::max(maxAnimTime, curTime+params.markerAnimationTime);
-        }
-        else if (!layoutObj->currentEnable && layoutObj->newEnable && layoutObj->currentCluster > -1 && layoutObj->newCluster == -1)
-        {
-            // Just moved out of a cluster
-            if (layoutObj->currentCluster >= oldClusters.size())
-            {
-                wkLogLevel(Warn,"Cluster ID mismatch");
-                continue;
-            }
-
-            const ClusterEntry *oldCluster = &oldClusters[layoutObj->currentCluster];
-            const auto &params = oldClusterParams[oldCluster->clusterParamID];
-
-            // Animate from the old cluster position to the new real position
-            ScreenSpaceObject animObj = layoutObj->obj; // NOLINT slicing LayoutObject to ScreenSpaceObject
-            animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-            animObj.worldLoc = oldCluster->layoutObj.worldLoc;
-            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-            animObj.setFade(curTime+params.markerAnimationTime,curTime);
-            animObj.state.progID = params.motionShaderID;
-            //animObj.setDrawOrder(?)
-            for (auto &geom : animObj.geometry)
-                geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj,animObj.worldLoc,&animObj.geometry,nullptr);
-
-            // And hold off on adding it
-            ScreenSpaceObject shortObj = layoutObj->obj;    // NOLINT slicing LayoutObject to ScreenSpaceObject
-            //shortObj.setDrawOrder(?)
-            shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-            ssBuild.addScreenObject(shortObj,shortObj.worldLoc,&shortObj.geometry,nullptr);
-            
-            // Don't run again before the animations are complete
-            maxAnimTime = std::max(maxAnimTime, curTime+params.markerAnimationTime);
-        }
-        // It's boring, just add it
-        else if (layoutObj->newEnable)
-        {
-            const bool enabled = layoutObj->obj.enable || (layoutObj->obj.endEnable > layoutObj->obj.startEnable);
-            // It's a single point placement
-            if (layoutObj->obj.layoutShape.empty())
-            {
-                ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.worldLoc,
-                                        &layoutObj->obj.geometry,nullptr, enabled ? drawMapPtr : nullptr);
-            }
-            else
-            {
-                // One or more placements along a path
-                for (unsigned int ii=0;ii<layoutObj->obj.layoutPlaces.size();ii++)
-                {
-                    ssBuild.addScreenObject(layoutObj->obj, layoutObj->obj.layoutModelPlaces[ii],
-                                            &layoutObj->obj.geometry, &layoutObj->obj.layoutPlaces[ii],
-                                            enabled ? drawMapPtr : nullptr);
-                }
-            }
-        }
-
-        layoutObj->currentEnable = layoutObj->newEnable;
-        layoutObj->currentCluster = layoutObj->newCluster;
-
-        layoutObj->changed = false;
-        
-        //if (drawMapPtr && drawMapPtr->size() > drawCount)
-        //{
-        //    std::vector<SimpleIdentity> newIDs;
-        //    std::set_difference(drawMapPtr->begin(),drawMapPtr->end(),
-        //                        prevState.begin(),prevState.end(),
-        //                        std::back_inserter(newIDs));
-        //    std::ostringstream ss;
-        //    for (auto id : newIDs) {
-        //        ss << id << ",";
-        //    }
-        //    wkLog("%d, %s, added %lld drawables: %s fade=%f",
-        //          n, layoutObj->obj.uniqueID.c_str(), drawMapPtr->size() - drawCount,
-        //          ss.str().c_str(), layoutObj->obj.state.fadeUp);
-        //}
-    }
+    buildDrawables(ssBuild, fadeEnabled, /*doClusters=*/true, curTime, &maxAnimTime,
+                   localLayoutObjects, oldClusters, oldClusterParams,
+                   &uniqueDrawableIDs, &oldUniqueDrawableMap);
 
     if (cancelLayout)
     {
@@ -1560,110 +1826,40 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         return;
     }
 
+    // Add the new ones
+    SimpleIDSet newDrawIDs;
+    const auto newDraws = ssBuild.flushChanges(changes, newDrawIDs);
+
 //        NSLog(@"Got %lu clusters",clusters.size());
 
-    // Add in the clusters
-    for (const auto &cluster : clusters)
+    // Get rid of the last set of drawables
+    for (const auto &drawID : drawIDs)
     {
-        if (UNLIKELY(cancelLayout))
-        {
-            break;
-        }
-
-        // Animate from the old cluster if there is one
-        if (cluster.childOfCluster > -1)
-        {
-            if (cluster.childOfCluster >= oldClusters.size())
-            {
-                wkLogLevel(Warn,"Cluster ID mismatch");
-                continue;
-            }
-            const ClusterEntry *oldCluster = &oldClusters[cluster.childOfCluster];
-            const auto &params = oldClusterParams[oldCluster->clusterParamID];
-
-            // Animate from the old cluster to the new one
-            ScreenSpaceObject animObj = cluster.layoutObj;  // NOLINT slicing LayoutObject to ScreenSpaceObject
-            animObj.setMovingLoc(animObj.worldLoc, curTime, curTime+params.markerAnimationTime);
-            animObj.worldLoc = oldCluster->layoutObj.worldLoc;
-            animObj.setEnableTime(curTime, curTime+params.markerAnimationTime);
-            animObj.state.progID = params.motionShaderID;
-            //animObj.setDrawOrder(?)
-            for (auto &geom : animObj.geometry)
-                geom.progID = params.motionShaderID;
-            ssBuild.addScreenObject(animObj, animObj.worldLoc, &animObj.geometry);
-
-            // Hold off on adding the new one
-            ScreenSpaceObject shortObj = cluster.layoutObj; // NOLINT slicing LayoutObject to ScreenSpaceObject
-            //shortObj.setDrawOrder(?)
-            shortObj.setEnableTime(curTime+params.markerAnimationTime, 0.0);
-            ssBuild.addScreenObject(shortObj, shortObj.worldLoc, &shortObj.geometry);
-
-        }
-        else
-        {
-            ssBuild.addScreenObject(cluster.layoutObj, cluster.layoutObj.worldLoc, &cluster.layoutObj.geometry);
-        }
+        changes.push_back(new RemDrawableReq(drawID));
     }
 
-    // That may have taken a while, update some relative times for animation.
-    const auto newCurTime = scene->getCurrentTime();
-    const auto deltaT = newCurTime - curTime;
-    //wkLog("Layout deltaT = %f", deltaT);
+    handleFadeOut(curTime, maxAnimTime, localLayoutObjects, drawIDs, newDraws,
+                  oldClusters, oldClusterParams, oldUniqueDrawableMap, uniqueDrawableIDs, changes);
 
-    if (!drawIDs.empty())
-    {
-        std::unordered_map<SimpleIdentity,const std::string*> oldUniqueIDsByDrawable(drawIDs.size());
-        if (fadeEnabled)
-        {
-            // Reverse the map so we can look up unique IDs from drawables
-            for (const auto &kv : oldUniqueDrawableMap)
-            {
-                for (SimpleIdentity drawID : kv.second)
-                {
-                    oldUniqueIDsByDrawable.insert(std::make_pair(drawID, &kv.first));
-                }
-            }
-        }
-
-        // Get rid of the last set of drawables
-        for (const auto &drawID : drawIDs)
-        {
-            // Don't fade out by default
-            auto fade = 0.0;
-
-            // Find the unique ID that generated this old drawable, if any.
-            const auto oldUIDMatch = oldUniqueIDsByDrawable.find(drawID);
-            if (oldUIDMatch != oldUniqueIDsByDrawable.end())
-            {
-                const auto newUIDMatch = uniqueDrawableMap.find(*oldUIDMatch->second);
-                if (newUIDMatch == uniqueDrawableMap.end() || newUIDMatch->second.empty())
-                {
-                    // This object generated drawables in the previous
-                    // run but not this one, so fade those drawables out.
-                    fade = newCurTime + oldObjectFadeOut;
-                    changes.push_back(new FadeChangeRequest(drawID, newCurTime, fade));
-                    
-                    // Don't run again before the fades are complete
-                    maxAnimTime = std::max(maxAnimTime, fade);
-                }
-                //wkLog("Remove draw %lld, %s, %f", drawID, oldUIDMatch->second->c_str(), fade);
-            }// else {
-            //    wkLog("Remove draw %lld, ?, %f", drawID, fade);
-            //}
-            changes.push_back(new RemDrawableReq(drawID, fade));
-        }
-    }
-    //NSLog(@"  Remove previous drawIDs = %lu",drawIDs.size());
     drawIDs.clear();
+    drawIDs.swap(newDrawIDs);
 
-    // Add the new ones
-    const auto newDraws = ssBuild.flushChanges(changes, drawIDs);
+    prevLayoutObjects.swap(localLayoutObjects);
 
+    // That all may have taken a while, so update some the times for animation.
+    // Also add a jiffy for finishing up here and actually processing the change
+    // requests, at least until we have a way to specify times in relative terms.
+    constexpr auto fadeTimeFudge = 0.02;
+    const auto newTime = scene->getCurrentTime() + fadeTimeFudge;
+
+    // If we took more than a few milliseconds, bump the time values to
+    // match, since they won't start until the changes are processed.
+    const auto deltaT = newTime - curTime;
     if (deltaT > 0.01)
     {
         for (auto &draw : newDraws)
         {
-            if (auto dp = draw.get())
+            if (const auto dp = draw.get())
             {
                 if (dp->fadeUp > 0.0) dp->fadeUp += deltaT;
                 if (dp->fadeDown > 0.0) dp->fadeDown += deltaT;
@@ -1671,12 +1867,16 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
                 if (dp->endEnable > 0.0) dp->endEnable += deltaT;
             }
         }
+        for (auto &change : changes)
+        {
+            if (change->when > 0.0) change->when += deltaT;
+        }
     }
 
+    // If we set up animations, don't run another layout pass until they're complete
     if (maxAnimTime > 0.0)
     {
-        std::unique_lock<std::mutex> guard(lock);
-        minLayoutTime = std::max(minLayoutTime, maxAnimTime + deltaT);
+        deferUntil(maxAnimTime + deltaT);
     }
 
     wkLogLevel(Verbose, "Layout of %d objects, %d clusters took %.4f s",

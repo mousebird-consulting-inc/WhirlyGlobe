@@ -2,7 +2,7 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.graphics.Color
-import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import com.mousebird.maply.*
@@ -23,7 +23,18 @@ class VectorsTestCase(activity: Activity?) :
             setLineWidth(4f)
         }
         val assetMgr = activity.assets
-        for (path in assetMgr.list("country_json_50m")!!) {
+        val jsons = assetMgr.list("country_json_50m")!!
+        var loaded = 0
+        var msg: Toast? = null
+        for (path in jsons) {
+            val txt = "Loading %s : %.1f%%".format(
+                path.removeSuffix(".geojson"),
+                ++loaded * 100.0 / jsons.size)
+            activity.runOnUiThread {
+                msg?.cancel()
+                msg = Toast.makeText(activity.applicationContext, txt, Toast.LENGTH_SHORT)
+                msg?.show()
+            }
             val json = assetMgr.open("country_json_50m/$path").use { stream ->
                 stream.source().use { source ->
                     source.buffer().use { buf ->
@@ -39,13 +50,14 @@ class VectorsTestCase(activity: Activity?) :
                 selectable = true
             }?.let { vec ->
                 vectors.add(vec)
-                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadAny)?.let { co ->
+                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadCurrent)?.let { co ->
                     compObjs.add(co)
                     onVectorLoaded?.invoke(vec,co)
                 }
             }
         }
-        
+        activity.runOnUiThread { msg?.cancel() }
+
         // Build a really big vector for testing
 //		VectorObject bigVecObj = new VectorObject();
 //		Point2d pts[] = new Point2d[20000];
@@ -92,6 +104,7 @@ class VectorsTestCase(activity: Activity?) :
             // Load vectors on a separate thread so that you can
             // back out of the test case before they're all loaded.
             Thread({
+                Looper.prepare()
                 Thread.sleep(500)
                 if (!canceled && controller != null) {
                     overlayCountries(controller)
