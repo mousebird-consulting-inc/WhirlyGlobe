@@ -48,6 +48,7 @@ public:
 	float &u() { return x(); }
 	float v() const { return y(); }
 	float &v() { return y(); }
+	using Point2f::operator=;
 };
 
 /// Convenience wrapper for geodetic coordinates
@@ -76,7 +77,7 @@ public:
     bool operator ==(const TBase &that) const { return x() == that.x() && y() == that.y(); }
     bool operator !=(const TBase &that) const { return x() != that.x() || y() != that.y(); }
 
-    /// Create a geo coordinate using degrees intead of radians.
+    /// Create a geo coordinate using degrees instead of radians.
     /// Note the order of the arguments
     static TThis CoordFromDegrees(TScalar lon,TScalar lat) {
         return {(TScalar)(lon*M_PI/180), (TScalar)(lat*M_PI/180)};
@@ -285,6 +286,9 @@ public:
 
     /// Extend the MBR by the given points
     void addPoints(const Point2fVector &coords);
+    void addPoints(const Point2f *coords, size_t count);
+    template <size_t N>
+    void addPoints(const Point2f (&coords)[N]) { addPoints(coords, N); }
 
     /// Extend the MBR by the given points
     void addPoints(const Point2dVector &coords);
@@ -485,17 +489,21 @@ public:
 	float area() const;
 	
 	/// Expand the MBR by this amount
-	void addGeoCoord(const Point2f &coord);
-    void addGeoCoord(const Point3d &coord);
+    void addGeoCoord(float x, float y);
+    void addGeoCoord(const Point2f &coord) { addGeoCoord(coord.x(),coord.y()); }
+    void addGeoCoord(const Point2d &coord) { addGeoCoord(coord.x(),coord.y()); }
+    void addGeoCoord(const Point3f &coord) { addGeoCoord(coord.x(),coord.y()); }
+    void addGeoCoord(const Point3d &coord) { addGeoCoord(coord.x(),coord.y()); }
 
     void addPoint(const Point2f &coord) { addGeoCoord(coord); }
-    void addPoint(const Point2d &coord) { addGeoCoord(Point2f(coord.x(),coord.y())); }
+    void addPoint(const Point2d &coord) { addGeoCoord(coord); }
 
-	/// Expand by the vector of geo coords
-	void addGeoCoords(const std::vector<GeoCoord> &coords);
         /// Expand by a vector of 2d coordinates.  x is lon, y is lat.
-	void addGeoCoords(const Point2fVector &coords);
+    void addGeoCoords(const Point2fVector &coords);
+    void addGeoCoords(const Point2dVector &coords);
+    void addGeoCoords(const Point3fVector &coords);
     void addGeoCoords(const Point3dVector &coords);
+    /// Expand by the vector of geo coords
     void addGeoCoords(const GeoCoordVector &coords);
 	
 	/// Determine overlap.
@@ -519,28 +527,99 @@ public:
 protected:
 	GeoCoord pt_ll,pt_ur;
 };
-    
+
 /// Generate a quaternion from two vectors
 /// The version that comes with eigen does an epsilon check that is too large for our purposes
 Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b);
 
 /// Convert a 4f matrix to a 4d matrix
-Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat);
+inline Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat) { return inMat.cast<double>(); }
 
 /// Convert a 4d matrix to a 4f matrix
-Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat);
-    
-/// Floats to doubles
-Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec);
-/// Doubles to floats
-Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec);
-    
-/// Floats to doubles
-Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec);
-/// Doubles to floats
-Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec);
+inline Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat) { return inMat.cast<float>(); }
 
 /// Floats to doubles
-Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec);
+inline Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec) { return inVec.cast<double>(); }
+
+/// Doubles to floats
+inline Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec) { return inVec.cast<float>(); }
+
+/// Floats to doubles
+inline Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec) { return inVec.cast<double>(); }
+
+/// Double to floats
+inline Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec) { return inVec.cast<float>(); }
+
+/// Floats to doubles
+inline Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec) { return inVec.cast<double>(); }
+
+namespace detail {
+    template<typename T,int N> struct PointT {
+        using Type = Eigen::Matrix<T,N,1>;
+        using Vector = std::vector<Type,Eigen::aligned_allocator<Type>>;
+    };
+}
+
+template <typename TA,typename TB>
+Eigen::Matrix<TA,2,1> Scale(const Eigen::Matrix<TA,2,1> &a, const Eigen::Matrix<TB,2,1> &b) {
+    return {a.x() * b.x(), a.y() * b.y() };
+}
+template <typename TA,typename TB>
+Eigen::Matrix<TA,3,1> Scale(const Eigen::Matrix<TA,3,1> &a, const Eigen::Matrix<TB,3,1> &b) {
+    return {a.x() * b.x(), a.y() * b.y(), a.z() * b.z() };
+}
+
+template <typename T>
+Eigen::Matrix<T,2,1> Slice(const Eigen::Matrix<T,3,1> &v) { return {v.x(), v.y() }; }
+template <typename T>
+Eigen::Matrix<T,3,1> Pad(const Eigen::Matrix<T,2,1> &v, T z = 0) { return { v.x(), v.y(), z }; }
+
+// Slice with arbitrary (inlined) function
+template <typename TI,typename TO>
+typename detail::PointT<TO,2>::Vector SliceF(const typename detail::PointT<TI,3>::Vector &iv,
+        std::function<Eigen::Matrix<TO,2,1>(const Eigen::Matrix<TI,2,1>&)> f) {
+    typename detail::PointT<TO,2>::Vector v;
+    v.reserve(iv.size());
+    for (const auto &e : iv) {
+        v.emplace_back(f(Slice(e)));
+    }
+    return v;
+}
+
+/// Slice a vector of 3-element items to 2 elements
+template <typename T>
+typename detail::PointT<T,2>::Vector Slice(const typename detail::PointT<T,3>::Vector &iv) {
+    return SliceF<T,T>(iv, [](auto x){ return x; });
+}
+
+/// Slice and convert type
+template <typename TI,typename TO>
+typename detail::PointT<TO,2>::Vector Slice(const typename detail::PointT<TI,3>::Vector &iv) {
+    return SliceF<TI,TO>(iv, [](const Eigen::Matrix<TI,2,1>& x){ return x.template cast<TO>(); });
+}
+
+// Extend with arbitrary (inlined) function
+template <typename TI,typename TO>
+typename detail::PointT<TO,3>::Vector Pad(const typename detail::PointT<TI,2>::Vector &iv,
+         std::function<Eigen::Matrix<TO,2,1>(const Eigen::Matrix<TI,2,1>&)> f, TO z = 0) {
+    typename detail::PointT<TO,3>::Vector v;
+    v.reserve(iv.size());
+    for (const auto &e : iv) {
+        v.emplace_back(Pad(f(e), z));
+    }
+    return v;
+}
+
+/// Extend a vector of 2-element items to 3 elements
+template <typename T>
+typename detail::PointT<T,3>::Vector Pad(const typename detail::PointT<T,2>::Vector &iv, T z = 0) {
+    return Pad(iv, [](auto x){ return x; }, z);
+}
+
+/// Extend and convert type
+template <typename TI,typename TO>
+typename detail::PointT<TO,3>::Vector Pad(const typename detail::PointT<TI,2>::Vector &iv, TO z = 0) {
+    return Pad(iv, [](auto x){ return x.template cast<TO>(); }, z);
+}
 
 }

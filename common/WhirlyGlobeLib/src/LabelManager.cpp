@@ -144,7 +144,7 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
             {
                 labelRep->layoutIDs.insert(layoutObject.getId());
             }
-            layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+            layoutManager->addLayoutObjects(std::move(labelRenderer.layoutObjects));
         }
     }
 

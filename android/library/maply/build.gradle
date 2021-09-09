@@ -52,6 +52,7 @@ android {
                             //"-O1",                  // Minimal optimize. (-Wuninitialized requires -O1)
                                                     // Change to -O0 if you're having trouble debugging
                             "-Wall", "-Wextra",     // warnings
+                            "-Wno-unknown-pragmas", // ignore, e.g., clang-tidy annotations
 
                             "-Wuninitialized",      // requires -O1 or above, but doesn't seem to work anyway
                             "-Wmissing-field-initializers",

@@ -1,9 +1,8 @@
-/*
- *  SceneRenderer.h
+/*  SceneRenderer.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyVector.h"
@@ -46,18 +44,14 @@ typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
 /** Renderer Frame Info.
  Data about the current frame, passed around by the renderer.
  */
-class RendererFrameInfo
+struct RendererFrameInfo
 {
-public:
-    RendererFrameInfo();
-    RendererFrameInfo(const RendererFrameInfo &that);
-    
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Renderer itself
-    SceneRenderer *sceneRenderer;
+    SceneRenderer *sceneRenderer = nullptr;
     /// View
-    View *theView;
+    View *theView = nullptr;
     /// Current model matrix from the view
     Eigen::Matrix4f modelTrans,viewTrans;
     Eigen::Matrix4d modelTrans4d,viewTrans4d;
@@ -83,11 +77,11 @@ public:
     /// If the visual view supports wrapping, these are the available offset matrices
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// Scene itself.  Don't mess with this
-    Scene *scene;
+    Scene *scene = nullptr;
     /// Expected length of the current frame
-    float frameLen;
+    float frameLen = 0.0f;
     /// Time at the start of frame
-    TimeInterval currentTime;
+    TimeInterval currentTime = 0.0;
     /// Vector pointing up from the globe describing where the view point is
     Eigen::Vector3f eyeVec;
     /// Vector out from the eye point, including tilt
@@ -97,14 +91,15 @@ public:
     /// Location of the middle of the screen in display coordinates
     Eigen::Vector3d dispCenter;
     /// Height above surface, if that makes sense
-    float heightAboveSurface;
+    float heightAboveSurface = 0.0f;
     /// Screen size in display coordinates
     Point2d screenSizeInDisplayCoords;
     /// Lights, if applicable
-    std::vector<DirectionalLight> *lights;
+    std::vector<DirectionalLight> *lights = nullptr;
     /// Program being used for this frame
-    Program *program;
+    Program *program = nullptr;
 };
+using RendererFrameInfoRef = std::shared_ptr<RendererFrameInfo>;
 
 /** We support three different ways of using z buffer.  (1) Regular mode where it's on.
  (2) Completely off, priority sorting only.  (3) Priority sorting, but drawables
@@ -272,7 +267,9 @@ public:
     virtual void addDrawable(DrawableRef newDrawable);
     /// Remove the given drawable from
     virtual void removeDrawable(DrawableRef draw,bool teardown,RenderTeardownInfoRef teardownInfo);
-        
+
+    virtual RendererFrameInfoRef getFrameInfo() { return RendererFrameInfoRef(); }
+
     /// Move things around as required by outside updates
     virtual void updateWorkGroups(RendererFrameInfo *frameInfo);
         

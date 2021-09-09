@@ -34,7 +34,9 @@ open class MapTilerTestCase : MaplyTestCase
         } else {
             prefs.edit().putString("MapTilerToken",token).apply()
         }
-        
+
+        control.layoutFadeEnabled = true;
+
         getStyleJson(whichMap)?.let { (json,img) ->
             loader?.shutdown()
             loader = null

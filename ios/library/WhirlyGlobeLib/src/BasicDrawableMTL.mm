@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableMTL.mm
+/*  BasicDrawableMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableMTL.h"
@@ -31,8 +29,10 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-BasicDrawableMTL::BasicDrawableMTL(const std::string &name)
-    : BasicDrawable(name), Drawable(name), setupForMTL(false), vertDesc(nil), renderState(nil), numPts(0), numTris(0),vertHasTextures(false),fragHasTextures(false),vertHasLighting(false),fragHasLighting(false)
+BasicDrawableMTL::BasicDrawableMTL(const std::string &name) :
+    BasicDrawable(name), Drawable(name), setupForMTL(false), vertDesc(nil),
+    renderState(nil), numPts(0), numTris(0),vertHasTextures(false),
+    fragHasTextures(false),vertHasLighting(false),fragHasLighting(false)
 {
 }
 
@@ -42,7 +42,7 @@ BasicDrawableMTL::~BasicDrawableMTL()
 
 VertexAttributeMTL *BasicDrawableMTL::findVertexAttribute(int nameID)
 {
-    VertexAttributeMTL *foundVertAttr = NULL;
+    VertexAttributeMTL *foundVertAttr = nullptr;
     for (auto vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
         if (vertAttrMTL->nameID == nameID) {
@@ -79,8 +79,8 @@ void BasicDrawableMTL::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene
     
     // And put the triangles in their own
     // Note: Could use 1 byte some of the time
-    int bufferSize = 3*2*tris.size();
     numTris = tris.size();
+    const int bufferSize = 3*2*numTris;
     if (bufferSize > 0) {
         buffBuild.addData(&tris[0], bufferSize, &triBuffer);
         tris.clear();
@@ -290,6 +290,16 @@ id<MTLRenderPipelineState> BasicDrawableMTL::getRenderPipelineState(SceneRendere
     if (renderState)
         return renderState;
     MTLRenderPipelineDescriptor *renderDesc = sceneRender->defaultRenderPipelineState(sceneRender,program,renderTarget);
+
+    if (getBlendPremultipliedAlpha() && renderDesc.colorAttachments[0].blendingEnabled)
+    {
+        // If this drawable uses pre-multipled alpha components, tweak the blend mode from
+        // the equivalent of `glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` to
+        // `glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)`.
+        renderDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+        renderDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+    }
+
     renderDesc.vertexDescriptor = getVertexDescriptor(program->vertFunc,defaultAttrs);
     // Calculation drawables don't rasterize
     if (calcDataEntries > 0)

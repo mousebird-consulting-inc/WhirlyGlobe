@@ -37,9 +37,10 @@ public:
     virtual Point2d localToGeographicD(Point3d p) const override { return Point2d(p.x(),p.y()); }
     
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord c) const override { return Point3f(c.lon(),c.lat(),0.0); }
-    virtual Point3d geographicToLocal3d(GeoCoord c) const override { return Point3d(c.lon(),c.lat(),0.0); }
-    virtual Point3d geographicToLocal(Point2d c) const override { return Point3d(c.x(),c.y(),0.0); }
+    virtual Point3f geographicToLocal(GeoCoord c) const override { return {c.lon(),c.lat(),0.0}; }
+    virtual Point3d geographicToLocal3d(GeoCoord c) const override { return {c.lon(),c.lat(),0.0}; }
+    virtual Point3d geographicToLocal(Point2d c) const override { return {c.x(),c.y(),0.0}; }
+    virtual Point2d geographicToLocal2(const Point2d &c) const override { return {c.x(),c.y()}; }
 
     /// Convert from local coordinates to WGS84 geocentric
     virtual Point3f localToGeocentric(Point3f) const override;
@@ -69,8 +70,9 @@ public:
     /// Convert from lat/lon t the local coordinate system
     virtual Point3f geographicToLocal(GeoCoord) const override;
     virtual Point3d geographicToLocal3d(GeoCoord) const override;
+    virtual Point2d geographicToLocal2(const Point2d&) const override;
     virtual Point3d geographicToLocal(Point2d) const override;
-    
+
     /// Convert from local coordinates to WGS84 geocentric
     virtual Point3f localToGeocentric(Point3f) const override;
     virtual Point3d localToGeocentric(Point3d) const override;
@@ -110,7 +112,8 @@ public:
     virtual Point3f geographicToLocal(GeoCoord) const override;
     virtual Point3d geographicToLocal3d(GeoCoord) const override;
     virtual Point3d geographicToLocal(Point2d) const override;
-    
+    virtual Point2d geographicToLocal2(const Point2d&) const override;
+
     /// Convert from local coordinates to WGS84 geocentric
     virtual Point3f localToGeocentric(Point3f p) const override { return p; }
     virtual Point3d localToGeocentric(Point3d p) const override { return p; }

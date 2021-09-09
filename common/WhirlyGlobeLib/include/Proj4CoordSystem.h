@@ -1,9 +1,8 @@
-/*
- *  Proj4CoordSystem.h
+/*  Proj4CoordSystem.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/10/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyVector.h"
@@ -43,7 +41,8 @@ public:
     virtual Point3f geographicToLocal(GeoCoord) const override;
     virtual Point3d geographicToLocal3d(GeoCoord) const override;
     virtual Point3d geographicToLocal(Point2d) const override;
-    
+    virtual Point2d geographicToLocal2(const Point2d&) const override;
+
     /// Convert from the local coordinate system to geocentric
     virtual Point3f localToGeocentric(Point3f) const override;
     virtual Point3d localToGeocentric(Point3d) const override;

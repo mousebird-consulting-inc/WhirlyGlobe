@@ -24,22 +24,22 @@
 namespace WhirlyKit
 {
 
-bool MapboxVectorFillPaint::parse(PlatformThreadInfo *inst,
+bool MapboxVectorFillPaint::parse(PlatformThreadInfo *,
                                   MapboxVectorStyleSetImpl *styleSet,
                                   const DictionaryRef &styleEntry)
 {
-    styleSet->unsupportedCheck("fill-antialias","paint_fill",styleEntry);
-    styleSet->unsupportedCheck("fill-translate","paint_fill",styleEntry);
-    styleSet->unsupportedCheck("fill-translate-anchor","paint_fill",styleEntry);
-    styleSet->unsupportedCheck("fill-image","paint_fill",styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("fill-antialias","paint_fill",styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("fill-translate","paint_fill",styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("fill-translate-anchor","paint_fill",styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("fill-image","paint_fill",styleEntry);
     
     opacity = styleSet->transDouble("fill-opacity",styleEntry,1.0);
-    color = styleSet->transColor("fill-color",styleEntry,NULL);
-    outlineColor = styleSet->transColor("fill-outline-color",styleEntry,NULL);
+    color = styleSet->transColor("fill-color",styleEntry,nullptr);
+    outlineColor = styleSet->transColor("fill-outline-color",styleEntry,nullptr);
     
     // We're also handling fill-extrusion as a hack
     if (styleEntry && styleEntry->hasField("fill-extrusion-color"))
-        color = styleSet->transColor("fill-extrusion-color",styleEntry,NULL);
+        color = styleSet->transColor("fill-extrusion-color",styleEntry,nullptr);
     if (styleEntry && styleEntry->hasField("fill-extrusion-opacity"))
         opacity = styleSet->transDouble("fill-extrusion-opacity",styleEntry,1.0);
 
@@ -124,10 +124,28 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             }
             if (const auto ar = dynamic_cast<VectorAreal*>(it.get()))
             {
+                auto scene = styleSet->vecManage->getScene();
+                auto coordAdapter = scene->getCoordAdapter();
+                auto coordSys = coordAdapter->getCoordSystem();
+
+                // Convert to local to make tessellation work better (#1392)
+                for (auto &loop : ar->loops)
+                {
+                    for (auto &pt : loop)
+                    {
+                        pt = coordSys->geographicToLocal2(pt.cast<double>()).cast<float>();
+                    }
+                }
+
                 const auto trisRef = VectorTriangles::createTriangles();
+                trisRef->localCoords = true;
                 TesselateLoops(ar->loops, trisRef);
                 trisRef->setAttrDict(ar->getAttrDict());
+
+                // Generate MBR in local, that's what the builders will expect when we've
+                // converted to local triangles.
                 trisRef->initGeoMbr();
+
                 tessShapes.push_back(trisRef);
             }
         }
@@ -142,7 +160,8 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
             resolveMode = MBResolveColorOpacityMultiply;
         }
 #endif
-        if (const auto color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode))
+        if (const auto color = MapboxVectorStyleSetImpl::resolveColor(paint.color, paint.opacity,
+                                                                      tileInfo->ident.level, resolveMode))
         {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;
@@ -187,7 +206,9 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     // Outlines
     if (paint.outlineColor)
     {
-        if (const auto color = styleSet->resolveColor(paint.outlineColor, paint.opacity, tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
+        if (const auto color = WhirlyKit::MapboxVectorStyleSetImpl::resolveColor(
+                paint.outlineColor, paint.opacity,
+                tileInfo->ident.level, MBResolveColorOpacityComposeAlpha))
         {
             // Set up the description for constructing vectors
             VectorInfo vecInfo;

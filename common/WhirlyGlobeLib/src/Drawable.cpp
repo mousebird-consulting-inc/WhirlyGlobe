@@ -1,9 +1,8 @@
-/*
- *  Drawable.mm
+/*  Drawable.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,39 +14,33 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Drawable.h"
 #import "Scene.h"
-#import "WhirlyKitLog.h"
-
-using namespace Eigen;
 
 namespace WhirlyKit
 {
-		
-Drawable::Drawable(const std::string &name)
-    : name(name)
+
+Drawable::Drawable(std::string name)
+    : name(std::move(name))
 {
 }
-	
-Drawable::~Drawable()
-{
-}
-    
+
 void Drawable::runTweakers(RendererFrameInfo *frame)
 {
-    for (DrawableTweakerRefSet::iterator it = tweakers.begin();
-         it != tweakers.end(); ++it)
-        (*it)->tweakForFrame(this,frame);
+    for (const auto &tweaker : tweakers)
+	{
+    	tweaker->tweakForFrame(this,frame);
+	}
 }
-	
+
 void DrawableChangeRequest::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-	DrawableRef theDrawable = scene->getDrawable(drawId);
-	if (theDrawable)
+	if (const DrawableRef theDrawable = scene->getDrawable(drawId))
+	{
 		execute2(scene,renderer,theDrawable);
+	}
 }
-    
+
 }

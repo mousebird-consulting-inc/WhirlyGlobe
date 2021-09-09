@@ -2362,6 +2362,33 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Check whether fades are enabled on the layout manager
+	 */
+	public boolean getLayoutFadeEnabled() {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				return lm.getFadeEnabled();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Set whether fades are enabled on the layout manager
+	 */
+	public void setLayoutFadeEnabled(boolean enable) {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				lm.setFadeEnabled(enable);
+			}
+		}
+	}
+
+	/**
 	 * This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 	 * @param shapes An array of Shape derived objects
 	 * @param shapeInfo Info controlling how the shapes look

@@ -418,7 +418,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     // We'll try for one color for the whole thing
     // Note: To fix this we need to blast the text apart into pieces
-    const auto textColor = styleSet->resolveColor(paint.textColor, nullptr, zoomLevel, MBResolveColorOpacityReplaceAlpha);
+    const auto textColor = MapboxVectorStyleSetImpl::resolveColor(paint.textColor, nullptr, zoomLevel,
+                                                                  MBResolveColorOpacityReplaceAlpha);
     if (textColor)
     {
         labelInfo->textColor = *textColor;

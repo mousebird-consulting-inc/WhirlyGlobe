@@ -23,16 +23,67 @@
 namespace WhirlyKit
 {
 
-ScreenSpaceBuilder::DrawableState::DrawableState() :
-    period(0.0), progID(EmptyIdentity), fadeUp(0.0), fadeDown(0.0), enable(true),
-    startEnable(0.0), endEnable(0.0), drawPriority(0), renderTargetID(EmptyIdentity),
-    minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid), zoomSlot(-1),
-    minZoomVis(DrawVisibleInvalid), maxZoomVis(DrawVisibleInvalid),
-    motion(false), rotation(false), keepUpright(false), hasMask(false)
+ScreenSpaceBuilder::DrawableState::DrawableState(DrawableState&& other) noexcept :
+        texIDs        (std::move(other.texIDs)),
+        period        (other.period),
+        progID        (other.progID),
+        fadeUp        (other.fadeUp),
+        fadeDown      (other.fadeDown),
+        enable        (other.enable),
+        startEnable   (other.startEnable),
+        endEnable     (other.endEnable),
+        drawOrder     (other.drawOrder),
+        drawPriority  (other.drawPriority),
+        renderTargetID(other.renderTargetID),
+        minVis        (other.minVis),
+        maxVis        (other.maxVis),
+        zoomSlot      (other.zoomSlot),
+        minZoomVis    (other.minZoomVis),
+        maxZoomVis    (other.maxZoomVis),
+        motion        (other.motion),
+        rotation      (other.rotation),
+        keepUpright   (other.keepUpright),
+        hasMask       (other.hasMask),
+        opacityExp    (std::move(other.opacityExp)),
+        colorExp      (std::move(other.colorExp)),
+        scaleExp      (std::move(other.scaleExp)),
+        vertexAttrs   (std::move(other.vertexAttrs))
 {
 }
 
-bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) const
+ScreenSpaceBuilder::DrawableState& ScreenSpaceBuilder::DrawableState::operator=(DrawableState&& other) noexcept
+{
+    if (this != &other)
+    {
+        texIDs         = std::move(other.texIDs);
+        period         = other.period;
+        progID         = other.progID;
+        fadeUp         = other.fadeUp;
+        fadeDown       = other.fadeDown;
+        enable         = other.enable;
+        startEnable    = other.startEnable;
+        endEnable      = other.endEnable;
+        drawOrder      = other.drawOrder;
+        drawPriority   = other.drawPriority;
+        renderTargetID = other.renderTargetID;
+        minVis         = other.minVis;
+        maxVis         = other.maxVis;
+        zoomSlot       = other.zoomSlot;
+        minZoomVis     = other.minZoomVis;
+        maxZoomVis     = other.maxZoomVis;
+        motion         = other.motion;
+        rotation       = other.rotation;
+        keepUpright    = other.keepUpright;
+        hasMask        = other.hasMask;
+        opacityExp     = std::move(other.opacityExp);
+        colorExp       = std::move(other.colorExp);
+        scaleExp       = std::move(other.scaleExp);
+        vertexAttrs    = std::move(other.vertexAttrs);
+    }
+    return *this;
+}
+
+bool ScreenSpaceBuilder::DrawableState::operator <(const DrawableState &that) const
 {
     if (uniqueID != that.uniqueID)
         return uniqueID < that.uniqueID;
@@ -92,10 +143,6 @@ bool ScreenSpaceBuilder::DrawableState::operator < (const DrawableState &that) c
     return false;
 }
     
-ScreenSpaceBuilder::DrawableWrap::~DrawableWrap()
-{
-}
-    
 ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const DrawableState &state)
     : state(state), center(0,0,0)
 {
@@ -142,33 +189,36 @@ ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const Drawa
 Point3d ScreenSpaceBuilder::CalcRotationVec(CoordSystemDisplayAdapter *coordAdapter,const Point3d &worldLoc,float rot)
 {
     // Switch from counter-clockwise to clockwise
-    rot = 2*M_PI-rot;
-    
-    Point3d upVec,northVec,eastVec;
+    rot = (float)(2*M_PI-rot);
+
+    Point3d northVec,eastVec;
     if (coordAdapter->isFlat())
     {
-        upVec = Point3d(0,0,1);
+        //upVec = Point3d(0,0,1);
         northVec = Point3d(0,1,0);
         eastVec = Point3d(1,0,0);
     } else {
-        upVec = worldLoc.normalized();
+        const Point3d upVec = worldLoc.normalized();
         // Vector pointing north
         northVec = Point3d(-worldLoc.x(),-worldLoc.y(),1.0-worldLoc.z());
         eastVec = northVec.cross(upVec);
         northVec = upVec.cross(eastVec);
     }
-    
+
     Point3d rotVec = eastVec * sin(rot) + northVec * cos(rot);
-    
+
     return rotVec;
 }
 
-void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coordAdapter,float scale,const Point3d &worldLoc,const Point3f *dir,float rot,const Point2d &inVert,const TexCoord *texCoord,const RGBAColor *color,const SingleVertexAttributeSet *vertAttrs)
+void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *inCoordAdapter, float inScale,
+                                                 const Point3d &worldLoc, const Point3f *dir, float rot,
+                                                 const Point2d &inVert, const TexCoord *texCoord,
+                                                 const RGBAColor *color, const SingleVertexAttributeSet *vertAttrs)
 {
     locDraw->addPoint(Point3d(worldLoc.x()-center.x(),worldLoc.y()-center.y(),worldLoc.z()-center.z()));
-    Point3d norm = coordAdapter->isFlat() ? Point3d(0,0,1) : worldLoc.normalized();
+    Point3d norm = inCoordAdapter->isFlat() ? Point3d(0, 0, 1) : worldLoc.normalized();
     locDraw->addNormal(norm);
-    Point2d vert = inVert * scale;
+    Point2d vert = inVert * inScale;
     locDraw->addOffset(vert);
     if (texCoord)
         locDraw->addTexCoord(0, *texCoord);
@@ -179,7 +229,7 @@ void ScreenSpaceBuilder::DrawableWrap::addVertex(CoordSystemDisplayAdapter *coor
     if (vertAttrs && !vertAttrs->empty())
         locDraw->addVertexAttributes(*vertAttrs);
     if (state.rotation)
-        locDraw->addRot(ScreenSpaceBuilder::CalcRotationVec(coordAdapter,worldLoc,rot));
+        locDraw->addRot(ScreenSpaceBuilder::CalcRotationVec(inCoordAdapter, worldLoc, rot));
 }
 
 void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
@@ -251,17 +301,17 @@ void ScreenSpaceBuilder::setZoomInfo(int zoomSlot,double minZoomVis,double maxZo
 
 void ScreenSpaceBuilder::setOpacityExp(FloatExpressionInfoRef opacityExp)
 {
-    curState.opacityExp = opacityExp;
+    curState.opacityExp = std::move(opacityExp);
 }
 
 void ScreenSpaceBuilder::setColorExp(ColorExpressionInfoRef colorExp)
 {
-    curState.colorExp = colorExp;
+    curState.colorExp = std::move(colorExp);
 }
 
 void ScreenSpaceBuilder::setScaleExp(FloatExpressionInfoRef scaleExp)
 {
-    curState.scaleExp = scaleExp;
+    curState.scaleExp = std::move(scaleExp);
 }
 
 void ScreenSpaceBuilder::setEnable(bool inEnable)
@@ -333,7 +383,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
         drawIDs->insert(builder->getDrawableID());
     }
 
-    const int baseVert = builder->getNumPoints();
+    const unsigned int baseVert = builder->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         const Point2d &coord = coords[ii];
@@ -358,7 +408,7 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,
     }
 
     // Note: Do something with keepUpright
-    const int baseVert = builder->getNumPoints();
+    const unsigned int baseVert = drawWrap->getDrawableBuilder()->getNumPoints();
     for (unsigned int ii=0;ii<4;ii++)
     {
         const Point2d &coord = coords[ii];
@@ -387,9 +437,9 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &scre
                                           SimpleIDUnorderedSet *drawIDs)
 {
     std::sort(screenObjects.begin(),screenObjects.end(),
-          [](const auto *a, const auto *b) { return a->orderBy < b->orderBy; });
+                  [](const ScreenSpaceObject *a, const ScreenSpaceObject *b) {return a->orderBy < b->orderBy; });
 
-    for (const auto &ssObj : screenObjects)
+    for (const auto *ssObj : screenObjects)
     {
         addScreenObject(*ssObj, ssObj->worldLoc, &ssObj->geometry,places,drawIDs);
     }
@@ -452,13 +502,23 @@ void ScreenSpaceBuilder::addScreenObject(const ScreenSpaceObject &ssObj,
             dir = dir3d.cast<float>();
         }
 
-        const int baseVert = builder->getNumPoints();
+        const unsigned int baseVert = drawWrap->locDraw->getNumPoints();
         for (unsigned int jj=0;jj<geom.coords.size();jj++)
         {
             const Point2d coord = geom.coords[jj] + ssObj.offset;
             const TexCoord *texCoord = (jj < geom.texCoords.size()) ? &geom.texCoords[jj] : nullptr;
-            drawWrap->addVertex(coordAdapter,scale,startLoc3d, state.motion ? &dir : nullptr,
-                                ssObj.rotation, coord, texCoord, &geom.color, &geom.vertexAttrs);
+            const auto rot = (float)ssObj.getRotation();
+            if (state.motion)
+            {
+                const Point3f dir3f = dir.cast<float>();
+                drawWrap->addVertex(coordAdapter,scale,startLoc3d, &dir3f, rot, coord,
+                                    texCoord, &geom.color, &geom.vertexAttrs);
+            }
+            else
+            {
+                drawWrap->addVertex(coordAdapter,scale,startLoc3d, nullptr, rot, coord,
+                                    texCoord, &geom.color, &geom.vertexAttrs);
+            }
         }
         for (unsigned int jj=0;jj<geom.coords.size()-2;jj++)
         {
@@ -485,37 +545,99 @@ void ScreenSpaceBuilder::buildDrawables(std::vector<BasicDrawableRef> &draws)
     
 std::vector<BasicDrawableRef> ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
+    return flushChanges(changes, &drawIDs);
+}
+
+std::vector<BasicDrawableRef> ScreenSpaceBuilder::flushChanges(ChangeSet &changes,SimpleIDSet *drawIDs)
+{
     std::vector<BasicDrawableRef> draws;
     buildDrawables(draws);
 
     for (const auto &draw : draws)
     {
-        drawIDs.insert(draw->getId());
+        if (drawIDs)
+        {
+            drawIDs->insert(draw->getId());
+        }
         changes.push_back(new AddDrawableReq(draw));
     }
 
     return draws;
 }
 
-ScreenSpaceObject::ScreenSpaceObject() :
-    enable(true), startEnable(0.0), endEnable(0.0),
-    worldLoc(0,0,0), endWorldLoc(0,0,0),
-    startTime(0.0), endTime(0.0),
-    offset(0,0), rotation(0),
-    keepUpright(false),
-    orderBy(-1)
+ScreenSpaceConvexGeometry::ScreenSpaceConvexGeometry(ScreenSpaceConvexGeometry &&other) noexcept :
+    texIDs         (std::move(other.texIDs)),
+    progID         (other.progID),
+    color          (other.color),
+    drawOrder      (other.drawOrder),
+    drawPriority   (other.drawPriority),
+    renderTargetID (other.renderTargetID),
+    vertexAttrs    (std::move(other.vertexAttrs)),
+    coords         (std::move(other.coords)),
+    texCoords      (std::move(other.texCoords))
 {
 }
 
-ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID) :
-    Identifiable(theID), enable(true), startEnable(0.0), endEnable(0.0),
-    worldLoc(0,0,0), endWorldLoc(0,0,0),
-    startTime(0), endTime(0),
-    offset(0,0),
-    rotation(0),
-    keepUpright(false),
-    orderBy(-1)
+ScreenSpaceConvexGeometry& ScreenSpaceConvexGeometry::operator=(ScreenSpaceConvexGeometry &&other) noexcept
 {
+    if (this != &other)
+    {
+        texIDs         = std::move(other.texIDs);
+        progID         = other.progID;
+        color          = other.color;
+        drawOrder      = other.drawOrder;
+        drawPriority   = other.drawPriority;
+        renderTargetID = other.renderTargetID;
+        vertexAttrs    = std::move(other.vertexAttrs);
+        coords         = std::move(other.coords);
+        texCoords      = std::move(other.texCoords);
+    }
+    return *this;
+}
+
+ScreenSpaceObject::ScreenSpaceObject(SimpleIdentity theID) :
+        Identifiable(theID)
+{
+}
+
+ScreenSpaceObject::ScreenSpaceObject(ScreenSpaceObject &&other) noexcept :
+    Identifiable(other.myId),
+    enable      (other.enable),
+    startEnable (other.startEnable),
+    endEnable   (other.endEnable),
+    worldLoc    (std::move(other.worldLoc)),
+    endWorldLoc (std::move(other.endWorldLoc)),
+    startTime   (other.startTime),
+    endTime     (other.endTime),
+    offset      (std::move(other.offset)),
+    rotation    (other.rotation),
+    orderBy     (other.orderBy),
+    keepUpright (other.keepUpright),
+    state       (std::move(other.state)),
+    geometry    (std::move(other.geometry))
+{
+}
+
+ScreenSpaceObject &ScreenSpaceObject::operator=(ScreenSpaceObject &&other) noexcept
+{
+    if (this != &other)
+    {
+        this->Identifiable::operator=(other);
+        enable      = other.enable;
+        startEnable = other.startEnable;
+        endEnable   = other.endEnable;
+        worldLoc    = other.worldLoc;
+        endWorldLoc = other.endWorldLoc;
+        startTime   = other.startTime;
+        endTime     = other.endTime;
+        offset      = other.offset;
+        rotation    = other.rotation;
+        orderBy     = other.orderBy;
+        keepUpright = other.keepUpright;
+        state       = std::move(other.state);
+        geometry    = std::move(other.geometry);
+    }
+    return *this;
 }
 
 void ScreenSpaceObject::setEnable(bool inEnable)
@@ -642,9 +764,29 @@ void ScreenSpaceObject::addGeometry(const ScreenSpaceConvexGeometry &geom)
     geometry.push_back(geom);
 }
 
+void ScreenSpaceObject::addGeometry(ScreenSpaceConvexGeometry &&geom)
+{
+    geometry.emplace_back(std::move(geom));
+}
+
 void ScreenSpaceObject::addGeometry(const std::vector<ScreenSpaceConvexGeometry> &geom)
 {
+    if (geometry.empty())
+    {
+        geometry.reserve(geom.size());
+    }
     geometry.insert(geometry.end(), geom.begin(), geom.end());
+}
+
+void ScreenSpaceObject::addGeometry(std::vector<ScreenSpaceConvexGeometry> &&geom)
+{
+    if (geometry.empty())
+    {
+        geometry.reserve(geom.size());
+    }
+    geometry.insert(geometry.end(),
+                    std::make_move_iterator(geom.begin()),
+                    std::make_move_iterator(geom.end()));
 }
 
 SimpleIdentity ScreenSpaceObject::getTypicalProgramID()
@@ -668,14 +810,34 @@ int ScreenSpaceObject::getDrawPriority() const
     return state.drawPriority;
 }
 
-ScreenSpaceObjectLocation::ScreenSpaceObjectLocation() :
-    dispLoc(0,0,0),
-    offset(0,0),
-    keepUpright(false),
-    rotation(0.0),
-    clusterGroup(-1),
-    clusterId(EmptyIdentity)
+ScreenSpaceObjectLocation::ScreenSpaceObjectLocation(ScreenSpaceObjectLocation &&other) noexcept :
+    shapeIDs     (std::move(other.shapeIDs)),
+    dispLoc      (std::move(other.dispLoc)),
+    offset       (std::move(other.offset)),
+    keepUpright  (other.keepUpright),
+    rotation     (other.rotation),
+    pts          (std::move(other.pts)),
+    mbr          (std::move(other.mbr)),
+    clusterGroup (other.clusterGroup),
+    clusterId    (other.clusterId)
 {
+}
+
+ScreenSpaceObjectLocation& ScreenSpaceObjectLocation::operator=(ScreenSpaceObjectLocation &&other) noexcept
+{
+    if (this != &other)
+    {
+        shapeIDs     = std::move(other.shapeIDs);
+        dispLoc      = std::move(other.dispLoc);
+        offset       = std::move(other.offset);
+        keepUpright  = other.keepUpright;
+        rotation     = other.rotation;
+        pts          = std::move(other.pts);
+        mbr          = other.mbr;
+        clusterGroup = other.clusterGroup;
+        clusterId    = other.clusterId;
+    }
+    return *this;
 }
 
 }

@@ -60,6 +60,7 @@ public:
     /// Convert from lat/lon t the local coordinate system
     virtual Point3f geographicToLocal(GeoCoord) const = 0;
     virtual Point3d geographicToLocal(Point2d) const = 0;
+    virtual Point2d geographicToLocal2(const Point2d&) const = 0;
     virtual Point3d geographicToLocal3d(GeoCoord) const = 0;
 
     /// Convert from the local coordinate system to geocentric

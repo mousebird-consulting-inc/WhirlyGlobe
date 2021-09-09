@@ -99,10 +99,11 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
         // Sources tell us where to get tiles
         styleDict.getDict("sources")?.let { sourcesDict ->
-            val keys = sourcesDict.keys
-            for (key in keys) {
+            for (key in sourcesDict.keys ?: emptyArray()) {
                 try {
-                    sources.add(Source(key, sourcesDict.getDict(key), this))
+                    sourcesDict.getDict(key)?.let { dict ->
+                        sources.add(Source(key, dict, this))
+                    }
                 } catch (e: Exception) {
                     Log.w("Maply", "Error while adding source '$key': ${e.message}")
                 }
@@ -159,7 +160,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         labelInfo.setFontSize(fontSize)
         labelInfo.fontName = fontName
         // TODO: See if we could get this from the typeface
-        labelInfo.fontPointSize = 32.0f;
+        labelInfo.fontPointSize = 32.0f
 
         // Same with the size-specific label info
         return labelInfoMap.putIfAbsent(SizedTypeface(fontName, fontSize), labelInfo) ?: labelInfo
@@ -238,7 +239,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         }
         val size = eleSum.toInt()
         if (size == 0)
-            return EmptyIdentity;
+            return EmptyIdentity
 
         val width = 1
         val bitmap = Bitmap.createBitmap(width, size, Bitmap.Config.ARGB_8888)
@@ -427,7 +428,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     /**
      * Add the sprites
      */
-    public fun addSprites(spriteJSON: String, spriteSheet: Bitmap) {
+    fun addSprites(spriteJSON: String, spriteSheet: Bitmap) {
         val control = control?.get() ?: return
 
         val spriteTex = control.addTexture(spriteSheet, RenderControllerInterface.TextureSettings(),
@@ -446,20 +447,23 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return Bitmap.createBitmap(src, xywh[0], xywh[1], xywh[2], xywh[3])
     }
 
-    protected external fun addSpritesNative(spriteJSON: String, texID: Long, width: Int, height: Int): Boolean
+    private external fun addSpritesNative(spriteJSON: String, texID: Long, width: Int, height: Int): Boolean
 
-    protected external fun getSpriteInfoNative(name: String, xywh: IntArray): Boolean
+    private external fun getSpriteInfoNative(name: String, xywh: IntArray): Boolean
 
     // Set a named layer visible or invisible
-    public external fun setLayerVisible(layerName: String, visible: Boolean)
+    external fun setLayerVisible(layerName: String, visible: Boolean)
 
     enum class SourceType {
         Vector, Raster
     }
 
     // Source for vector tile (or raster) data
-    inner class Source internal constructor(// Name as it appears in the file
-            var name: String, styleEntry: AttrDictionary, styleSet: MapboxVectorStyleSet?
+    inner class Source internal constructor(
+        // Name as it appears in the file
+        var name: String,
+        styleEntry: AttrDictionary,
+        val styleSet: MapboxVectorStyleSet?
     ) {
         // Either vector or raster at present
         var type: SourceType? = null
@@ -469,6 +473,9 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
         // If the TileJSON spec is inline, it's here
         var tileSpec: Array<AttrDictionaryEntry>?
+
+        val minZoom: Int? = styleEntry.getInt("minzoom")
+        val maxZoom: Int? = styleEntry.getInt("maxzoom")
 
         init {
             val typeStr = styleEntry.getString("type")
@@ -514,11 +521,11 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     /**
      * Clean up resources associated with the vector style
      */
-    public fun shutdown() {
+    fun shutdown() {
         val control = control?.get() ?: return
 
         spriteTex = spriteTex?.let {
-            control.removeTexture(it, RenderControllerInterface.ThreadMode.ThreadAny)
+            control.removeTexture(it, ThreadMode.ThreadAny)
             null
         }
     }

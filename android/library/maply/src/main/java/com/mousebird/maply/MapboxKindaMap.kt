@@ -152,7 +152,13 @@ open class MapboxKindaMap(
      * 1024^2 is good for vector tiles, 256^2 is good for image tiles
      */
     var minImportance = 1024.0 * 1024.0
-    
+
+    /**
+     * Set higher than maxZoom to allow scaling of stylesheet
+     * features beyond the zoom level allowed by the data
+     */
+    var reportedMaxZoom: Int? = null
+
     var sampleParams: SamplingParams? = null; private set
 
     // These are run after a successful load of all the style
@@ -507,16 +513,25 @@ open class MapboxKindaMap(
 
         val tileInfos = ArrayList<TileInfoNew>()
         val localFetchers = ArrayList<MBTileFetcher>()
-        if (fetchSources) {
-            styleSheet?.sources?.forEach { source ->
-                source.tileSpec?.forEach { specItem ->
-                    specItem.dict?.let {
-                        minZoom = (it.getInt("minzoom") ?: minZoom).coerceAtMost(minZoom)
-                        maxZoom = (it.getInt("maxzoom") ?: maxZoom).coerceAtLeast(maxZoom)
+
+        styleSheet?.sources?.forEach { source ->
+            source.tileSpec?.forEach { specItem ->
+                specItem.dict?.let {
+                    val itemMinZoom = it.getInt("minzoom")
+                    val itemMaxZoom = it.getInt("maxzoom")
+                    if (fetchSources) {
+                        minZoom = (itemMinZoom ?: minZoom).coerceAtMost(minZoom)
+                        maxZoom = (itemMaxZoom ?: maxZoom).coerceAtLeast(maxZoom)
                     }
                 }
             }
-        } else {
+            // Even if fetchSources is off, keep the highest maxZoom value to use in maxReportedZoom.
+            source.maxZoom?.let { z ->
+                sourceMaxZoom = sourceMaxZoom?.coerceAtLeast(z) ?: z
+            }
+        }
+
+        if (!fetchSources) {
             localMBTiles?.forEach { item ->
                 val fetcher = MBTileFetcher(theControl, item)
                 maxConcurrentLoad?.let { fetcher.maxParsing = it }
@@ -554,7 +569,8 @@ open class MapboxKindaMap(
             it.minZoom = minZoom
             it.maxZoom = maxZoom
             // Let the reported zoom go beyond the maximum
-            it.reportedMaxZoom = maxZoom + 1
+            it.reportedMaxZoom = (maxZoom + 1).coerceAtLeast(reportedMaxZoom ?: 0)
+                                              .coerceAtLeast(sourceMaxZoom ?: 0)
         }
         sampleParams = params
 
@@ -642,11 +658,11 @@ open class MapboxKindaMap(
                            ?.mapNotNull { it.dict }?.forEach { tileSpec ->
             val minZoom = tileSpec.getInt("minzoom")
             val maxZoom = tileSpec.getInt("maxzoom")
-            if (minZoom < maxZoom) {
+            if (minZoom != null && maxZoom != null && minZoom < maxZoom) {
                 // A tile source may list multiple URLs, but we only support one.
                 tileSpec.getArray("tiles")
-                        .mapNotNull { it.string }
-                        .firstOrNull()?.let { tileUrl ->
+                        ?.mapNotNull { it.string }
+                        ?.firstOrNull()?.let { tileUrl ->
                     tileInfos.add(RemoteTileInfoNew(tileUrl, minZoom, maxZoom).also { tileSource ->
                        if (cacheDir != null) {
                             val cacheName = cacheNamePattern.replace(tileUrl, "_")
@@ -677,10 +693,10 @@ open class MapboxKindaMap(
                 imageStyleDict.parseFromJSON(styleSheetJSON)
                 val imageLayers = imageStyleDict.getArray("layers")
                 val newImageLayers = ArrayList<AttrDictionaryEntry>()
-                for (layer in imageLayers) {
+                for (layer in imageLayers ?: emptyArray()) {
                     if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
                         val layerDict = layer.dict
-                        val type = layerDict.getString("type")
+                        val type = layerDict?.getString("type")
                         if (type != null && (type == "background" || type == "fill"))
                             newImageLayers.add(layer)
                     }
@@ -699,10 +715,10 @@ open class MapboxKindaMap(
         if (backgroundAllPolys) {
             val vectorLayers = vectorStyleDict.getArray("layers")
             val newVectorLayers = ArrayList<AttrDictionaryEntry>()
-            for (layer in vectorLayers) {
+            for (layer in vectorLayers ?: emptyArray()) {
                 if (layer.type == AttrDictionaryEntry.Type.DictTypeDictionary) {
                     val layerDict = layer.dict
-                    val type = layerDict.getString("type")
+                    val type = layerDict?.getString("type")
                     if (type != null && (type != "background" && type != "fill"))
                         newVectorLayers.add(layer)
                 }
@@ -786,14 +802,14 @@ open class MapboxKindaMap(
     
         // Gotta run on the main thread
         if (Looper.getMainLooper().thread != Thread.currentThread()) {
-            val activity = theControl.activity;
+            val activity = theControl.activity
             if (activity != null) {
                 activity.runOnUiThread {
                     stop()
                 }
                 return
             }
-            Log.w("Maply", "No activity, shutting down on calling thread");
+            Log.w("Maply", "No activity, shutting down on calling thread")
         }
 
         outstandingFetches.forEach {
@@ -806,7 +822,7 @@ open class MapboxKindaMap(
         mapboxInterp = null
 
         offlineRender?.shutdown()
-        offlineRender = null;
+        offlineRender = null
     
         styleSheet?.shutdown()
         styleSheetVector?.shutdown()
@@ -825,6 +841,8 @@ open class MapboxKindaMap(
 
     private val control : WeakReference<BaseController> = WeakReference<BaseController>(inControl)
     private val outstandingFetches = ArrayList<Call?>()
+
+    private var sourceMaxZoom: Int? = null
 
     // Characters which we don't put in cache filenames.
     // Equals and Ampersand are valid, but get escaped by URI, and so tend to cause trouble.
