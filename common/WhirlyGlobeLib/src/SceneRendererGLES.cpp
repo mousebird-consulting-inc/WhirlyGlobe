@@ -28,6 +28,7 @@
 #import "DynamicTextureAtlasGLES.h"
 #import "MaplyView.h"
 #import "WhirlyKitLog.h"
+#import "Expect.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -271,14 +272,17 @@ void SceneRendererGLES::render(TimeInterval duration)
     const TimeInterval now = scene->getCurrentTime();
 
     lastDraw = now;
-    
-    if (perfInterval > 0)
+
+    // Don't start reporting mid-frame.
+    const bool reportStats = (perfInterval > 0);
+
+    if (UNLIKELY(reportStats))
         perfTimer.startTiming("Render Frame");
     
-    if (perfInterval > 0)
+    if (UNLIKELY(reportStats))
         perfTimer.startTiming("Render Setup");
     
-    //    if (!renderSetup)
+    //if (!renderSetup)
     {
         // Turn on blending
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -329,16 +333,16 @@ void SceneRendererGLES::render(TimeInterval duration)
             break;
     }
     
-    //    if (!renderSetup)
+    //if (!renderSetup)
     {
         glEnable(GL_CULL_FACE);
         CheckGLError("SceneRendererES2: glEnable(GL_CULL_FACE)");
     }
     
-    if (perfInterval > 0)
+    if (UNLIKELY(reportStats))
         perfTimer.stopTiming("Render Setup");
     
-    if (scene)
+    if (LIKELY(scene))
     {
         int numDrawables = 0;
 
@@ -387,48 +391,48 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.heightAboveSurface = (float)theView->heightAboveSurface();
         baseFrameInfo.eyePos = Vector3d(eyeVec4d.x(),eyeVec4d.y(),eyeVec4d.z()) * (1.0+baseFrameInfo.heightAboveSurface);
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.startTiming("Scene preprocessing");
         
         // Run the preprocess for the changes.  These modify things the active models need.
-        int numPreProcessChanges = scene->preProcessChanges(theView, this, now);
+        const int numPreProcessChanges = scene->preProcessChanges(theView, this, now);
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.addCount("Preprocess Changes", numPreProcessChanges);
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Scene preprocessing");
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.startTiming("Active Model Runs");
         
         // Let the active models to their thing
         // That thing had better not take too long
-        auto activeModels = scene->getActiveModels();
+        const auto &activeModels = scene->getActiveModels();
         for (const auto &activeModel : activeModels) {
             activeModel->updateForFrame(&baseFrameInfo);
             // Note: We were setting the GL context here.  Do we need to?
         }
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.addCount("Active Models", (int)activeModels.size());
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Active Model Runs");
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.addCount("Scene changes", scene->getNumChangeRequests());
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.startTiming("Scene processing");
         
         // Merge any outstanding changes into the scenegraph
         scene->processChanges(theView,this,now);
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Scene processing");
         
         // Work through the available offset matrices (only 1 if we're not wrapping)
-        std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
+        const std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
         // Turn these drawables in to a vector
         std::vector<DrawableContainer> drawList;
         std::vector<DrawableRef> screenDrawables;
@@ -443,7 +447,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         mvpInvMats4f.resize(offsetMats.size());
         for (unsigned int off=0;off<offsetMats.size();off++)
         {
-            RendererFrameInfo offFrameInfo(baseFrameInfo);  // NOLINT: slicing from GLES frame
+            RendererFrameInfoGLES offFrameInfo(baseFrameInfo);
             // Tweak with the appropriate offset matrix
             modelAndViewMat4d = viewTrans4d * offsetMats[off] * modelTrans4d;
             pvMat = projMat4d * viewTrans4d * offsetMats[off];
@@ -465,7 +469,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             offFrameInfo.pvMat = Matrix4dToMatrix4f(pvMat);
             offFrameInfo.pvMat4d = pvMat;
 
-            auto rawDrawables = scene->getDrawables();
+            const auto rawDrawables = scene->getDrawables();
             drawList.reserve(rawDrawables.size());
             for (auto *draw : rawDrawables)
             {
@@ -474,11 +478,13 @@ void SceneRendererGLES::render(TimeInterval duration)
                 {
                     if (const Matrix4d *localMat = theDrawable->getMatrix())
                     {
-                        Eigen::Matrix4d newMvpMat = thisMvpMat * (*localMat);
-                        Eigen::Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
-                        Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                        Matrix4d newMvpMat = thisMvpMat * (*localMat);
+                        Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
+                        Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
                         drawList.emplace_back(theDrawable,newMvpMat,newMvMat,newMvNormalMat);
-                    } else {
+                    }
+                    else
+                    {
                         drawList.emplace_back(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d);
                     }
                 }
@@ -489,7 +495,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         const bool sortLinesToEnd = (zBufferMode == zBufferOffDefault);
         std::sort(drawList.begin(),drawList.end(),DrawListSortStruct2(sortLinesToEnd,&baseFrameInfo));
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.startTiming("Calculation Shaders");
 
 #if 0   // Not doing any calculation passes in OpenGL anymore.
@@ -540,10 +546,10 @@ void SceneRendererGLES::render(TimeInterval duration)
         }
 #endif
 
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Calculation Shaders");
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.startTiming("Draw Execution");
         
         SimpleIdentity curProgramId = EmptyIdentity;
@@ -647,10 +653,10 @@ void SceneRendererGLES::render(TimeInterval duration)
             }
         }
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.addCount("Drawables drawn", numDrawables);
         
-        if (perfInterval > 0)
+        if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Draw Execution");
         
         // Anything generated needs to be cleaned up
@@ -658,16 +664,16 @@ void SceneRendererGLES::render(TimeInterval duration)
         drawList.clear();
     }
     
-    //    if (perfInterval > 0)
+    //    if (UNLIKELY(reportStats))
     //        perfTimer.startTiming("glFinish");
     
     //    glFlush();
     //    glFinish();
     
-    //    if (perfInterval > 0)
+    //    if (UNLIKELY(reportStats))
     //        perfTimer.stopTiming("glFinish");
     
-    if (perfInterval > 0)
+    if (UNLIKELY(reportStats))
         perfTimer.startTiming("Present Renderbuffer");
 
 #ifndef __ANDROID__
@@ -683,23 +689,37 @@ void SceneRendererGLES::render(TimeInterval duration)
     // Snapshots tend to be platform specific
     snapshotCallback(now);
     
-    if (perfInterval > 0)
+    if (UNLIKELY(reportStats))
         perfTimer.stopTiming("Present Renderbuffer");
     
-    if (perfInterval > 0)
+    if (UNLIKELY(reportStats))
         perfTimer.stopTiming("Render Frame");
     
     // Update the frames per sec
-    if (perfInterval > 0 && frameCount > perfInterval)
+    if (UNLIKELY(reportStats && frameCount > perfInterval))
     {
         const TimeInterval newNow = scene->getCurrentTime();
         const TimeInterval howLong =  newNow - frameCountStart;
         framesPerSec = (float)(frameCount / howLong);
         frameCountStart = newNow;
         frameCount = 0;
-        
+
         wkLogLevel(Verbose,"---Rendering Performance---");
-        wkLogLevel(Verbose," Frames per sec = %.2f",framesPerSec);
+
+        const auto frameTime = perfTimer.getTiming("Render Frame");
+        if (frameTime.numRuns > 0)
+        {
+            wkLogLevel(Verbose, "FPS min, max, mean, actual: %.2f, %.2f, %.2f, %.2f",
+                       (frameTime.maxDur > 0) ? (1.0 / frameTime.maxDur) : 0.0,
+                       (frameTime.minDur > 0) ? (1.0 / frameTime.minDur) : 0.0,
+                       (frameTime.avgDur > 0) ? (frameTime.numRuns / frameTime.avgDur) : 0.0,
+                       framesPerSec);
+        }
+        else
+        {
+            wkLogLevel(Verbose," Frames per sec = %.2f",framesPerSec);
+        }
+
         perfTimer.log();
         perfTimer.clear();
     }
@@ -762,6 +782,3 @@ DynamicTextureRef SceneRendererGLES::makeDynamicTexture(const std::string &name)
 }
 
 }
-
-
-#include <utility>

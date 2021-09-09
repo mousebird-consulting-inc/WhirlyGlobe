@@ -37,6 +37,7 @@ open class MapTilerTestCase : MaplyTestCase
         }
 
         control.layoutFadeEnabled = true
+        control.setPerfInterval(60)
 
         getStyleJson(whichMap)?.let { (json,img) ->
             loader?.shutdown()

@@ -64,7 +64,6 @@ public:
         // Comparison operator for set
         bool operator <(const DrawableState &that) const;
 
-		std::string uniqueID;
         std::vector<SimpleIdentity> texIDs;
         double period = 0.0;
         SimpleIdentity progID = EmptyIdentity;

@@ -85,8 +85,6 @@ ScreenSpaceBuilder::DrawableState& ScreenSpaceBuilder::DrawableState::operator=(
 
 bool ScreenSpaceBuilder::DrawableState::operator <(const DrawableState &that) const
 {
-    if (uniqueID != that.uniqueID)
-        return uniqueID < that.uniqueID;
     if (texIDs != that.texIDs)
         return texIDs < that.texIDs;
     if (period != that.period)

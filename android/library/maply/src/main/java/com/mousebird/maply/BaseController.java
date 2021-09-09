@@ -1214,7 +1214,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Report performance stats in the console ever few frames.
 	 * Setting this to zero turns it off.
-	 * @param inPerfInterval seconds between performance reports
+	 * @param inPerfInterval frames between performance reports
 	 */
 	public void setPerfInterval(int inPerfInterval)
 	{
