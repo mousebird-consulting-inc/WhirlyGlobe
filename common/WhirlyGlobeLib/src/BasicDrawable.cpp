@@ -108,33 +108,40 @@ bool BasicDrawable::isOn(RendererFrameInfo *frameInfo) const
     if (!on)
         return false;
     
-    double visVal = frameInfo->theView->heightAboveSurface();
-
     // Height based check
     if (minVisible != DrawVisibleInvalid && maxVisible != DrawVisibleInvalid)
     {
+        const double visVal = frameInfo->theView->heightAboveSurface();
         if (!((minVisible <= visVal && visVal <= maxVisible) ||
-                (maxVisible <= visVal && visVal <= minVisible)))
+              (maxVisible <= visVal && visVal <= minVisible)))
+        {
             return false;
+        }
     }
     
     // Viewer based check
-    if (minViewerDist != DrawVisibleInvalid && maxViewerDist != DrawVisibleInvalid &&
+    if (minViewerDist != DrawVisibleInvalid &&
+        maxViewerDist != DrawVisibleInvalid &&
         viewerCenter.x() != DrawVisibleInvalid)
     {
-        double dist2 = (viewerCenter - frameInfo->eyePos).squaredNorm();
+        const double dist2 = (viewerCenter - frameInfo->eyePos).squaredNorm();
         if (!(minViewerDist*minViewerDist < dist2 && dist2 <= maxViewerDist*maxViewerDist))
+        {
             return false;
+        }
     }
     
     // Zoom based check.  We need to be in the current zoom range
-    if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots) {
-        float zoom = frameInfo->scene->getZoomSlotValue(zoomSlot);
+    if (zoomSlot > -1 && zoomSlot <= MaplyMaxZoomSlots &&
+        (minZoomVis != DrawVisibleInvalid || maxZoomVis != DrawVisibleInvalid))
+    {
+        const float zoom = frameInfo->scene->getZoomSlotValue(zoomSlot);
         if (zoom != MAXFLOAT) {
-            if (minZoomVis != DrawVisibleInvalid && zoom < minZoomVis)
+            if ((minZoomVis != DrawVisibleInvalid && zoom < minZoomVis) ||
+                (maxZoomVis != DrawVisibleInvalid && zoom >= maxZoomVis))
+            {
                 return false;
-            if (maxZoomVis != DrawVisibleInvalid && zoom >= maxZoomVis)
-                return false;
+            }
         }
     }
     
@@ -625,11 +632,11 @@ FadeChangeRequest::FadeChangeRequest(SimpleIdentity drawId,TimeInterval fadeUp,T
 void FadeChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw)
 {
     // Fade it out, then remove it
-    if (auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
+    if (const auto basicDrawable = dynamic_cast<BasicDrawable*>(draw.get()))
     {
         basicDrawable->setFade(fadeDown, fadeUp);
     }
-    
+
     // And let the renderer know
     renderer->setRenderUntil(fadeDown);
     renderer->setRenderUntil(fadeUp);

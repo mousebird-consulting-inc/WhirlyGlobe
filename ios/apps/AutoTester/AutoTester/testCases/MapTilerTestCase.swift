@@ -67,6 +67,7 @@ class MapTilerTestCase: MaplyTestCase {
 
         globeViewController?.autoMoveToTap = false
         mapViewController?.autoMoveToTap = false
+        viewC.layoutFade = true
 
         if (light) {
             viewC.resetLights()

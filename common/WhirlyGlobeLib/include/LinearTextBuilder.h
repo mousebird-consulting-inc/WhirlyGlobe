@@ -1,5 +1,4 @@
-/*
- *  LinearTextBuilder.h
+/*  LinearTextBuilder.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/3/21.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyVector.h"
@@ -73,11 +71,13 @@ public:
     void process();
     
     // Return the individual runs to follow
-    std::vector<VectorRing> getScreenVecs();
-    
+    std::vector<VectorRing> getScreenVecs() const;
+
+    const std::vector<VectorRing> &getScreenVecsRef() const;
+
     // Visual vectors for debugging
-    ShapeSet getVisualVecs();
-    
+    ShapeSet getVisualVecs() const;
+
     // Convert point from screen coordinates back to world coordinates
     bool screenToWorld(const Point2f &pt,Point3d &outPt);
     Point2f worldToScreen(const Point3d &worldPt);

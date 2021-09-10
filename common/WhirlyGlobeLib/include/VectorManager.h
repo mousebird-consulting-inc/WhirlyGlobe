@@ -97,11 +97,12 @@ typedef std::shared_ptr<VectorInfo> VectorInfoRef;
 class VectorManager : public SceneManager
 {
 public:
-    VectorManager();
+    VectorManager() = default;
     virtual ~VectorManager();
     
     /// Add an array of vectors.  The returned ID can be used for removal.
-    SimpleIdentity addVectors(ShapeSet *shapes,const VectorInfo &desc,ChangeSet &changes);
+    SimpleIdentity addVectors(const std::vector<VectorShapeRef> &shapes,const VectorInfo &desc,ChangeSet &changes);
+    SimpleIdentity addVectors(const ShapeSet *shapes,const VectorInfo &desc,ChangeSet &changes);
     SimpleIdentity addVectors(const std::vector<VectorShapeRef> *shapes,const VectorInfo &desc,ChangeSet &changes);
 
     /// Change the vector(s) represented by the given ID

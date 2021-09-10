@@ -319,10 +319,16 @@ void LinearTextBuilder::process()
     return;
 }
 
-std::vector<VectorRing> LinearTextBuilder::getScreenVecs()
+std::vector<VectorRing> LinearTextBuilder::getScreenVecs() const
 {
     return runs;
 }
+
+const std::vector<VectorRing> &LinearTextBuilder::getScreenVecsRef() const
+{
+    return runs;
+}
+
 
 bool LinearTextBuilder::screenToWorld(const Point2f &pt,Point3d &outPt)
 {
@@ -348,7 +354,7 @@ Point2f LinearTextBuilder::worldToScreen(const Point3d &worldPt)
     return viewState->pointOnScreenFromDisplay(worldPt, &viewState->fullMatrices[offi], frameBufferSize);
 }
 
-ShapeSet LinearTextBuilder::getVisualVecs()
+ShapeSet LinearTextBuilder::getVisualVecs() const
 {
     ShapeSet retShapes;
 

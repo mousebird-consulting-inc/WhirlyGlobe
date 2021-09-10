@@ -154,6 +154,11 @@
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
 
 /**
+    Controls whether objects with unique IDs fade in and out when added or removed from the layout manager
+ */
+@property (nonatomic,assign) bool layoutFade;
+
+/**
     If in Metal rendering mode, return the Metal device being used.
   */
 - (id<MTLDevice> __nullable)getMetalDevice;

@@ -43,7 +43,8 @@ public:
     virtual Point3f geographicToLocal(GeoCoord) const override;
     virtual Point3d geographicToLocal3d(GeoCoord) const override;
     virtual Point3d geographicToLocal(Point2d) const override;
-    
+    virtual Point2d geographicToLocal2(const Point2d&) const override;
+
     /// Convert from the local coordinate system to geocentric
     virtual Point3f localToGeocentric(Point3f) const override;
     virtual Point3d localToGeocentric(Point3d) const override;

@@ -127,6 +127,20 @@ Point3d Proj4CoordSystem::geographicToLocal(Point2d geo) const
     return {x,y,z};
 }
 
+Point2d Proj4CoordSystem::geographicToLocal2(const Point2d &geo) const
+{
+    double x = geo.x(),y = geo.y(),z = 0.0;
+    const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
+    if (result != 0) {
+        if (result != PJ_ERR_BOUNDS) {
+            wkLogLevel(Debug, "Proj4CoordSystem::geographicToLocal error (%d) converting from geographic %f,%f",
+                       result,geo.x(),geo.y());
+        }
+        return {0,0};
+    }
+    return {x,y};
+}
+
 /// Convert from the local coordinate system to geocentric
 Point3f Proj4CoordSystem::localToGeocentric(Point3f localPt) const
 {

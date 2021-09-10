@@ -1214,7 +1214,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Report performance stats in the console ever few frames.
 	 * Setting this to zero turns it off.
-	 * @param inPerfInterval seconds between performance reports
+	 * @param inPerfInterval frames between performance reports
 	 */
 	public void setPerfInterval(int inPerfInterval)
 	{
@@ -2359,6 +2359,33 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Check whether fades are enabled on the layout manager
+	 */
+	public boolean getLayoutFadeEnabled() {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				return lm.getFadeEnabled();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Set whether fades are enabled on the layout manager
+	 */
+	public void setLayoutFadeEnabled(boolean enable) {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				lm.setFadeEnabled(enable);
+			}
+		}
 	}
 
 	/**

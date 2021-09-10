@@ -30,7 +30,7 @@ namespace WhirlyKit
 {
 
 class Drawable;
-class RendererFrameInfo;
+struct RendererFrameInfo;
 class Scene;
 class SceneRenderer;
 

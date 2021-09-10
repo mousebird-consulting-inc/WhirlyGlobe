@@ -1,9 +1,8 @@
-/*
- *  PlateCarreeCoordSystem_jni.cpp
+/*  PlateCarreeCoordSystem_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -24,21 +22,20 @@
 
 using namespace WhirlyKit;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_nativeInit
   (JNIEnv *env, jclass cls)
 {
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_PlateCarreeCoordSystem_initialise
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		PlateCarreeCoordSystem *coordSystem = new PlateCarreeCoordSystem();
-		CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(coordSystem));
+		CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,
+			new CoordSystemRef(std::make_shared<PlateCarreeCoordSystem>()));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in PlateCarreeCoordSystem::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }

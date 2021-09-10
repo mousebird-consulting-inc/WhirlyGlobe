@@ -464,10 +464,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_initialise(JNIEnv 
         auto wrap = new LayoutManagerWrapper(&threadInfo, layoutManager);
         LayoutManagerWrapperClassInfo::getClassInfo()->setHandle(env, obj, wrap);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -485,10 +482,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_dispose(JNIEnv *en
             delete wrap;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -501,10 +495,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setMaxDisplayObjec
             wrap->layoutManager->setMaxDisplayObjects(maxObjs);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::setMaxDisplayObjects()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -527,10 +518,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_updateLayout
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::updateLayout()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 
@@ -548,10 +536,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_cancelUpdate
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::cancelUpdate()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -564,10 +549,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_hasChanges(JNI
             return wrap->layoutManager->hasChanges();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::hasChanges()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -582,10 +564,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_addClusterGenerato
             wrap->addClusterGenerator(env, clusterObj, clusterID, selectable, sizeX, sizeY);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -599,10 +578,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_removeClusterG
             return wrap->removeClusterGenerator(env, clusterID);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -616,10 +592,36 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_clearClusterGenera
             wrap->clearClusterGenerators(env);
         }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setFadeEnabled
+        (JNIEnv *env, jobject obj, jboolean enable)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::addClusterGenerator()");
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            wrap->layoutManager->setFadeEnabled(enable);
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_getFadeEnabled
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (auto wrap = LayoutManagerWrapperClassInfo::get(env, obj))
+        {
+            return wrap->layoutManager->getFadeEnabled();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"
@@ -633,10 +635,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LayoutManager_setShowDebugLayout
             wrap->layoutManager->setShowDebugBoundaries(show);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::setShowDebugLayoutBoundaries()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -650,9 +649,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LayoutManager_getShowDebugLa
             return wrap->layoutManager->getShowDebugBoundaries();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LayoutManager::getShowDebugLayoutBoundaries()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }

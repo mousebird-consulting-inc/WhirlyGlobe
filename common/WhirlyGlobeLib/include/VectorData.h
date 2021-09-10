@@ -42,7 +42,9 @@ public:
 	void setAttrDict(MutableDictionaryRef newDict);
 	
 	/// Return the attr dict
-	MutableDictionaryRef getAttrDict();
+    MutableDictionaryRef getAttrDict() const;
+    const MutableDictionaryRef &getAttrDictRef() const;
+
     /// Return the geoMbr
     virtual GeoMbr calcGeoMbr() = 0;
 	
@@ -137,12 +139,11 @@ public:
     
     /// Creation function.  Use this instead of new.
     static VectorTrianglesRef createTriangles();
-    ~VectorTriangles();
+    ~VectorTriangles() = default;
     
     /// Simple triangle with three points (obviously)
     typedef struct Triangle
     {
-    public:
         int pts[3];
     } Triangle;
     
@@ -150,25 +151,30 @@ public:
     void initGeoMbr();
     
     // Return the given triangle as a VectorRing
-    void getTriangle(int which,VectorRing &ring);
-    
+    bool getTriangle(int which,Point2f points[3]) const;
+    bool getTriangle(int which,VectorRing &ring) const;
+
     /// True if the given point is within one of the triangles
-    bool pointInside(const GeoCoord &coord);
+    bool pointInside(const GeoCoord &coord) const;
     
     // Bounding box in 2D
-	GeoMbr geoMbr;
+    GeoMbr geoMbr;
 
     // Shared points
     Point3fVector pts;
     // Triangles
     std::vector<Triangle> tris;
-    
+
+    /// Set to true if the coordinates have already been converted from geographic to local.
+    bool localCoords = false;
+
 protected:
-    VectorTriangles();
+    VectorTriangles() = default;
 };
 
 /// Look for a triangle/ray intersection in the mesh
-bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt);
+bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,
+                                 const VectorTriangles &mesh,double *outT,Point3d *iPt);
 
 /// Areal feature is a list of loops.  The first is an outer loop
 ///  and all the rest are inner loops
