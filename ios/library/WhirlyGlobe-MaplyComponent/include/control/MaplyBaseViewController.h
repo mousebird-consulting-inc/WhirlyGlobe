@@ -1400,6 +1400,13 @@
   */
 - (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord;
 
+/**
+    Convert from a local coordinate (probably spherical mercator) to a display coordinate.
+    
+    This converts from a local coordinate (x,y,height) in the view controller's coordinate system (probably spherical mercator) to a coordinate in display space.  For the globe display space is based on a radius of 1.0.  For the flat map it's just stretched with a similar factor.
+  */
+- (MaplyCoordinate3dD)displayCoordFromLocalD:(MaplyCoordinate3dD)localCoord;
+
 /** 
     Convert from a coordinate in the given system to display space.
     

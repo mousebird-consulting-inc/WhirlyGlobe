@@ -169,6 +169,8 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
         return;
     
     BasicDrawableBuilderRef draw(NULL);
+    if (!draws.empty())
+        draw = draws.back();
     for (unsigned int ii=0;ii<triangles.size();ii++)
     {
         RawTriangle tri = triangles[ii];
@@ -212,7 +214,7 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
         draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));
     }
 }
-    
+
 GeometryRawPoints::GeometryRawPoints()
 {
 }

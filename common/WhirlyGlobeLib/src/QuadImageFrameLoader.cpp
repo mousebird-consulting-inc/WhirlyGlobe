@@ -1359,7 +1359,6 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
         // Don't know about this one.  Punt
         if (it == tiles.end())
             continue;
-        //auto &tile = it->second;
         
         // Clear out any associated data and remove it from our list
         removeTile(threadInfo,inTile, batchOps, changes);

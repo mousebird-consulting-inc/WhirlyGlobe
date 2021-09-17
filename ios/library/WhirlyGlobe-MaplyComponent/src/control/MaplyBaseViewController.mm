@@ -1460,6 +1460,15 @@ static const float PerfOutputDelay = 15.0;
     return ret;
 }
 
+- (MaplyCoordinate3dD)displayCoordFromLocalD:(MaplyCoordinate3dD)localCoord
+{
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
+    
+    MaplyCoordinate3dD ret;
+    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
+    return ret;
+}
+
 - (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource
 {
     if (!renderControl)
