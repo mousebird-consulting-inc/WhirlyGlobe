@@ -68,7 +68,7 @@ public:
     void cleanup(JNIEnv *env);
 
 public:
-    jobject thisObj = nullptr;
+    jweak thisObj = nullptr;
     jmethodID makeLabelInfoMethod = nullptr;
     jmethodID calculateTextWidthMethod = nullptr;
     jmethodID makeCircleTextureMethod = nullptr;
