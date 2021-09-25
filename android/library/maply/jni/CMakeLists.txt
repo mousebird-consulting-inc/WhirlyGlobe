@@ -24,6 +24,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Components_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/CoordSystem_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Formats_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/GeographicLib_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Geometry_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/GeometryManager_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/LabelsAndMarkers_jni.h"
@@ -39,6 +40,8 @@ target_sources(
 
         "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Maply_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/jni_util/Exceptions_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/geo/GeographicLib_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/math/AngleAxis_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/math/Matrix3d_jni.cpp"

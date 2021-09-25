@@ -37,6 +37,7 @@ target_include_directories(
         PUBLIC
 
         "${LOCALLIBS_DIR}/eigen/"
+        "${LOCALLIBS_DIR}/GeographicLib/include"
 )
 
 include("${LOCALLIBS_DIR}/proj-4/src/wgmaplyCMakeLists.txt")
