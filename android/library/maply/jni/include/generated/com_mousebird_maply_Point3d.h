@@ -69,7 +69,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_nativeInit
  * Signature: ()V
  */
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_initialise
-  (JNIEnv *, jobject);
+  (JNIEnv *, jobject,jdouble,jdouble,jdouble);
 
 /*
  * Class:     com_mousebird_maply_Point3d

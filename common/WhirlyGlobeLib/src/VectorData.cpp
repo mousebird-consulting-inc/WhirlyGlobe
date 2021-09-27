@@ -179,7 +179,8 @@ void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,f
 }
 
 void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &outPts,
-        CoordSystemDisplayAdapter *adapter,double eps2,double prevDist2 = std::numeric_limits<double>::max())
+                               const CoordSystemDisplayAdapter *adapter,double eps2,
+                               double prevDist2 = std::numeric_limits<double>::max())
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -204,7 +205,8 @@ void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &o
 }
 
 void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,
-        CoordSystemDisplayAdapter *adapter,double eps2,double prevDist2 = std::numeric_limits<double>::max())
+                               const CoordSystemDisplayAdapter *adapter,double eps2,
+                               double prevDist2 = std::numeric_limits<double>::max())
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -228,7 +230,7 @@ void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d 
 }
 
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,
-        CoordSystemDisplayAdapter *adapter,float eps)
+        const CoordSystemDisplayAdapter *adapter,float eps)
 {
     const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
@@ -241,7 +243,8 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
     }
 }
 
-void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
+void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,
+                             const CoordSystemDisplayAdapter *adapter,float eps)
 {
     const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
@@ -255,7 +258,7 @@ void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool
 
 // Great circle version
 void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,
-        CoordSystemDisplayAdapter *adapter,double eps2,float surfOffset,int minPts,
+        const CoordSystemDisplayAdapter *adapter,double eps2,float surfOffset,int minPts,
         double prevDist2 = std::numeric_limits<double>::max())
 {
     const Point3d midP = (p0+p1)/2.0;
@@ -271,7 +274,7 @@ void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVect
 }
 
 void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,bool closed,
-        CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+        const CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;

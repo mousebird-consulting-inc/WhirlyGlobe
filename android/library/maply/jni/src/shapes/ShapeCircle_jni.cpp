@@ -1,9 +1,8 @@
-/*
- *  ShapeCircle_jni.cpp
+/*  ShapeCircle_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Shapes_jni.h"
@@ -24,116 +22,114 @@
 
 using namespace WhirlyKit;
 
-template<> CircleClassInfo *CircleClassInfo::classInfoObj = NULL;
+template<> CircleClassInfo *CircleClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     CircleClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_initialise
 (JNIEnv *env, jobject obj)
 {
     try
     {
-        CircleClassInfo *classInfo = CircleClassInfo::getClassInfo();
-        Circle *inst = new Circle();
-        classInfo->setHandle(env, obj, inst);
+        CircleClassInfo::set(env, obj, new Circle());
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCircle::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         CircleClassInfo *classInfo = CircleClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Circle *inst = classInfo->getObject(env, obj);
-            if (!inst)
-                return;
-            delete inst;
-            classInfo->clearHandle(env, obj);
-        }
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env, obj);
+        classInfo->clearHandle(env, obj);
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCircle::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setLoc
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
     try
     {
-        CircleClassInfo *classInfo = CircleClassInfo::getClassInfo();
-        Circle *inst = classInfo->getObject(env, obj);
-        Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
-        Point2d *loc = ptClassInfo->getObject(env,ptObj);
-        if (!inst || !loc)
-            return;
-
-        inst->loc = GeoCoord(loc->x(),loc->y());
+        if (Circle *inst = CircleClassInfo::get(env, obj))
+        if (Point2d *loc = Point2dClassInfo::get(env,ptObj))
+        {
+            inst->loc = GeoCoord(loc->x(),loc->y());
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCircle::setLoc()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setLoc3d
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+    try
+    {
+        if (Circle *inst = CircleClassInfo::get(env, obj))
+        if (Point3d *loc = Point3dClassInfo::get(env,ptObj))
+        {
+            inst->loc = GeoCoord(loc->x(),loc->y());
+            inst->height = loc->z();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setHeight
   (JNIEnv *env, jobject obj, jdouble height)
 {
     try
     {
         CircleClassInfo *classInfo = CircleClassInfo::getClassInfo();
-        Circle *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->height = height;
+        if (Circle *inst = classInfo->getObject(env, obj))
+        {
+            inst->height = height;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCircle::setHeight()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setRadius
   (JNIEnv *env, jobject obj, jdouble radius)
 {
     try
     {
         CircleClassInfo *classInfo = CircleClassInfo::getClassInfo();
-        Circle *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->radius = radius;
+        if (Circle *inst = classInfo->getObject(env, obj))
+        {
+            inst->radius = radius;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCircle::setRadius()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCircle_setSample
   (JNIEnv *env, jobject obj, jint sampleX)
 {
     try
     {
         CircleClassInfo *classInfo = CircleClassInfo::getClassInfo();
-        Circle *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->sampleX = sampleX;
+        if (Circle *inst = classInfo->getObject(env, obj))
+        {
+            inst->sampleX = sampleX;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCircle::setSample()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

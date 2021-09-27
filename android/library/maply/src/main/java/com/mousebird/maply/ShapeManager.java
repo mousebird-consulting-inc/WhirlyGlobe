@@ -28,9 +28,10 @@ import java.util.List;
  */
 public class ShapeManager {
 
+    @SuppressWarnings("unused")     // Used by JNI
     private ShapeManager() {
-
     }
+
     public ShapeManager(Scene scene) {
         initialise(scene);
     }
@@ -55,12 +56,13 @@ public class ShapeManager {
      */
     public native void enableShapes (long[] shapesIDs, boolean enable, ChangeSet changes);
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();
     native void initialise(Scene scene);
     native void dispose();
+
+    @SuppressWarnings("unused")     // Used by JNI
     private long nativeHandle;
 }

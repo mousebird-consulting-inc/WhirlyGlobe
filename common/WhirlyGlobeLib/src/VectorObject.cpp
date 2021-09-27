@@ -1464,7 +1464,8 @@ VectorObjectRef VectorObject::clipToMbr(const Point2d &ll,const Point2d &ur)
     return newVec;
 }
  
-void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps)
+void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                       const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps)
 {
     const bool isFlat = coordAdapter->isFlat();
     
@@ -1512,7 +1513,8 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
     }
 }
 
-void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
+void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
 {
     const bool isFlat = coordAdapter->isFlat();
     

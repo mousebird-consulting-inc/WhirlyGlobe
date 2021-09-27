@@ -192,7 +192,7 @@ public:
     /// @return True on success, false on failure.
     bool fromShapeFile(const std::string &fileName);
     
-    /// @brief Assemblies are just concattenated JSON
+    /// @brief Assemblies are just concatenated JSON
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
 
 public:
@@ -203,9 +203,11 @@ public:
 };
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps);
+void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                       const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps);
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
+void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
     
 }
