@@ -40,7 +40,7 @@ VertexAttribute::~VertexAttribute()
 }
 
 VertexAttribute::VertexAttribute(const VertexAttribute &that)
-: dataType(that.dataType), nameID(that.nameID), data(NULL), defaultData(that.defaultData), slot(that.slot)
+: dataType(that.dataType), nameID(that.nameID), data(nullptr), defaultData(that.defaultData), slot(that.slot)
 {
 }
 

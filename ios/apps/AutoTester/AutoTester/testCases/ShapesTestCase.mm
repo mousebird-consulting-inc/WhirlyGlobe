@@ -14,6 +14,7 @@
 #import "MaplyViewController.h"
 #import "AutoTester-Swift.h"
 
+#import "../../../common/WhirlyGlobeLib/include/WhirlyVector.h"
 
 // Simple representation of locations and name for testing
 typedef struct
@@ -83,6 +84,7 @@ LocationInfo locations[NumLocations] =
 		cyl.baseCenter = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
 		cyl.radius = 0.01;
 		cyl.height = 0.06;
+        cyl.baseHeight = 0.01;
 		cyl.selectable = true;
 		[cyls addObject:cyl];
 	}
@@ -110,6 +112,33 @@ LocationInfo locations[NumLocations] =
 	[baseViewC addShapes:circles desc:desc ];
 }
 
+- (void)addLinears:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc baseViewC: (MaplyBaseViewController*) baseViewC
+{
+    NSMutableArray *shapes = [[NSMutableArray alloc] init];
+    /*for (unsigned int ii=offset;ii<len;ii+=stride)*/ {
+        LocationInfo *loc0 = &locations[1];//ii];
+        LocationInfo *loc1 = &locations[8];//(ii+1)%len];
+        MaplyCoordinate c0 = MaplyCoordinateMakeWithDegrees(loc0->lon, loc0->lat);
+        MaplyCoordinate c1 = MaplyCoordinateMakeWithDegrees(loc1->lon, loc1->lat);
+
+        const int n = 50;
+        const float maxH = 0.1f;
+        std::vector<MaplyCoordinate3d> pts;
+        for (int i = 0; i < 2 * n; ++i)
+        {
+            const auto pa = WhirlyKit::Point2f(c0.x, c0.y);
+            const auto pb = WhirlyKit::Point2f(c1.x, c1.y);
+            const WhirlyKit::Point2f p = pa + (pb - pa) * (i / 2.0f / n);
+            const auto s = (float)std::sin(i * 4 * M_PI / n) * 0.2f;
+            const auto h = (s + 1 - (float)(i - n) * (i - n) / n / n) * maxH;
+            pts.push_back({p.x(), p.y(), h});
+        }
+        [shapes addObject:[[MaplyShapeLinear alloc] initWithCoords:&pts[0] numCoords:pts.size()]];
+    }
+    [baseViewC addShapes:shapes desc:desc];
+}
+
+
 - (void)addShapeSpheres:(LocationInfo *)locations len:(int)len stride:(int)stride offset:(int)offset desc:(NSDictionary *)desc baseViewC : (MaplyBaseViewController*) baseViewC
 {
 	NSMutableArray *spheres = [[NSMutableArray alloc] init];
@@ -118,6 +147,7 @@ LocationInfo locations[NumLocations] =
 		MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
 		sphere.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
 		sphere.radius = 0.04;
+        sphere.height = 0.05;
 		sphere.selectable = true;
 		[spheres addObject:sphere];
 	}
@@ -132,7 +162,8 @@ LocationInfo locations[NumLocations] =
         LocationInfo *location = &locations[ii];
         MaplyShapeCircle *circle = [[MaplyShapeCircle alloc] init];
         circle.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
-        circle.radius = 0.04;
+        circle.radius = 0.03;
+        circle.height = 0.01;
         circle.selectable = true;
         [circles addObject:circle];
     }
@@ -145,10 +176,11 @@ LocationInfo locations[NumLocations] =
 {
 	baseLayer = [[GeographyClassTestCase alloc]init];
 	[baseLayer setUpWithGlobe:globeVC];
-	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
-	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
-	[self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController *)globeVC];
-    [self addShapesCircles:locations len:NumLocations stride:4 offset:3 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyShapeSampleX: @(100)} baseViewC:(MaplyBaseViewController *)globeVC];
+	[self addShapeCylinders:locations len:NumLocations stride:5 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
+	[self addGreatCircles:locations len:NumLocations stride:5 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
+    [self addLinears:locations len:NumLocations stride:5 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)globeVC];
+    [self addShapeSpheres:locations len:NumLocations stride:5 offset:3 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyShapeSampleX: @(50), kMaplyZBufferWrite: @(true)} baseViewC:(MaplyBaseViewController *)globeVC];
+    [self addShapesCircles:locations len:NumLocations stride:5 offset:3 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0), kMaplyShapeSampleX: @(50), kMaplyZBufferRead: @(true)} baseViewC:(MaplyBaseViewController *)globeVC];
 }
 
 
@@ -156,9 +188,9 @@ LocationInfo locations[NumLocations] =
 {
 	baseLayer = [[GeographyClassTestCase alloc]init];
     [baseLayer setUpWithMap:mapVC];
-	[self addShapeCylinders:locations len:NumLocations stride:4 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)mapVC];
-	[self addGreatCircles:locations len:NumLocations stride:4 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)mapVC];
-	[self addShapeSpheres:locations len:NumLocations stride:4 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController *)mapVC];
+	[self addShapeCylinders:locations len:NumLocations stride:5 offset:0 desc:@{kMaplyColor : [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)mapVC];
+	[self addGreatCircles:locations len:NumLocations stride:5 offset:2 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.1 blue:0.0 alpha:1.0], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController*)mapVC];
+	[self addShapeSpheres:locations len:NumLocations stride:5 offset:1 desc:@{kMaplyColor : [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.8], kMaplyFade: @(1.0)} baseViewC:(MaplyBaseViewController *)mapVC];
 }
 
 @end

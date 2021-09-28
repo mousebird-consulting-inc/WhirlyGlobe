@@ -93,7 +93,7 @@ public:
     
     /// Construct with the visual description
     ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,SceneRenderer *sceneRender,const ShapeInfo &shapeInfo,const Point3d &center);
-    virtual ~ShapeDrawableBuilderTri();
+    virtual ~ShapeDrawableBuilderTri() = default;
 
     // If set the geometry is already in OpenGL clip coordinates, so we don't transform it
     void setClipCoords(bool newClipCoords);

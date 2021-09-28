@@ -1,9 +1,8 @@
-/*
- *  LineAndPointShaders.cpp
+/*  LineAndPointShadersGLES.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/21/18.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LineAndPointShadersGLES.h"
@@ -64,15 +62,15 @@ void main()
 }
 )";
 
-ProgramGLES *BuildDefaultLineShaderCullingGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildDefaultLineShaderCullingGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderLine,fragmentShaderLine);
+    auto *shader = new ProgramGLES(name,vertexShaderLine,fragmentShaderLine);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
-    
+
     return shader;
 }
 
@@ -108,13 +106,13 @@ void main()
 }
 )";
 
-ProgramGLES *BuildDefaultLineShaderNoCullingGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultLineShaderNoCullingGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderLineNoBack,fragmentShaderLineNoBack);
+    auto *shader = new ProgramGLES(name,vertexShaderLineNoBack,fragmentShaderLineNoBack);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;

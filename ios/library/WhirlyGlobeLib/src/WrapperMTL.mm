@@ -345,7 +345,7 @@ HeapManagerMTL::HeapInfoRef HeapManagerMTL::findTextureHeap(MTLTextureDescriptor
 HeapManagerMTL::HeapInfoRef HeapManagerMTL::findHeap(HeapSet &heapSet,size_t &size,id<MTLHeap> prevHeap)
 {
     const MTLSizeAndAlign sAlign = [mtlDevice heapBufferSizeAndAlignWithLength:size options:MTLResourceUsageRead];
-    size = std::max(size, sAlign.size);
+    size = std::max((NSUInteger)size, sAlign.size);
 
     for (const auto &heap : heapSet)
     {

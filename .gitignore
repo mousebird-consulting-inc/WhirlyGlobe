@@ -46,3 +46,6 @@ android/apps/AutoTesterAndroid/app/gradle/wrapper/
 android/apps/AutoTesterAndroid/app/gradlew
 
 android/apps/AutoTesterAndroid/app/gradlew.bat
+android/library/Android/build/
+android/library/Android/libs/
+android/library/Android/obj/

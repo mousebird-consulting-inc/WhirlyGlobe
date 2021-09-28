@@ -283,13 +283,16 @@ void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,f
 
 /// Break any edge that deviates by the given epsilon from the surface described in
 /// the display adapter;
-void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
-void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps);
+void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,
+                             const CoordSystemDisplayAdapter *adapter,float eps);
+void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,
+                             const CoordSystemDisplayAdapter *adapter,float eps);
 
 /// Break any edge that deviates by the given epsilon from the surface described in
 ///  the display adapter.  But rather than using lat lon values, we'll output in
 ///  display coordinates and build points along the great circle.
-void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,
+void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,VectorRing3d &outPts,bool closed,
+                               const CoordSystemDisplayAdapter *adapter,
                                float eps,float sphereOffset = 0.0,int minPts = 0);
     
 /** Base class for loading a vector data file.
