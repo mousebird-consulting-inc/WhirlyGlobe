@@ -529,23 +529,26 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         // All the rest of the attributes
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
-            progAttrs[ii] = nullptr;
             const auto attr = (VertexAttributeGLES *)vertexAttributes[ii];
-            if (const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID))
+            progAttrs[ii] = nullptr;
+            if (const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID))
             {
+                // The data hasn't been downloaded, so hook it up directly here
                 if (attr->buffer != 0 || attr->numElements() != 0)
                 {
-                    if (attr->buffer)
-                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(0,attr->buffer));
-                    else
-                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                    glEnableVertexAttribArray(thisAttr->index);
-                    //                    WHIRLYKIT_LOGD("BasicDrawable glEnableVertexAttribArray %d",thisAttr->index);
-                    progAttrs[ii] = thisAttr;
-                } else {
+                    const auto stride = attr->buffer ? vertexSize : 0;
+                    const auto ptr = attr->buffer ? CALCBUFOFF(0,attr->buffer) : attr->addressForElement(0);
+                    glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), stride, ptr);
+                    CheckGLError("BasicDrawable::draw glVertexAttribPointer");
+                    glEnableVertexAttribArray(progAttr->index);
+                    CheckGLError("BasicDrawable::draw glEnableVertexAttribArray");
+                    progAttrs[ii] = progAttr;
+                }
+                else
+                {
                     // The program is expecting it, so we need a default
-                    attr->glSetDefault(thisAttr->index);
-                    CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                    attr->glSetDefault(progAttr->index);
+                    CheckGLError("BasicDrawable::draw glSetDefault");
                 }
             }
         }
@@ -555,18 +558,17 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         {
             boundElements = true;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
-            //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer %d",sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
         }
     }
     
     // Color has been overridden, so don't use the embedded ones
-    if (hasOverrideColor) {
-        const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
-        if (colorAttr) {
+    if (hasOverrideColor)
+    {
+        if (const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID))
+        {
             glDisableVertexAttribArray(colorAttr->index);
-            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0,
-                             color.a / 255.0);
+            glVertexAttrib4f(colorAttr->index, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,color.a / 255.0f);
         }
     }
     

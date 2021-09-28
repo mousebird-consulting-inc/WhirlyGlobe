@@ -404,38 +404,36 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // Other vertex attributes
         std::vector<const OpenGLESAttribute *> progAttrs;
         if (!vertArrayObj) {
-            progAttrs.resize(basicDraw->vertexAttributes.size(),NULL);
+            progAttrs.resize(basicDraw->vertexAttributes.size(),nullptr);
             for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
             {
-                VertexAttributeGLES *attr = (VertexAttributeGLES *)basicDraw->vertexAttributes[ii];
-                const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
-                progAttrs[ii] = NULL;
-                if (progAttr)
+                auto *attr = (VertexAttributeGLES *)basicDraw->vertexAttributes[ii];
+                progAttrs[ii] = nullptr;
+                if (const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID))
                 {
                     // The data hasn't been downloaded, so hook it up directly here
-                    if (attr->buffer == 0)
+                    if (attr->buffer != 0 || attr->numElements() != 0)
                     {
-                        // We have a data array for it, so hand that over
-                        if (attr->numElements() != 0)
-                        {
-                            glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-                            glEnableVertexAttribArray ( progAttr->index );
-                            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-
-                            progAttrs[ii] = progAttr;
-                        }
-                    } else {
-                        // Just need to wire these up
+                        const auto stride = attr->buffer ? basicDrawGL->vertexSize : 0;
+                        const auto ptr = attr->buffer ? CALCBUFOFF(0,attr->buffer) : attr->addressForElement(0);
+                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), stride, ptr);
+                        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
                         glEnableVertexAttribArray(progAttr->index);
-                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), basicDrawGL->vertexSize, CALCBUFOFF(0,attr->buffer));
+                        CheckGLError("BasicDrawableInstance::draw glEnableVertexAttribArray");
+                        progAttrs[ii] = progAttr;
+                    }
+                    else
+                    {
+                        // The program is expecting it, so we need a default
+                        attr->glSetDefault(progAttr->index);
+                        CheckGLError("BasicDrawableInstance::draw glSetDefault");
                     }
                 }
             }
         } else {
             // Vertex Array Objects can't hold the defaults, so we build them earlier
             // Note: We should override these that we need to from our own settings
-            for (auto attrDef : vertArrayDefaults) {
+            for (const auto &attrDef : vertArrayDefaults) {
                 // The program is expecting it, so we need a default
                 attrDef.attr.glSetDefault(attrDef.progAttrIndex);
                 CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
@@ -443,10 +441,13 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         }
 
         // Note: Something of a hack
-        if (hasColor) {
-            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
-            if (colorAttr)
+        if (hasColor)
+        {
+            if (const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID))
+            {
+                glDisableVertexAttribArray(colorAttr->index);
                 glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+            }
         }
 
         // If there are no instances, fill in the identity
