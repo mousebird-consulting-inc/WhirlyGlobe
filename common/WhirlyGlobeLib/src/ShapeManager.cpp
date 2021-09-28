@@ -203,7 +203,7 @@ void Sphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
     // Run it up a bit by the height
     dispPt = dispPt + norm * height;
 
-    // It's lame, but we'll use lat/lon coordinates to tesselate the sphere
+    // It's lame, but we'll use lat/lon coordinates to tessellate the sphere
     Point3dVector locs,norms;
     locs.reserve((sampleX+1)*(sampleY+1));
     norms.reserve((sampleX+1)*(sampleY+1));
