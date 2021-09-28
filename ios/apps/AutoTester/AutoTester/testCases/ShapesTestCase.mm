@@ -121,8 +121,8 @@ LocationInfo locations[NumLocations] =
         MaplyCoordinate c0 = MaplyCoordinateMakeWithDegrees(loc0->lon, loc0->lat);
         MaplyCoordinate c1 = MaplyCoordinateMakeWithDegrees(loc1->lon, loc1->lat);
 
-        const int n = 20;
-        const float maxH = 0.2f;
+        const int n = 50;
+        const float maxH = 0.1f;
         std::vector<MaplyCoordinate3d> pts;
         for (int i = 0; i < 2 * n; ++i)
         {
@@ -147,7 +147,7 @@ LocationInfo locations[NumLocations] =
 		MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
 		sphere.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
 		sphere.radius = 0.04;
-        sphere.height = 0.06;
+        sphere.height = 0.05;
 		sphere.selectable = true;
 		[spheres addObject:sphere];
 	}
@@ -162,7 +162,7 @@ LocationInfo locations[NumLocations] =
         LocationInfo *location = &locations[ii];
         MaplyShapeCircle *circle = [[MaplyShapeCircle alloc] init];
         circle.center = MaplyCoordinateMakeWithDegrees(location->lon, location->lat);
-        circle.radius = 0.05;
+        circle.radius = 0.03;
         circle.height = 0.01;
         circle.selectable = true;
         [circles addObject:circle];

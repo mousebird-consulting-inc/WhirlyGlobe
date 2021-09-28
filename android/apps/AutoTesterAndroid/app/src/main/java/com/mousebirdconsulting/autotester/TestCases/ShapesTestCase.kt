@@ -111,10 +111,12 @@ class ShapesTestCase(activity: Activity) :
             })
         }
 
-        val shapeInfo = ShapeInfo()
-        shapeInfo.setColor(1f, 0f, 0f, 0.8f)
-        shapeInfo.drawPriority = 1000000
-        //        shapeInfo.setFade(1.0f);
+        val shapeInfo = ShapeInfo().apply {
+            setColor(1f, 0f, 0f, 0.8f)
+            drawPriority = 1000000
+            //setFade(1.0f);
+            setZBufferRead(globeController != null)
+        }
         vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
@@ -132,10 +134,12 @@ class ShapesTestCase(activity: Activity) :
             shapes.add(cyl)
         }
 
-        val shapeInfo = ShapeInfo()
-        shapeInfo.setColor(0f, 0f, 1f, 0.8f)
-        shapeInfo.drawPriority = 1000000
-        //        shapeInfo.setFade(1.0f);
+        val shapeInfo = ShapeInfo().apply {
+            setColor(0f, 0f, 1f, 0.8f)
+            drawPriority = 1000000
+            setZBufferRead(globeController != null)
+            //setFade(1.0f);
+        }
         vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
@@ -153,11 +157,13 @@ class ShapesTestCase(activity: Activity) :
             shapes.add(circle)
         }
 
-        val shapeInfo = ShapeInfo()
-        shapeInfo.setColor(1.0f, 0.1f, 0f, 1.0f)
-        shapeInfo.drawPriority = 1000000
-        shapeInfo.setLineWidth(8.0f)
-        //        shapeInfo.setFade(1.0f);
+        val shapeInfo = ShapeInfo().apply {
+            setColor(1.0f, 0.1f, 0f, 1.0f)
+            drawPriority = 1000000
+            setLineWidth(8.0f)
+            //setFade(1.0f);
+            setZBufferRead(globeController != null)
+        }
         vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
 
@@ -177,6 +183,7 @@ class ShapesTestCase(activity: Activity) :
             setColor(0f, 1.00f, 0f, 0.8f)
             drawPriority = 1000000
             //setFade(1.0f);
+            setZBufferRead(globeController != null)
         }
         vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
@@ -189,8 +196,8 @@ class ShapesTestCase(activity: Activity) :
         for (ii in offset until locs.size step stride) {
             shapes.add(ShapeRectangle().apply {
                 val p = Point2d.FromDegrees(locs[ii].lon, locs[ii].lat)
-                setPoints(Point3d(p.x-0.1, p.y-0.1, 0.01),
-                          Point3d(p.x+0.1, p.y+0.1, 0.03))
+                setPoints(Point3d(p.x-0.05, p.y-0.05, 0.01),
+                          Point3d(p.x+0.05, p.y+0.05, 0.1))
                 addTexture(tex)
                 isSelectable = true
             })
@@ -200,6 +207,7 @@ class ShapesTestCase(activity: Activity) :
             setColor(0f, 1.00f, 0f, 0.8f)
             drawPriority = 1000000
             //setFade(1.0f);
+            setZBufferRead(globeController != null)
         }
         vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
@@ -226,16 +234,18 @@ class ShapesTestCase(activity: Activity) :
             shapes.add(arrow)
         }
 
-        val shapeInfo = ShapeInfo()
-        shapeInfo.setColor(1.0f, 0.1f, 0f, 0.8f)
-        shapeInfo.drawPriority = 1000000
-        //        shapeInfo.setFade(1.0f);
+        val shapeInfo = ShapeInfo().apply {
+            setColor(1.0f, 0.1f, 0f, 0.8f)
+            drawPriority = 1000000
+            //        shapeInfo.setFade(1.0f);
+            setZBufferRead(globeController != null)
+        }
         vc.addShapes(shapes, shapeInfo, ThreadMode.ThreadAny)
     }
     
     private fun addLinears(vc: BaseController, locs: List<LocationInfo>, stride: Int, offset: Int) {
-        val n = 20
-        val maxH = 0.2
+        val n = 50
+        val maxH = 0.1
         // todo: doesn't handle anti-meridian, use GeographicLib instead of lerp
         val shapes = listOf(1,8,17) //indexes(locs.size, stride, offset)
                 .zipWithNext { a, b ->
@@ -253,6 +263,7 @@ class ShapesTestCase(activity: Activity) :
         val shapeInfo = ShapeInfo().apply {
             setColor(1.0f, 0.5f, 0.2f, 0.9f)
             drawPriority = 1000000
+            setZBufferRead(globeController != null)
         }
         vc.addShapes(shapes.toList(), shapeInfo, ThreadMode.ThreadAny)
     }

@@ -1,9 +1,8 @@
-/*
- *  BasicDrawable.h
+/*  BasicDrawableGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -41,7 +39,7 @@ class BasicDrawableGLES : virtual public BasicDrawable, virtual public DrawableG
 {
 public:
     BasicDrawableGLES(const std::string &name);
-    virtual ~BasicDrawableGLES();
+    virtual ~BasicDrawableGLES() = default;
 
     /// Set up local rendering structures (e.g. VBOs)
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
@@ -74,23 +72,24 @@ public:
     std::vector<Triangle> tris;
 
     // Attribute that should be applied to the given program index if using VAOs
-    class VertAttrDefault
+    struct VertAttrDefault
     {
-    public:
-        VertAttrDefault(unsigned int progAttrIndex,const VertexAttribute &attr)
-        : progAttrIndex(progAttrIndex), attr((VertexAttributeGLES &)attr) { }
+        VertAttrDefault(unsigned int progAttrIndex,const VertexAttribute &attr) :
+                progAttrIndex(progAttrIndex), attr((VertexAttributeGLES &)attr) { }
         GLuint progAttrIndex;
         VertexAttributeGLES attr;
     };
     std::vector<VertAttrDefault> vertArrayDefaults;
 
-    bool isSetupGL;  // Is setup to draw with GL (needed by the instances)
-    bool usingBuffers;  // If set, we've downloaded the buffers already
+    bool isSetupGL = false;  // Is setup to draw with GL (needed by the instances)
+    bool usingBuffers = false;  // If set, we've downloaded the buffers already
 
     // Size for a single vertex w/ all its data.  Used by shared buffer
-    int vertexSize;
-    GLuint pointBuffer,triBuffer,sharedBuffer;
-    GLuint vertArrayObj;
+    int vertexSize = -1;
+    GLuint pointBuffer = 0;
+    GLuint triBuffer = 0;
+    GLuint sharedBuffer = 0;
+    GLuint vertArrayObj = 0;
 };
     
 }

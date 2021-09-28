@@ -157,16 +157,15 @@ void ShapeDrawableBuilder::flush()
             }
             drawables.push_back(drawable);
         }
-        drawable = NULL;
+        drawable = nullptr;
     }
 }
 
 void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet &drawIDs)
 {
     flush();
-    for (unsigned int ii=0;ii<drawables.size();ii++)
+    for (auto & draw : drawables)
     {
-        BasicDrawableBuilderRef draw = drawables[ii];
         changes.push_back(new AddDrawableReq(draw->getDrawable()));
         drawIDs.insert(draw->getDrawableID());
     }
@@ -174,12 +173,11 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
 }
 
 
-ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter, SceneRenderer *sceneRender, const ShapeInfo &shapeInfo, const Point3d &center)
-    : coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo), drawable(NULL), center(center), clipCoords(false)
-{
-}
-
-ShapeDrawableBuilderTri::~ShapeDrawableBuilderTri()
+ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,
+                                                 SceneRenderer *sceneRender, const ShapeInfo &shapeInfo,
+                                                 const Point3d &center) :
+    coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo),
+    drawable(nullptr), center(center), clipCoords(false)
 {
 }
 
