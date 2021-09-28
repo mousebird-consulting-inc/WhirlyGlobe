@@ -429,6 +429,8 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                         // Just need to wire these up
                         glEnableVertexAttribArray(progAttr->index);
                         glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), basicDrawGL->vertexSize, CALCBUFOFF(0,attr->buffer));
+
+                        progAttrs[ii] = progAttr;
                     }
                 }
             }
