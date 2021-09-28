@@ -1,9 +1,8 @@
-/*
- *  ShapeSphere.java
+/*  ShapeRectangle.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,18 +14,15 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
-
-import android.graphics.drawable.ShapeDrawable;
 
 /** Display a rectangle at the given location.
  */
 public class ShapeRectangle extends Shape {
 
     /**
-     * Construct an empty sphere.  Be sure to fill in the fields.
+     * Construct an empty rectangle.  Be sure to fill in the fields.
      */
     public ShapeRectangle() {
         initialise();
@@ -44,8 +40,7 @@ public class ShapeRectangle extends Shape {
     /**
      * Assign a texture for display.
      */
-    public void addTexture(MaplyTexture tex)
-    {
+    public void addTexture(MaplyTexture tex) {
         addTextureID(tex.texID);
     }
 
@@ -54,8 +49,7 @@ public class ShapeRectangle extends Shape {
      */
     native void addTextureID(long texID);
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();

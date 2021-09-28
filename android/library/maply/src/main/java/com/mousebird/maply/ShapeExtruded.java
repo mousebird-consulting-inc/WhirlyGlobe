@@ -1,9 +1,8 @@
-/*
- *  ShapeSphere.java
+/*  ShapeExtruded.java
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
-
-import android.graphics.drawable.ShapeDrawable;
 
 /** An extruded shape takes a linear outline which it sweeps from its
  *  base up to a defined height.  Useful for things like 3D arrows.
@@ -40,7 +36,13 @@ public class ShapeExtruded extends Shape {
     /** Center of the extruded shape in geographic.
      * These are geographic radians.
      */
-    public native void setLoc (Point2d loc);
+    public native void setLoc(Point2d loc);
+
+    /** Center of the extruded shape in geographic.
+     * These are geographic radians.
+     * z = height is in display coordinates.  1.0 is the radius of the Earth.
+     */
+    public native void setLoc3d(Point3d loc);
 
     /**
      * The height of the shape's center above the globe.
@@ -77,8 +79,7 @@ public class ShapeExtruded extends Shape {
      */
     public native void setTransform(Matrix4d mat);
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();

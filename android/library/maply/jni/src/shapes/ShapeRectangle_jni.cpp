@@ -1,9 +1,8 @@
-/*
- *  ShapeRectangle_jni.cpp
+/*  ShapeRectangle_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Shapes_jni.h"
@@ -25,85 +23,73 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> RectangleClassInfo *RectangleClassInfo::classInfoObj = NULL;
+template<> RectangleClassInfo *RectangleClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     RectangleClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_initialise
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
-        Rectangle *inst = new Rectangle();
-        classInfo->setHandle(env, obj, inst);
-        
+        RectangleClassInfo::set(env, obj, new Rectangle());
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeRectangle::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env, obj);
+        classInfo->clearHandle(env, obj);
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_setPoints
+  (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
+{
+    try
+    {
+        if (Rectangle *inst = RectangleClassInfo::get(env, obj))
         {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Rectangle *inst = classInfo->getObject(env, obj);
-            if (!inst)
-                return;
-            delete inst;
-            classInfo->clearHandle(env, obj);
+            if (const Point3d *ll = Point3dClassInfo::get(env, llObj))
+            {
+                inst->setLL(*ll);
+            }
+            if (const Point3d *ur = Point3dClassInfo::get(env, urObj))
+            {
+                inst->setUR(*ur);
+            }
         }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeRectangle::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_setPoints
-(JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
-{
-    try
-    {
-        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
-        Rectangle *inst = classInfo->getObject(env, obj);
-        Point3dClassInfo *ptClassInfo = Point3dClassInfo::getClassInfo();
-        Point3d *ll = ptClassInfo->getObject(env,llObj);
-        Point3d *ur = ptClassInfo->getObject(env,urObj);
-        if (!inst || !ll || !ur)
-            return;
-     
-        inst->setLL(*ll);
-        inst->setUR(*ur);
-    }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeRectangle::setPoints()");
-    }
-}
-
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeRectangle_addTextureID
-(JNIEnv *env, jobject obj, jlong texID)
+  (JNIEnv *env, jobject obj, jlong texID)
 {
     try
     {
-        RectangleClassInfo *classInfo = RectangleClassInfo::getClassInfo();
-        Rectangle *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        inst->texIDs.push_back(texID);
+        if (Rectangle *inst = RectangleClassInfo::get(env, obj))
+        {
+            inst->texIDs.push_back(texID);
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeRectangle::addTextureID()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

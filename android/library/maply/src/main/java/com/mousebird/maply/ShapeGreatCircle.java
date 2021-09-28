@@ -1,9 +1,8 @@
-/*
- *  ShapeSphere.java
+/*  ShapeGreatCircle.java
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,17 +14,14 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
-
-import android.graphics.drawable.ShapeDrawable;
 
 /**
  *     Represents an great circle or great circle with height.
  *     <br>
  *     Great circles are the shortest distance between two points on a globe.
- *     We extend that a bit here, by adding height.
+ *     We extend that a bit here by adding height.
  *     The result is a curved object that can either sit on top of the globe or rise
  *     above it.  In either case it begins and ends at the specified points on the globe.
  **/
@@ -73,8 +69,7 @@ public class ShapeGreatCircle extends Shape {
      */
     public native double angleBetween();
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();

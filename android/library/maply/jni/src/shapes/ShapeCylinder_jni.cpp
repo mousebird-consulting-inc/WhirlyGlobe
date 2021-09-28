@@ -1,9 +1,8 @@
-/*
- *  ShapeCircle_jni.cpp
+/*  ShapeCylinder_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Shapes_jni.h"
@@ -24,133 +22,126 @@
 
 using namespace WhirlyKit;
 
-template<> CylinderClassInfo *CylinderClassInfo::classInfoObj = NULL;
+template<> CylinderClassInfo *CylinderClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     CylinderClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_initialise
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        Cylinder *inst = new Cylinder();
-        classInfo->setHandle(env, obj, inst);
+        CylinderClassInfo::set(env, obj, new Cylinder());
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Cylinder *inst = classInfo->getObject(env, obj);
-            if (!inst)
-                return;
-            delete inst;
-            classInfo->clearHandle(env, obj);
-        }
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env, obj);
+        classInfo->clearHandle(env, obj);
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setBaseCenter
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
     try
     {
-        CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        Cylinder *inst = classInfo->getObject(env, obj);
-        Point2dClassInfo *ptClassInfo = Point2dClassInfo::getClassInfo();
-        Point2d *pt = ptClassInfo->getObject(env,ptObj);
-        if (!inst || !pt)
-            return;
-
-        inst->loc = GeoCoord(pt->x(),pt->y());
+        if (Cylinder *inst = CylinderClassInfo::get(env, obj))
+        if (const Point2d *pt = Point2dClassInfo::get(env,ptObj))
+        {
+            inst->loc = GeoCoord(pt->x(),pt->y());
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::setBaseCenter()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setBaseCenter3d
+  (JNIEnv *env, jobject obj, jobject ptObj)
+{
+    try
+    {
+        if (Cylinder *inst = CylinderClassInfo::get(env, obj))
+        if (const Point3d *pt = Point3dClassInfo::get(env,ptObj))
+        {
+            inst->loc = GeoCoord(pt->x(),pt->y());
+            inst->height = pt->y();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setBaseHeight
   (JNIEnv *env, jobject obj, jdouble baseHeight)
 {
     try
     {
-        CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        Cylinder *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->baseHeight = baseHeight;
+        if (Cylinder *inst = CylinderClassInfo::get(env, obj))
+        {
+            inst->baseHeight = baseHeight;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::setBaseHeight()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setHeight
   (JNIEnv *env, jobject obj, jdouble height)
 {
     try
     {
-        CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        Cylinder *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->height = height;
+        if (Cylinder *inst = CylinderClassInfo::get(env, obj))
+        {
+            inst->height = height;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::setHeight()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setRadius
   (JNIEnv *env, jobject obj, jdouble radius)
 {
     try
     {
-        CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        Cylinder *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->radius = radius;
+        if (Cylinder *inst = CylinderClassInfo::get(env, obj))
+        {
+            inst->radius = radius;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::setRadius()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeCylinder_setSample
   (JNIEnv *env, jobject obj, jint sample)
 {
     try
     {
-        CylinderClassInfo *classInfo = CylinderClassInfo::getClassInfo();
-        Cylinder *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        inst->sampleX = sample;
+        if (Cylinder *inst = CylinderClassInfo::get(env, obj))
+        {
+            inst->sampleX = sample;
+        }
     }
-    catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeCylinder::setSample()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

@@ -25,6 +25,7 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -567,7 +568,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the screen markers for later modification or deletion.
      */
-    public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+    public ComponentObject addScreenMarkers(final Collection<ScreenMarker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -645,7 +646,7 @@ public class RenderController implements RenderControllerInterface
      * Add moving screen markers to the visual display.  These are the same as the regular
      * screen markers, but they have a start and end point and a duration.
      */
-    public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,
+    public ComponentObject addScreenMovingMarkers(final Collection<ScreenMovingMarker> markers,
                                                   final MarkerInfo markerInfo,
                                                   RenderController.ThreadMode mode)
     {
@@ -734,7 +735,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the screen markers for later modification or deletion.
      */
-    public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
+    public ComponentObject addMarkers(final Collection<Marker> markers,final MarkerInfo markerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -812,7 +813,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the labels for modification or deletion.
      */
-    public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
+    public ComponentObject addScreenLabels(final Collection<ScreenLabel> labels,final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final LabelManager labelManager = this.labelManager;
@@ -877,7 +878,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the labels for modification or deletion.
      */
-    public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,
+    public ComponentObject addScreenMovingLabels(final Collection<ScreenMovingLabel> labels,
                                                  final LabelInfo labelInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
@@ -944,7 +945,7 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,
+    public ComponentObject addVectors(final Collection<VectorObject> vecs,final VectorInfo vecInfo,
                                       RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
@@ -1003,7 +1004,7 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the features once created.
      */
-    public ComponentObject addLoftedPolys(final List<VectorObject> vecs, final LoftedPolyInfo loftInfo, final ThreadMode mode)
+    public ComponentObject addLoftedPolys(final Collection<VectorObject> vecs, final LoftedPolyInfo loftInfo, final ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1142,7 +1143,7 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addWideVectors(final List<VectorObject> vecs,
+    public ComponentObject addWideVectors(final Collection<VectorObject> vecs,
                                           final WideVectorInfo wideVecInfo,
                                           ThreadMode mode)
     {
@@ -1235,12 +1236,13 @@ public class RenderController implements RenderControllerInterface
 //    public ComponentObject addGeometry();
 
     /**
-     * This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
+     * This method will add the given MaplyShape derived objects to the current scene.
+     * It will use the parameters in the description dictionary and it will do it on the thread specified.
      * @param shapes An array of Shape derived objects
      * @param shapeInfo Info controlling how the shapes look
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-    public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
+    public ComponentObject addShapes(final Collection<Shape> shapes, final ShapeInfo shapeInfo, ThreadMode mode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
         final ChangeSet changes = new ChangeSet();
 
@@ -1281,7 +1283,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the stickers for later modification or deletion.
      */
-    public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
+    public ComponentObject addStickers(final Collection<Sticker> stickers,final StickerInfo stickerInfo,ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1352,7 +1354,7 @@ public class RenderController implements RenderControllerInterface
      * Billboards are rectangles pointed toward the viewer.  They can either be upright, tied to a
      * surface, or oriented completely toward the user.
      */
-    public ComponentObject addBillboards(final List<Billboard> bills,
+    public ComponentObject addBillboards(final Collection<Billboard> bills,
                                          final BillboardInfo info,
                                          final RenderController.ThreadMode threadMode) {
         final ComponentObject compObj = componentManager.makeComponentObject();
@@ -1423,7 +1425,7 @@ public class RenderController implements RenderControllerInterface
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the geometry points for later modification or deletion.
      */
-    public ComponentObject addPoints(final List<Points> ptList,
+    public ComponentObject addPoints(final Collection<Points> ptList,
                                      final GeometryInfo geomInfo,
                                      RenderController.ThreadMode mode)
     {
@@ -1550,7 +1552,7 @@ public class RenderController implements RenderControllerInterface
      * @param texs Textures to remove.
      * @param mode Remove immediately (current thread) or elsewhere.
      */
-    public void removeTextures(final List<MaplyTexture> texs,ThreadMode mode)
+    public void removeTextures(final Collection<MaplyTexture> texs,ThreadMode mode)
     {
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1578,7 +1580,7 @@ public class RenderController implements RenderControllerInterface
      * @param texIDs Textures to remove
      * @param mode Remove immediately (current thread) or elsewhere.
      */
-    public void removeTexturesByID(final List<Long> texIDs,ThreadMode mode)
+    public void removeTexturesByID(final Collection<Long> texIDs,ThreadMode mode)
     {
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
@@ -1645,7 +1647,7 @@ public class RenderController implements RenderControllerInterface
      * @param compObjs Objects to disable in the display.
      * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-    public void disableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+    public void disableObjects(final Collection<ComponentObject> compObjs,ThreadMode mode)
     {
         if (compObjs == null || compObjs.size() == 0)
             return;
@@ -1670,7 +1672,7 @@ public class RenderController implements RenderControllerInterface
      * @param compObjs Objects to enable disable.
      * @param mode Where to execute the enable.  Choose ThreadAny by default.
      */
-    public void enableObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+    public void enableObjects(final Collection<ComponentObject> compObjs,ThreadMode mode)
     {
         if (compObjs == null)
             return;
@@ -1712,7 +1714,7 @@ public class RenderController implements RenderControllerInterface
      * @param compObjs Component Objects to remove.
      * @param mode Where to execute the remove.  Choose ThreadAny by default.
      */
-    public void removeObjects(final List<ComponentObject> compObjs,ThreadMode mode)
+    public void removeObjects(final Collection<ComponentObject> compObjs,ThreadMode mode)
     {
         if (compObjs == null)
             return;

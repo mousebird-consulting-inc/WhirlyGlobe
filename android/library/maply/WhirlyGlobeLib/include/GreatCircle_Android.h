@@ -1,9 +1,8 @@
-/*
- *  GreatCircle_Android.h
+/*  GreatCircle_Android.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #ifdef __ANDROID__
@@ -30,23 +28,20 @@ namespace WhirlyKit
 /** Great Circles are actually just 3D linear features.
     This is a simple representation for the Java side.
  */
-class GreatCircle_Android : public Shape
+struct GreatCircle_Android : public Shape
 {
-public:
-    GreatCircle_Android();
-    virtual ~GreatCircle_Android();
-
     // Convert to a 3D linear feature
-    Linear *asLinear(CoordSystemDisplayAdapter *coordAdapter);
+    Linear *asLinear(const CoordSystemDisplayAdapter *coordAdapter) const;
 
     // Start/end geographic points
-    Point2d startPt,endPt;
+    Point2d startPt = { 0.0, 0.0 };
+    Point2d endPt = { 0.0, 0.0 };
     // Height above the globe (or map)
-    double height;
+    double height = 0.0;
     // If set, we'll sample dynamically
-    double samplingEps;
+    double samplingEps = 0.001;
     // If set, we'll sample statically
-    int sampleNum;
+    int sampleNum = 0;
 };
 
 }

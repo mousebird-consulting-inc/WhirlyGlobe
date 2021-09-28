@@ -1,9 +1,8 @@
-/*
- *  ShapeGreatCircle_jni.cpp
+/*  GreatCircle_Android.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "GreatCircle_Android.h"
@@ -23,18 +21,9 @@
 namespace WhirlyKit
 {
 
-GreatCircle_Android::GreatCircle_Android()
-: startPt(0.0,0.0), endPt(0.0,0.0), height(0.0), samplingEps(0.001), sampleNum(0)
+Linear *GreatCircle_Android::asLinear(const CoordSystemDisplayAdapter *coordAdapter) const
 {
-}
-
-GreatCircle_Android::~GreatCircle_Android()
-{
-}
-
-Linear *GreatCircle_Android::asLinear(CoordSystemDisplayAdapter *coordAdapter)
-{
-    Linear *lin = new Linear();
+    auto *lin = new Linear();
     if (sampleNum > 0)
         SampleGreatCircleStatic(startPt,endPt,height,lin->pts,coordAdapter,sampleNum);
     else
