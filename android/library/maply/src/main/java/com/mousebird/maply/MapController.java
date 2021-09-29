@@ -495,7 +495,8 @@ public class MapController extends BaseController implements View.OnTouchListene
 
 		Point3d localCoord = mapView.coordAdapter.coordSys.geographicToLocal(targetGeoLoc);
 		Point3d newPoint = new Point3d(localCoord.getX(),localCoord.getY(), targetGeoLoc.getZ());
-		MapAnimateTranslate dg = new MapAnimateTranslate(mapView, renderControl, newPoint, rot, (float)howLong, viewBounds);
+		MapAnimateTranslate dg = new MapAnimateTranslate(mapView, renderControl, newPoint, rot,
+		                                                 (float)howLong, viewBounds, zoomAnimationEasing);
 
 		mapView.cancelAnimation();
 		mapView.setAnimationDelegate(dg);

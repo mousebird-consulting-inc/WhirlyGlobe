@@ -67,7 +67,7 @@ class StamenRemoteTestCase(activity: Activity?) :
         imageLoader = setupImageLoader(TestType.GlobeTest, globeVC)
         globeVC.keepNorthUp = true
         globeVC.setClearColor(Color.argb(32,32,0,0));
-        globeVC.animatePositionGeo(-3.6704803, 40.5023056, 5.0, 1.0)
+        globeVC.animatePositionGeo(-3.6704803, 40.5023056, 1.0, 1.0)
         return true
     }
     
@@ -75,7 +75,7 @@ class StamenRemoteTestCase(activity: Activity?) :
         imageLoader = setupImageLoader(TestType.MapTest, mapVC)
         mapVC.setAllowRotateGesture(false)
         mapVC.setClearColor(Color.argb(32,32,0,0));
-        mapVC.animatePositionGeo(-3.6704803, 40.5023056, 5.0, 1.0)
+        mapVC.animatePositionGeo(-3.6704803, 40.5023056, 2.0, 1.0)
         return true
     }
     

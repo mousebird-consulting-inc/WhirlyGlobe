@@ -124,8 +124,7 @@ public abstract class BaseController implements RenderController.TaskManager, Re
     /**
      * Return the current scene.  Only for sure within the library.
      */
-    public @Nullable Scene getScene()
-    {
+    public @Nullable Scene getScene() {
         return scene;
     }
 
@@ -1273,6 +1272,24 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 			return 0.0;
 
 		return renderControl.currentMapScale();
+	}
+
+	public interface ZoomAnimationEasing {
+		/** For current time t in (0.0,1.0) produce z in (z0,z1)
+		 */
+		double value(double z0, double z1, double t);
+	}
+	protected @Nullable ZoomAnimationEasing zoomAnimationEasing = null;
+
+	/** Set the function used for animating zoom heights
+	 */
+	public void setZoomAnimationEasing(ZoomAnimationEasing easing) {
+		zoomAnimationEasing = easing;
+	}
+	/** Get the function used for animating zoom heights
+	 */
+	public ZoomAnimationEasing getZoomAnimationEasing() {
+		return zoomAnimationEasing;
 	}
 
 	/**

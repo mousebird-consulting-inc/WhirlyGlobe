@@ -1,5 +1,4 @@
-/*
- *  MaplyBaseViewController.h
+/*  MaplyBaseViewController.h
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -41,6 +39,8 @@
 #import "control/MaplyRenderController.h"
 #import "loading/MaplyRemoteTileFetcher.h"
 #import "rendering/MaplyVertexAttribute.h"
+
+typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -157,6 +157,15 @@
     Controls whether objects with unique IDs fade in and out when added or removed from the layout manager
  */
 @property (nonatomic,assign) bool layoutFade;
+
+/**
+    Controls the way height changes while animating the view
+    For simple, linear zoom use:
+
+        zoomEasing = ^(double z0,double z1,double t) { return z0 + (z1 - z0) * t; };
+ */
+@property (readwrite,copy) ZoomEasingBlock _Nullable animationZoomEasing;
+
 
 /**
     If in Metal rendering mode, return the Metal device being used.

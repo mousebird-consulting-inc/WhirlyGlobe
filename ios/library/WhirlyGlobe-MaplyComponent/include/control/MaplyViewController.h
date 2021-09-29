@@ -130,6 +130,9 @@
 /// Height at the end of the animation
 @property (nonatomic) double height;
 
+/// Custom easing
+@property (readwrite,copy) ZoomEasingBlock _Nullable zoomEasing;
+
 @end
 
 /** 
