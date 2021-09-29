@@ -1,9 +1,8 @@
-/*
- *  ComponentObject.java
+/*  ComponentObject.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
-import java.util.ArrayList;
+import androidx.annotation.Keep;
 
 /**
  * The Component Object tracks the various geometry, textures, and outlines
@@ -34,13 +32,11 @@ import java.util.ArrayList;
  */
 public class ComponentObject 
 {
-	public ComponentObject()
-	{
+	public ComponentObject() {
 		initialise();
 	}
 
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 
@@ -84,12 +80,14 @@ public class ComponentObject
 
 	public native void addVector(VectorObject vecObj);
 
-	static
-	{
+	static {
 		nativeInit();
 	}
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
+
+	@Keep
+	@SuppressWarnings("unused")	// Used by JNI
 	private long nativeHandle;
 }

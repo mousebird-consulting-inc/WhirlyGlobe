@@ -17,6 +17,7 @@
  */
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
@@ -186,6 +187,7 @@ public class Point3d
 	native void initialise(double x, double y, double z);
 	native void dispose();
 
+	@Keep
 	@SuppressWarnings("unused")	// Used by JNI
 	private long nativeHandle;
 }

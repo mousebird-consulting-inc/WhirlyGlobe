@@ -18,6 +18,8 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -141,5 +143,8 @@ public class Point2d
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
+
+	@Keep
+	@SuppressWarnings("unused")	// Used by JNI
 	private long nativeHandle;
 }

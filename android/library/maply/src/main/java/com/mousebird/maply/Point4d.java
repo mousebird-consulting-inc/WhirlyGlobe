@@ -1,9 +1,8 @@
-/*
- *  Point4d.java
+/*  Point4d.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/20/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,13 +14,14 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+
 /**
  * The Point4d class is your standard x,y,z,w container.  The only
- * thing of note here is this is a wrapper for the interal Maply
+ * thing of note here is this is a wrapper for the internal Maply
  * 4D point class.
  * 
  * @author sjg
@@ -32,43 +32,38 @@ public class Point4d
 	/**
 	 * Initialize empty.
 	 */
-	public Point4d()
-	{
+	public Point4d() {
 		initialise();
 	}
 	
 	/**
 	 * Make a copy from the given Point4d
 	 */
-	public Point4d(Point4d that)
-	{
-		initialise();		
+	@SuppressWarnings("CopyConstructorMissesField")
+	public Point4d(Point4d that) {
+		initialise();
 		setValue(that.getX(),that.getY(),that.getZ(),that.getW());
 	}
 	
-	public Point4d(Point3d that,double w)
-	{
-		initialise();		
+	public Point4d(Point3d that,double w) {
+		initialise();
 		setValue(that.getX(),that.getY(),that.getZ(),w);
 	}
 	
 	/**
 	 * Initialize with 3 doubles.
 	 */
-	public Point4d(double x,double y,double z,double w)
-	{
+	public Point4d(double x,double y,double z,double w) {
 		initialise();
 		setValue(x,y,z,w);
 	}
 	
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 
 	@Override
-	public boolean equals(Object obj)
-	{
+	public boolean equals(Object obj) {
 		if (!(obj instanceof Point4d))
 			return false;
 		Point4d that = (Point4d) obj;
@@ -76,8 +71,7 @@ public class Point4d
 		return getX() == that.getX() && getY() == that.getY() && getZ() == that.getZ() && getW() == that.getW();
 	}
 
-	public String toString()
-	{
+	public String toString() {
 		return "(" + getX() + "," + getY() + "," + getZ() + getW() + ")";
 	}
 	
@@ -102,12 +96,14 @@ public class Point4d
 	 */
 	public native void setValue(double x,double y,double z,double w);
 	
-	static
-	{
+	static {
 		nativeInit();
 	}
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
+
+	@Keep
+	@SuppressWarnings("unused")	// Used by JNI
 	private long nativeHandle;
 }
