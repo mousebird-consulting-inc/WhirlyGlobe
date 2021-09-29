@@ -119,9 +119,15 @@ using namespace Maply;
         state.heading = (dHeading - 2.0*M_PI)*t + startState.heading;
     else
         state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
-    
-    //state.height = (endState.height - startState.height)*t + startState.height;
-    state.height = exp((log(endState.height) - log(startState.height))*t + log(startState.height));
+
+    if (auto easing = _zoomEasing)
+    {
+        state.height = easing(startState.height, endState.height, t);
+    }
+    else
+    {
+        state.height = exp((log(endState.height) - log(startState.height))*t + log(startState.height));
+    }
 
     MaplyCoordinateD pos;
     pos.x = (endState.pos.x - startState.pos.x)*t + startState.pos.x;
@@ -873,8 +879,9 @@ public:
     anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(newPos);
     anim.heading = newHeading;
     anim.height = newHeight;
+    anim.zoomEasing = self.animationZoomEasing;
     [self animateWithDelegate:anim time:howLong];
-    
+
     return true;
 }
 
@@ -895,13 +902,18 @@ public:
     anim.loc = newPos;
     anim.heading = newHeading;
     anim.height = newHeight;
-    
+    anim.zoomEasing = self.animationZoomEasing;
+
     [self animateWithDelegate:anim time:howLong];
     
     return true;
 }
 
-- (bool)animateToPosition:(MaplyCoordinate)newPos onScreen:(CGPoint)loc height:(float)newHeight heading:(float)newHeading time:(TimeInterval)howLong {
+- (bool)animateToPosition:(MaplyCoordinate)newPos
+                 onScreen:(CGPoint)loc
+                   height:(float)newHeight
+                  heading:(float)newHeading
+                     time:(TimeInterval)howLong {
     if (isnan(newPos.x) || isnan(newPos.y) || isnan(newHeight))
     {
         NSLog(@"MaplyViewController: Invalid location passed to animationToPosition:");
@@ -943,6 +955,8 @@ public:
         anim.loc = MaplyCoordinateDMakeWithMaplyCoordinate(geoCoord);
         anim.heading = newHeading;
         anim.height = newHeight;
+        anim.zoomEasing = self.animationZoomEasing;
+
         [self animateWithDelegate:anim time:howLong];
     }
     

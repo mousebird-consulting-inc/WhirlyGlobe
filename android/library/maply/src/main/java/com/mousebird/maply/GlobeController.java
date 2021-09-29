@@ -650,8 +650,11 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
 		if (geoCoord != null) {
 			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
-			if (newQuat != null)
-				globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, renderControl, newQuat, z, hdg, howLong));
+			if (newQuat != null) {
+				globeView.setAnimationDelegate(
+						new GlobeAnimateRotation(globeView, renderControl, newQuat, z,
+						                         hdg, howLong, zoomAnimationEasing));
+			}
 		}
 	}
 
@@ -736,9 +739,9 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		}
 
 		if (newRotQuat != null) {
-			GlobeAnimateRotation dg = new GlobeAnimateRotation(globeView, renderControl, newRotQuat,
-															   targetGeoLoc.getZ(), hdg, howLong);
-			globeView.setAnimationDelegate(dg);
+			globeView.setAnimationDelegate(
+					new GlobeAnimateRotation(globeView, renderControl, newRotQuat,
+					                         targetGeoLoc.getZ(), hdg, howLong, zoomAnimationEasing));
 		}
 	}
 

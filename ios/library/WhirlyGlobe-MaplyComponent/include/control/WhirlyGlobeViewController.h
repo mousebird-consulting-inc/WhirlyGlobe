@@ -103,6 +103,9 @@
 /// Globe center at the end of the animation
 @property (nonatomic) CGPoint globeCenter;
 
+/// Custom easing
+@property (readwrite,copy) ZoomEasingBlock _Nullable zoomEasing;
+
 @end
 
 /** 
