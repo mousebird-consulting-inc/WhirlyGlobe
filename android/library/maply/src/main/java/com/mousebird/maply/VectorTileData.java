@@ -18,6 +18,8 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+
 import java.util.ArrayList;
 
 /**
@@ -116,6 +118,7 @@ public class VectorTileData
     public void finalize() { dispose(); }
     native void dispose();
 
+    @Keep
     @SuppressWarnings("unused")
     private long nativeHandle;
 }

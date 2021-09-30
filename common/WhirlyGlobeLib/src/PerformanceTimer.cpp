@@ -35,7 +35,6 @@ void PerformanceTimer::TimeEntry::addTime(TimeInterval dur)
 {
     minDur = (numRuns == 0) ? dur : std::min(minDur,dur);
     maxDur = (numRuns == 0) ? dur : std::max(maxDur,dur);
-    lastDur = dur;
     avgDur += dur;
     numRuns++;
 }
@@ -54,28 +53,37 @@ void PerformanceTimer::CountEntry::addCount(int count)
     numRuns++;
 }
 
+static inline TimeInterval PerfTime()
+{
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    return (double)tp.tv_sec + tp.tv_nsec * (double)1e-9;
+}
+
 void PerformanceTimer::startTiming(const std::string &what)
 {
-    actives[what] = TimeGetCurrent();
+    actives[what] = PerfTime();
 }
 
 void PerformanceTimer::stopTiming(const std::string &what)
 {
+    const auto now = PerfTime();
+
     const auto it = actives.find(what);
     if (it == actives.end())
+    {
         return;
+    }
+
     const TimeInterval start = it->second;
     actives.erase(it);
-    
-    auto eit = timeEntries.find(what);
-    if (eit != timeEntries.end())
-        eit->second.addTime(TimeGetCurrent()-start);
-    else {
-        TimeEntry newEntry;
-        newEntry.addTime(TimeGetCurrent()-start);
-        newEntry.name = what;
-        timeEntries[what] = newEntry;
+
+    const auto res = timeEntries.insert(std::make_pair(what, TimeEntry()));
+    if (res.second)
+    {
+        res.first->second.name = what;
     }
+    res.first->second.addTime(now - start);
 }
 
 PerformanceTimer::TimeEntry PerformanceTimer::getTiming(const std::string &what) const
@@ -108,9 +116,9 @@ static bool TimeEntryByMax (const PerformanceTimer::TimeEntry &a,const Performan
     
 void PerformanceTimer::report(const std::string &what)
 {
-    wkLogLevel(Verbose,"Maply Performance: %s",what.c_str());    
+    wkLogLevel(Verbose,"Maply Performance: %s",what.c_str());
 }
-    
+
 void PerformanceTimer::log()
 {
     std::vector<TimeEntry> sortedEntries;
@@ -126,9 +134,9 @@ void PerformanceTimer::log()
     {
         if (entry.numRuns > 0)
         {
-            sprintf(line,"%s: min, max, mean, last = (%.2f, %.2f, %.2f, %.2f) ms, %d reports",
+            sprintf(line,"%s: min, max, mean = (%.3f, %.3f, %.4f) ms, %d reports",
                     entry.name.c_str(),1000*entry.minDur,1000*entry.
-                    maxDur,1000*entry.avgDur / entry.numRuns, 1000*entry.lastDur, entry.numRuns);
+                    maxDur,1000*entry.avgDur / entry.numRuns, entry.numRuns);
             report(line);
         }
     }
@@ -137,9 +145,9 @@ void PerformanceTimer::log()
         const CountEntry &entry = countEntry.second;
         if (entry.numRuns > 0)
         {
-            sprintf(line,"%s: min, max, mean, last, reports = (%d, %d, %2.f, %d, %d)",
+            sprintf(line,"%s: min, max, mean (%d, %d, %.3f), %d reports",
                     entry.name.c_str(),entry.minCount,entry.maxCount,
-                    (float)entry.avgCount / (float)entry.numRuns,entry.lastCount,entry.numRuns);
+                    (float)entry.avgCount / (float)entry.numRuns,entry.numRuns);
             report(line);
         }
     }

@@ -10,7 +10,15 @@ android {
         jvmTarget = JavaVersion.VERSION_1_8
     }
     signingConfigs {
-        config {
+        debug {
+            storeFile file("../debug.keystore")
+            keyAlias 'AutoTester'
+            //keyPassword 'password'
+            //storePassword 'password'
+            storePassword ''
+            keyPassword ''
+        }
+        bitrise {
             keyAlias System.getenv('BITRISEIO_ANDROID_KEYSTORE_ALIAS')
             keyPassword System.getenv('BITRISEIO_ANDROID_KEYSTORE_PRIVATE_KEY_PASSWORD')
             storeFile file('../keystore')    // downloaded from BITRISEIO_ANDROID_KEYSTORE_URL
@@ -27,15 +35,26 @@ android {
 
     }
     buildTypes {
+        devRelease {
+            minifyEnabled false
+            debuggable true
+            jniDebuggable true
+            renderscriptDebuggable false
+            signingConfig signingConfigs.debug
+            matchingFallbacks = ['release']
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../../../../library/maply/proguard-rules.pro'
+        }
         release {
             minifyEnabled false
             debuggable false
             jniDebuggable false
             renderscriptDebuggable false
-            signingConfig signingConfigs.config
+            signingConfig signingConfigs.bitrise
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), '../../../../library/maply/proguard-rules.pro'
         }
         debug {
             jniDebuggable true
+            signingConfig signingConfigs.debug
         }
     }
     lintOptions {
@@ -46,8 +65,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation project(path: ':maply')
-    implementation 'androidx.appcompat:appcompat:1.3.0'
-    implementation 'com.google.android.material:material:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
 }
