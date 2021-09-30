@@ -1,9 +1,8 @@
-/*
- *  ShapeSphere.java
+/*  ShapeSphere.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
-
-import android.graphics.drawable.ShapeDrawable;
 
 /** Display a sphere at the given location with the given radius.
  */
@@ -36,11 +32,18 @@ public class ShapeSphere extends Shape {
         dispose();
     }
 
-    /** Center of the sphere in local coordinates.
+    /** Center of the sphere
       * <br>
-     *  The x and y coordinates correspond to longitude and latitude and are in geographic (radians).  The Z value is in display coordinates.  For that globe that's based on a radius of 1.0.  Scale accordingly.
+     *  The x and y coordinates correspond to longitude and latitude and are in geographic (radians).
      */
-    public native void setLoc (Point2d loc);
+    public native void setLoc(Point2d loc);
+
+    /** Center of the sphere
+     * <br>
+     *  The x and y coordinates correspond to longitude and latitude and are in geographic (radians).
+     *  The Z value is in display coordinates.  For that globe that's based on a radius of 1.0.  Scale accordingly.
+     */
+    public native void setLoc3d(Point3d loc);
 
     /** Offset height above the globe in display units.
      * <br>
@@ -50,7 +53,9 @@ public class ShapeSphere extends Shape {
 
     /** Radius of the sphere in display units.
      * <br>
-     * This is the radius of the sphere, but not in geographic.  It's in display units.  Display units for the globe are based on a radius of 1.0.  Scale accordingly.  For the map, display units typically run from -PI to +PI, depending on the coordinate system.
+     * This is the radius of the sphere, but not in geographic.  It's in display units.
+     * Display units for the globe are based on a radius of 1.0.  Scale accordingly.
+     * For the map, display units typically run from -PI to +PI, depending on the coordinate system.
      */
     public native void setRadius(float radius);
 
@@ -59,8 +64,7 @@ public class ShapeSphere extends Shape {
      */
     public native void setSamples(int sampleX,int sampleY);
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();

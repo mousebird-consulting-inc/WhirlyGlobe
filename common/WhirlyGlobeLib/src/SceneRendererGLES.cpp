@@ -638,13 +638,25 @@ void SceneRendererGLES::render(TimeInterval duration)
                 // Only draw drawables that are active for the current render target
                 if (drawContain.drawable->getRenderTarget() != renderTarget->getId())
                     continue;
-                
+
+                if (UNLIKELY(reportStats))
+                    perfTimer.startTiming("Run Tweakers");
+
                 // Run any tweakers right here
                 drawContain.drawable->runTweakers(&baseFrameInfo);
-                
+
+                if (UNLIKELY(reportStats))
+                    perfTimer.stopTiming("Run Tweakers");
+
+                if (UNLIKELY(reportStats))
+                    perfTimer.startTiming("Draw Drawables");
+
                 // Draw using the given program
                 drawContain.drawable->draw(&baseFrameInfo,scene);
-                
+
+                if (UNLIKELY(reportStats))
+                    perfTimer.stopTiming("Draw Drawables");
+
                 // If we had a local matrix, set the frame info back to the general one
                 //            if (localMat)
                 //                offFrameInfo.mvpMat = mvpMat;
@@ -654,11 +666,11 @@ void SceneRendererGLES::render(TimeInterval duration)
         }
         
         if (UNLIKELY(reportStats))
-            perfTimer.addCount("Drawables drawn", numDrawables);
-        
-        if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Draw Execution");
-        
+
+        if (UNLIKELY(reportStats))
+            perfTimer.addCount("Drawables drawn", numDrawables);
+
         // Anything generated needs to be cleaned up
         generatedDrawables.clear();
         drawList.clear();
@@ -696,7 +708,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         perfTimer.stopTiming("Render Frame");
     
     // Update the frames per sec
-    if (UNLIKELY(reportStats && frameCount > perfInterval))
+    if (UNLIKELY(reportStats && frameCount >= perfInterval))
     {
         const TimeInterval newNow = scene->getCurrentTime();
         const TimeInterval howLong =  newNow - frameCountStart;
@@ -709,7 +721,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         const auto frameTime = perfTimer.getTiming("Render Frame");
         if (frameTime.numRuns > 0)
         {
-            wkLogLevel(Verbose, "FPS min, max, mean, actual: %.2f, %.2f, %.2f, %.2f",
+            wkLogLevel(Verbose, "FPS min, max, mean, actual: %.1f, %.1f, %.1f, %.1f",
                        (frameTime.maxDur > 0) ? (1.0 / frameTime.maxDur) : 0.0,
                        (frameTime.minDur > 0) ? (1.0 / frameTime.minDur) : 0.0,
                        (frameTime.avgDur > 0) ? (frameTime.numRuns / frameTime.avgDur) : 0.0,

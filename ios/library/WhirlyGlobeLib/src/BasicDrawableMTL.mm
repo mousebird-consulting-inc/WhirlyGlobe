@@ -451,7 +451,8 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             [bltEncode copyFromBuffer:srcBuff.buffer sourceOffset:0 toBuffer:baseBuff.buffer destinationOffset:baseBuff.offset size:srcBuff.buffer.length];
         }
 
-        if (texturesChanged && (vertTexInfo || fragTexInfo)) {
+        // If the program changed it may be textured related and we need to re-encode
+        if ((texturesChanged || prog->changed) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
             
             int numEntries = texInfo.size();

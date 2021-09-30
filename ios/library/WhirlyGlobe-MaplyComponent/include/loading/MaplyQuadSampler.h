@@ -52,6 +52,7 @@
 
 /// Normally we always load the lowest level
 /// If this is set we only load those lowest level tiles that pass this test
+/// Must be greater than zero and not equal to minImportance to take effect.
 @property (nonatomic) double minImportanceTop;
 
 /// Generate geometry to cover the north and south poles
@@ -69,6 +70,7 @@
 
 /// If set, we'll always load the lowest level first and then whatever the target level is
 /// Turn this off to get true single level loading
+/// `forceMinLevelHeight` must be greater than zero for this to have any effect.
 @property (nonatomic) bool forceMinLevel;
 
 /// If set, we'll turn on forceMinLevel and only use it when the viewer is above this height

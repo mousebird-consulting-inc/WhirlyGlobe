@@ -57,6 +57,7 @@ public:
     
     /// Normally we always load the lowest level
     /// If this is set we only load those lowest level tiles that pass this test
+    /// Must be greater than zero but less than minImportance to have any effect.
     double minImportanceTop;
     
     /// Generate geometry to cover the north and south poles
@@ -70,6 +71,7 @@ public:
     int tessX,tessY;
     
     /// If set, we'll always load the lowest level first
+    /// forceMinLevelHeight must also be set to have any effect
     bool forceMinLevel;
     
     /// If non-zero we'll only force min level loading above this height

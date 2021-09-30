@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableGLES.cpp
+/*  BasicDrawableGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/10/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableGLES.h"
@@ -26,13 +24,8 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-BasicDrawableGLES::BasicDrawableGLES(const std::string &name)
-: BasicDrawable(name), Drawable(name), isSetupGL(false), usingBuffers(false), vertexSize(-1),
-    pointBuffer(0), triBuffer(0), sharedBuffer(0), vertArrayObj(0)
-{
-}
-
-BasicDrawableGLES::~BasicDrawableGLES()
+BasicDrawableGLES::BasicDrawableGLES(const std::string &name) :
+    BasicDrawable(name), Drawable(name)
 {
 }
 
@@ -48,9 +41,9 @@ unsigned int BasicDrawableGLES::singleVertexSize()
     }
     
     // Now for the rest of the buffers
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
+    for (auto &vertexAttribute : vertexAttributes)
     {
-        VertexAttributeGLES *attr = (VertexAttributeGLES *)vertexAttributes[ii];
+        auto *attr = (VertexAttributeGLES *)vertexAttribute;
         if (attr->numElements() != 0)
         {
             attr->buffer = singleVertSize;
@@ -66,7 +59,7 @@ void BasicDrawableGLES::addPointToBuffer(unsigned char *basePtr,int which,const 
 {
     if (!points.empty())
     {
-        Point3f &pt = points[which];
+        const Point3f &pt = points[which];
         
         // If there's a center, we have to offset everything first
         if (center)
@@ -86,7 +79,7 @@ void BasicDrawableGLES::addPointToBuffer(unsigned char *basePtr,int which,const 
     
     for (VertexAttribute *attr : vertexAttributes)
     {
-        VertexAttributeGLES *theAttr = (VertexAttributeGLES *)attr;
+        const auto *theAttr = (VertexAttributeGLES *)attr;
         if (attr->numElements() != 0 && theAttr->buffer != pointBuffer)
             memcpy(basePtr+theAttr->buffer, attr->addressForElement(which), attr->size());
     }
@@ -95,8 +88,8 @@ void BasicDrawableGLES::addPointToBuffer(unsigned char *basePtr,int which,const 
 // Create VBOs and such
 void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
-    
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+
     // If we're already setup, don't do it twice
     if (pointBuffer || sharedBuffer)
         return;
@@ -128,26 +121,28 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scen
     const int numVerts = (int)points.size();
     
     // Set up the buffer
-    int bufferSize = vertexSize*numVerts;
-    if (!tris.empty()) {
-        bufferSize += tris.size()*sizeof(Triangle);
-    }
+    auto bufferSize = (int)(vertexSize*numVerts + tris.size()*sizeof(Triangle));
     sharedBuffer = setupInfo->memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
-    if (!sharedBuffer) {
+    if (!sharedBuffer)
+    {
         wkLogLevel(Error, "Empty buffer in BasicDrawable::setupGL() (requested %d)", bufferSize);
     }
     
     // Now copy in the data
     glBindBuffer(GL_ARRAY_BUFFER, sharedBuffer);
-    if (hasMapBufferSupport) {
+    if (hasMapBufferSupport)
+    {
         void *glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
-        if (unsigned char *basePtr = (unsigned char *)glMem)
+        if (auto *basePtr = (unsigned char *)glMem)
         {
-            for (unsigned int ii = 0; ii < numVerts; ii++, basePtr += vertexSize)
+            memset(glMem, 0, bufferSize);
+
+            for (int ii = 0; ii < numVerts; ii++, basePtr += vertexSize)
                 addPointToBuffer(basePtr, ii, nullptr);
 
             // And copy in the element buffer
-            if (tris.size()) {
+            if (!tris.empty())
+            {
                 triBuffer = vertexSize * numVerts;
                 unsigned char *triBasePtr = (unsigned char *) glMem + triBuffer;
                 for (unsigned int ii = 0; ii < tris.size(); ii++, triBasePtr += sizeof(Triangle))
@@ -155,14 +150,16 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scen
             }
             glUnmapBuffer(GL_ARRAY_BUFFER);
         }
-    } else {
+    }
+    else
+    {
         bufferSize = numVerts*vertexSize+tris.size()*sizeof(Triangle);
         
         // Gotta do this the hard way
         std::vector<unsigned char> glMemBuf(bufferSize);
         unsigned char *glMem = &glMemBuf[0];
         unsigned char *basePtr = glMem;
-        for (unsigned int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
+        for (int ii=0;ii<numVerts;ii++,basePtr+=vertexSize)
             addPointToBuffer(basePtr, ii,nullptr);
         
         // Now the element buffer
@@ -180,8 +177,8 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scen
     points.clear();
     numTris = (int)tris.size();
     tris.clear();
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-        vertexAttributes[ii]->clear();
+    for (auto & vertexAttribute : vertexAttributes)
+        vertexAttribute->clear();
     
     usingBuffers = true;
     isSetupGL = true;
@@ -190,7 +187,7 @@ void BasicDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scen
 // Tear down the VBOs we set up
 void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene,RenderTeardownInfoRef teardown)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
     isSetupGL = false;
     if (vertArrayObj)
@@ -209,8 +206,8 @@ void BasicDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,S
     }
     pointBuffer = 0;
     triBuffer = 0;
-    for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
-        ((VertexAttributeGLES *)vertexAttributes[ii])->buffer = 0;
+    for (auto & vertexAttribute : vertexAttributes)
+        ((VertexAttributeGLES *)vertexAttribute)->buffer = 0;
 }
 
 // Used to pass in buffer offsets
@@ -236,7 +233,7 @@ GLuint BasicDrawableGLES::setupVAO(ProgramGLES *prog)
     // Vertex array
     if (vertAttr)
     {
-        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
+        glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, nullptr);
         glEnableVertexAttribArray ( vertAttr->index );
     }
     
@@ -244,8 +241,8 @@ GLuint BasicDrawableGLES::setupVAO(ProgramGLES *prog)
     const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
-        progAttrs[ii] = NULL;
-        VertexAttributeGLES *attr = (VertexAttributeGLES *)vertexAttributes[ii];
+        progAttrs[ii] = nullptr;
+        auto *attr = (VertexAttributeGLES *)vertexAttributes[ii];
         const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID);
         if (thisAttr) {
             if (attr->buffer != 0 || attr->numElements() != 0) {
@@ -292,9 +289,9 @@ bool BasicDrawableGLES::isSetupInGL()
 // Draw Vertex Buffer Objects, OpenGL 2.0+
 void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
 {
-    ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
-    SceneGLES *scene = (SceneGLES *)inScene;
-    
+    auto *prog = (ProgramGLES *)frameInfo->program;
+    auto *scene = (SceneGLES *)inScene;
+
     // Figure out if we're fading in or out
     float fade = 1.0;
     if (fadeDown < fadeUp)
@@ -317,7 +314,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
                 if (frameInfo->currentTime > fadeDown)
                     fade = 0.0;
                 else
-                    fade = 1.0-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
+                    fade = 1.0f-(frameInfo->currentTime - fadeUp)/(fadeDown - fadeUp);
         }
     }
     // Deal with the range based fade
@@ -343,9 +340,8 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
     // GL Texture IDs
     bool anyTextures = false;
     std::vector<GLuint> glTexIDs;
-    for (unsigned int ii=0;ii<texInfo.size();ii++)
+    for (auto & thisTexInfo : texInfo)
     {
-        const TexInfo &thisTexInfo = texInfo[ii];
         GLuint glTexID = EmptyIdentity;
         if (thisTexInfo.texId != EmptyIdentity)
         {
@@ -423,13 +419,13 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
             Vector2f texOffset(0.0,0.0);
             // Adjust for border pixels
             if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
-                texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
-                float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
+                texScale = (float)(thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (float)thisTexInfo.size;
+                const float offset = (float)thisTexInfo.borderTexel / (float)thisTexInfo.size;
                 texOffset = Vector2f(offset,offset);
             }
             // Adjust for a relative texture lookup (using lower zoom levels)
             if (thisTexInfo.relLevel > 0) {
-                texScale = texScale/(1<<thisTexInfo.relLevel);
+                texScale = texScale/(float)(1U<<thisTexInfo.relLevel);
                 texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
             }
             prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
@@ -440,7 +436,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         }
     }
     
-    const OpenGLESAttribute *vertAttr = NULL;
+    const OpenGLESAttribute *vertAttr;
     bool boundElements = false;
     bool usedLocalVertices = false;
     std::vector<const OpenGLESAttribute *> progAttrs;
@@ -455,8 +451,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         vertAttr = prog->findAttribute(a_PositionNameID);
         
         // Vertex array
-        bool usedLocalVertices = false;
-        if (vertAttr && !(sharedBuffer || pointBuffer))
+        if (vertAttr && !sharedBuffer && !pointBuffer)
         {
             usedLocalVertices = true;
             glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, 0, &points[0]);
@@ -467,11 +462,11 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         
         // Other vertex attributes
         if (!vertArrayObj) {
-            progAttrs.resize(vertexAttributes.size(),NULL);
+            progAttrs.resize(vertexAttributes.size(),nullptr);
             
             for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
             {
-                VertexAttributeGLES *attr = (VertexAttributeGLES *)vertexAttributes[ii];
+                auto *attr = (VertexAttributeGLES *)vertexAttributes[ii];
                 const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
                 if (progAttr)
                 {
@@ -481,7 +476,8 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
                         // We have a data array for it, so hand that over
                         if (attr->numElements() != 0)
                         {
-                            glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
+                            glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(),
+                                                  attr->glNormalize(), 0, attr->addressForElement(0));
                             CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
                             glEnableVertexAttribArray ( progAttr->index );
                             CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
@@ -512,7 +508,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         {
             glBindBuffer(GL_ARRAY_BUFFER,sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
-            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, 0);
+            glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, vertexSize, nullptr);
         }
         else if (!points.empty())
         {
@@ -529,23 +525,26 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         // All the rest of the attributes
         for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
         {
-            progAttrs[ii] = nullptr;
             const auto attr = (VertexAttributeGLES *)vertexAttributes[ii];
-            if (const OpenGLESAttribute *thisAttr = prog->findAttribute(attr->nameID))
+            progAttrs[ii] = nullptr;
+            if (const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID))
             {
+                // The data hasn't been downloaded, so hook it up directly here
                 if (attr->buffer != 0 || attr->numElements() != 0)
                 {
-                    if (attr->buffer)
-                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), vertexSize, CALCBUFOFF(0,attr->buffer));
-                    else
-                        glVertexAttribPointer(thisAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                    glEnableVertexAttribArray(thisAttr->index);
-                    //                    WHIRLYKIT_LOGD("BasicDrawable glEnableVertexAttribArray %d",thisAttr->index);
-                    progAttrs[ii] = thisAttr;
-                } else {
+                    const auto stride = attr->buffer ? vertexSize : 0;
+                    const auto ptr = attr->buffer ? CALCBUFOFF(0,attr->buffer) : attr->addressForElement(0);
+                    glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), stride, ptr);
+                    CheckGLError("BasicDrawable::draw glVertexAttribPointer");
+                    glEnableVertexAttribArray(progAttr->index);
+                    CheckGLError("BasicDrawable::draw glEnableVertexAttribArray");
+                    progAttrs[ii] = progAttr;
+                }
+                else
+                {
                     // The program is expecting it, so we need a default
-                    attr->glSetDefault(thisAttr->index);
-                    CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
+                    attr->glSetDefault(progAttr->index);
+                    CheckGLError("BasicDrawable::draw glSetDefault");
                 }
             }
         }
@@ -555,22 +554,20 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
         {
             boundElements = true;
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sharedBuffer);
-            //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer %d",sharedBuffer);
             CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
         }
     }
     
     // Color has been overridden, so don't use the embedded ones
-    if (hasOverrideColor) {
-        const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
-        if (colorAttr) {
+    if (hasOverrideColor)
+    {
+        if (const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID))
+        {
             glDisableVertexAttribArray(colorAttr->index);
-            glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0,
-                             color.a / 255.0);
+            glVertexAttrib4f(colorAttr->index, color.r / 255.0f, color.g / 255.0f, color.b / 255.0f,color.a / 255.0f);
         }
     }
-    
-    
+
     // If we're using a vertex array object, bind it and draw
     if (vertArrayObj)
     {
@@ -605,7 +602,9 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
                 if (triBuffer)
                 {
                     if (!boundElements)
+                    {
                         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triBuffer);
+                    }
                     CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                     glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, (void *)((uintptr_t)triBuffer));
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
@@ -614,7 +613,7 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
                     if (!boundElements)
                         glDrawElements(GL_TRIANGLES, (GLsizei)tris.size()*3, GL_UNSIGNED_SHORT, &tris[0]);
                     else
-                        glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, 0);
+                        glDrawElements(GL_TRIANGLES, numTris*3, GL_UNSIGNED_SHORT, nullptr);
                     CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                 }
             }
@@ -646,11 +645,18 @@ void BasicDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
     
     // Tear down the various arrays, if we stood them up
     if (usedLocalVertices)
+    {
         glDisableVertexAttribArray(vertAttr->index);
-    if (!vertArrayObj) {
-        for (unsigned int ii=0;ii<progAttrs.size();ii++)
-            if (progAttrs[ii])
-                glDisableVertexAttribArray(progAttrs[ii]->index);
+    }
+    if (!vertArrayObj)
+    {
+        for (auto &progAttr : progAttrs)
+        {
+            if (progAttr)
+            {
+                glDisableVertexAttribArray(progAttr->index);
+            }
+        }
     }
     
     if (!hasVertexArraySupport)

@@ -474,7 +474,8 @@ public class MapGestureHandler
 			// Start after the stop/end events for the current tap
 			control.addPostSurfaceRunnable(() ->
 					mapView.setAnimationDelegate(
-						new MapAnimateTranslate(mapView, render, loc, (float) 0.1, control.viewBounds)));
+						new MapAnimateTranslate(mapView, render, loc, 0.5f,
+						                        control.viewBounds, control.zoomAnimationEasing)));
 
 			isActive = false;
 
@@ -558,9 +559,9 @@ public class MapGestureHandler
 					if (renderWrap !=  null) {
 						final RenderController render = renderWrap.maplyRender.get();
 						if (render != null) {
-							final MapView.AnimationDelegate delegate =
-								new MapAnimateTranslate(mapView, render, loc, (float) 0.1, control.viewBounds);
-							mapView.setAnimationDelegate(delegate);
+							mapView.setAnimationDelegate(
+									new MapAnimateTranslate(mapView, render, loc, 0.5f,
+									                        control.viewBounds, control.zoomAnimationEasing));
 						}
 					}
 

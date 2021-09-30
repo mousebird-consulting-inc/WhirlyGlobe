@@ -44,18 +44,13 @@ JNIEXPORT jobject JNICALL MakePoint3d(JNIEnv *env,const Point3d &pt)
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_initialise
-    (JNIEnv *env, jobject obj)
+    (JNIEnv *env, jobject obj,jdouble x,jdouble y,jdouble z)
 {
 	try
 	{
-		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-		auto pt = new Point3d(0, 0, 0);
-		classInfo->setHandle(env,obj,pt);
+		Point3dClassInfo::set(env,obj,new Point3d(x, y, z));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -70,13 +65,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_dispose
         std::lock_guard<std::mutex> lock(disposeMutex);
         Point3d *inst = classInfo->getObject(env,obj);
         delete inst;
-
         classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -85,16 +76,12 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point3d_getX
 {
 	try
 	{
-		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-		if (Point3d *pt = classInfo->getObject(env,obj))
+		if (const Point3d *pt = Point3dClassInfo::get(env,obj))
         {
     		return pt->x();
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::getX()");
-	}
+	MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -104,16 +91,12 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point3d_getY
 {
 	try
 	{
-		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-		if (Point3d *pt = classInfo->getObject(env,obj))
+		if (const Point3d *pt = Point3dClassInfo::get(env,obj))
 		{
 		    return pt->y();
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::getY()");
-	}
+	MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -123,16 +106,12 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point3d_getZ
 {
 	try
 	{
-		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-		if (Point3d *pt = classInfo->getObject(env,obj))
+		if (const Point3d *pt = Point3dClassInfo::get(env,obj))
         {
 		    return pt->z();
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::getZ()");
-	}
+	MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -142,18 +121,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Point3d_setValue
 {
 	try
 	{
-		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-		if (Point3d *pt = classInfo->getObject(env,obj))
+		if (Point3d *pt = Point3dClassInfo::get(env,obj))
 		{
             pt->x() = x;
             pt->y() = y;
             pt->z() = z;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::setValue()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -163,17 +138,14 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Point3d_cross
 	try
 	{
 		Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-		Point3d *pt = classInfo->getObject(env,ptObj);
-		Point3d *pt2 = classInfo->getObject(env,pt2Obj);
+		const Point3d *pt = classInfo->getObject(env,ptObj);
+		const Point3d *pt2 = classInfo->getObject(env,pt2Obj);
 		if (pt && pt2)
 		{
             return MakePoint3d(env,pt->cross(*pt2));
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::cross()");
-	}
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -183,15 +155,11 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_Point3d_norm
 {
     try
     {
-        Point3dClassInfo *classInfo = Point3dClassInfo::getClassInfo();
-        if (Point3d *pt = classInfo->getObject(env,obj))
+        if (const Point3d *pt = Point3dClassInfo::get(env,obj))
         {
             return pt->norm();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Point3d::norm()");
-    }
+	MAPLY_STD_JNI_CATCH()
     return 0.0;
 }

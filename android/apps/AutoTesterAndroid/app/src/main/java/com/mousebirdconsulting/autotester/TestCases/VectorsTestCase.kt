@@ -50,7 +50,9 @@ class VectorsTestCase(activity: Activity?) :
                 selectable = true
             }?.let { vec ->
                 vectors.add(vec)
-                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadCurrent)?.let { co ->
+                // We use ThreadAny here so that it's handled correctly if the map is shut
+                // down while we're running.
+                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadAny)?.let { co ->
                     compObjs.add(co)
                     onVectorLoaded?.invoke(vec,co)
                 }

@@ -115,6 +115,11 @@ public:
 		return getClassInfo()->getObject(env,obj);
 	}
 
+	static void set(JNIEnv *env,jobject obj,T* val)
+	{
+		return getClassInfo()->setHandle(env,obj,val);
+	}
+
 	// Set the handle for a Java wrapper to its C++ object
 	void setHandle(JNIEnv *env, jobject obj, T *t)
 	{

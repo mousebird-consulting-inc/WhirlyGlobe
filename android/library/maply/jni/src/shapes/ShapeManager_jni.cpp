@@ -39,16 +39,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
 {
     try
     {
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
-        if (!scene)
-            return;
-        ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManager(kWKShapeManager));
-        ShapeManagerClassInfo::getClassInfo()->setHandle(env,obj,new ShapeManagerRef(shapeManager));
+        if (Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj))
+        {
+            ShapeManagerRef shapeManager = scene->getManager<ShapeManager>(kWKShapeManager);
+            ShapeManagerClassInfo::set(env, obj, new ShapeManagerRef(shapeManager));
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -60,13 +57,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManagerRef *inst = classInfo->getObject(env, obj);
-        delete inst;
+        delete classInfo->getObject(env, obj);
         classInfo->clearHandle(env, obj);
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+// Convert points in-place from geo radians + height to display xyz.
+template <typename TIter>
+static void geoToDisplay(TIter pt, const TIter end, const CoordSystemDisplayAdapter *adapter)
+{
+    const auto cs = adapter->getCoordSystem();
+    for (; pt != end; ++pt)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::dispose()");
+        // We assume that the result of converting lat/long to display is normalized,
+        // and that the height is in the same unit as display coords (radii).
+        const auto r = 1 + pt->z();
+        *pt = adapter->localToDisplay(cs->geographicToLocal(Slice(*pt))) * r;
     }
 }
 
@@ -76,15 +83,17 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
 {
     try
     {
-        ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManagerRef *inst = classInfo->getObject(env, obj);
-        ShapeInfoRef *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
-        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
-
-        if (!inst || !shapeInfo || !changeSet)
-            return EmptyIdentity;
-
         ShapeClassInfo *shapeClassInfo = ShapeClassInfo::getClassInfo();
+        const ShapeManagerRef *inst = ShapeManagerClassInfo::get(env, obj);
+        const ShapeInfoRef *shapeInfo = ShapeInfoClassInfo::get(env, shapeInfoObj);
+        const ChangeSetRef *changeSet = ChangeSetClassInfo::get(env, changeObj);
+        const auto scene = (inst && *inst) ? (*inst)->getScene() : nullptr;
+        if (!scene || !shapeInfo || !changeSet)
+        {
+            return EmptyIdentity;
+        }
+
+        const auto adapter = scene->getCoordAdapter();
 
         // Work through the shapes
         std::vector<Shape *> shapes;
@@ -93,18 +102,30 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         while (jobject shapeObj = arrayHelp.getNextObject())
         {
             Shape *shape = shapeClassInfo->getObject(env,shapeObj);
+            Shape *res = shape;
 
             // Great circle is just a concept, not an actual object
             if (auto greatCircle = dynamic_cast<GreatCircle_Android *>(shape))
             {
-                if (Linear *lin = greatCircle->asLinear((*inst)->getScene()->getCoordAdapter()))
-                {
-                    shapes.push_back(lin);
-                }
+                res = greatCircle->asLinear(adapter);
             }
-            else
+            else if (auto lin = dynamic_cast<Linear *>(shape))
             {
-                shapes.push_back(shape);
+                auto newLin = new Linear(*lin);
+                geoToDisplay(newLin->pts.begin(), newLin->pts.end(), adapter);
+
+                newLin->mbr.reset();
+                for (const auto &p : newLin->pts)
+                {
+                    newLin->mbr.addPoint(Slice(p));
+                }
+
+                res = newLin;
+            }
+
+            if (res)
+            {
+                shapes.push_back(res);
             }
         }
 
@@ -119,11 +140,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
         SimpleIdentity shapeId = (*inst)->addShapes(shapes, *(*shapeInfo), *(changeSet->get()));
         return shapeId;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::addShapes()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
@@ -142,10 +159,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
         const SimpleIDSet idSet = ConvertLongArrayToSet(env, idArrayObj);
         (*inst)->removeShapes(idSet, **changeSet);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::removeShapes()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -164,9 +178,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
 
         (*inst)->enableShapes(idSet, enable, **changeSet);
     }
-    
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::enableShapes()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

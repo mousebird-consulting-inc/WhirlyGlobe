@@ -1,9 +1,8 @@
-/*
- *  TriangleShaders.cpp
+/*  TriangleShadersGLES.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/21/18.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "TriangleShadersGLES.h"
@@ -113,13 +111,13 @@ void main()
 )";
     
 // Triangle shader with lighting
-ProgramGLES *BuildDefaultTriShaderLightingGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultTriShaderLightingGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
+    auto *shader = new ProgramGLES(name,vertexShaderTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;
@@ -173,13 +171,13 @@ void main()
 )";
     
 // Triangle shader without lighting
-ProgramGLES *BuildDefaultTriShaderNoLightingGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultTriShaderNoLightingGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderNoLightTri,fragmentShaderNoLightTri);
+    auto *shader = new ProgramGLES(name,vertexShaderNoLightTri,fragmentShaderNoLightTri);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;
@@ -258,13 +256,13 @@ void main()
 )";
 
 // Triangle shader for models
-ProgramGLES *BuildDefaultTriShaderModelGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultTriShaderModelGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderModelTri,fragmentShaderTri);
+    auto *shader = new ProgramGLES(name,vertexShaderModelTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;
@@ -342,13 +340,13 @@ void main()
 )";
     
 // Triangles with screen textures
-ProgramGLES *BuildDefaultTriShaderScreenTextureGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultTriShaderScreenTextureGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderScreenTexTri,fragmentShaderTri);
+    auto *shader = new ProgramGLES(name,vertexShaderScreenTexTri,fragmentShaderTri);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;
@@ -454,13 +452,13 @@ void main()
 )";
     
 // Triangles with multiple textures
-ProgramGLES *BuildDefaultTriShaderMultitexGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultTriShaderMultitexGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
+    auto *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTex);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;
@@ -488,13 +486,13 @@ void main()
 )";
 
 // Triangles that use the ramp textures
-ProgramGLES *BuildDefaultTriShaderRamptexGLES(const std::string &name,SceneRenderer *renderer)
+ProgramGLES *BuildDefaultTriShaderRamptexGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
+    auto *shader = new ProgramGLES(name,vertexShaderTriMultiTex,fragmentShaderTriMultiTexRamp);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;
@@ -589,13 +587,13 @@ void main()
 )";
     
 // Day/night support for triangles
-ProgramGLES *BuildDefaultTriShaderNightDayGLES(const std::string &name,SceneRenderer *sceneRender)
+ProgramGLES *BuildDefaultTriShaderNightDayGLES(const std::string &name,SceneRenderer *)
 {
-    ProgramGLES *shader = new ProgramGLES(name,vertexShaderTriNightDay,fragmentShaderTriNightDay);
+    auto *shader = new ProgramGLES(name,vertexShaderTriNightDay,fragmentShaderTriNightDay);
     if (!shader->isValid())
     {
         delete shader;
-        shader = NULL;
+        shader = nullptr;
     }
     
     return shader;

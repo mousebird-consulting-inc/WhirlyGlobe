@@ -45,7 +45,8 @@ using namespace WhirlyGlobe;
 {
     self = [super init];
     endState = inEndState;
-    
+    _zoomEasing = nil;
+
     return self;
 }
 
@@ -80,8 +81,16 @@ using namespace WhirlyGlobe;
         state.heading = (dHeading - 2.0*M_PI)*t + startState.heading;
     else
         state.heading = (dHeading + 2.0*M_PI)*t + startState.heading;
+
+    if (auto easing = _zoomEasing)
+    {
+        state.height = easing(startState.height, endState.height, t);
+    }
+    else
+    {
+        state.height = exp((log(endState.height) - log(startState.height)) * t + log(startState.height));
+    }
     
-    state.height = (endState.height - startState.height)*t + startState.height;
     state.tilt = (endState.tilt - startState.tilt)*t + startState.tilt;
     state.roll = (endState.roll - startState.roll)*t + startState.roll;
     MaplyCoordinateD pos;
@@ -830,7 +839,8 @@ public:
     anim.heading = newHeading;
     anim.height = newHeight;
     anim.tilt = [self tilt];
-    
+    anim.zoomEasing = self.animationZoomEasing;
+
     [self animateWithDelegate:anim time:howLong];
     
     return true;
@@ -854,7 +864,8 @@ public:
     anim.heading = newHeading;
     anim.height = newHeight;
     anim.tilt = [self tilt];
-    
+    anim.zoomEasing = self.animationZoomEasing;
+
     [self animateWithDelegate:anim time:howLong];
     
     return true;
@@ -903,6 +914,8 @@ public:
     anim.heading = newHeading;
     anim.height = newHeight;
     anim.tilt = [self tilt];
+    anim.zoomEasing = self.animationZoomEasing;
+
     [self animateWithDelegate:anim time:howLong];
     
     return true;

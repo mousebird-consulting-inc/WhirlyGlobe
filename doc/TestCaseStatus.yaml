@@ -634,6 +634,8 @@ cases:
     Globe: ✗
   Issues:
     - Android has z-fighting in both map and globe cases
+    - GreatCircle/Linear not working in Android flat map case
+    - Rectangle Shape not working on Android, not included in iOS test case
   Checks:
     - Displays parabolic arcs and spheres
   Comments: []

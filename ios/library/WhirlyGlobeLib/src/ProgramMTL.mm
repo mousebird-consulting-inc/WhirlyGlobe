@@ -68,6 +68,16 @@ bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSl
     TextureBaseMTL *texMTL = dynamic_cast<TextureBaseMTL *>(tex);
     if (!texMTL)
         return false;
+
+    // If it's already there, then just overwrite it
+    for (auto &texEntry: textures)
+        if (texEntry.slot == textureSlot) {
+            texEntry.texBuf = texMTL->getMTLTex();
+            texEntry.texID = tex->getId();
+
+            changed = true;
+            return true;
+        }
     
     TextureEntry texEntry;
     texEntry.slot = textureSlot;

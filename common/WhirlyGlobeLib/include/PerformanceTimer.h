@@ -45,7 +45,6 @@ public:
         TimeInterval minDur = std::numeric_limits<TimeInterval>::max();
         TimeInterval maxDur = 0.0;
         TimeInterval avgDur = 0.0;
-        TimeInterval lastDur = 0.0;
     };
     
     /// Used to track a category of counts
