@@ -35,10 +35,9 @@ class StamenWatercolorRemote: MaplyTestCase {
         sampleParams.edgeMatching = true
         sampleParams.maxZoom = tileInfo.maxZoom()
         sampleParams.singleLevel = true         // only show one level at a time
-        sampleParams.forceMinLevel = true       //
-        sampleParams.forceMinLevelHeight = 2.0  // Keep level 0 even when zoomed *way* out
+        sampleParams.forceMinLevel = true       // Keep level 0 even when zoomed *way* out
         sampleParams.minImportanceTop = 1       // (otherwise the globe disappears past h=~2)
-        sampleParams.minImportance = 1024.0 * 1024.0 / 2.0
+        sampleParams.minImportance = 1024.0 * 1024.0 / 4.0
         
         guard let imageLoader = MaplyQuadImageLoader(params: sampleParams, tileInfo: tileInfo, viewC: baseVC) else {
             return nil
