@@ -769,8 +769,8 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
             BasicDrawableBuilderRef draw = draws[ll];
             draw->setType((sg[0]->type == WhirlyKitGeometryLines ? Lines : Triangles));
             draw->setOnOff(false);
-            draw->setRequestZBuffer(true);
-            draw->setWriteZBuffer(true);
+            draw->setRequestZBuffer(geomInfo.zBufferRead);
+            draw->setWriteZBuffer(geomInfo.zBufferWrite);
             sceneRep->drawIDs.insert(draw->getDrawableID());
             changes.push_back(new AddDrawableReq(draw->getDrawable()));
         }
