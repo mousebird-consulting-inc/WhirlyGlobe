@@ -47,7 +47,7 @@ using namespace WhirlyGlobe;
     
     UITapGestureRecognizer *tapRecog = [[UITapGestureRecognizer alloc] initWithTarget:tapDelegate action:@selector(tapAction:)];
     tapDelegate.gestureRecognizer = tapRecog;
-	[view addGestureRecognizer:tapRecog];
+    [view addGestureRecognizer:tapRecog];
     
 	return tapDelegate;
 }

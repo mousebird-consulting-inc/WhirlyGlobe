@@ -74,6 +74,7 @@ TextureBaseMTL::~TextureBaseMTL()
 {
 }
 
+#if !TARGET_OS_MACCATALYST
 static RawDataRef ConvertRGBA8888toRGB565(const RawDataRef &inData, int width, int height)
 {
     vImage_Buffer srcBuff;
@@ -95,6 +96,7 @@ static RawDataRef ConvertRGBA8888toRGB565(const RawDataRef &inData, int width, i
     }
     return RawDataRef();
 }
+#endif
 
 static RawDataRef ConvertRGBA8888toRGBA5551(const RawDataRef &inData, int width, int height)
 {
