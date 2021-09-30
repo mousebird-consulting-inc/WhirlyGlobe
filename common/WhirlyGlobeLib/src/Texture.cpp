@@ -1,9 +1,8 @@
-/*
- *  Texture.mm
+/*  Texture.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Texture.h"
@@ -35,7 +33,7 @@ namespace WhirlyKit
 
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
-RawDataRef ConvertRGBATo565(RawDataRef inData)
+RawDataRef ConvertRGBATo565(const RawDataRef &inData)
 {
     const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -58,7 +56,7 @@ RawDataRef ConvertRGBATo565(RawDataRef inData)
 
 
 // Convert a buffer in RGBA to 2-byte 4444
-RawDataRef ConvertRGBATo4444(RawDataRef inData)
+RawDataRef ConvertRGBATo4444(const RawDataRef &inData)
 {
     const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -81,7 +79,7 @@ RawDataRef ConvertRGBATo4444(RawDataRef inData)
 }
 
 // Convert a buffer in RGBA to 2-byte 5551
-RawDataRef ConvertRGBATo5551(RawDataRef inData)
+RawDataRef ConvertRGBATo5551(const RawDataRef &inData)
 {
     const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount * 2);
@@ -104,7 +102,7 @@ RawDataRef ConvertRGBATo5551(RawDataRef inData)
 }
 
 // Convert a buffer in A to 1-byte alpha but align it to 32 bits
-RawDataRef ConvertAToA(RawDataRef inData,int width,int height)
+RawDataRef ConvertAToA(const RawDataRef &inData,int width,int height)
 {
     if (width % 4 == 0)
         return inData;
@@ -130,7 +128,7 @@ RawDataRef ConvertAToA(RawDataRef inData,int width,int height)
 }
 
 // Convert a buffer in RG to a 2-byte RG but align it to 32 bits
-RawDataRef ConvertRGToRG(RawDataRef inData,int width,int height)
+RawDataRef ConvertRGToRG(const RawDataRef &inData,int width,int height)
 {
     if (width % 2 == 0)
         return inData;
@@ -155,7 +153,7 @@ RawDataRef ConvertRGToRG(RawDataRef inData,int width,int height)
     return std::make_shared<RawDataWrapper>(temp,outWidth*height*2,true);
 }
 
-RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad)
+RawDataRef ConvertRGBATo16(const RawDataRef &inData,int width,int height,bool pad)
 {
     int extra = 2 - (width % 2);
     if (extra == 2) extra = 0;
@@ -194,7 +192,7 @@ RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad)
 }
 
 // Convert a buffer in RGBA to 1-byte alpha
-RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
+RawDataRef ConvertRGBATo8(const RawDataRef &inData,WKSingleByteSource source)
 {
     const uint32_t pixelCount = inData->getLen()/4;
     void *temp = malloc(pixelCount);
@@ -208,7 +206,7 @@ RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
         const uint32_t b = ((*inPixel32 >> 16) & 0xFF);
         const uint32_t a = ((*inPixel32 >> 24) & 0xFF);
         int sum = 0;
-        switch (source)
+        switch (source)     // todo: is the compiler smart enough to hoist this out of the loop?
         {
             case WKSingleRed:
                 sum = r;
@@ -233,7 +231,7 @@ RawDataRef ConvertRGBATo8(RawDataRef inData,WKSingleByteSource source)
 
     return std::make_shared<RawDataWrapper>(temp,pixelCount,true);
 }
-    
+
 TextureBase::TextureBase(SimpleIdentity thisId)
 : Identifiable(thisId)
 {

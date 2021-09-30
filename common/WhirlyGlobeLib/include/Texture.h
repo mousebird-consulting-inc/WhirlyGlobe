@@ -1,9 +1,8 @@
-/*
- *  Texture.h
+/*  Texture.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Platform.h"
@@ -26,10 +24,9 @@
 
 namespace WhirlyKit
 {
-    
-/** Base class for textures.  This is enough information to
-    track it in the Scene, but little else.
-  */
+
+/** Base class for textures.  This is enough information to track it in the Scene, but little else.
+*/
 class TextureBase : virtual public Identifiable
 {
 public:
@@ -141,6 +138,12 @@ protected:
 typedef std::shared_ptr<Texture> TextureRef;
 
 // Pull two 8 byte channels out of an RGBA image
-extern RawDataRef ConvertRGBATo16(RawDataRef inData,int width,int height,bool pad);
-    
+extern RawDataRef ConvertRGBATo16(const RawDataRef &inData,int width,int height,bool pad);
+extern RawDataRef ConvertRGBATo565(const RawDataRef &inData);
+extern RawDataRef ConvertRGBATo4444(const RawDataRef &inData);
+extern RawDataRef ConvertRGBATo5551(const RawDataRef &inData);
+extern RawDataRef ConvertAToA(const RawDataRef &inData,int width,int height);
+extern RawDataRef ConvertRGToRG(const RawDataRef &inData,int width,int height);
+extern RawDataRef ConvertRGBATo8(const RawDataRef &inData,WKSingleByteSource source);
+
 }
