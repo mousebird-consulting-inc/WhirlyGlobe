@@ -1210,7 +1210,6 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 
     @param objects Array of ComponentObject, the UUIDs to update
     @param repName The representation value to apply, nil to return to the default
-    @param fallbackRepName The representation to use if there are no matches
 */
 - (void)setRepresentation:(NSString *__nullable)repName
                 ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;

@@ -264,11 +264,18 @@ void RenderTeardownInfoMTL::clear()
 {
     resources->clear();
 
+    drawGroups.clear();
     // For Metal, we just drop the references and the rest is cleaned up
     for (auto &draw: drawables)
         draw->teardownForRenderer(nullptr, nullptr, nullptr);
     for (auto &tex: textures)
         tex->destroyInRenderer(nullptr, nullptr);
+}
+
+void RenderTeardownInfoMTL::releaseDrawGroups(SceneRenderer *renderer,std::vector<DrawGroupMTLRef> &refs)
+{
+    for (auto &ref : refs)
+        drawGroups.push_back(ref);
 }
 
 void RenderTeardownInfoMTL::destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex)

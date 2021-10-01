@@ -337,7 +337,8 @@ void Scene::markProgramsUnchanged()
 
     for (const auto& it: programs) {
         auto &prog = it.second;
-        prog->changed = false;
+        prog->texturesChanged = false;
+        prog->valuesChanged = false;
     }
 }
 

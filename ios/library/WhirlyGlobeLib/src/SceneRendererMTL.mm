@@ -310,6 +310,7 @@ void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDe
 void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
 {
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
+    RenderTeardownInfoMTLRef teardownInfoMTL = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(teardownInfo);
     SceneRenderer::updateWorkGroups(frameInfo);
     
     if (!indirectRender)
@@ -322,6 +323,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                 if (targetContainer->drawables.empty() && !targetContainer->modified)
                     continue;
                 RenderTargetContainerMTLRef targetContainerMTL = std::dynamic_pointer_cast<RenderTargetContainerMTL>(targetContainer);
+                teardownInfoMTL->releaseDrawGroups(this,targetContainerMTL->drawGroups);
                 targetContainerMTL->drawGroups.clear();
 
                 RenderTargetMTLRef renderTarget;

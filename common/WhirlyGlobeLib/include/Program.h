@@ -36,7 +36,7 @@ class Material;
 class Program : public Identifiable
 {
 public:
-    Program();
+    Program() = default;
     virtual ~Program() = default;
         
     /// Return true if it was built correctly
@@ -71,10 +71,11 @@ public:
     virtual ReduceMode getReduceMode() const;
     
 public:
-    bool changed;
+    bool texturesChanged = true;
+    bool valuesChanged = true;
     std::string name;
-    TimeInterval lightsLastUpdated;
-    ReduceMode reduceMode;
+    TimeInterval lightsLastUpdated = 0.0;
+    ReduceMode reduceMode = None;
     // Uniforms to be passed into a shader (just Metal for now)
     std::vector<BasicDrawable::UniformBlock> uniBlocks;
 };

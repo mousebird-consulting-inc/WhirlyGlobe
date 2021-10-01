@@ -316,9 +316,9 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     }
     RenderSetupInfoMTL *setupMTL = (RenderSetupInfoMTL *)sceneRender->getRenderSetupInfo();
 
-    if (texturesChanged || valuesChanged || prog->changed) {
+    if (texturesChanged || valuesChanged || prog->texturesChanged || prog->valuesChanged) {
         ret = true;
-        if (texturesChanged && (vertTexInfo || fragTexInfo)) {
+        if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
 
             // Sometimes it's just boring geometry and the texture's in the base
@@ -389,7 +389,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         }
 
         // TODO: Could break out the program only changes
-        if (valuesChanged || prog->changed) {
+        if (valuesChanged || prog->valuesChanged) {
             if (vertABInfo)
                 vertABInfo->startEncoding(sceneRender->setupInfo.mtlDevice);
             if (fragABInfo)

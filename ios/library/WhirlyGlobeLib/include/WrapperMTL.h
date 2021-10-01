@@ -122,6 +122,9 @@ protected:
 };
 typedef std::shared_ptr<ResourceRefsMTL> ResourceRefsMTLRef;
 
+class DrawGroupMTL;
+typedef std::shared_ptr<DrawGroupMTL> DrawGroupMTLRef;
+
 // Used to track resources that we're tearing down
 // We need to hold on to them until after the current frame is done
 class RenderTeardownInfoMTL : public RenderTeardownInfo {
@@ -129,6 +132,9 @@ public:
     RenderTeardownInfoMTL();
     
     void clear();
+
+    // Hold on to a draw group until releasing it later
+    void releaseDrawGroups(SceneRenderer *renderer,std::vector<DrawGroupMTLRef> &ref);
 
     // Either destroy the texture now or hold on to it for destruction shortly
     void destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex) override;
@@ -141,6 +147,7 @@ public:
 
 protected:
     // Hold these objects and release them on another thread
+    std::vector<DrawGroupMTLRef> drawGroups;
     std::vector<DrawableRef> drawables;
     std::vector<TextureBaseRef> textures;
 };

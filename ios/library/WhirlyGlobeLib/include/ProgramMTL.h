@@ -32,8 +32,8 @@ class SceneMTL;
 class ProgramMTL : public Program
 {
 public:
-    ProgramMTL();
-    virtual ~ProgramMTL();
+    ProgramMTL() = default;
+    virtual ~ProgramMTL() = default;
     
     /// Set up with a vertex and fragment shader
     ProgramMTL(const std::string &name,id<MTLFunction> vertfunc,id<MTLFunction> fragFunc);
@@ -63,16 +63,16 @@ public:
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) override;
 
 public:
-    bool valid;
+    bool valid = false;
     id<MTLFunction> vertFunc,fragFunc;
-    TimeInterval lightsLastUpdated;
+    TimeInterval lightsLastUpdated = 0.0;
 
     // Program wide textures
     class TextureEntry {
     public:
-        TextureEntry();
+        TextureEntry() = default;
         
-        int slot;
+        int slot = -1;
         TextureEntryMTL texBuf;
         SimpleIdentity texID;
     } ;
