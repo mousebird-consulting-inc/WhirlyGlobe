@@ -31,7 +31,7 @@ import kotlin.math.sin
 
 @Suppress("SameParameterValue")
 class ShapesTestCase(activity: Activity) :
-        MaplyTestCase(activity, "Shape Test Case", TestExecutionImplementation.Both) {
+        MaplyTestCase(activity, "Shapes", TestExecutionImplementation.Both) {
 
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {

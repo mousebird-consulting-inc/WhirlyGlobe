@@ -27,7 +27,7 @@ import kotlin.math.exp
 import kotlin.math.log
 
 class AnimationDelegateTestCase(activity: Activity) :
-        MaplyTestCase(activity, "Animating Position", TestExecutionImplementation.Both) {
+        MaplyTestCase(activity, "Animation Delegate", TestExecutionImplementation.Both) {
     
     private val initLoc = Point2d.FromDegrees(12.5037997, 41.893988)
     private val loc = Point2d.FromDegrees(0.5508867, 51.5203505)

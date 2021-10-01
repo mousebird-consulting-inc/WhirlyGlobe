@@ -16,7 +16,7 @@ class MapTilerTestCase: MaplyTestCase {
     }
 
     override convenience init() {
-        self.init("MapTiler Test Cases",[.map,.globe])
+        self.init("MapTiler Variations",[.map,.globe])
         
         let env = ProcessInfo.processInfo.environment
         mapTilerStyle = NumberFormatter().number(from: env["MAPTILER_STYLE"] ?? "")?.intValue ?? mapTilerStyle

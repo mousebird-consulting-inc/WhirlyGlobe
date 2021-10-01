@@ -83,10 +83,20 @@ public class MaplyTestCase
 		this(activity, testName, TestExecutionImplementation.Both);
 	}
 
+	public MaplyTestCase(Activity activity, String testName, int delay) {
+		this(activity, testName, TestExecutionImplementation.Both);
+		setDelay(delay);
+	}
+
 	public MaplyTestCase(Activity activity, String testName, TestExecutionImplementation impl) {
 		this(activity);
 		this.testName = testName;
 		this.implementation = impl;
+	}
+
+	public MaplyTestCase(Activity activity, String testName, TestExecutionImplementation impl, int delay) {
+		this(activity, testName, impl);
+		setDelay(delay);
 	}
 
 	public boolean areResourcesDownloaded(){

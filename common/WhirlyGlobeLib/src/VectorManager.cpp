@@ -1103,7 +1103,7 @@ void VectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet &cha
         if (it != vectorReps.end())
         {
             const VectorSceneRep *sceneRep = *it;
-            AllIDs(*sceneRep);
+            AllIDs(*sceneRep, allIDs);
         }
     }
 

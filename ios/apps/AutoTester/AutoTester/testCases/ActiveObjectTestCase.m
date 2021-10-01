@@ -60,7 +60,7 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.name = @"Active Object Test Case";
+        self.name = @"Active Object";
         self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
     }
     

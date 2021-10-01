@@ -18,7 +18,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase;
 public class GeomPointsTestCase extends MaplyTestCase {
 
     public GeomPointsTestCase(Activity activity) {
-        super(activity, "Geometry Points Test", TestExecutionImplementation.Globe);
+        super(activity, "Geometry Points Test (broken)", TestExecutionImplementation.Globe);
         setDelay(100);
     }
 

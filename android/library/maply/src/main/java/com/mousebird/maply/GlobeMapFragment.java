@@ -1,10 +1,15 @@
 package com.mousebird.maply;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
+import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import java.lang.ref.WeakReference;
 
 /**
  * A fragment that instantiates either a map or a globe.
@@ -57,7 +62,9 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
      * be sure to call this one too.  It does all the setup for the globe or map.
      */
     @Override
-    public android.view.View onCreateView(LayoutInflater inflater, ViewGroup container,
+    @CallSuper
+    public android.view.View onCreateView(@NonNull LayoutInflater inflater,
+                                          ViewGroup container,
                                           Bundle inState) {
         super.onCreateView(inflater, container, inState);
 
@@ -65,22 +72,26 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
 
         preControlCreated();
 
-        if (mapDisplayType == MapDisplayType.Map) {
-            mapSettings.loadLibraryName = loadLibraryName();
-            mapControl = new MapController(getActivity(), mapSettings);
-            mapControl.gestureDelegate = this;
-            baseControl = mapControl;
-        } else {
-            globeSettings.loadLibraryName = loadLibraryName();
-            globeControl = new GlobeController(getActivity(), globeSettings);
-            globeControl.gestureDelegate = this;
-            baseControl = globeControl;
+        final Activity activity = getActivity();
+        if (activity != null) {
+            if (mapDisplayType == MapDisplayType.Map) {
+                mapSettings.loadLibraryName = loadLibraryName();
+                mapControl = new MapController(activity, mapSettings);
+                mapControl.gestureDelegate = this;
+                baseControl = mapControl;
+            } else {
+                globeSettings.loadLibraryName = loadLibraryName();
+                globeControl = new GlobeController(activity, globeSettings);
+                globeControl.gestureDelegate = this;
+                baseControl = globeControl;
+            }
         }
 
-        baseControl.addPostSurfaceRunnable(new Runnable() {
-            @Override
-            public void run() {
-                controlHasStarted();
+        final WeakReference<GlobeMapFragment> weakThis = new WeakReference<>(this);
+        baseControl.addPostSurfaceRunnable(() -> {
+            GlobeMapFragment ths = weakThis.get();
+            if (ths != null) {
+                ths.controlHasStarted();
             }
         });
 
@@ -122,11 +133,12 @@ public class GlobeMapFragment extends Fragment implements MapController.GestureD
      * shutdown here, so be sure to call it if you override this.
      */
     @Override
+    @CallSuper
     public void onDestroyView()
     {
         if (baseControl != null)
         {
-            baseControl.shutdown();;
+            baseControl.shutdown();
             baseControl = null;
             globeControl = null;
             mapControl = null;

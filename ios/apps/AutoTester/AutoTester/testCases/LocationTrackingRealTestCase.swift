@@ -17,7 +17,7 @@ class LocationTrackingRealTestCase: MaplyTestCase, MaplyLocationTrackerDelegate 
     override init() {
         super.init()
         
-        self.name = "Location Tracking Real Test Case"
+        self.name = "Location Tracking Real"
         self.implementations = [.globe, .map]
     }
     
