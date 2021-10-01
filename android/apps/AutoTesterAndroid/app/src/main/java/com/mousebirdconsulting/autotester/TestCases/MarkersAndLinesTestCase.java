@@ -164,7 +164,7 @@ public class MarkersAndLinesTestCase extends MaplyTestCase {
     public MarkersAndLinesTestCase(Activity activity) {
         super(activity);
 
-        setTestName("Markers And Lines Test");
+        setTestName("Markers And Lines Test (broken)");
         setDelay(4);
         this.implementation = TestExecutionImplementation.Both;
     }
