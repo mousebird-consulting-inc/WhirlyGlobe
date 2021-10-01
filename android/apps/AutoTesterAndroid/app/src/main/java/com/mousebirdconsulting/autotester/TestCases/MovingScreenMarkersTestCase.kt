@@ -105,7 +105,7 @@ class MovingScreenMarkersTestCase(activity: Activity) :
         return controller.addScreenMovingMarkers(markers, MarkerInfo(), threadCurrent)
     }
 
-    private val threadCurrent = RenderControllerInterface.ThreadMode.ThreadCurrent
+    private val threadCurrent = ThreadMode.ThreadCurrent
 
     private var baseCase = VectorsTestCase(activity)
     private val duration = 5.0

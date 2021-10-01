@@ -89,7 +89,6 @@ public class TestListFragment extends Fragment {
 				new AnimatedMarkersTestCase(a),
 				new AnimatedScreenMarkersTestCase(a),
 				new AnimationDelegateTestCase(a),
-				new ArealTestCase(a),
 				new AutoRotateTestCase(a),
 				new BillboardTestCase(a),
 				new BoundsTestCase(a),
