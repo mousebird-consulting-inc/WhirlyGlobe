@@ -47,22 +47,46 @@ void DynamicTextureMTL::setup(int texSize,int cellSize,TextureType inType,bool c
             type = inType;
             break;
         case TexTypeShort565:
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
+            // todo: leverage TextureMTL
+            bytesPerPixel = 4;
+            bytesPerRow = texSize * bytesPerPixel;
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            type = TexTypeUnsignedByte;
+#else
             bytesPerPixel = 2;
             bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatB5G6R5Unorm;
             type = inType;
+#endif
             break;
         case TexTypeShort4444:
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
+            // todo: leverage TextureMTL
+            bytesPerPixel = 4;
+            bytesPerRow = texSize * bytesPerPixel;
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            type = TexTypeUnsignedByte;
+#else
             bytesPerPixel = 2;
             bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatABGR4Unorm;
             type = inType;
+#endif
             break;
         case TexTypeShort5551:
+#if TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
+            // todo: leverage TextureMTL
+            bytesPerPixel = 4;
+            bytesPerRow = texSize * bytesPerPixel;
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            type = TexTypeUnsignedByte;
+#else
             bytesPerPixel = 2;
             bytesPerRow = texSize * bytesPerPixel;
             pixFormat = MTLPixelFormatBGR5A1Unorm;
             type = inType;
+#endif
             break;
         default:
             NSLog(@"DynamicTextureMTL: Unrecognized texture type.");

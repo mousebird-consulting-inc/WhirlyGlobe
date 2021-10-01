@@ -389,7 +389,7 @@ public:
     
     // Wire up the gesture recognizers
     tapDelegate = [MaplyTapDelegate tapDelegateForView:wrapView mapView:mapView.get()];
-    panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView.get() useCustomPanRecognizer:nil];
+    panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView useCustomPanRecognizer:nil];
     if (_pinchGesture)
     {
         pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];

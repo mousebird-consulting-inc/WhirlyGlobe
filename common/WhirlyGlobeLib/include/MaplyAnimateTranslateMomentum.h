@@ -35,7 +35,7 @@ class AnimateTranslateMomentum : public MapViewAnimationDelegate
 {
 public:
     /// Initialize with a velocity and negative acceleration (to slow down)
-    AnimateTranslateMomentum(MapView *inMapView,
+    AnimateTranslateMomentum(MapViewRef inMapView,
                              float inVel,float inAcc,const WhirlyKit::Point3f &inDir,
                              const WhirlyKit::Point2dVector &inBounds,
                              WhirlyKit::SceneRenderer *inSceneRenderer);
@@ -49,7 +49,7 @@ public:
 protected:
     bool withinBounds(const WhirlyKit::Point3d &loc,MapView * testMapView,WhirlyKit::Point3d *newCenter);
 
-    MapView *mapView;
+    MapViewRef mapView;
     WhirlyKit::SceneRenderer *renderer;
     
     float velocity,acceleration;

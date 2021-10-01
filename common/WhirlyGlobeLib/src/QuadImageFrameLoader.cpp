@@ -573,6 +573,11 @@ void QIFRenderState::updateScene(Scene *,
     // Useful if we're doing multi-stage rendering
     for (unsigned int focusID=0;focusID<curFrames.size();focusID++) {
         double curFrame = curFrames[focusID];
+      
+//      if (curFrame != curFrame) {
+//        continue;
+//      }
+      
         int activeFrames[2];
         activeFrames[0] = floor(curFrame);
         activeFrames[1] = ceil(curFrame);

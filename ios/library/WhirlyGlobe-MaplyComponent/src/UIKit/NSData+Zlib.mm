@@ -77,7 +77,7 @@
         if (strm.total_out >= [compressed length])
             [compressed increaseLengthBy: 16384];
         
-        strm.next_out = [compressed mutableBytes] + strm.total_out;
+        strm.next_out = (uint8_t*)[compressed mutableBytes] + strm.total_out;
         strm.avail_out = (unsigned int)([compressed length] - strm.total_out);
         
         deflate(&strm, Z_FINISH);
@@ -117,7 +117,7 @@
         if (strm.total_out >= [decompressed length]) {
             [decompressed increaseLengthBy: half_length];
         }
-        strm.next_out = [decompressed mutableBytes] + strm.total_out;
+        strm.next_out = (uint8_t*)[decompressed mutableBytes] + strm.total_out;
         strm.avail_out = (unsigned int)([decompressed length] - strm.total_out);
         
         // Inflate another chunk.

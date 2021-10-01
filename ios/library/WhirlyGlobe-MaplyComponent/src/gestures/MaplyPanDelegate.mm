@@ -1,4 +1,4 @@
-/*  MaplyPanDelegateMap.mm
+/*  MaplyPanDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
@@ -22,6 +22,7 @@
 #import "MaplyAnimateTranslateMomentum.h"
 #import <UIKit/UIGestureRecognizerSubclass.h>
 #import "ViewWrapper.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 using namespace Maply;
@@ -48,7 +49,7 @@ using namespace Maply;
 
 @interface MaplyPanDelegate()
 {
-    MapView_iOS *mapView;
+    MapView_iOSRef mapView;
     /// Set if we're panning
     BOOL panning;
     /// View transform when we started
@@ -65,17 +66,17 @@ using namespace Maply;
 
 @implementation MaplyPanDelegate
 
-- (id)initWithMapView:(MapView_iOS *)inView
+- (id)initWithMapView:(MapView_iOSRef)inView
 {
 	if ((self = [super init]))
 	{
-		mapView = inView;
+		mapView = std::move(inView);
 	}
 	
 	return self;
 }
 
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MapView_iOS *)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(MapView_iOSRef)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer
 {
 	MaplyPanDelegate *panDelegate = [[MaplyPanDelegate alloc] initWithMapView:mapView];
     UIPanGestureRecognizer *panRecognizer;
@@ -83,6 +84,12 @@ using namespace Maply;
         panRecognizer = [[MinDelay2DPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
     else
         panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+#if TARGET_OS_MACCATALYST
+    if (@available(macCatalyst 13.4, *))
+    {
+        panRecognizer.allowedScrollTypesMask = UIScrollTypeMaskAll;
+    }
+#endif
   	panRecognizer.delegate = panDelegate;
     panDelegate.gestureRecognizer = panRecognizer;
 	[view addGestureRecognizer:panRecognizer];
@@ -116,6 +123,49 @@ static const float AnimLen = 1.0;
     if (pan.numberOfTouches > 1)
     {
         panning = NO;
+        return;
+    }
+    else if (pan.numberOfTouches == 0 && pan.state != UIGestureRecognizerStateEnded)
+    {
+        // Mousewheel or trackpad zoom gesture
+        const CGPoint delta = [pan translationInView:wrapView];
+
+        const Point3d curLoc = mapView->getLoc();
+        // Just figure out where we tapped
+        Point3d hit;
+        const Eigen::Matrix4d theTransform = mapView->calcFullMatrix();
+        const CGPoint touchLoc = [pan locationInView:pan.view];
+        const Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+        const Point2d newCenter;
+        const auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
+        if (mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
+        {
+            const double factor = 1.5;
+            const auto animTime = 0.5;
+            const double minH = mapView->minHeightAboveSurface();
+            const double maxH = mapView->maxHeightAboveSurface();
+            const double curH = curLoc.z();
+            const double targetH = curH * ((delta.y < 0) ? factor : 1/factor);
+            const double newH = std::max(minH, std::min(maxH, targetH));
+
+            if (newH != curH)
+            {
+                const Point3d newLoc(hit.x(),hit.y(),newH);
+                Point3d newCenter;
+                MapView testMapView(*mapView);
+                // Check if we're still within bounds
+                if (MaplyGestureWithinBounds(bounds, newLoc, sceneRender, &testMapView, &newCenter))
+                {
+                    auto animation = std::make_shared<AnimateViewTranslation>(mapView,sceneRender,newCenter,animTime);
+                    mapView->setDelegate(animation);
+                }
+            }
+        }
+        else
+        {
+            // Not expecting this case
+            wkLogLevel(Warn, "Unexpected invalid location (%f,%f) for pan gesture", touchLoc.x, touchLoc.y);
+        }
         return;
     }
     
@@ -215,8 +265,9 @@ static const float AnimLen = 1.0;
                     float accel = - modelVel / (AnimLen * AnimLen);
                     
                     // Kick off a little movement at the end
-                    MapViewAnimationDelegateRef translateDelegate(new AnimateTranslateMomentum(mapView,modelVel,accel,Point3f(dir.x(),dir.y(),0.0),bounds,sceneRender));
-                    mapView->setDelegate(translateDelegate);
+                    mapView->setDelegate(
+                         std::make_shared<AnimateTranslateMomentum>(
+                             mapView,modelVel,accel,Point3f(dir.x(),dir.y(),0.0),bounds,sceneRender));
                 }
                 panning = NO;
                 [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidEnd object:mapView->tag];

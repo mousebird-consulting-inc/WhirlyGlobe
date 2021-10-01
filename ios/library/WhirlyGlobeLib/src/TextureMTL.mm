@@ -1,5 +1,4 @@
-/*
- *  TextureMTL.mm
+/*  TextureMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "TextureMTL.h"
@@ -75,102 +73,122 @@ TextureMTL::TextureMTL(const std::string &name,UIImage *inImage)
 TextureBaseMTL::~TextureBaseMTL()
 {
 }
-    
-RawDataRef TextureMTL::convertData()
-{
-    RawDataRef outDataRef;
 
+#if !TARGET_OS_MACCATALYST
+static RawDataRef ConvertRGBA8888toRGB565(const RawDataRef &inData, int width, int height)
+{
     vImage_Buffer srcBuff;
-    srcBuff.data = (void *)texData->getRawData();
+    srcBuff.data = (void *)inData->getRawData();
     srcBuff.width = width;
     srcBuff.height = height;
     srcBuff.rowBytes = 4*width;
 
-    switch (format) {
-        case TexTypeUnsignedByte:
-        case TexTypeSingleChannel:
-            break;
-        case TexTypeDoubleChannel:
-            outDataRef = ConvertRGBATo16(texData,width,height,false);
-            break;
-        case TexTypeShort565:
-            {
-                NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
-                vImage_Buffer destBuff;
-                destBuff.data = (void *)[outData bytes];
-                destBuff.width = width;
-                destBuff.height = height;
-                destBuff.rowBytes = 2*width;
-                vImageConvert_RGBA8888toRGB565(&srcBuff,&destBuff,kvImageNoFlags);
-                outDataRef = RawDataRef(new RawNSDataReader(outData));
-            }
-            break;
-        case TexTypeShort4444:
-        {
-            NSLog(@"TextureMTL: 4444 image format not support on Metal.");
-        }
-            break;
-        case TexTypeShort5551:
-        {
-            NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
-            vImage_Buffer destBuff;
-            destBuff.data = (void *)[outData bytes];
-            destBuff.width = width;
-            destBuff.height = height;
-            destBuff.rowBytes = 2*width;
-            vImageConvert_RGBA8888toRGBA5551(&srcBuff,&destBuff,kvImageNoFlags);
-            outDataRef = RawDataRef(new RawNSDataReader(outData));
-        }
-            break;
-        case TexTypeSingleInt16:
-            break;
-        default:
-            NSLog(@"TextureMTL: Format %d not supported for passing in data.",(int)format);
-            break;
+    NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+    vImage_Buffer destBuff;
+    destBuff.data = (void *)[outData bytes];
+    destBuff.width = width;
+    destBuff.height = height;
+    destBuff.rowBytes = 2*width;
+    if (destBuff.data)
+    {
+        vImageConvert_RGBA8888toRGB565(&srcBuff,&destBuff,kvImageNoFlags);
+        return std::make_shared<RawNSDataReader>(outData);
     }
+    return RawDataRef();
+}
+#endif
 
-    if (outDataRef)
-        return outDataRef;
-    else
+static RawDataRef ConvertRGBA8888toRGBA5551(const RawDataRef &inData, int width, int height)
+{
+    vImage_Buffer srcBuff;
+    srcBuff.data = (void *)inData->getRawData();
+    srcBuff.width = width;
+    srcBuff.height = height;
+    srcBuff.rowBytes = 4*width;
+
+    NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+    vImage_Buffer destBuff;
+    destBuff.data = (void *)[outData bytes];
+    destBuff.width = width;
+    destBuff.height = height;
+    destBuff.rowBytes = 2*width;
+    if (destBuff.data)
+    {
+        vImageConvert_RGBA8888toRGBA5551(&srcBuff,&destBuff,kvImageNoFlags);
+        return std::make_shared<RawNSDataReader>(outData);
+    }
+    return RawDataRef();
+}
+
+RawDataRef TextureMTL::convertData()
+{
+    switch (format)
+    {
+    case TexTypeUnsignedByte:
+    case TexTypeSingleChannel:
+    case TexTypeSingleInt16:
+        // no conversion needed?
         return texData;
+    case TexTypeDoubleChannel:
+        return ConvertRGBATo16(texData,width,height,false);
+    case TexTypeShort565:
+#if TARGET_OS_MACCATALYST
+            // doesn't actually work
+            //if (@available(macCatalyst 14.0, *))
+            //{
+            //    return ConvertRGBA8888toRGB565(texData,width,height);
+            //}
+            return texData;
+#else
+            return ConvertRGBA8888toRGB565(texData,width,height);
+#endif
+    case TexTypeShort4444:
+        wkLogLevel(Warn, "TextureMTL: 4444 image format with data not supported on Metal.");
+        break;
+    case TexTypeShort5551:
+#if TARGET_OS_MACCATALYST
+            if (@available(macCatalyst 14.0, *))
+            {
+                return ConvertRGBA8888toRGBA5551(texData,width,height);
+            }
+            return RawDataRef();
+#else
+            return ConvertRGBA8888toRGBA5551(texData,width,height);
+#endif
+    default:
+        wkLogLevel(Warn, "TextureMTL: Format %d with data not supported", (int)format);
+    }
+    return RawDataRef();
 }
 
 bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
     // already created?
     if (texBuf.tex)
+    {
         return true;
+    }
 
-    if (!texData && !isEmptyTexture)
+    if (!inSetupInfo || (!texData && !isEmptyTexture))
+    {
         return false;
+    }
 
-    RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
-    
-    if ((int)width <= 0 || (int)height <= 0) {
-        if (!isEmptyTexture) {
+    if ((int)width <= 0 || (int)height <= 0)
+    {
+        if (!isEmptyTexture)
+        {
             wkLogLevel(Error,"Texture with 0 width or height: %s",name.c_str());
         }
         return false;
     }
     
-    MTLPixelFormat pixFormat = MTLPixelFormatR32Uint;
+    MTLPixelFormat pixFormat;
     int bytesPerRow = 0;
     
     // "Don't use the following pixel formats: r8Unorm_srgb, b5g6r5Unorm, a1bgr5Unorm, abgr4Unorm, bgr5A1Unorm, or any XR10 or YUV formats."
     // https://developer.apple.com/documentation/metal/developing_metal_apps_that_run_in_simulator
-#if TARGET_OS_SIMULATOR
-    switch (format)
-    {
-        //case TexTypeUnsignedByte:   // is this r8Unorm_srgb?
-        case TexTypeShort565:   // b5g6r5Unorm
-        case TexTypeShort4444: // abgr4Unorm
-        case TexTypeShort5551:  // bgr5A1Unorm
-            wkLogLevel(Warn, "Texture not loaded: pixel format %d not supported", format);
-            return false;
-        default: break;
-    }
-#endif
-    
+
     // TODO: Missing all the compressed formats
     switch (format)
     {
@@ -178,23 +196,78 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
             pixFormat = MTLPixelFormatRGBA8Unorm;
             // Note: Render target.  this is goofy
             if (!texData)
+            {
                 pixFormat = MTLPixelFormatBGRA8Unorm;
+            }
             bytesPerRow = 4*width;
             break;
         case TexTypeShort565:
             // TODO: These aren't the right order
+#if TARGET_OS_MACCATALYST
+            // Marked as `API_AVAILABLE(macCatalyst(14.0))` but produces "MTLTextureDescriptor has invalid pixelFormat (40)" at runtime
+            //if (@available(macCatalyst 14.0, *))
+            //{
+            //    pixFormat = MTLPixelFormatB5G6R5Unorm;
+            //    bytesPerRow = 2*width;
+            //}
+            //else
+            {
+                // Requires conversion
+                pixFormat = MTLPixelFormatRGBA8Unorm;
+                bytesPerRow = 4*width;
+            }
+#elif TARGET_OS_SIMULATOR
+            // Requires conversion
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            bytesPerRow = 4*width;
+#else
             pixFormat = MTLPixelFormatB5G6R5Unorm;
             bytesPerRow = 2*width;
+#endif
             break;
         case TexTypeShort4444:
             // TODO: These aren't the right order
+#if TARGET_OS_MACCATALYST
+            if (@available(macCatalyst 14.0, *))
+            {
+                pixFormat = MTLPixelFormatABGR4Unorm;
+                bytesPerRow = 2*width;
+            }
+            else
+            {
+                pixFormat = MTLPixelFormatRGBA8Unorm;
+                bytesPerRow = 4*width;
+            }
+#elif TARGET_OS_SIMULATOR
+            // Requires conversion
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            bytesPerRow = 4*width;
+#else
             pixFormat = MTLPixelFormatABGR4Unorm;
             bytesPerRow = 2*width;
+#endif
             break;
         case TexTypeShort5551:
             // TODO: These aren't the right order
+#if TARGET_OS_MACCATALYST
+            if (@available(macCatalyst 14.0, *))
+            {
+                pixFormat = MTLPixelFormatA1BGR5Unorm;
+                bytesPerRow = 2*width;
+            }
+            else
+            {
+                pixFormat = MTLPixelFormatRGBA8Unorm;
+                bytesPerRow = 4*width;
+            }
+#elif TARGET_OS_SIMULATOR
+            // Requires conversion
+            pixFormat = MTLPixelFormatRGBA8Unorm;
+            bytesPerRow = 4*width;
+#else
             pixFormat = MTLPixelFormatA1BGR5Unorm;
             bytesPerRow = 2*width;
+#endif
             break;
         case TexTypeSingleChannel:
             pixFormat = MTLPixelFormatA8Unorm;
@@ -248,42 +321,69 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         case TexTypeQuadUInt32:
             pixFormat = MTLPixelFormatRGBA32Uint;
             bytesPerRow = 16*width;
+            break;
+        default:
+            wkLogLevel(Error,"Unsupported texture format %d", format);
+            return false;
     }
-    
+
     // Set up the texture and upload the data
-    MTLTextureDescriptor *desc = [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixFormat width:width height:height mipmapped:usesMipmaps];
+    MTLTextureDescriptor *desc =
+        [MTLTextureDescriptor texture2DDescriptorWithPixelFormat:pixFormat
+                                                           width:width
+                                                          height:height
+                                                       mipmapped:usesMipmaps];
+    if (!desc)
+    {
+        wkLogLevel(Error,"Failed to create texture descriptor", format);
+        return false;
+    }
     
     // If there's no data, then we're using this as a target
-    if (!texData) {
+    if (!texData)
+    {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+
+        // todo: maybe we want private for depth/stencil everywhere?
+        // "MTLTextureDescriptor: Depth, Stencil, DepthStencil textures cannot be
+        //  allocated with MTLStorageModeShared or MTLStorageModeManaged on this device.
 #if TARGET_OS_SIMULATOR
-        if (pixFormat != MTLPixelFormatDepth32Float)
-            desc.storageMode = MTLStorageModeShared;
-        else
-            desc.storageMode = MTLStorageModePrivate;
+        desc.storageMode = (pixFormat == MTLPixelFormatDepth32Float) ? MTLStorageModePrivate : MTLStorageModeShared;
+#elif TARGET_OS_MACCATALYST
+        desc.storageMode = (pixFormat == MTLPixelFormatDepth32Float) ? MTLStorageModePrivate : MTLStorageModeManaged;
 #endif
     }
-    
+
     // If there are mipmaps, we probably expect to write to them
     if (usesMipmaps)
+    {
         desc.usage |= MTLTextureUsageShaderWrite;
-    
-    size_t size = bytesPerRow * height;
-    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc,size);
-    if (!name.empty())
-        [texBuf.tex setLabel:[NSString stringWithFormat:@"%s",name.c_str()]];
-    if (texBuf.tex) {
-        MTLRegion region = MTLRegionMake2D(0,0,width,height);
-        if (texData) {
-            RawDataRef convData = convertData();
-            [texBuf.tex replaceRegion:region mipmapLevel:0 withBytes:convData->getRawData() bytesPerRow:bytesPerRow];
-        }
-    } else {
-        NSLog(@"Error setting up Metal Texture");
     }
-    
+
+    RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
+    const size_t size = bytesPerRow * height;
+    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc,size);
+
+    if (!name.empty())
+    {
+        [texBuf.tex setLabel:[NSString stringWithFormat:@"%s",name.c_str()]];
+    }
+
+    if (texBuf.tex && texData)
+    {
+        if (const auto convData = convertData())
+        {
+            MTLRegion region = MTLRegionMake2D(0,0,width,height);
+            [texBuf.tex replaceRegion:region
+                          mipmapLevel:0
+                            withBytes:convData->getRawData()
+                          bytesPerRow:bytesPerRow];
+        }
+    }
+
+    // We don't need the source data any more
     texData.reset();
-    
+
     return texBuf.tex != nil;
 }
 
@@ -291,5 +391,5 @@ void TextureMTL::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *inS
 {
     texBuf.tex = nil;
 }
-    
+
 }
