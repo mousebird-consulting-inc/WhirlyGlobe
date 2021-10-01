@@ -42,7 +42,7 @@ public class ShapeInfo extends BaseInfo {
      * Color of the shape
      */
     public void setColor(int color) {
-        setColor(Color.red(color),Color.green(color),Color.blue(color),Color.alpha(color));
+        setColorInt(Color.red(color),Color.green(color),Color.blue(color),Color.alpha(color));
     }
 
     /**
