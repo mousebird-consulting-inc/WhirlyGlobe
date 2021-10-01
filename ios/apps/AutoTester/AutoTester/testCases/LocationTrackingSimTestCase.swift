@@ -20,7 +20,7 @@ class LocationTrackingSimTestCase: MaplyTestCase, MaplyLocationTrackerDelegate, 
     override init() {
         super.init()
         
-        self.name = "Location Tracking Simulated Test Case"
+        self.name = "Location Tracking Simulated"
         self.implementations = [.globe, .map]
     }
     

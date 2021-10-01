@@ -13,7 +13,7 @@ class CartoDBLightTestCase: MaplyTestCase {
     override init() {
         super.init()
         
-        self.name = "CartoDB Light Test Case"
+        self.name = "CartoDB Light"
         self.implementations = [.globe,.map]
     }
     

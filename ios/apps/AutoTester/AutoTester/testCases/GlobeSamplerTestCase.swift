@@ -13,7 +13,7 @@ class GlobeSamplerTestCase: MaplyTestCase {
     override init() {
         super.init()
         
-        self.name = "GlobeSampler Test Case"
+        self.name = "GlobeSampler"
         self.implementations = [.globe,.map]
     }
 
