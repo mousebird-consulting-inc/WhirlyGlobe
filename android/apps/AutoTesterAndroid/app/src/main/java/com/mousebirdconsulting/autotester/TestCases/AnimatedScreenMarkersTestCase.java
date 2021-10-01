@@ -52,6 +52,7 @@ public class AnimatedScreenMarkersTestCase extends MaplyTestCase implements Acti
     public void shutdown() {
         baseCase.shutdown();
         super.shutdown();
+        controller = null;
     }
 
     MarkerInfo markerInfo;

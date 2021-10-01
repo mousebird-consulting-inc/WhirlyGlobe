@@ -154,13 +154,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 
 		if (baseView != null)
 		{
-			if (baseView instanceof GLSurfaceView) {
-				GLSurfaceView glSurfaceView = (GLSurfaceView)baseView;
-				glSurfaceView.setOnTouchListener(this);
-			} else {
-				GLTextureView glTextureView = (GLTextureView)baseView;
-				glTextureView.setOnTouchListener(this);
-			}
+			baseView.setOnTouchListener(this);
 			gestureHandler = new MapGestureHandler(this,baseView);
 		}
 
@@ -170,6 +164,10 @@ public class MapController extends BaseController implements View.OnTouchListene
 	
 	@Override public void shutdown()
 	{
+		if (baseView != null) {
+			baseView.setOnTouchListener(null);
+		}
+
 		Choreographer c = Choreographer.getInstance();
 		if (c != null)
 			c.removeFrameCallback(this);

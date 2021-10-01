@@ -102,6 +102,10 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	
 	@Override public void shutdown()
 	{
+		if (baseView != null) {
+			baseView.setOnTouchListener(null);
+		}
+
 		Choreographer c = Choreographer.getInstance();
 		if (c != null)
 			c.removeFrameCallback(this);
