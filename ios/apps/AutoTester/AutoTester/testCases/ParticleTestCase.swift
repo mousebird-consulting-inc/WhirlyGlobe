@@ -12,7 +12,7 @@ class ParticleTestCase: MaplyTestCase {
 	override init() {
 		super.init()
 		
-		self.name = "Wind Particle Test"
+		self.name = "Wind Particle Test (broken)"
 		//self.captureDelay = 5
 		self.implementations = [.globe]
 	}

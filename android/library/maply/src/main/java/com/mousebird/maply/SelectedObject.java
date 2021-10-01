@@ -7,8 +7,7 @@ package com.mousebird.maply;
  */
 public class SelectedObject
 {
-    public SelectedObject()
-    {
+    public SelectedObject() {
         initialise();
     }
 
@@ -23,7 +22,7 @@ public class SelectedObject
     public Object selObj = null;
 
     /**
-     * The distanced in 3D from the tap point to the selected object.
+     * The distance in 3D from the tap point to the selected object.
      */
     native public double getDistIn3d();
 
@@ -38,17 +37,32 @@ public class SelectedObject
      */
     native public boolean isPartOfCluster();
 
-    public void finalize()
-    {
+    /**
+     * Get the cluster group, if the object is part of a cluster
+     */
+    native public int getClusterGroup();
+
+    /**
+     * Get the ID of the object representing the cluster, if any
+     */
+    native public long getClusterID();
+
+    /**
+     * Get the geographic location of the cluster
+     */
+    native public Point2d getClusterCenter();
+
+    public void finalize() {
         dispose();
     }
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+
+    @SuppressWarnings("unused")     // Used by JNI
     private long nativeHandle;
 }

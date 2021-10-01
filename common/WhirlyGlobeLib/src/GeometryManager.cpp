@@ -169,6 +169,8 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
         return;
     
     BasicDrawableBuilderRef draw(NULL);
+    if (!draws.empty())
+        draw = draws.back();
     for (unsigned int ii=0;ii<triangles.size();ii++)
     {
         RawTriangle tri = triangles[ii];
@@ -212,7 +214,7 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
         draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));
     }
 }
-    
+
 GeometryRawPoints::GeometryRawPoints()
 {
 }
@@ -754,26 +756,26 @@ SimpleIdentity GeometryManager::addBaseGeometry(std::vector<GeometryRaw *> &geom
     for (unsigned int jj=0;jj<sortedGeom.size();jj++)
     {
         std::vector<GeometryRaw *> &sg = sortedGeom[jj];
+        std::vector<BasicDrawableBuilderRef> draws;
         for (unsigned int kk=0;kk<sg.size();kk++)
         {
-            std::vector<BasicDrawableBuilderRef> draws;
             GeometryRaw *raw = sg[kk];
             raw->buildDrawables(draws,instMat,NULL,&geomInfo,renderer);
-            
-            // Set the various parameters and store the drawables created
-            for (unsigned int ll=0;ll<draws.size();ll++)
-            {
-                BasicDrawableBuilderRef draw = draws[ll];
-                draw->setType((raw->type == WhirlyKitGeometryLines ? Lines : Triangles));
-                draw->setOnOff(false);
-                draw->setRequestZBuffer(true);
-                draw->setWriteZBuffer(true);
-                sceneRep->drawIDs.insert(draw->getDrawableID());
-                changes.push_back(new AddDrawableReq(draw->getDrawable()));
-            }
+        }
+
+        // Set the various parameters and store the drawables created
+        for (unsigned int ll=0;ll<draws.size();ll++)
+        {
+            BasicDrawableBuilderRef draw = draws[ll];
+            draw->setType((sg[0]->type == WhirlyKitGeometryLines ? Lines : Triangles));
+            draw->setOnOff(false);
+            draw->setRequestZBuffer(geomInfo.zBufferRead);
+            draw->setWriteZBuffer(geomInfo.zBufferWrite);
+            sceneRep->drawIDs.insert(draw->getDrawableID());
+            changes.push_back(new AddDrawableReq(draw->getDrawable()));
         }
     }
-    
+
     SimpleIdentity geomID = sceneRep->getId();
     
     {

@@ -87,48 +87,49 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo) const
 
 Point3d SphericalMercatorCoordSystem::geographicToLocal(Point2d geo) const
 {
-    Point3d coord;
-    coord.x() = geo.x() - originLon;
-    double lat = geo.y();
-    if (lat < -PoleLimit) lat = -PoleLimit;
-    if (lat > PoleLimit) lat = PoleLimit;
-    coord.y() = log((1.0f+sin(lat))/cos(lat));
-    coord.z() = 0.0;
-    
-    return coord;    
+    const double lat = std::min(PoleLimit, std::max(-PoleLimit, geo.y()));
+    return { geo.x() - originLon,
+             std::log((1.0 + std::sin(lat)) / std::cos(lat)),
+             0.0 };
 }
-    
+
+Point2d SphericalMercatorCoordSystem::geographicToLocal2(const Point2d &geo) const
+{
+    const double lat = std::min(PoleLimit, std::max(-PoleLimit, geo.y()));
+    return { geo.x() - originLon, std::log((1.0 + std::sin(lat)) / std::cos(lat)) };
+}
+
 /// Convert from the local coordinate system to geocentric
 Point3f SphericalMercatorCoordSystem::localToGeocentric(Point3f localPt) const
 {
-    GeoCoord geoCoord = localToGeographic(localPt);
+    const GeoCoord geoCoord = localToGeographic(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
 
 Point3d SphericalMercatorCoordSystem::localToGeocentric(Point3d localPt) const
 {
-    Point2d geoCoord = localToGeographicD(localPt);
+    const Point2d geoCoord = localToGeographicD(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3d(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
     
 /// Convert from display coordinates to geocentric
 Point3f SphericalMercatorCoordSystem::geocentricToLocal(Point3f geocPt) const
 {
-    Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
-    Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
-    return Point3f(localPt.x(),localPt.y(),geoCoordPlus.z());    
+    const Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    const Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return {localPt.x(),localPt.y(),geoCoordPlus.z()};
 }
 
 Point3d SphericalMercatorCoordSystem::geocentricToLocal(Point3d geocPt) const
 {
-    Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
-    Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
-    return Point3d(localPt.x(),localPt.y(),geoCoordPlus.z());
+    const Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
+    const Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    return {localPt.x(),localPt.y(),geoCoordPlus.z()};
 }
 
-bool SphericalMercatorCoordSystem::isSameAs(CoordSystem *coordSys) const
+bool SphericalMercatorCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
-    const auto other = dynamic_cast<SphericalMercatorCoordSystem *>(coordSys);
+    const auto other = dynamic_cast<const SphericalMercatorCoordSystem *>(coordSys);
     return other && other->originLon == originLon;
 }
 

@@ -30,19 +30,23 @@ class ClusteredMarkersTestCase(activity: Activity?) :
 
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
+        baseCase.onVectorsLoaded = { vectors ->
+            insertClusteredMarkers(vectors, mapVC)
+        }
         baseCase.setUpWithMap(mapVC)
         baseCase.baseCase.setForwardMapDelegate(this)  // Get delegate calls from the underlying case
-        insertClusteredMarkers(baseCase.vectors, mapVC)
         mapVC.setPositionGeo(pos.x, pos.y, 2.0)
-        mapVC.setAllowRotateGesture(true)
+        mapVC.allowRotateGesture = true
         return true
     }
     
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
+        baseCase.onVectorsLoaded = { vectors ->
+            insertClusteredMarkers(vectors, globeVC)
+        }
         baseCase.setUpWithGlobe(globeVC)
         baseCase.baseCase.setForwardGlobeDelegate(this)    // Get delegate calls from the underlying case
-        insertClusteredMarkers(baseCase.vectors, globeVC)
         globeVC.animatePositionGeo(pos.x, pos.y, 0.9, 1.0)
         globeVC.keepNorthUp = false
         globeVC.setPerfInterval(20)
@@ -56,7 +60,8 @@ class ClusteredMarkersTestCase(activity: Activity?) :
     private fun loadTex(name: String): MaplyTexture? =
         controller.addTexture(loadIcon(name), TextureSettings(), ThreadMode.ThreadCurrent)
 
-    private fun insertClusteredMarkers(vectors: List<VectorObject>, inController: BaseController) {
+    private fun insertClusteredMarkers(vectors: Collection<VectorObject>,
+                                       inController: BaseController) {
         controller.showDebugLayoutBoundaries = true
 
         val iconSize = Point2d(64.0, 64.0)

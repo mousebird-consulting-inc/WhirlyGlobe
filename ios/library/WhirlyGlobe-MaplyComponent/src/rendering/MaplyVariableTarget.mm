@@ -79,8 +79,12 @@
     rect.ur = MaplyCoordinate3dDMake(1.0, 1.0, 0.0);
     rect.clipCoords = true;
     [rect addTexture:_renderTex];
-    for (MaplyVariableTarget *auxTarget : auxTargets)
-        [rect addTexture:auxTarget.renderTex];
+    for (MaplyVariableTarget *auxTarget : auxTargets) {
+        if (auxTarget.renderTex)
+            [rect addTexture:auxTarget.renderTex];
+        else
+            NSLog(@"Failed to add auxiliary render target in setupRectangle for MaplyVariableTarget.");
+    }
     NSString *shaderName = nil;
     if (_shader)
         shaderName = [_shader name];

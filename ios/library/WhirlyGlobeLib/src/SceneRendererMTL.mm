@@ -1,9 +1,8 @@
-/*
- *  SceneRendererMTL.mm
+/*  SceneRendererMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneRendererMTL.h"
@@ -66,28 +64,21 @@ RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget)
 
 RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer(RenderTargetRef renderTarget)
 {
-    return RenderTargetContainerRef(new RenderTargetContainerMTL(renderTarget));
-}
-    
-RendererFrameInfoMTL::RendererFrameInfoMTL()
-{
-}
-    
-RendererFrameInfoMTL::RendererFrameInfoMTL(const RendererFrameInfoMTL &that)
-: RendererFrameInfo(that)
-{
+    return std::make_shared<RenderTargetContainerMTL>(renderTarget);
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
-    : setupInfo(mtlDevice,mtlLibrary)
-    , _isShuttingDown(std::make_shared<bool>(false))
+    : setupInfo(mtlDevice,mtlLibrary),
+    _isShuttingDown(std::make_shared<bool>(false)), lastRenderNo(0), renderEvent(nil)
 {
     offscreenBlendEnable = false;
     indirectRender = false;
+#if !TARGET_OS_MACCATALYST
     if (@available(iOS 13.0, *)) {
         if ([mtlDevice supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4])
             indirectRender = true;
     }
+#endif
 #if TARGET_OS_SIMULATOR
     indirectRender = false;
 #endif
@@ -319,6 +310,7 @@ void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDe
 void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
 {
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
+    RenderTeardownInfoMTLRef teardownInfoMTL = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(teardownInfo);
     SceneRenderer::updateWorkGroups(frameInfo);
     
     if (!indirectRender)
@@ -331,6 +323,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                 if (targetContainer->drawables.empty() && !targetContainer->modified)
                     continue;
                 RenderTargetContainerMTLRef targetContainerMTL = std::dynamic_pointer_cast<RenderTargetContainerMTL>(targetContainer);
+                teardownInfoMTL->releaseDrawGroups(this,targetContainerMTL->drawGroups);
                 targetContainerMTL->drawGroups.clear();
 
                 RenderTargetMTLRef renderTarget;
@@ -461,6 +454,63 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
     }
 }
 
+RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
+{
+    if (!theView || !scene)
+    {
+        return RendererFrameInfoMTLRef();
+    }
+
+    // Get the model and view matrices
+    const Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
+    const Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
+    const Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
+    const Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
+    
+    // Set up a projection matrix
+    const Point2f frameSize(framebufferWidth,framebufferHeight);
+    const Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
+
+    const Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    const Eigen::Matrix4d pvMat4d = projMat4d * viewTrans4d;
+    const Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
+    const Eigen::Matrix4d mvpMat4d = projMat4d * modelAndViewMat4d;
+
+    const Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
+    const Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    const Eigen::Matrix4f mvpMat = Matrix4dToMatrix4f(mvpMat4d);
+    const Eigen::Matrix4f mvpNormalMat4f = Matrix4dToMatrix4f(mvpMat4d.inverse().transpose());
+    const Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
+
+    auto frameInfo = std::make_shared<RendererFrameInfoMTL>();
+
+    frameInfo->sceneRenderer = this;
+    frameInfo->theView = theView;
+    frameInfo->viewTrans = viewTrans;
+    frameInfo->viewTrans4d = viewTrans4d;
+    frameInfo->modelTrans = modelTrans;
+    frameInfo->modelTrans4d = modelTrans4d;
+    frameInfo->scene = scene;
+    frameInfo->frameLen = 1.0 / 60.0;
+    frameInfo->currentTime = scene->getCurrentTime();
+    frameInfo->projMat = projMat;
+    frameInfo->projMat4d = projMat4d;
+    frameInfo->mvpMat = mvpMat;
+    frameInfo->mvpMat4d = mvpMat4d;
+    frameInfo->mvpInvMat = mvpMat.inverse();
+    frameInfo->mvpNormalMat = mvpNormalMat4f;
+    frameInfo->viewModelNormalMat = modelAndViewNormalMat;
+    frameInfo->viewAndModelMat = modelAndViewMat;
+    frameInfo->viewAndModelMat4d = modelAndViewMat4d;
+    frameInfo->pvMat = Matrix4dToMatrix4f(pvMat4d);
+    frameInfo->pvMat4d = pvMat4d;
+    frameInfo->screenSizeInDisplayCoords = theView->screenSizeInDisplayCoords(frameSize);
+    frameInfo->lights = &lights;
+    frameInfo->renderTarget = nullptr;
+
+    return frameInfo;
+}
+
 void SceneRendererMTL::render(TimeInterval duration,
                               MTLRenderPassDescriptor *renderPassDesc,
                               id<SceneRendererMTLDrawableGetter> drawGetter)
@@ -505,7 +555,6 @@ void SceneRendererMTL::render(TimeInterval duration,
     Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
     Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
-    Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
     Point2f frameSize(framebufferWidth,framebufferHeight);
@@ -516,9 +565,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4d mvpMat4d = projMat4d * modelAndViewMat4d;
 
-    Eigen::Matrix4f projMat = Matrix4dToMatrix4f(projMat4d);
     Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-    Eigen::Matrix4f mvpMat = Matrix4dToMatrix4f(mvpMat4d);
     Eigen::Matrix4f mvpNormalMat4f = Matrix4dToMatrix4f(mvpMat4d.inverse().transpose());
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
@@ -535,36 +582,13 @@ void SceneRendererMTL::render(TimeInterval duration,
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
     id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
 
-    int numDrawables = 0;
-    
-    RendererFrameInfoMTL baseFrameInfo;
-    baseFrameInfo.sceneRenderer = this;
-    baseFrameInfo.theView = theView;
-    baseFrameInfo.viewTrans = viewTrans;
-    baseFrameInfo.viewTrans4d = viewTrans4d;
-    baseFrameInfo.modelTrans = modelTrans;
-    baseFrameInfo.modelTrans4d = modelTrans4d;
-    baseFrameInfo.scene = scene;
+    const auto frameInfoRef = makeFrameInfo();
+    auto &baseFrameInfo = *frameInfoRef;
     baseFrameInfo.frameLen = duration;
     baseFrameInfo.currentTime = now;
-    baseFrameInfo.projMat = projMat;
-    baseFrameInfo.projMat4d = projMat4d;
-    baseFrameInfo.mvpMat = mvpMat;
-    baseFrameInfo.mvpMat4d = mvpMat4d;
-    Eigen::Matrix4f mvpInvMat = mvpMat.inverse();
-    baseFrameInfo.mvpInvMat = mvpInvMat;
-    baseFrameInfo.mvpNormalMat = mvpNormalMat4f;
-    baseFrameInfo.viewModelNormalMat = modelAndViewNormalMat;
-    baseFrameInfo.viewAndModelMat = modelAndViewMat;
-    baseFrameInfo.viewAndModelMat4d = modelAndViewMat4d;
-    Matrix4f pvMat4f = Matrix4dToMatrix4f(pvMat4d);
-    baseFrameInfo.pvMat = pvMat4f;
-    baseFrameInfo.pvMat4d = pvMat4d;
     theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
-    Point2d screenSize = theView->screenSizeInDisplayCoords(frameSize);
-    baseFrameInfo.screenSizeInDisplayCoords = screenSize;
-    baseFrameInfo.lights = &lights;
-    baseFrameInfo.renderTarget = NULL;
+
+    lastFrameInfo = frameInfoRef;
 
     // We need a reverse of the eye vector in model space
     // We'll use this to determine what's pointed away
@@ -589,7 +613,7 @@ void SceneRendererMTL::render(TimeInterval duration,
     if (perfInterval > 0)
         perfTimer.startTiming("Scene preprocessing");
     
-    RenderTeardownInfoMTLRef frameTeardownInfo = RenderTeardownInfoMTLRef(new RenderTeardownInfoMTL());
+    const auto frameTeardownInfo = std::make_shared<RenderTeardownInfoMTL>();
     teardownInfo = frameTeardownInfo;
     
     // Run the preprocess for the changes.  These modify things the active models need.
@@ -670,6 +694,10 @@ void SceneRendererMTL::render(TimeInterval duration,
         offFrameInfos.push_back(offFrameInfo);
     }
     
+    // Keeps us from stomping on the last frame's uniforms
+    if (renderEvent == nil && drawGetter)
+        renderEvent = [mtlDevice newEvent];
+    
     // Workgroups force us to draw things in order
     for (auto &workGroup : workGroups) {
         if (perfInterval > 0)
@@ -696,15 +724,21 @@ void SceneRendererMTL::render(TimeInterval duration,
             baseFrameInfo.renderTarget = renderTarget.get();
 
             // Each render target needs its own buffer and command queue
+            if (lastCmdBuff) {
+                // Otherwise we'll commit twice
+                if (drawGetter)
+                    [lastCmdBuff commit];
+                lastCmdBuff = nil;
+            }
             id<MTLCommandBuffer> cmdBuff = [cmdQueue commandBuffer];
-            
+
+            // Keeps us from stomping on the last frame's uniforms
+            if (lastRenderNo > 0 && drawGetter)
+                [cmdBuff encodeWaitForEvent:renderEvent value:lastRenderNo];
+
             // Ask all the drawables to set themselves up.  Mostly memory stuff.
             id<MTLFence> preProcessFence = [mtlDevice newFence];
             id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
-
-            // Keeps us from stomping on the last frame's uniforms
-            if (targetContainerMTL->lastRenderFence)
-                [bltEncode waitForFence:targetContainerMTL->lastRenderFence];
 
             // Resources used by this container
             ResourceRefsMTL resources;
@@ -753,9 +787,6 @@ void SceneRendererMTL::render(TimeInterval duration,
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
             
-            // Triggered after rendering is finished
-            id<MTLFence> renderFence = [mtlDevice newFence];
-
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
             // If not, then we run some program over it multiple times
             // TODO: Make the reduce operation more explicit
@@ -890,31 +921,23 @@ void SceneRendererMTL::render(TimeInterval duration,
                                 firstDepthState = false;
                             }
                             
-                            for (unsigned int off=0;off<offFrameInfos.size();off++) {
+                            //for (unsigned int off=0;off<offFrameInfos.size();off++) {
                                 // Set up transforms to use right now (one per offset matrix)
 //                                baseFrameInfo.mvpMat = mvpMats4f[off];
 //                                baseFrameInfo.mvpInvMat = mvpInvMats4f[off];
                                 
                                 baseFrameInfo.program = program;
-                                                                                            
+
                                 // "Draw" using the given program
                                 drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
-                                                                
-                                numDrawables++;
-                            }
+                            //}
                         }
                     }
                 }
 
-                // Notify anyone waiting that this frame is complete
-                if (level == numLevels-1) {
-                    [cmdEncode updateFence:renderFence afterStages:MTLRenderStageFragment];
-                    targetContainerMTL->lastRenderFence = renderFence;
-                }
-                
                 [cmdEncode endEncoding];
             }
-            
+
             // Some render targets like to do extra work on their images
             renderTarget->addPostProcessing(mtlDevice,cmdBuff);
 
@@ -923,7 +946,6 @@ void SceneRendererMTL::render(TimeInterval duration,
                 id<CAMetalDrawable> drawable = [drawGetter getDrawable];
                 [cmdBuff presentDrawable:drawable];
             }
-            lastCmdBuff = cmdBuff;
 
             // Capture shutdown signal in case `this` is destroyed before the blocks below execute.
             // This isn't 100% because we could still be destroyed while the blocks are executing,
@@ -967,18 +989,30 @@ void SceneRendererMTL::render(TimeInterval duration,
                     });
                 });
             }];
+            lastCmdBuff = cmdBuff;
 
-            [cmdBuff commit];
-            
             // This happens for offline rendering and we want to wait until the render finishes to return it
-            if (!drawGetter)
+            if (!drawGetter) {
+                [cmdBuff commit];
                 [cmdBuff waitUntilCompleted];
+                lastCmdBuff = nil;
+            }
         }
                 
         if (perfInterval > 0)
             perfTimer.stopTiming("Work Group: " + workGroup->name);
     }
-        
+    
+    // Notify anyone waiting that this frame is complete
+    if (lastCmdBuff) {
+        if (drawGetter) {
+            [lastCmdBuff encodeSignalEvent:renderEvent value:lastRenderNo+1];
+            [lastCmdBuff commit];
+        }
+        lastCmdBuff = nil;
+    }
+    lastRenderNo++;
+
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
     
@@ -1004,6 +1038,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     if (teardownInfo) {
         teardownInfo.reset();
     }
+    
+    setupInfo.heapManage.updateHeaps();
 }
 
 void SceneRendererMTL::shutdown()

@@ -196,6 +196,9 @@ private:
     std::vector<VectorObjectRef>* _keepVectors = nullptr;
     CancelFunction _checkCancelled;
 
+    // Reused storage
+    VectorRing tempRing;
+
     // State used during parsing
     const MbrD _bbox;
     const double _bboxWidth;

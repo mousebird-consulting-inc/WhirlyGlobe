@@ -15,8 +15,10 @@ class ScreenLabelsTestCase(activity: Activity?) :
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         baseCase.setUpWithGlobe(globeVC)
+        baseCase.onVectorsLoaded = {
+            insertLabels(it, globeVC)
+        }
         baseCase.baseCase.setForwardGlobeDelegate(this)
-        insertLabels(baseCase.vectors, globeVC)
         val loc = Point2d.FromDegrees(-74.075833, 4.598056)
         globeVC.animatePositionGeo(loc.x, loc.y, 3.0, 1.0)
         globeVC.keepNorthUp = false
@@ -26,10 +28,12 @@ class ScreenLabelsTestCase(activity: Activity?) :
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
         baseCase.setUpWithMap(mapVC)
-        insertLabels(baseCase.vectors, mapVC)
+        baseCase.onVectorsLoaded = {
+            insertLabels(it, mapVC)
+        }
         val loc = Point2d.FromDegrees(-74.075833, 4.598056)
         mapVC.setPositionGeo(loc.x, loc.y, 3.0)
-        mapVC.setAllowRotateGesture(true)
+        mapVC.allowRotateGesture = true
         return true
     }
 
@@ -60,7 +64,7 @@ class ScreenLabelsTestCase(activity: Activity?) :
             rotation = rot.toDouble()
         }
     
-    private fun insertLabels(objects: ArrayList<VectorObject>, baseVC: BaseController) {
+    private fun insertLabels(objects: Collection<VectorObject>, baseVC: BaseController) {
         val labelInfo = LabelInfo().apply {
             fontSize = 32f
             textColor = Color.BLACK

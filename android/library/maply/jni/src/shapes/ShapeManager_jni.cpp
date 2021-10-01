@@ -1,9 +1,8 @@
-/*
- *  ShapeManager_jni.cpp
+/*  ShapeManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Shapes_jni.h"
@@ -26,102 +24,129 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = NULL;
+template<> ShapeManagerClassInfo *ShapeManagerClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     ShapeManagerClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_initialise
-(JNIEnv *env, jobject obj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
-        if (!scene)
-            return;
-        ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(scene->getManager(kWKShapeManager));
-        ShapeManagerClassInfo::getClassInfo()->setHandle(env,obj,new ShapeManagerRef(shapeManager));
+        if (Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj))
+        {
+            ShapeManagerRef shapeManager = scene->getManager<ShapeManager>(kWKShapeManager);
+            ShapeManagerClassInfo::set(env, obj, new ShapeManagerRef(shapeManager));
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManagerRef *inst = classInfo->getObject(env, obj);
-        if (inst)
-            delete inst;
+        delete classInfo->getObject(env, obj);
         classInfo->clearHandle(env, obj);
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+// Convert points in-place from geo radians + height to display xyz.
+template <typename TIter>
+static void geoToDisplay(TIter pt, const TIter end, const CoordSystemDisplayAdapter *adapter)
+{
+    const auto cs = adapter->getCoordSystem();
+    for (; pt != end; ++pt)
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::dispose()");
+        // We assume that the result of converting lat/long to display is normalized,
+        // and that the height is in the same unit as display coords (radii).
+        const auto r = 1 + pt->z();
+        *pt = adapter->localToDisplay(cs->geographicToLocal(Slice(*pt))) * r;
     }
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_ShapeManager_addShapes
-(JNIEnv *env, jobject obj, jobjectArray arrayObj, jobject shapeInfoObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jobjectArray arrayObj, jobject shapeInfoObj, jobject changeObj)
 {
     try
     {
-        ShapeManagerClassInfo *classInfo = ShapeManagerClassInfo::getClassInfo();
-        ShapeManagerRef *inst = classInfo->getObject(env, obj);
-        ShapeInfoRef *shapeInfo = ShapeInfoClassInfo::getClassInfo()->getObject(env, shapeInfoObj);
-        ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env, changeObj);
-
-        if (!inst || !shapeInfo || !changeSet)
-            return EmptyIdentity;
-
         ShapeClassInfo *shapeClassInfo = ShapeClassInfo::getClassInfo();
+        const ShapeManagerRef *inst = ShapeManagerClassInfo::get(env, obj);
+        const ShapeInfoRef *shapeInfo = ShapeInfoClassInfo::get(env, shapeInfoObj);
+        const ChangeSetRef *changeSet = ChangeSetClassInfo::get(env, changeObj);
+        const auto scene = (inst && *inst) ? (*inst)->getScene() : nullptr;
+        if (!scene || !shapeInfo || !changeSet)
+        {
+            return EmptyIdentity;
+        }
+
+        const auto adapter = scene->getCoordAdapter();
 
         // Work through the shapes
         std::vector<Shape *> shapes;
         JavaObjectArrayHelper arrayHelp(env,arrayObj);
-        while (jobject shapeObj = arrayHelp.getNextObject()) {
+        shapes.reserve(arrayHelp.numObjects());
+        while (jobject shapeObj = arrayHelp.getNextObject())
+        {
             Shape *shape = shapeClassInfo->getObject(env,shapeObj);
+            Shape *res = shape;
 
             // Great circle is just a concept, not an actual object
-            GreatCircle_Android *greatCircle = dynamic_cast<GreatCircle_Android *>(shape);
-            if (greatCircle)
+            if (auto greatCircle = dynamic_cast<GreatCircle_Android *>(shape))
             {
-                Linear *lin = greatCircle->asLinear((*inst)->getScene()->getCoordAdapter());
-                if (lin)
-                    shapes.push_back(lin);
-            } else {
-                shapes.push_back(shape);
+                res = greatCircle->asLinear(adapter);
+            }
+            else if (auto lin = dynamic_cast<Linear *>(shape))
+            {
+                auto newLin = new Linear(*lin);
+                geoToDisplay(newLin->pts.begin(), newLin->pts.end(), adapter);
+
+                newLin->mbr.reset();
+                for (const auto &p : newLin->pts)
+                {
+                    newLin->mbr.addPoint(Slice(p));
+                }
+
+                res = newLin;
+            }
+
+            if (res)
+            {
+                shapes.push_back(res);
             }
         }
 
-        if ((*shapeInfo)->programID == EmptyIdentity) {
-            ProgramGLES *prog = (ProgramGLES *)(*inst)->getScene()->findProgramByName(MaplyDefaultModelTriShader);
-            if (prog)
+        if ((*shapeInfo)->programID == EmptyIdentity)
+        {
+            if (ProgramGLES *prog = (ProgramGLES *)(*inst)->getScene()->findProgramByName(MaplyDefaultModelTriShader))
+            {
                 (*shapeInfo)->programID = prog->getId();
+            }
         }
 
         SimpleIdentity shapeId = (*inst)->addShapes(shapes, *(*shapeInfo), *(changeSet->get()));
         return shapeId;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::addShapes()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeObj)
 {
     try
     {
@@ -131,24 +156,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_removeShapes
         if (!inst || !changeSet)
             return;
 
-        JavaLongArray ids(env,idArrayObj);
-        SimpleIDSet idSet;
-        for (unsigned int ii=0;ii<ids.len;ii++)
-        {
-            idSet.insert(ids.rawLong[ii]);
-        }
-        
-        (*inst)->removeShapes(idSet, *(changeSet->get()));
+        const SimpleIDSet idSet = ConvertLongArrayToSet(env, idArrayObj);
+        (*inst)->removeShapes(idSet, **changeSet);
     }
-    
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::removeShapes()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeObj)
 {
     try
     {
@@ -158,18 +174,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeManager_enableShapes
         if (!inst || !changeSet)
             return;
 
-        JavaLongArray ids(env,idArrayObj);
-        SimpleIDSet idSet;
-        for (unsigned int ii=0;ii<ids.len;ii++)
-        {
-            idSet.insert(ids.rawLong[ii]);
-        }
-        
-        (*inst)->enableShapes(idSet, enable, *(changeSet->get()));
+        const SimpleIDSet idSet = ConvertLongArrayToSet(env, idArrayObj);
+
+        (*inst)->enableShapes(idSet, enable, **changeSet);
     }
-    
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeManager::enableShapes()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

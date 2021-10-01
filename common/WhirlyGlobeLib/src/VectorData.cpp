@@ -122,7 +122,10 @@ void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float
 {
     const float maxLen2 = maxLen*maxLen;
 
-    outPts.reserve(inPts.size());
+    if (outPts.empty())
+    {
+        outPts.reserve(2 * inPts.size());
+    }
     
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
@@ -147,23 +150,27 @@ void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float
 
 void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,float maxLen)
 {
-    float maxLen2 = maxLen*maxLen;
-    
+    const float maxLen2 = maxLen*maxLen;
+
+    if (outPts.empty())
+    {
+        outPts.reserve(2 * inPts.size());
+    }
+
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
         const Point3d &p0 = inPts[ii];
         const Point3d &p1 = inPts[(ii+1)%inPts.size()];
         outPts.push_back(p0);
         Point3d dir = p1-p0;
-        float dist2 = dir.squaredNorm();
+        const float dist2 = dir.squaredNorm();
         if (dist2 > maxLen2)
         {
-            float dist = sqrtf(dist2);
+            const float dist = sqrtf(dist2);
             dir /= dist;
             for (float pos=maxLen;pos<dist;pos+=maxLen)
             {
-                Point3d divPt = p0+dir*pos;
-                outPts.push_back(divPt);
+                outPts.push_back(p0+dir*pos);
             }
         }
     }
@@ -172,7 +179,8 @@ void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,f
 }
 
 void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &outPts,
-        CoordSystemDisplayAdapter *adapter,double eps2,double prevDist2 = std::numeric_limits<double>::max())
+                               const CoordSystemDisplayAdapter *adapter,double eps2,
+                               double prevDist2 = std::numeric_limits<double>::max())
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -197,7 +205,8 @@ void subdivideToSurfaceRecurse(const Point2f &p0,const Point2f &p1,VectorRing &o
 }
 
 void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d &outPts,
-        CoordSystemDisplayAdapter *adapter,double eps2,double prevDist2 = std::numeric_limits<double>::max())
+                               const CoordSystemDisplayAdapter *adapter,double eps2,
+                               double prevDist2 = std::numeric_limits<double>::max())
 {
     // If the difference is greater than 180, then this is probably crossing the date line
     //  in which case we'll just leave it alone.
@@ -221,7 +230,7 @@ void subdivideToSurfaceRecurse(const Point3d &p0,const Point3d &p1,VectorRing3d 
 }
 
 void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool closed,
-        CoordSystemDisplayAdapter *adapter,float eps)
+        const CoordSystemDisplayAdapter *adapter,float eps)
 {
     const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
@@ -234,7 +243,8 @@ void SubdivideEdgesToSurface(const VectorRing &inPts,VectorRing &outPts,bool clo
     }
 }
 
-void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,CoordSystemDisplayAdapter *adapter,float eps)
+void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,
+                             const CoordSystemDisplayAdapter *adapter,float eps)
 {
     const auto eps2 = (double)eps * eps;
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
@@ -248,7 +258,7 @@ void SubdivideEdgesToSurface(const VectorRing3d &inPts,VectorRing3d &outPts,bool
 
 // Great circle version
 void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVector &outPts,
-        CoordSystemDisplayAdapter *adapter,double eps2,float surfOffset,int minPts,
+        const CoordSystemDisplayAdapter *adapter,double eps2,float surfOffset,int minPts,
         double prevDist2 = std::numeric_limits<double>::max())
 {
     const Point3d midP = (p0+p1)/2.0;
@@ -264,7 +274,7 @@ void subdivideToSurfaceRecurseGC(const Point3d &p0,const Point3d &p1,Point3dVect
 }
 
 void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,bool closed,
-        CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
+        const CoordSystemDisplayAdapter *adapter,float eps,float surfOffset,int minPts)
 {
     if (!adapter || inPts.empty())
         return;
@@ -305,15 +315,16 @@ void VectorShape::setAttrDict(MutableDictionaryRef newDict)
     attrDict = std::move(newDict);
 }
     
-MutableDictionaryRef VectorShape::getAttrDict()
+MutableDictionaryRef VectorShape::getAttrDict() const
 {
     return attrDict;
 }
-    
-VectorTriangles::VectorTriangles() = default;
-    
-VectorTriangles::~VectorTriangles() = default;
-    
+
+const MutableDictionaryRef &VectorShape::getAttrDictRef() const
+{
+    return attrDict;
+}
+
 VectorTrianglesRef VectorTriangles::createTriangles()
 {
     return VectorTrianglesRef(new VectorTriangles());
@@ -326,43 +337,54 @@ GeoMbr VectorTriangles::calcGeoMbr()
     return geoMbr;
 }
     
-bool VectorTriangles::pointInside(const GeoCoord &coord)
+bool VectorTriangles::pointInside(const GeoCoord &coord) const
 {
     if (geoMbr.inside(coord))
     {
+        VectorRing ring;
         for (int ti=0;ti<tris.size();ti++)
         {
-            VectorRing ring;
+            ring.clear();
             getTriangle(ti, ring);
             if (PointInPolygon(coord, ring))
+            {
                 return true;
+            }
         }
     }
     
     return false;
 }
 
-void VectorTriangles::getTriangle(int which,VectorRing &ring)
+bool VectorTriangles::getTriangle(int which, Point2f points[3]) const
+{
+    if (0 <= which && which < tris.size())
+    {
+        const auto t = tris[which].pts;
+        points[0] = Slice(pts[t[0]]);
+        points[1] = Slice(pts[t[1]]);
+        points[2] = Slice(pts[t[2]]);
+        return true;
+    }
+    return false;
+}
+
+bool VectorTriangles::getTriangle(int which,VectorRing &ring) const
 {
     if (which < 0 || which >= tris.size())
-        return;
+        return false;
 
-    ring.reserve(3);
-    Triangle &tri = tris[which];
-    for (unsigned int ii=0;ii<3;ii++)
-    {
-        Point3f pt = pts[tri.pts[ii]];
-        ring.push_back(Point2f(pt.x(),pt.y()));
-    }
+    ring.resize(3);
+    return getTriangle(which, &ring[0]);
 }
-    
+
 void VectorTriangles::initGeoMbr()
 {
-    for (auto & pt : pts)
-        geoMbr.addGeoCoord(GeoCoord(pt.x(),pt.y()));
+    geoMbr.addGeoCoords(pts);
 }
 
-bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,double *outT,Point3d *iPt)
+bool VectorTrianglesRayIntersect(const Point3d &org,const Point3d &dir,const VectorTriangles &mesh,
+                                 double *outT,Point3d *iPt)
 {
     double tMin = std::numeric_limits<double>::max();
     Point3d minPt {0,0,0};

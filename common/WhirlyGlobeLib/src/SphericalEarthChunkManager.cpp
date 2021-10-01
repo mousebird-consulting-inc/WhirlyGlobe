@@ -22,7 +22,6 @@
 #import <set>
 #import "DynamicTextureAtlas.h"
 #import "SphericalEarthChunkManager.h"
-#import "WhirlyKitLog.h"
 #import "SharedAttributes.h"
 
 using namespace Eigen;
@@ -30,29 +29,34 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-SphericalChunkInfo::SphericalChunkInfo()
-    : color(RGBAColor(255,255,255,255)), doEdgeMatching(false)
+SphericalChunkInfo::SphericalChunkInfo() :
+    color(255,255,255,255),
+    doEdgeMatching(false)
 {
 }
     
-SphericalChunkInfo::SphericalChunkInfo(const Dictionary &dict)
-    : BaseInfo(dict), doEdgeMatching(false)
+SphericalChunkInfo::SphericalChunkInfo(const Dictionary &dict) :
+    BaseInfo(dict),
+    doEdgeMatching(false)
 {
     color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
     // Note: Should expose edge matching
 }
 
 SphericalChunk::SphericalChunk()
-    : loadImage(NULL),programID(EmptyIdentity),
+    : loadImage(nullptr),programID(EmptyIdentity),
     sampleX(12), sampleY(12), minSampleX(1), minSampleY(1), eps(0.0005),
-    rotation(0.0), coordSys(NULL)
+    rotation(0.0), coordSys(nullptr)
 {
 }
 
 static const float SkirtFactor = 0.95;
 
 // Helper routine for constructing the skirt around a tile
-void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,int pointOffset,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,const BasicDrawableBuilderRef &draw,
+                                const Point3fVector &pts,int pointOffset,
+                                const std::vector<TexCoord> &texCoords,
+                                const SphericalChunkInfo &chunkInfo)
 {
     for (unsigned int ii=0;ii<pts.size()-1;ii++)
     {
@@ -68,7 +72,7 @@ void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderR
         cornerTex[3] = texCoords[ii];
         
         // Toss in the points, but point the normal up
-        int base = draw->getNumPoints();
+        const auto base = (int)draw->getNumPoints();
         for (unsigned int jj=0;jj<4;jj++)
         {
             draw->addPoint(corners[jj]);
@@ -84,14 +88,14 @@ void SphericalChunk::buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderR
 }
 
 // Calculate a reasonable sample size based on the four corners passed in
-void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *dispPts)
+void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,const Point3f *dispPts) const
 {
     // Default to the sample passed in
     thisSampleX = sampleX;
     thisSampleY = sampleY;
     
     // If there's an epsilon, look at that
-    if (eps > 0.0)
+    if (eps > 0.0 && dispPts)
     {
         float angBot = acos(dispPts[0].dot(dispPts[1]));
         float angTop = acos(dispPts[3].dot(dispPts[2]));
@@ -100,11 +104,11 @@ void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *disp
         float angX = std::max(angBot,angTop);
         float angY = std::max(angLeft,angRight);
         
-        float minAng = acosf(1.0-eps) * 2.0;
+        float minAng = acosf(1.0f-eps) * 2.0f;
         if (minAng < angX)
-            thisSampleX = angX/minAng;
+            thisSampleX = (int)(angX/minAng);
         if (minAng < angY)
-            thisSampleY = angY/minAng;
+            thisSampleY = (int)(angY/minAng);
         thisSampleX = std::max(minSampleX,thisSampleX);
         thisSampleY = std::max(minSampleY,thisSampleY);
         if (sampleX > 0)
@@ -114,26 +118,27 @@ void SphericalChunk::calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *disp
     }
 }
 
-void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef drawable,bool shouldBuildSkirt,BasicDrawableBuilderRef skirtDrawable,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo)
+void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,
+                                   const BasicDrawableBuilderRef &drawable,
+                                   bool shouldBuildSkirt,
+                                   const BasicDrawableBuilderRef &skirtDrawable,
+                                   bool enable,
+                                   const CoordSystemDisplayAdapter *coordAdapter,
+                                   const SphericalChunkInfo &chunkInfo)
 {
-    CoordSystem *localSys = coordAdapter->getCoordSystem();
+    const CoordSystem *localSys = coordAdapter->getCoordSystem();
 
-    CoordSystemRef srcSystem;
     CoordSystemRef geoSystem(new GeoCoordSystem());
-    if (coordSys)
-    {
-        srcSystem = coordSys;
-    } else {
-        srcSystem = geoSystem;
-    }
-    
+    CoordSystemRef srcSystem = coordSys ? coordSys : geoSystem;
+
     chunkInfo.setupBasicDrawable(drawable);
     drawable->setType(Triangles);
 //    drawable->setLocalMbr(_mbr);
     drawable->setColor(chunkInfo.color);
     drawable->setTexIDs(texIDs);
     
-    int thisSampleX = sampleX, thisSampleY = sampleY;
+    int thisSampleX = sampleX;
+    int thisSampleY = sampleY;
     
     Mbr localMbr;
     Point3f dispPts[4];
@@ -149,7 +154,7 @@ void SphericalChunk::buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuild
     Point3fVector locs;
     std::vector<TexCoord> texCoords;
 
-    int pointOffset = drawable->getNumPoints();
+    const auto pointOffset = (int)drawable->getNumPoints();
 
     Point2f texIncr;
     // Without rotation, we'll just follow the boundaries
@@ -445,7 +450,7 @@ void SphericalChunkManager::enableChunk(SimpleIdentity chunkID,bool enable,Chang
 }
 
 /// Remove the given chunks
-void SphericalChunkManager::removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes)
+void SphericalChunkManager::removeChunks(const SimpleIDSet &chunkIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
     for (auto chunkID : chunkIDs) {

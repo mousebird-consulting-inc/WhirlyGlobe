@@ -1,9 +1,8 @@
-/*
- *  BasicDrawableInstanceGLES.cpp
+/*  BasicDrawableInstanceGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/10/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableInstanceGLES.h"
@@ -27,15 +25,15 @@ namespace WhirlyKit
 {
     
 BasicDrawableInstanceGLES::BasicDrawableInstanceGLES(const std::string &name)
-    : BasicDrawableInstance(name), Drawable(name), instBuffer(0), vertArrayObj(0)
+    : BasicDrawableInstance(name), Drawable(name)
 {
 }
     
 GLuint BasicDrawableInstanceGLES::setupVAO(RendererFrameInfoGLES *frameInfo)
 {
-    ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
+    auto *prog = (ProgramGLES *)frameInfo->program;
     
-    BasicDrawableGLES *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
+    auto *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
     vertArrayObj = basicDrawGL->setupVAO(prog);
     vertArrayDefaults = basicDrawGL->vertArrayDefaults;
     
@@ -111,7 +109,7 @@ GLuint BasicDrawableInstanceGLES::setupVAO(RendererFrameInfoGLES *frameInfo)
 /// Set up local rendering structures (e.g. VBOs)
 void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
     if (instBuffer)
         return;
@@ -138,39 +136,46 @@ void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupI
     
     instBuffer = setupInfo->memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, instBuffer);
-    void *glMem = NULL;
+    void *glMem;
     if (hasMapBufferSupport)
     {
         glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
-    } else {
+    }
+    else
+    {
         glMem = (void *)malloc(bufferSize);
     }
-    unsigned char *basePtr = (unsigned char *)glMem;
-    for (unsigned int ii=0;ii<instances.size();ii++,basePtr+=instSize)
+
+    if (auto *basePtr = (unsigned char *)glMem)
     {
-        const SingleInstance &inst = instances[ii];
-        Point3f center3f(inst.center.x(),inst.center.y(),inst.center.z());
-        Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
-        float colorInst = inst.colorOverride ? 1.0 : 0.0;
-        RGBAColor locColor = colorInst ? inst.color : color;
-        memcpy(basePtr, (void *)center3f.data(), centerSize);
-        memcpy(basePtr+centerSize, (void *)mat.data(), matSize);
-        memcpy(basePtr+centerSize+matSize, (void *)&colorInst, colorInstSize);
-        memcpy(basePtr+centerSize+matSize+colorInstSize, (void *)&locColor.r, colorSize);
-        if (moving)
+        for (unsigned int ii = 0; ii < instances.size(); ii++, basePtr += instSize)
         {
-            Point3d modelDir = (inst.endCenter - inst.center)/inst.duration;
-            Point3f modelDir3f(modelDir.x(),modelDir.y(),modelDir.z());
-            memcpy(basePtr+centerSize+matSize+colorInstSize+colorSize, (void *)modelDir3f.data(), modelDirSize);
+            const SingleInstance &inst = instances[ii];
+            const Point3f center3f(inst.center.x(), inst.center.y(), inst.center.z());
+            const Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
+            const float colorInst = inst.colorOverride ? 1.0 : 0.0;
+            const RGBAColor locColor = inst.colorOverride ? inst.color : color;
+            memcpy(basePtr, (void *) center3f.data(), centerSize);
+            memcpy(basePtr + centerSize, (void *) mat.data(), matSize);
+            memcpy(basePtr + centerSize + matSize, (void *) &colorInst, colorInstSize);
+            memcpy(basePtr + centerSize + matSize + colorInstSize, (void *) &locColor.r, colorSize);
+            if (moving)
+            {
+                const Point3d modelDir = (inst.endCenter - inst.center) / inst.duration;
+                const Point3f modelDir3f(modelDir.x(), modelDir.y(), modelDir.z());
+                memcpy(basePtr + centerSize + matSize + colorInstSize + colorSize, (void *) modelDir3f.data(), modelDirSize);
+            }
         }
-    }
-    
-    if (hasMapBufferSupport)
-    {
-        glUnmapBuffer(GL_ARRAY_BUFFER);
-    } else {
-        glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
-        free(glMem);
+
+        if (hasMapBufferSupport)
+        {
+            glUnmapBuffer(GL_ARRAY_BUFFER);
+        }
+        else
+        {
+            glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
+            free(glMem);
+        }
     }
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -179,7 +184,7 @@ void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupI
 /// Clean up any rendering objects you may have (e.g. VBOs).
 void BasicDrawableInstanceGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene,RenderTeardownInfoRef teardown)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 
     if (instBuffer)
     {
@@ -203,8 +208,8 @@ void BasicDrawableInstanceGLES::calculate(RendererFrameInfoGLES *frameInfo,Scene
 
 void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inScene)
 {
-    BasicDrawableGLES *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
-    SceneGLES *scene = (SceneGLES *)inScene;
+    auto *basicDrawGL = dynamic_cast<BasicDrawableGLES *>(basicDraw.get());
+    auto *scene = (SceneGLES *)inScene;
     
     // Happens if we're deleting things out of order
     if (!basicDrawGL || !basicDrawGL->isSetupInGL())
@@ -214,7 +219,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
     if (instanceStyle == ReuseStyle)
     {
         // New style makes use of OpenGL instancing and makes its own copy of the geometry
-        ProgramGLES *prog = (ProgramGLES *)frameInfo->program;
+        auto *prog = (ProgramGLES *)frameInfo->program;
 
         if (!prog) {
             wkLogLevel(Error,"Missing program in BasicDrawableInstanceGLES");
@@ -252,11 +257,11 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // GL Texture IDs
         bool anyTextures = false;
         std::vector<GLuint> glTexIDs;
-        if (texInfo.empty()) {
+        if (texInfo.empty())
+        {
             // Just run the ones from the basic drawable
-            for (unsigned int ii=0;ii<basicDraw->texInfo.size();ii++)
+            for (const auto &thisTexInfo : basicDraw->texInfo)
             {
-                const BasicDrawable::TexInfo &thisTexInfo = basicDraw->texInfo[ii];
                 GLuint glTexID = EmptyIdentity;
                 if (thisTexInfo.texId != EmptyIdentity)
                 {
@@ -265,22 +270,26 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 }
                 glTexIDs.push_back(glTexID);
             }
-        } else {
+        }
+        else
+        {
             // We have our own tex info to set up, but it does depend on the base drawable
-            for (int ii=0;ii<texInfo.size();ii++)
+            for (const auto &ii : texInfo)
             {
-                SimpleIdentity texID = texInfo[ii].texId;
+                SimpleIdentity texID = ii.texId;
 
-                GLuint glTexID = EmptyIdentity;
                 if (texID != EmptyIdentity)
                 {
-                    glTexID = scene->getGLTexture(texID);
+                    const GLuint glTexID = scene->getGLTexture(texID);
                     if (glTexID != 0)
                     {
                         anyTextures = true;
                         glTexIDs.push_back(glTexID);
-                    } else
+                    }
+                    else
+                    {
                         wkLogLevel(Error,"BasicDrawableInstance: Missing texture %d",texID);
+                    }
                 }
             }
         }
@@ -329,11 +338,11 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // Zero or more textures in the drawable
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures-progTexBound;ii++)
         {
-            GLuint glTexID = ii < glTexIDs.size() ? glTexIDs[ii] : 0;
-            auto baseMapNameID = baseMapNameIDs[ii];
-            auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
-            auto texScaleNameID = texScaleNameIDs[ii];
-            auto texOffsetNameID = texOffsetNameIDs[ii];
+            const GLuint glTexID = (ii < glTexIDs.size()) ? glTexIDs[ii] : 0;
+            const auto baseMapNameID = baseMapNameIDs[ii];
+            const auto hasBaseMapNameID = hasBaseMapNameIDs[ii];
+            const auto texScaleNameID = texScaleNameIDs[ii];
+            const auto texOffsetNameID = texOffsetNameIDs[ii];
             const OpenGLESUniform *texUni = prog->findUniform(baseMapNameID);
             hasTexture[ii+progTexBound] = glTexID != 0 && texUni;
             if (hasTexture[ii+progTexBound])
@@ -348,23 +357,28 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 float texScale = 1.0;
                 Vector2f texOffset(0.0,0.0);
                 // Adjust for border pixels
-                if (ii < texInfo.size()) {
-                    auto thisTexInfo = texInfo[ii];
-                    if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0) {
-                        texScale = (thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (double)thisTexInfo.size;
-                        float offset = thisTexInfo.borderTexel / (double)thisTexInfo.size;
+                if (ii < texInfo.size())
+                {
+                    const auto &thisTexInfo = texInfo[ii];
+                    if (thisTexInfo.borderTexel > 0 && thisTexInfo.size > 0)
+                    {
+                        texScale = (float)(thisTexInfo.size - 2 * thisTexInfo.borderTexel) / (float)thisTexInfo.size;
+                        const auto offset = (float)thisTexInfo.borderTexel / (float)thisTexInfo.size;
                         texOffset = Vector2f(offset,offset);
                     }
                     // Adjust for a relative texture lookup (using lower zoom levels)
-                    if (thisTexInfo.relLevel > 0) {
-                        texScale = texScale/(1<<thisTexInfo.relLevel);
+                    if (thisTexInfo.relLevel > 0)
+                    {
+                        texScale = texScale/(float)(1U<<thisTexInfo.relLevel);
                         texOffset = Vector2f(texScale*thisTexInfo.relX,texScale*thisTexInfo.relY) + texOffset;
                     }
                     prog->setUniform(texScaleNameID, Vector2f(texScale, texScale));
                     prog->setUniform(texOffsetNameID, texOffset);
                 }
                 CheckGLError("BasicDrawable::drawVBO2() glUniform1i");
-            } else {
+            }
+            else
+            {
                 prog->setUniform(hasBaseMapNameID, 0);
             }
         }
@@ -385,12 +399,12 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
             if (basicDrawGL->sharedBuffer) {
                 glBindBuffer(GL_ARRAY_BUFFER,basicDrawGL->sharedBuffer);
                 CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
-                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, 0);
+                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, nullptr);
                 glEnableVertexAttribArray ( vertAttr->index );
             } else if (basicDrawGL->pointBuffer) {
                 glBindBuffer(GL_ARRAY_BUFFER,basicDrawGL->pointBuffer);
                 CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
-                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, 0);
+                glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, nullptr);
                 glEnableVertexAttribArray ( vertAttr->index );
             } else {
                 usedLocalVertices = true;
@@ -404,38 +418,36 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         // Other vertex attributes
         std::vector<const OpenGLESAttribute *> progAttrs;
         if (!vertArrayObj) {
-            progAttrs.resize(basicDraw->vertexAttributes.size(),NULL);
+            progAttrs.resize(basicDraw->vertexAttributes.size(),nullptr);
             for (unsigned int ii=0;ii<basicDraw->vertexAttributes.size();ii++)
             {
-                VertexAttributeGLES *attr = (VertexAttributeGLES *)basicDraw->vertexAttributes[ii];
-                const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID);
-                progAttrs[ii] = NULL;
-                if (progAttr)
+                auto *attr = (VertexAttributeGLES *)basicDraw->vertexAttributes[ii];
+                progAttrs[ii] = nullptr;
+                if (const OpenGLESAttribute *progAttr = prog->findAttribute(attr->nameID))
                 {
                     // The data hasn't been downloaded, so hook it up directly here
-                    if (attr->buffer == 0)
+                    if (attr->buffer != 0 || attr->numElements() != 0)
                     {
-                        // We have a data array for it, so hand that over
-                        if (attr->numElements() != 0)
-                        {
-                            glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), 0, attr->addressForElement(0));
-                            CheckGLError("BasicDrawable::drawVBO2() glVertexAttribPointer");
-                            glEnableVertexAttribArray ( progAttr->index );
-                            CheckGLError("BasicDrawable::drawVBO2() glEnableVertexAttribArray");
-
-                            progAttrs[ii] = progAttr;
-                        }
-                    } else {
-                        // Just need to wire these up
+                        const auto stride = attr->buffer ? basicDrawGL->vertexSize : 0;
+                        const auto ptr = attr->buffer ? CALCBUFOFF(0,attr->buffer) : attr->addressForElement(0);
+                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), stride, ptr);
+                        CheckGLError("BasicDrawableInstance::draw glVertexAttribPointer");
                         glEnableVertexAttribArray(progAttr->index);
-                        glVertexAttribPointer(progAttr->index, attr->glEntryComponents(), attr->glType(), attr->glNormalize(), basicDrawGL->vertexSize, CALCBUFOFF(0,attr->buffer));
+                        CheckGLError("BasicDrawableInstance::draw glEnableVertexAttribArray");
+                        progAttrs[ii] = progAttr;
+                    }
+                    else
+                    {
+                        // The program is expecting it, so we need a default
+                        attr->glSetDefault(progAttr->index);
+                        CheckGLError("BasicDrawableInstance::draw glSetDefault");
                     }
                 }
             }
         } else {
             // Vertex Array Objects can't hold the defaults, so we build them earlier
             // Note: We should override these that we need to from our own settings
-            for (auto attrDef : vertArrayDefaults) {
+            for (const auto &attrDef : vertArrayDefaults) {
                 // The program is expecting it, so we need a default
                 attrDef.attr.glSetDefault(attrDef.progAttrIndex);
                 CheckGLError("BasicDrawable::drawVBO2() glSetDefault");
@@ -443,10 +455,13 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         }
 
         // Note: Something of a hack
-        if (hasColor) {
-            const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID);
-            if (colorAttr)
+        if (hasColor)
+        {
+            if (const OpenGLESAttribute *colorAttr = prog->findAttribute(a_colorNameID))
+            {
+                glDisableVertexAttribArray(colorAttr->index);
                 glVertexAttrib4f(colorAttr->index, color.r / 255.0, color.g / 255.0, color.b / 255.0, color.a / 255.0);
+            }
         }
 
         // If there are no instances, fill in the identity
@@ -535,7 +550,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                         if (instBuffer)
                         {
-                            glDrawElementsInstanced(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, 0, numInstances);
+                            glDrawElementsInstanced(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, nullptr, numInstances);
                         } else
                             glDrawElements(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, (void *)((uintptr_t)basicDrawGL->triBuffer));
                         CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
@@ -581,19 +596,28 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
 
         // Unbind any textures
         for (unsigned int ii=0;ii<WhirlyKitMaxTextures;ii++)
+        {
             if (hasTexture[ii])
             {
-                glActiveTexture(GL_TEXTURE0+ii);
+                glActiveTexture(GL_TEXTURE0 + ii);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
+        }
 
         // Tear down the various arrays, if we stood them up
         if (usedLocalVertices)
+        {
             glDisableVertexAttribArray(vertAttr->index);
-        if (!vertArrayObj) {
-            for (unsigned int ii = 0; ii < progAttrs.size(); ii++)
-                if (progAttrs[ii])
-                    glDisableVertexAttribArray(progAttrs[ii]->index);
+        }
+        if (!vertArrayObj)
+        {
+            for (const auto &progAttr : progAttrs)
+            {
+                if (progAttr)
+                {
+                    glDisableVertexAttribArray(progAttr->index);
+                }
+            }
         }
 
         if (instBuffer)
@@ -649,14 +673,15 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
             }
         }
-
-    } else {
-        int oldDrawPriority = basicDraw->getDrawPriority();
-        RGBAColor oldColor = basicDrawGL->color;
-        float oldLineWidth = basicDrawGL->lineWidth;
-        float oldMinVis = basicDrawGL->minVisible,oldMaxVis = basicDrawGL->maxVisible;
-        auto oldUniforms = basicDrawGL->uniforms;
-        std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
+    }
+    else
+    {
+        const auto oldDrawPriority = basicDraw->getDrawPriority();
+        const RGBAColor oldColor = basicDrawGL->color;
+        const float oldLineWidth = basicDrawGL->lineWidth;
+        const float oldMinVis = basicDrawGL->minVisible,oldMaxVis = basicDrawGL->maxVisible;
+        const auto oldUniforms = basicDrawGL->uniforms;
+        const std::vector<BasicDrawable::TexInfo> oldTexInfo = basicDraw->getTexInfo();
 
         // Change the drawable
         if (hasDrawPriority)
@@ -691,37 +716,32 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         }
         basicDraw->setVisibleRange(minVis, maxVis);
 
-        Matrix4f oldMvpMat = frameInfo->mvpMat;
-        Matrix4f oldMvMat = frameInfo->viewAndModelMat;
-        Matrix4f oldMvNormalMat = frameInfo->viewModelNormalMat;
+        const Matrix4f oldMvpMat = frameInfo->mvpMat;
+        const Matrix4f oldMvMat = frameInfo->viewAndModelMat;
+        const Matrix4f oldMvNormalMat = frameInfo->viewModelNormalMat;
 
         // No matrices, so just one instance
         if (instances.empty())
+        {
             basicDrawGL->draw(frameInfo,scene);
-        else {
+        }
+        else
+        {
             // Run through the list of instances
-            for (unsigned int ii=0;ii<instances.size();ii++)
+            for (const auto &singleInst : instances)
             {
                 // Change color
-                const SingleInstance &singleInst = instances[ii];
-                if (singleInst.colorOverride)
-                    basicDrawGL->color = singleInst.color;
-                else {
-                    if (hasColor)
-                        basicDrawGL->color = color;
-                    else
-                        basicDrawGL->color = oldColor;
-                }
+                basicDrawGL->color = singleInst.colorOverride ? singleInst.color : (hasColor ? color : oldColor);
 
                 // Note: Ignoring offsets, so won't work reliably in 2D
-                Eigen::Matrix4d newMvpMat = frameInfo->projMat4d * frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
-                Eigen::Matrix4d newMvMat = frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
-                Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
+                const Eigen::Matrix4d newMvpMat = frameInfo->projMat4d * frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
+                const Eigen::Matrix4d newMvMat = frameInfo->viewTrans4d * frameInfo->modelTrans4d * singleInst.mat;
+                const Eigen::Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
 
                 // Inefficient, but effective
-                Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
-                Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
-                Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
+                const Matrix4f mvpMat4f = Matrix4dToMatrix4f(newMvpMat);
+                const Matrix4f mvMat4f = Matrix4dToMatrix4f(newMvpMat);
+                const Matrix4f mvNormalMat4f = Matrix4dToMatrix4f(newMvNormalMat);
                 frameInfo->mvpMat = mvpMat4f;
                 frameInfo->viewAndModelMat = mvMat4f;
                 frameInfo->viewModelNormalMat = mvNormalMat4f;

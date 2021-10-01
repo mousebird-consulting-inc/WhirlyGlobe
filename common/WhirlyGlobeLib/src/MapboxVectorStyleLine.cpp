@@ -264,7 +264,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         const auto result = shapesByUUID.insert(std::make_pair(std::ref(uuid), ShapeRefVec()));
         auto &shapes = result.first->second;
 
-        shapes.reserve(shapes.size() + vecObj->shapes.size());
+        if (shapes.empty())
+            shapes.reserve(shapes.size() + vecObj->shapes.size());
         std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
     }
 

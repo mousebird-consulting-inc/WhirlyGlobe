@@ -66,8 +66,11 @@ using namespace WhirlyKit;
 
 - (void)setBoundsD:(MaplyBoundingBoxD)boundsD
 {
-    ll.x = boundsD.ll.x;    ll.y = boundsD.ll.y;
-    ur.x = boundsD.ur.x;    ur.y = boundsD.ur.y;
+    // Note: We don't have double versions of localToGeo exposed
+    MaplyBoundingBox box;
+    box.ll = MaplyCoordinateMake(boundsD.ll.x, boundsD.ll.y);
+    box.ur = MaplyCoordinateMake(boundsD.ur.x, boundsD.ur.y);
+    [self setBounds:box];
 }
 
 - (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR

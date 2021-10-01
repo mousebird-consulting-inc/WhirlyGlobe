@@ -26,27 +26,6 @@
 namespace WhirlyKit
 {
     
-PerformanceTimer::TimeEntry::TimeEntry()
-{
-    name = "";
-    minDur = MAXFLOAT;
-    maxDur = 0.0;
-    avgDur = 0.0;
-    numRuns = 0;
-}
-    
-PerformanceTimer::TimeEntry & PerformanceTimer::TimeEntry::operator = (const TimeEntry &that)
-{
-    name = that.name;
-    minDur = that.minDur;
-    maxDur = that.maxDur;
-    avgDur = that.avgDur;
-    numRuns = that.numRuns;
-    
-    return *this;
-}
-
-
 bool PerformanceTimer::TimeEntry::operator<(const WhirlyKit::PerformanceTimer::TimeEntry &that) const
 {
     return name < that.name;
@@ -54,19 +33,10 @@ bool PerformanceTimer::TimeEntry::operator<(const WhirlyKit::PerformanceTimer::T
 
 void PerformanceTimer::TimeEntry::addTime(TimeInterval dur)
 {
-    minDur = std::min(minDur,dur);
-    maxDur = std::max(maxDur,dur);
+    minDur = (numRuns == 0) ? dur : std::min(minDur,dur);
+    maxDur = (numRuns == 0) ? dur : std::max(maxDur,dur);
     avgDur += dur;
     numRuns++;
-}
-
-PerformanceTimer::CountEntry::CountEntry()
-{
-    name = "";
-    minCount = 1<<30;
-    maxCount = 0;
-    avgCount = 0;
-    numRuns = 0;
 }
 
 bool PerformanceTimer::CountEntry::operator<(const WhirlyKit::PerformanceTimer::CountEntry &that) const
@@ -76,47 +46,60 @@ bool PerformanceTimer::CountEntry::operator<(const WhirlyKit::PerformanceTimer::
 
 void PerformanceTimer::CountEntry::addCount(int count)
 {
-    minCount = std::min(minCount,count);
-    maxCount = std::max(maxCount,count);
+    minCount = (numRuns == 0) ? count : std::min(minCount,count);
+    maxCount = (numRuns == 0) ? count : std::max(maxCount,count);
+    lastCount = count;
     avgCount += count;
     numRuns++;
 }
 
+static inline TimeInterval PerfTime()
+{
+    struct timespec tp;
+    clock_gettime(CLOCK_MONOTONIC, &tp);
+    return (double)tp.tv_sec + tp.tv_nsec * (double)1e-9;
+}
+
 void PerformanceTimer::startTiming(const std::string &what)
 {
-    actives[what] = TimeGetCurrent();
+    actives[what] = PerfTime();
 }
 
 void PerformanceTimer::stopTiming(const std::string &what)
 {
-    std::map<std::string,TimeInterval>::iterator it = actives.find(what);
+    const auto now = PerfTime();
+
+    const auto it = actives.find(what);
     if (it == actives.end())
+    {
         return;
-    TimeInterval start = it->second;
-    actives.erase(it);
-    
-    std::map<std::string,TimeEntry>::iterator eit = timeEntries.find(what);
-    if (eit != timeEntries.end())
-        eit->second.addTime(TimeGetCurrent()-start);
-    else {
-        TimeEntry newEntry;
-        newEntry.addTime(TimeGetCurrent()-start);
-        newEntry.name = what;
-        timeEntries[what] = newEntry;
     }
+
+    const TimeInterval start = it->second;
+    actives.erase(it);
+
+    const auto res = timeEntries.insert(std::make_pair(what, TimeEntry()));
+    if (res.second)
+    {
+        res.first->second.name = what;
+    }
+    res.first->second.addTime(now - start);
+}
+
+PerformanceTimer::TimeEntry PerformanceTimer::getTiming(const std::string &what) const
+{
+    const auto it = timeEntries.find(what);
+    return (it != timeEntries.end()) ? it->second : TimeEntry();
 }
 
 void PerformanceTimer::addCount(const std::string &what,int count)
 {
-    std::map<std::string,CountEntry>::iterator it = countEntries.find(what);
-    if (it != countEntries.end())
-        it->second.addCount(count);
-    else {
-        CountEntry newEntry;
-        newEntry.addCount(count);
-        newEntry.name = what;
-        countEntries[what] = newEntry;
+    const auto result = countEntries.insert(std::make_pair(what, CountEntry()));
+    if (result.second)
+    {
+        result.first->second.name = what;
     }
+    result.first->second.addCount(count);
 }
 
 void PerformanceTimer::clear()
@@ -133,36 +116,39 @@ static bool TimeEntryByMax (const PerformanceTimer::TimeEntry &a,const Performan
     
 void PerformanceTimer::report(const std::string &what)
 {
-    wkLogLevel(Verbose,"Maply Performance: %s",what.c_str());    
+    wkLogLevel(Verbose,"Maply Performance: %s",what.c_str());
 }
-    
+
 void PerformanceTimer::log()
 {
     std::vector<TimeEntry> sortedEntries;
     sortedEntries.reserve(timeEntries.size());
-    
-    for (std::map<std::string,TimeEntry>::iterator it = timeEntries.begin();
-         it != timeEntries.end(); ++it)
-        sortedEntries.push_back(it->second);
-    std::sort(sortedEntries.begin(),sortedEntries.end(),TimeEntryByMax);
-    for (unsigned int ii=0;ii<sortedEntries.size();ii++)
+
+    for (const auto &timeEntry : timeEntries)
     {
-        TimeEntry &entry = sortedEntries[ii];
+        sortedEntries.push_back(timeEntry.second);
+    }
+    std::sort(sortedEntries.begin(),sortedEntries.end(),TimeEntryByMax);
+    char line[1024];
+    for (const auto &entry : sortedEntries)
+    {
         if (entry.numRuns > 0)
         {
-            char line[1024];
-            sprintf(line,"%s: min, max, avg = (%.2f,%.2f,%.2f) ms",entry.name.c_str(),1000*entry.minDur,1000*entry.maxDur,1000*entry.avgDur / entry.numRuns);
+            sprintf(line,"%s: min, max, mean = (%.3f, %.3f, %.4f) ms, %d reports",
+                    entry.name.c_str(),1000*entry.minDur,1000*entry.
+                    maxDur,1000*entry.avgDur / entry.numRuns, entry.numRuns);
             report(line);
         }
     }
-    for (std::map<std::string,CountEntry>::iterator it = countEntries.begin();
-         it != countEntries.end(); ++it)
+    for (const auto &countEntry : countEntries)
     {
-        CountEntry &entry = it->second;
+        const CountEntry &entry = countEntry.second;
         if (entry.numRuns > 0)
         {
-            char line[1024];
-            sprintf(line,"%s: min, max, avg = (%d,%d,%2.f,  %d) count",entry.name.c_str(),entry.minCount,entry.maxCount,(float)entry.avgCount / (float)entry.numRuns,entry.avgCount);
+            sprintf(line,"%s: min, max, mean (%d, %d, %.3f), %d reports",
+                    entry.name.c_str(),entry.minCount,entry.maxCount,
+                    (float)entry.avgCount / (float)entry.numRuns,entry.numRuns);
+            report(line);
         }
     }
 }

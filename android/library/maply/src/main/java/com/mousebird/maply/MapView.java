@@ -30,8 +30,7 @@ import java.lang.ref.WeakReference;
  */
 public class MapView extends View
 {	
-	protected MapView()
-	{
+	protected MapView() {
 		control = new WeakReference<>(null);
 	}
 

@@ -1,9 +1,8 @@
-/*
- *  AnimateTranslate.java
+/*  MapAnimateTranslate.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,17 +14,17 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
+
+import androidx.annotation.Nullable;
 
 /**
  * Animates a translation (and/or zoom) from the current point to a new one.
  * <p>
  * The MaplyController uses these to animate translation from one point to another.  You
  * don't use this directly unless you've subclasses MaplyController and are doing your own thing.
- *
  */
 public class MapAnimateTranslate implements MapView.AnimationDelegate 
 {
@@ -33,10 +32,12 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	MapView view = null;
 	Point3d startLoc = null;
 	Point3d endLoc = null;
-	Point2d viewBounds[] = null;
+	Point2d[] viewBounds = null;
 	Double startRot = null;
 	Double dRot = null;
 	double startTime,endTime;
+	@Nullable
+	BaseController.ZoomAnimationEasing zoomEasing = null;
 
 	/**
 	 * Construct a translation with input parameters.  You would set this up and then hand it
@@ -49,9 +50,11 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	 * @param duration How long we want the animation to go.
 	 * @param inBounds Bounding box we want to keep the animation within.
 	 */
-	MapAnimateTranslate(MapView inView,RenderController inRender,Point3d newLoc,Double newRot,float duration,Point2d inBounds[])
+	MapAnimateTranslate(MapView inView, RenderController inRender, Point3d newLoc, Double newRot,
+						float duration, Point2d[] inBounds,
+						BaseController.ZoomAnimationEasing inZoomEasing)
 	{
-		this(inView,inRender,newLoc,duration,inBounds);
+		this(inView,inRender,newLoc,duration,inBounds,inZoomEasing);
 
 		if (view != null && newRot != null) {
 			startRot = view.getRot();
@@ -76,10 +79,28 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 	 * @param inView The view we're tied to.
 	 * @param inRender Renderer we're using.
 	 * @param newLoc New location we're translating to.
+	 * @param newRot New rotation we want
 	 * @param duration How long we want the animation to go.
 	 * @param inBounds Bounding box we want to keep the animation within.
 	 */
-	MapAnimateTranslate(MapView inView,RenderController inRender,Point3d newLoc,float duration,Point2d inBounds[])
+	MapAnimateTranslate(MapView inView, RenderController inRender, Point3d newLoc,
+						Double newRot, float duration, Point2d[] inBounds) {
+		this(inView, inRender, newLoc, newRot, duration, inBounds, null);
+	}
+
+	/**
+	 * Construct a translation with input parameters.  You would set this up and then hand it
+	 * over to a view for use.
+	 *
+	 * @param inView The view we're tied to.
+	 * @param inRender Renderer we're using.
+	 * @param newLoc New location we're translating to.
+	 * @param duration How long we want the animation to go.
+	 * @param inBounds Bounding box we want to keep the animation within.
+	 */
+	MapAnimateTranslate(MapView inView, RenderController inRender, Point3d newLoc,
+						float duration, Point2d[] inBounds,
+						@Nullable BaseController.ZoomAnimationEasing inEasing)
 	{
 		view = inView;
 		renderer = inRender;
@@ -87,9 +108,24 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 		viewBounds = inBounds;
 		startLoc = view.getLoc();
 		startRot = view.getRot();
+		zoomEasing = inEasing;
 
 		startTime = System.currentTimeMillis()/1000.0;
 		endTime = startTime+duration;
+	}
+
+	/**
+	 * Construct a translation with input parameters.  You would set this up and then hand it
+	 * over to a view for use.
+	 *
+	 * @param inView The view we're tied to.
+	 * @param inRender Renderer we're using.
+	 * @param newLoc New location we're translating to.
+	 * @param duration How long we want the animation to go.
+	 * @param inBounds Bounding box we want to keep the animation within.
+	 */
+	MapAnimateTranslate(MapView inView, RenderController inRender, Point3d newLoc, float duration, Point2d[] inBounds) {
+		this(inView, inRender, newLoc, duration, inBounds, null);
 	}
 
 	@Override
@@ -98,15 +134,27 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 		if (startTime == 0.0 || renderer == null || endTime == startTime)
 			return;
 		
-		double curTime = Math.min(endTime, System.currentTimeMillis()/1000.0);
+		final double curTime = Math.min(endTime, System.currentTimeMillis()/1000.0);
 
 		// Calculate location
-		double t = (curTime-startTime)/(endTime-startTime);
-		Point3d newPos = endLoc.subtract(startLoc).multiplyBy(t).addTo(startLoc);
+		final double t = (curTime-startTime)/(endTime-startTime);
+		final Point3d newPos = endLoc.subtract(startLoc).multiplyBy(t).addTo(startLoc);
+
 		if (endLoc.getZ() <= 0.0) {
 			// Not doing height, leave it alone.
 			newPos.setValue(newPos.getX(), newPos.getY(), startLoc.getZ());
+		} else {
+			final double startZ = startLoc.getZ();
+			final double endZ = endLoc.getZ();
+			final double z;
+			if (zoomEasing != null) {
+				z = zoomEasing.value(startZ, endZ, t);
+			} else {
+				z = Math.exp((Math.log(endZ) - Math.log(startZ)) * t + Math.log(startZ));
+			}
+			newPos.setValue(newPos.getX(), newPos.getY(), z);
 		}
+
 		if (MapGestureHandler.withinBounds(view, renderer.frameSize, newPos, viewBounds)) {
 			view.setLoc(newPos);
 		}
@@ -115,8 +163,7 @@ public class MapAnimateTranslate implements MapView.AnimationDelegate
 			view.setRot(startRot + t * dRot);
 		}
 
-		if (curTime >= endTime)
-		{
+		if (curTime >= endTime) {
 			startTime = 0;
 			view.cancelAnimation();
 		}

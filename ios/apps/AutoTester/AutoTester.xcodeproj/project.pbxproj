@@ -126,6 +126,7 @@
 		311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */; };
 		311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */ = {isa = PBXBuildFile; fileRef = 8895D8AF1CA4ABA9004387FB /* ParticleTest.mm */; };
 		313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */; };
+		313FED0727027D6800FCD14C /* ShapesTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 313FED0627027D6800FCD14C /* ShapesTestCase.mm */; };
 		316B5CF3260526AD000B4F15 /* maptiler_expr_test.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */; };
 		316B5CFC260A5573000B4F15 /* maptiler_test_circles.json in Resources */ = {isa = PBXBuildFile; fileRef = 316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */; };
 		316B5CFE260A58A8000B4F15 /* MapTilerCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */; };
@@ -531,12 +532,11 @@
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
 		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
-		D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */; };
 		D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */; };
 		D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */; };
 		D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */; };
 		D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */; };
-		D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8341A701BE2C8D200411A46 /* VectorsTestCase.m */; };
+		D8341A711BE2C8D200411A46 /* VectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8341A701BE2C8D200411A46 /* VectorsTestCase.mm */; };
 		D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */; };
 		D84AA5971C1A26C100413B76 /* OSTN02_NTv2.gsb in Resources */ = {isa = PBXBuildFile; fileRef = D84AA5961C1A26C100413B76 /* OSTN02_NTv2.gsb */; };
 		D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */; };
@@ -734,6 +734,8 @@
 		311E0A9B2680F597007BE16F /* ATS_Route.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.dbf; path = ../../../resources/vectors/faa/ATS_Route.dbf; sourceTree = SOURCE_ROOT; };
 		311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ESRIRemoteTestCase.swift; sourceTree = "<group>"; };
 		313C521425D329070036C22E /* MovingScreenMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenMarkersTestCase.swift; sourceTree = "<group>"; };
+		313FED0627027D6800FCD14C /* ShapesTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ShapesTestCase.mm; sourceTree = "<group>"; };
+		313FED102706166300FCD14C /* AutoTester.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = AutoTester.entitlements; sourceTree = "<group>"; };
 		316B5CF1260526AD000B4F15 /* maptiler_expr_test.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_expr_test.json; sourceTree = "<group>"; };
 		316B5CFA260A5573000B4F15 /* maptiler_test_circles.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = maptiler_test_circles.json; sourceTree = "<group>"; };
 		316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapTilerCircleTestCase.swift; sourceTree = "<group>"; };
@@ -1153,14 +1155,13 @@
 		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorsTestCase.m; sourceTree = "<group>"; };
 		D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarsSunTestCase.swift; sourceTree = "<group>"; };
 		D8200C9D1BE9516300B22CF5 /* ShapesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapesTestCase.h; sourceTree = "<group>"; };
-		D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapesTestCase.m; sourceTree = "<group>"; };
 		D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StickersTestCase.swift; sourceTree = "<group>"; };
 		D8200CA21BE9624300B22CF5 /* LoftedPolysTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoftedPolysTestCase.h; sourceTree = "<group>"; };
 		D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoftedPolysTestCase.m; sourceTree = "<group>"; };
 		D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MovingScreenLabelsTestCase.swift; sourceTree = "<group>"; };
 		D8228AA71BE786BE001D6914 /* ClusteredMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClusteredMarkersTestCase.swift; sourceTree = "<group>"; };
 		D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VectorsTestCase.h; sourceTree = "<group>"; };
-		D8341A701BE2C8D200411A46 /* VectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VectorsTestCase.m; sourceTree = "<group>"; };
+		D8341A701BE2C8D200411A46 /* VectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VectorsTestCase.mm; sourceTree = "<group>"; };
 		D8341A721BE2DFE100411A46 /* ScreenLabelsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenLabelsTestCase.swift; sourceTree = "<group>"; };
 		D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NASAGIBSTestCase.swift; sourceTree = "<group>"; };
 		D84433E91C14E4E700A52117 /* CartoDBTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CartoDBTestCase.h; sourceTree = "<group>"; };
@@ -1413,7 +1414,7 @@
 				2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */,
 				2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */,
 				D8200C9D1BE9516300B22CF5 /* ShapesTestCase.h */,
-				D8200C9E1BE9516300B22CF5 /* ShapesTestCase.m */,
+				313FED0627027D6800FCD14C /* ShapesTestCase.mm */,
 				2B29944C243BA16000677DE4 /* SimpleStyleTestCase.swift */,
 				88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */,
 				D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */,
@@ -1425,7 +1426,7 @@
 				2B158BEE1D5D19E900103E04 /* VectorHoleTestCase.m */,
 				2B1C264E1C90FFFC00C71B0A /* VectorMBTilesTestCase.swift */,
 				D8341A6F1BE2C8D200411A46 /* VectorsTestCase.h */,
-				D8341A701BE2C8D200411A46 /* VectorsTestCase.m */,
+				D8341A701BE2C8D200411A46 /* VectorsTestCase.mm */,
 				2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */,
 				2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
@@ -1457,6 +1458,7 @@
 		88E4B8C11B83B6AB0050D21B /* AutoTester */ = {
 			isa = PBXGroup;
 			children = (
+				313FED102706166300FCD14C /* AutoTester.entitlements */,
 				2B29944A243BA08D00677DE4 /* MapboxKindaMap.swift */,
 				88E4B8C81B83B6AB0050D21B /* Main.storyboard */,
 				88E4B8C21B83B6AB0050D21B /* Supporting Files */,
@@ -2614,6 +2616,7 @@
 				2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */,
 				D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */,
 				2B29944D243BA16000677DE4 /* SimpleStyleTestCase.swift in Sources */,
+				313FED0727027D6800FCD14C /* ShapesTestCase.mm in Sources */,
 				2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */,
 				2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */,
 				311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */,
@@ -2656,7 +2659,7 @@
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */,
 				2B4B30AA2395E0DE00854073 /* MapboxTestCase.swift in Sources */,
-				D8341A711BE2C8D200411A46 /* VectorsTestCase.m in Sources */,
+				D8341A711BE2C8D200411A46 /* VectorsTestCase.mm in Sources */,
 				311E0AB7268E87E3007BE16F /* LIDARTestCase.mm in Sources */,
 				2B753DE221EEB7F900DE98BA /* StarsSunTestCase.swift in Sources */,
 				2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */,
@@ -2664,7 +2667,6 @@
 				2B4B30AC2395E0DE00854073 /* GlyphProblemTestCase.m in Sources */,
 				2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */,
 				2B60F4462452706200CF9339 /* VectorMBTilesTestCase.swift in Sources */,
-				D8200C9F1BE9516300B22CF5 /* ShapesTestCase.m in Sources */,
 				8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */,
 				31D3287C262FADF100456B93 /* TestTileImageFetcher.swift in Sources */,
 				2B753DDB21EEB41700DE98BA /* NASAGIBSTestCase.swift in Sources */,
@@ -2756,6 +2758,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -2808,6 +2811,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -2820,6 +2824,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CODE_SIGN_ENTITLEMENTS = AutoTester/AutoTester.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -2843,6 +2849,7 @@
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;
@@ -2854,6 +2861,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
+				CODE_SIGN_ENTITLEMENTS = AutoTester/AutoTester.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
@@ -2876,6 +2885,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;
 				PRODUCT_NAME = AutoTester;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 5.0;

@@ -97,62 +97,63 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     Marker();
-    ~Marker();
+    ~Marker() = default;
     
     /// If set, this marker should be made selectable
     ///  and it will be if the selection layer has been set
-    bool isSelectable;
+    bool isSelectable = false;
     /// If the marker is selectable, this is the unique identifier
     ///  for it.  You should set this ahead of time
-    WhirlyKit::SimpleIdentity selectID;
+    WhirlyKit::SimpleIdentity selectID = EmptyIdentity;
     /// The location for the center of the marker.
     WhirlyKit::GeoCoord loc;
     /// Set if this marker is moving
-    bool hasMotion;
+    bool hasMotion = false;
     /// End location if it's moving
     WhirlyKit::GeoCoord endLoc;
     /// Timing for animation, if present
-    TimeInterval startTime,endTime;
+    TimeInterval startTime = 0.0;
+    TimeInterval endTime = 0.0;
     /// Color for this marker
-    bool colorSet;
-    RGBAColor color;
+    bool colorSet = false;
+    RGBAColor color = RGBAColor::white();
     /// The list of textures to use.  If there's just one
     ///  we show that.  If there's more than one, we switch
     ///  between them over the period.
     std::vector<WhirlyKit::SimpleIdentity> texIDs;
     /// If set we'll keep the screen marker upright in screen space
-    bool lockRotation;
+    bool lockRotation = false;
     /// The height in 3-space (remember the globe has radius = 1.0)
-    float height;
+    float height = 0.0f;
     /// The width in 3-space (remember the globe has radius = 1.0)
-    float width;
+    float width = 0.0f;
     /// Height in screen space to consider for layout
-    float layoutHeight;
-    /// Width in screen space to soncider for layout
-    float layoutWidth;
+    float layoutHeight = -1.0f;
+    /// Width in screen space to consider for layout
+    float layoutWidth = -1.0f;
     /// Set if we want a static rotation.  Only matters in screen space
     /// This is rotation clockwise from north in radians
-    float rotation;
+    float rotation = 0.0f;
     /// Offset in points
     WhirlyKit::Point2d offset;
     /// The period over which we'll switch textures
-    TimeInterval period;
+    TimeInterval period = 0.0;
     /// For markers with more than one texture, this is the offset
     ///  we'll use when calculating position within the period.
-    TimeInterval timeOffset;
+    TimeInterval timeOffset = 0.0;
     /// Value to use for the layout engine.  Set to MAXFLOAT by
     ///  default, which will always display.
-    float layoutImportance;
+    float layoutImportance = MAXFLOAT;
     /// Shape for label to follow
     VectorRing layoutShape;
     /// Ordering within rendering group
-    long orderBy;
+    long orderBy = -1;
     /// Passed through the system as a unique identifier
     std::string uniqueID;
     
     // If set, we'll draw an outline to the mask target
-    WhirlyKit::SimpleIdentity maskID;
-    WhirlyKit::SimpleIdentity maskRenderTargetID;
+    WhirlyKit::SimpleIdentity maskID = EmptyIdentity;
+    WhirlyKit::SimpleIdentity maskRenderTargetID = EmptyIdentity;
 
     /// A list of vertex attributes to apply to the marker
     SingleVertexAttributeSet vertexAttrs;

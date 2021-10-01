@@ -25,71 +25,62 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> QuadSamplingControllerInfo *QuadSamplingControllerInfo::classInfoObj = NULL;
+template<> QuadSamplingControllerInfo *QuadSamplingControllerInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_nativeInit
         (JNIEnv *env, jclass cls)
 {
     QuadSamplingControllerInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_initialise
         (JNIEnv *env, jobject obj, jobject)
 {
     try
     {
-        QuadSamplingController_Android *control = new QuadSamplingController_Android();
+        auto control = new QuadSamplingController_Android();
         QuadSamplingControllerInfo::getClassInfo()->setHandle(env,obj,control);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in ImageTile::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_dispose
         (JNIEnv *env, jobject obj)
 {
     try
     {
         QuadSamplingControllerInfo *classInfo = QuadSamplingControllerInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            QuadSamplingController_Android *control = classInfo->getObject(env,obj);
-            if (!control)
-                return;
-            delete control;
-            classInfo->clearHandle(env,obj);
-        }
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        QuadSamplingController_Android *control = classInfo->getObject(env,obj);
+        delete control;
+        classInfo->clearHandle(env,obj);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadSamplingLayer_getNumClients
-        (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,obj);
-        if (!control)
-            return 0;
-        return control->getNumClients();
+        if (const auto control = QuadSamplingControllerInfo::get(env,obj))
+        {
+            return control->getNumClients();
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::getNumClients()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }
 
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadSamplingLayer_viewUpdatedNative
-        (JNIEnv *env, jobject obj, jobject viewStateObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jobject viewStateObj, jobject changeObj)
 {
     try
     {
@@ -98,19 +89,17 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadSamplingLayer_viewUpdate
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !viewState || !changes || !control->getDisplayControl())
             return true;
-        PlatformInfo_Android platformInfo(env);
-        return control->getDisplayControl()->viewUpdate(&platformInfo,*viewState,*(changes->get()));
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::getNumClients()");
-    }
 
+        PlatformInfo_Android platformInfo(env);
+        return control->getDisplayControl()->viewUpdate(&platformInfo,*viewState,**changes);
+    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_startNative
-        (JNIEnv *env, jobject obj, jobject paramsObj, jobject sceneObj, jobject renderObj)
+  (JNIEnv *env, jobject obj, jobject paramsObj, jobject sceneObj, jobject renderObj)
 {
     try
     {
@@ -120,18 +109,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_startNative
         SceneRendererGLES_Android *render = SceneRendererInfo::getClassInfo()->getObject(env,renderObj);
         if (!control || !params || !scene || !render)
             return;
-        PlatformInfo_Android platformInfo(env);
+
         control->start(*params,scene,render);
         control->getDisplayControl()->start();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::startNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preSceneFlushNative
-        (JNIEnv *env, jobject obj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jobject changeObj)
 {
     try
     {
@@ -139,29 +126,42 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preSceneFlushN
         ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
         if (!control || !changes || !control->getDisplayControl())
             return;
-        control->getDisplayControl()->preSceneFlush(*(changes->get()));
+        control->getDisplayControl()->preSceneFlush(**changes);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::preSceneFlushNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_shutdownNative
-        (JNIEnv *env, jobject obj, jobject changeObj)
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_preShutdownNative
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        QuadSamplingController_Android *control = QuadSamplingControllerInfo::getClassInfo()->getObject(env,obj);
-        ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,changeObj);
+        const auto control = QuadSamplingControllerInfo::get(env,obj);
+        if (const auto disp = control ? control->getDisplayControl() : nullptr)
+        {
+            disp->stopping();
+            control->stopping();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadSamplingLayer_shutdownNative
+  (JNIEnv *env, jobject obj, jobject changeObj)
+{
+    try
+    {
+        QuadSamplingController_Android *control = QuadSamplingControllerInfo::get(env,obj);
+        ChangeSetRef *changes = ChangeSetClassInfo::get(env,changeObj);
         if (!control || !changes || !control->getDisplayControl())
             return;
+
         PlatformInfo_Android platformInfo(env);
-        control->getDisplayControl()->stop(&platformInfo,*(changes->get()));
+        control->getDisplayControl()->stop(&platformInfo,**changes);
         control->stop();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadSamplingLayer::shutdownNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

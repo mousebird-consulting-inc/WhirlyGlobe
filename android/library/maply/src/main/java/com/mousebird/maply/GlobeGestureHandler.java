@@ -436,35 +436,40 @@ public class GlobeGestureHandler
 		@Override
 		public boolean onDoubleTap(MotionEvent e) 
 		{
-			if (globeControl == null) {
+			final GlobeController gc = globeControl;
+			final RendererWrapper wrap = (gc != null) ? gc.renderWrapper : null;
+			final RenderController render = (wrap != null) ? wrap.getMaplyRender() : null;
+			if (render == null) {
 				return false;
 			}
 
-			CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
-			Point2d frameSize = globeControl.getViewSize();
+			final CoordSystemDisplayAdapter coordAdapter = globeView.getCoordAdapter();
+			final Point2d frameSize = globeControl.getViewSize();
 
 			// Figure out where they tapped
-			Point2d touch = new Point2d(e.getX(),e.getY());
-			Matrix4d mapTransform = globeView.calcModelViewMatrix();
-			Point3d pt = globeView.pointOnSphereFromScreen(touch, mapTransform, frameSize, false);
+			final Point2d touch = new Point2d(e.getX(),e.getY());
+			final Matrix4d mapTransform = globeView.calcModelViewMatrix();
+			final Point3d pt = globeView.pointOnSphereFromScreen(touch, mapTransform, frameSize, false);
 			if (pt == null)
 				return false;
-			Point3d localPt = coordAdapter.displayToLocal(pt);
+			final Point3d localPt = coordAdapter.displayToLocal(pt);
 			if (localPt == null)
 				return false;
-			Point3d geoCoord = coordAdapter.getCoordSystem().localToGeographic(localPt);
+			final Point3d geoCoord = coordAdapter.getCoordSystem().localToGeographic(localPt);
 
 			// Zoom in where they tapped
-			double height = globeView.getHeight();
+			final double height = globeView.getHeight();
 			double newHeight = height/2.0;
 			newHeight = Math.min(newHeight,zoomLimitMax);
 			newHeight = Math.max(newHeight,zoomLimitMin);
 
 			// Note: This isn't right.  Need the
-			Quaternion newQuat = globeView.makeRotationToGeoCoord(geoCoord.getX(), geoCoord.getY(), globeView.northUp);
+			final Quaternion newQuat = globeView.makeRotationToGeoCoord(geoCoord.getX(), geoCoord.getY(), globeView.northUp);
 
 			// Now kick off the animation
-			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender.get(), newQuat, newHeight, 0.5));
+			globeView.setAnimationDelegate(
+					new GlobeAnimateRotation(globeView, render, newQuat, newHeight,
+					                         0.5, gc.getZoomAnimationEasing()));
 
 			updateTouchedTime();
 			isActive = false;
@@ -568,10 +573,17 @@ public class GlobeGestureHandler
 
 	// Where we receive events from the gl view
 	public boolean onTouch(View v, MotionEvent event) {
-		boolean slWasActive = sl.isActive;
-		boolean glWasActive = gl.isActive;
-		boolean rotWasActive = startRot != Double.MAX_VALUE;
-		boolean tiltWasActive = startTilt != Double.MAX_VALUE;
+		final boolean slWasActive = sl.isActive;
+		final boolean glWasActive = gl.isActive;
+		final boolean rotWasActive = startRot != Double.MAX_VALUE;
+		final boolean tiltWasActive = startTilt != Double.MAX_VALUE;
+
+		final GlobeController gc = globeControl;
+		final RendererWrapper wrap = (gc != null) ? gc.renderWrapper : null;
+		final RenderController render = (wrap != null) ? wrap.getMaplyRender() : null;
+		if (render == null) {
+			return false;
+		}
 
 		// If they're using two fingers, cancel any outstanding pan
 		if (event.getPointerCount() >= 2) {
@@ -594,7 +606,9 @@ public class GlobeGestureHandler
 		sgd.onTouchEvent(event);
 
 		if (allowRotate) {
-			if (event.getPointerCount() == 2 && event.getActionMasked() == MotionEvent.ACTION_MOVE || event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+			if (event.getPointerCount() == 2 &&
+					event.getActionMasked() == MotionEvent.ACTION_MOVE ||
+					event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
 				handleRotation(event);
 			} else {
 				cancelRotation();
@@ -622,7 +636,9 @@ public class GlobeGestureHandler
 			newHeight = Math.max(newHeight,zoomLimitMin);
 
 			// Now kick off the animation
-			globeView.setAnimationDelegate(new GlobeAnimateRotation(globeView, globeControl.renderWrapper.maplyRender.get(), globeView.getRotQuat(), newHeight, 0.5));
+			globeView.setAnimationDelegate(
+					new GlobeAnimateRotation(globeView, render, globeView.getRotQuat(), newHeight,
+					                         0.5, gc.getZoomAnimationEasing()));
 
 			sl.isActive = false;
 			gl.isActive = false;

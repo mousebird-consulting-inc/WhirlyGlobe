@@ -17,7 +17,6 @@
  */
 
 #import "BillboardManager.h"
-#import "WhirlyKitLog.h"
 #import "SharedAttributes.h"
 
 using namespace Eigen;
@@ -258,7 +257,7 @@ SimpleIdentity BillboardManager::addBillboards(const std::vector<Billboard*> &bi
     return billID;
 }
 
-void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes)
+void BillboardManager::enableBillboards(const SimpleIDSet &billIDs,bool enable,ChangeSet &changes)
 {
     const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     std::lock_guard<std::mutex> guardLock(lock);
@@ -284,12 +283,12 @@ void BillboardManager::enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeS
 }
 
 /// Remove a group of billboards named by the given ID
-void BillboardManager::removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes)
+void BillboardManager::removeBillboards(const SimpleIDSet &billIDs,ChangeSet &changes)
 {
     auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     std::lock_guard<std::mutex> guardLock(lock);
 
-    TimeInterval curTime = scene->getCurrentTime();
+    const TimeInterval curTime = scene->getCurrentTime();
     for (auto billID : billIDs)
     {
         BillboardSceneRep dummyRep(billID);

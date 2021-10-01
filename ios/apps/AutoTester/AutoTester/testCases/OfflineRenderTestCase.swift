@@ -13,7 +13,7 @@ class OfflineRenderTestCase: MaplyTestCase {
     override init() {
         super.init()
 
-        self.name = "Offline Renderer"
+        self.name = "Offline Renderer (broken)"
         self.implementations = [.globe]
     }
     

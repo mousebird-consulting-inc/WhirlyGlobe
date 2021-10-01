@@ -1,9 +1,8 @@
-/*
- *  QuadSamplingParams.h
+/*  QuadSamplingParams.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/14/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyVector.h"
@@ -34,7 +32,7 @@ class SamplingParams
 {
 public:
     SamplingParams();
-    virtual ~SamplingParams();
+    virtual ~SamplingParams() = default;
     
     bool operator == (const SamplingParams &) const;
     
@@ -59,6 +57,7 @@ public:
     
     /// Normally we always load the lowest level
     /// If this is set we only load those lowest level tiles that pass this test
+    /// Must be greater than zero but less than minImportance to have any effect.
     double minImportanceTop;
     
     /// Generate geometry to cover the north and south poles
@@ -72,6 +71,7 @@ public:
     int tessX,tessY;
     
     /// If set, we'll always load the lowest level first
+    /// forceMinLevelHeight must also be set to have any effect
     bool forceMinLevel;
     
     /// If non-zero we'll only force min level loading above this height

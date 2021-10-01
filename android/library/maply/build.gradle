@@ -1,11 +1,14 @@
 buildscript {
+    ext {
+        kotlin_version = '1.5.10'
+    }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:4.2.1"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.0"
+        classpath "com.android.tools.build:gradle:4.2.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -49,6 +52,7 @@ android {
                             //"-O1",                  // Minimal optimize. (-Wuninitialized requires -O1)
                                                     // Change to -O0 if you're having trouble debugging
                             "-Wall", "-Wextra",     // warnings
+                            "-Wno-unknown-pragmas", // ignore, e.g., clang-tidy annotations
 
                             "-Wuninitialized",      // requires -O1 or above, but doesn't seem to work anyway
                             "-Wmissing-field-initializers",
@@ -60,6 +64,21 @@ android {
                             "-Wno-sign-compare",
                             "-Wno-missing-braces",
                             "-Wno-null-pointer-arithmetic"
+                    }
+                }
+            }
+            devRelease {
+                debuggable true
+                jniDebuggable true
+                ndk {
+                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86'
+                    debuggable true
+                }
+                externalNativeBuild {
+                    cmake {
+                        cppFlags "-O2", "-DNDEBUG=1",
+                                "-DCMAKE_BUILD_TYPE=Release",
+                                "-DWK_MIN_LOG_LEVEL=WKLogLevel::Verbose"
                     }
                 }
             }
@@ -126,12 +145,12 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
     testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-    implementation 'androidx.core:core-ktx:1.5.0'
+    implementation 'androidx.core:core-ktx:1.6.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     api 'com.google.android.gms:play-services-location:18.0.0'
 }

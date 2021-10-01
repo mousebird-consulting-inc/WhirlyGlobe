@@ -1,5 +1,4 @@
-/*
- *  MaplyBaseInteractionLayer_private.h
+/*  MaplyBaseInteractionLayer_private.h
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Foundation/Foundation.h>

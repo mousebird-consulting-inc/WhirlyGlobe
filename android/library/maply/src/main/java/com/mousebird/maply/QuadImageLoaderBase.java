@@ -108,7 +108,9 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      */
     public void setColor(final int color)
     {
-        QuadSamplingLayer sampleLayer = samplingLayer.get();
+        QuadSamplingLayer sampleLayer = null;
+        if (samplingLayer != null)
+            sampleLayer = samplingLayer.get();
 
         if(sampleLayer == null) {
             setColor(Color.red(color) / 255.f, Color.green(color) / 255.f, Color.blue(color) / 255.f, Color.alpha(color) / 255.f, null);
@@ -159,7 +161,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      *  If not set we'll pick the default visual shader.
      */
     public void setShader(Shader shader) {
-        setShaderID(shader.getID());
+        setShaderID((shader != null) ? shader.getID() : 0);
     }
 
     /**

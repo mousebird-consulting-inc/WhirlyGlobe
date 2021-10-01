@@ -43,7 +43,8 @@ public:
     virtual Point3f geographicToLocal(GeoCoord) const override;
     virtual Point3d geographicToLocal3d(GeoCoord) const override;
     virtual Point3d geographicToLocal(Point2d) const override;
-    
+    virtual Point2d geographicToLocal2(const Point2d&) const override;
+
     /// Convert from the local coordinate system to geocentric
     virtual Point3f localToGeocentric(Point3f) const override;
     virtual Point3d localToGeocentric(Point3d) const override;
@@ -52,7 +53,7 @@ public:
     virtual Point3d geocentricToLocal(Point3d) const override;
     
     /// True if the other system is Spherical Mercator with the same origin
-    virtual bool isSameAs(CoordSystem *coordSys) const override;
+    virtual bool isSameAs(const CoordSystem *coordSys) const override;
         
 protected:
     double originLon;
@@ -79,9 +80,9 @@ public:
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override;
 
     /// Return the bounds of the display in geo coordinates
-    virtual bool getGeoBounds(Point2d &ll,Point2d &ur) const override {
-        ll = geoLL;
-        ur = geoUR;
+    virtual bool getGeoBounds(Point2d &outll,Point2d &outur) const override {
+        outll = geoLL;
+        outur = geoUR;
         return true;
     }
 

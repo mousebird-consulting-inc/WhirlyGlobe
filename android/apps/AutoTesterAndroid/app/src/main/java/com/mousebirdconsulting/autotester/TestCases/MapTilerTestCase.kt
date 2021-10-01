@@ -27,14 +27,18 @@ open class MapTilerTestCase : MaplyTestCase
     private fun setupLoader(control: BaseController, whichMap: Int) {
         val prefs = activity.getSharedPreferences("com.mousebird.autotester.prefs", MODE_PRIVATE)
         if (token.isEmpty() || token == "GetYerOwnToken") {
-            token = prefs.getString("MapTilerToken", null) ?: "GetYerOwnToken"
+            token = prefs.getString("MapTilerToken", null) ?:
+                    System.getenv("MAPTILER_TOKEN") ?: "GetYerOwnToken"
         }
         if (token.isEmpty() || token == "GetYerOwnToken") {
             Toast.makeText(activity.applicationContext, "Missing MapTiler Token", Toast.LENGTH_LONG).show()
         } else {
             prefs.edit().putString("MapTilerToken",token).apply()
         }
-        
+
+        control.layoutFadeEnabled = true
+        control.setPerfInterval(60)
+
         getStyleJson(whichMap)?.let { (json,img) ->
             loader?.shutdown()
             loader = null

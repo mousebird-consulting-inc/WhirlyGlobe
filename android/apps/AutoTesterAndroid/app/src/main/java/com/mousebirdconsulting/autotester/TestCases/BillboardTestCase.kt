@@ -22,10 +22,10 @@ import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 
 class BillboardTestCase(activity: Activity?) :
-        MaplyTestCase(activity, "Billboard Test Case", TestExecutionImplementation.Globe) {
+        MaplyTestCase(activity, "Billboards", TestExecutionImplementation.Globe, 200) {
+
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
-        val baseView = StamenRemoteTestCase(activity)
         baseView.setUpWithGlobe(globeVC)
         globeVC.addPostSurfaceRunnable {
             adapter = BillboardAdapter(globeVC, activity, ThreadMode.ThreadAny).also {
@@ -38,12 +38,12 @@ class BillboardTestCase(activity: Activity?) :
     override fun shutdown() {
         adapter?.stop()
         adapter = null
+        baseView.shutdown()
         super.shutdown()
     }
     
-    var adapter: BillboardAdapter? = null
-    
-    init {
-        setDelay(200)
+    private var adapter: BillboardAdapter? = null
+    private val baseView = StamenRemoteTestCase(activity).apply {
+        doColorChange = false
     }
 }

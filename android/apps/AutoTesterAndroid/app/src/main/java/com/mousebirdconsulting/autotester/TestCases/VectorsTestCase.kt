@@ -2,6 +2,8 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.graphics.Color
+import android.os.Looper
+import android.util.Log
 import android.widget.Toast
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
@@ -12,7 +14,7 @@ import java.util.*
 class VectorsTestCase(activity: Activity?) :
         MaplyTestCase(activity, "Vectors Test", TestExecutionImplementation.Both) {
 
-    val compObjs = ArrayList<ComponentObject>()
+    private val compObjs = ArrayList<ComponentObject>()
 
     @Throws(Exception::class)
     private fun overlayCountries(baseVC: BaseController) {
@@ -21,7 +23,18 @@ class VectorsTestCase(activity: Activity?) :
             setLineWidth(4f)
         }
         val assetMgr = activity.assets
-        for (path in assetMgr.list("country_json_50m")!!) {
+        val jsons = assetMgr.list("country_json_50m")!!
+        var loaded = 0
+        var msg: Toast? = null
+        for (path in jsons) {
+            val txt = "Loading %s : %.1f%%".format(
+                path.removeSuffix(".geojson"),
+                ++loaded * 100.0 / jsons.size)
+            activity.runOnUiThread {
+                msg?.cancel()
+                msg = Toast.makeText(activity.applicationContext, txt, Toast.LENGTH_SHORT)
+                msg?.show()
+            }
             val json = assetMgr.open("country_json_50m/$path").use { stream ->
                 stream.source().use { source ->
                     source.buffer().use { buf ->
@@ -29,16 +42,24 @@ class VectorsTestCase(activity: Activity?) :
                     }
                 }
             }
+            Log.d("Maply", "Loading $path")
+            if (!baseVC.isRunning || canceled) {
+                break
+            }
             VectorObject.createFromGeoJSON(json)?.apply {
                 selectable = true
-            }?.let {
-                vectors.add(it)
-                baseVC.addWideVector(it, vectorInfo, ThreadMode.ThreadAny)?.let {
-                    compObjs.add(it)
+            }?.let { vec ->
+                vectors.add(vec)
+                // We use ThreadAny here so that it's handled correctly if the map is shut
+                // down while we're running.
+                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadAny)?.let { co ->
+                    compObjs.add(co)
+                    onVectorLoaded?.invoke(vec,co)
                 }
             }
         }
-        
+        activity.runOnUiThread { msg?.cancel() }
+
         // Build a really big vector for testing
 //		VectorObject bigVecObj = new VectorObject();
 //		Point2d pts[] = new Point2d[20000];
@@ -56,25 +77,45 @@ class VectorsTestCase(activity: Activity?) :
             baseVC.changeWideVector(compObj, newVectorInfo, ThreadMode.ThreadAny)
         }
     }
+
+    var onVectorsLoaded: ((Collection<VectorObject>)->Unit)? = null
+    var onVectorLoaded: ((VectorObject,ComponentObject)->Unit)? = null
     
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
+        controller = mapVC
+        mapController = mapVC
         baseCase.setUpWithMap(mapVC)
         baseCase.setForwardMapDelegate(this)
-        mapVC.addPostSurfaceRunnable {
-            overlayCountries(mapVC)
-        }
+        loadVectorsDelayed()
         return true
     }
     
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
+        controller = globeVC
+        globeController = globeVC
         baseCase.setUpWithGlobe(globeVC)
         baseCase.setForwardGlobeDelegate(this)
-        globeVC.addPostSurfaceRunnable {
-            overlayCountries(globeVC)
-        }
+        loadVectorsDelayed()
         return true
+    }
+
+    private fun loadVectorsDelayed() {
+        controller?.addPostSurfaceRunnable {
+            // Load vectors on a separate thread so that you can
+            // back out of the test case before they're all loaded.
+            Thread({
+                Looper.prepare()
+                Thread.sleep(500)
+                if (!canceled && controller != null) {
+                    overlayCountries(controller)
+                }
+                if (!canceled && controller != null) {
+                    onVectorsLoaded?.invoke(vectors)
+                }
+            }, "vector loader").start()
+        }
     }
     
     override fun shutdown() {
@@ -112,5 +153,5 @@ class VectorsTestCase(activity: Activity?) :
     
     val baseCase: MaplyTestCase = GeographyClass(activity)
 
-    val vectors = ArrayList<VectorObject>()
+    private val vectors = ArrayList<VectorObject>()
 }

@@ -40,7 +40,7 @@
 @interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
 
 /// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(Maply::MapView_iOS *)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
++ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(Maply::MapView_iOSRef)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 

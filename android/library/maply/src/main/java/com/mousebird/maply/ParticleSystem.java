@@ -89,7 +89,7 @@ public class ParticleSystem {
      */
     public void setPositionShader(Shader shader)
     {
-        setPositionShaderID(shader.getID());
+        setPositionShaderID((shader != null) ? shader.getID() : 0);
     }
 
     /**
@@ -103,7 +103,7 @@ public class ParticleSystem {
      */
     public void setRenderShader(Shader shader)
     {
-        setRenderShaderID(shader.getID());
+        setRenderShaderID((shader != null) ? shader.getID() : 0);
     }
 
     /**

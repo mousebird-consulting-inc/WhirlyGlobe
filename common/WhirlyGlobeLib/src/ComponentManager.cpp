@@ -65,30 +65,27 @@ void ComponentObject::clear()
     drawStringIDs.clear();
 }
 
-ComponentManager::ComponentManager()
-: lastMaskID(0)
+ComponentManager::ComponentManager() :
+    lastMaskID(0)
 {
-}
-
-ComponentManager::~ComponentManager()
-{
-    //std::lock_guard<std::mutex> guardLock(lock);
 }
 
 void ComponentManager::setScene(Scene *scene)
 {
-    layoutManager = scene->getManagerNoLock<LayoutManager>(kWKLayoutManager);
-    markerManager = scene->getManagerNoLock<MarkerManager>(kWKMarkerManager);
-    labelManager = scene->getManagerNoLock<LabelManager>(kWKLabelManager);
-    vectorManager = scene->getManagerNoLock<VectorManager>(kWKVectorManager);
-    wideVectorManager = scene->getManagerNoLock<WideVectorManager>(kWKWideVectorManager);
-    shapeManager = scene->getManagerNoLock<ShapeManager>(kWKShapeManager);
-    chunkManager = scene->getManagerNoLock<SphericalChunkManager>(kWKSphericalChunkManager);
-    loftManager = scene->getManagerNoLock<LoftManager>(kWKLoftedPolyManager);
-    billManager = scene->getManagerNoLock<BillboardManager>(kWKBillboardManager);
-    geomManager = scene->getManagerNoLock<GeometryManager>(kWKGeometryManager);
-    fontTexManager = scene->getFontTextureManager();
-    partSysManager = scene->getManagerNoLock<ParticleSystemManager>(kWKParticleSystemManager);
+    SceneManager::setScene(scene);
+
+    layoutManager     = scene ? scene->getManager<LayoutManager>(kWKLayoutManager) : nullptr;
+    markerManager     = scene ? scene->getManager<MarkerManager>(kWKMarkerManager) : nullptr;
+    labelManager      = scene ? scene->getManager<LabelManager>(kWKLabelManager) : nullptr;
+    vectorManager     = scene ? scene->getManager<VectorManager>(kWKVectorManager) : nullptr;
+    wideVectorManager = scene ? scene->getManager<WideVectorManager>(kWKWideVectorManager) : nullptr;
+    shapeManager      = scene ? scene->getManager<ShapeManager>(kWKShapeManager) : nullptr;
+    chunkManager      = scene ? scene->getManager<SphericalChunkManager>(kWKSphericalChunkManager) : nullptr;
+    loftManager       = scene ? scene->getManager<LoftManager>(kWKLoftedPolyManager) : nullptr;
+    billManager       = scene ? scene->getManager<BillboardManager>(kWKBillboardManager) : nullptr;
+    geomManager       = scene ? scene->getManager<GeometryManager>(kWKGeometryManager) : nullptr;
+    fontTexManager    = scene ? scene->getFontTextureManager() : nullptr;
+    partSysManager    = scene ? scene->getManager<ParticleSystemManager>(kWKParticleSystemManager) : nullptr;
 }
 
 void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, ChangeSet &changes)
@@ -625,13 +622,13 @@ void ComponentManager::releaseMaskIDs(const SimpleIDSet &maskIDs)
     }
 }
     
-std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::findVectors(const Point2d &pt,double maxDist,ViewStateRef viewState,const Point2f &frameSize,bool multi)
+std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> ComponentManager::findVectors(
+        const Point2d &pt,double maxDist,const ViewStateRef &viewState,
+        const Point2f &frameSize,int resultLimit)
 {
-    std::vector<ComponentObjectRef> compRefs;
-    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
-
     // not locked, we don't care if the size is off, we just want
     // to typically do the allocations outside the locked region.
+    std::vector<ComponentObjectRef> compRefs;
     compRefs.reserve(compObjsById.size());
 
     // Copy out the vectors that might be candidates
@@ -646,27 +643,25 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > ComponentManager::fi
             }
         }
     }
-    
+
+    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
+    rets.reserve((resultLimit > 0) ? resultLimit : compRefs.size());
+
     // Work through the vector objects
-    rets.reserve(multi ? compRefs.size() : 1);
     for (const auto &compObj: compRefs)
     {
-        const auto &center = compObj->vectorOffset;
-        const Point2d coord = { pt.x()-center.x(), pt.y()-center.y() };
+        const Point2d coord = pt - compObj->vectorOffset;
 
         for (const auto &vecObj: compObj->vecObjs)
         {
-            if (vecObj->pointInside(pt))
-            {
-                rets.emplace_back(compObj, vecObj);
-            }
-            else if (vecObj->pointNearLinear(coord, (float)maxDist, viewState, frameSize))
+            if (vecObj->pointInside(pt) ||
+                vecObj->pointNearLinear(coord, (float)maxDist, viewState, frameSize))
             {
                 rets.emplace_back(compObj, vecObj);
             }
         }
         
-        if (!multi && !rets.empty())
+        if (resultLimit > 0 && rets.size() >= resultLimit)
         {
             break;
         }

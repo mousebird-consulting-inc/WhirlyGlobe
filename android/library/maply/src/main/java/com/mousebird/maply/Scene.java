@@ -8,10 +8,7 @@ package com.mousebird.maply;
  */
 public class Scene 
 {
-	// Used to render individual characters using Android's Canvas/Paint/Typeface
-	protected final CharRenderer charRenderer = new CharRenderer();
-
-	// Necessary for the JNI side
+	@SuppressWarnings("unused")	// Necessary for the JNI side
 	private Scene() {
 	}
 	
@@ -53,18 +50,20 @@ public class Scene
 	 */
 	public native void teardownGL();
 
-	static
-	{
+	// Used to render individual characters using Android's Canvas/Paint/Typeface
+	protected final CharRenderer charRenderer = new CharRenderer();
+
+	static {
 		nativeInit();
 	}
 	private static native void nativeInit();
 	native void initialise(CoordSystemDisplayAdapter coordAdapter,RenderController renderControl,CharRenderer charRenderer);
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 	native void addChangesNative(ChangeSet changes);
-	protected long nativeHandle;
 	native void dispose();
 
+	@SuppressWarnings("unused")
+	protected long nativeHandle;
 }

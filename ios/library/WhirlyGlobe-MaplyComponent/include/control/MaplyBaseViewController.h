@@ -1,5 +1,4 @@
-/*
- *  MaplyBaseViewController.h
+/*  MaplyBaseViewController.h
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -41,6 +39,8 @@
 #import "control/MaplyRenderController.h"
 #import "loading/MaplyRemoteTileFetcher.h"
 #import "rendering/MaplyVertexAttribute.h"
+
+typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -152,6 +152,20 @@
     If you set this to 0, you can control the ordering of everything more precisely.
  */
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+
+/**
+    Controls whether objects with unique IDs fade in and out when added or removed from the layout manager
+ */
+@property (nonatomic,assign) bool layoutFade;
+
+/**
+    Controls the way height changes while animating the view
+    For simple, linear zoom use:
+
+        zoomEasing = ^(double z0,double z1,double t) { return z0 + (z1 - z0) * t; };
+ */
+@property (readwrite,copy) ZoomEasingBlock _Nullable animationZoomEasing;
+
 
 /**
     If in Metal rendering mode, return the Metal device being used.
@@ -1196,7 +1210,6 @@
 
     @param objects Array of ComponentObject, the UUIDs to update
     @param repName The representation value to apply, nil to return to the default
-    @param fallbackRepName The representation to use if there are no matches
 */
 - (void)setRepresentation:(NSString *__nullable)repName
                 ofObjects:(NSArray<MaplyComponentObject *> *__nonnull)objects;
@@ -1270,6 +1283,15 @@
     @return The input coordinate in display coordinates.
   */
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord;
+
+/**
+    Utility routine to convert from a lat/lon (in radians) to display coordinates
+    
+    This is a simple routine to get display coordinates from geocoordinates.  Display coordinates for the globe are based on a radius of 1.0 and an origin of (0,0,0).
+    
+    @return The input coordinate in display coordinates.
+  */
+- (MaplyCoordinate3dD)displayPointFromGeoD:(MaplyCoordinate)geoCoord;
 
 /** 
     If you've paused the animation earlier, this will start it again.
@@ -1394,6 +1416,13 @@
     This converts from a local coordinate (x,y,height) in the view controller's coordinate system (probably spherical mercator) to a coordinate in display space.  For the globe display space is based on a radius of 1.0.  For the flat map it's just stretched with a similar factor.
   */
 - (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord;
+
+/**
+    Convert from a local coordinate (probably spherical mercator) to a display coordinate.
+    
+    This converts from a local coordinate (x,y,height) in the view controller's coordinate system (probably spherical mercator) to a coordinate in display space.  For the globe display space is based on a radius of 1.0.  For the flat map it's just stretched with a similar factor.
+  */
+- (MaplyCoordinate3dD)displayCoordFromLocalD:(MaplyCoordinate3dD)localCoord;
 
 /** 
     Convert from a coordinate in the given system to display space.

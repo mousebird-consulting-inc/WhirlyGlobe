@@ -228,29 +228,31 @@ public:
     long long generateID();
 
     /// @brief Return an integer value for the given name, taking the constants into account.
-    int intValue(const std::string &name,const DictionaryRef &dict,int defVal);
+    static int intValue(const std::string &name,const DictionaryRef &dict,int defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(const DictionaryEntryRef &entry,double defVal);
+    static double doubleValue(const DictionaryEntryRef &entry,double defVal);
 
     /// @brief Return a double value for the given name, taking the constants into account
-    double doubleValue(const std::string &valName, const DictionaryRef &dict, double defVal);
+    static double doubleValue(const std::string &valName, const DictionaryRef &dict, double defVal);
         
     /// @brief Return a bool for the given name.  True if it matches the onString.  Default if it's missing
-    bool boolValue(const std::string &valName, const DictionaryRef &dict, const std::string &onString, bool defVal);
+    static bool boolValue(const std::string &valName, const DictionaryRef &dict, const std::string &onString, bool defVal);
 
     /// @brief Return a string for the given name, taking the constants into account
-    std::string stringValue(const std::string &name,const DictionaryRef &dict,const std::string &defVal);
+    static std::string stringValue(const std::string &name,const DictionaryRef &dict,const std::string &defVal);
 
     /// @brief Return an array for the given name, taking the constants into account
-    std::vector<DictionaryEntryRef> arrayValue(const std::string &name,const DictionaryRef &dict);
+    static std::vector<DictionaryEntryRef> arrayValue(const std::string &name,const DictionaryRef &dict);
 
     /// @brief Return a color for the given name, taking the constants into account
-    RGBAColorRef colorValue(const std::string &name,const DictionaryEntryRef &val,const DictionaryRef &dict,const RGBAColorRef &defVal,bool multiplyAlpha);
-    RGBAColorRef colorValue(const std::string &name,const DictionaryEntryRef &val,const DictionaryRef &dict,const RGBAColor &defVal,bool multiplyAlpha);
+    static RGBAColorRef colorValue(const std::string &name,const DictionaryEntryRef &val,
+                                   const DictionaryRef &dict,const RGBAColorRef &defVal,bool multiplyAlpha);
+    static RGBAColorRef colorValue(const std::string &name,const DictionaryEntryRef &val,
+                                   const DictionaryRef &dict,const RGBAColor &defVal,bool multiplyAlpha);
 
     /// @brief Return the integer corresponding to the name.  Basically parse the enumerated type
-    int enumValue(const DictionaryEntryRef &entry, const char * const options[],int defVal);
+    static int enumValue(const DictionaryEntryRef &entry, const char * const options[],int defVal);
 
     /// Builds a transitionable double object from a style entry and returns that
     MapboxTransDoubleRef transDouble(const DictionaryEntryRef &entry,double defVal);
@@ -267,13 +269,14 @@ public:
 
     /// Resolve transitionable color and opacity into a single color for the zoom
     /// If this returns nil, then the object shouldn't appear
-    RGBAColorRef resolveColor(const MapboxTransColorRef &color,const MapboxTransDoubleRef &opacity,double zoom,MBResolveColorType resolveMode);
+    static RGBAColorRef resolveColor(const MapboxTransColorRef &color,const MapboxTransDoubleRef &opacity,
+                                     double zoom,MBResolveColorType resolveMode);
 
     /// @brief Scale the color by the given opacity
     static RGBAColor color(RGBAColor color,double opacity);
 
     /// @brief Check for and report an unsupported field
-    void unsupportedCheck(const char *field,const char *what,const DictionaryRef &styleEntry);
+    static void unsupportedCheck(const char *field,const char *what,const DictionaryRef &styleEntry);
     
     /// Fetch a layer by name
     virtual MapboxVectorStyleLayerRef getLayer(const std::string &name);

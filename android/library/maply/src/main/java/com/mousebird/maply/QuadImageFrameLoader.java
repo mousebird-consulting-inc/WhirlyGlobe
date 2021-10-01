@@ -173,7 +173,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      */
     public void setShader(int focusID,Shader shader)
     {
-        setShaderIDNative(focusID,shader.getID());
+        setShaderIDNative(focusID,(shader != null) ? shader.getID() : 0);
     }
 
     protected native void setShaderIDNative(int focusID,long renderTargetID);

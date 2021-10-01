@@ -41,6 +41,14 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_enableComponent
 
 /*
  * Class:     com_mousebird_maply_ComponentManager
+ * Method:    findVectors
+ * Signature:
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ComponentManager_findVectors
+        (JNIEnv *, jobject, jobject, jdouble, jobject, jobject, jint);
+
+/*
+ * Class:     com_mousebird_maply_ComponentManager
  * Method:    nativeInit
  * Signature: ()V
  */

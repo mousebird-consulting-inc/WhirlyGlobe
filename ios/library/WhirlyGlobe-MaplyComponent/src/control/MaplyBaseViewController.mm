@@ -114,6 +114,13 @@ using namespace WhirlyKit;
 @implementation MaplyBaseViewController
 {
     MaplyLocationTracker *_locationTracker;
+    bool _layoutFade;
+}
+
+- (instancetype)init{
+    self = [super init];
+    _layoutFade = false;
+    return self;
 }
 
 - (void) clear
@@ -185,6 +192,22 @@ using namespace WhirlyKit;
 - (int)screenObjectDrawPriorityOffset
 {
     return renderControl.screenObjectDrawPriorityOffset;
+}
+
+- (void)setLayoutFade:(bool)enable
+{
+    _layoutFade = enable;
+    if (auto rc = renderControl)
+    if (auto scene = rc->scene)
+    if (auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
+    {
+        layoutManager->setFadeEnabled(enable);
+    }
+}
+
+- (bool)layoutFade
+{
+    return _layoutFade;
 }
 
 // Kick off the analytics logic.  First we need the server name.
@@ -284,11 +307,14 @@ using namespace WhirlyKit;
     // View placement manager
     viewPlacementModel = ViewPlacementActiveModelRef(new ViewPlacementActiveModel());
     renderControl->scene->addActiveModel(viewPlacementModel);
-    
+
+    // Apply layout fade option set before init to the newly-created manager
+    [self setLayoutFade:_layoutFade];
+
     // Set up defaults for the hints
     NSDictionary *newHints = [NSDictionary dictionary];
     [self setHints:newHints];
-        
+
     _selection = true;
 
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -1225,6 +1251,18 @@ static const float PerfOutputDelay = 15.0;
     return displayCoord;
 }
 
+- (MaplyCoordinate3dD)displayPointFromGeoD:(MaplyCoordinate)geoCoord
+{
+    MaplyCoordinate3dD displayCoord = {0,0,0};
+    if (!renderControl)
+        return displayCoord;
+    
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    
+    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
+    return displayCoord;
+}
+
 - (float)currentMapScale
 {
     if (!renderControl)
@@ -1428,6 +1466,15 @@ static const float PerfOutputDelay = 15.0;
 {
     Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), renderControl->visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
     Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(loc3d);
+    
+    MaplyCoordinate3dD ret;
+    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
+    return ret;
+}
+
+- (MaplyCoordinate3dD)displayCoordFromLocalD:(MaplyCoordinate3dD)localCoord
+{
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
     
     MaplyCoordinate3dD ret;
     ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();

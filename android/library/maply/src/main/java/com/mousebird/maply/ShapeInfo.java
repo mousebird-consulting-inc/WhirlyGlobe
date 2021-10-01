@@ -1,9 +1,8 @@
-/*
- *  ShapeInfo.java
+/*  ShapeInfo.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 package com.mousebird.maply;
 
@@ -43,15 +41,21 @@ public class ShapeInfo extends BaseInfo {
     /**
      * Color of the shape
      */
-    public void setColor(int color)
-    {
-        setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+    public void setColor(int color) {
+        setColorInt(Color.red(color),Color.green(color),Color.blue(color),Color.alpha(color));
     }
 
     /**
      * Color of the shape
      */
-    public native void setColor(float r, float g, float b, float a);
+    public void setColor(float r, float g, float b, float a) {
+        setColorInt((int)(r * 255.0f),(int)(g * 255.0f),(int)(b * 255.0f),(int)(a * 255.0f));
+    }
+
+    /**
+     * Color of the shape
+     */
+    public native void setColorInt(int r, int g, int b, int a);
 
     /**
      * If the shape is made of lines, this is the line width.
@@ -70,8 +74,7 @@ public class ShapeInfo extends BaseInfo {
      */
     public native void setCenter(Point3d center);
 
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();

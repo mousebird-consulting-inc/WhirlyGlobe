@@ -7,7 +7,7 @@ import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import com.mousebirdconsulting.autotester.R
 
 class AutoRotateTestCase(activity: Activity?) :
-        MaplyTestCase(activity, "Auto Rotate Test Case", TestExecutionImplementation.Globe) {
+        MaplyTestCase(activity, "Auto Rotate", TestExecutionImplementation.Globe) {
 
     @Throws(Exception::class)
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {

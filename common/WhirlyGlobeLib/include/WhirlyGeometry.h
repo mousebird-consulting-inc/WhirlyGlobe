@@ -63,8 +63,9 @@ double ClosestPointToPolygon(const Point2dVector &pts,const Point2d &pt,Point2d 
 bool IntersectLines(const Point2f &a0,const Point2f &a1,const Point2f &b0,const Point2f &b1,Point2f *iPt);
     
 /// Clip and return a polygon represented in homogeneous coordinates
+void ClipHomogeneousPolygon(Vector4dVector &&pts,Vector4dVector &outPts);
 void ClipHomogeneousPolygon(const Vector4dVector &pts,Vector4dVector &outPts);
-	
+
 /// Project and clip a given polygon to screen space.  Clips in homogeneous coordinates.
 void ClipAndProjectPolygon(Eigen::Matrix4d &modelMat,Eigen::Matrix4d &projMat,Point2f frameSize,Point3dVector &poly,Point2fVector &screenPoly);
         

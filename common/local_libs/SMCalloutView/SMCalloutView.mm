@@ -766,7 +766,7 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
     
     NSData *inputData = [string dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     long long inputLength = [inputData length];
-    const unsigned char *inputBytes = [inputData bytes];
+    const unsigned char *inputBytes = (const unsigned char *)[inputData bytes];
     
     long long maxOutputLength = (inputLength / 4 + 1) * 3;
     NSMutableData *outputData = [NSMutableData dataWithLength:(NSUInteger)maxOutputLength];

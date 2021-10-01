@@ -327,7 +327,7 @@ public class MapboxKindaMap {
             // Go get the style sheet (this will also handle local
             let fetchIdx = self.outstandingFetches.count
             let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(styleURL)) { (data, _, error) in
-                guard error == nil, var data = data else {
+                guard error == nil, var data = data, !data.isEmpty else {
                     print("Error fetching style sheet:\n\(String(describing: error))")
                     
                     self.stop()
@@ -346,6 +346,13 @@ public class MapboxKindaMap {
                     }
                 } catch {
                     print("Failed to parse stylesheet: \(String(describing: error))")
+                }
+
+                if (jsonDict == nil) {
+                    print("Failed to get stylesheet")
+
+                    self.stop()
+                    return
                 }
 
                 DispatchQueue.main.async {
@@ -416,7 +423,7 @@ public class MapboxKindaMap {
                     let tiles = source.tileSpec?["tiles"] as? [String] {
                     let tileSource = MaplyRemoteTileInfoNew(baseURL: tiles[0], minZoom: minZoom, maxZoom: maxZoom)
                     if let cacheDir = self.cacheDir {
-                        tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_")).absoluteString
+                        tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_").replacingOccurrences(of: "{", with: "").replacingOccurrences(of: "}", with: "").replacingOccurrences(of: "?", with: "_")).path
                     }
                     tileInfos.append(tileSource)
                 }
@@ -502,6 +509,7 @@ public class MapboxKindaMap {
                     self.stop()
                     return
                 }
+                offlineRender.clearLights()
                 self.offlineRender = offlineRender
                 let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
                 imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority

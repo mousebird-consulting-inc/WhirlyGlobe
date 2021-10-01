@@ -1,9 +1,8 @@
-/*
- *  GlobeAnimateRotation.java
+/*  GlobeAnimateRotation.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/21/15.
- *  Copyright 2011-2015 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,19 +14,17 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
+import androidx.annotation.Nullable;
+
 /**
  * Implements a rotation on the globe using a quaternion.
  * <p>
- * 
- * <p>
  * In general, the MaplyController creates these and you'd only be doing so
  * yourself if you've subclassed it.
- *
  */
 public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 {
@@ -39,8 +36,12 @@ public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 	Double startRot = null;
 	Double dRot = null;
 	double startTime,animTime;
+	@Nullable
+	BaseController.ZoomAnimationEasing zoomEasing = null;
 
-	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,Quaternion newQuat,double newHeight,double animLen)
+	public GlobeAnimateRotation(GlobeView inGlobeView, RenderController inRender,
+								Quaternion newQuat, double newHeight, double animLen,
+								@Nullable BaseController.ZoomAnimationEasing inZoomEasing)
 	{
 		globeView = inGlobeView;
 		renderer = inRender;
@@ -51,11 +52,19 @@ public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 		startHeight = globeView.getHeight();
 		endHeight = newHeight;
 		endQuat = newQuat;
+		zoomEasing = inZoomEasing;
 	}
 
-	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,Quaternion newQuat,double newHeight,Double heading,double animLen)
+	public GlobeAnimateRotation(GlobeView inGlobeView, RenderController inRender,
+								Quaternion newQuat, double newHeight, double animLen) {
+		this(inGlobeView,inRender,newQuat,newHeight,animLen,null);
+	}
+
+	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,
+								Quaternion newQuat,double newHeight,Double heading,
+								double animLen,BaseController.ZoomAnimationEasing inZoomEasing)
 	{
-		this(inGlobeView,inRender,newQuat,newHeight,animLen);
+		this(inGlobeView,inRender,newQuat,newHeight,animLen,inZoomEasing);
 
 		if (inGlobeView != null && heading != null && !inGlobeView.northUp) {
 			startRot = inGlobeView.getHeading();
@@ -73,20 +82,28 @@ public class GlobeAnimateRotation implements GlobeView.AnimationDelegate
 		}
 	}
 
+	public GlobeAnimateRotation(GlobeView inGlobeView,RenderController inRender,
+								Quaternion newQuat,double newHeight,Double heading, double animLen){
+		this(inGlobeView, inRender, newQuat, newHeight, heading, animLen, null);
+	}
+
 	@Override
 	public void updateView(GlobeView view) 
 	{
 		if (startTime <= 0 || animTime <= 0 || globeView == null || renderer == null)
 			return;
 
-		double curTime = Math.min(startTime + animTime, System.currentTimeMillis()/1000.0);
-		double t = (curTime-startTime)/animTime;
+		final double curTime = Math.min(startTime + animTime, System.currentTimeMillis()/1000.0);
+		final double t = (curTime-startTime)/animTime;
 
-		Quaternion newQuat = startQuat.slerp(endQuat,t);
+		final Quaternion newQuat = startQuat.slerp(endQuat,t);
 		globeView.setRotQuat(newQuat);
 
-		double height = (endHeight-startHeight)*t + startHeight;
-		globeView.setHeight(height);
+		if (zoomEasing != null) {
+			globeView.setHeight(zoomEasing.value(startHeight, endHeight, t));
+		} else {
+			globeView.setHeight(Math.exp((Math.log(endHeight) - Math.log(startHeight)) * t + Math.log(startHeight)));
+		}
 
 		if (startRot != null && dRot != null && dRot != 0.0) {
 			view.setHeading(startRot + t * dRot);

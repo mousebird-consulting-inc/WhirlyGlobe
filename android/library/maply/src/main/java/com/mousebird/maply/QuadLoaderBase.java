@@ -220,6 +220,13 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public native void clearLoadReturn(LoaderReturn loadReturn);
 
+    /**
+     * Check if the shutdown process has started
+     */
+    public boolean isShuttingDown() {
+        return isShuttingDown;
+    }
+
     protected boolean isShuttingDown = false;
 
     /**
@@ -229,13 +236,14 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      */
     public void shutdown()
     {
+        isShuttingDown = true;
+
         loadInterp = null;
         QuadSamplingLayer layer = getSamplingLayer();
         if (layer == null || control == null || getController() == null) {
             return;
         }
 
-        isShuttingDown = true;
         layer.removeClient(this);
         final QuadLoaderBase loaderBase = this;
 
@@ -415,40 +423,39 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
 
         // We're on an AsyncTask in the background here, so do the loading
-        if (loadInterp != null && layer != null && layer.layerThread.startOfWork()) {
-            try {
-                theLoadInterp.dataForTile(loadReturn, this);
-
-            } finally {
-                layer.layerThread.endOfWork();
+        if (loadInterp != null) {
+            try (LayerThread.WorkWrapper wr = layer.layerThread.startOfWorkWrapper()) {
+                if (wr != null) {
+                    theLoadInterp.dataForTile(loadReturn, this);
+                }
             }
         }
 
-        // Merge the data back in on the sampling layer's thread
-        if (!isShuttingDown && !layer.isShuttingDown && !loadReturn.isCanceled()) {
+        // Merge the data back in on the sampling layer's thread.
+        // Note that we need to do this even if the loaderReturn is in the canceled state,
+        // in order to correctly update the state of the associated tile and frames.
+        if (!isShuttingDown && !layer.isShuttingDown) {
             layer.layerThread.addTask(() -> {
-                BaseController control = getController();
-                if (control != null && layer.layerThread.startOfWork()) {
-                    try {
-                        if (loadInterp != null && !isShuttingDown && !loadReturn.isCanceled()) {
-                            ChangeSet changes = new ChangeSet();
-                            mergeLoaderReturn(loadReturn, changes);
-                            layer.layerThread.addChanges(changes);
-                        } else {
-                            cleanupLoadedData(control, loadReturn);
+                final BaseController control = getController();
+                if (control != null) {
+                    try (LayerThread.WorkWrapper wr = layer.layerThread.startOfWorkWrapper()) {
+                        if (wr != null) {
+                            if (loadInterp != null && !isShuttingDown) {
+                                ChangeSet changes = new ChangeSet();
+                                mergeLoaderReturn(loadReturn, changes);
+                                layer.layerThread.addChanges(changes);
+                            } else {
+                                cleanupLoadedData(control, loadReturn);
+                            }
                         }
-                    } finally {
-                        layer.layerThread.endOfWork();
                     }
                 }
                 loadReturn.dispose();
             });
         } else {
-            if (layer.layerThread.startOfWork()) {
-                try {
+            try (LayerThread.WorkWrapper wr = layer.layerThread.startOfWorkWrapper()) {
+                if (wr != null) {
                     cleanupLoadedData(control, loadReturn);
-                } finally {
-                    layer.layerThread.endOfWork();
                 }
             }
             loadReturn.dispose();

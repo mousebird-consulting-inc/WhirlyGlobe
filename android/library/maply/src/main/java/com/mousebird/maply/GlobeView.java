@@ -20,6 +20,10 @@ package com.mousebird.maply;
 
 import android.app.Activity;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.lang.ref.WeakReference;
+
 /**
  * The Globe View handles math related to user position and orientation.
  * It's largely opaque to toolkit users.  The MaplyController handles
@@ -28,12 +32,14 @@ import android.app.Activity;
  */
 public class GlobeView extends View
 {
-	final GlobeController control;
-	//double lastUpdated = 0.0;
+	@SuppressWarnings("unused")		// Referenced from JNI, not actually used
+	protected GlobeView() {
+		control = new WeakReference<>(null);
+	}
 
 	GlobeView(GlobeController inControl,CoordSystemDisplayAdapter inCoordAdapter)
 	{
-		control = inControl;
+		control = new WeakReference<>(inControl);
 		coordAdapter = inCoordAdapter;
 		initialise(coordAdapter);
 	}
@@ -42,27 +48,24 @@ public class GlobeView extends View
 	 * Make a copy of this MapView and return it.
 	 * Handles the native side stuff
 	 */
-	protected GlobeView clone()
-	{
-		GlobeView that = new GlobeView(control,coordAdapter);
+	@NotNull
+	protected GlobeView clone() {
+		GlobeView that = new GlobeView(control.get(),coordAdapter);
 		nativeClone(that);
 		return that;
 	}
 
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 	
 	// Return a view state for this Map View
-	@Override public ViewState makeViewState(RenderController renderer)
-	{
+	@Override public ViewState makeViewState(RenderController renderer) {
 		return new GlobeViewState(this,renderer);
 	}
 		
 	// These are viewpoint animations
-	interface AnimationDelegate
-	{
+	interface AnimationDelegate {
 		// Called to update the view every frame
 		void updateView(GlobeView view);
 	}
@@ -75,12 +78,15 @@ public class GlobeView extends View
 		synchronized (this) {
 			animationDelegate = delegate;
 		}
-		control.handleStartMoving(false);
+
+		final GlobeController theControl = control.get();
+		if (theControl != null) {
+			theControl.handleStartMoving(false);
+		}
 	}
 	
 	// Clear the animation delegate
-	@Override public void cancelAnimation() 
-	{
+	@Override public void cancelAnimation() {
 		final boolean didStop;
 		synchronized (this) {
 			didStop = (animationDelegate != null);
@@ -88,7 +94,7 @@ public class GlobeView extends View
 		}
 
 		if (didStop) {
-			GlobeController theControl = control;
+			final GlobeController theControl = control.get();
 			Activity activity = (theControl != null) ? theControl.getActivity() : null;
 			if (activity != null) {
 				activity.runOnUiThread(() -> theControl.handleStopMoving(false));
@@ -202,7 +208,9 @@ public class GlobeView extends View
         Point4d newUp = modelMat.multiply(new Point4d(0,0,1,0));
         return new Point3d(newUp.getX(),newUp.getY(),newUp.getZ());
     }
-		
+
+	protected final WeakReference<GlobeController> control;
+
 	// Calculate the point on the view plane given the screen location
 	native Point3d pointOnSphereFromScreen(Point2d screenPt,Matrix4d viewModelMatrix,Point2d frameSize,boolean clip);
 	// Calculate the point on the screen from a point on the view plane
@@ -234,8 +242,7 @@ public class GlobeView extends View
 	// If set, we can zoom closer to the globe
 	public native void setContinuousZoom(boolean continuousZoom);
 	
-	static
-	{
+	static {
 		nativeInit();
 	}
 	private static native void nativeInit();

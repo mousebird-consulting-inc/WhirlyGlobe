@@ -79,7 +79,7 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 
 @interface MaplyBaseInteractionLayer()
 - (void) startLayoutObjects;
-- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj;
+- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntryRef> &)layoutObjects retObj:(LayoutObject &)retObj;
 - (void) endLayoutObjects;
 - (void) clusterID:(SimpleIdentity)clusterID params:(ClusterGenerator::ClusterClassParams &)params;
 @end
@@ -98,7 +98,7 @@ public:
 
     // Figure out
     virtual void makeLayoutObject(PlatformThreadInfo *,int clusterID,
-                                  const std::vector<LayoutObjectEntry *> &layoutObjects,
+                                  const std::vector<LayoutObjectEntryRef> &layoutObjects,
                                   LayoutObject &retObj) override
     {
         [layer makeLayoutObject:clusterID layoutObjects:layoutObjects retObj:retObj];
@@ -289,8 +289,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     {
         imgWidth = image.size.width * image.scale;
         imgHeight = image.size.height * image.scale;
-        imgWidth = NextPowOf2(imgWidth);
-        imgHeight = NextPowOf2(imgHeight);
+        // No longer necessary
+        //imgWidth = NextPowOf2(imgWidth);
+        //imgHeight = NextPowOf2(imgHeight);
     } else {
         imgWidth = [desc intForKey:kMaplyTexSizeX default:0];
         imgHeight = [desc intForKey:kMaplyTexSizeY default:0];
@@ -992,7 +993,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     }
 }
 
-- (void) makeLayoutObject:(int)clusterID layoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects retObj:(LayoutObject &)retObj
+- (void) makeLayoutObject:(int)clusterID
+            layoutObjects:(const std::vector<LayoutObjectEntryRef> &)layoutObjects
+                   retObj:(LayoutObject &)retObj
 {
     // Find the right cluster generator
     NSObject <MaplyClusterGenerator> *clusterGen = nil;
@@ -1013,9 +1016,10 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     }
 }
 
-- (void)setupLayoutObject:(LayoutObject &)retObj asBestOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects
+- (void)setupLayoutObject:(LayoutObject &)retObj
+    asBestOfLayoutObjects:(const std::vector<LayoutObjectEntryRef> &)layoutObjects
 {
-    LayoutObjectEntry *topObject = nullptr;
+    LayoutObjectEntryRef topObject;
     LayoutEntrySorter sorter;
     
     for (auto obj : layoutObjects)
@@ -1042,7 +1046,8 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         retObj.addGeometry(geometry);
 }
 
-- (void)setupLayoutObject:(LayoutObject &)retObj asAverageOfLayoutObjects:(const std::vector<LayoutObjectEntry *> &)layoutObjects withClusterGenerator:(NSObject<MaplyClusterGenerator> *)clusterGen
+- (void)setupLayoutObject:(LayoutObject &)retObj
+ asAverageOfLayoutObjects:(const std::vector<LayoutObjectEntryRef> &)layoutObjects withClusterGenerator:(NSObject<MaplyClusterGenerator> *)clusterGen
 {
     // Pick a representive screen object
     int drawPriority = -1;

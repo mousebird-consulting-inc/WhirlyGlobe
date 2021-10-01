@@ -20,7 +20,6 @@
 #import "VectorManager.h"
 #import "BasicDrawableInstanceBuilder.h"
 #import "FlatMath.h"
-#import "WhirlyKitLog.h"
 #import "StringIndexer.h"
 #import "SharedAttributes.h"
 #import "WideVectorDrawableBuilder.h"
@@ -49,7 +48,7 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     width = dict.getDouble(MaplyVecWidth,2.0);
     offset = (float)-dict.getDouble(MaplyWideVecOffset,0.0);
     std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
-    subdivEps = dict.getDouble(MaplySubdivEpsilon,0.0);
+    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,0.0);
     coordType = WideVecCoordScreen;
     if (!coordTypeStr.compare(MaplyWideVecCoordTypeReal))
         coordType = WideVecCoordReal;
@@ -63,9 +62,9 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     //    std::String capTypeStr = dict.getString(MaplyWideVecCapType);
     //    _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
     texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
-    repeatSize = dict.getDouble(MaplyWideVecTexRepeatLen,32);
-    edgeSize = dict.getDouble(MaplyWideVecEdgeFalloff,1.0);
-    miterLimit = dict.getDouble(MaplyWideVecMiterLimit,2.0);
+    repeatSize = (float)dict.getDouble(MaplyWideVecTexRepeatLen,32);
+    edgeSize = (float)dict.getDouble(MaplyWideVecEdgeFalloff,1.0);
+    miterLimit = (float)dict.getDouble(MaplyWideVecMiterLimit,2.0);
 }
 
 // Turn this on for smaller texture lengths
@@ -247,7 +246,7 @@ public:
     // Add a rectangle to the wide drawable
     void addWideRect(const WideVectorDrawableBuilderRef &drawable,InterPoint *verts,const Point3d &up)
     {
-        const int startPt = drawable->getNumPoints();
+        const unsigned int startPt = drawable->getNumPoints();
 
         for (unsigned int vi=0;vi<4;vi++)
         {
@@ -268,7 +267,7 @@ public:
     }
     
     // Add a triangle to the wide drawable
-    void addWideTri(WideVectorDrawableBuilderRef drawable,InterPoint *verts,const Point3d &up)
+    void addWideTri(const WideVectorDrawableBuilderRef &drawable,InterPoint *verts,const Point3d &up)
     {
         const int startPt = drawable->getNumPoints();
 
@@ -290,7 +289,8 @@ public:
     }
     
     // Build the polygons for a widened line segment
-    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,WideVectorDrawableBuilderRef wideDrawable,bool buildSegment,bool buildJunction)
+    void buildPolys(const Point3d *pa,const Point3d *pb,const Point3d *pc,const Point3d &up,
+                    const WideVectorDrawableBuilderRef &wideDrawable,bool buildSegment,bool buildJunction)
     {
         double texLen = (*pb-*pa).norm();
         double texLen2 = 0.0;
@@ -784,16 +784,16 @@ public:
                 Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
                 Point3d dispPa = coordAdapter->localToDisplay(localPa);
 
-                int prev = startPt + ii - 1;
+                unsigned int prev = startPt + ii - 1;
                 if (ii == 0) {
                     prev = closed ? startPt + newPts.size() - 1 : -1;
                 }
-                int next = startPt + ii + 1;
+                unsigned int next = startPt + ii + 1;
                 if (ii == newPts.size()-1) {
                     next = closed ? startPt : -1;
                 }
 
-                drawable->addCenterLine(dispPa,up,len,vecInfo->color,maskIDs,prev,next);
+                drawable->addCenterLine(dispPa,up,len,vecInfo->color,maskIDs,(int)prev,(int)next);
                 
                 if (ii<newPts.size()-1)
                     len += (newPts[ii+1] - newPts[ii]).norm();
@@ -922,19 +922,19 @@ public:
         
         const TimeInterval curTime = scene->getCurrentTime();
         
-        WideVectorSceneRep *sceneRep = new WideVectorSceneRep();
-        sceneRep->fade = vecInfo->fade;
-        for (const auto &drawable : drawables)
+        auto *sceneRep = new WideVectorSceneRep();
+        sceneRep->fade = (float)vecInfo->fade;
+        for (const auto &theDrawable : drawables)
         {
-            if (auto drawID = drawable->getBasicDrawableID())
+            if (auto drawID = theDrawable->getBasicDrawableID())
                 sceneRep->drawIDs.insert(drawID);
-            if (auto drawID = drawable->getInstanceDrawableID())
+            if (auto drawID = theDrawable->getInstanceDrawableID())
                 sceneRep->instIDs.insert(drawID);
             if (vecInfo->fade > 0.0)
-                drawable->setFade(curTime,curTime+vecInfo->fade);
-            if (auto draw = drawable->getBasicDrawable())
+                theDrawable->setFade(curTime, curTime + vecInfo->fade);
+            if (auto draw = theDrawable->getBasicDrawable())
                 changes.push_back(new AddDrawableReq(draw));
-            if (auto draw = drawable->getInstanceDrawable())
+            if (auto draw = theDrawable->getInstanceDrawable())
                 changes.push_back(new AddDrawableReq(draw));
         }
         
@@ -969,26 +969,14 @@ protected:
     std::vector<WideVectorDrawableBuilderRef> drawables;
 };
     
-WideVectorSceneRep::WideVectorSceneRep()
-    : fade(0.0)
-{
-}
-    
-WideVectorSceneRep::WideVectorSceneRep(SimpleIdentity inId)
-    : Identifiable(inId), fade(0.0)
-{
-}
-
-WideVectorSceneRep::~WideVectorSceneRep()
-{
-}
-
 void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
 {
     // If we're using instances, just turn on the instances
-    SimpleIDSet allIDs = instIDs.empty() ? drawIDs : instIDs;
+    const SimpleIDSet &allIDs = instIDs.empty() ? drawIDs : instIDs;
     for (const auto &it : allIDs)
+    {
         changes.push_back(new OnOffChangeRequest(it,enable));
+    }
 }
 
 void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
@@ -996,11 +984,9 @@ void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
     SimpleIDSet allIDs = drawIDs;
     allIDs.insert(instIDs.begin(),instIDs.end());
     for (const auto &it : allIDs)
+    {
         changes.push_back(new RemDrawableReq(it,when));
-}
-
-WideVectorManager::WideVectorManager()
-{
+    }
 }
 
 WideVectorManager::~WideVectorManager()
@@ -1011,7 +997,9 @@ WideVectorManager::~WideVectorManager()
         delete it;
     sceneReps.clear();
 }
-    
+
+static const std::string maskID0 = "maskID0"; // NOLINT
+
 SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     // Calculate a center for this geometry
@@ -1019,13 +1007,18 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
     GeoMbr geoMbr;
     for (const auto &shape : shapes)
     {
-        if (shape->getAttrDict()->hasField("maskID0"))
+        if (!hasMaskIDs && shape->getAttrDict()->hasField(maskID0))
+        {
             hasMaskIDs = true;
+        }
         geoMbr.expand(shape->calcGeoMbr());
     }
+
     // No data?
     if (!geoMbr.valid())
+    {
         return EmptyIdentity;
+    }
 
     WideVectorDrawableConstructor builder(renderer,scene,&vecInfo,hasMaskIDs ? WhirlyKitMaxMasks : 0);
 
@@ -1038,22 +1031,30 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
     
     builder.setCenter(localCenter,centerDisp);
 
+    VectorRing tempLoop;
     for (const auto &shape : shapes)
     {
         // Look for mask IDs.
         // Only support 2 for now
         std::vector<SimpleIdentity> maskIDs;
-        if (hasMaskIDs) {
-            for (unsigned int ii=0;ii<2;ii++) {
+        if (hasMaskIDs)
+        {
+            for (unsigned int ii=0;ii<2;ii++)
+            {
                 std::string attrName = "maskID" + std::to_string(ii);
                 if (shape->getAttrDict()->hasField(attrName))
+                {
                     maskIDs.push_back(shape->getAttrDict()->getInt64(attrName));
+                }
             }
         }
         // If there's not enough masks, but there is one, then fill in the rest
-        if (!maskIDs.empty() && maskIDs.size() < WhirlyKitMaxMasks) {
+        if (!maskIDs.empty() && maskIDs.size() < WhirlyKitMaxMasks)
+        {
             while (maskIDs.size() < WhirlyKitMaxMasks)
+            {
                 maskIDs.push_back(maskIDs.front());
+            }
         }
         
         if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
@@ -1067,11 +1068,14 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
                 if (loop.size() > 2 && (loop.begin() != loop.end() && vecInfo.implType != WideVecImplPerf))
                 {
                     // Just tack on another point at the end.  Kind of dumb, but easy.
-                    VectorRing newLoop = loop;
-                    newLoop.push_back(loop[0]);
-                    builder.addLinear(newLoop, centerUp, maskIDs, true);
-                } else
+                    tempLoop = loop;
+                    tempLoop.push_back(loop[0]);
+                    builder.addLinear(tempLoop, centerUp, maskIDs, true);
+                }
+                else
+                {
                     builder.addLinear(loop, centerUp, maskIDs, true);
+                }
             }
         }
     }
@@ -1100,9 +1104,11 @@ void WideVectorManager::enableVectors(SimpleIDSet &vecIDs,bool enable,ChangeSet 
         {
             const WideVectorSceneRep *vecRep = *it;
             // If we're using instances, we just want those
-            SimpleIDSet allIDs = vecRep->instIDs.empty() ? vecRep->drawIDs : vecRep->instIDs;
+            const SimpleIDSet &allIDs = vecRep->instIDs.empty() ? vecRep->drawIDs : vecRep->instIDs;
             for (const auto &id : allIDs)
+            {
                 changes.push_back(new OnOffChangeRequest(id,enable));
+            }
         }
     }
 }
@@ -1133,7 +1139,7 @@ SimpleIdentity WideVectorManager::instanceVectors(SimpleIdentity vecID,const Wid
             drawInst->setColor(vecInfo.color);
             
             // Changed visibility
-            drawInst->setVisibleRange(vecInfo.minVis, vecInfo.maxVis);
+            drawInst->setVisibleRange((float)vecInfo.minVis, (float)vecInfo.maxVis);
             
             // Changed line width
             drawInst->setLineWidth(vecInfo.width);
@@ -1178,7 +1184,7 @@ void WideVectorManager::changeVectors(SimpleIdentity vecID,const WideVectorInfo 
         builder->setValues(vecInfo);
         builder->generateChanges(allIDs, changes);
 
-        for (auto id : allIDs)
+        for (const auto id : allIDs)
         {
             // Changed color
             changes.push_back(new ColorChangeRequest(id, vecInfo.color));
@@ -1202,10 +1208,10 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    TimeInterval curTime = scene->getCurrentTime();
-    for (SimpleIDSet::iterator vit = vecIDs.begin();vit != vecIDs.end();++vit)
+    const TimeInterval curTime = scene->getCurrentTime();
+    for (const SimpleIdentity vecID : vecIDs)
     {
-        WideVectorSceneRep dummyRep(*vit);
+        WideVectorSceneRep dummyRep(vecID);
         const auto it = sceneReps.find(&dummyRep);
         if (it != sceneReps.end())
         {
@@ -1214,10 +1220,14 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             TimeInterval removeTime = 0.0;
             if (sceneRep->fade > 0.0)
             {
-                SimpleIDSet allIDs = sceneRep->drawIDs;
-                allIDs.insert(sceneRep->instIDs.begin(),sceneRep->instIDs.end());
+                std::unordered_set<SimpleIdentity> allIDs(sceneRep->drawIDs.size() + sceneRep->instIDs.size());
+                allIDs.insert(sceneRep->drawIDs.begin(), sceneRep->drawIDs.end());
+                allIDs.insert(sceneRep->instIDs.begin(), sceneRep->instIDs.end());
+
                 for (const auto id : allIDs)
+                {
                     changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fade));
+                }
                 
                 removeTime = curTime + sceneRep->fade;
             }

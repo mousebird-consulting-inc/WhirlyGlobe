@@ -26,23 +26,10 @@
 namespace WhirlyKit
 {
     
-ProgramMTL::TextureEntry::TextureEntry()
-: slot(-1)
-{
-}
-    
-ProgramMTL::ProgramMTL() : lightsLastUpdated(0.0), valid(false)
-{
-}
-    
 ProgramMTL::ProgramMTL(const std::string &inName,id<MTLFunction> vertFunc,id<MTLFunction> fragFunc)
     : vertFunc(vertFunc), fragFunc(fragFunc), lightsLastUpdated(0.0), valid(true)
 {
     name = inName;
-}
-
-ProgramMTL::~ProgramMTL()
-{
 }
 
 bool ProgramMTL::isValid() const
@@ -68,6 +55,16 @@ bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSl
     TextureBaseMTL *texMTL = dynamic_cast<TextureBaseMTL *>(tex);
     if (!texMTL)
         return false;
+
+    // If it's already there, then just overwrite it
+    for (auto &texEntry: textures)
+        if (texEntry.slot == textureSlot) {
+            texEntry.texBuf = texMTL->getMTLTex();
+            texEntry.texID = tex->getId();
+
+            texturesChanged = true;
+            return true;
+        }
     
     TextureEntry texEntry;
     texEntry.slot = textureSlot;
@@ -75,7 +72,7 @@ bool ProgramMTL::setTexture(StringIdentity nameID,TextureBase *tex,int textureSl
     texEntry.texID = tex->getId();
     textures.push_back(texEntry);
     
-    changed = true;
+    texturesChanged = true;
     
     return true;
 }
@@ -96,7 +93,7 @@ void ProgramMTL::clearTexture(SimpleIdentity texID)
         textures.erase(textures.begin()+*entry);
     }
     
-    changed = true;
+    texturesChanged = true;
 }
 
 const std::string &ProgramMTL::getName() const

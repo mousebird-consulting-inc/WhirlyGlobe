@@ -456,9 +456,9 @@ bool VectorObject::pointInside(const Point2d &pt) const
     
 // Helper routine to convert and check geographic points (globe version)
 static bool ScreenPointFromGeo(const Point2d &geoCoord,
-                               WhirlyGlobe::GlobeViewStateRef globeView,
-                               Maply::MapViewStateRef mapView,
-                               CoordSystemDisplayAdapter *coordAdapter,
+                               WhirlyGlobe::GlobeViewState* globeView,
+                               Maply::MapViewState* mapView,
+                               const CoordSystemDisplayAdapter *coordAdapter,
                                const Point2f &frameSize,
                                const Eigen::Matrix4f &modelAndViewMat,
                                const Eigen::Matrix4d &modelAndViewMat4d,
@@ -467,21 +467,43 @@ static bool ScreenPointFromGeo(const Point2d &geoCoord,
                                Point2d *screenPt)
 {
     const Point3d pt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x(),geoCoord.y())));
-    const Point3f pt3f(pt.x(),pt.y(),pt.z());
+    const Point3f pt3f = pt.cast<float>();
     
     Point2f screenPt2f;
-    if (globeView) {
+    if (globeView)
+    {
         if (CheckPointAndNormFacing(pt3f,pt3f.normalized(),modelAndViewMat,modelAndViewNormalMat) < 0.0)
+        {
             return false;
+        }
         
         screenPt2f = globeView->pointOnScreenFromDisplay(pt, &modelAndViewMat4d, frameSize);
-    } else {
+    }
+    else
+    {
         screenPt2f = mapView->pointOnScreenFromDisplay(pt, &modelAndViewMat4d, frameSize);
     }
-    screenPt->x() = screenPt2f.x();  screenPt->y() = screenPt2f.y();
-
-    return !(screenPt->x() < 0 || screenPt->y() < 0 || screenPt->x() > frameSize.x() || screenPt->y() > frameSize.y());
+    *screenPt = screenPt2f.cast<double>();
+    return (screenPt2f.x() >= 0.0f &&
+            screenPt2f.y() >= 0.0f &&
+            screenPt2f.x() < frameSize.x() &&
+            screenPt2f.y() < frameSize.y());
 }
+
+//static bool ScreenPointFromGeo(const Point2d &geoCoord,
+//                               WhirlyGlobe::GlobeViewStateRef globeView,
+//                               Maply::MapViewStateRef mapView,
+//                               CoordSystemDisplayAdapter *coordAdapter,
+//                               const Point2f &frameSize,
+//                               const Eigen::Matrix4f &modelAndViewMat,
+//                               const Eigen::Matrix4d &modelAndViewMat4d,
+//                               const Eigen::Matrix4d &modelMatFull,
+//                               const Eigen::Matrix4f &modelAndViewNormalMat,
+//                               Point2d *screenPt) {
+//    return ScreenPointFromGeo(geoCoord, globeView.get(), mapView.get(), coordAdapter, frameSize,
+//                              modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat,
+//                              screenPt);
+//}
 
 // Return the square of the hypotenuse, i.e., hypot() without the sqrt()
 inline static double hypotSq(double dx, double dy)
@@ -489,26 +511,88 @@ inline static double hypotSq(double dx, double dy)
     return dx * dx + dy * dy;
 }
 
-bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameSize) const
+// Given a geographic bound, try to expand it by the specified size in screen coordinates.
+static void expandBound(GeoMbr &bound, const Point2f &screenCoord,
+                        Maply::MapViewState *mapView, WhirlyGlobe::GlobeViewState *globeView,
+                        const CoordSystemDisplayAdapter *adapter, const Eigen::Matrix4d &matrix,
+                        const Point2f &frameSize, float maxDistance)
+{
+    const Point2f corners[4] = {
+        screenCoord + Point2f( maxDistance,  maxDistance),
+        screenCoord + Point2f(-maxDistance,  maxDistance),
+        screenCoord + Point2f( maxDistance, -maxDistance),
+        screenCoord + Point2f(-maxDistance, -maxDistance),
+    };
+    for (auto const &c : corners)
+    {
+        Point3d disp;
+        if ((mapView && mapView->pointOnPlaneFromScreen(c, matrix, frameSize, disp, false)) ||
+            (globeView && globeView->pointOnSphereFromScreen(c, matrix, frameSize, disp, false)))
+        {
+            bound.addPoint(adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(disp)));
+        }
+    }
+    if (bound.empty())
+    {
+        // No change... expand it by the smallest amount possible to make it non-empty
+        bound.ur().x() = std::nextafter(bound.ur().x(), std::numeric_limits<float>::max());
+        bound.ur().y() = std::nextafter(bound.ur().y(), std::numeric_limits<float>::max());
+    }
+}
+
+// See whether a given item's bounding rect overlaps the search area, which is defined by a point
+// and distance.  If the point is not within the item's bounding rect, approximate the distance
+// check by expanding the point into another bounding rect (once) using the specified distance and
+// compare that instead.
+static inline bool checkBounds(const Point2f &screenCoord, const GeoCoord &geoCoord,
+                               const GeoMbr &itemMbr, GeoMbr &searchMbr,
+                               Maply::MapViewState *mapView, WhirlyGlobe::GlobeViewState *globeView,
+                               const CoordSystemDisplayAdapter *adapter,
+                               const Eigen::Matrix4d &matrix,
+                               const Point2f &frameSize, float maxDistance)
+{
+    if (itemMbr.inside(geoCoord))
+    {
+        return true;
+    }
+    if (searchMbr.empty())
+    {
+        expandBound(searchMbr, screenCoord,
+                    mapView, globeView,
+                    adapter, matrix,
+                    frameSize, maxDistance);
+    }
+    return itemMbr.overlaps(searchMbr);
+}
+
+bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,
+                                   const ViewStateRef &viewState,const Point2f &frameSize) const
 {
     CoordSystemDisplayAdapter *coordAdapter = viewState->coordAdapter;
    
-    WhirlyGlobe::GlobeViewStateRef globeView = std::dynamic_pointer_cast<WhirlyGlobe::GlobeViewState>(viewState);
-    Maply::MapViewStateRef mapView = std::dynamic_pointer_cast<Maply::MapViewState>(viewState);
-    
-    Eigen::Matrix4d modelTrans4d = viewState->modelMatrix;
+    const auto globeView = dynamic_cast<WhirlyGlobe::GlobeViewState*>(viewState.get());
+    const auto mapView = dynamic_cast<Maply::MapViewState*>(viewState.get());
+
+    const Eigen::Matrix4d &modelTrans4d = viewState->modelMatrix;
     // Note: This won't work if there's more than one matrix
-    Eigen::Matrix4d viewTrans4d = viewState->viewMatrices[0];
-    Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
-    Eigen::Matrix4f modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
-    Eigen::Matrix4f modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
+    const Eigen::Matrix4d &viewTrans4d = viewState->viewMatrices[0];
+    const Eigen::Matrix4d &modelAndViewMat4d = viewTrans4d * modelTrans4d;
+    const Eigen::Matrix4f &modelAndViewMat = Matrix4dToMatrix4f(modelAndViewMat4d);
+    const Eigen::Matrix4f &modelAndViewNormalMat = modelAndViewMat.inverse().transpose();
     // Note: This is probably redundant
-    Eigen::Matrix4d modelMatFull = viewState->fullMatrices[0];
+    const Eigen::Matrix4d &modelMatFull = viewState->fullMatrices[0];
 
     // Point we're searching around
     Point2d p;
-    if (!ScreenPointFromGeo(coord, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &p))
+    if (!ScreenPointFromGeo(coord, globeView, mapView, coordAdapter, frameSize, modelAndViewMat,
+                            modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &p))
+    {
         return false;
+    }
+
+    const Point2f pf = p.cast<float>();
+    const GeoCoord geoCoord(coord.x(),coord.y());
+    GeoMbr searchMbr(geoCoord, geoCoord);
 
     const double maxDistSq = (double)maxDistance * maxDistance;
     for (const auto &shape : shapes)
@@ -516,82 +600,116 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,ViewSt
         if (const auto linear = dynamic_cast<VectorLinear*>(shape.get()))
         {
             const GeoMbr geoMbr = linear->calcGeoMbr();
-            if(geoMbr.inside(GeoCoord(coord.x(),coord.y())))
+            if (!checkBounds(pf, geoCoord, geoMbr, searchMbr, mapView, globeView,
+                             coordAdapter, modelMatFull, frameSize, maxDistance))
             {
-                const VectorRing &pts = linear->pts;
-                for (int ii=0;ii<pts.size()-1;ii++)
-                {
-                    const Point2f &p0 = pts[ii];
-                    Point2d pc(p0.x(),p0.y());
-                    Point2d a;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &a))
-                        continue;
-                    
-                    const Point2f &p1 = pts[ii + 1];
-                    pc = Point2d(p1.x(),p1.y());
-                    Point2d b;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &b))
-                        continue;
-                    
-                    const Point2d aToP = a - p;
-                    const Point2d aToB = a - b;
-                    const double aToBMagitude = hypotSq(aToB.x(), aToB.y());
-                    const double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
-                    const double d = dot/aToBMagitude;
+                continue;
+            }
 
-                    double distance = std::numeric_limits<double>::max();
-                    if(d < 0)
-                    {
-                        distance = hypotSq(p.x() - a.x(), p.y() - a.y());
-                    } else if(d > 1) {
-                        distance = hypotSq(p.x() - b.x(), p.y() - b.y());
-                    } else {
-                        distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
-                                         p.y() - a.y() + (aToB.y() * d));
-                    }
-                    
-                    if (distance < maxDistSq)
-                        return true;
+            const VectorRing &pts = linear->pts;
+            for (int ii=0;ii<pts.size()-1;ii++)
+            {
+                const Point2f &p0 = pts[ii];
+                Point2d pc = p0.cast<double>();
+                Point2d a;
+                if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize,
+                                        modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                        modelAndViewNormalMat, &a))
+                {
+                    continue;
+                }
+
+                const Point2f &p1 = pts[ii + 1];
+                pc = p1.cast<double>();
+                Point2d b;
+                if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize,
+                                        modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                        modelAndViewNormalMat, &b))
+                {
+                    continue;
+                }
+
+                const Point2d aToP = a - p;
+                const Point2d aToB = a - b;
+                const double aToBMagnitudeSq = hypotSq(aToB.x(), aToB.y());
+                const double d = aToP.dot(aToB) / aToBMagnitudeSq;
+
+                double distance = std::numeric_limits<double>::max();
+                if(d < 0)
+                {
+                    distance = hypotSq(p.x() - a.x(), p.y() - a.y());
+                }
+                else if(d > 1)
+                {
+                    distance = hypotSq(p.x() - b.x(), p.y() - b.y());
+                }
+                else
+                {
+                    distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
+                                       p.y() - a.y() + (aToB.y() * d));
+                }
+
+                if (distance < maxDistSq)
+                {
+                    return true;
                 }
             }
-        } else if (const auto linear3d = dynamic_cast<VectorLinear3d*>(shape.get())) {
+        }
+        else if (const auto linear3d = dynamic_cast<VectorLinear3d*>(shape.get()))
+        {
             const GeoMbr geoMbr = linear3d->calcGeoMbr();
-            if(geoMbr.inside(GeoCoord(coord.x(),coord.y())))
+            if (!checkBounds(pf, geoCoord, geoMbr, searchMbr, mapView, globeView,
+                             coordAdapter, modelMatFull, frameSize, maxDistance))
             {
-                const VectorRing3d &pts = linear3d->pts;
-                for (int ii=0;ii<pts.size()-1;ii++)
+                continue;
+            }
+
+            const VectorRing3d &pts = linear3d->pts;
+            for (int ii=0;ii<pts.size()-1;ii++)
+            {
+                const Point3d &p0 = pts[ii];
+                const Point2d pc { p0.x(), p0.y() };
+                Point2d a;
+                if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize,
+                                        modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                        modelAndViewNormalMat, &a))
                 {
-                    Point3d p0 = pts[ii];
-                    Point2d pc(p0.x(),p0.y());
-                    Point2d a;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &a))
-                        continue;
+                    continue;
+                }
 
-                    Point3d p1 = pts[ii + 1];
-                    pc = Point2d(p1.x(),p1.y());
-                    Point2d b;
-                    if (!ScreenPointFromGeo(pc, globeView, mapView, coordAdapter, frameSize, modelAndViewMat, modelAndViewMat4d, modelMatFull, modelAndViewNormalMat, &b))
-                        continue;
+                const Point3d &p1 = pts[ii + 1];
+                const Point2d pd { p1.x(), p1.y() };
+                Point2d b;
+                if (!ScreenPointFromGeo(pd, globeView, mapView, coordAdapter, frameSize,
+                                        modelAndViewMat, modelAndViewMat4d, modelMatFull,
+                                        modelAndViewNormalMat, &b))
+                {
+                    continue;
+                }
 
-                    const Point2d aToP = a - p;
-                    const Point2d aToB = a - b;
-                    const double aToBMagitude = hypotSq(aToB.x(), aToB.y());
-                    const double dot = aToP.x() * aToB.x() + aToP.y() * aToB.y();
-                    const double d = dot/aToBMagitude;
+                const Point2d aToP = a - p;
+                const Point2d aToB = a - b;
+                const double aToBMagnitudeSq = hypotSq(aToB.x(), aToB.y());
+                const double d = aToP.dot(aToB)/aToBMagnitudeSq;
 
-                    double distance = std::numeric_limits<double>::max();
-                    if(d < 0)
-                    {
-                        distance = hypotSq(p.x() - a.x(), p.y() - a.y());
-                    } else if(d > 1) {
-                        distance = hypotSq(p.x() - b.x(), p.y() - b.y());
-                    } else {
-                        distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
-                                         p.y() - a.y() + (aToB.y() * d));
-                    }
-                    
-                    if (distance < maxDistSq)
-                        return true;
+                double distance = std::numeric_limits<double>::max();
+                if(d < 0)
+                {
+                    distance = hypotSq(p.x() - a.x(), p.y() - a.y());
+                }
+                else if(d > 1)
+                {
+                    distance = hypotSq(p.x() - b.x(), p.y() - b.y());
+                }
+                else
+                {
+                    distance = hypotSq(p.x() - a.x() + (aToB.x() * d),
+                                       p.y() - a.y() + (aToB.y() * d));
+                }
+
+                if (distance < maxDistSq)
+                {
+                    return true;
                 }
             }
         }
@@ -606,7 +724,7 @@ double VectorObject::areaOfOuterLoops() const
     for (const auto& shape : shapes)
     {
         const auto areal = dynamic_cast<VectorAreal*>(shape.get());
-        if (areal && areal->loops.size() > 0)
+        if (areal && !areal->loops.empty())
         {
             area = CalcLoopArea(areal->loops[0]);
         }
@@ -1346,7 +1464,8 @@ VectorObjectRef VectorObject::clipToMbr(const Point2d &ll,const Point2d &ur)
     return newVec;
 }
  
-void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps)
+void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                       const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps)
 {
     const bool isFlat = coordAdapter->isFlat();
     
@@ -1394,7 +1513,8 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
     }
 }
 
-void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
+void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
 {
     const bool isFlat = coordAdapter->isFlat();
     

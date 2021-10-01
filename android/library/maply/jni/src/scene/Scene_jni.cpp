@@ -226,6 +226,7 @@ JNIEXPORT float JNICALL Java_com_mousebird_maply_Scene_getZoomSlotValue(JNIEnv *
     {
         __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::getZoomSlotValue()");
     }
+    return 0.0;
 }
 
 extern "C"

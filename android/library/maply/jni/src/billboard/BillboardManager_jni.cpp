@@ -1,9 +1,8 @@
-/*
- *  BillboardManager_jni.cpp
+/*  BillboardManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -27,16 +25,18 @@
 using namespace WhirlyKit;
 
 typedef JavaClassInfo<WhirlyKit::BillboardManagerRef> BillboardManagerClassInfo;
-template<> BillboardManagerClassInfo *BillboardManagerClassInfo::classInfoObj = NULL;
+template<> BillboardManagerClassInfo *BillboardManagerClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     BillboardManagerClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_initialise
-(JNIEnv *env, jobject obj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
@@ -55,15 +55,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_initialise
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         BillboardManagerClassInfo *classInfo = BillboardManagerClassInfo::getClassInfo();
         BillboardManagerRef *billManager = classInfo->getObject(env, obj);
-        if (billManager)
-            delete billManager;
+        delete billManager;
 		classInfo->clearHandle(env, obj);
     }
     catch (...)
@@ -72,8 +72,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_dispose
     }
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
-(JNIEnv *env, jobject obj, jobjectArray objArray, jobject infoObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jobjectArray objArray, jobject infoObj, jobject changeObj)
 {
     try
     {
@@ -96,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
         // Resolve a missing program
         if ((*billInfo)->programID == EmptyIdentity)
         {
-            Program *prog = NULL;
+            Program *prog;
             if ((*billInfo)->orient == BillboardInfo::Orient::Eye)
                 prog = (*billManager)->getScene()->findProgramByName(MaplyBillboardEyeShader);
             else
@@ -117,8 +118,9 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_BillboardManager_addBillboards
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_enableBillboards
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jboolean enable, jobject changeObj)
 {
     try
     {
@@ -128,12 +130,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_enableBillboard
         if (!inst || !changeSet)
             return;
         
-        JavaLongArray ids(env, idArrayObj);
-        SimpleIDSet idSet;
-        for (unsigned int ii=0; ii<ids.len; ii++)
-        {
-            idSet.insert(ids.rawLong[ii]);
-        }
+        const SimpleIDSet idSet = ConvertLongArrayToSet(env,idArrayObj);
         (*inst)->enableBillboards(idSet, enable, *(changeSet->get()));
     }
     catch (...)
@@ -142,8 +139,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_enableBillboard
     }
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_removeBillboards
-(JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeObj)
+  (JNIEnv *env, jobject obj, jlongArray idArrayObj, jobject changeObj)
 {
     try
     {
@@ -153,13 +151,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BillboardManager_removeBillboard
         if (!inst || !changeSet)
             return;
         
-        JavaLongArray ids(env, idArrayObj);
-        SimpleIDSet idSet;
-        for (unsigned int ii=0; ii<ids.len; ii++)
-        {
-            idSet.insert(ids.rawLong[ii]);
-        }
-        (*inst)->removeBillboards(idSet, *(changeSet->get()));
+        const SimpleIDSet idSet = ConvertLongArrayToSet(env, idArrayObj);
+        (*inst)->removeBillboards(idSet, **changeSet);
     }
     catch (...)
     {

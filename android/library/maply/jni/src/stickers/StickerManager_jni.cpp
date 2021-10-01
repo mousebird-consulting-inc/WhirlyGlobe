@@ -170,8 +170,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_enableStickers
         if (!chunkManager || !changeSet)
             return;
 
-        JavaLongArray idArray(env,idArrayObj);
-        SimpleIDSet ids;
+        const JavaLongArray idArray(env,idArrayObj,false);
         for (int ii=0;ii<idArray.len;ii++)
         {
             (*chunkManager)->enableChunk(idArray.rawLong[ii],enable,*(changeSet->get()));
@@ -195,12 +194,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_StickerManager_removeStickers
         if (!chunkManager || !changeSet)
             return;
         
-        JavaLongArray idArray(env,idArrayObj);
-        SimpleIDSet ids;
-        for (int ii=0;ii<idArray.len;ii++)
-            ids.insert(idArray.rawLong[ii]);
-        
-        (*chunkManager)->removeChunks(ids,*(changeSet->get()));
+        const SimpleIDSet ids = ConvertLongArrayToSet(env, idArrayObj);
+        (*chunkManager)->removeChunks(ids,**changeSet);
     }
     catch (...)
     {

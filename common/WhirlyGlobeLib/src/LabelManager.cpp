@@ -136,15 +136,15 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     }
 
     // Hand over some to the layout manager
-    if (const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
+    if (!labelRenderer.layoutObjects.empty())
     {
-        if (!labelRenderer.layoutObjects.empty())
+        if (const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
         {
             for (const auto &layoutObject : labelRenderer.layoutObjects)
             {
                 labelRep->layoutIDs.insert(layoutObject.getId());
             }
-            layoutManager->addLayoutObjects(labelRenderer.layoutObjects);
+            layoutManager->addLayoutObjects(std::move(labelRenderer.layoutObjects));
         }
     }
 

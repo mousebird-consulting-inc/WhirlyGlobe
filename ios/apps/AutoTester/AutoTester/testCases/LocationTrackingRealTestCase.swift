@@ -17,7 +17,7 @@ class LocationTrackingRealTestCase: MaplyTestCase, MaplyLocationTrackerDelegate 
     override init() {
         super.init()
         
-        self.name = "Location Tracking Real Test Case"
+        self.name = "Location Tracking Real"
         self.implementations = [.globe, .map]
     }
     
@@ -54,7 +54,13 @@ class LocationTrackingRealTestCase: MaplyTestCase, MaplyLocationTrackerDelegate 
         mapVC.animate(toPosition:MaplyCoordinateMakeWithDegrees(-94.58, 39.1), height: 0.5, time: 1.0)
         mapVC.setZoomLimitsMin(0.0005, max: 4.0)
     }
-    
+
+    override func stop() {
+        baseViewController?.stopLocationTracking()
+        baseLayer?.stop()
+        super.stop()
+    }
+
     @objc func onSegChange() {
         if (segCtrl?.selectedSegmentIndex == 0) {
             baseViewController?.changeLocationTrackingLockType(MaplyLocationLockNone)

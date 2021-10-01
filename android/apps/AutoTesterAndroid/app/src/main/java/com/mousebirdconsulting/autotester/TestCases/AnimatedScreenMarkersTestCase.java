@@ -26,16 +26,15 @@ public class AnimatedScreenMarkersTestCase extends MaplyTestCase implements Acti
     BaseController controller;
 
     public AnimatedScreenMarkersTestCase(Activity activity) {
-        super(activity);
-        setTestName("Animated Screen Markers");
+        super(activity, "Active Object", TestExecutionImplementation.Both);
         setDelay(1000);
-        this.implementation = TestExecutionImplementation.Both;
     }
+
+    private final MaplyTestCase baseCase = new GeographyClass(getActivity());
 
     @Override
     public boolean setUpWithMap(MapController mapVC) throws Exception {
-        VectorsTestCase baseView = new VectorsTestCase(getActivity());
-        baseView.setUpWithMap(mapVC);
+        baseCase.setUpWithMap(mapVC);
         startMarkers(mapVC);
         mapVC.setPositionGeo(pos.getX(), pos.getY(), 2);
         return true;
@@ -43,35 +42,38 @@ public class AnimatedScreenMarkersTestCase extends MaplyTestCase implements Acti
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
-        VectorsTestCase baseView = new VectorsTestCase(getActivity());
-        baseView.setUpWithGlobe(globeVC);
+        baseCase.setUpWithGlobe(globeVC);
         startMarkers(globeVC);
         globeVC.animatePositionGeo(pos.getX(), pos.getY(), 0.9, 1);
         return true;
     }
 
+    @Override
+    public void shutdown() {
+        baseCase.shutdown();
+        super.shutdown();
+        controller = null;
+    }
+
     MarkerInfo markerInfo;
     Bitmap icon;
-    Point2d pos = Point2d.FromDegrees(-3.6704803, 40.5023056);
+    ComponentObject compObj = null;
+    private final Point2d pos = Point2d.FromDegrees(-3.6704803, 40.5023056);
 
     // Change the marker every frame
-    public boolean hasChanges()
-    {
+    public boolean hasChanges() {
         return true;
     }
 
-    ComponentObject compObj = null;
-
     // Move a marker to a random location every frame
-    public void activeUpdate()
-    {
-        ArrayList<ScreenMarker> markers = new ArrayList<ScreenMarker>();
+    public void activeUpdate() {
+        ArrayList<ScreenMarker> markers = new ArrayList<>();
+
+        final Point2d off = Point2d.FromDegrees(Math.random(), Math.random());
 
         ScreenMarker marker = new ScreenMarker();
         marker.image = icon;
-        double offX = Math.random() / 180.0 * Math.PI;
-        double offY = Math.random() / 180.0 * Math.PI;
-        marker.loc = new Point2d(pos.getX()+offX,pos.getY()+offY);
+        marker.loc = pos.addTo(off);
         marker.size = new Point2d(128, 128);
         marker.rotation = Math.random() * 2.f * Math.PI;
         markers.add(marker);

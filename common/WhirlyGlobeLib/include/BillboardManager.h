@@ -154,10 +154,10 @@ public:
     SimpleIdentity addBillboards(const std::vector<Billboard*> &billboards,const BillboardInfo &billboardInfo,ChangeSet &changes);
 
     /// Enable/disable active billboards
-    void enableBillboards(SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
+    void enableBillboards(const SimpleIDSet &billIDs,bool enable,ChangeSet &changes);
 
     /// Remove a group of billboards named by the given ID
-    void removeBillboards(SimpleIDSet &billIDs,ChangeSet &changes);
+    void removeBillboards(const SimpleIDSet &billIDs,ChangeSet &changes);
 
 protected:
     BillboardSceneRepSet sceneReps;

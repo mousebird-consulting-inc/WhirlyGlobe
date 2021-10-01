@@ -17,7 +17,6 @@
  */
 
 #import "Platform.h"
-#import "WhirlyKitLog.h"
 #import "CoordSystem.h"
 
 using namespace Eigen;
@@ -25,28 +24,24 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-Point3f CoordSystemConvert(CoordSystem *inSystem,CoordSystem *outSystem,Point3f inCoord)
+Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3f &inCoord)
 {
     // Easy if the coordinate systems are the same
     if (inSystem->isSameAs(outSystem))
         return inCoord;
     
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
-    const Point3f geoCPt = inSystem->localToGeocentric(inCoord);
-    const Point3f outPt = outSystem->geocentricToLocal(geoCPt);
-    return outPt;
+    return outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
 }
 
-Point3d CoordSystemConvert3d(CoordSystem *inSystem,CoordSystem *outSystem,Point3d inCoord)
+Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3d &inCoord)
 {
     // Easy if the coordinate systems are the same
     if (inSystem->isSameAs(outSystem))
         return inCoord;
     
     // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
-    const Point3d geoCPt = inSystem->localToGeocentric(inCoord);
-    const Point3d outPt = outSystem->geocentricToLocal(geoCPt);
-    return outPt;
+    return outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
 }
 
 GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,

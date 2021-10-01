@@ -1,9 +1,8 @@
-/*
- *  ShapeInfo_jni.cpp
+/*  ShapeInfo_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Shapes_jni.h"
@@ -25,121 +23,96 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> ShapeInfoClassInfo *ShapeInfoClassInfo::classInfoObj = NULL;
+template<> ShapeInfoClassInfo *ShapeInfoClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     ShapeInfoClassInfo::getClassInfo(env, cls);
-
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_initialise
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfoRef *inst = new ShapeInfoRef(new ShapeInfo());
-        classInfo->setHandle(env, obj, inst);
+        ShapeInfoClassInfo::set(env, obj, new ShapeInfoRef(std::make_shared<ShapeInfo>()));
     }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env, obj);
+        classInfo->clearHandle(env, obj);
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setColorInt
+  (JNIEnv *env, jobject obj, jint r, jint g, jint b, jint a)
+{
+    try
+    {
+        if (ShapeInfoRef *inst = ShapeInfoClassInfo::get(env, obj))
         {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            ShapeInfoRef *inst = classInfo->getObject(env, obj);
-            if (!inst)
-                return;
-            delete inst;
-            classInfo->clearHandle(env, obj);
+            (*inst)->color = RGBAColor(r,g,b,a);
         }
     }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
-JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setColor
-(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
-{
-    try
-    {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfoRef *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        
-        (*inst)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
-    }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setColor()");
-    }
-}
-
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setLineWidth
-(JNIEnv *env, jobject obj, jfloat lineWidth)
+  (JNIEnv *env, jobject obj, jfloat lineWidth)
 {
     try
     {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfoRef *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-
-        (*inst)->lineWidth = lineWidth;
+        if (ShapeInfoRef *inst = ShapeInfoClassInfo::get(env, obj))
+        {
+            (*inst)->lineWidth = lineWidth;
+        }
     }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setLineWidth()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setInsideOut
-(JNIEnv *env, jobject obj, jboolean insideOut)
+  (JNIEnv *env, jobject obj, jboolean insideOut)
 {
     try
     {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfoRef *inst = classInfo->getObject(env, obj);
-        if (!inst)
-            return;
-        (*inst)->insideOut = insideOut;
+        if (ShapeInfoRef *inst = ShapeInfoClassInfo::get(env, obj))
+        {
+            (*inst)->insideOut = insideOut;
+        }
     }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setInsideOut()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ShapeInfo_setCenter
-(JNIEnv *env, jobject obj, jobject ptObj)
+  (JNIEnv *env, jobject obj, jobject ptObj)
 {
     try
     {
-        ShapeInfoClassInfo *classInfo = ShapeInfoClassInfo::getClassInfo();
-        ShapeInfoRef *inst = classInfo->getObject(env, obj);
-        Point3d *center = Point3dClassInfo::getClassInfo()->getObject(env, ptObj);
-        if (!inst || !center)
-            return;
-        (*inst)->hasCenter = true;
-        (*inst)->center = *center;
+        if (ShapeInfoRef *inst = ShapeInfoClassInfo::get(env, obj))
+        if (const Point3d *center = Point3dClassInfo::get(env, ptObj))
+        {
+            (*inst)->hasCenter = true;
+            (*inst)->center = *center;
+        }
     }
-    catch(...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ShapeInfo::setCenter()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

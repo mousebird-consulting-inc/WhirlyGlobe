@@ -101,7 +101,9 @@ public:
     
     // Fuzzy matching for selecting Linear features
     // This will project the features to the screen
-    bool pointNearLinear(const Point2d &coord,float maxDistance,ViewStateRef viewState,const Point2f &frameBufferSize) const;
+    bool pointNearLinear(const Point2d &coord,float maxDistance,
+                         const ViewStateRef &viewState,
+                         const Point2f &frameBufferSize) const;
     
     /// Calculate the area of all the loops together
     double areaOfOuterLoops() const;
@@ -190,7 +192,7 @@ public:
     /// @return True on success, false on failure.
     bool fromShapeFile(const std::string &fileName);
     
-    /// @brief Assemblies are just concattenated JSON
+    /// @brief Assemblies are just concatenated JSON
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
 
 public:
@@ -201,9 +203,11 @@ public:
 };
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps);
+void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                       const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps);
 
 // Sample a great circle and throw in an interpolated height at each point
-void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
+void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
     
 }

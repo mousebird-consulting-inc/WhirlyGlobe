@@ -152,19 +152,25 @@ void QuadTileBuilder::setController(QuadDisplayControllerNew *inControl)
     
 /// Load some tiles, unload others, and the rest had their importance values change
 /// Return the nodes we wanted to keep rather than delete
-QuadTreeNew::NodeSet QuadTileBuilder::quadLoaderUpdate(PlatformThreadInfo *threadInfo,const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,const WhirlyKit::QuadTreeNew::ImportantNodeSet &updateTiles,int targetLevel, ChangeSet &changes)
+QuadTreeNew::NodeSet QuadTileBuilder::quadLoaderUpdate(PlatformThreadInfo *threadInfo,
+                                                       const QuadTreeNew::ImportantNodeSet &loadTiles,
+                                                       const QuadTreeNew::NodeSet &unloadTiles,
+                                                       const QuadTreeNew::ImportantNodeSet &updateTiles,
+                                                       int targetLevel, ChangeSet &changes)
 {
     TileBuilderDelegateInfo info;
     info.unloadTiles = unloadTiles;
     info.changeTiles = updateTiles;
     
     QuadTreeNew::NodeSet toKeep;
-    if (!unloadTiles.empty()) {
+    if (!unloadTiles.empty())
+    {
         toKeep = delegate->builderUnloadCheck(this,loadTiles,unloadTiles,targetLevel);
         // Remove the keep nodes and add them to update with very little importance
-        for (const QuadTreeNew::Node &node: toKeep) {
+        for (const QuadTreeNew::Node &node: toKeep)
+        {
             info.unloadTiles.erase(node);
-            info.changeTiles.insert(QuadTreeNew::ImportantNode(node,0.0));
+            info.changeTiles.emplace(node,0.0);
         }
     }
     

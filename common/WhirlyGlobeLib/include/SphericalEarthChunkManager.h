@@ -1,9 +1,8 @@
-/*
- *  SphericalEarthChunkManager.h
+/*  SphericalEarthChunkManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/29/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -126,11 +124,24 @@ public:
     CoordSystemRef coordSys;
     
 protected:
-    void buildSkirt(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,Point3fVector &pts,int pointOffset,std::vector<TexCoord> &texCoords,const SphericalChunkInfo &chunkInfo);
+    static void buildSkirt(SceneRenderer *sceneRender,
+                           const BasicDrawableBuilderRef &draw,
+                           const Point3fVector &pts,
+                           int pointOffset,
+                           const std::vector<TexCoord> &texCoords,
+                           const SphericalChunkInfo &chunkInfo);
+
     // Create one or more drawables to represent the chunk.
     // Only call this if you know what you're doing
-    void buildDrawable(SceneRenderer *sceneRender,BasicDrawableBuilderRef draw,bool buildSkirt,BasicDrawableBuilderRef skirtDraw,bool enable,CoordSystemDisplayAdapter *coordAdapter,const SphericalChunkInfo &chunkInfo);
-    void calcSampleX(int &thisSampleX,int &thisSampleY,Point3f *dispPts);
+    void buildDrawable(SceneRenderer *sceneRender,
+                       const BasicDrawableBuilderRef &draw,
+                       bool buildSkirt,
+                       const BasicDrawableBuilderRef &skirtDraw,
+                       bool enable,
+                       const CoordSystemDisplayAdapter *coordAdapter,
+                       const SphericalChunkInfo &chunkInfo);
+
+    void calcSampleX(int &thisSampleX,int &thisSampleY,const Point3f *dispPts) const;
 };
 
 typedef std::shared_ptr<ChunkSceneRep> ChunkSceneRepRef;
@@ -163,7 +174,7 @@ public:
     void enableChunk(SimpleIdentity chunkID,bool enable,ChangeSet &changes);
     
     /// Remove the given chunks
-    void removeChunks(SimpleIDSet &chunkIDs,ChangeSet &changes);
+    void removeChunks(const SimpleIDSet &chunkIDs,ChangeSet &changes);
     
     /// Number of chunks we're representing
     int getNumChunks();

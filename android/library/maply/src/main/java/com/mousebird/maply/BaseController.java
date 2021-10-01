@@ -40,8 +40,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -71,7 +73,7 @@ import okhttp3.Response;
  *
  */
 @SuppressWarnings({"unused","UnusedReturnValue","RedundantSuppression"})
-public class BaseController implements RenderController.TaskManager, RenderControllerInterface
+public abstract class BaseController implements RenderController.TaskManager, RenderControllerInterface
 {
 	// This may be a GLSurfaceView or a GLTextureView
 	protected @Nullable View baseView = null;
@@ -122,8 +124,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
     /**
      * Return the current scene.  Only for sure within the library.
      */
-    public @Nullable Scene getScene()
-    {
+    public @Nullable Scene getScene() {
         return scene;
     }
 
@@ -132,20 +133,32 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public @Nullable CoordSystem getCoordSystem() { return (coordAdapter != null) ? coordAdapter.coordSys : null; }
 
-	public void takeScreenshot(ScreenshotListener listener)
-	{
+	protected double vectorSelectDistance = 20.0;
+
+	/**
+	 * Get the distance to search for vector objects when processing a touch, in screen coordinates
+	 */
+	public double getVectorSelectDistance() {
+		return vectorSelectDistance;
+	}
+
+	/**
+	 * Set the distance to search for vector objects when processing a touch, in screen coordinates
+	 */
+	public void setVectorSelectDistance(double distance) {
+		vectorSelectDistance = distance;
+	}
+
+	/**
+	 * Capture the next frame as an image
+	 */
+	public void takeScreenshot(ScreenshotListener listener) {
 		if (baseView instanceof GLTextureView) {
 			GLTextureView textureView = (GLTextureView) baseView;
-
 			listener.onScreenshotResult(textureView.getBitmap());
-		} else {
-			GLSurfaceView surfaceView = null;
-
-			if (baseView instanceof GLSurfaceView) {
-				surfaceView = (GLSurfaceView) baseView;
-			}
-
-			RendererWrapper wrapper = renderWrapper;
+		} else if (baseView instanceof GLSurfaceView) {
+			GLSurfaceView surfaceView = (GLSurfaceView) baseView;
+			final RendererWrapper wrapper = renderWrapper;
 			if (wrapper != null) {
 				wrapper.takeScreenshot(listener, surfaceView);
 			}
@@ -177,26 +190,24 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	// MapView defines how we're looking at the data
 	protected @Nullable com.mousebird.maply.View view = null;
 
-	// Layer thread we use for data manipulation
+	// Layer threads we use for data manipulation
 	protected final @NotNull ArrayList<LayerThread> layerThreads = new ArrayList<>();
 	protected final @NotNull ArrayList<LayerThread> workerThreads = new ArrayList<>();
-		
+
 	// Bounding box we're allowed to move within
 	protected @Nullable Point2d[] viewBounds = null;
 	
 	/**
-	 * Returns the layer thread we used for processing requests.
+	 * Returns the layer thread we use for processing requests.
 	 */
-	public LayerThread getLayerThread()
-	{
+	@Nullable
+	public LayerThread getLayerThread() {
 		synchronized (layerThreads) {
-			if (layerThreads.size() == 0)
-				return null;
-			return layerThreads.get(0);
+			return layerThreads.isEmpty() ? null : layerThreads.get(0);
 		}
 	}
 
-	private int lastLayerThreadReturned = 0;
+	private int lastWorkerThreadReturned = 0;
 
 	/**
 	 * Utility routine to run a task on the main thread.
@@ -239,7 +250,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	{
 		synchronized (workerThreads) {
 			// The first one is for use by the toolkit
-			int numAvailable = workerThreads.size();
+			final int numAvailable = workerThreads.size();
 
 			if (numAvailable == 0)
 				return null;
@@ -247,7 +258,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			if (numAvailable == 1)
 				return workerThreads.get(0);
 
-			return workerThreads.get((lastLayerThreadReturned++) % numAvailable);
+			return workerThreads.get((lastWorkerThreadReturned++) % numAvailable);
 		}
 	}
 
@@ -256,10 +267,8 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 */
 	public Thread getRenderThread()
 	{
-		RendererWrapper wrap = renderWrapper;
-		if (wrap == null)
-			return null;
-		return wrap.renderThread;
+		final RendererWrapper wrap = renderWrapper;
+		return (wrap != null) ? wrap.renderThread : null;
 	}
 
 
@@ -601,8 +610,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 		}
 
 		layerThread.shutdown();
+
 		synchronized (layerThreads) {
 			layerThreads.remove(layerThread);
+		}
+
+		if (layerThreads.isEmpty() && running) {
+			Log.w("Maply", "Layer threads removed before shutdown");
+			running = false;
 		}
 	}
 
@@ -664,17 +679,18 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 //		Log.d("Maply", "BaseController: Shutdown");
 
 		startupAborted = true;
+		running = false;
 		synchronized (this) {
-			running = false;
+			for (QuadSamplingLayer sampleLayer : samplingLayers) {
+				sampleLayer.isShuttingDown = true;
+			}
 
 			// This will make sure we have a valid context
 			setEGLContext(glContext);
 
-			for (QuadSamplingLayer sampleLayer : samplingLayers)
-				sampleLayer.isShuttingDown = true;
+			//Choreographer.getInstance().removeFrameCallback(this);
 
-			//		Choreographer.getInstance().removeFrameCallback(this);
-			ArrayList<LayerThread> layerThreadsToRemove;
+			final ArrayList<LayerThread> layerThreadsToRemove;
 			synchronized (layerThreads) {
 				layerThreadsToRemove = new ArrayList<>(layerThreads);
 				layerThreads.clear();
@@ -683,18 +699,21 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				layerThreadsToRemove.addAll(workerThreads);
 				workerThreads.clear();
 			}
-			for (LayerThread layerThread : layerThreadsToRemove)
+			for (LayerThread layerThread : layerThreadsToRemove) {
 				layerThread.shutdown();
+			}
 
 //			Log.d("Maply", "BaseController: LayerThreads shutdown");
 
 			// Shut down the tile fetchers
-			for (RemoteTileFetcher tileFetcher : tileFetchers)
+			for (RemoteTileFetcher tileFetcher : tileFetchers) {
 				tileFetcher.shutdown();
+			}
 			tileFetchers.clear();
 
-			if (renderWrapper != null)
+			if (renderWrapper != null) {
 				renderWrapper.stopRendering();
+			}
 
 			if (metroThread != null) {
 				metroThread.shutdown();
@@ -706,10 +725,12 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				scene = null;
 			}
 
-			if (coordAdapter != null)
+			if (coordAdapter != null) {
 				coordAdapter.shutdown();
-			if (renderControl != null)
+			}
+			if (renderControl != null) {
 				renderControl.shutdown();
+			}
 
 			// Shut down the contexts
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -731,8 +752,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			// Clean up OpenGL ES resources
 			setEGLContext(null);
 
-			if (renderWrapper != null)
+			if (renderWrapper != null) {
 				renderWrapper.shutdown();
+				renderWrapper = null;
+			}
 
 			if (httpClient != null)
 			{
@@ -749,7 +772,6 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			}
 
 			baseView = null;
-			renderWrapper = null;
 			coordAdapter = null;
 			view = null;
 			tempBackground = null;
@@ -991,9 +1013,9 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			renderControl.setPerfInterval(perfInterval);
 
 			// Kick off the layout layer
-			final LayerThread baseLayerThread;
-			synchronized (layerThreads) {
-				baseLayerThread = layerThreads.get(0);
+			final LayerThread baseLayerThread = getLayerThread();
+			if (baseLayerThread == null) {
+				return;
 			}
 
 			layoutLayer = new LayoutLayer(this, renderControl.layoutManager);
@@ -1192,7 +1214,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Report performance stats in the console ever few frames.
 	 * Setting this to zero turns it off.
-	 * @param inPerfInterval seconds between performance reports
+	 * @param inPerfInterval frames between performance reports
 	 */
 	public void setPerfInterval(int inPerfInterval)
 	{
@@ -1250,6 +1272,24 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return 0.0;
 
 		return renderControl.currentMapScale();
+	}
+
+	public interface ZoomAnimationEasing {
+		/** For current time t in (0.0,1.0) produce z in (z0,z1)
+		 */
+		double value(double z0, double z1, double t);
+	}
+	protected @Nullable ZoomAnimationEasing zoomAnimationEasing = null;
+
+	/** Set the function used for animating zoom heights
+	 */
+	public void setZoomAnimationEasing(ZoomAnimationEasing easing) {
+		zoomAnimationEasing = easing;
+	}
+	/** Get the function used for animating zoom heights
+	 */
+	public ZoomAnimationEasing getZoomAnimationEasing() {
+		return zoomAnimationEasing;
 	}
 
 	/**
@@ -1401,12 +1441,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 			return;
 		}
 
-		final LayerThread baseLayerThread;
-		synchronized (layerThreads) {
-			baseLayerThread = layerThreads.get(0);
-		}
 		if (mode == RenderController.ThreadMode.ThreadCurrent) {
-
 			final EGL10 egl = (EGL10) EGLContext.getEGL();
 			final EGLContext oldContext = egl.eglGetCurrentContext();
 			final EGLSurface oldDrawSurface = egl.eglGetCurrentSurface(EGL10.EGL_DRAW);
@@ -1429,7 +1464,12 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 				}
 			}
         } else {
-			baseLayerThread.addTask(run, true);
+			final LayerThread baseLayerThread = getLayerThread();
+			if (baseLayerThread != null) {
+				baseLayerThread.addTask(run, true);
+			} else if (running) {
+				Log.w("Maply", "Task discarded, no layer threads available");
+			}
 		}
 	}
 
@@ -1454,7 +1494,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the vectors once created.
 	 */
-	public ComponentObject addVectors(final List<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
+	public ComponentObject addVectors(final Collection<VectorObject> vecs,final VectorInfo vecInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1515,7 +1555,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the vectors once created.
 	 */
-	public ComponentObject addWideVectors(final List<VectorObject> vecs,final WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
+	public ComponentObject addWideVectors(final Collection<VectorObject> vecs,final WideVectorInfo wideVecInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1588,7 +1628,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @return The ComponentObject representing the vectors.  This is necessary for modifying
 	 * or deleting the features once created.
 	 */
-	public ComponentObject addLoftedPolys(final List<VectorObject> vecs,final LoftedPolyInfo loftInfo,RenderController.ThreadMode mode)
+	public ComponentObject addLoftedPolys(final Collection<VectorObject> vecs,final LoftedPolyInfo loftInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1620,7 +1660,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the screen markers for later modification or deletion.
 	 */
-	public ComponentObject addScreenMarkers(final List<ScreenMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
+	public ComponentObject addScreenMarkers(final Collection<ScreenMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{		
 		if (!running)
 			return null;
@@ -1632,7 +1672,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      * Add moving screen markers to the visual display.  These are the same as the regular
      * screen markers, but they have a start and end point and a duration.
      */
-	public ComponentObject addScreenMovingMarkers(final List<ScreenMovingMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
+	public ComponentObject addScreenMovingMarkers(final Collection<ScreenMovingMarker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1663,7 +1703,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the screen markers for later modification or deletion.
 	 */
-	public ComponentObject addMarkers(final List<Marker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
+	public ComponentObject addMarkers(final Collection<Marker> markers,final MarkerInfo markerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1679,7 +1719,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the stickers for later modification or deletion.
 	 */
-	public ComponentObject addStickers(final List<Sticker> stickers,final StickerInfo stickerInfo,RenderController.ThreadMode mode)
+	public ComponentObject addStickers(final Collection<Sticker> stickers,final StickerInfo stickerInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1711,7 +1751,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      * @return This represents the geometry points for later modifictation or deletion.
      */
-	public ComponentObject addPoints(final List<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
+	public ComponentObject addPoints(final Collection<Points> ptList,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1727,10 +1767,10 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the geometry points for later modification or deletion.
 	 */
-	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,RenderController.ThreadMode mode)
-	{
-		if (!running)
+	public ComponentObject addPoints(Points pts,final GeometryInfo geomInfo,RenderController.ThreadMode mode) {
+		if (!running) {
 			return null;
+		}
 
 		List<Points> ptList = new ArrayList<>(1);
 		ptList.add(pts);
@@ -1739,45 +1779,86 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	// Filled in by the subclass
-	public Point2d geoPointFromScreen(Point2d screenPt)
-	{
-		return null;
-	}
+	public abstract Point2d geoPointFromScreen(Point2d screenPt);
 
 	// Filled in by the subclass
-	public Point2d screenPointFromGeo(Point2d geoCoord)
-	{
-		return null;
-	}
+	public abstract Point2d screenPointFromGeo(Point2d geoCoord);
 
 	// Returns all the objects near a point
-	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc)
-	{
-		com.mousebird.maply.View theView = view;
+	protected SelectedObject[] getObjectsAtScreenLoc(Point2d screenLoc,double maxDist) {
+		final com.mousebird.maply.View theView = view;
 		if (renderWrapper == null || theView == null) {
 			return null;
 		}
 
-		Point2d geoPt = geoPointFromScreen(screenLoc);
+		final Point2d geoPt = geoPointFromScreen(screenLoc);
 		if (geoPt == null) {
 			return null;
 		}
 
 		final Point2d viewSize = getViewSize();
 		final Point2d frameSize = renderControl.frameSize;
-		final Point2d scale = new Point2d(frameSize.getX()/viewSize.getX(),frameSize.getY()/viewSize.getY());
-		final Point2d frameLoc = new Point2d(scale.getX()*screenLoc.getX(),scale.getY()*screenLoc.getY());
+		final double scaleX = frameSize.getX()/viewSize.getX();
+		final double scaleY = frameSize.getY()/viewSize.getY();
+		final Point2d frameLoc = new Point2d(scaleX * screenLoc.getX(),scaleY * screenLoc.getY());
 
-		// Ask the selection manager
 		final ViewState theViewState = theView.makeViewState(renderControl);
-		SelectedObject[] selManObjs = renderControl.selectionManager.pickObjects(renderControl.componentManager,theViewState,frameLoc);
-		if (selManObjs != null) {
-			renderControl.componentManager.remapSelectableObjects(selManObjs);
-			selManObjs = filterMissingObjects(selManObjs);
-		}
+
+		// Ask the selection manager about markers, labels, etc.
+		// Also searches the Component Manager for selectable vectors.
+		final SelectedObject[] selObjs = renderControl.selectionManager.pickObjects(
+				renderControl.componentManager,theViewState,frameLoc,vectorSelectDistance);
+
 		theViewState.dispose();
 
-		return selManObjs;
+		// Look up the Java objects, remove anything that doesn't match.
+		// (Probably deleted just as we found it.)
+		if (selObjs != null && selObjs.length > 0) {
+			renderControl.componentManager.remapSelectableObjects(selObjs);
+			return filterMissingObjects(selObjs);
+		}
+
+		return selObjs;
+	}
+
+	/**
+	 * Return an array containing all the elements in the provided arrays in the same order.
+	 * Individual arguments may be null or empty.
+	 * @return The new array, null if an error occurred or all arguments are null.
+	 */
+	@SafeVarargs @Nullable
+	private static <T> T[] concat(@NotNull T[]... arrays) {
+		int length = 0;
+		T[] array0 = null;
+		for (T[] array : arrays) {
+			if (array != null) {
+				length += array.length;
+				array0 = array;
+			}
+		}
+
+		// At least one array must be non-null so we can get type information
+		if (array0 == null) {
+			return null;
+		}
+
+		final T[] result;
+		try {
+			//noinspection unchecked
+			result = (T[])Array.newInstance(array0.getClass().getComponentType(), length);
+		} catch (ClassCastException ignored) {
+			return null;
+		}
+
+		int offset = 0;
+		for (final T[] array : arrays) {
+			if (array != null && array.length > 0) {
+				System.arraycopy(array, 0, result, offset, array.length);
+				offset += array.length;
+			}
+		}
+
+		return result;
 	}
 
 	/**
@@ -1856,7 +1937,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the labels for modification or deletion.
 	 */
-	public ComponentObject addScreenLabels(final List<ScreenLabel> labels,final LabelInfo labelInfo,RenderController.ThreadMode mode)
+	public ComponentObject addScreenLabels(final Collection<ScreenLabel> labels,final LabelInfo labelInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1874,7 +1955,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 * @return This represents the labels for modification or deletion.
 	 */
-	public ComponentObject addScreenMovingLabels(final List<ScreenMovingLabel> labels,final LabelInfo labelInfo,RenderController.ThreadMode mode)
+	public ComponentObject addScreenMovingLabels(final Collection<ScreenMovingLabel> labels,final LabelInfo labelInfo,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return null;
@@ -1947,7 +2028,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param texs Textures to remove.
 	 * @param mode Remove immediately (current thread) or elsewhere.
      */
-	public void removeTextures(final List<MaplyTexture> texs,RenderController.ThreadMode mode)
+	public void removeTextures(final Collection<MaplyTexture> texs,RenderController.ThreadMode mode)
 	{
 	    renderControl.removeTextures(texs,mode);
 	}
@@ -1959,7 +2040,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param texIDs Textures to remove
 	 * @param mode Remove immediately (current thread) or elsewhere.
 	 */
-	public void removeTexturesByID(final List<Long> texIDs,RenderController.ThreadMode mode)
+	public void removeTexturesByID(final Collection<Long> texIDs,RenderController.ThreadMode mode)
 	{
 	    renderControl.removeTexturesByID(texIDs,mode);
 	}
@@ -2084,7 +2165,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param compObjs Objects to disable in the display.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void disableObjects(final List<ComponentObject> compObjs,RenderController.ThreadMode mode)
+	public void disableObjects(final Collection<ComponentObject> compObjs,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -2116,7 +2197,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param compObjs Objects to enable disable.
 	 * @param mode Where to execute the enable.  Choose ThreadAny by default.
 	 */
-	public void enableObjects(final List<ComponentObject> compObjs,RenderController.ThreadMode mode)
+	public void enableObjects(final Collection<ComponentObject> compObjs,RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -2164,7 +2245,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	 * @param compObjs Component Objects to remove.
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
 	 */
-	public void removeObjects(final List<ComponentObject> compObjs,RenderController.ThreadMode mode)
+	public void removeObjects(final Collection<ComponentObject> compObjs, RenderController.ThreadMode mode)
 	{
 		if (!running)
 			return;
@@ -2295,12 +2376,39 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	}
 
 	/**
+	 * Check whether fades are enabled on the layout manager
+	 */
+	public boolean getLayoutFadeEnabled() {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				return lm.getFadeEnabled();
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Set whether fades are enabled on the layout manager
+	 */
+	public void setLayoutFadeEnabled(boolean enable) {
+		RenderController rc = renderControl;
+		if (rc != null) {
+			LayoutManager lm = rc.layoutManager;
+			if (lm != null) {
+				lm.setFadeEnabled(enable);
+			}
+		}
+	}
+
+	/**
 	 * This method will add the given MaplyShape derived objects to the current scene.  It will use the parameters in the description dictionary and it will do it on the thread specified.
 	 * @param shapes An array of Shape derived objects
 	 * @param shapeInfo Info controlling how the shapes look
 	 * @param mode Where to execute the add.  Choose ThreadAny by default.
      */
-	public ComponentObject addShapes(final List<Shape> shapes, final ShapeInfo shapeInfo, RenderController.ThreadMode mode) {
+	public ComponentObject addShapes(final Collection<Shape> shapes, final ShapeInfo shapeInfo, RenderController.ThreadMode mode) {
 		if (!running)
 			return null;
 
@@ -2370,18 +2478,14 @@ public class BaseController implements RenderController.TaskManager, RenderContr
      * Billboards are rectangles pointed toward the viewer.  They can either be upright, tied to a
      * surface, or oriented completely toward the user.
      */
-	public ComponentObject addBillboards(final List<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
-		if (!running)
-			return null;
-
-		return renderControl.addBillboards(bills,info,threadMode);
+	public ComponentObject addBillboards(final Collection<Billboard> bills, final BillboardInfo info, final RenderController.ThreadMode threadMode) {
+		return running ? renderControl.addBillboards(bills,info,threadMode) : null;
 	}
 
 	/**
 	 * Returns the maximum line width on the current device.
 	 */
-	public float getMaxLineWidth()
-	{
+	public float getMaxLineWidth() {
 		setEGLContext(glContext);
 
 		float[] widths = new float[2];
@@ -2395,8 +2499,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Return the frame size we're rendering to.
 	 */
-	public Point2d getFrameSize()
-	{
+	public Point2d getFrameSize() {
 		if (renderWrapper == null || renderWrapper.maplyRender == null) {
 			return null;
 		}
@@ -2408,8 +2511,7 @@ public class BaseController implements RenderController.TaskManager, RenderContr
 	/**
 	 * Return the current framebuffer size as ints.
 	 */
-	public int[] getFrameBufferSize()
-	{
+	public int[] getFrameBufferSize() {
 		return renderControl.getFrameBufferSize();
 	}
 

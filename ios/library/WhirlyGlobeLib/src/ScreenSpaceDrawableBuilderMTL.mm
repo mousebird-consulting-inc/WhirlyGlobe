@@ -56,7 +56,10 @@ BasicDrawableRef ScreenSpaceDrawableBuilderMTL::getDrawable()
         return BasicDrawableBuilderMTL::getDrawable();
     
     BasicDrawableRef theDraw = BasicDrawableBuilderMTL::getDrawable();
-    
+
+    // Screen-space drawables default to pre-multipled alpha on Metal
+    theDraw->setBlendPremultipliedAlpha(true);
+
     WhirlyKitShader::UniformScreenSpace uniSS;
     bzero(&uniSS,sizeof(uniSS));
     uniSS.keepUpright = keepUpright;

@@ -23,7 +23,7 @@
 - (instancetype)init
 {
     if (self = [super init]) {
-        self.name = @"WMS Test";
+        self.name = @"WMS Test (broken)";
 		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
         
     }

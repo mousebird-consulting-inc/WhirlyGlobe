@@ -41,7 +41,12 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Create a display solid, including height.
-    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,float minZ,float maxZ,CoordSystem *srcSystem,CoordSystemDisplayAdapter *coordAdapter);
+    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const Mbr &nodeMbr,
+                 float minZ,float maxZ,
+                 const CoordSystem *,const CoordSystemDisplayAdapter *);
+    DisplaySolid(const QuadTreeIdentifier &nodeIdent,const MbrD &nodeMbr,
+                 float minZ,float maxZ,
+                 const CoordSystem *,const CoordSystemDisplayAdapter *);
     
     /// Returns true if the given point (in display space) is inside the volume
     bool isInside(const Point3d &pt);
@@ -72,6 +77,8 @@ bool TileIsOnScreen(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &fr
 
 /// Utility function to calculate importance based on pixel screen size.
 /// This would be used by the data source as a default.
+double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const QuadTreeIdentifier &nodeIdent);
+/// This one is for reusing the <c>DisplaySolid</c>
 double ScreenImportance(WhirlyKit::ViewState *viewState,const WhirlyKit::Point2f &frameSize,const Point3d &notUsed, int pixelsSqare,WhirlyKit::CoordSystem *srcSystem,WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,const WhirlyKit::Mbr &nodeMbr, const QuadTreeIdentifier &nodeIdent,DisplaySolidRef &dispSold);
 
 /// Utility function to calculate importance based on pixel screen size.

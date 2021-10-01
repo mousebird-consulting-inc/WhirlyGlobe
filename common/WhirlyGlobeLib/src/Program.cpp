@@ -23,13 +23,6 @@
 namespace WhirlyKit
 {
 
-Program::Program() :
-    reduceMode(None),
-    changed(true),
-    lightsLastUpdated(0)
-{
-}
-
 const std::string &Program::getName() const
 {
     return name;
@@ -38,7 +31,7 @@ const std::string &Program::getName() const
 void Program::setReduceMode(ReduceMode inReduceMode)
 {
     reduceMode = inReduceMode;
-    changed = true;
+    valuesChanged = true;
 }
 
 Program::ReduceMode Program::getReduceMode() const
@@ -48,7 +41,7 @@ Program::ReduceMode Program::getReduceMode() const
 
 void Program::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
 {
-    changed = true;
+    valuesChanged = true;
 
     for (auto & ii : uniBlocks)
         if (ii.bufferID == uniBlock.bufferID) {

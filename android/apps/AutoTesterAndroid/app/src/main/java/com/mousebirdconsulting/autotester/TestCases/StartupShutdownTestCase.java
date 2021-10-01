@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class StartupShutdownTestCase extends MaplyTestCase
     public StartupShutdownTestCase(Activity activity) {
         super(activity);
 
-        setTestName("Startup/Shutdown Test Case");
+        setTestName("Repeated Startup/Shutdown");
         setDelay(4);
         this.implementation = TestExecutionImplementation.Both;
     }

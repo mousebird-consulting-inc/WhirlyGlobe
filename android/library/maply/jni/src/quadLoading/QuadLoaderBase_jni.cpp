@@ -124,15 +124,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getDebugMode(
             return (*loader)->getDebugMode();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getDebugMode()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode(JNIEnv *env, jobject obj, jboolean debugMode)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode
+  (JNIEnv *env, jobject obj, jboolean debugMode)
 {
     try
     {
@@ -141,17 +139,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setDebugMode(JNIE
             (*loader)->setDebugMode(debugMode);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::setDebugMode()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileNative
-        (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
+  (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
 {
-    try {
+    try
+    {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         Point2dClassInfo *point2dClassInfo = Point2dClassInfo::getClassInfo();
         Point2d *ll = point2dClassInfo->getObject(env,llObj);
@@ -160,19 +156,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileN
             return;
 
         QuadDisplayControllerNew *control = (*loader)->getController();
-        if (!control)
+        const auto quadTree = control ? control->getQuadTree() : nullptr;
+        const auto scene = control ? control->getScene() : nullptr;
+        const CoordSystem *wkCoordSys = control ? control->getCoordSys() : nullptr;
+        if (!control || !quadTree || !scene || !wkCoordSys)
+        {
             return;
-        MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileX,tileY,tileLevel));
+        }
 
-        CoordSystem *wkCoordSys = control->getCoordSys();
-        if (!wkCoordSys)
-            return;
-        Point2d pts[4];
-        pts[0] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ll().y(),0.0));
-        pts[1] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ll().y(),0.0));
-        pts[2] = wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(),mbrD.ur().y(),0.0));
-        pts[3] = wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(),mbrD.ur().y(),0.0));
-        Point2d minPt(pts[0].x(),pts[0].y()),  maxPt(pts[0].x(),pts[0].y());
+        const MbrD mbrD = quadTree->generateMbrForNode({tileX,tileY,tileLevel});
+
+        const Point2d pts[4] = {
+            wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(), mbrD.ll().y(), 0.0)),
+            wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(), mbrD.ll().y(), 0.0)),
+            wkCoordSys->localToGeographicD(Point3d(mbrD.ur().x(), mbrD.ur().y(), 0.0)),
+            wkCoordSys->localToGeographicD(Point3d(mbrD.ll().x(), mbrD.ur().y(), 0.0)),
+        };
+
+        // Why not use an Mbr for this?
+        Point2d minPt = pts[0];
+        Point2d maxPt = pts[0];
         for (unsigned int ii=1;ii<4;ii++)
         {
             minPt.x() = std::min(minPt.x(),pts[ii].x());
@@ -180,20 +183,18 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_geoBoundsForTileN
             maxPt.x() = std::max(maxPt.x(),pts[ii].x());
             maxPt.y() = std::max(maxPt.y(),pts[ii].y());
         }
-        ll->x() = minPt.x();  ll->y() = minPt.y();
-        ur->x() = maxPt.x();  ur->y() = maxPt.y();
+        *ll = minPt;
+        *ur = maxPt;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::geoBoundsForTileNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_boundsForTileNative
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject llObj, jobject urObj)
 {
-    try {
+    try
+    {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         Point2dClassInfo *point2dClassInfo = Point2dClassInfo::getClassInfo();
         Point2d *ll = point2dClassInfo->getObject(env,llObj);
@@ -202,43 +203,52 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_boundsForTileNati
             return;
 
         QuadDisplayControllerNew *control = (*loader)->getController();
-        if (!control)
+        const auto quadTree = control ? control->getQuadTree() : nullptr;
+        const auto scene = control ? control->getScene() : nullptr;
+        if (!control || !quadTree || !scene)
+        {
             return;
-        MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileX,tileY,tileLevel));
+        }
 
-        ll->x() = mbrD.ll().x();  ll->y() = mbrD.ll().y();
-        ur->x() = mbrD.ur().x();  ur->y() = mbrD.ur().y();
+        const MbrD mbrD = quadTree->generateMbrForNode({tileX,tileY,tileLevel});
+
+        *ll = mbrD.ll();
+        *ur = mbrD.ur();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::boundsForTileNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_displayCenterForTileNative
         (JNIEnv *env, jobject obj, jint tileX, jint tileY, jint tileLevel, jobject ptObj)
 {
-    try {
+    try
+    {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
         Point3d *outPt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
         if (!loader || !outPt)
             return;
+
         QuadDisplayControllerNew *control = (*loader)->getController();
-        if (!control)
+        const auto quadTree = control ? control->getQuadTree() : nullptr;
+        const auto scene = control ? control->getScene() : nullptr;
+        const CoordSystem *wkCoordSys = control ? control->getCoordSys() : nullptr;
+        const auto *adapter = scene ? scene->getCoordAdapter() : nullptr;
+        const auto *coordSys = adapter ? adapter->getCoordSystem() : nullptr;
+        if (!control || !quadTree || !scene || !wkCoordSys || !coordSys)
+        {
             return;
+        }
 
-        MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileX,tileY,tileLevel));
+        const MbrD mbrD = quadTree->generateMbrForNode({tileX,tileY,tileLevel});
 
-        Point2d pt((mbrD.ll().x()+mbrD.ur().x())/2.0,(mbrD.ll().y()+mbrD.ur().y())/2.0);
-        Scene *scene = control->getScene();
-        Point3d locCoord = CoordSystemConvert3d(control->getCoordSys(), scene->getCoordAdapter()->getCoordSystem(), Point3d(pt.x(),pt.y(),0.0));
-        *outPt = scene->getCoordAdapter()->localToDisplay(locCoord);
+        const Point2d pt((mbrD.ll().x()+mbrD.ur().x())/2.0,
+                         (mbrD.ll().y()+mbrD.ur().y())/2.0);
+        const Point3d locCoord = CoordSystemConvert3d(wkCoordSys, coordSys,
+                                                      Point3d(pt.x(),pt.y(),0.0));
+        *outPt = adapter->localToDisplay(locCoord);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::displayCenterForTileNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"

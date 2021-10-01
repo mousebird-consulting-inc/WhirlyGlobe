@@ -500,9 +500,10 @@ bool VectorTilePBFParser::parsePolygon(const uint32_t *geometry, size_t geomCoun
     double y = 0;
     int cmd = -1;
     int length = 0;
-    Point2f point;
     Point2f firstCoord(0, 0);
-    VectorRing ring;
+
+    tempRing.clear();
+    tempRing.reserve(geomCount+1);
     
     for (int k = 0; k < geomCount; )
     {
@@ -524,29 +525,30 @@ bool VectorTilePBFParser::parsePolygon(const uint32_t *geometry, size_t geomCoun
                 
                 // At this point x/y is a coord is encoded in tile coord space, from 0 to TILE_SIZE
                 // Convert to epsg:3785, then to degrees, then to radians
-                point = Point2f((_tileOriginX + x / _sx), (_tileOriginY - y / _sy));
+                double fx = _tileOriginX + x / _sx;
+                double fy = _tileOriginY - y / _sy;
                 
                 if (!_localCoords)
                 {
-                    point.x() = DegToRad((point.x() / MAX_EXTENT) * 180.0);
-                    point.y() = 2 * atan(exp(DegToRad((point.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                    fx = DegToRad((fx / MAX_EXTENT) * 180.0);
+                    fy = 2 * atan(exp(DegToRad((fy / MAX_EXTENT) * 180.0))) - M_PI_2;
                 }
 
                 if (cmd == SEG_MOVETO)  //move to means we are starting a new segment
                 {
-                    firstCoord = point;
+                    firstCoord = Point2f(fx,fy);
                     //TODO: does this ever happen when we are part way through a shape? holes?
                 }
-                
-                ring.emplace_back(point.x(),point.y());
+
+                tempRing.emplace_back(fx, fy);
             }
             else if (cmd == SEG_CLOSE_MASKED)
             {
-                if (!ring.empty())  //We've already got a line, finish it
+                if (!tempRing.empty())  //We've already got a line, finish it
                 {
-                    ring.emplace_back(firstCoord.x(),firstCoord.y()); //close the loop
-                    shape.loops.push_back(ring); //add loop to shape
-                    ring.clear(); //reuse the ring
+                    tempRing.emplace_back(firstCoord); //close the loop
+                    shape.loops.push_back(tempRing); //add loop to shape
+                    tempRing.clear(); //reuse the ring
                 }
             }
             else
@@ -557,9 +559,9 @@ bool VectorTilePBFParser::parsePolygon(const uint32_t *geometry, size_t geomCoun
     }
     
 #if DEBUG
-    if (!ring.empty())
+    if (!tempRing.empty())
     {
-        wkLogLevel(Warn, "VectorTilePBFParser: Finished polygon loop, and ring has %d points", (int)ring.size());
+        wkLogLevel(Warn, "VectorTilePBFParser: Finished polygon loop, and ring has %d points", (int)tempRing.size());
     }
 #endif
     //TODO: Is there a possibility of still having a ring here that hasn't been added by a close command?
@@ -578,8 +580,7 @@ bool VectorTilePBFParser::parsePoints(const uint32_t *geometry, size_t geomCount
     double y = 0;
     int cmd = -1;
     int length = 0;
-    Point2f point;
-    
+
     for (int k = 0; k < geomCount; )
     {
         if (!length)
@@ -602,14 +603,15 @@ bool VectorTilePBFParser::parsePoints(const uint32_t *geometry, size_t geomCount
                 // Covert to epsg:3785, then to degrees, then to radians
                 if (x > 0 && x < TileSize && y > 0 && y < TileSize)
                 {
-                    point = Point2f((_tileOriginX + x / _sx), (_tileOriginY - y / _sy));
+                    double fx = _tileOriginX + x / _sx;
+                    double fy = _tileOriginY - y / _sy;
                     
                     if (!_localCoords)
                     {
-                        point.x() = DegToRad((point.x() / MAX_EXTENT) * 180.0);
-                        point.y() = 2 * atan(exp(DegToRad((point.y() / MAX_EXTENT) * 180.0))) - M_PI_2;
+                        fx = DegToRad((fx / MAX_EXTENT) * 180.0);
+                        fy = 2 * atan(exp(DegToRad((fy / MAX_EXTENT) * 180.0))) - M_PI_2;
                     }
-                    shape.pts.emplace_back(point.x(),point.y());
+                    shape.pts.emplace_back(fx,fy);
                 }
             }
             else if (cmd == SEG_CLOSE_MASKED)

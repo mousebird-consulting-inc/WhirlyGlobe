@@ -36,7 +36,7 @@ public class MaplyStarModelTestCase extends MaplyTestCase {
 
     public MaplyStarModelTestCase(Activity activity) {
         super(activity);
-        setTestName("Maply Star Test Case");
+        setTestName("Star Model");
         setDelay(10000);
         this.implementation = TestExecutionImplementation.Globe;
     }

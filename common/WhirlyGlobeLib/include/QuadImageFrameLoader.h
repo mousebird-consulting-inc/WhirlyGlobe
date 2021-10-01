@@ -306,11 +306,12 @@ public:
     // Number of tiles at the lowest level loaded for each frame
     std::vector<bool> topTilesLoaded;
     
-    bool hasUpdate(const std::vector<double> &curFrames) const;
+    bool hasUpdate(const std::vector<double> &curFrames,bool masterUpdate) const;
     
     std::vector<double> lastCurFrames;
     TimeInterval lastRenderTime;
     TimeInterval lastUpdate;
+    bool lastMasterEnable;
     
     // Update what the scene is looking at.  Ideally not every frame.
     void updateScene(Scene *scene,
@@ -318,6 +319,7 @@ public:
                      TimeInterval now,
                      bool flipY,
                      const RGBAColor &color,
+                     bool masterEnable,
                      ChangeSet &changes);
 };
     
@@ -345,6 +347,9 @@ public:
     /// If set, we'll see way too much output
     void setDebugMode(bool newMode) { debugMode = newMode; }
     bool getDebugMode() const { return debugMode; }
+    
+    /// Turn the display on or off.  Loading continues normally
+    void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
     
     typedef enum {Broad,Narrow} LoadMode;
     
@@ -559,7 +564,7 @@ protected:
     // Construct a platform specific tile/frame assets in the subclass
     virtual QIFTileAssetRef makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident) = 0;
     
-    // Contruct a platform specific BatchOps for passing to tile fetcher
+    // Construct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
     virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) = 0;
     
@@ -572,6 +577,7 @@ protected:
     Mode mode;
     LoadMode loadMode;
     
+    bool masterEnable;
     bool debugMode;
     
     SamplingParams params;

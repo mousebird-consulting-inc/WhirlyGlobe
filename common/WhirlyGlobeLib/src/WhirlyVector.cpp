@@ -74,8 +74,18 @@ void Mbr::addPoint(const Point2d &pt)
 
 void Mbr::addPoints(const Point2fVector &coords)
 {
-    for (unsigned int ii=0;ii<coords.size();ii++)
+    if (!coords.empty())
+    {
+        addPoints(&coords[0], coords.size());
+    }
+}
+
+void Mbr::addPoints(const Point2f* coords, size_t count)
+{
+    for (size_t ii=0;ii<count;ii++)
+    {
         addPoint(coords[ii]);
+    }
 }
 
 void Mbr::addPoints(const Point2dVector &coords)
@@ -393,59 +403,76 @@ template <typename T> void expandLon(T &w, T &e, T lon)
 GeoMbr::GeoMbr(const std::vector<GeoCoord> &coords)
 	: pt_ll(BadVal,BadVal), pt_ur(BadVal,BadVal)
 {
-	for (unsigned int ii=0;ii<coords.size();ii++)
-		addGeoCoord(coords[ii]);
+	for (const auto &coord : coords)
+    {
+	    addGeoCoord(coord);
+    }
 }
 	
 GeoMbr::GeoMbr(const Point2fVector &pts)
 	: pt_ll(BadVal,BadVal), pt_ur(BadVal,BadVal)
 {
-	for (unsigned int ii=0;ii<pts.size();ii++)
+	for (const auto &pt : pts)
 	{
-		addGeoCoord(pts[ii]);
+		addGeoCoord(pt);
 	}
 }
 
 // Expand the MBR by this coordinate
-void GeoMbr::addGeoCoord(const Point2f &coord)
+void GeoMbr::addGeoCoord(float x, float y)
 {
 	if (!valid())
 	{
-		pt_ll = pt_ur = coord;
+		pt_ll = pt_ur = {x,y};
 		return;
 	}
 
-	pt_ll.y() = std::min(pt_ll.y(),coord.y());
-	pt_ur.y() = std::max(pt_ur.y(),coord.y());
+	pt_ll.y() = std::min(pt_ll.y(), y);
+	pt_ur.y() = std::max(pt_ur.y(), y);
 
-    expandLon(pt_ll.x(), pt_ur.x(), coord.x());
+    expandLon(pt_ll.x(), pt_ur.x(), x);
 }
 
-void GeoMbr::addGeoCoord(const Point3d &coord)
-{
-    addGeoCoord(GeoCoord(coord.x(),coord.y()));
-}
-	
 void GeoMbr::addGeoCoords(const GeoCoordVector &coords)
 {
-	for (unsigned int ii=0;ii<coords.size();ii++)
-		addGeoCoord(coords[ii]);
+	for (const auto &coord : coords)
+    {
+	    addGeoCoord(coord);
+    }
 }
     
+void GeoMbr::addGeoCoords(const Point3fVector &coords)
+{
+    for (const auto &coord: coords)
+    {
+        addGeoCoord(coord);
+    }
+}
+
 void GeoMbr::addGeoCoords(const Point3dVector &coords)
 {
-    for (const Point3d &coord: coords)
+    for (const auto &coord: coords)
+    {
         addGeoCoord(coord);
+    }
 }
 
 void GeoMbr::addGeoCoords(const Point2fVector &coords)
 {
-	for (unsigned int ii=0;ii<coords.size();ii++)
+	for (const auto &coord : coords)
 	{
-		addGeoCoord(coords[ii]);
+		addGeoCoord(coord);
 	}
 }
-	
+
+void GeoMbr::addGeoCoords(const Point2dVector &coords)
+{
+    for (const auto &coord : coords)
+    {
+        addGeoCoord(coord);
+    }
+}
+
 bool GeoMbr::overlaps(const GeoMbr &that) const
 {
     if (that.ll().y() > pt_ur.y() ||
@@ -610,47 +637,6 @@ Eigen::Quaterniond QuatFromTwoVectors(const Point3d &a,const Point3d &b)
     ret.w() = s * 0.5;
 
     return ret;
-}
-
-/// Convert a 4f matrix to a 4d matrix
-Eigen::Matrix4d Matrix4fToMatrix4d(const Eigen::Matrix4f &inMat)
-{
-    return inMat.cast<double>();
-}
-
-Eigen::Matrix4f Matrix4dToMatrix4f(const Eigen::Matrix4d &inMat)
-{
-    return inMat.cast<float>();
-}
-
-/// Floats to doubles
-Eigen::Vector2d Vector2fToVector2d(const Eigen::Vector2f &inVec)
-{
-    return inVec.cast<double>();
-}
-    
-/// Doubles to floats
-Eigen::Vector2f Vector2dToVector2f(const Eigen::Vector2d &inVec)
-{
-    return inVec.cast<float>();
-}
-
-/// Floats to doubles
-Eigen::Vector3d Vector3fToVector3d(const Eigen::Vector3f &inVec)
-{
-    return inVec.cast<double>();
-}
-
-// Double to floats
-Eigen::Vector3f Vector3dToVector3f(const Eigen::Vector3d &inVec)
-{
-    return inVec.cast<float>();
-}
-
-/// Floats to doubles
-Eigen::Vector4d Vector4fToVector4d(const Eigen::Vector4f &inVec)
-{
-    return inVec.cast<double>();
 }
 
 //#define LOW_LEVEL_UNIT_TESTS

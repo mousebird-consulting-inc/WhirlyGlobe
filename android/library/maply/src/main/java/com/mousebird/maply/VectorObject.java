@@ -100,14 +100,24 @@ public class VectorObject implements Iterable<VectorObject>
 	public native boolean getSelectable();
 
 	/**
-	 * Return attributes for the feature.  If there are multiple features, we get the first one.
+	 * Return attributes for the feature.
+	 * If there are multiple features, we get the first one.
+	 * May return a copy of the internal attribute dictionary.
 	 */
 	public native AttrDictionary getAttributes();
 
 	/**
+	 * Return attributes for the feature.
+	 * If there are multiple features, we get the first one.
+	 * Returns null if the internal attribute dictionary cannot be referenced.
+	 */
+	@Nullable
+	public native AttrDictionary getAttributesRef();
+
+	/**
 	 * Reset the attributes for the feature.
 	 */
-	public native void setAttributes(AttrDictionary attrs);
+	public native void setAttributes(@NotNull AttrDictionary attrs);
 	
 	/**
 	 * Add a single point

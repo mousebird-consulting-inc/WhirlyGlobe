@@ -169,6 +169,15 @@ id<MTLRenderPipelineState> BasicDrawableInstanceMTL::getRenderPipelineState(Scen
     if (!name.empty())
         renderDesc.label = [NSString stringWithFormat:@"%s",name.c_str()];
 
+    if (getBlendPremultipliedAlpha() && renderDesc.colorAttachments[0].blendingEnabled)
+    {
+        // If this drawable uses pre-multipled alpha components, tweak the blend mode from
+        // the equivalent of `glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)` to
+        // `glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)`.
+        renderDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorOne;
+        renderDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorOne;
+    }
+
     // Update the attribute defaults if they're present
     if (hasColor) {
         VertexAttributeMTL *colorAttrMTL = basicDrawMTL->findVertexAttribute(a_colorNameID);
@@ -307,9 +316,9 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     }
     RenderSetupInfoMTL *setupMTL = (RenderSetupInfoMTL *)sceneRender->getRenderSetupInfo();
 
-    if (texturesChanged || valuesChanged || prog->changed) {
+    if (texturesChanged || valuesChanged || prog->texturesChanged || prog->valuesChanged) {
         ret = true;
-        if (texturesChanged && (vertTexInfo || fragTexInfo)) {
+        if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
 
             // Sometimes it's just boring geometry and the texture's in the base
@@ -380,7 +389,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         }
 
         // TODO: Could break out the program only changes
-        if (valuesChanged || prog->changed) {
+        if (valuesChanged || prog->valuesChanged) {
             if (vertABInfo)
                 vertABInfo->startEncoding(sceneRender->setupInfo.mtlDevice);
             if (fragABInfo)

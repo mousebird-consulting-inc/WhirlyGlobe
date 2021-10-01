@@ -269,12 +269,15 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
         // Don't let the sampling layer shut down while we're working
         QuadSamplingLayer samplingLayer = loader.samplingLayer.get();
-        // startOfWork must be last, or we could bypass endOfWork
-        if (samplingLayer == null || loadReturn.isCanceled() || !samplingLayer.layerThread.startOfWork()) {
+        if (samplingLayer == null || loadReturn.isCanceled()) {
             return;
         }
 
-        try {   // ensure endOfWork is called
+        try (LayerThread.WorkWrapper wr = samplingLayer.layerThread.startOfWorkWrapper()) {
+            if (wr == null) {
+                return;
+            }
+
             ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
             ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
             if (thisOvjObjs != null) {
@@ -411,9 +414,6 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                     imgLoadReturn.addImageTile(tile);
                 }
             }
-        } finally {
-            // Let the sampling layer shut down
-            samplingLayer.layerThread.endOfWork();
         }
     }
 
