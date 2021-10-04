@@ -1293,6 +1293,15 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
   */
 - (MaplyCoordinate3dD)displayPointFromGeoD:(MaplyCoordinate)geoCoord;
 
+/**
+    Utility routine to convert from a lat/lon (in radians) to display coordinates
+    
+    This is a simple routine to get display coordinates from geocoordinates.  Display coordinates for the globe are based on a radius of 1.0 and an origin of (0,0,0).
+    
+    @return The input coordinate in display coordinates.
+  */
+- (MaplyCoordinate3dD)displayPointFromGeoDD:(MaplyCoordinateD)geoCoord;
+
 /** 
     If you've paused the animation earlier, this will start it again.
     
