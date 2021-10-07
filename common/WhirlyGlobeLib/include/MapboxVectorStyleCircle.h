@@ -27,10 +27,14 @@ namespace WhirlyKit
  
  You control the look of any rendered circles with this.  It would typically be produced in parsing a Mapbox Vector Style.
  */
-class MapboxVectorCirclePaint
+struct MapboxVectorCirclePaint
 {
-public:
-    bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,DictionaryRef styleEntry);
+    MapboxVectorCirclePaint() = default;
+    MapboxVectorCirclePaint(const MapboxVectorCirclePaint&) = default;
+
+    bool parse(PlatformThreadInfo *inst,
+               MapboxVectorStyleSetImpl *styleSet,
+               const DictionaryRef &styleEntry);
 
     /// Radius, in pixels, of the circle to be produced
     MapboxTransDoubleRef radius;
@@ -53,6 +57,9 @@ class MapboxVectorLayerCircle : public MapboxVectorStyleLayer
 public:
     MapboxVectorLayerCircle(MapboxVectorStyleSetImpl *styleSet) : MapboxVectorStyleLayer(styleSet) { }
 
+    virtual MapboxVectorStyleLayerRef clone() const override;
+    virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) override;
+
     virtual bool parse(PlatformThreadInfo *inst,
                        const DictionaryRef &styleEntry,
                        const MapboxVectorStyleLayerRef &refLayer,
@@ -72,14 +79,16 @@ public:
         return RGBAColor::clear();
     }
 
+protected:
+    // N.B.: This does not copy the base members
+    MapboxVectorLayerCircle& operator=(const MapboxVectorLayerCircle&) = default;
+
 public:
     MapboxVectorCirclePaint paint;
     
-    SimpleIdentity circleTexID;
-    Point2f circleSize;
-    float importance;
-    std::string uuidField;      // UUID field for markers/labels (from style settings)
-    std::string repUUIDField;   // UUID field for representations (from style layers)
+    SimpleIdentity circleTexID = EmptyIdentity;
+    Point2f circleSize{0.0f, 0.0f};
+    float importance = 0.0f;
 };
 
 }

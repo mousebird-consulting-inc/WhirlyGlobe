@@ -32,14 +32,17 @@ public:
                        const DictionaryRef &styleEntry,
                        const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority) override;
-    
+
+    virtual MapboxVectorStyleLayerRef clone() const override;
+    virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) override;
+
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc,
                               const CancelFunction &cancelFn) override;
     
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override { }
 
 protected:
 };

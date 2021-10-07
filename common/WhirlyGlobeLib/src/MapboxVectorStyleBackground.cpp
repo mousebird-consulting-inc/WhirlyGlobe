@@ -1,4 +1,4 @@
-/*  MapboxVectorStyleBackground.mm
+/*  MapboxVectorStyleBackground.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
@@ -17,18 +17,17 @@
  */
 
 #import "MapboxVectorStyleBackground.h"
-#import "WhirlyKitLog.h"
 #import "Tesselator.h"
 
 namespace WhirlyKit
 {
 
-bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *inst,
+bool MapboxVectorBackgroundPaint::parse(PlatformThreadInfo *,
                                         MapboxVectorStyleSetImpl *styleSet,
-                                        DictionaryRef styleEntry)
+                                        const DictionaryRef &styleEntry)
 {
     color = styleSet->transColor("background-color",styleEntry,RGBAColor::black());
-    styleSet->unsupportedCheck("background-image","paint_background",styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("background-image","paint_background",styleEntry);
 
     opacity = styleSet->transDouble("background-opacity",styleEntry,1.0);
 
@@ -61,6 +60,23 @@ bool MapboxVectorLayerBackground::parse(PlatformThreadInfo *inst,
     drawPriority = inDrawPriority;
 
     return true;
+}
+
+MapboxVectorStyleLayerRef MapboxVectorLayerBackground::clone() const
+{
+    auto layer = std::make_shared<MapboxVectorLayerBackground>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerBackground::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto fill = dynamic_cast<const MapboxVectorLayerBackground*>(&that))
+    {
+        operator=(*fill);
+    }
+    return *this;
 }
 
 void MapboxVectorLayerBackground::buildObjects(PlatformThreadInfo *inst,

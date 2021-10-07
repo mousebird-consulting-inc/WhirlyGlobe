@@ -25,29 +25,29 @@ namespace WhirlyKit
 static const char * const lineCapVals[] = {"butt","round","square",nullptr};
 static const char * const joinVals[] = {"bevel","round","miter",nullptr};
 
-bool MapboxVectorLineLayout::parse(PlatformThreadInfo *,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry)
+bool MapboxVectorLineLayout::parse(PlatformThreadInfo *,MapboxVectorStyleSetImpl *, const DictionaryRef &styleEntry)
 {
-    cap = styleEntry ? (MapboxVectorLineCap)styleSet->enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt) : MBLineCapButt;
-    join = styleEntry ? (MapboxVectorLineJoin)styleSet->enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter) : MBLineJoinMiter;
-    miterLimit = styleSet->doubleValue("line-miter-limit", styleEntry, 2.0);
-    roundLimit = styleSet->doubleValue("line-round-limit", styleEntry, 1.0);
+    cap = styleEntry ? (MapboxVectorLineCap)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt) : MBLineCapButt;
+    join = styleEntry ? (MapboxVectorLineJoin)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter) : MBLineJoinMiter;
+    miterLimit = MapboxVectorStyleSetImpl::doubleValue("line-miter-limit", styleEntry, 2.0);
+    roundLimit = MapboxVectorStyleSetImpl::doubleValue("line-round-limit", styleEntry, 1.0);
 
     return true;
 }
 
 bool MapboxVectorLinePaint::parse(PlatformThreadInfo *,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry)
 {
-    styleSet->unsupportedCheck("line-translate", "line-paint", styleEntry);
-    styleSet->unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
-    styleSet->unsupportedCheck("line-gap-width", "line-paint", styleEntry);
-    styleSet->unsupportedCheck("line-blur", "line-paint", styleEntry);
-    styleSet->unsupportedCheck("line-image", "line-paint", styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("line-translate", "line-paint", styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("line-translate-anchor", "line-paint", styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("line-gap-width", "line-paint", styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("line-blur", "line-paint", styleEntry);
+    MapboxVectorStyleSetImpl::unsupportedCheck("line-image", "line-paint", styleEntry);
     
     opacity = styleSet->transDouble("line-opacity", styleEntry, 1.0);
     width = styleSet->transDouble("line-width", styleEntry, 1.0);
     offset = styleSet->transDouble("line-offset", styleEntry, 0.0);
     color = styleSet->transColor("line-color", styleEntry, RGBAColor::black());
-    pattern = styleSet->stringValue("line-pattern", styleEntry, "");
+    pattern = MapboxVectorStyleSetImpl::stringValue("line-pattern", styleEntry, "");
     
     if (styleEntry && styleEntry->getType("line-dasharray") == DictTypeArray) {
         auto vecArray = styleEntry->getArray("line-dasharray");
@@ -75,10 +75,10 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
         return false;
     }
     
-    this->drawPriority = styleSet->intValue("drawPriority", styleEntry, drawPriority);
-    linearClipToBounds = styleSet->boolValue("linearize-clip-to-bounds", styleEntry, "yes", false);
-    dropGridLines = styleSet->boolValue("drop-grid-lines", styleEntry, "yes", false);
-    subdivToGlobe = styleSet->doubleValue("subdiv-to-globe", styleEntry, 0.0);
+    this->drawPriority = MapboxVectorStyleSetImpl::intValue("drawPriority", styleEntry, drawPriority);
+    linearClipToBounds = MapboxVectorStyleSetImpl::boolValue("linearize-clip-to-bounds", styleEntry, "yes", false);
+    dropGridLines = MapboxVectorStyleSetImpl::boolValue("drop-grid-lines", styleEntry, "yes", false);
+    subdivToGlobe = MapboxVectorStyleSetImpl::doubleValue("subdiv-to-globe", styleEntry, 0.0);
 
     filledLineTexID = EmptyIdentity;
     if (!paint.lineDashArray.empty())
@@ -104,20 +104,33 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
         
         filledLineTexID = styleSet->makeLineTexture(inst,dashComponents);
     }
-    fade = styleSet->doubleValue("fade",styleEntry,0.0);
+    fade = MapboxVectorStyleSetImpl::doubleValue("fade",styleEntry,0.0);
 
-    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+    repUUIDField = MapboxVectorStyleSetImpl::stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
 
     lineScale = styleSet->tileStyleSettings->lineScale;
     
     uuidField = styleSet->tileStyleSettings->uuidField;
-    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
+    uuidField = MapboxVectorStyleSetImpl::stringValue("X-Maply-UUIDField", styleEntry, uuidField);
 
     return true;
 }
 
-void MapboxVectorLayerLine::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
+MapboxVectorStyleLayerRef MapboxVectorLayerLine::clone() const
 {
+    auto layer = std::make_shared<MapboxVectorLayerLine>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerLine::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto line = dynamic_cast<const MapboxVectorLayerLine*>(&that))
+    {
+        operator=(*line);
+    }
+    return *this;
 }
 
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
@@ -195,7 +208,7 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
 #endif
 
-    const RGBAColorRef color = styleSet->resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode);
+    const RGBAColorRef color = MapboxVectorStyleSetImpl::resolveColor(paint.color, paint.opacity, tileInfo->ident.level, resolveMode);
 
     const double width = paint.width->valForZoom(tileInfo->ident.level) * lineScale;
     const double offset = paint.offset->valForZoom(tileInfo->ident.level) * lineScale;

@@ -1,4 +1,4 @@
-/*  MapboxVectorStyleRaster.mm
+/*  MapboxVectorStyleRaster.cpp
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
@@ -29,15 +29,28 @@ bool MapboxVectorLayerRaster::parse(PlatformThreadInfo *inst,
     return MapboxVectorStyleLayer::parse(inst, styleEntry, refLayer, drawPriority);
 }
 
+MapboxVectorStyleLayerRef MapboxVectorLayerRaster::clone() const
+{
+    auto layer = std::make_shared<MapboxVectorLayerRaster>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerRaster::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto line = dynamic_cast<const MapboxVectorLayerRaster*>(&that))
+    {
+        operator=(*line);
+    }
+    return *this;
+}
+
 void MapboxVectorLayerRaster::buildObjects(__unused PlatformThreadInfo *inst,
                                            __unused const std::vector<VectorObjectRef> &vecObjs,
                                            __unused const VectorTileDataRef &tileInfo,
                                            __unused const Dictionary *desc,
                                            __unused const CancelFunction &cancelFn)
-{
-}
-
-void MapboxVectorLayerRaster::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
 {
 }
 

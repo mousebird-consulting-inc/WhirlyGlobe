@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleSymbol.h
+/*  MapboxVectorStyleSymbol.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MapboxVectorStyleSetC.h"
@@ -30,17 +28,19 @@ typedef enum {MBTextTransNone,MBTextTransUppercase,MBTextTransLowercase} MapboxT
 
 /** Controls the layout logic for Mapbox Symbols.
   */
-class MapboxVectorSymbolLayout
+struct MapboxVectorSymbolLayout
 {
-public:
+    MapboxVectorSymbolLayout() = default;
+    MapboxVectorSymbolLayout(const MapboxVectorSymbolLayout&) = default;
+
     bool parse(PlatformThreadInfo *inst,
                MapboxVectorStyleSetImpl *styleSet,
                const DictionaryRef &styleEntry);
 
     /// How we place the symbol (at a point, or along a line)
-    MapboxSymbolPlacement placement;
+    MapboxSymbolPlacement placement = MBPlacePoint;
     /// If set, turn the text uppercase
-    MapboxTextTransform textTransform;
+    MapboxTextTransform textTransform = MBTextTransNone;
     /// @brief Font to use for display
     std::vector<std::string> textFontNames;
     /// @brief The maximum line width for wrapping
@@ -51,16 +51,17 @@ public:
     MapboxTransDoubleRef textOffsetX;
     MapboxTransDoubleRef textOffsetY;
     /// Text scale from the global settings
-    double globalTextScale;
+    double globalTextScale = 0.0;
     /// How the text is laid out in relation to it's attach point
-    MapboxTextAnchor textAnchor;
+    MapboxTextAnchor textAnchor = MBTextCenter;
     /// Whether it goes to the layout engine
-    bool iconAllowOverlap,textAllowOverlap;
+    bool iconAllowOverlap = false;
+    bool textAllowOverlap = false;
     /// Text justification
-    bool textJustifySet;
-    TextJustify textJustify;
+    bool textJustifySet = false;
+    TextJustify textJustify = WhirlyKitTextCenter;
     
-    float layoutImportance;
+    float layoutImportance = 0.0f;
         
     // Text can be expressed in a complex way
     MapboxTransTextRef textField;
@@ -73,9 +74,11 @@ public:
 };
 
 // Symbol visuals
-class MapboxVectorSymbolPaint
+struct MapboxVectorSymbolPaint
 {
-public:
+    MapboxVectorSymbolPaint() = default;
+    MapboxVectorSymbolPaint(const MapboxVectorSymbolPaint&) = default;
+
     bool parse(PlatformThreadInfo *inst,
                MapboxVectorStyleSetImpl *styleSet,
                const DictionaryRef &styleEntry);
@@ -107,8 +110,11 @@ public:
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc,
                               const CancelFunction &cancelFn) override;
-    
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
+
+    virtual MapboxVectorStyleLayerRef clone() const override;
+    virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) override;
+
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override { }
 
     virtual std::string getLegendText(float zoom) const override {
         if (layout.iconImageField) {
@@ -136,15 +142,18 @@ public:
                         const Point2f &pt,
                         const MutableDictionaryRef &attrs,
                         const VectorTileDataRef &tileInfo);
-    
+
+protected:
+    // N.B.: This does not copy the base members
+    MapboxVectorLayerSymbol& operator=(const MapboxVectorLayerSymbol&) = default;
+
+public:
     MapboxVectorSymbolLayout layout;
     MapboxVectorSymbolPaint paint;
 
     /// If set, only one label with its text will be displayed.  Sorted out by the layout manager.
-    bool uniqueLabel;
-    std::string uuidField;      // UUID field for markers/labels (from style settings)
-    std::string repUUIDField;   // UUID field for representations (from style layers)
-    bool useZoomLevels;
+    bool uniqueLabel = false;
+    bool useZoomLevels = false;
 };
 
 }

@@ -21,6 +21,8 @@
 #import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
 #import "MapboxVectorStyleBackground.h"
+#import "MapboxVectorStyleLine.h"
+#import "MapboxVectorStyleSymbol.h"
 #import <regex>
 
 namespace WhirlyKit
@@ -1027,6 +1029,96 @@ void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites
 {
     sprites = std::move(newSprites);
 }
+
+bool MapboxVectorStyleSetImpl::hasRepresentations()
+{
+    return std::any_of(layers.begin(), layers.end(),
+                [](const auto &layer){ return !layer->getRepresentation().empty(); });
+}
+
+static std::string repLayerName(const std::string &ident, const std::string &repName)
+{
+    std::string s;
+    s.reserve(ident.size() + repName.size() + 1);
+    s.append(ident).append("_", 1).append(repName);
+    return s;
+}
+
+bool MapboxVectorStyleSetImpl::addRepresentations(const char* uuidAttr,
+                                                  const std::vector<std::string> &sources,
+                                                  const std::vector<std::string> &reps,
+                                                  const std::vector<float> &sizes,
+                                                  const std::vector<std::string> &colors)
+{
+    std::vector<MapboxVectorStyleLayerRef> newLayers;
+
+    // each layer-source
+    for (const auto &source : sources)
+    {
+        // find matching layers
+        const auto range = layersBySource.equal_range(source);
+
+        // each representation name
+        for (size_t repIdx = 0; repIdx < reps.size(); ++repIdx)
+        {
+            const auto &repName = reps[repIdx];
+            const auto &size = sizes[repIdx];
+            const auto &color = colors[repIdx];
+
+            // each layer with matching source
+            for (auto i = range.first; i != range.second; ++i)
+            {
+                auto &layer = *i->second;
+                const auto &ident = layer.ident;
+
+                if (!layer.representation.empty())
+                {
+                    // Already a representation layer
+                    continue;
+                }
+
+                const auto repIdent = repLayerName(ident, repName);
+                if (std::any_of(range.first, range.second,
+                                [&](const auto &kv){ return kv.second->ident == repIdent; }))
+                {
+                    // '<ident>_<suffix>' is already present
+                    continue;
+                }
+
+                // Make a copy of the layer
+                if (auto layerCopy = layer.clone())
+                {
+                    layer.repUUIDField = uuidAttr;
+                    layerCopy->repUUIDField = uuidAttr;
+                    layerCopy->representation = repName;
+                    layerCopy->ident = repIdent;
+                    layerCopy->visible = false;
+                    // todo: virtual methods for override color/size/etc.
+                    // todo: override arbitrary properties?
+                    if (size > 0)
+                    {
+                        if (auto sym = dynamic_cast<MapboxVectorLayerSymbol*>(layerCopy.get()))
+                        {
+                            sym->layout.iconSize = std::make_shared<MapboxTransDouble>(size);
+                        }
+                    }
+                    if (!color.empty())
+                    {
+                        if (auto lin = dynamic_cast<MapboxVectorLayerLine*>(layerCopy.get()))
+                        {
+                            const auto multiplyAlpha = false; // ?
+                            const auto colorRef = parseColor(color, std::string(), RGBAColorRef(), multiplyAlpha);
+                            lin->paint.color = std::make_shared<MapboxTransColor>(colorRef);
+                        }
+                    }
+                    newLayers.push_back(std::move(layerCopy));
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 //#define LOW_LEVEL_UNIT_TESTS
 #if defined(LOW_LEVEL_UNIT_TESTS)

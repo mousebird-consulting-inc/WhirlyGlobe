@@ -28,23 +28,27 @@ typedef enum {MBLineJoinBevel,MBLineJoinRound,MBLineJoinMiter} MapboxVectorLineJ
 /**
  Controls how the lines are laid out (geometry, largely).
  */
-class MapboxVectorLineLayout
+struct MapboxVectorLineLayout
 {
-public:
+    MapboxVectorLineLayout() = default;
+    MapboxVectorLineLayout(const MapboxVectorLineLayout&) = default;
+
     bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
-    MapboxVectorLineCap cap;
-    MapboxVectorLineJoin join;
-    double miterLimit;
-    double roundLimit;
+    MapboxVectorLineCap cap = MBLineCapButt;
+    MapboxVectorLineJoin join = MBLineJoinBevel;
+    double miterLimit = 0.0;
+    double roundLimit = 0.0;
 };
 
 /**
  Controls how the vector line looks.
  */
-class MapboxVectorLinePaint
+struct MapboxVectorLinePaint
 {
-public:
+    MapboxVectorLinePaint() = default;
+    MapboxVectorLinePaint(const MapboxVectorLinePaint&) = default;
+
     bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
     MapboxTransDoubleRef opacity;
@@ -65,35 +69,39 @@ public:
                        const DictionaryRef &styleEntry,
                        const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority) override;
-    
+
+    virtual MapboxVectorStyleLayerRef clone() const override;
+    virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) override;
+
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc,
                               const CancelFunction &cancelFn) override;
     
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override { }
 
     virtual RGBAColor getLegendColor(float zoom) const override {
         return paint.color ? paint.color->colorForZoom(zoom) : RGBAColor::clear();
     }
 
+protected:
+    // N.B.: This does not copy the base members
+    MapboxVectorLayerLine& operator=(const MapboxVectorLayerLine&) = default;
+
 public:
     MapboxVectorLineLayout layout;
     MapboxVectorLinePaint paint;
-    bool linearClipToBounds;
-    bool dropGridLines;
+    bool linearClipToBounds = false;
+    bool dropGridLines = false;
 
     // If non-zero we'll subdivide the line along a globe to the given tolerance
-    double subdivToGlobe;
+    double subdivToGlobe = 0.0;
 
-    double lineScale;
-    double totLen;
-    double fade;
-    SimpleIdentity filledLineTexID;
-
-    std::string uuidField;      // UUID field for markers/labels (from style settings)
-    std::string repUUIDField;   // UUID field for representations (from style layers)
+    double lineScale = 0.0;
+    double totLen = 0.0;
+    double fade = 0.0;
+    SimpleIdentity filledLineTexID = EmptyIdentity;
 };
 
 }

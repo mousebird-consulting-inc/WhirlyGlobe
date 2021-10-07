@@ -90,7 +90,7 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
         layer->filter->parse(filterArray,styleSet);
     }
 
-    layer->visible = styleSet->boolValue("visibility", layerDict->getDict("layout"), "visible", true);
+    layer->visible = MapboxVectorStyleSetImpl::boolValue("visibility", layerDict->getDict("layout"), "visible", true);
     layer->selectable = styleSet->tileStyleSettings->selectable;
     layer->metadata = layerDict->getDict("metadata");
     layer->representation = layerDict->getString("X-Maply-Representation");
@@ -98,14 +98,26 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
     return layer;
 }
 
-MapboxVectorStyleLayer::MapboxVectorStyleLayer(MapboxVectorStyleSetImpl *styleSet)
-: visible(true), minzoom(0), maxzoom(0), drawPriority(0),
-selectable(false), uuid(0), geomAdditiveVal(false), styleSet(styleSet)
+MapboxVectorStyleLayer::MapboxVectorStyleLayer(MapboxVectorStyleSetImpl *styleSet) :
+    styleSet(styleSet)
 {
 }
 
-MapboxVectorStyleLayer::~MapboxVectorStyleLayer()
+MapboxVectorStyleLayerRef MapboxVectorStyleLayer::clone() const
 {
+#if defined(DEBUG)
+    assert(!"MapboxVectorStyleLayer::clone should be overridden");
+#else
+    return MapboxVectorStyleLayerRef();
+#endif
+}
+
+MapboxVectorStyleLayer& MapboxVectorStyleLayer::copy(const MapboxVectorStyleLayer& that)
+{
+    operator=(that);
+    // N.B.: metadata, filters share references to common objects
+    // If these properties need to be mutable, they should be deep-copied here
+    return *this;
 }
 
 bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
@@ -122,34 +134,15 @@ bool MapboxVectorStyleLayer::parse(PlatformThreadInfo *inst,
     uuid = styleSet->generateID();
 
     ident = styleEntry->getString("id");
-    source = styleSet->stringValue("source", styleEntry, refLayer ? refLayer->source : std::string());
-    sourceLayer = styleSet->stringValue("source-layer", styleEntry, refLayer ? refLayer->sourceLayer : std::string());
+    source = MapboxVectorStyleSetImpl::stringValue("source", styleEntry, refLayer ? refLayer->source : std::string());
+    sourceLayer = MapboxVectorStyleSetImpl::stringValue("source-layer", styleEntry, refLayer ? refLayer->sourceLayer : std::string());
     
-    minzoom = styleSet->intValue("minzoom", styleEntry, 0);
-    maxzoom = styleSet->intValue("maxzoom", styleEntry, 1000);
+    minzoom = MapboxVectorStyleSetImpl::intValue("minzoom", styleEntry, 0);
+    maxzoom = MapboxVectorStyleSetImpl::intValue("maxzoom", styleEntry, 1000);
     
-    category = styleSet->stringValue("wkcategory", styleEntry, std::string());
+    category = MapboxVectorStyleSetImpl::stringValue("wkcategory", styleEntry, std::string());
     
     return true;
-}
-
-long long MapboxVectorStyleLayer::getUuid(PlatformThreadInfo *inst)
-{
-    return uuid;
-}
-
-std::string MapboxVectorStyleLayer::getCategory(PlatformThreadInfo *inst)
-{
-    return category;
-}
-
-bool MapboxVectorStyleLayer::geomAdditive(PlatformThreadInfo *inst)
-{
-    return geomAdditiveVal;
-}
-
-void MapboxVectorStyleLayer::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
-{
 }
 
 }
