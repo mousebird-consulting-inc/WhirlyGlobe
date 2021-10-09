@@ -432,6 +432,7 @@ struct JavaString
     operator bool() const { return cStr != nullptr; }
 
     const char *getCString() const { return cStr; }
+    std::string getString() const { return cStr ? cStr : std::string(); }
 
 private:
 	const char *cStr;

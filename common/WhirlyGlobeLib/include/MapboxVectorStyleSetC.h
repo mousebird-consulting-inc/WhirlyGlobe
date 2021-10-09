@@ -347,11 +347,14 @@ public:
     virtual bool hasRepresentations();
 
     /// Add representation layers
-    virtual bool addRepresentations(const char* uuidAttr,
+    virtual bool addRepresentations(PlatformThreadInfo *, const char* uuidAttr,
                                     const std::vector<std::string> &sources,
                                     const std::vector<std::string> &reps,
                                     const std::vector<float> &sizes,
                                     const std::vector<std::string> &colors);
+
+protected:
+    void addLayer(PlatformThreadInfo *, MapboxVectorStyleLayerRef);
 
 public:
     Scene *scene;

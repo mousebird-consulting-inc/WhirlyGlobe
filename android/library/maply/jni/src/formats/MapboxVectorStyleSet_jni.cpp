@@ -336,26 +336,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setLayerVis
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_addRepsNative(
-  JNIEnv *env, jobject obj,
-  jstring uuidAttrStr,
-  jobjectArray srcArr,
-  jobjectArray repArr,
-  jobjectArray sizeArr,
-  jobjectArray colorArr)
+  JNIEnv *env, jobject obj, jstring uuidAttrStr,
+  jobjectArray srcArr, jobjectArray repArr,
+  jobjectArray sizeArr, jobjectArray colorArr)
 {
     try
     {
         if (const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj))
         {
-            JavaString uuidAttr(env, uuidAttrStr);
+            const JavaString uuidAttr(env, uuidAttrStr);
             const auto sources = ConvertStringArray(env, srcArr);
             const auto reps = ConvertStringArray(env, repArr);
             const auto sizes = ConvertFloatObjArray(env, sizeArr, -1.0f);
             const auto colors = ConvertStringArray(env, colorArr);
             if (reps.size() == sizes.size() && sizes.size() == colors.size())
             {
-                return (*styleSetRef)->addRepresentations(
-                        uuidAttr.getCString(), sources, reps, sizes, colors);
+                PlatformInfo_Android inst(env);
+                return (*styleSetRef)->addRepresentations(&inst, uuidAttr.getCString(),
+                                                          sources, reps, sizes, colors);
             }
         }
     }

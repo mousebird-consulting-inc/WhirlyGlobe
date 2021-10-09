@@ -1142,6 +1142,45 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 	}
 
 	/**
+	 * Set the representation for a set of unique features
+	 * @param repName The representation name to set
+	 * @param uuids Unique identifiers of the elements to update
+	 */
+	public void setRepresentation(String repName, String[] uuids) {
+		setRepresentation(repName, null, uuids, ThreadMode.ThreadCurrent);
+	}
+
+	/**
+	 * Set the representation for a set of unique features
+	 * @param repName The representation name to set
+	 * @param uuids Unique identifiers of the elements to update
+	 * @param mode The thread mode to use
+	 */
+	public void setRepresentation(String repName, String[] uuids, RenderController.ThreadMode mode) {
+		setRepresentation(repName, null, uuids, mode);
+	}
+
+	/**
+	 * Set the representation for a set of unique features
+	 * @param repName The representation name to set
+	 * @param fallbackName The representation to show when no others match (typically blank/null)
+	 * @param uuids Unique identifiers of the elements to update
+	 * @param mode The thread mode to use
+	 */
+	public void setRepresentation(final String repName, final String fallbackName,
+								  final String[] uuids, final RenderController.ThreadMode mode)
+	{
+		addTask(() -> {
+			final ComponentManager compMan = renderControl.componentManager;
+			if (compMan != null && uuids != null && uuids.length > 0) {
+				final ChangeSet changes = new ChangeSet();
+				compMan.setRepresentation(repName, fallbackName, uuids, changes);
+				processChangeSet(changes);
+			}
+		}, mode);
+	}
+
+	/**
 	 * Set the viewport the user is allowed to move within.
 	 * These are lat/lon coordinates in radians.
 	 *
@@ -1283,11 +1322,12 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 
 	/** Set the function used for animating zoom heights
 	 */
-	public void setZoomAnimationEasing(ZoomAnimationEasing easing) {
+	public void setZoomAnimationEasing(@Nullable ZoomAnimationEasing easing) {
 		zoomAnimationEasing = easing;
 	}
 	/** Get the function used for animating zoom heights
 	 */
+	@Nullable
 	public ZoomAnimationEasing getZoomAnimationEasing() {
 		return zoomAnimationEasing;
 	}
@@ -2521,9 +2561,10 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 		return renderControl.getFrameBufferSize();
 	}
 
-	public void processChangeSet(ChangeSet changes)
-	{
-		changes.process(renderControl, scene);
+	public void processChangeSet(ChangeSet changes) {
+		if (scene != null) {
+			changes.process(renderControl, scene);
+		}
 		changes.dispose();
 	}
 

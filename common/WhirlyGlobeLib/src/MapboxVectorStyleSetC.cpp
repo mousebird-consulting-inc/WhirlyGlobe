@@ -496,27 +496,35 @@ bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,const DictionaryRe
     // Layers are where the action is
     const std::vector<DictionaryEntryRef> layerStyles = styleDict->getArray(strLayers);
     int which = 0;
-    for (const auto &layerStyle : layerStyles) {
-        if (layerStyle->getType() == DictTypeDictionary) {
-            auto layer = MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority));
-            if (!layer)
-            {
-                continue;
-            }
-
-            // Sort into various buckets for quick lookup
-            layersByName[layer->ident] = layer;
-            layersByUUID[layer->getUuid(inst)] = layer;
-            if (!layer->sourceLayer.empty())
-            {
-                layersBySource.insert(std::make_pair(layer->sourceLayer, layer));
-            }
-            layers.push_back(layer);
+    for (const auto &layerStyle : layerStyles)
+    {
+        if (layerStyle->getType() == DictTypeDictionary)
+        {
+            const auto pri = which + tileStyleSettings->baseDrawPriority;
+            auto layer = MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),pri);
+            addLayer(inst, std::move(layer));
         }
         which++;
     }
     
     return true;
+}
+
+void MapboxVectorStyleSetImpl::addLayer(PlatformThreadInfo *inst, MapboxVectorStyleLayerRef layer)
+{
+    if (!layer)
+    {
+        return;
+    }
+
+    // Sort into various buckets for quick lookup
+    layersByName[layer->ident] = layer;
+    layersByUUID[layer->getUuid(inst)] = layer;
+    if (!layer->sourceLayer.empty())
+    {
+        layersBySource.insert(std::make_pair(layer->sourceLayer, layer));
+    }
+    layers.push_back(std::move(layer));
 }
 
 long long MapboxVectorStyleSetImpl::generateID()
@@ -1044,7 +1052,8 @@ static std::string repLayerName(const std::string &ident, const std::string &rep
     return s;
 }
 
-bool MapboxVectorStyleSetImpl::addRepresentations(const char* uuidAttr,
+bool MapboxVectorStyleSetImpl::addRepresentations(PlatformThreadInfo *inst,
+                                                  const char* uuidAttr,
                                                   const std::vector<std::string> &sources,
                                                   const std::vector<std::string> &reps,
                                                   const std::vector<float> &sizes,
@@ -1058,22 +1067,28 @@ bool MapboxVectorStyleSetImpl::addRepresentations(const char* uuidAttr,
         // find matching layers
         const auto range = layersBySource.equal_range(source);
 
-        // each representation name
-        for (size_t repIdx = 0; repIdx < reps.size(); ++repIdx)
+        if (range.first == range.second)
         {
-            const auto &repName = reps[repIdx];
-            const auto &size = sizes[repIdx];
-            const auto &color = colors[repIdx];
+            wkLogLevel(Debug, "Layer source '%s' does not match any layers", source.c_str());
+            continue;
+        }
 
-            // each layer with matching source
-            for (auto i = range.first; i != range.second; ++i)
+        // each layer with matching source
+        for (auto iLayer = range.first; iLayer != range.second; ++iLayer)
+        {
+            // each representation name
+            for (size_t repIdx = 0; repIdx < reps.size(); ++repIdx)
             {
-                auto &layer = *i->second;
+                const auto &repName = reps[repIdx];
+                const auto &size = sizes[repIdx];
+                const auto &color = colors[repIdx];
+
+                auto &layer = *iLayer->second;
                 const auto &ident = layer.ident;
 
                 if (!layer.representation.empty())
                 {
-                    // Already a representation layer
+                    // This is already a representation layer
                     continue;
                 }
 
@@ -1081,9 +1096,12 @@ bool MapboxVectorStyleSetImpl::addRepresentations(const char* uuidAttr,
                 if (std::any_of(range.first, range.second,
                                 [&](const auto &kv){ return kv.second->ident == repIdent; }))
                 {
-                    // '<ident>_<suffix>' is already present
+                    // This layer already has a corresponding layer for this representation
                     continue;
                 }
+
+                wkLogLevel(Verbose, "Adding representation layer %s for %s with src=%s and rep=%s",
+                           repIdent.c_str(), layer.ident.c_str(), layer.sourceLayer.c_str(), repName.c_str());
 
                 // Make a copy of the layer
                 if (auto layerCopy = layer.clone())
@@ -1116,7 +1134,12 @@ bool MapboxVectorStyleSetImpl::addRepresentations(const char* uuidAttr,
             }
         }
     }
-    return false;
+
+    for (auto &layer : newLayers)
+    {
+        addLayer(inst, std::move(layer));
+    }
+    return true;
 }
 
 

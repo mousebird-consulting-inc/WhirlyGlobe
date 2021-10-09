@@ -44,7 +44,7 @@ class ComponentObject : public Identifiable
 {
     friend class ComponentManager;
 public:
-    virtual ~ComponentObject();
+    virtual ~ComponentObject() = default;
     
     SimpleIDSet markerIDs;
     SimpleIDSet labelIDs;
