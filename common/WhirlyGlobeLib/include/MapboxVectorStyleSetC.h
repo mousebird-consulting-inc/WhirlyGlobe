@@ -343,6 +343,19 @@ public:
     /// Create a local platform component object
     virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst, const Dictionary *desc = nullptr) = 0;
 
+    /// Check whether the stylesheet already has representation layers
+    virtual bool hasRepresentations();
+
+    /// Add representation layers
+    virtual bool addRepresentations(PlatformThreadInfo *, const char* uuidAttr,
+                                    const std::vector<std::string> &sources,
+                                    const std::vector<std::string> &reps,
+                                    const std::vector<float> &sizes,
+                                    const std::vector<std::string> &colors);
+
+protected:
+    void addLayer(PlatformThreadInfo *, MapboxVectorStyleLayerRef);
+
 public:
     Scene *scene;
     CoordSystem *coordSys;

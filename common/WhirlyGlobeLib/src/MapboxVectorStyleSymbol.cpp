@@ -36,8 +36,8 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *,
                                      const DictionaryRef &styleEntry)
 {
     globalTextScale = styleSet->tileStyleSettings->textScale;
-    placement = styleEntry ? (MapboxSymbolPlacement)styleSet->enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint) : MBPlacePoint;
-    textTransform = styleEntry ? (MapboxTextTransform)styleSet->enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone) : MBTextTransNone;
+    placement = styleEntry ? (MapboxSymbolPlacement)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint) : MBPlacePoint;
+    textTransform = styleEntry ? (MapboxTextTransform)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone) : MBTextTransNone;
     
     textField = styleSet->transText("text-field", styleEntry, std::string());
 
@@ -59,19 +59,19 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *,
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
 
-    const auto offsetEntries = styleSet->arrayValue("text-offset", styleEntry);
+    const auto offsetEntries = MapboxVectorStyleSetImpl::arrayValue("text-offset", styleEntry);
     textOffsetX = (offsetEntries.size() > 0) ? styleSet->transDouble(offsetEntries[0], 0) : MapboxTransDoubleRef(); //NOLINT
     textOffsetY = (offsetEntries.size() > 1) ? styleSet->transDouble(offsetEntries[1], 0) : MapboxTransDoubleRef();
 
     textAnchor = MBTextCenter;
     if (styleEntry && styleEntry->getType("text-anchor") == DictTypeArray) {
-        textAnchor = (MapboxTextAnchor)styleSet->enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
+        textAnchor = (MapboxTextAnchor)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
     }
-    iconAllowOverlap = styleSet->boolValue("icon-allow-overlap", styleEntry, "on", false);
-    textAllowOverlap = styleSet->boolValue("text-allow-overlap", styleEntry, "on", false);
+    iconAllowOverlap = MapboxVectorStyleSetImpl::boolValue("icon-allow-overlap", styleEntry, "on", false);
+    textAllowOverlap = MapboxVectorStyleSetImpl::boolValue("text-allow-overlap", styleEntry, "on", false);
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
     textJustifySet = (styleEntry && styleEntry->getEntry("text-justify"));
-    textJustify = styleEntry ? (TextJustify)styleSet->enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
+    textJustify = styleEntry ? (TextJustify)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("text-justify"), justifyVals, WhirlyKitTextCenter) : WhirlyKitTextCenter;
     
     iconImageField = styleSet->transText("icon-image", styleEntry, std::string());
     iconSize = styleSet->transDouble("icon-size", styleEntry, 1.0);
@@ -107,12 +107,12 @@ bool MapboxVectorLayerSymbol::parse(PlatformThreadInfo *inst,
     if (!hasLayout && !hasPaint)
         return false;
 
-    uniqueLabel = styleSet->boolValue("unique-label", styleEntry, "yes", false);
+    uniqueLabel = MapboxVectorStyleSetImpl::boolValue("unique-label", styleEntry, "yes", false);
 
-    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+    repUUIDField = MapboxVectorStyleSetImpl::stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
 
     uuidField = styleSet->tileStyleSettings->uuidField;
-    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
+    uuidField = MapboxVectorStyleSetImpl::stringValue("X-Maply-UUIDField", styleEntry, uuidField);
 
     useZoomLevels = styleSet->tileStyleSettings->useZoomLevels;
 
@@ -194,8 +194,22 @@ static float calcStringHash(const std::string &str)
     return val / (float)len / 256.0f;
 }
 
-void MapboxVectorLayerSymbol::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
+MapboxVectorStyleLayerRef MapboxVectorLayerSymbol::clone() const
 {
+    auto layer = std::make_shared<MapboxVectorLayerSymbol>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerSymbol::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto line = dynamic_cast<const MapboxVectorLayerSymbol*>(&that))
+    {
+        // N.B.: paint and symbol settings share refs, may need to deep-copy
+        operator=(*line);
+    }
+    return *this;
 }
 
 SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,

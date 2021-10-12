@@ -1,4 +1,4 @@
-/* MapboxVectorStyleCircle.h
+/* MapboxVectorStyleCircle.cpp
 *  WhirlyGlobe-MaplyComponent
 *
 *  Created by Steve Gifford on 2/17/15.
@@ -17,23 +17,22 @@
 */
 
 #import "MapboxVectorStyleCircle.h"
-#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
 
 bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *,
                                     MapboxVectorStyleSetImpl *styleSet,
-                                    DictionaryRef styleEntry)
+                                    const DictionaryRef &styleEntry)
 {
     if (!styleSet)
         return false;
     
     radius = styleSet->transDouble("circle-radius", styleEntry, 5.0);
-    fillColor = styleSet->colorValue("circle-color",nullptr,styleEntry,RGBAColor::black(),false);
+    fillColor = MapboxVectorStyleSetImpl::colorValue("circle-color",nullptr,styleEntry,RGBAColor::black(),false);
     opacity = styleSet->transDouble("circle-opacity",styleEntry,1.0);
     strokeWidth = styleSet->transDouble("circle-stroke-width",styleEntry,0.0);
-    strokeColor = styleSet->colorValue("circle-stroke-color",NULL,styleEntry,RGBAColor::black(),false);
+    strokeColor = MapboxVectorStyleSetImpl::colorValue("circle-stroke-color",nullptr,styleEntry,RGBAColor::black(),false);
     strokeOpacity = styleSet->transDouble("circle-stroke-opacity",styleEntry,1.0);
     
     return true;
@@ -51,7 +50,7 @@ bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
     }
 
     const double maxRadius = paint.radius->maxVal();
-    const double maxStrokeWidth = paint.strokeWidth->maxVal();
+    const auto maxStrokeWidth = (float)paint.strokeWidth->maxVal();
 
     // todo: have to evaluate these dynamically to support expressions
     const auto theFillColor = paint.opacity ?
@@ -64,14 +63,31 @@ bool MapboxVectorLayerCircle::parse(PlatformThreadInfo *inst,
     circleTexID = styleSet->makeCircleTexture(inst,maxRadius,theFillColor,theStrokeColor,maxStrokeWidth,&circleSize);
 
     // Larger circles are slightly more important
-    importance = drawPriority/1000 + styleSet->tileStyleSettings->markerImportance + maxRadius / 100000.0;
+    importance = (float)(drawPriority/1000.0 + styleSet->tileStyleSettings->markerImportance + maxRadius / 100000.0);
 
-    repUUIDField = styleSet->stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
+    repUUIDField = MapboxVectorStyleSetImpl::stringValue("X-Maply-RepresentationUUIDField", styleEntry, std::string());
 
     uuidField = styleSet->tileStyleSettings->uuidField;
-    uuidField = styleSet->stringValue("X-Maply-UUIDField", styleEntry, uuidField);
+    uuidField = MapboxVectorStyleSetImpl::stringValue("X-Maply-UUIDField", styleEntry, uuidField);
 
     return true;
+}
+
+MapboxVectorStyleLayerRef MapboxVectorLayerCircle::clone() const
+{
+    auto layer = std::make_shared<MapboxVectorLayerCircle>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerCircle::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto fill = dynamic_cast<const MapboxVectorLayerCircle*>(&that))
+    {
+        operator=(*fill);
+    }
+    return *this;
 }
 
 void MapboxVectorLayerCircle::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
@@ -146,8 +162,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
                 auto marker = markerOwner.back().get();
                 marker->loc = GeoCoord(pt.x(),pt.y());
                 marker->texIDs.push_back(circleTexID);
-                marker->width = 2*radius * settings.markerScale * settings.circleScale;
-                marker->height = 2*radius * settings.markerScale * settings.circleScale;
+                marker->width = (float)(2*radius * settings.markerScale * settings.circleScale);
+                marker->height = (float)(2*radius * settings.markerScale * settings.circleScale);
                 marker->layoutWidth = marker->width;
                 marker->layoutHeight = marker->height;
                 marker->layoutImportance = MAXFLOAT;    //importance + (101-tileInfo->ident.level)/100.0;

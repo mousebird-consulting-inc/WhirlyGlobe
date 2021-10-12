@@ -315,7 +315,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_get
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setLayerVisible
-        (JNIEnv *env, jobject obj, jstring layerNameJava, jboolean visible)
+  (JNIEnv *env, jobject obj, jstring layerNameJava, jboolean visible)
 {
     try
     {
@@ -332,6 +332,48 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_setLayerVis
         }
     }
     MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_addRepsNative(
+  JNIEnv *env, jobject obj, jstring uuidAttrStr,
+  jobjectArray srcArr, jobjectArray repArr,
+  jobjectArray sizeArr, jobjectArray colorArr)
+{
+    try
+    {
+        if (const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj))
+        {
+            const JavaString uuidAttr(env, uuidAttrStr);
+            const auto sources = ConvertStringArray(env, srcArr);
+            const auto reps = ConvertStringArray(env, repArr);
+            const auto sizes = ConvertFloatObjArray(env, sizeArr, -1.0f);
+            const auto colors = ConvertStringArray(env, colorArr);
+            if (reps.size() == sizes.size() && sizes.size() == colors.size())
+            {
+                PlatformInfo_Android inst(env);
+                return (*styleSetRef)->addRepresentations(&inst, uuidAttr.getCString(),
+                                                          sources, reps, sizes, colors);
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_hasRepresentations(
+  JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto styleSetRef = MapboxVectorStyleSetClassInfo::get(env,obj))
+        {
+            return (*styleSetRef)->hasRepresentations();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"

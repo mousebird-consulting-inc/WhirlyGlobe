@@ -21,6 +21,7 @@ package com.mousebird.maply
 import android.graphics.*
 import android.util.*
 import androidx.annotation.ColorInt
+import androidx.annotation.Keep
 import androidx.core.util.component1
 import androidx.core.util.component2
 import com.mousebird.maply.RenderController.EmptyIdentity
@@ -30,11 +31,13 @@ import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.ConcurrentSkipListMap
 import java.util.regex.Pattern
 import kotlin.math.ceil
+import kotlin.math.round
 
 /**
  * Mapbox Vector Style Set.
  * This parses a Mapbox style sheet and interfaces with the vector parser
  */
+@Suppress("MemberVisibilityCanBePrivate")
 class MapboxVectorStyleSet : VectorStyleInterface {
 
     constructor(
@@ -77,6 +80,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         fun mapTypefaceName(name: String?): String?
     }
 
+    @Suppress("unused")
     fun setTypefaceDelegate(delegate: TypefaceDelegate?) {
         typefaceDelegate = delegate
     }
@@ -116,6 +120,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
      * Set this to override the regular fill shader.
      * Useful if you're going to mix something else into the polygons.
      */
+    @Suppress("unused")
     fun setArealShader(shader: Shader) {
         setArealShaderNative(shader.id)
     }
@@ -241,7 +246,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         if (size == 0)
             return EmptyIdentity
 
-        val width = 1
+        val width = round(1 * scale).toInt()
         val bitmap = Bitmap.createBitmap(width, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         bitmap.eraseColor(Color.TRANSPARENT)
@@ -256,7 +261,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         comp.forEach {
             val eleLen = it.toInt()
             if (onOrOff) {
-                for (jj in 0..(eleLen-1)) {
+                for (jj in 0 until eleLen) {
                     val startY = (curY+jj)/eleSum.toFloat() * size.toFloat()
                     canvas.drawLine(0.0f, startY, width.toFloat(), startY+1.0f, paint)
                 }
@@ -276,7 +281,12 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         return tex?.texID ?: EmptyIdentity
     }
 
+    /** The color used for borders on legend bitmaps
+     */
     @ColorInt var legendBorderColor = Color.BLACK
+
+    /** The pixel size of borders on legend bitmaps
+     */
     var legendBorderSize = 1
 
     /**
@@ -438,7 +448,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         addSpritesNative(spriteJSON, spriteTex.texID, spriteSheet.width, spriteSheet.height)
     }
 
-    fun getSprite(name: String): Bitmap? {
+    private fun getSprite(name: String): Bitmap? {
         val xywh = intArrayOf(0,0,0,0)
         val src = spriteSheet
         if (src == null || !getSpriteInfoNative(name, xywh)) {
@@ -454,17 +464,44 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     // Set a named layer visible or invisible
     external fun setLayerVisible(layerName: String, visible: Boolean)
 
+    data class RepLayer(
+        val name: String,
+        val size: Float?,
+        val color: String?)
+
+    /** Add layers to the style set for alternate representations.
+     *
+     * Layers with matching sources are copied, with the specified suffix appended
+     * to their identifiers, and configured to use the specified attribute for UUIDs.
+     */
+    @Suppress("unused")
+    fun addRepresentationLayers(uuidAttr: String,
+                                sources: Collection<String>,
+                                layers: Collection<RepLayer>): Boolean =
+        addRepsNative(uuidAttr, sources.toTypedArray(),
+            layers.map { it.name }.toTypedArray(),
+            layers.map { it.size }.toTypedArray(),
+            layers.map { it.color }.toTypedArray())
+
+    private external fun addRepsNative(
+        uuidAttr: String,
+        sources: Array<String>,
+        repNames: Array<String>,
+        sizes: Array<Float?>,
+        colors: Array<String?>): Boolean
+
+    external fun hasRepresentations(): Boolean
+
     enum class SourceType {
         Vector, Raster
     }
 
     // Source for vector tile (or raster) data
     inner class Source internal constructor(
-        // Name as it appears in the file
-        var name: String,
-        styleEntry: AttrDictionary,
-        val styleSet: MapboxVectorStyleSet?
-    ) {
+            var name: String,                   // Name as it appears in the file
+            styleEntry: AttrDictionary,
+            val styleSet: MapboxVectorStyleSet?) {
+
         // Either vector or raster at present
         var type: SourceType? = null
 
@@ -479,12 +516,10 @@ class MapboxVectorStyleSet : VectorStyleInterface {
 
         init {
             val typeStr = styleEntry.getString("type")
-            type = if (typeStr == "vector") {
-                SourceType.Vector
-            } else if (typeStr == "raster") {
-                SourceType.Raster
-            } else {
-                throw IllegalArgumentException("Unexpected type string in Mapbox Source")
+            type = when (typeStr) {
+                "vector" -> SourceType.Vector
+                "raster" -> SourceType.Raster
+                else -> throw IllegalArgumentException("Unexpected type '$typeStr' in Mapbox Source")
             }
             url = styleEntry.getString("url")
             tileSpec = styleEntry.getArray("tiles")
@@ -546,12 +581,12 @@ class MapboxVectorStyleSet : VectorStyleInterface {
         }
     }
 
-    var sources = ArrayList<Source>()
+    val sources = ArrayList<Source>()
 
     // If there's a sprite sheet, where it's at
-    var spriteURL: String? = null
+    var spriteURL: String? = null; private set
 
-    var settings: VectorStyleSettings? = null
+    var settings: VectorStyleSettings? = null; private set
 
     private var displayMetrics: DisplayMetrics? = null
 
@@ -587,5 +622,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
     )
 
     external fun dispose()
-    protected var nativeHandle: Long = 0
+
+    @Keep @Suppress("unused")     // Used by JNI
+    private var nativeHandle: Long = 0
 }

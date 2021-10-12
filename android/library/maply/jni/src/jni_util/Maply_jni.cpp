@@ -98,6 +98,46 @@ void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &f
     }
 }
 
+static jclass clsFloatObj = nullptr;
+jmethodID floatValueId = nullptr;
+
+void ConvertFloatObjArray(JNIEnv *env,jobjectArray objArray,std::vector<float> &vec, float defVal)
+{
+    if (!clsFloatObj)
+    {
+        // Init once.  We assume built-in classes are never unloaded.
+        clsFloatObj = (jclass)env->NewGlobalRef(env->FindClass("java/lang/Float"));
+        floatValueId = env->GetMethodID(clsFloatObj, "floatValue", "()F");
+    }
+
+    const jsize count = env->GetArrayLength(objArray);
+    vec.reserve(vec.size());
+    for (unsigned int ii=0;ii<count;ii++)
+    {
+        float val = defVal;
+        if (const auto obj = env->GetObjectArrayElement(objArray,ii))
+        {
+            if (env->IsSameObject(env->GetObjectClass(obj), clsFloatObj))
+            {
+                val = env->CallFloatMethod(obj, floatValueId);
+            }
+            else
+            {
+                wkLogLevel(Error, "Invalid object passed to ConvertFloatObjArray");
+            }
+        }
+        vec.emplace_back(val);
+    }
+}
+
+
+std::vector<float> ConvertFloatObjArray(JNIEnv *env, jobjectArray objArray, float defVal)
+{
+    std::vector<float> arr;
+    ConvertFloatObjArray(env, objArray, arr, defVal);
+    return arr;
+}
+
 void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec)
 {
     if (const int len = env->GetArrayLength(doubleArray))
@@ -127,6 +167,13 @@ void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::stri
         const auto string = (jstring)env->GetObjectArrayElement(objArray,ii);
         strVec.emplace_back(string ? env->GetStringUTFChars(string, nullptr) : std::string());
     }
+}
+
+std::vector<std::string> ConvertStringArray(JNIEnv *env,jobjectArray &objArray)
+{
+    std::vector<std::string> arr;
+    ConvertStringArray(env, objArray, arr);
+    return arr;
 }
 
 void ConvertFloat2fArray(JNIEnv *env,jfloatArray &floatArray,Point2fVector &ptVec)

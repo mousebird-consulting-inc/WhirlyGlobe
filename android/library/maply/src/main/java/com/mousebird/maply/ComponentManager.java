@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +154,11 @@ public class ComponentManager
 
     public native SelectedObject[] findVectors(Point2d geoPt, double maxDist, ViewState viewState,
                                                Point2d  frameSize, int limit);
+
+    /**
+     * Set the representation for a set of unique features
+     */
+    public native void setRepresentation(String repName, String fallbackName, String[] uuids, ChangeSet changes);
 
     static {
         nativeInit();

@@ -70,8 +70,21 @@ bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
     return true;
 }
 
-void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
+MapboxVectorStyleLayerRef MapboxVectorLayerFill::clone() const
 {
+    auto layer = std::make_shared<MapboxVectorLayerFill>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerFill::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto fill = dynamic_cast<const MapboxVectorLayerFill*>(&that))
+    {
+        operator=(*fill);
+    }
+    return *this;
 }
 
 void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
