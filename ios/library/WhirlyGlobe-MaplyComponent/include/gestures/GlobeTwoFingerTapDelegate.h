@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "GlobeView_iOS.h"
-#import "gestures/GlobePinchDelegate.h"
+#import "GlobePinchDelegate.h"
 
 @interface WhirlyGlobeTwoFingerTapDelegate : NSObject<UIGestureRecognizerDelegate>
 

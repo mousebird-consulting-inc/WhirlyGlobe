@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
+#import "MaplyCoordinate.h"
 
 /** 
     The Light provides a simple interface to basic lighting within the toolkit.

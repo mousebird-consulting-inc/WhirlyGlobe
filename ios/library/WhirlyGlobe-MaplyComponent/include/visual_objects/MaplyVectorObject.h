@@ -20,8 +20,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
-#import "math/MaplyCoordinateSystem.h"
+#import "MaplyCoordinate.h"
+#import "MaplyCoordinateSystem.h"
 
 @class MaplyBaseViewController;
 

@@ -17,7 +17,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "vector_tiles/MapboxVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
 /** 
     Simple default style to see something in vector tile data.

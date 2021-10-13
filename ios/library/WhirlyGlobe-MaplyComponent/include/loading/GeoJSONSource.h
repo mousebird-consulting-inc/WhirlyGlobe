@@ -17,7 +17,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "control/MaplyBaseViewController.h"
+#import "MaplyBaseViewController.h"
 
 #define GEOJSON_MAX_POINTS 4096
 

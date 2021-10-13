@@ -19,13 +19,13 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
-#import "visual_objects/MaplyScreenMarker.h"
-#import "visual_objects/MaplyVectorObject.h"
-#import "control/MaplyViewTracker.h"
-#import "visual_objects/MaplyComponentObject.h"
+#import "MaplyCoordinate.h"
+#import "MaplyScreenMarker.h"
+#import "MaplyVectorObject.h"
+#import "MaplyViewTracker.h"
+#import "MaplyComponentObject.h"
 #import "MaplySharedAttributes.h"
-#import "control/MaplyBaseViewController.h"
+#import "MaplyBaseViewController.h"
 
 @class MaplyControllerLayer;
 @class MaplyViewController;
