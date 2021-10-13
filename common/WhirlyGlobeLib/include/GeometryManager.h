@@ -295,7 +295,7 @@ public:
 class GeometryManager : public SceneManager
 {
 public:
-    GeometryManager();
+    GeometryManager() = default;
     virtual ~GeometryManager();
     
     /// Add raw geometry at the given location

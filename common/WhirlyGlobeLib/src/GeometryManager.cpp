@@ -21,6 +21,7 @@
 #import "BaseInfo.h"
 #import "BasicDrawableInstanceBuilder.h"
 #import "SharedAttributes.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -614,19 +615,20 @@ void GeometryRawPoints::buildDrawables(std::vector<BasicDrawableBuilderRef> &dra
     }
 }
 
-    
-GeometryManager::GeometryManager()
-{
-}
-    
 GeometryManager::~GeometryManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
+    // destructors must not throw
+    try
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
 
-    for (GeomSceneRepSet::iterator it = sceneReps.begin();
-         it != sceneReps.end(); ++it)
-        delete *it;
-    sceneReps.clear();
+        auto reps = std::move(sceneReps);
+        for (auto &rep : reps)
+        {
+            delete rep;
+        }
+    }
+    WK_STD_DTOR_CATCH()
 }
     
 SimpleIdentity GeometryManager::addGeometry(std::vector<GeometryRaw *> &geom,const std::vector<GeometryInstance *> &instances,GeometryInfo &geomInfo,ChangeSet &changes)

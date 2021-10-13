@@ -56,7 +56,7 @@ class TextureManager
 			if (hash1 < hash2)
 				return -1;
 			return 1;
-		}		
+		}
 	};
 	
 	TreeSet<TextureWrapper> textures = new TreeSet<TextureWrapper>();

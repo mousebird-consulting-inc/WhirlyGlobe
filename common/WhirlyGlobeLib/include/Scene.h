@@ -325,8 +325,11 @@ public:
     virtual bool removeTexture(SimpleIdentity texID);
 
     /// Called once by the renderer so we can reset any managers that care
-    void setRenderer(SceneRenderer *renderer);
-    
+    void setRenderer(SceneRenderer *inRenderer);
+
+    /// Get the current scene renderer
+    SceneRenderer* getRenderer() const { return renderer; }
+
     /// Return the given manager.  This is thread safe;
     SceneManagerRef getManager(const char *name) { return getManager(std::string(name)); }
     /// Return the given manager.  This is thread safe;
@@ -499,6 +502,8 @@ protected:
     
     // The font texture manager is created at startup
     FontTextureManagerRef fontTextureManager;
+
+    SceneRenderer* renderer;
 };
-	
+
 }

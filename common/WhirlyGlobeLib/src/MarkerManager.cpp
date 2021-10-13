@@ -120,16 +120,13 @@ MarkerManager::~MarkerManager()
     {
         std::lock_guard<std::mutex> guardLock(lock);
 
-        for (auto markerRep : markerReps)
+        auto reps = std::move(markerReps);
+        for (auto markerRep : reps)
         {
             delete markerRep;
         }
-        markerReps.clear();
     }
-    catch (const std::exception &e)
-    {
-        wkLogLevel(Error, "%s", e.what());
-    }
+    WK_STD_DTOR_CATCH()
 }
 
 typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
@@ -144,7 +141,7 @@ Point3dVector MarkerManager::convertGeoPtsToModelSpace(const VectorRing &inPts)
     
     for (const auto &pt: inPts)
     {
-        const auto localPt = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+        const auto localPt = coordSys->geographicToLocal3d(pt);
         outPts.push_back(coordAdapt->localToDisplay(localPt));
     }
     
