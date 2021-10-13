@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "GlobeView.h"
-#import "gestures/GlobePinchDelegate.h"
+#import "GlobePinchDelegate.h"
 
 // Sent out when the double tap delegate takes control
 #define kGlobeDoubleTapDragDidStart @"WKGlobeDoubleTapDragStarted"

@@ -17,9 +17,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "visual_objects/MaplyComponentObject.h"
-#import "control/WhirlyGlobeViewController.h"
-#import "rendering/MaplyLight.h"
+#import "MaplyComponentObject.h"
+#import "WhirlyGlobeViewController.h"
+#import "MaplyLight.h"
 
 /** 
     Utility for calculating sun position and shading info.

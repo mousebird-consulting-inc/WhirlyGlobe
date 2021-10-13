@@ -17,7 +17,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "gestures/MaplyZoomGestureDelegate.h"
+#import "MaplyZoomGestureDelegate.h"
 
 @interface MaplyPinchDelegate : MaplyZoomGestureDelegate
 

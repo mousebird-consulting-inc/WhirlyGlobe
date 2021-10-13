@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
+#import "MaplyCoordinate.h"
 
 /** 
     This object displays an annotation at a particular point and will track that point as the map or globe moves.

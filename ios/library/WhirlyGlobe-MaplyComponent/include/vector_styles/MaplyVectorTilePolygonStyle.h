@@ -16,8 +16,8 @@
  *  limitations under the License.
  */
 
-#import "vector_styles/MaplyVectorStyle.h"
-#import "vector_styles/MaplyVectorTileStyle.h"
+#import "MaplyVectorStyle.h"
+#import "MaplyVectorTileStyle.h"
 
 /** 
     Implementation of the polygon style symbolizer for Maply Vector Tiles.

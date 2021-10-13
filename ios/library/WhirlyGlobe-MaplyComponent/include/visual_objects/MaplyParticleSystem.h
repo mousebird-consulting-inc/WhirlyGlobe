@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
-#import "rendering/MaplyShader.h"
-#import "rendering/MaplyRenderTarget.h"
+#import "MaplyCoordinate.h"
+#import "MaplyShader.h"
+#import "MaplyRenderTarget.h"
 
 typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
 	MaplyParticleSystemTypePoint,

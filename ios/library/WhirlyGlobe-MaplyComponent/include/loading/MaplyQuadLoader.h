@@ -18,12 +18,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "control/MaplyControllerLayer.h"
-#import "math/MaplyCoordinateSystem.h"
-#import "loading/MaplyTileSourceNew.h"
-#import "control/MaplyRenderController.h"
-#import "loading/MaplyQuadSampler.h"
-#import "loading/MaplyRemoteTileFetcher.h"
+#import "MaplyControllerLayer.h"
+#import "MaplyCoordinateSystem.h"
+#import "MaplyTileSourceNew.h"
+#import "MaplyRenderController.h"
+#import "MaplyQuadSampler.h"
+#import "MaplyRemoteTileFetcher.h"
 
 @class MaplyQuadLoaderBase;
 

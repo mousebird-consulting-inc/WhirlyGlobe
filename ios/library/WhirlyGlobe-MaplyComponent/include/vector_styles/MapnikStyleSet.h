@@ -20,7 +20,7 @@
 
 
 #import <Foundation/Foundation.h>
-#import "vector_tiles/MapboxVectorTiles.h"
+#import "MapboxVectorTiles.h"
 
 @class MaplyVectorStyleSettings;
 

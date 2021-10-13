@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "vector_styles/MapnikStyleRule.h"
+#import "MapnikStyleRule.h"
 
 @interface MapnikStyle : NSObject
 

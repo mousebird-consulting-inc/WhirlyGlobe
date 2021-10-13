@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "visual_objects/MaplyTexture.h"
-#import "rendering/MaplyRenderTarget.h"
-#import "control/MaplyRenderController.h"
+#import "MaplyTexture.h"
+#import "MaplyRenderTarget.h"
+#import "MaplyRenderController.h"
 
 /**
     A variable target manages two pass rendering for one type of variable.
