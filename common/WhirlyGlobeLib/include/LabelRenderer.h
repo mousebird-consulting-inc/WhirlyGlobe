@@ -146,7 +146,7 @@ public:
     SimpleIdentity maskProgID = 0;
     
     /// Convenience routine to convert the points to model space
-    Point3dVector convertGeoPtsToModelSpace(const VectorRing &inPts);
+    Point3dVector convertGeoPtsToModelSpace(const VectorRing &inPts) const;
 
     /// Renders the labels into a big texture and stores the resulting info
     void render(PlatformThreadInfo *threadInfo,const std::vector<SingleLabel *> &labels,ChangeSet &changes);

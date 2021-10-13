@@ -104,7 +104,7 @@ LabelRenderer::LabelRenderer(Scene *scene,
 {
 }
 
-Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts)
+Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts) const
 {
     CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
     CoordSystem *coordSys = coordAdapt->getCoordSystem();
@@ -153,16 +153,12 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
 
         if (cancelFn(threadInfo))
         {
-            for (auto drawStr : drawStrs)
-            {
-                delete drawStr;
-            }
             return;
         }
 
         // Calculate total draw and layout MBRs
         Mbr drawMbr, layoutMbr;
-        for (const auto drawStr : drawStrs)
+        for (const auto &drawStr : drawStrs)
         {
             drawMbr.expand(drawStr->mbr);
             layoutMbr.expand(drawStr->mbr);
@@ -218,7 +214,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
 
             screenShape->setDrawOrder(labelInfo->drawOrder);
             screenShape->setDrawPriority(labelInfo->drawPriority+1);
-            screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
+            screenShape->setVisibility((float)labelInfo->minVis, (float)labelInfo->maxVis);
             screenShape->setZoomInfo(labelInfo->zoomSlot, labelInfo->minZoomVis, labelInfo->maxZoomVis);
             screenShape->setScaleExp(labelInfo->scaleExp);
             screenShape->setOpacityExp(labelInfo->opacityExp);
@@ -302,6 +298,9 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
             {
                 // Propagate the unique ID to the layout object
                 layoutObject->uniqueID = label->uniqueID;
+
+                // Potentially lay it out along with other objects
+                layoutObject->mergeID = label->mergeID;
 
                 // Put together the layout info
                 //layoutObject->hint = label->text;
@@ -429,7 +428,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
         double offsetY = 0.0;
         for (auto it = drawStrs.rbegin(); it != drawStrs.rend(); ++it)
         {
-            const auto drawStr = *it;
+            const auto &drawStr = *it;
             if (!drawStr)
                 continue;
             
@@ -499,11 +498,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
             }
             screenObjects.emplace_back(std::move(*screenShape));
         }
-        
-        for (auto drawStr : drawStrs)
-        {
-            delete drawStr;
-        }
+
     }
 }
 

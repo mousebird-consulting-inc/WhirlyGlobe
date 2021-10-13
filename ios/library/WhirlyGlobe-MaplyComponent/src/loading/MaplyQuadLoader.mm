@@ -125,7 +125,7 @@ using namespace WhirlyKit;
 {
     if ([pendingReturns count])
     {
-        wkLog("MaplyQuadLoaderBase - LoaderReturns not cleaned up");
+        wkLogLevel(Warn, "MaplyQuadLoaderBase - LoaderReturns not cleaned up");
     }
 }
 

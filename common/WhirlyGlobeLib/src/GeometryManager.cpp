@@ -1,9 +1,8 @@
-/*
- *  GeometryManager.mm
+/*  GeometryManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/25/15.
- *  Copyright 2012-2015 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "GeometryManager.h"
@@ -29,11 +27,6 @@ using namespace WhirlyKit;
 
 namespace WhirlyKit
 {
-    
-GeometryInfo::GeometryInfo()
-: colorOverride(false), color(255,255,255,255), boundingBox(GeometryBBoxNone), pointSize(1.0)
-{    
-}
 
 GeometryInfo::GeometryInfo(const Dictionary &dict)
     : BaseInfo(dict)
@@ -43,36 +36,44 @@ GeometryInfo::GeometryInfo(const Dictionary &dict)
         zBufferRead = true;
     if (!dict.hasField(MaplyZBufferWrite))
         zBufferWrite = false;
+
     colorOverride = dict.hasField(MaplyColor);
-    color = dict.getColor(MaplyColor, RGBAColor(255,255,255,255));
-    std::string bboxVal = dict.getString(MaplyGeomBoundingBox,"");
+    color = dict.getColor(MaplyColor, color);
+
+    const std::string bboxVal = dict.getString(MaplyGeomBoundingBox,"");
     if (bboxVal == MaplyGeomBoundingBoxSingle)
     {
         boundingBox = GeometryBBoxSingle;
-    } else if (bboxVal == MaplyGeomBoundingBoxTriangle) {
+    }
+    else if (bboxVal == MaplyGeomBoundingBoxTriangle)
+    {
         boundingBox = GeometryBBoxTriangle;
-    } else {
-        boundingBox = GeometryBBoxNone;
     }
     pointSize = dict.getDouble(MaplyGeomPointSize,1.0);
 }
 
 void GeomSceneRep::clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when)
 {
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new RemDrawableReq(*it,when));
+    for (const auto id : drawIDs)
+    {
+        changes.push_back(new RemDrawableReq(id,when));
+    }
     if (selectManager && !selectIDs.empty())
+    {
         selectManager->removeSelectables(selectIDs);
+    }
 }
 
 void GeomSceneRep::enableContents(SelectionManagerRef &selectManager,bool enable,ChangeSet &changes)
 {
-    for (SimpleIDSet::iterator it = drawIDs.begin();
-         it != drawIDs.end(); ++it)
-        changes.push_back(new OnOffChangeRequest(*it, enable));
+    for (const auto id : drawIDs)
+    {
+        changes.push_back(new OnOffChangeRequest(id, enable));
+    }
     if (selectManager && !selectIDs.empty())
+    {
         selectManager->enableSelectables(selectIDs, enable);
+    }
 }
     
 GeometryRaw::GeometryRaw()

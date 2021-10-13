@@ -110,22 +110,19 @@ typedef std::map<SimpleIdentity,GlyphSet> SimpleIDGlyphMap;
 /** Information sufficient to draw a string as 3D geometry.
     All coordinates are in a local space related to the font size.
  */
-class DrawableString : public Identifiable
+struct DrawableString : public Identifiable
 {
-public:
-    DrawableString() { }
-    
     /// A rectangle describing the placement of a single glyph and
     ///  the texture piece used to represent it
-    class Rect
+    struct Rect
     {
-    public:
         Point2f pts[2];
         TexCoord texCoords[2];
         SubTexture subTex;
     };
+
     std::vector<Rect> glyphPolys;
-    
+
     /// Bounding box of the string in coordinates related to the font size
     Mbr mbr;
 };

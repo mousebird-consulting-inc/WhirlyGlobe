@@ -89,6 +89,8 @@ public:
 
     Point3dVector layoutShape;
 
+    std::string mergeID;
+
     /// If we're placing glyphs individually we'll do it with matrices
     std::vector<std::vector<Eigen::Matrix3d> > layoutPlaces;
     std::vector<Point3d> layoutModelPlaces;
@@ -104,11 +106,11 @@ public:
             WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
             WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
 };
+using LayoutObjectRef = std::shared_ptr<LayoutObject>;
 
 // Private fields we use for object layout
-class LayoutObjectEntry : public Identifiable
+struct LayoutObjectEntry : public Identifiable
 {
-public:
     LayoutObjectEntry(SimpleIdentity theId);
     LayoutObjectEntry(const LayoutObject&);
     LayoutObjectEntry(LayoutObject&&) noexcept;
@@ -253,6 +255,9 @@ public:
 
     /// Move objects for layout (thread safe)
     void addLayoutObjects(std::vector<LayoutObject> &&newObjects);
+
+    /// Move objects for layout (thread safe)
+    void addLayoutObjects(std::vector<LayoutObjectRef> &&newObjects);
 
     /// Remove objects for layout (thread safe)
     void removeLayoutObjects(const SimpleIDSet &oldObjects);

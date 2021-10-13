@@ -29,6 +29,12 @@ namespace WhirlyKit
 // There's a constant on the Java side correspond go this as well
 static const float BogusFontScale = 1.0f;
 
+bool FontTextureManager_Android::FontManager_Android::operator <(const FontManager &that) const
+{
+	wkLogLevel(Warn, "FontManager_Android::operator < not implemented");
+	return false;   // todo: this isn't really ok
+}
+
 FontTextureManager_Android::FontManager_Android::FontManager_Android(PlatformThreadInfo *inst,jobject inTypefaceObj) :
 	typefaceObj(((PlatformInfo_Android*)inst)->env->NewGlobalRef(inTypefaceObj))
 {
@@ -64,14 +70,14 @@ FontTextureManager_Android::FontTextureManager_Android(PlatformThreadInfo *inst,
 
 	charRenderObj = env->NewGlobalRef(inCharRenderObj);
 
-	if (const jclass charRenderClass = env->GetObjectClass(charRenderObj))
+	if (jclass charRenderClass = env->GetObjectClass(charRenderObj))
 	{
 		renderMethodID = env->GetMethodID(charRenderClass, "renderChar",
 										  "(ILcom/mousebird/maply/LabelInfo;F)Lcom/mousebird/maply/CharRenderer$Glyph;");
 		env->DeleteLocalRef(charRenderClass);
 	}
 
-	if (const jclass glyphClass = env->FindClass("com/mousebird/maply/CharRenderer$Glyph"))
+	if (jclass glyphClass = env->FindClass("com/mousebird/maply/CharRenderer$Glyph"))
 	{
 		bitmapID = env->GetFieldID(glyphClass, "bitmap", "Landroid/graphics/Bitmap;");
 		sizeXID = env->GetFieldID(glyphClass, "sizeX", "F");
@@ -116,7 +122,7 @@ void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)
 	}
 }
 
-DrawableString *FontTextureManager_Android::addString(
+std::unique_ptr<DrawableString> FontTextureManager_Android::addString(
 		PlatformThreadInfo *inThreadInfo,
 		const std::vector<int> &codePoints,
 		const LabelInfoAndroid *labelInfo,
@@ -135,8 +141,8 @@ DrawableString *FontTextureManager_Android::addString(
     // If not initialized, set up texture atlas and such
     init();
 
-    auto drawString = new DrawableString();
-    auto drawStringRep = new DrawStringRep(drawString->getId());
+    auto drawString = std::make_unique<DrawableString>();
+    auto drawStringRep = std::make_unique<DrawStringRep>(drawString->getId());
 
     // Look for the font manager that manages the typeface/attribute combo we need
     auto fm = findFontManagerForFont(threadInfo,labelInfo->typefaceObj,*labelInfo);
@@ -151,7 +157,7 @@ DrawableString *FontTextureManager_Android::addString(
     	if (!glyphInfo)
     	{
         	// Call the renderer
-        	const jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfo->labelInfoObj,labelInfo->fontSize);
+        	jobject glyphObj = threadInfo->env->CallObjectMethod(charRenderObj,renderMethodID,glyph,labelInfo->labelInfoObj,labelInfo->fontSize);
         	if (!glyphObj)
         	{
         		wkLogLevel(Warn,"Glyph render failed from FontTextureManager_Android: %d",glyph);
@@ -274,14 +280,12 @@ DrawableString *FontTextureManager_Android::addString(
 	// If it didn't produce anything, just delete it now
 	if (drawString->glyphPolys.empty())
 	{
-		delete drawString;
-		delete drawStringRep;
 		return nullptr;
 	}
 	else
 	{
 		// We need to track the glyphs we're using
-		drawStringReps.insert(drawStringRep);
+		drawStringReps.insert(drawStringRep.release());
 		return drawString;
 	}
 }

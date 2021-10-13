@@ -57,7 +57,7 @@ public:
     virtual ~FontTextureManager_iOS();
     
     /// Add the given string.  Caller is responsible for deleting the DrawableString
-    WhirlyKit::DrawableString *addString(PlatformThreadInfo *threadInfo,NSAttributedString *str,ChangeSet &changes);
+    std::unique_ptr<DrawableString> addString(PlatformThreadInfo *,NSAttributedString *,ChangeSet &);
 
     virtual void teardown(PlatformThreadInfo*) override;
 

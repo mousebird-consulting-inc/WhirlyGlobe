@@ -19,6 +19,7 @@
 #import "MapboxVectorStyleSymbol.h"
 #import "Dictionary.h"
 #import "WhirlyKitLog.h"
+#import <array>
 #import <vector>
 #import <regex>
 
@@ -212,6 +213,51 @@ MapboxVectorStyleLayer& MapboxVectorLayerSymbol::copy(const MapboxVectorStyleLay
     return *this;
 }
 
+static int justifyPlacement(TextJustify justify)
+{
+    switch (justify)
+    {
+    case WhirlyKitTextCenter: return WhirlyKitLayoutPlacementCenter;
+    case WhirlyKitTextLeft:   return WhirlyKitLayoutPlacementLeft;
+    case WhirlyKitTextRight:  return WhirlyKitLayoutPlacementRight;
+    default:                  return WhirlyKitLayoutPlacementNone;
+    }
+}
+
+static int anchorPlacement(MapboxTextAnchor anchor)
+{
+    // Anchor options for the layout engine
+    switch (anchor)
+    {
+    case MBTextCenter:      return WhirlyKitLayoutPlacementCenter;
+    case MBTextLeft:        return WhirlyKitLayoutPlacementLeft;
+    case MBTextRight:       return WhirlyKitLayoutPlacementRight;
+    case MBTextTop:         return WhirlyKitLayoutPlacementAbove;
+    case MBTextBottom:      return WhirlyKitLayoutPlacementBelow;
+    // Note: The rest of these aren't quite right
+    case MBTextTopLeft:     return WhirlyKitLayoutPlacementLeft  | WhirlyKitLayoutPlacementAbove;
+    case MBTextTopRight:    return WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
+    case MBTextBottomLeft:  return WhirlyKitLayoutPlacementLeft  | WhirlyKitLayoutPlacementBelow;
+    case MBTextBottomRight: return WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
+    default:                return WhirlyKitLayoutPlacementNone;
+    }
+}
+
+static void transformText(std::string &text, MapboxTextTransform tx)
+{
+    // todo: handle unicode
+    switch (tx)
+    {
+    case MBTextTransUppercase:
+        std::transform(text.begin(), text.end(), text.begin(), ::toupper);
+        break;
+    case MBTextTransLowercase:
+        std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+        break;
+    default: break;
+    }
+}
+
 SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
                                                    const Point2f &pt,
                                                    const LabelInfoRef &labelInfo,
@@ -221,22 +267,13 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     // Reconstruct the string from its replacement form
     std::string text = layout.textField->textForZoom(tileInfo->ident.level).build(attrs);
 
-    if (text.empty()) {
+    if (text.empty())
+    {
         return SingleLabelRef();
     }
     
     // Change the text if needed
-    switch (layout.textTransform)
-    {
-        case MBTextTransNone:
-            break;
-        case MBTextTransUppercase:
-            std::transform(text.begin(), text.end(), text.begin(), ::toupper);
-            break;
-        case MBTextTransLowercase:
-            std::transform(text.begin(), text.end(), text.begin(), ::tolower);
-            break;
-    }
+    transformText(text, layout.textTransform);
 
     // TODO: Put this back, but we need information about the font
     // Break it up into lines, if necessary
@@ -250,73 +287,36 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     label->isSelectable = selectable;
     
     if (!uuidField.empty())
+    {
         label->uniqueID = attrs->getString(uuidField);
-    else if (uniqueLabel) {
+    }
+    else if (uniqueLabel)
+    {
         label->uniqueID = text;
         std::transform(label->uniqueID.begin(), label->uniqueID.end(), label->uniqueID.begin(), ::tolower);
     }
 
     // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-    int rank = 1000;
-    if (attrs->hasField("rank")) {
-        rank = attrs->getInt("rank");
-    }
+    const int rank = attrs->getInt("rank", 1000);
+
     // Random tweak to cut down on flashing
     // TODO: Move the layout importance into the label itself
     float strHash = calcStringHash(text);
     label->layoutEngine = true;
     label->layoutImportance = MAXFLOAT;
-    if (!layout.textAllowOverlap) {
+    if (!layout.textAllowOverlap)
+    {
         // If we're allowing layout, then we need to communicate valid text justification
         //  if the style wanted us to do that
-        if (layout.textJustifySet) {
-            switch (layout.textJustify) {
-                case WhirlyKitTextCenter:
-                    label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
-                    break;
-                case WhirlyKitTextLeft:
-                    label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
-                    break;
-                case WhirlyKitTextRight:
-                    label->layoutPlacement = WhirlyKitLayoutPlacementRight;
-                    break;
-            }
+        if (layout.textJustifySet)
+        {
+            label->layoutPlacement = justifyPlacement(layout.textJustify);
         }
         label->layoutImportance = layout.layoutImportance + 1.0f - ((float)rank + (float)(101-tileInfo->ident.level)/100.0f)/1000.0f + strHash/10000.0f;
     }
 
-    // Anchor options for the layout engine
-    switch (layout.textAnchor) {
-        case MBTextCenter:
-            label->layoutPlacement = WhirlyKitLayoutPlacementCenter;
-            break;
-        case MBTextLeft:
-            label->layoutPlacement = WhirlyKitLayoutPlacementLeft;
-            break;
-        case MBTextRight:
-            label->layoutPlacement = WhirlyKitLayoutPlacementRight;
-            break;
-        case MBTextTop:
-            label->layoutPlacement = WhirlyKitLayoutPlacementAbove;
-            break;
-        case MBTextBottom:
-            label->layoutPlacement = WhirlyKitLayoutPlacementBelow;
-            break;
-            // Note: The rest of these aren't quite right
-        case MBTextTopLeft:
-            label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementAbove;
-            break;
-        case MBTextTopRight:
-            label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementAbove;
-            break;
-        case MBTextBottomLeft:
-            label->layoutPlacement = WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementBelow;
-            break;
-        case MBTextBottomRight:
-            label->layoutPlacement = WhirlyKitLayoutPlacementRight | WhirlyKitLayoutPlacementBelow;
-            break;
-    }
-    
+    label->layoutPlacement = anchorPlacement(layout.textAnchor);
+
     return label;
 }
 
@@ -385,6 +385,16 @@ static std::tuple<MarkerPtrVec*, VecObjRefVec*, LabelRefVec*> Lookup(const std::
     const auto result = map.insert(std::make_pair(uuid,emptyMapValue));
     auto &value = result.first->second;
     return std::make_tuple(&std::get<0>(value),&std::get<1>(value),&std::get<2>(value));
+}
+
+// Generate a unique ID for matching up the layout objects generated by symbols with both a label and an icon
+static std::atomic_int64_t curMergeId;
+template <std::size_t N>
+static const char *genMergeId(std::array<char,N> &buf)
+{
+    const size_t id = ++curMergeId;
+    const int res = snprintf(&buf[0], buf.size() - 1, "%zd", id);
+    return (res > 0 && res < buf.size() - 1) ? &buf[0] : nullptr;
 }
 
 void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
@@ -457,8 +467,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         labelInfo->outlineSize = std::max(0.5, (paint.textHaloWidth->valForZoom(zoomLevel) - paint.textHaloBlur->valForZoom(zoomLevel)));
     }
 
-    //    // Note: Made up value for pushing multi-line text together
-    //    desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
+    // Note: Made up value for pushing multi-line text together
+    //desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
 
     const auto textField = (textColor && textSize > 0.0 && layout.textField) ?
                             layout.textField->textForZoom(zoomLevel) : MapboxRegexField();
@@ -498,6 +508,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     const Point2d offset = Point2d(layout.textOffsetX ? (layout.textOffsetX->valForZoom(zoomLevel) * textSize) : 0.0,
                                    layout.textOffsetY ? (layout.textOffsetY->valForZoom(zoomLevel) * -textSize) : 0.0);
 
+    std::array<char,32LL> mergeIdent = {'\0'};
     std::vector<std::unique_ptr<Marker>> markerOwner;
     for (const auto& vecObj : vecObjs)
     {
@@ -539,6 +550,12 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         {
                             if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo))
                             {
+                                if (iconInclude)
+                                {
+                                    genMergeId(mergeIdent);
+                                    label->mergeID = &mergeIdent[0];
+                                }
+
                                 label->screenOffset = offset;
                                 uuidLabels->push_back(label);
 #if DEBUG
@@ -555,6 +572,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         {
                             if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
                             {
+                                if (textInclude)
+                                {
+                                    marker->mergeID = &mergeIdent[0];
+                                }
+
                                 uuidMarkers->push_back(marker.get());
                                 uuidVecObjs->push_back(vecObj);
                                 markerOwner.emplace_back(std::move(marker));
@@ -605,6 +627,12 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     {
                         if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo))
                         {
+                            if (iconInclude)
+                            {
+                                genMergeId(mergeIdent);
+                                label->mergeID = &mergeIdent[0];
+                            }
+
                             if (layout.placement == MBPlaceLine)
                             {
                                 label->rotation = (float)(-rot + M_PI/2.0);
@@ -625,6 +653,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     {
                         if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
                         {
+                            if (textInclude)
+                            {
+                                marker->mergeID = &mergeIdent[0];
+                            }
+
                             uuidMarkers->push_back(marker.get());
                             uuidVecObjs->push_back(vecObj);
                             markerOwner.emplace_back(std::move(marker));
@@ -673,6 +706,12 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     {
                         if (auto label = setupLabel(inst, pt, labelInfo, attrs, tileInfo))
                         {
+                            if (iconInclude)
+                            {
+                                genMergeId(mergeIdent);
+                                label->mergeID = &mergeIdent[0];
+                            }
+
                             // layout.placement is ignored for polygons
                             // except for offset, which we already calculated so we might as well use
                             label->screenOffset = offset;
@@ -684,6 +723,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     {
                         if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
                         {
+                            if (textInclude)
+                            {
+                                marker->mergeID = &mergeIdent[0];
+                            }
+
                             uuidMarkers->push_back(marker.get());
                             uuidVecObjs->push_back(vecObj);
                             markerOwner.emplace_back(std::move(marker));

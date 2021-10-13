@@ -1183,7 +1183,7 @@ static struct UnitTests {
 
         //todo: hsl/hsla
 
-        wkLog("MapboxStyleSet Color Tests Passed");
+        wkLogLevel(Info, "MapboxStyleSet Color Tests Passed");
     }
     RGBAColorRef c(RGBAColor cv) const { return std::make_shared<RGBAColor>(cv); }
     RGBAColorRef c(uint32_t cv) const { return c(RGBAColor::FromARGBInt(cv)); }
@@ -1192,13 +1192,13 @@ static struct UnitTests {
     }
     void check(const RGBAColorRef &cv, const RGBAColorRef &exp, const char *v = nullptr) {
         if ((bool)cv != (bool)exp) {
-            wkLog("RGBAColor text failed: expected %s got %s%s%s",
+            wkLogLevel(Error, "RGBAColor text failed: expected %s got %s%s%s",
                   exp ? "value" : "null", cv ? "value" : "null",
                   v ? " from input: " : "", v ? v : "");
             assert(!"RGBAColor parse test failed");
         }
         if (cv && exp && *cv != *exp) {
-            wkLog("RGBAColor parse failed: expected %.8x got %.8x%s%s",
+            wkLogLevel(Error, "RGBAColor parse failed: expected %.8x got %.8x%s%s",
                   exp->asARGBInt(), cv->asARGBInt(),
                   v ? " from input: " : "", v ? v : "");
             assert(!"RGBAColor parse test failed");

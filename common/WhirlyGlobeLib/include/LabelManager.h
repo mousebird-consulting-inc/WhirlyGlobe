@@ -81,6 +81,8 @@ public:
     int layoutPlacement;
     /// Shape for label to follow
     VectorRing layoutShape;
+    /// Identifies objects to be laid out together
+    std::string mergeID;
 
     // If set, we'll draw an outline to the mask target
     WhirlyKit::SimpleIdentity maskID;
@@ -90,12 +92,12 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(
-            PlatformThreadInfo *threadInfo,
+    virtual std::vector<std::unique_ptr<DrawableString>> generateDrawableStrings(
+            PlatformThreadInfo *,
             const LabelInfo *,
-            const FontTextureManagerRef &fontTexManager,
+            const FontTextureManagerRef &,
             float &lineHeight,
-            ChangeSet &changes) = 0;
+            ChangeSet &) = 0;
 };
 typedef std::shared_ptr<SingleLabel> SingleLabelRef;
     
