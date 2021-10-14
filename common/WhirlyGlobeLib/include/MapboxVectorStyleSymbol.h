@@ -92,6 +92,7 @@ struct MapboxVectorSymbolPaint
     MapboxTransDoubleRef textHaloBlur;
     // If there's a halo, this is the size
     MapboxTransDoubleRef textHaloWidth;
+    MapboxTransDoubleRef iconOpacity;
 };
 
 /// @brief Icons and symbols

@@ -91,7 +91,8 @@ bool MapboxVectorSymbolPaint::parse(PlatformThreadInfo *,
     textHaloColor = styleSet->transColor("text-halo-color", styleEntry, RGBAColor::black());
     textHaloBlur = styleSet->transDouble("text-halo-blur", styleEntry, 0.0);
     textHaloWidth = styleSet->transDouble("text-halo-width", styleEntry, 0.0);
-    
+    iconOpacity = styleSet->transDouble("icon-opacity", styleEntry, 1.0);
+
     return true;
 }
 
@@ -485,6 +486,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     markerInfo.hasExp = true;
     markerInfo.zoomSlot = styleSet->zoomSlot;
     markerInfo.scaleExp = layout.iconSize->expression();
+    markerInfo.opacityExp = paint.iconOpacity->expression();
 
     if (minzoom != 0 || maxzoom < 1000)
     {
