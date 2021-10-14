@@ -5,7 +5,7 @@ layout: ios-tutorial
 
 You can add a variety of 3D shapes to a globe or even a map.  We'll start with a simple one, spheres.
 
-We'll need an XCode project here, so if you haven't done the [Hello Earth](hello_earth.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Objective-C]({{ site.baseurl }}/tutorial/ios/code/ViewController_spheres.m) or [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_spheres.swift)).
+We'll need an XCode project here, so if you haven't done the [Hello Earth](hello_earth.html) tutorial go do that.  If you haven't got one yet, here's a suitable ViewController (for [Swift]({{ site.baseurl }}/tutorial/ios/code/ViewController_spheres.swift)).
 
 ![Xcode HelloEarth]({{ site.baseurl }}/images/tutorial/spheres_2.png)
 
@@ -17,6 +17,35 @@ We'll also need a bit of logic to add the spheres, though that's not too hard.  
 
 
 {% multiple_code %}
+
+{% highlight swift %}
+private func addSpheres() {
+    let capitals = [MaplyCoordinateMakeWithDegrees(-77.036667, 38.895111),
+                    MaplyCoordinateMakeWithDegrees(120.966667, 14.583333),
+                    MaplyCoordinateMakeWithDegrees(55.75, 37.616667),
+                    MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222),
+                    MaplyCoordinateMakeWithDegrees(-66.916667, 10.5),
+                    MaplyCoordinateMakeWithDegrees(139.6917, 35.689506),
+                    MaplyCoordinateMakeWithDegrees(166.666667, -77.85),
+                    MaplyCoordinateMakeWithDegrees(-58.383333, -34.6),
+                    MaplyCoordinateMakeWithDegrees(-74.075833, 4.598056),
+                    MaplyCoordinateMakeWithDegrees(-79.516667, 8.983333)]
+
+    // convert capitals into spheres. Let's do it functional!
+    let spheres = capitals.map { capital -> MaplyShapeSphere in
+        let sphere = MaplyShapeSphere()
+        sphere.center = capital
+        sphere.radius = 0.01
+        return sphere
+    }
+
+    self.theViewC?.addShapes(spheres, desc: [
+        kMaplyColor: UIColor(red: 0.75, green: 0.0, blue: 0.0, alpha: 0.75)])
+}
+  {% endhighlight %}
+
+  {----}
+
   {% highlight objc %}
 ­- (void)addSpheres
 {
@@ -49,33 +78,6 @@ We'll also need a bit of logic to add the spheres, though that's not too hard.  
 }
   {% endhighlight %}
 
-  {----}
-
-  {% highlight swift %}
-private func addSpheres() {
-    let capitals = [MaplyCoordinateMakeWithDegrees(-77.036667, 38.895111),
-                    MaplyCoordinateMakeWithDegrees(120.966667, 14.583333),
-                    MaplyCoordinateMakeWithDegrees(55.75, 37.616667),
-                    MaplyCoordinateMakeWithDegrees(-0.1275, 51.507222),
-                    MaplyCoordinateMakeWithDegrees(-66.916667, 10.5),
-                    MaplyCoordinateMakeWithDegrees(139.6917, 35.689506),
-                    MaplyCoordinateMakeWithDegrees(166.666667, -77.85),
-                    MaplyCoordinateMakeWithDegrees(-58.383333, -34.6),
-                    MaplyCoordinateMakeWithDegrees(-74.075833, 4.598056),
-                    MaplyCoordinateMakeWithDegrees(-79.516667, 8.983333)]
-
-    // convert capitals into spheres. Let's do it functional!
-    let spheres = capitals.map { capital -> MaplyShapeSphere in
-        let sphere = MaplyShapeSphere()
-        sphere.center = capital
-        sphere.radius = 0.01
-        return sphere
-    }
-
-    self.theViewC?.addShapes(spheres, desc: [
-        kMaplyColor: UIColor(red: 0.75, green: 0.0, blue: 0.0, alpha: 0.75)])
-}
-  {% endhighlight %}
 {% endmultiple_code %}
 
 
@@ -83,17 +85,19 @@ Also add this to your viewDidLoad method to run it.
 
 
 {% multiple_code %}
-  {% highlight objc %}
-­// add some spheres
-[self addSpheres];
-­  {% endhighlight %}
-
-  {----}
 
   {% highlight swift %}
 // add some spheres
 addSpheres()
 ­  {% endhighlight %}
+
+  {----}
+
+  {% highlight objc %}
+­// add some spheres
+[self addSpheres];
+­  {% endhighlight %}
+
 {% endmultiple_code %}
 
 Go ahead and run it and you should get something like this.
