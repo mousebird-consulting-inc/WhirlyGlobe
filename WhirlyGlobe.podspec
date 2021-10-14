@@ -56,7 +56,6 @@ Pod::Spec.new do |s|
 
   s.subspec 'glues' do |gl|
     gl.source_files = 'common/local_libs/glues/**/*.{cpp,h}'
-    gl.preserve_paths = 'common/local_libs/glues/**/*.i'
     gl.private_header_files = 'common/local_libs/glues/**/*.h'
   end
 
