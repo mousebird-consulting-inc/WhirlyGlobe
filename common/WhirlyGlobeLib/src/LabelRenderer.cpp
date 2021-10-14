@@ -311,7 +311,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                 layoutObject->importance = layoutImportance;
                 layoutObject->acceptablePlacement = layoutPlacement;
                 layoutObject->setEnable(labelInfo->enable);
-                
+                layoutObject->layoutDebug = labelInfo->layoutDebug;
+
                 // Setup layout points if we have them
                 if (!label->layoutShape.empty())
                 {
@@ -320,7 +321,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                     layoutObject->layoutOffset = labelInfo->layoutOffset;
                     layoutObject->layoutSpacing = labelInfo->layoutSpacing;
                     layoutObject->layoutWidth = height;
-                    layoutObject->layoutDebug = labelInfo->layoutDebug;
                 }
                 
                 // The shape starts out disabled

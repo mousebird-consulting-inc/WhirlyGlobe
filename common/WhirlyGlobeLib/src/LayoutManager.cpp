@@ -915,7 +915,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 if (container.importance >= MAXFLOAT ||
                                     overlapMan.addCheckObject(objPts, layoutObj->obj.mergeID))
                                 {
-                                    if (showDebugBoundaries)
+                                    if (showDebugBoundaries || layoutObj->obj.layoutDebug)
                                     {
                                         // Debugging visual output
                                         // The chosen placement is drawn in black.
@@ -928,7 +928,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     break;
                                 }
 
-                                if (showDebugBoundaries)
+                                if (showDebugBoundaries || layoutObj->obj.layoutDebug)
                                 {
                                     // Placements that don't work are drawn in translucent blue
                                     addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,

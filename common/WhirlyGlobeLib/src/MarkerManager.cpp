@@ -340,14 +340,13 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             markerRep->screenShapeIDs.insert(shape->getId());
             
             // Setup layout points if we have them
-            if (!marker->layoutShape.empty())
+            if (!marker->layoutShape.empty() && layoutObj)
             {
                 layoutObj->layoutShape = convertGeoPtsToModelSpace(marker->layoutShape);
                 layoutObj->layoutRepeat = markerInfo.layoutRepeat;
                 layoutObj->layoutOffset = markerInfo.layoutOffset;
                 layoutObj->layoutSpacing = markerInfo.layoutSpacing;
                 layoutObj->layoutWidth = 2.0f * height2;
-                layoutObj->layoutDebug = markerInfo.layoutDebug;
             }
             
             // Handle the mask rendering if it's there
@@ -388,6 +387,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
 
+                layoutObj->layoutDebug = markerInfo.layoutDebug;
                 layoutObj->clusterGroup = markerInfo.clusterGroup;
                 layoutObj->importance = layoutImport;
                 // No moving it around
