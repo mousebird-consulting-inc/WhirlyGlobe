@@ -30,13 +30,13 @@ class LabelInfoAndroid;
 class FontTextureManager_Android : public FontTextureManager
 {
 public:
-	FontTextureManager_Android(PlatformThreadInfo *,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
+    FontTextureManager_Android(PlatformThreadInfo *,SceneRenderer *sceneRender,Scene *scene,jobject charRenderObj);
     virtual ~FontTextureManager_Android();
 
     // Wrapper for FontManager.
     struct FontManager_Android : public FontManager
     {
-        FontManager_Android();
+        FontManager_Android() = default;
         FontManager_Android(PlatformThreadInfo *inst,jobject typefaceObj);
         virtual ~FontManager_Android();
 
@@ -45,7 +45,7 @@ public:
         // Clear out global refs to Java objects we may be sitting on
         virtual void teardown(PlatformThreadInfo*) override;
 
-        jobject typefaceObj;
+        jobject typefaceObj = nullptr;
     };
     typedef std::shared_ptr<FontManager_Android> FontManager_AndroidRef;
 
@@ -55,19 +55,26 @@ public:
                                               const LabelInfoAndroid *,
                                               ChangeSet &);
 
-    virtual void teardown(PlatformThreadInfo*) override;
+    virtual void teardown(PlatformThreadInfo *) override;
 
 protected:
     // Find the appropriate font manager
-    FontManager_AndroidRef findFontManagerForFont(PlatformInfo_Android *threadInfo,jobject typefaceObj,const LabelInfo &labelInfo);
-
-    // Render the glyph with the given font manager
-//    RawDataRef renderGlyph(WKGlyph glyph,FontManageriOS *fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
+    FontManager_AndroidRef findFontManagerForFont(PlatformInfo_Android *,jobject typefaceObj,const LabelInfo &);
 
     // Java object that can do the character rendering for us
-    jobject charRenderObj;
-    jmethodID renderMethodID;
-    jfieldID bitmapID,sizeXID,sizeYID,glyphSizeXID,glyphSizeYID,offsetXID,offsetYID,textureOffsetXID,textureOffsetYID;
+    jobject charRenderObj = nullptr;
+    jobject glyphClassRef = nullptr;
+    jmethodID renderMethodID = nullptr;
+    jfieldID bitmapID = nullptr;
+    jfieldID sizeXID = nullptr;
+    jfieldID sizeYID = nullptr;
+    jfieldID glyphSizeXID = nullptr;
+    jfieldID glyphSizeYID = nullptr;
+    jfieldID offsetXID = nullptr;
+    jfieldID offsetYID = nullptr;
+    jfieldID textureOffsetXID = nullptr;
+    jfieldID textureOffsetYID = nullptr;
+    jfieldID baselineID = nullptr;
 };
 typedef std::shared_ptr<FontTextureManager_Android> FontTextureManager_AndroidRef;
 

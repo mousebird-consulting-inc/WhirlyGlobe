@@ -150,7 +150,9 @@ public:
     std::string uniqueID;
     /// Identifies objects that should be laid out together
     std::string mergeID;
-    
+
+    int layoutPlacement = WhirlyKitLayoutPlacementNone;
+
     // If set, we'll draw an outline to the mask target
     WhirlyKit::SimpleIdentity maskID = EmptyIdentity;
     WhirlyKit::SimpleIdentity maskRenderTargetID = EmptyIdentity;

@@ -54,21 +54,21 @@ public:
     virtual void teardown(PlatformThreadInfo *) { }
 
     // Mapping info from glyph to location in a dynamic texture
-    class GlyphInfo
+    struct GlyphInfo
     {
-    public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-        GlyphInfo() : glyph(0), refCount(0) { }
-        GlyphInfo(WKGlyph glyph) : glyph(glyph), refCount(0) { }
-        bool operator < (const GlyphInfo &that) const
-        { return glyph < that.glyph; }
-        WKGlyph glyph;
-        Point2f size;
-        Point2f offset;
-        Point2f textureOffset;
-        SubTexture subTex;
-        int refCount;
+        GlyphInfo() = default;
+        GlyphInfo(WKGlyph glyph) : glyph(glyph) { }
+        bool operator < (const GlyphInfo &that) const { return glyph < that.glyph; }
+
+        WKGlyph glyph = 0;
+        Point2f size = {0.0f, 0.0f};
+        Point2f offset = {0.0f, 0.0f};
+        Point2f textureOffset = {0.0f, 0.0f};
+        SubTexture subTex = 0;
+        int refCount = 0;
+        float baseline = 0.0f;
     };
     
     typedef struct GlyphInfoSorter
@@ -118,7 +118,7 @@ struct DrawableString : public Identifiable
     {
         Point2f pts[2];
         TexCoord texCoords[2];
-        SubTexture subTex;
+        SubTexture subTex = 0;
     };
 
     std::vector<Rect> glyphPolys;

@@ -54,6 +54,7 @@ struct MapboxVectorSymbolLayout
     double globalTextScale = 0.0;
     /// How the text is laid out in relation to it's attach point
     MapboxTextAnchor textAnchor = MBTextCenter;
+    MapboxTextAnchor iconAnchor = (MapboxTextAnchor)-1;
     /// Whether it goes to the layout engine
     bool iconAllowOverlap = false;
     bool textAllowOverlap = false;

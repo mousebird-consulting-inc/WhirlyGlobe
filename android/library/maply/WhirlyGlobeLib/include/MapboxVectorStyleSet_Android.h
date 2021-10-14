@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorTileParser_Android.h
+/*  MapboxVectorTileParser_Android.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/12/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -47,7 +45,10 @@ public:
     virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) override;
 
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontName,float fontSize) override;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *,
+                                       const std::vector<std::string> &fontName,
+                                       float fontSize,
+                                       bool mergedLabel) override;
 
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) override;

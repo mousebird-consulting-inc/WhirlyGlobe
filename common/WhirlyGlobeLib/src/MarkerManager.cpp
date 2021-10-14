@@ -390,8 +390,9 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 layoutObj->layoutDebug = markerInfo.layoutDebug;
                 layoutObj->clusterGroup = markerInfo.clusterGroup;
                 layoutObj->importance = layoutImport;
+
                 // No moving it around
-                layoutObj->acceptablePlacement = 1;
+                layoutObj->acceptablePlacement = marker->layoutPlacement;
 
                 // Potentially lay it out with something else (e.g., a label)
                 layoutObj->mergeID = marker->mergeID;

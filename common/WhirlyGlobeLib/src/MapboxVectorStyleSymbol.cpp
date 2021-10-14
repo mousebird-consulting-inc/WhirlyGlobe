@@ -66,10 +66,17 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *,
     textOffsetX = (offsetEntries.size() > 0) ? styleSet->transDouble(offsetEntries[0], 0) : MapboxTransDoubleRef(); //NOLINT
     textOffsetY = (offsetEntries.size() > 1) ? styleSet->transDouble(offsetEntries[1], 0) : MapboxTransDoubleRef();
 
-    textAnchor = MBTextCenter;
-    if (styleEntry && styleEntry->getType("text-anchor") == DictTypeArray) {
-        textAnchor = (MapboxTextAnchor)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("text-anchor"), anchorVals, (int)MBTextCenter);
+    if (styleEntry && styleEntry->getType("text-anchor") == DictTypeString)
+    {
+        textAnchor = (MapboxTextAnchor)MapboxVectorStyleSetImpl::enumValue(
+                styleEntry->getEntry("text-anchor"), anchorVals, (int)textAnchor);
     }
+    if (styleEntry && styleEntry->getType("icon-anchor") == DictTypeString)
+    {
+        iconAnchor = (MapboxTextAnchor)MapboxVectorStyleSetImpl::enumValue(
+                styleEntry->getEntry("icon-anchor"), anchorVals, (int)iconAnchor);
+    }
+
     iconAllowOverlap = MapboxVectorStyleSetImpl::boolValue("icon-allow-overlap", styleEntry, "on", false);
     textAllowOverlap = MapboxVectorStyleSetImpl::boolValue("text-allow-overlap", styleEntry, "on", false);
     layoutImportance = styleSet->tileStyleSettings->labelImportance;
@@ -376,7 +383,9 @@ std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo 
     {
         marker->texIDs.push_back(markerTexID);
     }
-    
+
+    marker->layoutPlacement = anchorPlacement(layout.iconAnchor);
+
     return marker;
 }
 
@@ -652,13 +661,30 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     
                     const auto pt = Point2f(middle.x(), middle.y());
 
+                    bool markerAdded = false;
+                    if (iconInclude)
+                    {
+                        if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
+                        {
+                            if (textInclude)
+                            {
+                                genMergeId(mergeIdent);
+                                marker->mergeID = &mergeIdent[0];
+                            }
+
+                            uuidMarkers->push_back(marker.get());
+                            uuidVecObjs->push_back(vecObj);
+                            markerOwner.emplace_back(std::move(marker));
+                            markerAdded = true;
+                        }
+                    }
+
                     if (textInclude)
                     {
                         if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo,iconInclude))
                         {
-                            if (iconInclude)
+                            if (markerAdded)
                             {
-                                genMergeId(mergeIdent);
                                 label->mergeID = &mergeIdent[0];
                             }
 
@@ -675,21 +701,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             label->screenOffset = offset;
 
                             uuidLabels->push_back(label);
-                        }
-                    }
-                    
-                    if (iconInclude)
-                    {
-                        if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
-                        {
-                            if (textInclude)
-                            {
-                                marker->mergeID = &mergeIdent[0];
-                            }
-
-                            uuidMarkers->push_back(marker.get());
-                            uuidVecObjs->push_back(vecObj);
-                            markerOwner.emplace_back(std::move(marker));
                         }
                     }
                 }
@@ -731,13 +742,30 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     
                     const Point2f pt = middle.cast<float>();
 
+                    bool markerAdded = false;
+                    if (iconInclude)
+                    {
+                        if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
+                        {
+                            if (textInclude)
+                            {
+                                genMergeId(mergeIdent);
+                                marker->mergeID = &mergeIdent[0];
+                            }
+
+                            uuidMarkers->push_back(marker.get());
+                            uuidVecObjs->push_back(vecObj);
+                            markerOwner.emplace_back(std::move(marker));
+                            markerAdded = true;
+                        }
+                    }
+
                     if (textInclude)
                     {
                         if (auto label = setupLabel(inst, pt, labelInfo, attrs, tileInfo, iconInclude))
                         {
-                            if (iconInclude)
+                            if (markerAdded)
                             {
-                                genMergeId(mergeIdent);
                                 label->mergeID = &mergeIdent[0];
                             }
 
@@ -745,21 +773,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             // except for offset, which we already calculated so we might as well use
                             label->screenOffset = offset;
                             uuidLabels->push_back(label);
-                        }
-                    }
-
-                    if (iconInclude)
-                    {
-                        if (auto marker = setupMarker(inst, pt, attrs, tileInfo))
-                        {
-                            if (textInclude)
-                            {
-                                marker->mergeID = &mergeIdent[0];
-                            }
-
-                            uuidMarkers->push_back(marker.get());
-                            uuidVecObjs->push_back(vecObj);
-                            markerOwner.emplace_back(std::move(marker));
                         }
                     }
                 }

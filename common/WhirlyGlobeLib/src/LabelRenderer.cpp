@@ -141,7 +141,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
         const auto drawStrs = label->generateDrawableStrings(threadInfo,labelInfo,fontTexManager,
                                                              lineHeight,changes);
 
-        if (cancelFn(threadInfo))
+        if (cancelFn(threadInfo) || drawStrs.empty())
         {
             return;
         }
@@ -198,11 +198,15 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
 #ifndef __ANDROID__
             // Except we do need to tweak things a little, even for the layout engine
             // Note: But only on iOS because... reasons
-            // To really do this right, we need to expose font metrics from the font managers / glyph renderer.
             if (labelInfo->labelVAlign == WhirlyKitLabelBaseline)
             {
                 const float heightAboveBaseline = drawMbr.ur().y();
                 justifyOff.y() += heightAboveBaseline/2.0f;
+            }
+#else
+            if (labelInfo->labelVAlign == WhirlyKitLabelBaseline)
+            {
+                justifyOff.y() -= drawMbr.ll().y();
             }
 #endif
 
