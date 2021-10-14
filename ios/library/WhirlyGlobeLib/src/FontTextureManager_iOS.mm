@@ -121,24 +121,30 @@ FontManager_iOSRef FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont
 }
 
 // Render the glyph into a buffer
-NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset)
+NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph, const FontManager_iOSRef &fm,
+                                            Point2f &size,Point2f &glyphSize,
+                                            Point2f &offset,Point2f &textureOffset)
 {
-    int width,height;
-    
     // Boundary around the image to capture the full data
     if (fm->outlineSize > 0.0)
     {
-        int outlineUp = ceilf(fm->outlineSize);
+        const auto outlineUp = (int)std::ceil(fm->outlineSize);
         textureOffset = Point2f(1+outlineUp, 1+outlineUp);
-    } else
+    }
+    else
+    {
         textureOffset = Point2f(1, 1);
+    }
     
-        CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontOrientationDefault,&glyph,NULL,1);
-        size.x() = ceilf(boundRect.size.width)+2*textureOffset.x();  size.y() = ceilf(boundRect.size.height)+2*textureOffset.y();
-        width = size.x();  height = size.y();
-    
-        if (width <= 0 || height <= 0)
-            return nil;
+    const CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontOrientationDefault,&glyph,nil,1);
+    size.x() = std::ceil(boundRect.size.width)+2*textureOffset.x();
+    size.y() = std::ceil(boundRect.size.height)+2*textureOffset.y();
+    const auto width = (int)size.x();
+    const auto height = (int)size.y();
+
+    if (width <= 0 || height <= 0)
+        return nil;
+
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     // Set up a real context for the glyph rendering
     NSMutableData *retData = [NSMutableData dataWithLength:width*height*4];
@@ -156,8 +162,8 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
     CGContextTranslateCTM(theContext, 0.0f, height);
     CGContextScaleCTM(theContext, 1.0f, -1.0f);
     // Now draw it
-    int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
-    int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
+    const int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
+    const int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
     
     offset = Point2f(baselineOffX,baselineOffY);
     glyphSize = Point2f(boundRect.size.width,boundRect.size.height);

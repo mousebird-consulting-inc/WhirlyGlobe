@@ -515,77 +515,123 @@ SimpleIdentity MapboxVectorStyleSetImpl_iOS::makeLineTexture(PlatformThreadInfo 
     return tex.texID;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontNames,float fontSize)
+static UIFont *findFont(const std::string &fontName, float fontSize)
 {
-    UIFont *font = nil;
-    
-    // Work through the font names until we find one
-    for (auto fontName: fontNames) {
-        // Let's try just the name
-        NSString *fontNameStr = [NSString stringWithFormat:@"%s",fontName.c_str()];
-        font = [UIFont fontWithName:fontNameStr size:fontSize];
-        if (!font) {
-            // The font names vary a bit on iOS so we'll try reformatting the name
-            NSArray<NSString *> *components = [fontNameStr componentsSeparatedByString:@" "];
-            NSString *fontNameStr2 = nil;
-            switch ([components count])
-            {
-                // One component should already have worked
-                case 1:
-                    break;
-                // For two, we
-                case 2:
-                    if ([components count] == 2) {
-                        fontNameStr2 = [fontNameStr stringByReplacingOccurrencesOfString:@" " withString:@"-"];
-                        font = [UIFont fontWithName:fontNameStr2 size:fontSize];
-                    }
-                    break;
-                case 3:
-                {
-                    // Try <name><name>-<name>
-                    fontNameStr2 = [NSString stringWithFormat:@"%@%@-%@",[components objectAtIndex:0],[components objectAtIndex:1],[components lastObject]];
-                    font = [UIFont fontWithName:fontNameStr2 size:fontSize];
-                    
-                    // Sometimes a font like "Noto Sans Regular" is just "NotoSans" because I hate everyone involved with fonts
-                    if (!font && [[components lastObject] isEqualToString:@"Regular"]) {
-                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@%@",[components objectAtIndex:0],[components objectAtIndex:1]] size:fontSize];
-                    }
-                    
-                    // Okay, let's try a slightly different construction
-                    if (!font) {
-                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@%@",[components objectAtIndex:0],[components objectAtIndex:1],[components objectAtIndex:2]] size:fontSize];
-                    }
-                    
-                    // And try an even stupider construction
-                    if (!font) {
-                        font = [UIFont fontWithName:[NSString stringWithFormat:@"%@-%@_%@-%@",[components objectAtIndex:0],[components objectAtIndex:2],[components objectAtIndex:1],[components objectAtIndex:2]] size:fontSize];
-                    }
-                }
-                    break;
-                default:
-                {
-                    // Try <name><name>-<name>
-                    NSMutableString *str = [[NSMutableString alloc] init];
-                    for (unsigned int ii=0;ii<[components count]-1;ii++)
-                        [str appendString:[components objectAtIndex:ii]];
-                    [str appendFormat:@"-%@",[components lastObject]];
-                    fontNameStr2 = str;
-                    font = [UIFont fontWithName:fontNameStr2 size:fontSize];
-                }
-                    break;
-            }
-            
-        }
-        
-        if (font)
-            break;
-    }
-    if (!font) {
-        font = [UIFont systemFontOfSize:fontSize];
-        NSLog(@"Failed to find font %s",fontNames[0].c_str());
+    // Let's try just the name
+    NSString *fontNameStr = [NSString stringWithUTF8String:fontName.c_str()];
+    if (UIFont* font = [UIFont fontWithName:fontNameStr size:fontSize])
+    {
+        return font;
     }
 
+    // The font names vary a bit on iOS so we'll try reformatting the name
+    NSArray<NSString *> *components = [fontNameStr componentsSeparatedByString:@" "];
+    NSString *fontNameStr2 = nil;
+    switch (components.count)
+    {
+        // One component should already have worked
+        case 1:
+            return nil;
+        // For two, try switching the separator
+        case 2:
+            fontNameStr2 = [fontNameStr stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+            return [UIFont fontWithName:fontNameStr2 size:fontSize];
+        case 3:
+            // Try <name><name>-<name>
+            fontNameStr2 = [NSString stringWithFormat:@"%@%@-%@",[components objectAtIndex:0],[components objectAtIndex:1],[components lastObject]];
+            if (UIFont* font = [UIFont fontWithName:fontNameStr2 size:fontSize])
+            {
+                return font;
+            }
+            
+            // Sometimes a font like "Noto Sans Regular" is just "NotoSans" because I hate everyone involved with fonts
+            if ([[components lastObject] isEqualToString:@"Regular"])
+            {
+                fontNameStr2 = [NSString stringWithFormat:@"%@%@",
+                                [components objectAtIndex:0],
+                                [components objectAtIndex:1]];
+                if (UIFont* font = [UIFont fontWithName:fontNameStr2 size:fontSize])
+                {
+                    return font;
+                }
+            }
+            
+            // Okay, let's try a slightly different construction
+            fontNameStr2 = [NSString stringWithFormat:@"%@-%@%@",
+                            [components objectAtIndex:0],
+                            [components objectAtIndex:1],
+                            [components objectAtIndex:2]];
+            if (UIFont* font = [UIFont fontWithName:fontNameStr2 size:fontSize])
+            {
+                return font;
+            }
+            
+            // And try an even stupider construction
+            fontNameStr2 = [NSString stringWithFormat:@"%@-%@_%@-%@",
+                            [components objectAtIndex:0],
+                            [components objectAtIndex:2],
+                            [components objectAtIndex:1],
+                            [components objectAtIndex:2]];
+            if (UIFont* font = [UIFont fontWithName:fontNameStr2 size:fontSize])
+            {
+                return font;
+            }
+            break;
+        default:
+        {
+            // Try <name><name>-<name>
+            NSMutableString *str = [[NSMutableString alloc] init];
+            for (unsigned int ii=0;ii<[components count]-1;ii++)
+            {
+                [str appendString:[components objectAtIndex:ii]];
+            }
+            [str appendFormat:@"-%@",[components lastObject]];
+            if (UIFont* font = [UIFont fontWithName:str size:fontSize])
+            {
+                return font;
+            }
+        }
+    }
+    return nil;
+}
+
+LabelInfoRef MapboxVectorStyleSetImpl_iOS::makeLabelInfo(PlatformThreadInfo *,
+                                                         const std::vector<std::string> &fontNames,
+                                                         float fontSize, bool mergedSymbol)
+{
+    // Work through the font names until we find one
+    UIFont *font = nil;
+    for (const auto &fontName: fontNames)
+    {
+        font = findFont(fontName, fontSize);
+        if (font)
+        {
+            break;
+        }
+    }
+
+    if (!font)
+    {
+        font = [UIFont systemFontOfSize:fontSize];
+        wkLogLevel(Warn, "Failed to find font '%s' ..., using system font '%s'",
+                   fontNames[0].c_str(), font ? font.fontName.UTF8String : "<none>");
+    }
+
+    // If we want the reqested size to be the cap-height, line-height, ascent+descent, etc., this is how we can adjust it.
+    //if (mergedSymbol)
+    //{
+    //    CGSize withinSize = CGSizeMake(FLT_MAX, FLT_MAX);
+    //    const auto opts = NSStringDrawingUsesDeviceMetrics;
+    //    NSDictionary* attrs = @{NSFontAttributeName: font};
+    //    const CGRect bound = [@"M" boundingRectWithSize:withinSize options:opts attributes:attrs context:nil];
+    //    const auto newSize = fontSize * fontSize / bound.size.height;
+    //    font = [font fontWithSize:newSize];
+    //}
+
     auto labelInfo = std::make_shared<LabelInfo_iOS>(font,/*screenObject=*/true);
+    labelInfo->fontPointSize = fontSize;
+    labelInfo->mergedSymbol = mergedSymbol;
+    labelInfo->labelVAlign = WhirlyKitLabelVCenter;
     labelInfo->programID = screenMarkerProgramID;
 
     return labelInfo;

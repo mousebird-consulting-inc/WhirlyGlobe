@@ -130,16 +130,17 @@ public:
         return paint.textColor ? paint.textColor->colorForZoom(zoom) : RGBAColor::clear();
     }
 
-    std::string breakUpText(PlatformThreadInfo *inst,
+    std::string breakUpText(PlatformThreadInfo *,
                             const std::string &text,
                             double textMaxWidth,
-                            const LabelInfoRef &labelInfo);
-    SingleLabelRef setupLabel(PlatformThreadInfo *inst,
+                            const LabelInfoRef &);
+    SingleLabelRef setupLabel(PlatformThreadInfo *,
                               const Point2f &pt,
-                              const LabelInfoRef &labelInfo,
+                              const LabelInfoRef &,
                               const MutableDictionaryRef &attrs,
-                              const VectorTileDataRef &tileInfo);
-    std::unique_ptr<Marker> setupMarker(PlatformThreadInfo *inst,
+                              const VectorTileDataRef &tileInfo,
+                              bool mergedIcon);
+    std::unique_ptr<Marker> setupMarker(PlatformThreadInfo *,
                         const Point2f &pt,
                         const MutableDictionaryRef &attrs,
                         const VectorTileDataRef &tileInfo);

@@ -265,7 +265,8 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
                                                    const Point2f &pt,
                                                    const LabelInfoRef &labelInfo,
                                                    const MutableDictionaryRef &attrs,
-                                                   const VectorTileDataRef &tileInfo)
+                                                   const VectorTileDataRef &tileInfo,
+                                                   bool mergedIcon)
 {
     // Reconstruct the string from its replacement form
     std::string text = layout.textField->textForZoom(tileInfo->ident.level).build(attrs);
@@ -282,11 +283,13 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
     // Break it up into lines, if necessary
     double textMaxWidth = layout.textMaxWidth->valForZoom(tileInfo->ident.level);
     if (textMaxWidth != 0.0)
+    {
         text = breakUpText(inst,text,textMaxWidth * labelInfo->fontPointSize,labelInfo);
+    }
     
     // Construct the label
-    SingleLabelRef label = styleSet->makeSingleLabel(inst,text);
-    label->loc = GeoCoord(pt.x(),pt.y());
+    auto label = styleSet->makeSingleLabel(inst,text);
+    label->loc = pt;
     label->isSelectable = selectable;
     
     if (!uuidField.empty())
@@ -299,14 +302,8 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
         std::transform(label->uniqueID.begin(), label->uniqueID.end(), label->uniqueID.begin(), ::tolower);
     }
 
-    // The rank is most important, followed by the zoom level.  This keeps the countries on top.
-    const int rank = attrs->getInt("rank", 1000);
-
-    // Random tweak to cut down on flashing
-    // TODO: Move the layout importance into the label itself
-    float strHash = calcStringHash(text);
     label->layoutEngine = true;
-    label->layoutImportance = MAXFLOAT;
+    label->layoutImportance = MAXFLOAT;     // TODO: Move the layout importance into the label itself
     if (!layout.textAllowOverlap)
     {
         // If we're allowing layout, then we need to communicate valid text justification
@@ -315,7 +312,18 @@ SingleLabelRef MapboxVectorLayerSymbol::setupLabel(PlatformThreadInfo *inst,
         {
             label->layoutPlacement = justifyPlacement(layout.textJustify);
         }
-        label->layoutImportance = layout.layoutImportance + 1.0f - ((float)rank + (float)(101-tileInfo->ident.level)/100.0f)/1000.0f + strHash/10000.0f;
+
+        // The rank is most important, keeps the countries on top.
+        const auto rank = (float)attrs->getInt("rank", 1000);
+        const auto rankImport = 1.0f - rank / 1000.0f;
+        // Then zoom level.
+        const float levelImport = (float)(101 - tileInfo->ident.level) / 100000.0f;
+        // Apply a small adjustment to the layout importance based on the string hash so that the
+        // values are (almost) certainly unique, making the sort order stable and preventing the
+        // layout from changing which items are in front on every pass.
+        // todo: this is actually larger than the level value, consider adjusting the denominators
+        const auto hashImport = calcStringHash(text) / 10000.0f;
+        label->layoutImportance = layout.layoutImportance + rankImport + levelImport + hashImport;
     }
 
     label->layoutPlacement = anchorPlacement(layout.textAnchor);
@@ -350,22 +358,20 @@ std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo 
         return nullptr;
     }
     
-    markerSize.x() *= styleSet->tileStyleSettings->markerScale * styleSet->tileStyleSettings->symbolScale;
-    markerSize.y() *= styleSet->tileStyleSettings->markerScale * styleSet->tileStyleSettings->symbolScale;
+    markerSize *= styleSet->tileStyleSettings->markerScale * styleSet->tileStyleSettings->symbolScale;
     if (!layout.iconSize->isExpression())
     {
         const double size = layout.iconSize->valForZoom(tileInfo->ident.level);
-        markerSize.x() *= size;
-        markerSize.y() *= size;
+        markerSize *= size;
     }
 
     auto marker = std::make_unique<Marker>();
     marker->width = markerSize.x();
     marker->height = markerSize.y();
-    marker->loc = GeoCoord(pt.x(),pt.y());
+    marker->loc = pt;
     marker->layoutImportance = layout.iconAllowOverlap ? MAXFLOAT : layout.layoutImportance;
 
-    SimpleIdentity markerTexID = subTex.getId();
+    const SimpleIdentity markerTexID = subTex.getId();
     if (markerTexID != EmptyIdentity)
     {
         marker->texIDs.push_back(markerTexID);
@@ -412,78 +418,96 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     const auto zoomLevel = tileInfo->ident.level;
 
-    auto const capacity = vecObjs.size() * 5;  // ?
-    std::unordered_map<std::string,std::tuple<MarkerPtrVec,VecObjRefVec,LabelRefVec>> markersByUUID(capacity);
-
-    // Render at the max size and then scale dynamically
-    double textSize = layout.textSize->maxVal() * layout.globalTextScale;
-    textSize = std::max(1.0, std::round(textSize));
-
-    // When there's no dynamic scaling, we need to scale the text size down
-    textSize /= styleSet->tileStyleSettings->rendererScale;
-
-    LabelInfoRef labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,(float)textSize);
-    if (!labelInfo) {
-        return;
-    }
-
-    labelInfo->hasExp = true;
-    labelInfo->zoomSlot = styleSet->zoomSlot;
-    if (minzoom != 0 || maxzoom < 1000)
-    {
-        labelInfo->minZoomVis = minzoom;
-        labelInfo->maxZoomVis = maxzoom;
-//        wkLogLevel(Debug, "zoomSlot = %d, minZoom = %f, maxZoom = %f",styleSet->zoomSlot,labelInfo->minZoomVis,labelInfo->maxZoomVis);
-    }
-    labelInfo->screenObject = true;
-    labelInfo->fade = 0.0;
-    labelInfo->textJustify = layout.textJustify;
-    labelInfo->drawPriority = drawPriority + zoomLevel * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + ScreenDrawPriorityOffset;
-    labelInfo->opacityExp = paint.textOpacity->expression();
-
     // We'll try for one color for the whole thing
     // Note: To fix this we need to blast the text apart into pieces
     const auto textColor = MapboxVectorStyleSetImpl::resolveColor(paint.textColor, nullptr, zoomLevel,
                                                                   MBResolveColorOpacityReplaceAlpha);
-    if (textColor)
-    {
-        labelInfo->textColor = *textColor;
-    }
 
-    // We can apply a scale, but it needs to be scaled to the current text size
-    labelInfo->scaleExp = layout.textSize->expression();
-    if (labelInfo->scaleExp)
-    {
-        const auto maxTextVal = (float)layout.textSize->maxVal();
-        for (float &stopOutput : labelInfo->scaleExp->stopOutputs)
-        {
-            stopOutput /= maxTextVal;
-        }
-    }
-
-    if (paint.textHaloColor && paint.textHaloWidth)
-    {
-        labelInfo->outlineColor = paint.textHaloColor->colorForZoom(zoomLevel);
-        // Note: We're not using blur right here
-        labelInfo->outlineSize = std::max(0.5, (paint.textHaloWidth->valForZoom(zoomLevel) - paint.textHaloBlur->valForZoom(zoomLevel)));
-    }
-
-    // Note: Made up value for pushing multi-line text together
-    //desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
-
-    const auto textField = (textColor && textSize > 0.0 && layout.textField) ?
-                            layout.textField->textForZoom(zoomLevel) : MapboxRegexField();
+    const auto textField = (textColor && layout.textField) ?
+                           layout.textField->textForZoom(zoomLevel) : MapboxRegexField();
 
     const bool iconInclude = layout.iconImageField && styleSet->sprites;
-    const bool textInclude = (textField.valid && !textField.chunks.empty());
+    bool textInclude = (textField.valid && !textField.chunks.empty());
     if (!textInclude && !iconInclude)
     {
         return;
     }
 
+    // If we're doing a merged symbol, the font height needs to be treated differently
+    const auto merged = textInclude && iconInclude;
+
+    // If we will be producing both icons and text, it's likely that their sizes need to correspond
+    // (e.g., highway shields) so we can't apply independent scale factors.  For now, use the marker
+    // scales for the text instead of the normal text scale.
+    const auto renderScale = styleSet->tileStyleSettings->rendererScale;
+    // see setupMarker
+    const auto markerCombinedScale =
+        styleSet->tileStyleSettings->markerScale * styleSet->tileStyleSettings->symbolScale *
+        (layout.iconSize->isExpression() ? 1.0 : layout.iconSize->valForZoom(tileInfo->ident.level));
+    // todo: An extra renderScale (or just 2?) seems to be needed here, why?
+    const auto textScale = merged ? markerCombinedScale * renderScale : layout.globalTextScale;
+    // Render at the max size and then scale dynamically
+    const auto textSize = (float)(layout.textSize->maxVal() * textScale / renderScale);
+
+    // todo: if icon size is an expression, make text size an expression based on it?
+    //if (layout.iconSize->isExpression())
+    //{
+    //}
+
+    if (textSize < 1)
+    {
+        return;
+    }
+
+    const auto labelInfo = styleSet->makeLabelInfo(inst,layout.textFontNames,textSize,merged);
+    if (!labelInfo)
+    {
+        return;
+    }
+
+    if (textInclude)
+    {
+        labelInfo->zoomSlot = styleSet->zoomSlot;
+        if (minzoom != 0 || maxzoom < 1000)
+        {
+            labelInfo->minZoomVis = minzoom;
+            labelInfo->maxZoomVis = maxzoom;
+        }
+        labelInfo->screenObject = true;
+        labelInfo->textJustify = layout.textJustify;
+        labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset + zoomLevel *
+                                    std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+        labelInfo->opacityExp = paint.textOpacity->expression();
+        labelInfo->textColor = textColor ? *textColor : RGBAColor::white();
+
+        // We can apply a scale, but it needs to be scaled to the current text size.
+        // That is, the expression produces [0.0,1.0] when is then multiplied by textSize
+        labelInfo->scaleExp = layout.textSize->expression();
+        if (labelInfo->scaleExp)
+        {
+            const auto maxTextVal = (float)layout.textSize->maxVal();
+            for (float &stopOutput : labelInfo->scaleExp->stopOutputs)
+            {
+                stopOutput /= maxTextVal;
+            }
+        }
+
+        if (paint.textHaloColor && paint.textHaloWidth)
+        {
+            labelInfo->outlineColor = paint.textHaloColor->colorForZoom(zoomLevel);
+            // Note: We're not using blur right here
+            labelInfo->outlineSize = std::max(0.5, (paint.textHaloWidth->valForZoom(zoomLevel) -
+                                                    paint.textHaloBlur->valForZoom(zoomLevel)));
+        }
+
+        labelInfo->hasExp = labelInfo->scaleExp || labelInfo->opacityExp;
+    }
+
+    // Note: Made up value for pushing multi-line text together
+    //desc[kMaplyTextLineSpacing] = @(4.0 / 5.0 * font.lineHeight);
+
     // Sort out the image for the marker if we're doing that
     MarkerInfo markerInfo(/*screenObject=*/true);
-    markerInfo.hasExp = true;
     markerInfo.zoomSlot = styleSet->zoomSlot;
     markerInfo.scaleExp = layout.iconSize->expression();
     markerInfo.opacityExp = paint.iconOpacity->expression();
@@ -500,7 +524,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         markerInfo.drawPriority = labelInfo->drawPriority;
     }
 
-    ComponentObjectRef compObj = styleSet->makeComponentObject(inst);
+    markerInfo.hasExp = markerInfo.colorExp || markerInfo.scaleExp || markerInfo.opacityExp;
 
     // Calculate the present value of the offsets in ems.
     // This isn't in setupLabel because it only needs to be done once.
@@ -509,6 +533,9 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     // `label->screenOffset` uses the same convention for Y but the opposite convention for X.
     const Point2d offset = Point2d(layout.textOffsetX ? (layout.textOffsetX->valForZoom(zoomLevel) * textSize) : 0.0,
                                    layout.textOffsetY ? (layout.textOffsetY->valForZoom(zoomLevel) * -textSize) : 0.0);
+
+    auto const capacity = vecObjs.size() * 5;  // ?
+    std::unordered_map<std::string,std::tuple<MarkerPtrVec,VecObjRefVec,LabelRefVec>> markersByUUID(capacity);
 
     std::array<char,32LL> mergeIdent = {'\0'};
     std::vector<std::unique_ptr<Marker>> markerOwner;
@@ -550,7 +577,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     {
                         if (textInclude)
                         {
-                            if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo))
+                            if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo,iconInclude))
                             {
                                 if (iconInclude)
                                 {
@@ -627,7 +654,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
                     if (textInclude)
                     {
-                        if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo))
+                        if (auto label = setupLabel(inst,pt,labelInfo,attrs,tileInfo,iconInclude))
                         {
                             if (iconInclude)
                             {
@@ -702,11 +729,11 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                         continue;
                     }
                     
-                    const auto pt = Point2f(middle.x(), middle.y());
+                    const Point2f pt = middle.cast<float>();
 
                     if (textInclude)
                     {
-                        if (auto label = setupLabel(inst, pt, labelInfo, attrs, tileInfo))
+                        if (auto label = setupLabel(inst, pt, labelInfo, attrs, tileInfo, iconInclude))
                         {
                             if (iconInclude)
                             {
