@@ -26,6 +26,8 @@
 namespace WhirlyKit
 {
 
+extern const int ScreenDrawPriorityOffset = 1000000;
+
 static const char * const placementVals[] = {"point","line",nullptr};
 static const char * const transformVals[] = {"none","uppercase","lowercase",nullptr};
 static const char * const anchorVals[] = {"center","left","right","top","bottom","top-left","top-right","bottom-left","bottom-right",nullptr};
@@ -370,8 +372,6 @@ std::unique_ptr<Marker> MapboxVectorLayerSymbol::setupMarker(PlatformThreadInfo 
     
     return marker;
 }
-
-static const int ScreenDrawPriorityOffset = 1000000;
 
 using MarkerPtrVec = std::vector<WhirlyKit::Marker*>;
 using VecObjRefVec = std::vector<VectorObjectRef>;
