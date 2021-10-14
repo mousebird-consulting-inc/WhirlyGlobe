@@ -83,6 +83,24 @@ Type there the following path:
 libs/WhirlyGlobeMaply/ios/library/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h
 {% endhighlight %}
 
+### Bridging Objective C to Swift
+
+If you're using Objective-C for your project, you can ignore this.  Also welcome back from your coma!
+
+You're probably using Swift and the toolkit works well with it, but you have to do one more thing.
+
+Open the HelloEarth workspace and create a new Objective C file.  I call mine "Stub" because it's not going to do anything.  It doesn't even matter what's in it.  The important bit is next.
+
+Xcode will prompt you to create a Create Bridging Header.  Select that option.
+
+![CocoaPods]({{ site.baseurl }}/images/tutorial/bridging_header.png)
+
+Now open that header.  It should be called HelloEarth-Bridging-Header.h.  Add MaplyComponent like so.
+
+![CocoaPods]({{ site.baseurl }}/images/tutorial/bridging_header2.png)
+
+With that you should be ready to compile and use the toolkit in a Swift project.
+
 At this point, your project should be set up properly and you’ll be linked to the github repo for updates.
 
 Next up, let’s look at something!

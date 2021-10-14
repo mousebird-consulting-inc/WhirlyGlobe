@@ -21,13 +21,13 @@ Pods are pretty easy to use, which is kind of the point.  If you haven't install
 Every project you use Cocoapods in is going to need a Podfile.  Yours should look something like this.
 
 {% highlight bash %}
-platform :ios, '13.0'
+platform :ios, '15.0'
 install! 'cocoapods', :deterministic_uuids => false
 project 'HelloEarth.xcodeproj'
 inhibit_all_warnings!
 
 target 'HelloEarth' do
-        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'master'
+        pod 'WhirlyGlobe', :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'main'
 end
 {% endhighlight %}
 
@@ -77,6 +77,14 @@ Now open that header.  It should be called HelloEarth-Bridging-Header.h.  Add Ma
 ![CocoaPods]({{ site.baseurl }}/images/tutorial/bridging_header2.png)
 
 With that you should be ready to compile and use the toolkit in a Swift project.
+
+### Add the Metal Shaders
+
+One peculiar thing with Cocoapods is that we won't get the Metal shaders by default.  You'll see this as a crash when the toolkit tries to set up the renderer.
+
+Adding them is actually pretty simple.  We just need to add one file directly to our project.
+
+I prefer to just search for it and then drag it into the project.  So search for wkDefaultShaders.metal in the HelloEarth directory.  Drag that into your HelloEarth project and it'll compile normally.
 
 ### Compiling With the Pod
 

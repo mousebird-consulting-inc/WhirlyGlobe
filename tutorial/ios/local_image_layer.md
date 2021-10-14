@@ -15,7 +15,7 @@ If you haven't got one here is a suitable ViewController  for [Swift]({{ site.ba
                                            
 ### Geography Class MBTiles
 
-We need the Geography Class MBTiles file from Mapbox.  Luckily, you'll can download the mbtiles file and add it to your project easily. (http://openstreetmap.org/)
+We need the Geography Class MBTiles file from Mapbox.  Luckily, you'll can download the mbtiles file and add it to your project easily.
 
 First, download the [MBTile file](https://s3.amazonaws.com/whirlyglobedocs/tutorialsupport/geography-class_medres.mbtiles) and save it into your projects directory. 
 
@@ -92,7 +92,6 @@ let sampleParams = MaplySamplingParams()
 sampleParams.coordSys = mbTilesFetcher!.coordSys()
 sampleParams.coverPoles = true
 sampleParams.edgeMatching = true
-sampleParams.minZoom = mbTilesFetcher!.minZoom()
 sampleParams.maxZoom = mbTilesFetcher!.maxZoom()
 sampleParams.singleLevel = true
 
