@@ -53,17 +53,6 @@ LabelInfo::LabelInfo(bool screenObject) :
 {
 }
 
-LabelInfo::LabelInfo(const LabelInfo &that) :
-    BaseInfo(that), hasTextColor(that.hasTextColor), textColor(that.textColor), backColor(that.backColor),
-    screenObject(that.screenObject), width(that.width), height(that.height),
-    labelJustify(that.labelJustify), textJustify(that.textJustify),
-    shadowColor(that.shadowColor), shadowSize(that.shadowSize),
-    outlineColor(that.outlineColor), outlineSize(that.outlineSize),
-    lineHeight(that.lineHeight), fontPointSize(that.fontPointSize),
-    layoutOffset(that.layoutOffset), layoutSpacing(that.layoutSpacing), layoutRepeat(that.layoutRepeat)
-{
-}
-
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     BaseInfo(dict),
     screenObject(screenObject)
@@ -80,6 +69,7 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     lineHeight = (float)dict.getDouble(MaplyTextLineHeight,0.0);
     labelJustify = parseLabelJustify(dict.getString(MaplyLabelJustifyName), WhirlyKitLabelMiddle);
     textJustify = parseTextJustify(dict.getString(MaplyTextJustify), WhirlyKitTextLeft);
+    labelVAlign = WhirlyKitLabelBaseline;//todo
     layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
     layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
     layoutSpacing = (float)dict.getDouble(MaplyTextLayoutSpacing,24.0);
@@ -208,8 +198,12 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
 #ifndef __ANDROID__
             // Except we do need to tweak things a little, even for the layout engine
             // Note: But only on iOS because... reasons
-            const float heightAboveBaseline = drawMbr.ur().y();
-            justifyOff.y() += heightAboveBaseline/2.0;
+            // To really do this right, we need to expose font metrics from the font managers / glyph renderer.
+            if (labelInfo->labelVAlign == WhirlyKitLabelBaseline)
+            {
+                const float heightAboveBaseline = drawMbr.ur().y();
+                justifyOff.y() += heightAboveBaseline/2.0f;
+            }
 #endif
 
             screenShape->setDrawOrder(labelInfo->drawOrder);
