@@ -149,7 +149,7 @@ varying vec4 v_color;
 void main()
 {
     v_color = a_color;
-    float t0 = clamp(a_c0 * u_real_w2,-4.0,5.0);    // Position along the line
+    float t0 = clamp(a_c0 * u_real_w2,-1.0,2.0);    // Position along the line
     vec3 v = a_p1 - a_position;
     vec3 dir = normalize(v);
     float realCenterLine = a_offset.z * u_wideOffset * u_real_w2 / u_w2;
@@ -191,7 +191,7 @@ varying float v_dot;
 void main()
 {
     v_color = a_color;
-    float t0 = clamp(a_c0 * u_real_w2,-4.0,5.0);        //  Position along the line
+    float t0 = clamp(a_c0 * u_real_w2,-1.0,2.0);        //  Position along the line
     vec3 v = a_p1 - a_position;
     vec3 dir = normalize(v);
     float realCenterLine = a_offset.z * u_wideOffset * u_real_w2 / u_w2;

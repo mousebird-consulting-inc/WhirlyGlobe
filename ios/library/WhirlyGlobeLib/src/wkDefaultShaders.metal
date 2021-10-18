@@ -630,7 +630,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float realCenterLine = centerLine * pixScale;
     
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
-    t0 = clamp(t0,-4.0,5.0);
+    t0 = clamp(t0,-1.0,2.0);
     float3 dir = normalize(vert.p1 - vert.position);
     float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
@@ -698,7 +698,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     float realCenterLine = centerLine * pixScale;
     
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
-    t0 = clamp(t0,-4.0,5.0);
+    t0 = clamp(t0,-1.0,2.0);
     float3 dir = normalize(vert.p1 - vert.position);
     float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
