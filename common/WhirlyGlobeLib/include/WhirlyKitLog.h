@@ -39,4 +39,11 @@ extern void wkLog(const char *formatStr,...);
 #define wkLogLevel(level, formatStr...) do {if ((level) >= (WK_MIN_LOG_LEVEL)) { wkLogLevel_((level), formatStr); }} while(0)
 extern void wkLogLevel_(WKLogLevel level,const char *formatStr,...);
 
+#if !defined(WK_STD_DTOR_CATCH) && !defined(WK_STD_DTOR_CATCH_IN)
+# define WK_STD_DTOR_CATCH_IN(name) catch (const std::exception &ex) { \
+	wkLogLevel(Error, "Crash in %s: %s", (name), ex.what()); \
+	} catch (...) { wkLogLevel(Error, "Crash in %s", (name)); }
+# define WK_STD_DTOR_CATCH() WK_STD_DTOR_CATCH_IN(__func__)
+#endif
+
 #endif

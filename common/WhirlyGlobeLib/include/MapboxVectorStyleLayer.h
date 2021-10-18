@@ -54,7 +54,7 @@ public:
                        const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority);
 
-    virtual MapboxVectorStyleLayerRef clone() const const = 0;
+    virtual MapboxVectorStyleLayerRef clone() const = 0;
     virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) = 0;
 
     /// Unique Identifier for this style

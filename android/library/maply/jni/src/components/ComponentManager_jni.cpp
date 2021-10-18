@@ -67,8 +67,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
         {
             (*compManager)->clearJNI(env);
             delete compManager;
+            classInfo->clearHandle(env,obj);
         }
-        classInfo->clearHandle(env,obj);
 	}
     MAPLY_STD_JNI_CATCH()
 }

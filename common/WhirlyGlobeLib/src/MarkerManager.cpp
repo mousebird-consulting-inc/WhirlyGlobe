@@ -21,6 +21,7 @@
 #import "ScreenSpaceBuilder.h"
 #import "SharedAttributes.h"
 #import "CoordSystem.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -114,13 +115,18 @@ MarkerManager::MarkerManager() :
 
 MarkerManager::~MarkerManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto markerRep : markerReps)
+    // destructors must never throw, wrap stuff that might fail
+    try
     {
-        delete markerRep;
+        std::lock_guard<std::mutex> guardLock(lock);
+
+        auto reps = std::move(markerReps);
+        for (auto markerRep : reps)
+        {
+            delete markerRep;
+        }
     }
-    markerReps.clear();
+    WK_STD_DTOR_CATCH()
 }
 
 typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
@@ -135,7 +141,7 @@ Point3dVector MarkerManager::convertGeoPtsToModelSpace(const VectorRing &inPts)
     
     for (const auto &pt: inPts)
     {
-        const auto localPt = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
+        const auto localPt = coordSys->geographicToLocal3d(pt);
         outPts.push_back(coordAdapt->localToDisplay(localPt));
     }
     
@@ -180,11 +186,11 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
     DrawableMap drawables;
 
     // Screen space markers
-    std::vector<ScreenSpaceObject *> screenShapes;
+    std::vector<ScreenSpaceObjectRef> screenShapes;
     screenShapes.reserve(markers.size());
     
     // Objects to be controlled by the layout layer
-    std::vector<LayoutObject *> layoutObjects;
+    std::vector<LayoutObjectRef> layoutObjects;
     layoutObjects.reserve(markers.size());
 
     bool cancel = false;
@@ -242,17 +248,17 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                 layoutImport = marker->layoutImportance;
             }
 
-            LayoutObject *layoutObj = nullptr;
-            ScreenSpaceObject *shape;
+            std::shared_ptr<LayoutObject> layoutObj;
+            std::shared_ptr<ScreenSpaceObject> shape;   // may or may not alias layoutObj
             if (layoutImport < MAXFLOAT)
             {
                 markerRep->useLayout = true;
-                layoutObj = new LayoutObject();
+                layoutObj = std::make_shared<LayoutObject>();
                 shape = layoutObj;
             }
             else
             {
-                shape = new ScreenSpaceObject();
+                shape = std::make_shared<ScreenSpaceObject>();
             }
 
             if (!marker->uniqueID.empty() && layoutObj)
@@ -334,14 +340,13 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             markerRep->screenShapeIDs.insert(shape->getId());
             
             // Setup layout points if we have them
-            if (!marker->layoutShape.empty())
+            if (!marker->layoutShape.empty() && layoutObj)
             {
                 layoutObj->layoutShape = convertGeoPtsToModelSpace(marker->layoutShape);
                 layoutObj->layoutRepeat = markerInfo.layoutRepeat;
                 layoutObj->layoutOffset = markerInfo.layoutOffset;
                 layoutObj->layoutSpacing = markerInfo.layoutSpacing;
                 layoutObj->layoutWidth = 2.0f * height2;
-                layoutObj->layoutDebug = markerInfo.layoutDebug;
             }
             
             // Handle the mask rendering if it's there
@@ -382,11 +387,16 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     layoutObj->layoutPts = layoutObj->selectPts;
                 }
 
+                layoutObj->layoutDebug = markerInfo.layoutDebug;
                 layoutObj->clusterGroup = markerInfo.clusterGroup;
                 layoutObj->importance = layoutImport;
+
                 // No moving it around
-                layoutObj->acceptablePlacement = 1;
-                
+                layoutObj->acceptablePlacement = marker->layoutPlacement;
+
+                // Potentially lay it out with something else (e.g., a label)
+                layoutObj->mergeID = marker->mergeID;
+
                 // Start out off, let the layout layer handle the rest
                 shape->setEnable(markerInfo.enable);
                 if (markerInfo.startEnable != markerInfo.endEnable)
@@ -398,7 +408,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             
             if (layoutObj)
             {
-                layoutObjects.push_back(layoutObj);
+                layoutObjects.push_back(std::move(layoutObj));
             }
             else
             {
@@ -444,7 +454,7 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
                     }
                 }
 
-                screenShapes.push_back(shape);
+                screenShapes.push_back(std::move(shape));
             }
         }
         else
@@ -565,24 +575,13 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             ssBuild.addScreenObjects(screenShapes);
             ssBuild.flushChanges(changes, markerRep->drawIDs);
         }
-        for (auto &screenShape : screenShapes)
-        {
-            delete screenShape;
-        }
     }
     
     // And any layout constraints to the layout engine
-    // todo: use shared_ptr and move instead of copy and delete
     if (layoutManager && !layoutObjects.empty() && !cancel)
     {
-        layoutManager->addLayoutObjects(layoutObjects);
+        layoutManager->addLayoutObjects(std::move(layoutObjects));
     }
-
-    for (auto &layoutObject : layoutObjects)
-    {
-        delete layoutObject;
-    }
-    layoutObjects.clear();
 
     if (!cancel && renderer)
     {

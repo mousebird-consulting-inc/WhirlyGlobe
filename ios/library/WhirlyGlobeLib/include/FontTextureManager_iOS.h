@@ -57,13 +57,22 @@ public:
     virtual ~FontTextureManager_iOS();
     
     /// Add the given string.  Caller is responsible for deleting the DrawableString
-    WhirlyKit::DrawableString *addString(PlatformThreadInfo *threadInfo,NSAttributedString *str,ChangeSet &changes);
+    std::unique_ptr<DrawableString> addString(PlatformThreadInfo *,NSAttributedString *,ChangeSet &);
 
     virtual void teardown(PlatformThreadInfo*) override;
 
 protected:
-    NSData *renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset);
-    FontManager_iOSRef findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlinesize);
+    NSData *renderGlyph(CGGlyph glyph,
+                        const FontManager_iOSRef &,
+                        Point2f &size,          // out: size with borders
+                        Point2f &glyphSize,     // out: size of glyph only
+                        Point2f &offset,        // out: baseline/advance
+                        Point2f &textureOffset);// out: offset into texture
+    FontManager_iOSRef findFontManagerForFont(UIFont *uiFont,
+                                              UIColor *colorUI,
+                                              UIColor *backColorUI,
+                                              UIColor *outlineColorUI,
+                                              float outlinesize);
 };
     
 typedef std::shared_ptr<FontTextureManager_iOS> FontTextureManager_iOSRef;

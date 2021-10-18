@@ -39,15 +39,23 @@ LabelInfo_iOS::LabelInfo_iOS(UIFont *font,bool screenObject)
 
     
 // Used to build the drawable string on specific platforms
-std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,const FontTextureManagerRef &inFontTexManager,float &lineHeight,ChangeSet &changes)
+std::vector<std::unique_ptr<DrawableString>> SingleLabel_iOS::generateDrawableStrings(
+        PlatformThreadInfo *threadInfo, const LabelInfo *inLabelInfo,
+        const FontTextureManagerRef &inFontTexManager,float &lineHeight,ChangeSet &changes)
 {
-    FontTextureManager_iOSRef fontTexManager = std::dynamic_pointer_cast<FontTextureManager_iOS>(inFontTexManager);
+    auto fontTexManager = dynamic_cast<FontTextureManager_iOS*>(inFontTexManager.get());
     const LabelInfo_iOS *labelInfo = (LabelInfo_iOS *)inLabelInfo;
 
-    NSArray *strings = [text componentsSeparatedByString:@"\n"];
-    std::vector<DrawableString *> drawStrs;
+    std::vector<std::unique_ptr<DrawableString>> drawStrs;
 
-    if (!fontTexManager) {
+    if (!fontTexManager || !labelInfo)
+    {
+        return drawStrs;
+    }
+
+    NSArray *strings = [text componentsSeparatedByString:@"\n"];
+    if (strings.count == 0)
+    {
         return drawStrs;
     }
 
@@ -58,36 +66,45 @@ std::vector<DrawableString *> SingleLabel_iOS::generateDrawableStrings(PlatformT
     if (infoOverride && infoOverride->lineHeight > 0.0)
         lineHeight = infoOverride->lineHeight;
     
-    int whichLine=0;
-    for (NSString *text in strings) {
+    float offset = 0.0f;
+    for (NSString *text in strings)
+    {
         // Build the attributed string
         NSMutableAttributedString *attrStr = [[NSMutableAttributedString alloc] initWithString:text];
         NSInteger strLen = [attrStr length];
         [attrStr addAttribute:NSFontAttributeName value:labelInfo->font range:NSMakeRange(0, strLen)];
         if (labelInfo->outlineSize > 0.0)
         {
-            UIColor *outlineColor = [UIColor colorWithRed:labelInfo->outlineColor.r/255.0 green:labelInfo->outlineColor.g/255.0 blue:labelInfo->outlineColor.b/255.0 alpha:labelInfo->outlineColor.a/255.0];
-            UIColor *textColor = [UIColor colorWithRed:labelInfo->textColor.r/255.0 green:labelInfo->textColor.g/255.0 blue:labelInfo->textColor.b/255.0 alpha:labelInfo->textColor.a/255.0];
-            [attrStr addAttribute:kOutlineAttributeSize value:[NSNumber numberWithFloat:labelInfo->outlineSize] range:NSMakeRange(0, strLen)];
-            [attrStr addAttribute:kOutlineAttributeColor value:outlineColor range:NSMakeRange(0, strLen)];
-            [attrStr addAttribute:NSForegroundColorAttributeName value:textColor range:NSMakeRange(0, strLen)];
+            UIColor *outlineColor = [UIColor colorWithRed:labelInfo->outlineColor.r/255.0f
+                                                    green:labelInfo->outlineColor.g/255.0f
+                                                     blue:labelInfo->outlineColor.b/255.0f
+                                                    alpha:labelInfo->outlineColor.a/255.0f];
+            UIColor *textColor = [UIColor colorWithRed:labelInfo->textColor.r/255.0f
+                                                 green:labelInfo->textColor.g/255.0f
+                                                  blue:labelInfo->textColor.b/255.0f
+                                                 alpha:labelInfo->textColor.a/255.0f];
+            [attrStr addAttribute:kOutlineAttributeSize
+                            value:[NSNumber numberWithFloat:labelInfo->outlineSize]
+                            range:NSMakeRange(0, strLen)];
+            [attrStr addAttribute:kOutlineAttributeColor
+                            value:outlineColor range:NSMakeRange(0, strLen)];
+            [attrStr addAttribute:NSForegroundColorAttributeName
+                            value:textColor
+                            range:NSMakeRange(0, strLen)];
         }
 
-        DrawableString *drawStr = fontTexManager->addString(threadInfo, attrStr, changes);
-        if (!drawStr)
-            continue;
-        
-        // Modify the MBR if this is a multi-line label
-        if (whichLine > 0) {
-            drawStr->mbr.ll().y() += lineHeight * whichLine;
-            drawStr->mbr.ur().y() += lineHeight * whichLine;
+        if (auto drawStr = fontTexManager->addString(threadInfo, attrStr, changes))
+        {
+            // Modify the MBR if this is a multi-line label
+            drawStr->mbr.ll().y() += offset;
+            drawStr->mbr.ur().y() += offset;
+
+            drawStrs.push_back(std::move(drawStr));
         }
-        
-        drawStrs.push_back(drawStr);
-        whichLine++;
+        offset += lineHeight;
     }
     
     return drawStrs;
 }
-    
+
 }

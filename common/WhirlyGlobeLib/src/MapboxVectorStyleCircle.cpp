@@ -21,6 +21,8 @@
 namespace WhirlyKit
 {
 
+extern const int ScreenDrawPriorityOffset;
+
 bool MapboxVectorCirclePaint::parse(PlatformThreadInfo *,
                                     MapboxVectorStyleSetImpl *styleSet,
                                     const DictionaryRef &styleEntry)
@@ -122,7 +124,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
     MarkerInfo markerInfo(/*screenObject=*/true);
     markerInfo.zoomSlot = styleSet->zoomSlot;
     markerInfo.color = RGBAColor(255,255,255,(int)(opacity*255));
-    markerInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
+    markerInfo.drawPriority = drawPriority + ScreenDrawPriorityOffset +
+        tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel) + 1;
     markerInfo.programID = styleSet->screenMarkerProgramID;
     
     if (minzoom != 0 || maxzoom < 1000)
@@ -130,6 +133,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         markerInfo.minZoomVis = minzoom;
         markerInfo.maxZoomVis = maxzoom;
     }
+
+    VectorRing tmpRing;
 
     std::vector<std::unique_ptr<WhirlyKit::Marker>> markerOwner; // automatic cleanup of local temporary allocations
     const auto emptyVal = std::make_pair(MarkerPtrVec(), VecObjRefVec());
@@ -139,7 +144,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
         {
             return;
         }
-        if (vecObj->getVectorType() != VectorPointType)
+        if (vecObj->getVectorType() != VectorPointType &&
+            vecObj->getVectorType() != VectorLinearType)
         {
             continue;
         }
@@ -149,13 +155,31 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
         for (const VectorShapeRef &shape : vecObj->shapes)
         {
-            const auto pts = dynamic_cast<VectorPoints*>(shape.get());
-            if (!pts)
+            VectorRing* pts;
+            if (const auto vecPts = dynamic_cast<VectorPoints*>(shape.get()))
+            {
+                pts = &vecPts->pts;
+            }
+            else if (const auto vecLin = dynamic_cast<VectorLinear*>(shape.get()))
+            {
+                tmpRing.clear();
+                const auto area = CalcLoopArea(vecLin->pts);
+                if (area == 0)
+                {
+                    tmpRing.push_back(vecLin->calcGeoMbr().mid());
+                }
+                else
+                {
+                    tmpRing.push_back(CalcLoopCentroid(vecLin->pts, area));
+                }
+                pts = &tmpRing;
+            }
+            else
             {
                 continue;
             }
 
-            for (const auto &pt : pts->pts)
+            for (const auto &pt : *pts)
             {
                 // Add a marker per point
                 markerOwner.emplace_back(std::make_unique<WhirlyKit::Marker>());
@@ -179,8 +203,8 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
                 if (markers.empty())
                 {
-                    markers.reserve(pts->pts.size());
-                    markerObjs.reserve(pts->pts.size());
+                    markers.reserve(pts->size());
+                    markerObjs.reserve(pts->size());
                 }
                 markers.push_back(marker);
                 markerObjs.push_back(vecObj);

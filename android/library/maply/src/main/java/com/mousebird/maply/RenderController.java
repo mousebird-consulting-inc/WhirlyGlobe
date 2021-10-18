@@ -421,35 +421,50 @@ public class RenderController implements RenderControllerInterface
 
         if (vecManager != null)
             vecManager.dispose();
+        vecManager = null;
+
         if (loftManager != null)
             loftManager.dispose();
+        loftManager = null;
+
         if (wideVecManager != null)
             wideVecManager.dispose();
+        wideVecManager = null;
+
+        if (markerManager != null)
+            markerManager.dispose();
+        markerManager = null;
+
         if (stickerManager != null)
             stickerManager.dispose();
-        if (selectionManager != null)
-            selectionManager.dispose();
-        if (componentManager != null)
-            componentManager.dispose();
+        stickerManager = null;
+
         if (labelManager != null)
             labelManager.dispose();
+        labelManager = null;
+
+        if (selectionManager != null)
+            selectionManager.dispose();
+        selectionManager = null;
+
+        if (componentManager != null)
+            componentManager.dispose();
+        componentManager = null;
+
         if (layoutManager != null)
             layoutManager.dispose();
+        layoutManager = null;
+
         if (particleSystemManager != null)
             particleSystemManager.dispose();
-
-        vecManager = null;
-        loftManager = null;
-        wideVecManager = null;
-        markerManager = null;
-        stickerManager = null;
-        labelManager = null;
-        selectionManager = null;
-        componentManager = null;
-        layoutManager = null;
         particleSystemManager = null;
-        layoutLayer = null;
+
+        if (shapeManager != null)
+            shapeManager.dispose();
         shapeManager = null;
+
+        if (billboardManager != null)
+            billboardManager.dispose();
         billboardManager = null;
 
         texManager = null;

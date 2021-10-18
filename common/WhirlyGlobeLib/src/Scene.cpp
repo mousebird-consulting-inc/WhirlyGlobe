@@ -38,6 +38,10 @@
 #import "GeometryManager.h"
 #import "ComponentManager.h"
 
+#if __clang_major__ >= 3
+#include <cxxabi.h>
+#endif
+
 namespace WhirlyKit
 {
 
@@ -143,8 +147,31 @@ Scene::~Scene()
     {
         manager.second->setScene(nullptr);
     }
+
+#if DEBUG
+    std::vector<std::weak_ptr<SceneManager>> wm(managers.size());
+    std::transform(managers.begin(), managers.end(), wm.begin(), [](auto p){ return p.second; });
+#endif
     managers.clear();
-    
+
+#if DEBUG
+    wm.erase(std::remove_if(wm.begin(), wm.end(), [](auto p){ return !p.lock(); }), wm.end());
+    for (const auto &w : wm)
+    {
+        if (const auto p = w.lock())
+        {
+            const auto name = typeid(*p).name();
+            int32_t status = 0;
+            size_t len = 256;
+            std::vector<char> buf(len + 1);
+#if __clang_major__ >= 3
+            abi::__cxa_demangle(name, &buf[0], &len, &status);
+#endif
+            wkLogLevel(Warn, "Scene Manager live after scene destroyed: '%s' (%s)", &buf[0], name);
+        }
+    }
+#endif
+
     auto theChangeRequests = changeRequests;
     changeRequests.clear();
     for (auto & theChangeRequest : theChangeRequests)
@@ -239,18 +266,20 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     }
 }
 
-void Scene::setRenderer(SceneRenderer *renderer)
+void Scene::setRenderer(SceneRenderer *inRenderer)
 {
-    if (renderer)
+    if (inRenderer)
     {
-        setupInfo = renderer->getRenderSetupInfo();
+        setupInfo = inRenderer->getRenderSetupInfo();
     }
 
     std::lock_guard<std::mutex> guardLock(managerLock);
 
+    renderer = inRenderer;
+
     for (const auto &kvp : managers)
     {
-        kvp.second->setRenderer(renderer);
+        kvp.second->setRenderer(inRenderer);
     }
 }
     

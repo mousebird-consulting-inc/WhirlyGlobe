@@ -25,10 +25,14 @@ namespace WhirlyKit
  * The platform specific single label for Android.
  * This knows how to render itself on Android devices.
  */
-class SingleLabelAndroid : public SingleLabel
+struct SingleLabelAndroid : public SingleLabel
 {
-public:
-    std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,const LabelInfo *inLabelInfo,const FontTextureManagerRef &fontTexManager,float &lineHeight,ChangeSet &changes);
+    std::vector<std::unique_ptr<DrawableString>> generateDrawableStrings(
+            PlatformThreadInfo *,
+            const LabelInfo *,
+            const FontTextureManagerRef &,
+            float &lineHeight,
+            ChangeSet &);
 
     // Sometimes rather than strings, we pass around the code points
     std::vector<std::vector<int>> codePointsLines;

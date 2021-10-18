@@ -49,6 +49,7 @@ LayoutObject::LayoutObject(LayoutObject &&other) noexcept :
         layoutShape        (std::move(other.layoutShape)),
         layoutPlaces       (std::move(other.layoutPlaces)),
         layoutModelPlaces  (std::move(other.layoutModelPlaces)),
+        mergeID            (std::move(other.mergeID)),
         acceptablePlacement(other.acceptablePlacement),
         hint               (std::move(other.hint))
 {
@@ -72,6 +73,7 @@ LayoutObject &LayoutObject::operator=(LayoutObject &&other) noexcept
         layoutShape         = std::move(other.layoutShape);
         layoutPlaces        = std::move(other.layoutPlaces);
         layoutModelPlaces   = std::move(other.layoutModelPlaces);
+        mergeID             = std::move(other.mergeID);
         acceptablePlacement = other.acceptablePlacement;
         hint                = std::move(other.hint);
     }
@@ -212,6 +214,21 @@ void LayoutManager::addLayoutObjects(std::vector<LayoutObject> &&newObjects)
         for (auto &newObject : newObjects)
         {
             toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(std::move(newObject)));
+        }
+        addLayoutObjects(std::move(toAdd));
+    }
+}
+
+void LayoutManager::addLayoutObjects(std::vector<LayoutObjectRef> &&newObjects)
+{
+    if (!newObjects.empty() && !shutdown)
+    {
+        // Construct the new objects first
+        std::vector<LayoutObjectEntryRef> toAdd;
+        toAdd.reserve(newObjects.size());
+        for (auto &newObject : newObjects)
+        {
+            toAdd.emplace_back(std::make_shared<LayoutObjectEntry>(std::move(*newObject)));
         }
         addLayoutObjects(std::move(toAdd));
     }
@@ -448,7 +465,7 @@ void LayoutManager::deferUntil(TimeInterval minTime)
     }
 }
 
-// Size of the overlap sampler
+// Size of the overlap sampler grid, optimized for labels that are wider than they are tall
 static const int OverlapSampleX = 10;
 static const int OverlapSampleY = 60;
 
@@ -770,7 +787,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 //    NSLog(@"----Starting Layout----");
 
     // Set up the overlap sampler
-    OverlapHelper overlapMan(screenMbr,OverlapSampleX,OverlapSampleY);
+    OverlapHelper overlapMan(screenMbr,OverlapSampleX,OverlapSampleY,localLayoutObjects.size());
 
     // Add in the unique objects, cluster entries and then sort them all
     for (auto &it : uniqueLayoutObjs)
@@ -791,6 +808,8 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
         }
         overlapMan.addObject(objPts);
     }
+
+    std::unordered_multimap<std::string, LayoutObjectEntryRef> mergeMap(localLayoutObjects.size());
 
     // Lay out the various objects that are active
     int numSoFar = 0;
@@ -815,7 +834,6 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 
         // Some of these may share unique IDs
         bool pickedOne = false;
-//        wkLog("----");
 
         for (auto &layoutObj : container.objs)
         {
@@ -894,9 +912,10 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                 //for (const auto &p : objPts) wkLogLevel(Debug, "  (%f,%f)\n",p.x(),p.y());
 
                                 // Now try it.  Objects we've pegged as essential always win
-                                if (overlapMan.addCheckObject(objPts) || container.importance >= MAXFLOAT)
+                                if (container.importance >= MAXFLOAT ||
+                                    overlapMan.addCheckObject(objPts, layoutObj->obj.mergeID))
                                 {
-                                    if (showDebugBoundaries)
+                                    if (showDebugBoundaries || layoutObj->obj.layoutDebug)
                                     {
                                         // Debugging visual output
                                         // The chosen placement is drawn in black.
@@ -909,7 +928,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
                                     break;
                                 }
 
-                                if (showDebugBoundaries)
+                                if (showDebugBoundaries || layoutObj->obj.layoutDebug)
                                 {
                                     // Placements that don't work are drawn in translucent blue
                                     addDebugOutput(objPts,globeViewState,mapViewState,frameBufferSize,
@@ -933,6 +952,40 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
             
             if (isActive)
                 numSoFar++;
+
+            // Keep merged items in sync.
+            if (!layoutObj->obj.mergeID.empty())
+            {
+                // Consider the objects we've already seen with the same merge ID
+                const auto range = mergeMap.equal_range(layoutObj->obj.mergeID);
+                for (auto ii = range.first; ii != range.second; ++ii)
+                {
+                    auto &prevObj = *ii->second;
+                    if (isActive && !prevObj.newEnable)
+                    {
+                        // That object was disabled, we need to disable this one to match.
+                        isActive = false;
+                        layoutObj->newEnable = false;
+                        // we can stop looking
+                        break;
+                    }
+                    else if (!isActive && prevObj.newEnable)
+                    {
+                        // That object was enabled, we need to disable it to match this one.
+                        // This might actually undo the change leaving us with no changes, but we
+                        // can't easily detect that.
+                        prevObj.newEnable = false;
+                        layoutObj->changed = true;
+                        hadChanges = true;
+                    }
+                }
+                // If this one is still enabled, or is the first disabled
+                // item of its ID that we've seen, we need to keep track of it.
+                if (layoutObj->newEnable || range.first == range.second)
+                {
+                    mergeMap.insert(std::make_pair(layoutObj->obj.mergeID, layoutObj));
+                }
+            }
 
             // See if we've changed any of the state
             if (layoutObj->currentEnable != isActive || layoutObj->newEnable || layoutObj->offset != objOffset)
@@ -1288,7 +1341,8 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
 //                                    }
 //                                }
 
-                    if (!overlapMan.checkObject(thePts)) {
+                    if (!overlapMan.checkObject(thePts))
+                    {
                         failed = true;
                         break;
                     }
@@ -1313,7 +1367,9 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
 
                 // Add the individual glyphs to the overlap manager
                 for (auto &glyph: overlapPts)
+                {
                     overlapMan.addObject(glyph);
+                }
 
                 if (layoutObj->obj.layoutRepeat > 0 && layoutInstances.size() >= layoutObj->obj.layoutRepeat)
                     break;

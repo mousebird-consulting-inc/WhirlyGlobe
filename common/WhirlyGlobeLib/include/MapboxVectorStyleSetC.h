@@ -326,7 +326,10 @@ public:
     virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) = 0;
     
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontName,float fontSize) = 0;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *,
+                                       const std::vector<std::string> &fontNames,
+                                       float fontHeight,
+                                       bool mergedSymbol) = 0;
     
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) = 0;

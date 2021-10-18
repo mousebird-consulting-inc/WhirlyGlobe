@@ -33,21 +33,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_nativeInit(JNIEnv *env, jc
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_initialise
-        (JNIEnv *env, jobject obj, jobject coordAdapterObj, jobject renderControlObj, jobject charRendererObj)
+  (JNIEnv *env, jobject obj, jobject coordAdapterObj,
+   jobject renderControlObj, jobject charRendererObj)
 {
     try
     {
-        CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::getClassInfo()->getObject(env,coordAdapterObj);
-        SceneGLES *scene = new SceneGLES(coordAdapter);
-        SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
+        CoordSystemDisplayAdapter *coordAdapter = CoordSystemDisplayAdapterInfo::get(env,coordAdapterObj);
+        SceneRendererGLES_Android *sceneRender = SceneRendererInfo::get(env,renderControlObj);
+
+        auto scene = std::make_unique<SceneGLES>(coordAdapter);
+
         PlatformInfo_Android inst(env);
-        scene->setFontTextureManager(std::make_shared<FontTextureManager_Android>(&inst,sceneRender,scene,charRendererObj));
-        SceneClassInfo::getClassInfo()->setHandle(env,obj,scene);
+        auto mgr = std::make_shared<FontTextureManager_Android>(&inst,sceneRender,scene.get(),charRendererObj);
+        scene->setFontTextureManager(std::move(mgr));
+
+        SceneClassInfo::set(env,obj,scene.release());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeScene::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -59,16 +61,23 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_dispose(JNIEnv *env, jobje
     {
         SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
         std::lock_guard<std::mutex> lock(disposeMutex);
-        if (Scene *inst = classInfo->getObject(env,obj))
+        if (Scene *scene = classInfo->getObject(env, obj))
         {
-            delete inst;
+            // This should already have been done, but this is our last chance to do anything with
+            // a JNI environment, so do it again just in case.
+            if (scene->getRenderer())
+            {
+                wkLogLevel(Warn, "Scene disposed without teardown");
+            }
+
+            PlatformInfo_Android inst(env);
+            scene->teardown(&inst);
+
+            delete scene;
             classInfo->clearHandle(env,obj);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -86,10 +95,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addChangesNative(JNIEnv *e
             }
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::addChanges()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -97,20 +103,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addShaderProgram(JNIEnv *e
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        Scene *scene = classInfo->getObject(env,obj);
-        ShaderClassInfo *shaderClassInfo = ShaderClassInfo::getClassInfo();
-        Shader_AndroidRef *shader = shaderClassInfo->getObject(env,shaderObj);
-        
-        if (scene && shader)
+        if (Scene *scene = SceneClassInfo::get(env,obj))
+        if (Shader_AndroidRef *shader = ShaderClassInfo::get(env,shaderObj))
         {
             scene->addProgram((*shader)->prog);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::addShaderProgram()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -118,16 +117,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeShaderProgram(JNIEnv
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *scene = classInfo->getObject(env,obj))
+        if (Scene *scene = SceneClassInfo::get(env,obj))
         {
-            scene->removeProgram(shaderID,NULL);
+            scene->removeProgram(shaderID, nullptr);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::removeShaderProgram()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -135,17 +130,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_teardownGL(JNIEnv *env, jo
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *scene = classInfo->getObject(env,obj))
+        if (Scene *scene = SceneClassInfo::get(env,obj))
         {
             PlatformInfo_Android platformInfo(env);
             scene->teardown(&platformInfo);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::teardownGL()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -155,8 +146,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *scene = classInfo->getObject(env,obj))
+        if (Scene *scene = SceneClassInfo::get(env,obj))
         {
             ChangeSet changes;
             const RGBAColor color(r * 255.0, g * 255.0, b * 255.0, a * 255.0);
@@ -167,10 +157,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
             scene->addChangeRequests(changes);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::addRenderTargetNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -178,18 +165,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget(JNIEnv 
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *scene = classInfo->getObject(env,obj))
+        if (Scene *scene = SceneClassInfo::get(env,obj))
         {
-            ChangeSet changes;
-            changes.push_back(new ChangeRenderTargetReq(renderTargetID, texID));
+            ChangeSet changes = { new ChangeRenderTargetReq(renderTargetID, texID) };
             scene->addChangeRequests(changes);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::changeRenderTarget()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -197,18 +179,13 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative(J
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *scene = classInfo->getObject(env,obj))
+        if (Scene *scene = SceneClassInfo::get(env,obj))
         {
-            ChangeSet changes;
-            changes.push_back(new RemRenderTargetReq(targetID));
+            ChangeSet changes = { new RemRenderTargetReq(targetID) };
             scene->addChangeRequests(changes);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::removeRenderTargetNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -216,16 +193,12 @@ JNIEXPORT float JNICALL Java_com_mousebird_maply_Scene_getZoomSlotValue(JNIEnv *
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *scene = classInfo->getObject(env,obj))
+        if (Scene *scene = SceneClassInfo::get(env,obj))
         {
             return scene->getZoomSlotValue(slot);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::getZoomSlotValue()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -234,15 +207,11 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_copyZoomSlots(JNIEnv *env,
 {
     try
     {
-        SceneClassInfo *classInfo = SceneClassInfo::getClassInfo();
-        if (Scene *thisScene = classInfo->getObject(env,obj))
-        if (Scene *otherScene = classInfo->getObject(env,otherObj))
+        if (Scene *thisScene = SceneClassInfo::get(env,obj))
+        if (Scene *otherScene = SceneClassInfo::get(env,otherObj))
         {
             thisScene->copyZoomSlotsFrom(otherScene, offset);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Scene::copyZoomSlots()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

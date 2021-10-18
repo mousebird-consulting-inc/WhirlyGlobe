@@ -152,36 +152,33 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     if (const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager))
     {
         int n = 0;
-        for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
+        for (const auto &sel : labelRenderer.selectables2D)
         {
             if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
             {
                 return EmptyIdentity;
             }
-            const RectSelectable2D &sel = labelRenderer.selectables2D[ii];
             selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,
                                                    sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
-        for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
+        for (const auto &sel : labelRenderer.movingSelectables2D)
         {
             if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
             {
                 return EmptyIdentity;
             }
-            const auto &sel = labelRenderer.movingSelectables2D[ii];
             selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,
                                                          sel.startTime,sel.endTime,sel.pts,
                                                          sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
-        for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
+        for (const auto &sel : labelRenderer.selectables3D)
         {
             if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
             {
                 return EmptyIdentity;
             }
-            const auto &sel = labelRenderer.selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }

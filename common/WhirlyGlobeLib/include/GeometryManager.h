@@ -1,9 +1,8 @@
-/*
- *  GeometryManager.h
+/*  GeometryManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/25/14.
- *  Copyright 2012-2015 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -26,23 +24,22 @@
 
 namespace WhirlyKit
 {
-    
+
 typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} GeometryBoundingBox;
-    
+
 // Used to pass geometry around internally
-class GeometryInfo : public BaseInfo
+struct GeometryInfo : public BaseInfo
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    GeometryInfo();
+    GeometryInfo() = default;
     GeometryInfo(const Dictionary &);
     virtual ~GeometryInfo() = default;
 
-    bool colorOverride;
-    RGBAColor color;
-    int boundingBox;
-    float pointSize;
+    bool colorOverride = false;
+    RGBAColor color = RGBAColor::white();
+    int boundingBox = GeometryBBoxNone;
+    float pointSize = 1.0f;
 };
 typedef std::shared_ptr<GeometryInfo> GeometryInfoRef;
     
@@ -298,7 +295,7 @@ public:
 class GeometryManager : public SceneManager
 {
 public:
-    GeometryManager();
+    GeometryManager() = default;
     virtual ~GeometryManager();
     
     /// Add raw geometry at the given location

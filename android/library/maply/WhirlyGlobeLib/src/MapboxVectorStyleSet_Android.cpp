@@ -134,7 +134,10 @@ SimpleIdentity MapboxVectorStyleSetImpl_Android::makeLineTexture(PlatformThreadI
     return EmptyIdentity;
 }
 
-LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,const std::vector<std::string> &fontNames,float fontSize)
+LabelInfoRef MapboxVectorStyleSetImpl_Android::makeLabelInfo(PlatformThreadInfo *inInst,
+                                                             const std::vector<std::string> &fontNames,
+                                                             float fontSize,
+                                                             bool mergedLabel)
 {
     auto inst = (PlatformInfo_Android *)inInst;
 

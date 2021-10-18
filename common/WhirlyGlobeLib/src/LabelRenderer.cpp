@@ -53,17 +53,6 @@ LabelInfo::LabelInfo(bool screenObject) :
 {
 }
 
-LabelInfo::LabelInfo(const LabelInfo &that) :
-    BaseInfo(that), hasTextColor(that.hasTextColor), textColor(that.textColor), backColor(that.backColor),
-    screenObject(that.screenObject), width(that.width), height(that.height),
-    labelJustify(that.labelJustify), textJustify(that.textJustify),
-    shadowColor(that.shadowColor), shadowSize(that.shadowSize),
-    outlineColor(that.outlineColor), outlineSize(that.outlineSize),
-    lineHeight(that.lineHeight), fontPointSize(that.fontPointSize),
-    layoutOffset(that.layoutOffset), layoutSpacing(that.layoutSpacing), layoutRepeat(that.layoutRepeat)
-{
-}
-
 LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     BaseInfo(dict),
     screenObject(screenObject)
@@ -80,6 +69,7 @@ LabelInfo::LabelInfo(const Dictionary &dict, bool screenObject) :
     lineHeight = (float)dict.getDouble(MaplyTextLineHeight,0.0);
     labelJustify = parseLabelJustify(dict.getString(MaplyLabelJustifyName), WhirlyKitLabelMiddle);
     textJustify = parseTextJustify(dict.getString(MaplyTextJustify), WhirlyKitTextLeft);
+    labelVAlign = WhirlyKitLabelBaseline;//todo
     layoutDebug = dict.getInt(MaplyTextLayoutDebug,false);
     layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
     layoutSpacing = (float)dict.getDouble(MaplyTextLayoutSpacing,24.0);
@@ -104,7 +94,7 @@ LabelRenderer::LabelRenderer(Scene *scene,
 {
 }
 
-Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts)
+Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts) const
 {
     CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
     CoordSystem *coordSys = coordAdapt->getCoordSystem();
@@ -151,18 +141,14 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
         const auto drawStrs = label->generateDrawableStrings(threadInfo,labelInfo,fontTexManager,
                                                              lineHeight,changes);
 
-        if (cancelFn(threadInfo))
+        if (cancelFn(threadInfo) || drawStrs.empty())
         {
-            for (auto drawStr : drawStrs)
-            {
-                delete drawStr;
-            }
             return;
         }
 
         // Calculate total draw and layout MBRs
         Mbr drawMbr, layoutMbr;
-        for (const auto drawStr : drawStrs)
+        for (const auto &drawStr : drawStrs)
         {
             drawMbr.expand(drawStr->mbr);
             layoutMbr.expand(drawStr->mbr);
@@ -212,13 +198,21 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
 #ifndef __ANDROID__
             // Except we do need to tweak things a little, even for the layout engine
             // Note: But only on iOS because... reasons
-            const float heightAboveBaseline = drawMbr.ur().y();
-            justifyOff.y() += heightAboveBaseline/2.0;
+            if (labelInfo->labelVAlign == WhirlyKitLabelBaseline)
+            {
+                const float heightAboveBaseline = drawMbr.ur().y();
+                justifyOff.y() += heightAboveBaseline/2.0f;
+            }
+#else
+            if (labelInfo->labelVAlign == WhirlyKitLabelBaseline)
+            {
+                justifyOff.y() -= drawMbr.ll().y();
+            }
 #endif
 
             screenShape->setDrawOrder(labelInfo->drawOrder);
             screenShape->setDrawPriority(labelInfo->drawPriority+1);
-            screenShape->setVisibility(labelInfo->minVis, labelInfo->maxVis);
+            screenShape->setVisibility((float)labelInfo->minVis, (float)labelInfo->maxVis);
             screenShape->setZoomInfo(labelInfo->zoomSlot, labelInfo->minZoomVis, labelInfo->maxZoomVis);
             screenShape->setScaleExp(labelInfo->scaleExp);
             screenShape->setOpacityExp(labelInfo->opacityExp);
@@ -303,6 +297,9 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                 // Propagate the unique ID to the layout object
                 layoutObject->uniqueID = label->uniqueID;
 
+                // Potentially lay it out along with other objects
+                layoutObject->mergeID = label->mergeID;
+
                 // Put together the layout info
                 //layoutObject->hint = label->text;
                 layoutObject->layoutPts = geomCoords;
@@ -312,7 +309,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                 layoutObject->importance = layoutImportance;
                 layoutObject->acceptablePlacement = layoutPlacement;
                 layoutObject->setEnable(labelInfo->enable);
-                
+                layoutObject->layoutDebug = labelInfo->layoutDebug;
+
                 // Setup layout points if we have them
                 if (!label->layoutShape.empty())
                 {
@@ -321,7 +319,6 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
                     layoutObject->layoutOffset = labelInfo->layoutOffset;
                     layoutObject->layoutSpacing = labelInfo->layoutSpacing;
                     layoutObject->layoutWidth = height;
-                    layoutObject->layoutDebug = labelInfo->layoutDebug;
                 }
                 
                 // The shape starts out disabled
@@ -429,7 +426,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
         double offsetY = 0.0;
         for (auto it = drawStrs.rbegin(); it != drawStrs.rend(); ++it)
         {
-            const auto drawStr = *it;
+            const auto &drawStr = *it;
             if (!drawStr)
                 continue;
             
@@ -499,11 +496,7 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
             }
             screenObjects.emplace_back(std::move(*screenShape));
         }
-        
-        for (auto drawStr : drawStrs)
-        {
-            delete drawStr;
-        }
+
     }
 }
 
