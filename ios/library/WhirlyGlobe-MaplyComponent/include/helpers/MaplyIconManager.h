@@ -84,6 +84,10 @@
   **/
 + (nullable UIImage *)iconForName:(NSString *__nullable)name size:(CGSize)size color:(UIColor *__nullable)color circleColor:(UIColor *__nullable)circleColor strokeSize:(float)strokeSize strokeColor:(UIColor *__nullable)strokeColor;
 
+/** Clear the cache
+ */
++ (void)clearIconCache;
+
 /**
  Set up the icon manager this way to build textures associated with a particular view controller.
  */
@@ -124,6 +128,11 @@
  mode controls if this work is done on this thread or another.
  */
 - (NSArray<MaplyComponentObject *> * __nonnull)addFeatures:(NSArray<MaplyVectorObject *> * __nonnull)vecObjs mode:(MaplyThreadMode)mode;
+
+/** Clear the icon cache.
+    Any references to the textures should already be cleared.
+ */
+- (void)clearCache;
 
 /// Delete any cached textures and such
 - (void)shutdown;

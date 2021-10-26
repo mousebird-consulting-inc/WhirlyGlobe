@@ -30,6 +30,7 @@ import java.util.*
 import kotlin.math.ceil
 import kotlin.math.min
 
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetManager: AssetManager? = null) {
     
     var smallSize = Point2d(16.0, 16.0)
@@ -49,7 +50,7 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
     var sharedCacheSize: Int
         get() { return Shared.cacheSize }
         set(value) { Shared.cacheSize = value }
-    
+
     interface StyleObjectLocator {
         fun locate(name: String): Collection<String>
     }
@@ -227,13 +228,21 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
     }
     
     /**
-     * Call when done with all the generated objects.
+     * Clear out the image texture cache.
+     * Any references to the textures should already be removed.
      */
-    fun shutdown() {
+    fun clearCache() {
         synchronized(textureCache) {
             vc.get()?.removeTextures(textureCache.elements().toList(), threadCurrent)
             textureCache.clear()
         }
+    }
+
+    /**
+     * Call when done with all the generated objects.
+     */
+    fun shutdown() {
+        clearCache()
     }
     
     private fun addFeaturesInternal(obj: VectorObject, optStyle: SimpleStyle? = null, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
@@ -506,7 +515,7 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
     
     private fun parseBool(s: String?): Boolean? {
         if (s == null || s.isEmpty()) return null
-        return (s == "1" || s.toLowerCase(Locale.ROOT) == "true")
+        return (s == "1" || s.lowercase(Locale.ROOT) == "true")
     }
     
     companion object {

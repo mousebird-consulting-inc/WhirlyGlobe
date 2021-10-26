@@ -168,6 +168,11 @@
                                              circleColor:circleColor strokeSize:strokeSize strokeColor:strokeColor];
 }
 
++ (void)clearIconCache
+{
+    [[MaplySimpleStyleManager shared] clearCache];
+}
+
 // Colors can be in short form:
 //   "#ace"
 // or long form
@@ -336,7 +341,7 @@
     return nil;
 }
 
-- (void)shutdown
+- (void)clearCache
 {
     @synchronized (self) {
         NSMutableArray<MaplyTexture *> *texs = [NSMutableArray array];
@@ -346,6 +351,11 @@
         [viewC removeTextures:texs mode:MaplyThreadCurrent];
         texCache = nil;
     }
+}
+
+- (void)shutdown
+{
+    [self clearCache];
 }
 
 - (MaplySimpleStyle * __nonnull)makeStyle:(NSDictionary *__nonnull)dict
