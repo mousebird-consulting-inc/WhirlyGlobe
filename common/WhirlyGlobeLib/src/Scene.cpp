@@ -173,14 +173,20 @@ Scene::~Scene()
     }
 #endif
 
-    auto theChangeRequests = changeRequests;
-    changeRequests.clear();
-    for (auto & theChangeRequest : theChangeRequests)
+    auto theChangeRequests = std::move(changeRequests);
+    for (auto *theChangeRequest : theChangeRequests)
     {
-        // Note: Tear down change requests?
         delete theChangeRequest;
     }
-    
+    theChangeRequests.clear();
+
+    auto timedChanges = std::move(timedChangeRequests);
+    for (auto *theChangeRequest : timedChanges)
+    {
+        delete theChangeRequest;
+    }
+    timedChanges.clear();
+
     activeModels.clear();
     
     subTextureMap.clear();
