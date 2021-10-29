@@ -160,7 +160,8 @@ Scene::~Scene()
     {
         if (const auto p = w.lock())
         {
-            const auto name = typeid(*p).name();
+            const auto &ref = *p;
+            const auto name = typeid(ref).name();
             int32_t status = 0;
             size_t len = 256;
             std::vector<char> buf(len + 1);

@@ -296,14 +296,15 @@ void MapView::cancelAnimation()
 void MapView::animate()
 {
     // Have to hold on to the delegate because it can call cancelAnimation.... which frees the delegate
-    auto theDelegate = delegate;
-    if (theDelegate)
+    if (auto theDelegate = delegate)
+    {
         theDelegate->updateView(this);
+    }
 }
     
 ViewStateRef MapView::makeViewState(SceneRenderer *renderer)
 {
-    return ViewStateRef(new MapViewState(this,renderer));
+    return std::make_shared<MapViewState>(this,renderer);
 }
 
 MapViewState::MapViewState(MapView *mapView,SceneRenderer *renderer)

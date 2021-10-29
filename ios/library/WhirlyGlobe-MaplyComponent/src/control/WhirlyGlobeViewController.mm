@@ -118,28 +118,23 @@ using namespace WhirlyGlobe;
 
 // Interface object between Obj-C and C++ for animation callbacks
 // Also used to catch view geometry updates
-class WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, public ViewWatcher
+struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, public ViewWatcher
 {
-public:
-    WhirlyGlobeViewWrapper()
-    : control(nil)
-    {
-    }
-    
     // Called by the View to set up view state per frame
-    void updateView(WhirlyGlobe::GlobeView *globeView)
+    void updateView(WhirlyKit::View *view)
     {
-        [control updateView:globeView];
+        [control updateView:(WhirlyGlobe::GlobeView *)view];
     }
-    
+
     // Called by the view when things are changed
     virtual void viewUpdated(View *view)
     {
         [control viewUpdated:view];
     }
-    
-public:
-    WhirlyGlobeViewController __weak * control;
+
+    virtual bool isUserMotion() const { return false; }
+
+    WhirlyGlobeViewController __weak * control = nil;
 };
 
 @implementation WhirlyGlobeViewController
@@ -1333,9 +1328,8 @@ public:
 //    NSLog(@"Animation ended");
     
     // Momentum animation is only kicked off by the pan delegate.
-    bool userMotion = false;
-    if (dynamic_cast<AnimateViewRotation *>(globeView->getDelegate().get()))
-        userMotion = true;
+    const auto delegate = globeView->getDelegate();
+    const bool userMotion = delegate && delegate->isUserMotion();
     
     isAnimating = false;
     knownAnimateEndRot = false;

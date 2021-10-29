@@ -25,21 +25,18 @@ using namespace WhirlyKit;
 namespace Maply {
 
 AnimateTranslateMomentum::AnimateTranslateMomentum(
-        MapViewRef inMapView,
+        const MapViewRef &inMapView,
         float inVel, float inAcc,
         const WhirlyKit::Point3f &inDir,
         const Point2dVector &inBounds,
         SceneRenderer *inSceneRenderer) :
-    mapView(std::move(inMapView)),
     velocity(inVel),
     acceleration(inAcc),
-    renderer(inSceneRenderer),
-    userMotion(true),
-    maxTime(MAXFLOAT)
+    renderer(inSceneRenderer)
 {
     dir = Vector3fToVector3d(inDir.normalized());
     startDate = TimeGetCurrent();
-    org = mapView->getLoc();
+    org = inMapView->getLoc();
 
     // Let's calculate the maximum time, so we know when to stop
     if (acceleration != 0.0)
@@ -64,14 +61,15 @@ bool AnimateTranslateMomentum::withinBounds(const Point3d &loc,MapView *testMapV
 }
 
 // Called by the view when it's time to update
-void AnimateTranslateMomentum::updateView(MapView *mapView)
+void AnimateTranslateMomentum::updateView(WhirlyKit::View *view)
 {
+    auto mapView = (MapView *)view;
     if (startDate == 0.0)
         return;
     
-	float sinceStart = TimeGetCurrent() - startDate;
+    auto sinceStart = TimeGetCurrent() - startDate;
     
-    if (sinceStart > maxTime)
+    if (sinceStart >= maxTime)
     {
         // This will snap us to the end and then we stop
         sinceStart = maxTime;
@@ -80,8 +78,8 @@ void AnimateTranslateMomentum::updateView(MapView *mapView)
     }
     
     // Calculate the distance
-    double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
-    Point3d newLoc = org + dir * dist;
+    const double dist = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
+    const Point3d newLoc = org + dir * dist;
     mapView->setLoc(newLoc,false);
     
     Point3d newCenter;
@@ -93,9 +91,11 @@ void AnimateTranslateMomentum::updateView(MapView *mapView)
     if (withinBounds(newLoc, &testMapView, &newCenter))
     {
         mapView->setLoc(newCenter,true);
-    } else {
+    }
+    else
+    {
         startDate = 0.0;
     }
 }
-    
+
 }

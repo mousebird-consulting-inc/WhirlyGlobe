@@ -22,6 +22,7 @@
 
 namespace WhirlyKit
 {
+class View;
 class SceneRenderer;
 }
 
@@ -31,11 +32,12 @@ namespace Maply
 class MapView;
 
 /// Animation callback
-class MapViewAnimationDelegate
+struct MapViewAnimationDelegate : public WhirlyKit::ViewAnimationDelegate
 {
-public:
+    virtual bool isUserMotion() const = 0;
+
     /// Called every tick to update the map position
-    virtual void updateView(MapView *mapView) = 0;
+    virtual void updateView(WhirlyKit::View *) = 0;
 };
 typedef std::shared_ptr<MapViewAnimationDelegate> MapViewAnimationDelegateRef;
 

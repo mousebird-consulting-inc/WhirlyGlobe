@@ -38,7 +38,9 @@ public:
     AnimateViewRotation(GlobeView *globeView,const Eigen::Quaterniond &newRot,WhirlyKit::TimeInterval howLong);
 
     /// Update the globe view
-    virtual void updateView(GlobeView *globeView);
+    virtual void updateView(WhirlyKit::View *);
+
+    virtual bool isUserMotion() const { return false; }
 
 protected:
     /// When to start the animation.  Can be in the past

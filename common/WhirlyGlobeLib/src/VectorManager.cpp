@@ -1010,12 +1010,6 @@ static std::unordered_set<SimpleIdentity> &AllIDs(const VectorSceneRep &rep, std
     set.insert(rep.instIDs.begin(), rep.instIDs.end());
     return set;
 }
-static std::unordered_set<SimpleIdentity> AllIDs(const VectorSceneRep &rep)
-{
-    std::unordered_set<SimpleIdentity> set;
-    AllIDs(rep,set);
-    return set;
-}
 
 void VectorManager::changeVectors(SimpleIdentity vecID,const VectorInfo &vecInfo,ChangeSet &changes)
 {
