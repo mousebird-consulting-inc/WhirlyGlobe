@@ -110,7 +110,7 @@ class LabelManager : public SceneManager
 {
 public:
     LabelManager();
-    virtual ~LabelManager() = default;
+    virtual ~LabelManager();
 
     /// Add the given set of labels, returning an ID that represents the whole thing
     SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,

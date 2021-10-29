@@ -22,8 +22,8 @@
 #import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
 #import "SharedAttributes.h"
-
 #import "LabelManager.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -55,6 +55,22 @@ SingleLabel::SingleLabel() :
 LabelManager::LabelManager()
     : textureAtlasSize(LabelTextureAtlasSizeDefault), maskProgID(EmptyIdentity)
 {
+}
+
+LabelManager::~LabelManager()
+{
+    // destructors must never throw, wrap stuff that might fail
+    try
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+
+        auto reps = std::move(labelReps);
+        for (auto rep : reps)
+        {
+            delete rep;
+        }
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
