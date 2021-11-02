@@ -365,7 +365,7 @@ protected:
     typedef std::set<ClusteredObjects *,ClusteredObjectsSorter> ClusteredObjectsSet;
 
     void runLayoutClustering(PlatformThreadInfo *threadInfo,
-                             LayoutContainerVec layoutObjs,
+                             LayoutContainerVec &layoutObjs,
                              ClusteredObjectsSet &clusterGroups,
                              std::vector<ClusterEntry> &clusterEntries,
                              std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,

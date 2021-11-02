@@ -1005,7 +1005,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
 }
 
 void LayoutManager::runLayoutClustering(PlatformThreadInfo *threadInfo,
-                                        LayoutContainerVec layoutObjs,
+                                        LayoutContainerVec &layoutObjs,
                                         ClusteredObjectsSet &clusterGroups,
                                         std::vector<ClusterEntry> &clusterEntries,
                                         std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
