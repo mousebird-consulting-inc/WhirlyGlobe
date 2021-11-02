@@ -474,6 +474,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         return;
     }
 
+    const auto priority = drawPriority + ScreenDrawPriorityOffset + zoomLevel *
+                            std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
     if (textInclude)
     {
         labelInfo->zoomSlot = styleSet->zoomSlot;
@@ -484,8 +486,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         }
         labelInfo->screenObject = true;
         labelInfo->textJustify = layout.textJustify;
-        labelInfo->drawPriority = drawPriority + ScreenDrawPriorityOffset + zoomLevel *
-                                    std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel);
+        labelInfo->drawPriority = priority;
         labelInfo->opacityExp = paint.textOpacity->expression();
         labelInfo->textColor = textColor ? *textColor : RGBAColor::white();
 
@@ -530,7 +531,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
     if (iconInclude)
     {
         markerInfo.programID = styleSet->screenMarkerProgramID;
-        markerInfo.drawPriority = labelInfo->drawPriority;
+        markerInfo.drawPriority = priority;
     }
 
     markerInfo.hasExp = markerInfo.colorExp || markerInfo.scaleExp || markerInfo.opacityExp;
