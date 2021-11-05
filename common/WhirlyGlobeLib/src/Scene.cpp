@@ -395,18 +395,19 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,__unu
     {
         std::lock_guard<std::mutex> guardLock(changeRequestLock);
         // Just doing the ones that require a pre-process
-        for (auto &changeRequest : changeRequests)
+        for (auto &req : changeRequests)
         {
-            ChangeRequest *req = changeRequest;
-            if (req && req->needPreExecute()) {
+            if (req && req->needPreExecute())
+            {
                 preRequests.push_back(req);
-                changeRequest = nullptr;
+                req = nullptr;
             }
         }
     }
 
     // Run these outside of the lock, since they might use the lock
-    for (auto req : preRequests) {
+    for (auto req : preRequests)
+    {
         req->execute(this,renderer,view);
         delete req;
     }
@@ -418,33 +419,46 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,__unu
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 int Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
 {
-    std::lock_guard<std::mutex> guardLock(changeRequestLock);
-    // See if any of the timed changes are ready
-    std::vector<ChangeRequest *> toMove;
-    for (ChangeRequest *req : timedChangeRequests)
+    // Set up a local collection of approximately the same capacity before locking
+    decltype(changeRequests) localChanges;
+    localChanges.reserve(changeRequests.capacity());
+
     {
-        if (now >= req->when)
-            toMove.push_back(req);
-        else
-            break;
+        std::lock_guard<std::mutex> guardLock(changeRequestLock);
+
+        // See if any of the timed changes are ready
+        if (!timedChangeRequests.empty())
+        {
+            // Establish the range of changes to be moved
+            const auto beg = timedChangeRequests.begin();
+            auto end = beg;
+            while (end != timedChangeRequests.end() && (*end)->when <= now)
+            {
+                ++end;
+            }
+
+            // Move them
+            if (end != beg)
+            {
+                std::copy(beg, end, std::back_inserter(changeRequests));
+                timedChangeRequests.erase(beg, end);
+            }
+        }
+
+        // Move the outstanding changes to the local collection and release the lock
+        localChanges.swap(changeRequests);
     }
-    for (ChangeRequest *req : toMove)
+
+    for (auto req : localChanges)
     {
-        timedChangeRequests.erase(req);
-        changeRequests.push_back(req);
-    }
-    
-    for (auto req : changeRequests)
-    {
-        if (req) {
+        if (req)
+        {
             req->execute(this,renderer,view);
             delete req;
         }
     }
-    int numChanges = changeRequests.size();
-    changeRequests.clear();
-    
-    return numChanges;
+
+    return localChanges.size();
 }
     
 bool Scene::hasChanges(TimeInterval now) const

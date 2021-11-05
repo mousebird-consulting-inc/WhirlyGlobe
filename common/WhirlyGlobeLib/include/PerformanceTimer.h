@@ -79,7 +79,7 @@ public:
     void clear();
     
     /// Write out the timings to the log
-    void log();
+    void log(double min = 0.0);
     
 protected:
     std::map<std::string,TimeInterval> actives;
