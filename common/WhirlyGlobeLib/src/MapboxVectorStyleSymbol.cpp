@@ -783,21 +783,22 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
 
     for (auto &kvp : markersByUUID)
     {
-        if (cancelFn(inst))
-        {
-            return;
-        }
-
         const auto& uuid = kvp.first;
         const auto& uuidMarkers = std::get<0>(kvp.second);
         const auto& uuidVecObjs = std::get<1>(kvp.second);
         const auto& uuidLabels  = std::get<2>(kvp.second);
 
-        // Generate one component object per unique UUID (including blank)
-        const auto uuidCompObj = styleSet->makeComponentObject(inst, desc);
+        if (uuidLabels.empty() && uuidMarkers.empty())
+        {
+            continue;
+        }
+        if (cancelFn(inst))
+        {
+            break;
+        }
 
-        uuidCompObj->uuid = uuid;
-        uuidCompObj->representation = representation;
+        // Generate one component object per unique UUID (including blank)
+        auto uuidCompObj = styleSet->makeComponentObject(inst, desc);
 
         if (selectable)
         {
@@ -805,11 +806,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             const auto count = std::min(uuidMarkers.size(), uuidVecObjs.size());
             for (auto i = (size_t)0; i < count; ++i)
             {
-                if ((i % 100) == 0 && cancelFn(inst))
-                {
-                    return;
-                }
-
                 auto *marker = uuidMarkers[i];
                 const auto &vecObj = uuidVecObjs[i];
 
@@ -827,11 +823,6 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             {
                 uuidCompObj->labelIDs.insert(labelID);
             }
-
-            if (cancelFn(inst))
-            {
-                return;
-            }
         }
 
         if (!uuidMarkers.empty())
@@ -840,17 +831,15 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             {
                 uuidCompObj->markerIDs.insert(markerID);
             }
-
-            if (cancelFn(inst))
-            {
-                return;
-            }
         }
         
         if (!uuidCompObj->labelIDs.empty() || !uuidCompObj->markerIDs.empty())
         {
+            uuidCompObj->uuid = uuid;
+            uuidCompObj->representation = representation;
+
             styleSet->compManage->addComponentObject(uuidCompObj, tileInfo->changes);
-            tileInfo->compObjs.push_back(uuidCompObj);
+            tileInfo->compObjs.push_back(std::move(uuidCompObj));
         }
     }
 }

@@ -181,6 +181,11 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
             for (const auto &pt : *pts)
             {
+                if (markerOwner.empty())
+                {
+                    markerOwner.reserve(pts->size() * vecObj->shapes.size());
+                }
+
                 // Add a marker per point
                 markerOwner.emplace_back(std::make_unique<WhirlyKit::Marker>());
                 auto marker = markerOwner.back().get();
@@ -214,20 +219,21 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
 
     for (const auto &kvp : markersByUUID)
     {
-        if (cancelFn(inst))
-        {
-            return;
-        }
-
         const auto &uuid = kvp.first;
         const auto &markers = kvp.second.first;
         const auto &markerObjs = kvp.second.second;
 
-        // Generate one component object per unique UUID (including blank)
-        const auto compObj = styleSet->makeComponentObject(inst, desc);
+        if (markers.empty())
+        {
+            continue;
+        }
+        if (cancelFn(inst))
+        {
+            break;
+        }
 
-        compObj->uuid = uuid;
-        compObj->representation = representation;
+        // Generate one component object per unique UUID (including blank)
+        auto compObj = styleSet->makeComponentObject(inst, desc);
 
         // Keep the vector objects around if they need to be selectable
         if (selectable)
@@ -247,16 +253,14 @@ void MapboxVectorLayerCircle::buildObjects(PlatformThreadInfo *inst,
             }
         }
 
-        if (!markers.empty())
+        // Set up the markers and get a change set
+        if (const auto markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes))
         {
-            // Set up the markers and get a change set
-            if (const auto markerID = styleSet->markerManage->addMarkers(markers, markerInfo, tileInfo->changes))
-            {
-                compObj->markerIDs.insert(markerID);
-            }
-            
+            compObj->uuid = uuid;
+            compObj->representation = representation;
+            compObj->markerIDs.insert(markerID);
             styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
-            tileInfo->compObjs.push_back(compObj);
+            tileInfo->compObjs.push_back(std::move(compObj));
         }
     }
 }

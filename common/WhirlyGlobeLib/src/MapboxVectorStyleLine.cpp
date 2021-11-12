@@ -292,17 +292,16 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         const auto &uuid = kvp.first;
         const auto &shapes = kvp.second;
 
-        // Generate one component object per unique UUID (including blank)
-        const auto compObj = styleSet->makeComponentObject(inst, desc);
-
-        compObj->uuid = uuid;
-        compObj->representation = representation;
-
         if (const auto wideVecID = styleSet->wideVecManage->addVectors(shapes, vecInfo, tileInfo->changes))
         {
+            // Generate one component object per unique UUID (including blank)
+            auto compObj = styleSet->makeComponentObject(inst, desc);
+
+            compObj->uuid = uuid;
+            compObj->representation = representation;
             compObj->wideVectorIDs.insert(wideVecID);
             styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
-            tileInfo->compObjs.push_back(compObj);
+            tileInfo->compObjs.push_back(std::move(compObj));
         }
     }
 }
