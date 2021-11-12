@@ -286,9 +286,12 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjectIds)
     for (const auto oldObjectId : oldObjectIds)
     {
         key->setId(oldObjectId);
-        layoutObjects.erase(key);
+        if (layoutObjects.erase(key))
+        {
+            hasUpdates = true;
+            hasRemoves = true;
+        }
     }
-    hasUpdates = true;
 }
 
 bool LayoutManager::hasChanges()
@@ -1792,6 +1795,8 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
 
     // Any changes made after this will require another round of layout
     hasUpdates = false;
+    const bool hadRemoves = hasRemoves;
+    hasRemoves = false;
 
     // Release the external lock to allow objects to be added and removed while we're doing the
     // layout on our copies, and replace it with a separate lock to make sure we're only run once.
@@ -1850,7 +1855,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         layoutChanges = true;
     }
 
-    if (!layoutChanges)
+    if (!layoutChanges && !hadRemoves)
     {
         return;
     }

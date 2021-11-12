@@ -421,6 +421,7 @@ protected:
     int maxDisplayObjects = 0;
     /// If there were updates since the last layout
     bool hasUpdates = false;
+    bool hasRemoves = false;
     /// Cancel a layout run in progress
     volatile bool cancelLayout = false;
     /// Enable drawing layout boundaries
