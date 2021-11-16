@@ -112,7 +112,7 @@ public:
     virtual ~SceneGraphManager();
     
     /// Add a drawable to be referenced by the scenegraph
-    void addDrawable(BasicDrawable *draw,ChangeSet &changes);
+    void addDrawable(const BasicDrawableRef &draw,ChangeSet &changes);
     
     /// Add the given scenegraph fragment
     void attachSceneFragment(SimpleIdentity attachID,SceneGraphNode *node);

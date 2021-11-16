@@ -155,7 +155,7 @@ void SceneGraphManager::update(ViewStateRef viewState,ChangeSet &changes)
     activeDrawIDs = shouldBeOn;
 }
         
-void SceneGraphManager::addDrawable(BasicDrawable *draw,ChangeSet &changes)
+void SceneGraphManager::addDrawable(const BasicDrawableRef &draw,ChangeSet &changes)
 {
     drawables.insert(draw->getId());
     changes.push_back(new AddDrawableReq(draw));
