@@ -405,6 +405,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     return pinchDelegate != nil;
 }
 
+
 - (void)setRotateGesture:(bool)rotateGesture
 {
     if (rotateGesture)
@@ -1463,7 +1464,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     auto screenPt2f = globeView->pointOnScreenFromSphere(pt, &modelAndViewMat4d, renderControl->sceneRenderer->getFramebufferSizeScaled());
     screenPt->x = screenPt2f.x();  screenPt->y = screenPt2f.y();
     
-    if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > renderControl->sceneRenderer->framebufferWidth || screenPt->y > renderControl->sceneRenderer->framebufferHeight)
+    if (screenPt->x < 0 || screenPt->y < 0 || screenPt->x > renderControl->sceneRenderer->framebufferWidth / renderControl->sceneRenderer->scale || screenPt->y > renderControl->sceneRenderer->framebufferHeight / renderControl->sceneRenderer->scale)
         return false;
     
     return true;
