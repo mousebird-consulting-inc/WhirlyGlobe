@@ -1,9 +1,8 @@
-/*
- *  MarkerManager.h
+/*  MarkerManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -150,7 +148,11 @@ public:
     long orderBy = -1;
     /// Passed through the system as a unique identifier
     std::string uniqueID;
-    
+    /// Identifies objects that should be laid out together
+    std::string mergeID;
+
+    int layoutPlacement = WhirlyKitLayoutPlacementNone;
+
     // If set, we'll draw an outline to the mask target
     WhirlyKit::SimpleIdentity maskID = EmptyIdentity;
     WhirlyKit::SimpleIdentity maskRenderTargetID = EmptyIdentity;

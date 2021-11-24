@@ -326,7 +326,10 @@ public:
     virtual SimpleIdentity makeLineTexture(PlatformThreadInfo *inst,const std::vector<double> &dashComponents) = 0;
     
     /// Create a local platform LabelInfo (since fonts are local)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *inst,const std::vector<std::string> &fontName,float fontSize) = 0;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *,
+                                       const std::vector<std::string> &fontNames,
+                                       float fontHeight,
+                                       bool mergedSymbol) = 0;
     
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *inst,const std::string &text) = 0;
@@ -342,6 +345,19 @@ public:
 
     /// Create a local platform component object
     virtual ComponentObjectRef makeComponentObject(PlatformThreadInfo *inst, const Dictionary *desc = nullptr) = 0;
+
+    /// Check whether the stylesheet already has representation layers
+    virtual bool hasRepresentations();
+
+    /// Add representation layers
+    virtual bool addRepresentations(PlatformThreadInfo *, const char* uuidAttr,
+                                    const std::vector<std::string> &sources,
+                                    const std::vector<std::string> &reps,
+                                    const std::vector<float> &sizes,
+                                    const std::vector<std::string> &colors);
+
+protected:
+    void addLayer(PlatformThreadInfo *, MapboxVectorStyleLayerRef);
 
 public:
     Scene *scene;

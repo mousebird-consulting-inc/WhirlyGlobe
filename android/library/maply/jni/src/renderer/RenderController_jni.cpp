@@ -170,12 +170,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setScene(JNIEnv
 {
 	try
 	{
-		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
-		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-		if (!renderer || !scene)
-			return;
-
-		renderer->setScene(scene);
+		if (SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj))
+		{
+			if (sceneObj)
+			{
+				if (Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj))
+				{
+					renderer->setScene(scene);
+				}
+			}
+			else
+			{
+				renderer->setScene(nullptr);
+			}
+		}
 	}
 	catch (...)
 	{

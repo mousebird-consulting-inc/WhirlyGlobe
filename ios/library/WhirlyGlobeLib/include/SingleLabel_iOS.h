@@ -31,11 +31,12 @@ public:
     SingleLabel_iOS(NSString* s = nullptr) : text(s) {}
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,
-                                                                  const LabelInfo *,
-                                                                  const FontTextureManagerRef &fontTexManager,
-                                                                  float &lineHeight,
-                                                                  ChangeSet &changes) override;
+    virtual std::vector<std::unique_ptr<DrawableString>> generateDrawableStrings(
+        PlatformThreadInfo *,
+        const LabelInfo *,
+        const FontTextureManagerRef &,
+        float &lineHeight,
+        ChangeSet &) override;
     
     // Pass this around as an NSString
     NSString *text;

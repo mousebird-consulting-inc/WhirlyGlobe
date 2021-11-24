@@ -78,22 +78,23 @@ bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,Sce
     return isValid;
 }
     
-AnimateViewTranslation::AnimateViewTranslation(MapViewRef inMapView,WhirlyKit::SceneRenderer *inRenderer,Point3d &newLoc,float howLong)
+AnimateViewTranslation::AnimateViewTranslation(const MapViewRef &mapView,
+                                               WhirlyKit::SceneRenderer *inRenderer,
+                                               Point3d &newLoc,float howLong) :
+    renderer(inRenderer)
 {
-    mapView = inMapView;
-    renderer = inRenderer;
     startDate = TimeGetCurrent();
     endDate = startDate + howLong;
     startLoc = mapView->getLoc();
     endLoc = newLoc;
-    userMotion = true;
 }
-    
-void AnimateViewTranslation::setBounds(Point2d *inBounds)
+
+void AnimateViewTranslation::setBounds(const Point2d *inBounds)
 {
     bounds.clear();
+    bounds.reserve(4);
     for (unsigned int ii=0;ii<4;ii++)
-        bounds.push_back(Point2d(inBounds[ii].x(),inBounds[ii].y()));
+        bounds.push_back(inBounds[ii]);
 }
 
 // Bounds check on a single point
@@ -102,35 +103,37 @@ bool AnimateViewTranslation::withinBounds(const Point3d &loc,MapView * testMapVi
     return MaplyGestureWithinBounds(bounds,loc,renderer,testMapView,newCenter);
 }
 
-void AnimateViewTranslation::updateView(MapView *mapView)
+void AnimateViewTranslation::updateView(WhirlyKit::View *view)
 {
+    auto mapView = (MapView *)view;
     if (startDate == 0.0)
         return;
 
-    TimeInterval now = TimeGetCurrent();
-    TimeInterval span = endDate - startDate;
-    TimeInterval remain = endDate - now;
+    const TimeInterval now = TimeGetCurrent();
+    const TimeInterval span = endDate - startDate;
+    const TimeInterval remain = endDate - now;
     
     Point3d newLoc;
-    
-    // All done, snap to end
     if (remain < 0)
     {
+        // All done, snap to end
         newLoc = endLoc;
         startDate = 0;
         endDate = 0;
         mapView->cancelAnimation();
-    } else {
+    }
+    else
+    {
         // Interpolate in the middle
-        float t = (span-remain)/span;
-        Point3d midLoc = startLoc + (endLoc-startLoc)*t;
-        newLoc = midLoc;
+        const float t = (span-remain)/span;
+        newLoc = startLoc + (endLoc-startLoc)*t;
     }
     
     // Test the prospective point first
     Point3d newCenter;
     MapView testMapView(*mapView);
-    if (withinBounds(newLoc, &testMapView, &newCenter)) {
+    if (withinBounds(newLoc, &testMapView, &newCenter))
+    {
         mapView->setLoc(newCenter);
     }
 }

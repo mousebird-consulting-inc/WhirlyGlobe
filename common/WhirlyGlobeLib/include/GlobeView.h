@@ -19,18 +19,24 @@
 #import "WhirlyKitView.h"
 #import "GlobeMath.h"
 
+namespace WhirlyKit
+{
+class View;
+class SceneRenderer;
+}
+
 namespace WhirlyGlobe
 {
-    
+
 class GlobeView;
-    
+
 /// Animation callback
-class GlobeViewAnimationDelegate
+struct GlobeViewAnimationDelegate : public WhirlyKit::ViewAnimationDelegate
 {
-public:
-    /// Called every tick to update the globe position
-    virtual void updateView(GlobeView *globeView) = 0;
+    virtual bool isUserMotion() const = 0;
+    virtual void updateView(WhirlyKit::View *) = 0;
 };
+
 typedef std::shared_ptr<GlobeViewAnimationDelegate> GlobeViewAnimationDelegateRef;
 
 /** Parameters associated with viewing the globe.

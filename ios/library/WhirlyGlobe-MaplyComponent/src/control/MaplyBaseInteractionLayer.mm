@@ -2838,14 +2838,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         std::vector<Billboard *> wkBills;
         for (MaplyBillboard *bill in bills)
         {
-            Billboard *wkBill = new Billboard();
-            Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(bill.center.x,bill.center.y));
-            Point3d dispPt = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),bill.center.z));
+            auto wkBill = std::make_unique<Billboard>();
+            const Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(bill.center.x,bill.center.y));
+            const Point3d dispPt = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),bill.center.z));
             wkBill->center = dispPt;
             wkBill->isSelectable = bill.selectable;
             if (wkBill->isSelectable)
+            {
                 wkBill->selectID = Identifiable::genId();
-            
+            }
+
             if (bill.selectable)
             {
                 compManager->addSelectObject(wkBill->selectID,bill);
@@ -2853,31 +2855,38 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             }
 
             MaplyScreenObject *screenObj = bill.screenObj;
-            if (!screenObj) {
-                delete wkBill;
+            if (!screenObj)
+            {
                 continue;
             }
-            MaplyBoundingBox size = [screenObj getSize];
-            Point2d size2d = Point2d(size.ur.x-size.ll.x,size.ur.y-size.ll.y);
+            const MaplyBoundingBox size = [screenObj getSize];
+            const Point2d size2d = Point2d(size.ur.x-size.ll.x,size.ur.y-size.ll.y);
             wkBill->size = size2d;
 
             // Work through the individual polygons in a billboard
-            for (SimplePolyRef thePoly : screenObj->screenObj.polys)
+            for (const SimplePolyRef &thePoly : screenObj->screenObj.polys)
             {
-                SimplePoly_iOSRef poly = std::dynamic_pointer_cast<SimplePoly_iOS>(thePoly);
-                SingleBillboardPoly billPoly;
+                auto poly = dynamic_cast<SimplePoly_iOS*>(thePoly.get());
+
+                wkBill->polys.emplace_back();
+                auto &billPoly = wkBill->polys.back();
+
                 billPoly.pts = poly->pts;
                 billPoly.texCoords = poly->texCoords;
                 billPoly.color = poly->color;
+
                 if (bill.vertexAttributes)
+                {
                     [self resolveVertexAttrs:billPoly.vertexAttrs from:bill.vertexAttributes];
+                }
                 if (poly->texture)
                 {
                     MaplyTexture *tex = nil;
                     if ([poly->texture isKindOfClass:[UIImage class]])
                     {
                         tex = [self addImage:poly->texture imageFormat:MaplyImageIntRGBA mode:threadMode];
-                    } else if ([poly->texture isKindOfClass:[MaplyTexture class]])
+                    }
+                    else if ([poly->texture isKindOfClass:[MaplyTexture class]])
                     {
                         tex = (MaplyTexture *)poly->texture;
                     }
@@ -2887,18 +2896,28 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                         billPoly.texId = tex.texID;
                     }
                 }
-                wkBill->polys.push_back(billPoly);
             }
             
             // Now for the strings
             for (auto theStrWrap : screenObj->screenObj.strings)
             {
-                StringWrapper_iOSRef strWrap = std::dynamic_pointer_cast<StringWrapper_iOS>(theStrWrap);
+                auto strWrap = dynamic_cast<StringWrapper_iOS*>(theStrWrap.get());
+                if (!strWrap)
+                {
+                    continue;
+                }
+
                 // Convert the string to polygons
-                DrawableString *drawStr = fontTexManager->addString(NULL, strWrap->str,changes);
+                auto drawStr = fontTexManager->addString(nullptr, strWrap->str,changes);
+                if (!drawStr)
+                {
+                    continue;
+                }
+
                 for (const DrawableString::Rect &rect : drawStr->glyphPolys)
                 {
-                    SingleBillboardPoly billPoly;
+                    wkBill->polys.emplace_back();
+                    auto &billPoly = wkBill->polys.back();
                     billPoly.pts.resize(4);
                     billPoly.texCoords.resize(4);
                     billPoly.texId = rect.subTex.texId;
@@ -2910,25 +2929,22 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                     billPoly.pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
                     billPoly.pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
                     billPoly.pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
+
                     for (unsigned int ip=0;ip<4;ip++)
                     {
-                        const Point2d &oldPt = billPoly.pts[ip];
-                        Point3d newPt = strWrap->mat * Point3d(oldPt.x(),oldPt.y(),1.0);
-                        billPoly.pts[ip] = Point2d(newPt.x(),newPt.y());
+                        billPoly.pts[ip] = Slice((strWrap->mat * Pad(billPoly.pts[ip], 1.0)).eval());
                     }
-                    
+
                     wkBill->polys.push_back(billPoly);
                 }
                 
                 compObj->contents->drawStringIDs.insert(drawStr->getId());
-                delete drawStr;
             }
             
-            wkBills.push_back(wkBill);
+            wkBills.push_back(wkBill.release());
         }
-        
-        SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, changes);
-        if (billId)
+
+        if (SimpleIdentity billId = billManager->addBillboards(wkBills, billInfo, changes))
         {
             compObj->contents->billIDs.insert(billId);
         }

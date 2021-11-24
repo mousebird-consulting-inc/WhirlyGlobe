@@ -1142,6 +1142,45 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 	}
 
 	/**
+	 * Set the representation for a set of unique features
+	 * @param repName The representation name to set
+	 * @param uuids Unique identifiers of the elements to update
+	 */
+	public void setRepresentation(String repName, String[] uuids) {
+		setRepresentation(repName, null, uuids, ThreadMode.ThreadCurrent);
+	}
+
+	/**
+	 * Set the representation for a set of unique features
+	 * @param repName The representation name to set
+	 * @param uuids Unique identifiers of the elements to update
+	 * @param mode The thread mode to use
+	 */
+	public void setRepresentation(String repName, String[] uuids, RenderController.ThreadMode mode) {
+		setRepresentation(repName, null, uuids, mode);
+	}
+
+	/**
+	 * Set the representation for a set of unique features
+	 * @param repName The representation name to set
+	 * @param fallbackName The representation to show when no others match (typically blank/null)
+	 * @param uuids Unique identifiers of the elements to update
+	 * @param mode The thread mode to use
+	 */
+	public void setRepresentation(final String repName, final String fallbackName,
+								  final String[] uuids, final RenderController.ThreadMode mode)
+	{
+		addTask(() -> {
+			final ComponentManager compMan = renderControl.componentManager;
+			if (compMan != null && uuids != null && uuids.length > 0) {
+				final ChangeSet changes = new ChangeSet();
+				compMan.setRepresentation(repName, fallbackName, uuids, changes);
+				processChangeSet(changes);
+			}
+		}, mode);
+	}
+
+	/**
 	 * Set the viewport the user is allowed to move within.
 	 * These are lat/lon coordinates in radians.
 	 *
@@ -1283,11 +1322,12 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 
 	/** Set the function used for animating zoom heights
 	 */
-	public void setZoomAnimationEasing(ZoomAnimationEasing easing) {
+	public void setZoomAnimationEasing(@Nullable ZoomAnimationEasing easing) {
 		zoomAnimationEasing = easing;
 	}
 	/** Get the function used for animating zoom heights
 	 */
+	@Nullable
 	public ZoomAnimationEasing getZoomAnimationEasing() {
 		return zoomAnimationEasing;
 	}
@@ -1342,7 +1382,8 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 		QuadSamplingLayer theLayer = null;
 
 		for (QuadSamplingLayer layer : samplingLayers) {
-			if (layer.params.equals(params)) {
+			// Layers being shut down should already be removed, but check anyway.
+			if (layer.params.equals(params) && !layer.isShuttingDown) {
 				theLayer = layer;
 				break;
 			}
@@ -1353,7 +1394,7 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 			theLayer = new QuadSamplingLayer(this,params);
 
 			// On its own layer thread
-			LayerThread layerThread = makeLayerThread(true);
+			final LayerThread layerThread = makeLayerThread(true);
 			if (layerThread == null) {
 				return null;
 			}
@@ -1380,26 +1421,31 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 		if (!samplingLayers.contains(samplingLayer))
 			return;
 
-		// Do the remove client on the layer thread
+		// If we're the last client, we expect to remove the sampling layer after disconnecting,
+		// but we have to do thread transitions during which a `findSamplingLayer` call could queue
+		// up an `addClient` call, causing us to delete the layer after being connected, cancelling
+		// any activity in that new client.
+		// To prevent that, remove it from the list of available sampling layers now.
+		final int remainingClients = samplingLayer.getNumClients() - 1;
+		if (remainingClients == 0) {
+			samplingLayers.remove(samplingLayer);
+		}
+
+		// Do the remove client on the layer thread itself
 		samplingLayer.layerThread.addTask(() -> {
 			samplingLayer.removeClient(user);
 
-			// Get rid of the sampling layer too
-			if (samplingLayer.getNumClients() == 0) {
-				// But that has to be done on the main thread
-				BaseController control = samplingLayer.control.get();
-				if (control != null) {
-					Activity activity = control.getActivity();
-					Looper looper = (activity != null) ? activity.getMainLooper() : null;
-					Handler handler = new Handler((looper != null) ? looper : Looper.getMainLooper());
-					handler.post(() -> {
-						// Someone maybe started using it
-						if (samplingLayer.getNumClients() == 0) {
-							removeLayerThread(samplingLayer.layerThread);
-							samplingLayers.remove(samplingLayer);
-						}
-					});
-				}
+			// If we were the last client, switch back to the main thread to remove the layer
+			if (remainingClients == 0) {
+				newMainLooperHandler().post(() -> {
+					// It shouldn't be possible to add clients, but check one more time, just in case
+					if (samplingLayer.getNumClients() == 0) {
+						removeLayerThread(samplingLayer.layerThread);
+					} else {
+						Log.w("Maply", "Unexpected sampling layer attach");
+						samplingLayers.add(samplingLayer);
+					}
+				});
 			}
 		});
 	}
@@ -2515,9 +2561,10 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 		return renderControl.getFrameBufferSize();
 	}
 
-	public void processChangeSet(ChangeSet changes)
-	{
-		changes.process(renderControl, scene);
+	public void processChangeSet(ChangeSet changes) {
+		if (scene != null) {
+			changes.process(renderControl, scene);
+		}
 		changes.dispose();
 	}
 

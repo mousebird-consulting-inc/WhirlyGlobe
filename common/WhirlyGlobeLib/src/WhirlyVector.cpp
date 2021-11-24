@@ -670,7 +670,7 @@ static struct UnitTests {
         //geoMbrOverlap<GeoMbrD,float>();
         //geoMbrOverlap<GeoMbrD,double>();
 
-        wkLog("Vector unit tests passed");
+        wkLogLevel(Info, "Vector unit tests passed");
     }
     template <typename T> void genericMbr() {
         using TP = typename T::value_type;

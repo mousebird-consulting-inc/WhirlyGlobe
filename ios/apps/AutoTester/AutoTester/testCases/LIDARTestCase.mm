@@ -18,7 +18,7 @@
 {
     if (self = [super init]) {
         //self.captureDelay = 7;
-        self.name = @"LIDAR Stadium";
+        self.name = @"LIDAR Stadium (broken)";
         self.implementations = MaplyTestCaseImplementationGlobe;
     }
     return self;

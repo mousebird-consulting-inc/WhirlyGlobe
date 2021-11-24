@@ -1,5 +1,7 @@
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+
 /**
  * Base class for Scene.  Use either a MapScene or a GlobeScene instead.
  * 
@@ -64,6 +66,7 @@ public class Scene
 	native void addChangesNative(ChangeSet changes);
 	native void dispose();
 
+	@Keep
 	@SuppressWarnings("unused")
 	protected long nativeHandle;
 }

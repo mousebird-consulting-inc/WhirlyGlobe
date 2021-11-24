@@ -121,24 +121,30 @@ FontManager_iOSRef FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont
 }
 
 // Render the glyph into a buffer
-NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,Point2f &size,Point2f &glyphSize,Point2f &offset,Point2f &textureOffset)
+NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph, const FontManager_iOSRef &fm,
+                                            Point2f &size,Point2f &glyphSize,
+                                            Point2f &offset,Point2f &textureOffset)
 {
-    int width,height;
-    
     // Boundary around the image to capture the full data
     if (fm->outlineSize > 0.0)
     {
-        int outlineUp = ceilf(fm->outlineSize);
+        const auto outlineUp = (int)std::ceil(fm->outlineSize);
         textureOffset = Point2f(1+outlineUp, 1+outlineUp);
-    } else
+    }
+    else
+    {
         textureOffset = Point2f(1, 1);
+    }
     
-        CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontOrientationDefault,&glyph,NULL,1);
-        size.x() = ceilf(boundRect.size.width)+2*textureOffset.x();  size.y() = ceilf(boundRect.size.height)+2*textureOffset.y();
-        width = size.x();  height = size.y();
-    
-        if (width <= 0 || height <= 0)
-            return nil;
+    const CGRect boundRect = CTFontGetBoundingRectsForGlyphs(fm->font,kCTFontOrientationDefault,&glyph,nil,1);
+    size.x() = std::ceil(boundRect.size.width)+2*textureOffset.x();
+    size.y() = std::ceil(boundRect.size.height)+2*textureOffset.y();
+    const auto width = (int)size.x();
+    const auto height = (int)size.y();
+
+    if (width <= 0 || height <= 0)
+        return nil;
+
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     // Set up a real context for the glyph rendering
     NSMutableData *retData = [NSMutableData dataWithLength:width*height*4];
@@ -156,8 +162,8 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
     CGContextTranslateCTM(theContext, 0.0f, height);
     CGContextScaleCTM(theContext, 1.0f, -1.0f);
     // Now draw it
-    int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
-    int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
+    const int baselineOffX = (boundRect.origin.x < 0 ? floorf(boundRect.origin.x) : ceilf(boundRect.origin.x));
+    const int baselineOffY = (boundRect.origin.y < 0 ? floorf(boundRect.origin.y) : ceilf(boundRect.origin.y));
     
     offset = Point2f(baselineOffX,baselineOffY);
     glyphSize = Point2f(boundRect.size.width,boundRect.size.height);
@@ -211,8 +217,23 @@ NSData *FontTextureManager_iOS::renderGlyph(CGGlyph glyph,FontManager_iOSRef fm,
 }
 
 /// Add the given string.  Caller is responsible for deleting the DrawableString
-WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo *threadInfo,NSAttributedString *str,ChangeSet &changes)
+std::unique_ptr<DrawableString> FontTextureManager_iOS::addString(
+        PlatformThreadInfo *, NSAttributedString *str, ChangeSet &changes)
 {
+    auto drawString = std::make_unique<DrawableString>();
+    auto drawStringRep = std::make_unique<DrawStringRep>(drawString->getId());
+
+    // Convert to runs of glyphs
+    CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)str);
+
+    // Work through the runs (which share attributes)
+    CFArrayRef runs = CTLineGetGlyphRuns(line);
+    CGFloat /*lineHeight = 0.0, lineWidth = 0.0,*/ ascent = 0.0, descent = 0.0;
+    /*lineWidth = */CTLineGetTypographicBounds(line,&ascent,&descent,nullptr);
+    //lineHeight = ascent+descent;
+
+    drawString->mbr.reset();
+
     // We could make this more granular
     std::lock_guard<std::mutex> guardLock(lock);
     
@@ -221,21 +242,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
         // Let's do the biggest possible texture with small cells 32 bits deep
         texAtlas = new DynamicTextureAtlas("Font Texture Atlas",2048,16,TexTypeUnsignedByte);
     }
-    
-    DrawableString *drawString = new DrawableString();
-    
-    // Convert to runs of glyphs
-    CTLineRef line = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)str);
-    
-    // Work through the runs (which share attributes)
-    CFArrayRef runs = CTLineGetGlyphRuns(line);
-    CGFloat /*lineHeight = 0.0, lineWidth = 0.0,*/ ascent = 0.0, descent = 0.0;
-    /*lineWidth = */CTLineGetTypographicBounds(line,&ascent,&descent,NULL);
-    //lineHeight = ascent+descent;
-    
-    DrawStringRep *drawStringRep = new DrawStringRep(drawString->getId());
-    
-    drawString->mbr.reset();
+
     for (unsigned int ii=0;ii<CFArrayGetCount(runs);ii++)
     {
         CTRunRef run = (CTRunRef)CFArrayGetValueAtIndex(runs,ii);
@@ -279,7 +286,7 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
             // Work through the individual glyphs
             for (unsigned int jj=0;jj<num;jj++)
             {
-                CGGlyph glyph = glyphs[jj];
+                const CGGlyph glyph = glyphs[jj];
                 // Look for an existing one
                 FontManager::GlyphInfo *glyphInfo = fm->findGlyph(glyph);
                 if (!glyphInfo)
@@ -287,44 +294,47 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
                     // We need to render that Glyph and add it
                     Point2f texSize,glyphSize;
                     Point2f offset,textureOffset;
-                    NSData *glyphImage = renderGlyph(glyph, fm, texSize, glyphSize, offset, textureOffset);
-                    if (glyphImage)
+                    if (NSData *glyphImage = renderGlyph(glyph, fm, texSize, glyphSize, offset, textureOffset))
                     {
-                        Texture *tex = nil;
-                        RawDataRef glyphImageWrap(new RawNSDataReader(glyphImage));
-                        tex = new TextureMTL("Font Texture Manager",glyphImageWrap,false);
-                        tex->setWidth(texSize.x());
-                        tex->setHeight(texSize.y());
+                        RawDataRef glyphImageWrap = std::make_shared<RawNSDataReader>(glyphImage);
+
+                        TextureMTL tex("Font Texture Manager",glyphImageWrap,false);
+                        tex.setWidth(texSize.x());
+                        tex.setHeight(texSize.y());
+
                         SubTexture subTex;
-                        Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
-                        std::vector<Texture *> texs;
-                        texs.push_back(tex);
-                        if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, NULL, subTex, changes, 0, 1))
-                            glyphInfo = fm->addGlyph(glyph, subTex, Point2f(glyphSize.x(),glyphSize.y()), offset, textureOffset);
-                        delete tex;
+                        const Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());
+
+                        std::vector<Texture *> texs = { &tex };
+                        if (texAtlas->addTexture(sceneRender, texs, -1, &realSize, nullptr, subTex, changes, 0, 1))
+                        {
+                            glyphInfo = fm->addGlyph(glyph, subTex, glyphSize.cast<float>(), offset, textureOffset);
+                        }
                     }
                 }
                 
                 if (glyphInfo)
                 {
                     // Now we make a rectangle that covers the glyph in its texture atlas
-                    DrawableString::Rect rect;
-                    CGPoint &offset = offsets[jj];
-                    
+                    const CGPoint &offset = offsets[jj];
                     const float scale = 1.0/BogusFontScale;
                     
+                    drawString->glyphPolys.emplace_back();
+                    auto &rect = drawString->glyphPolys.back();
+
                     // Note: was -1,-1
-                    rect.pts[0] = Point2f(glyphInfo->offset.x()*scale-glyphInfo->textureOffset.x()*scale,glyphInfo->offset.y()*scale-glyphInfo->textureOffset.y()*scale)+Point2f(offset.x,offset.y);
+                    rect.pts[0] = Point2f(glyphInfo->offset.x()*scale-glyphInfo->textureOffset.x()*scale,
+                                          glyphInfo->offset.y()*scale-glyphInfo->textureOffset.y()*scale)+Point2f(offset.x,offset.y);
                     rect.texCoords[0] = TexCoord(0.0,0.0);
                     // Note: was 2,2
-                    rect.pts[1] = Point2f(glyphInfo->size.x()*scale+2*glyphInfo->textureOffset.x()*scale,glyphInfo->size.y()*scale+2*glyphInfo->textureOffset.y()*scale)+rect.pts[0];
+                    rect.pts[1] = Point2f(glyphInfo->size.x()*scale+2*glyphInfo->textureOffset.x()*scale,
+                                          glyphInfo->size.y()*scale+2*glyphInfo->textureOffset.y()*scale)+rect.pts[0];
                     rect.texCoords[1] = TexCoord(1.0,1.0);
-                    
                     rect.subTex = glyphInfo->subTex;
-                    drawString->glyphPolys.push_back(rect);
+
                     drawString->mbr.addPoint(rect.pts[0]);
                     drawString->mbr.addPoint(rect.pts[1]);
-                    
+
                     glyphsUsed.insert(glyphInfo->glyph);
                 }
             }
@@ -340,20 +350,18 @@ WhirlyKit::DrawableString *FontTextureManager_iOS::addString(PlatformThreadInfo 
     //    drawString->mbr.ur() = Point2f(lineWidth,ascent);
     
     CFRelease(line);
-    
+
     // If it didn't produce anything, just delete it now
     if (drawString->glyphPolys.empty())
     {
-        delete drawString;
-        delete drawStringRep;
-        drawStringRep = NULL;
-        drawString = NULL;
+        drawString.reset();
     }
-    
     // We need to track the glyphs we're using
-    if (drawStringRep != NULL)
-        drawStringReps.insert(drawStringRep);
-        
+    else if (drawStringRep)
+    {
+        drawStringReps.insert(drawStringRep.release());
+    }
+
     return drawString;
 }
 

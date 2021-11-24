@@ -34,8 +34,7 @@ void SubTexture::setFromTex(const TexCoord &texOrg,const TexCoord &texDest)
 // Calculate a destination texture coordinate
 TexCoord SubTexture::processTexCoord(const TexCoord &inCoord) const
 {
-    const Vector3f res = trans * Vector3f(inCoord.x(),inCoord.y(),1.0);
-    return TexCoord(res.x(),res.y());
+    return Slice(trans * Pad(inCoord, 1.0f));
 }
 
 // Calculate destination texture coords for a while group

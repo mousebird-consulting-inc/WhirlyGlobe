@@ -393,7 +393,8 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,const Point2d *coo
 }
 
 void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,
-                                      bool keepUpright,const Point2d *coords,
+                                      __unused bool keepUpright,
+                                      const Point2d *coords,
                                       const TexCoord *texCoords,const RGBAColor &color,
                                       SimpleIDUnorderedSet *drawIDs)
 {
@@ -411,7 +412,8 @@ void ScreenSpaceBuilder::addRectangle(const Point3d &worldLoc,double rotation,
     {
         const Point2d &coord = coords[ii];
         const TexCoord *texCoord = (texCoords ? &texCoords[ii] : nullptr);
-        drawWrap->addVertex(coordAdapter,scale,worldLoc, nullptr, rotation, coord, texCoord, &color, nullptr);
+        drawWrap->addVertex(coordAdapter,scale,worldLoc, nullptr,
+                            (float)rotation, coord, texCoord, &color, nullptr);
     }
     drawWrap->addTri(0+baseVert,1+baseVert,2+baseVert);
     drawWrap->addTri(0+baseVert,2+baseVert,3+baseVert);
@@ -429,15 +431,28 @@ void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject> &screen
         addScreenObject(ssObj,ssObj.worldLoc,&ssObj.geometry,places,drawIDs);
     }
 }
-    
+
 void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects,
                                           const std::vector<Eigen::Matrix3d> *places,
                                           SimpleIDUnorderedSet *drawIDs)
 {
     std::sort(screenObjects.begin(),screenObjects.end(),
-                  [](const ScreenSpaceObject *a, const ScreenSpaceObject *b) {return a->orderBy < b->orderBy; });
+                  [](const auto *a, const auto *b) {return a->orderBy < b->orderBy; });
 
     for (const auto *ssObj : screenObjects)
+    {
+        addScreenObject(*ssObj, ssObj->worldLoc, &ssObj->geometry,places,drawIDs);
+    }
+}
+
+void ScreenSpaceBuilder::addScreenObjects(std::vector<ScreenSpaceObjectRef> &screenObjects,
+                                          const std::vector<Eigen::Matrix3d> *places,
+                                          SimpleIDUnorderedSet *drawIDs)
+{
+    std::sort(screenObjects.begin(),screenObjects.end(),
+              [](const auto &a, const auto &b) {return a->orderBy < b->orderBy; });
+
+    for (const auto &ssObj : screenObjects)
     {
         addScreenObject(*ssObj, ssObj->worldLoc, &ssObj->geometry,places,drawIDs);
     }

@@ -97,9 +97,10 @@ public:
                                            const std::vector<double> &dashComponents) override;
     
     /// Make platform specific label info object (ideally we're caching these)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *_Nullable inst,
-                                       const std::vector<std::string> &fontName,
-                                       float fontSize) override;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *_Nullable,
+                                       const std::vector<std::string> &fontNames,
+                                       float fontHeight,
+                                       bool mergedSymbol) override;
 
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *_Nullable inst,

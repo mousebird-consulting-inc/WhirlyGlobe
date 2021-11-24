@@ -46,7 +46,7 @@ public:
 
     /// @brief Base class initialization.  Copies data out of the refLayer
     MapboxVectorStyleLayer(MapboxVectorStyleSetImpl *styleSet);
-    virtual ~MapboxVectorStyleLayer();
+    virtual ~MapboxVectorStyleLayer() = default;
 
     // Parse the layer entry out of the style sheet
     virtual bool parse(PlatformThreadInfo *inst,
@@ -54,15 +54,18 @@ public:
                        const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority);
 
+    virtual MapboxVectorStyleLayerRef clone() const = 0;
+    virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) = 0;
+
     /// Unique Identifier for this style
-    virtual long long getUuid(PlatformThreadInfo *inst) override;
+    virtual long long getUuid(PlatformThreadInfo *inst) override { return uuid; }
     
     /// Category used for sorting
-    virtual std::string getCategory(PlatformThreadInfo *inst) override;
+    virtual std::string getCategory(PlatformThreadInfo *inst) override { return category; }
     
     // Note: This no longer really holds
     /// Set if this geometry is additive (e.g. sticks around) rather than replacement
-    virtual bool geomAdditive(PlatformThreadInfo *inst) override;
+    virtual bool geomAdditive(PlatformThreadInfo *inst) override { return geomAdditiveVal; }
 
     /// Construct objects related to this style based on the input data.
     virtual void buildObjects(PlatformThreadInfo *inst,
@@ -70,14 +73,18 @@ public:
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc,
                               const CancelFunction &cancelFn) override = 0;
-    
-    /// Clean up any objects (textures, probably)
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes);
 
-    MapboxVectorStyleSetImpl *styleSet;
+    /// Clean up any objects (textures, probably)
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) { }
+
+protected:
+    MapboxVectorStyleLayer& operator=(const MapboxVectorStyleLayer&) = default;
+
+public:
+    MapboxVectorStyleSetImpl *styleSet = nullptr;
 
     /// Set if we actually use this layer.  Copied from the layout
-    bool visible;
+    bool visible = true;
     
     /// Type string (from spec)
     std::string type;
@@ -98,24 +105,24 @@ public:
     std::string sourceLayer;
 
     /// @brief Min/max zoom levels
-    int minzoom;
-    int maxzoom;
+    int minzoom = 0;
+    int maxzoom = 0;
 
     /// @brief Filter this layer uses to match up to data
     MapboxVectorFilterRef filter;
 
     /// @brief DrawPriority based on location in the style sheet
-    int drawPriority;
+    int drawPriority = 0;
 
     /// If set, the features produced will be selectable (if they can be)
     /// Inherited from the settings
-    bool selectable;
+    bool selectable = false;
 
     /// @brief Unique Identifier for this style
-    long long uuid;
+    long long uuid = 0;
 
     /// @brief Set if this geometry is additive (e.g. sticks around) rather than replacement
-    bool geomAdditiveVal;
+    bool geomAdditiveVal = false;
 
     /// @brief metadata tag from the JSON file
     DictionaryRef metadata;
@@ -125,6 +132,11 @@ public:
     
     /// @brief The specific representation for this layer (e.g., "selected")
     std::string representation;
+
+    /// UUID field for markers/labels (from style settings)
+    std::string uuidField;
+    /// UUID field for representations (from style layers)
+    std::string repUUIDField;
 };
 
 

@@ -1,9 +1,8 @@
-/*
- *  View.h
+/*  WhirlyKitView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <set>
@@ -26,7 +24,7 @@
 
 namespace WhirlyKit
 {
-    
+
 class SceneRenderer;
 class View;
 class ViewState;
@@ -40,8 +38,15 @@ public:
     /// Called when the view changes position
     virtual void viewUpdated(View *view) = 0;
 };
-
 typedef std::set<ViewWatcher *> ViewWatcherSet;
+
+struct ViewAnimationDelegate
+{
+    virtual bool isUserMotion() const = 0;
+
+    /// Called every tick to update the view position
+    virtual void updateView(WhirlyKit::View *) = 0;
+};
 
 /** Whirly Kit View is the base class for the views
     used in WhirlyGlobe and Maply.  It contains the general purpose

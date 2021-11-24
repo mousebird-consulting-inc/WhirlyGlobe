@@ -1,9 +1,8 @@
-/*
- *  MaplyAnimateTranslateMomentum.h
+/*  MaplyAnimateTranslateMomentum.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyTypes.h"
@@ -35,29 +33,32 @@ class AnimateTranslateMomentum : public MapViewAnimationDelegate
 {
 public:
     /// Initialize with a velocity and negative acceleration (to slow down)
-    AnimateTranslateMomentum(MapViewRef inMapView,
+    AnimateTranslateMomentum(const MapViewRef &inMapView,
                              float inVel,float inAcc,const WhirlyKit::Point3f &inDir,
                              const WhirlyKit::Point2dVector &inBounds,
                              WhirlyKit::SceneRenderer *inSceneRenderer);
 
     /// Update the map view
-    virtual void updateView(MapView *mapView);
+    virtual void updateView(WhirlyKit::View *);
 
-    /// Set if a user kicked this off (true by default)
-    bool userMotion;
-    
+    virtual bool isUserMotion() const { return userMotion; }
+
 protected:
-    bool withinBounds(const WhirlyKit::Point3d &loc,MapView * testMapView,WhirlyKit::Point3d *newCenter);
+    bool withinBounds(const WhirlyKit::Point3d &loc,
+                      MapView * testMapView,
+                      WhirlyKit::Point3d *newCenter);
 
-    MapViewRef mapView;
     WhirlyKit::SceneRenderer *renderer;
     
     float velocity,acceleration;
     Eigen::Vector3d dir;
-    float maxTime;
+    float maxTime = MAXFLOAT;
     WhirlyKit::TimeInterval startDate;
     WhirlyKit::Point3d org;
     WhirlyKit::Point2dVector bounds;
+
+    /// Set if a user kicked this off (true by default)
+    bool userMotion = true;
 };
 
 }

@@ -38,6 +38,10 @@
 #import "GeometryManager.h"
 #import "ComponentManager.h"
 
+#if __clang_major__ >= 3
+#include <cxxabi.h>
+#endif
+
 namespace WhirlyKit
 {
 
@@ -143,16 +147,46 @@ Scene::~Scene()
     {
         manager.second->setScene(nullptr);
     }
+
+#if DEBUG
+    std::vector<std::weak_ptr<SceneManager>> wm(managers.size());
+    std::transform(managers.begin(), managers.end(), wm.begin(), [](auto p){ return p.second; });
+#endif
     managers.clear();
-    
-    auto theChangeRequests = changeRequests;
-    changeRequests.clear();
-    for (auto & theChangeRequest : theChangeRequests)
+
+#if DEBUG
+    wm.erase(std::remove_if(wm.begin(), wm.end(), [](auto p){ return !p.lock(); }), wm.end());
+    for (const auto &w : wm)
     {
-        // Note: Tear down change requests?
+        if (const auto p = w.lock())
+        {
+            const auto &ref = *p;
+            const auto name = typeid(ref).name();
+            int32_t status = 0;
+            size_t len = 256;
+            std::vector<char> buf(len + 1);
+#if __clang_major__ >= 3
+            abi::__cxa_demangle(name, &buf[0], &len, &status);
+#endif
+            wkLogLevel(Warn, "Scene Manager live after scene destroyed: '%s' (%s)", &buf[0], name);
+        }
+    }
+#endif
+
+    auto theChangeRequests = std::move(changeRequests);
+    for (auto *theChangeRequest : theChangeRequests)
+    {
         delete theChangeRequest;
     }
-    
+    theChangeRequests.clear();
+
+    auto timedChanges = std::move(timedChangeRequests);
+    for (auto *theChangeRequest : timedChanges)
+    {
+        delete theChangeRequest;
+    }
+    timedChanges.clear();
+
     activeModels.clear();
     
     subTextureMap.clear();
@@ -239,18 +273,20 @@ void Scene::addLocalMbr(const Mbr &localMbr)
     }
 }
 
-void Scene::setRenderer(SceneRenderer *renderer)
+void Scene::setRenderer(SceneRenderer *inRenderer)
 {
-    if (renderer)
+    if (inRenderer)
     {
-        setupInfo = renderer->getRenderSetupInfo();
+        setupInfo = inRenderer->getRenderSetupInfo();
     }
 
     std::lock_guard<std::mutex> guardLock(managerLock);
 
+    renderer = inRenderer;
+
     for (const auto &kvp : managers)
     {
-        kvp.second->setRenderer(renderer);
+        kvp.second->setRenderer(inRenderer);
     }
 }
     
@@ -359,18 +395,19 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,__unu
     {
         std::lock_guard<std::mutex> guardLock(changeRequestLock);
         // Just doing the ones that require a pre-process
-        for (auto &changeRequest : changeRequests)
+        for (auto &req : changeRequests)
         {
-            ChangeRequest *req = changeRequest;
-            if (req && req->needPreExecute()) {
+            if (req && req->needPreExecute())
+            {
                 preRequests.push_back(req);
-                changeRequest = nullptr;
+                req = nullptr;
             }
         }
     }
 
     // Run these outside of the lock, since they might use the lock
-    for (auto req : preRequests) {
+    for (auto req : preRequests)
+    {
         req->execute(this,renderer,view);
         delete req;
     }
@@ -382,33 +419,46 @@ int Scene::preProcessChanges(WhirlyKit::View *view,SceneRenderer *renderer,__unu
 // We'll grab the lock and we're only expecting to be called in the rendering thread
 int Scene::processChanges(WhirlyKit::View *view,SceneRenderer *renderer,TimeInterval now)
 {
-    std::lock_guard<std::mutex> guardLock(changeRequestLock);
-    // See if any of the timed changes are ready
-    std::vector<ChangeRequest *> toMove;
-    for (ChangeRequest *req : timedChangeRequests)
+    // Set up a local collection of approximately the same capacity before locking
+    decltype(changeRequests) localChanges;
+    localChanges.reserve(changeRequests.capacity());
+
     {
-        if (now >= req->when)
-            toMove.push_back(req);
-        else
-            break;
+        std::lock_guard<std::mutex> guardLock(changeRequestLock);
+
+        // See if any of the timed changes are ready
+        if (!timedChangeRequests.empty())
+        {
+            // Establish the range of changes to be moved
+            const auto beg = timedChangeRequests.begin();
+            auto end = beg;
+            while (end != timedChangeRequests.end() && (*end)->when <= now)
+            {
+                ++end;
+            }
+
+            // Move them
+            if (end != beg)
+            {
+                std::copy(beg, end, std::back_inserter(changeRequests));
+                timedChangeRequests.erase(beg, end);
+            }
+        }
+
+        // Move the outstanding changes to the local collection and release the lock
+        localChanges.swap(changeRequests);
     }
-    for (ChangeRequest *req : toMove)
+
+    for (auto req : localChanges)
     {
-        timedChangeRequests.erase(req);
-        changeRequests.push_back(req);
-    }
-    
-    for (auto req : changeRequests)
-    {
-        if (req) {
+        if (req)
+        {
             req->execute(this,renderer,view);
             delete req;
         }
     }
-    int numChanges = changeRequests.size();
-    changeRequests.clear();
-    
-    return numChanges;
+
+    return localChanges.size();
 }
     
 bool Scene::hasChanges(TimeInterval now) const

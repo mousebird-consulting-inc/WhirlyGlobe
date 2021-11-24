@@ -67,8 +67,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
         {
             (*compManager)->clearJNI(env);
             delete compManager;
+            classInfo->clearHandle(env,obj);
         }
-        classInfo->clearHandle(env,obj);
 	}
     MAPLY_STD_JNI_CATCH()
 }
@@ -212,3 +212,22 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ComponentManager_findVec
     return nullptr;
 }
 
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_setRepresentation
+  (JNIEnv *env, jobject obj,
+   jstring repNameStr, jstring fallbackStr,
+   jobjectArray uuidArr, jobject changeSetObj)
+{
+    try
+    {
+        if (const auto compManager = ComponentManagerClassInfo::get(env,obj))
+        if (const auto changeSet = ChangeSetClassInfo::get(env,changeSetObj))
+        {
+            const JavaString repName(env, repNameStr);
+            const JavaString fallbackRepName(env, fallbackStr);
+            const auto uuids = ConvertStringArray(env, uuidArr);
+            (*compManager)->setRepresentation(repName.getString(), fallbackRepName.getString(), uuids, **changeSet);
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}

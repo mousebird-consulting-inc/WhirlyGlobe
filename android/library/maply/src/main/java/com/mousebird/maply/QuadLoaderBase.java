@@ -239,7 +239,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         isShuttingDown = true;
 
         loadInterp = null;
-        QuadSamplingLayer layer = getSamplingLayer();
+        final QuadSamplingLayer layer = getSamplingLayer();
         if (layer == null || control == null || getController() == null) {
             return;
         }
@@ -247,32 +247,33 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         layer.removeClient(this);
         final QuadLoaderBase loaderBase = this;
 
-        // Do all the shutdown on the layer thread
-        layer.layerThread.addTask(() -> {
+        // Do all the shutdown on the layer thread.
+        final Runnable cleanupTask = () -> {
             // Clean things up
-            ChangeSet changes = new ChangeSet();
+            final ChangeSet changes = new ChangeSet();
             cleanupNative(changes);
 
-            QuadSamplingLayer layerInner = getSamplingLayer();
+            final QuadSamplingLayer layerInner = getSamplingLayer();
             if (layerInner != null) {
                 layerInner.layerThread.addChanges(changes);
             }
 
             // Back to the main thread for the sampling layer stuff
-            Handler handler = new Handler(Looper.getMainLooper());
+            final Handler handler = new Handler(Looper.getMainLooper());
             handler.post(() -> {
-                BaseController ctrl = getController();
+                final BaseController ctrl = getController();
                 if (ctrl != null) {
-                    QuadSamplingLayer layerInner2 = getSamplingLayer();
+                    final QuadSamplingLayer layerInner2 = getSamplingLayer();
                     ctrl.releaseSamplingLayer(layerInner2, loaderBase);
                 }
 
                 clear(samplingLayer);
-//                clear(control);
-
                 tileFetcher = null;
             });
-        });
+        };
+        // Do not run it as a unit-of-work, because that will likely be canceled because we are
+        // shutting down, leading to native cleanup not being run, potentially leaking resources.
+        layer.layerThread.addTask(cleanupTask, false, false);
     }
 
     private static <T> void clear(WeakReference<T> weakRef) {

@@ -395,7 +395,8 @@ void SceneRendererGLES::render(TimeInterval duration)
             perfTimer.startTiming("Scene preprocessing");
         
         // Run the preprocess for the changes.  These modify things the active models need.
-        const int numPreProcessChanges = scene->preProcessChanges(theView, this, now);
+        // Since the results won't actually be drawn instantly, consider changes up to half a frame ahead.
+        const int numPreProcessChanges = scene->preProcessChanges(theView, this, now + duration / 2);
         
         if (UNLIKELY(reportStats))
             perfTimer.addCount("Preprocess Changes", numPreProcessChanges);
@@ -426,8 +427,8 @@ void SceneRendererGLES::render(TimeInterval duration)
             perfTimer.startTiming("Scene processing");
         
         // Merge any outstanding changes into the scenegraph
-        scene->processChanges(theView,this,now);
-        
+        scene->processChanges(theView,this,now + duration / 2);
+
         if (UNLIKELY(reportStats))
             perfTimer.stopTiming("Scene processing");
         
@@ -706,11 +707,26 @@ void SceneRendererGLES::render(TimeInterval duration)
     
     if (UNLIKELY(reportStats))
         perfTimer.stopTiming("Render Frame");
-    
+
+    const TimeInterval newNow = scene->getCurrentTime();
+    const TimeInterval frameDuration = newNow - now;
+
+    // If we've finished faster than is necessary to achieve the target frame rate, process
+    // changes that came in or became active since we started so that the next frame is faster.
+    if (frameDuration < duration)
+    {
+        if (UNLIKELY(reportStats))
+            perfTimer.startTiming("Scene processing 2");
+
+        scene->processChanges(theView, this, newNow + duration / 2);
+
+        if (UNLIKELY(reportStats))
+            perfTimer.stopTiming("Scene processing 2");
+    }
+
     // Update the frames per sec
     if (UNLIKELY(reportStats && frameCount >= perfInterval))
     {
-        const TimeInterval newNow = scene->getCurrentTime();
         const TimeInterval howLong =  newNow - frameCountStart;
         framesPerSec = (float)(frameCount / howLong);
         frameCountStart = newNow;
@@ -732,7 +748,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             wkLogLevel(Verbose," Frames per sec = %.2f",framesPerSec);
         }
 
-        perfTimer.log();
+        perfTimer.log(0.0001);
         perfTimer.clear();
     }
 }

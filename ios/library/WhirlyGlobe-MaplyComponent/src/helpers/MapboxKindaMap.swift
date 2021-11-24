@@ -69,7 +69,10 @@ public class MapboxKindaMap {
     // We'll scale the text size calculations based on this value
     // If it's set to 0, we'll figure this out from minImportance
     public var textScale = 0.0
-    
+
+    // Set to override the default marker scale
+    public var markerScale: Double? = nil
+
     // If we're doing offline rendering for the map tiles, this is the size
     public var offlineRenderSize = (width: 512.0, height: 512.0)
     
@@ -209,30 +212,30 @@ public class MapboxKindaMap {
                 let source = $0 as! MaplyMapboxVectorStyleSource
                 if source.tileSpec == nil /*&& success*/ {
                     if let urlStr = source.url,
-                        let origURL = URL(string: urlStr) {
-                        let url = self.cacheResolve(self.fileOverride(origURL))
+                       let origURL = URL(string: urlStr) {
+                        let url = fileOverride(origURL)
                         
                         // Go fetch the TileJSON
                         let fetchIdx = self.outstandingFetches.count
-                        let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(url)) { (data, resp, error) in
+                        let dataTask = URLSession.shared.dataTask(with: makeURLRequest(cacheResolve(url))) { [self] (data, resp, error) in
                             guard error == nil else {
                                 print("Error trying to fetch tileJson from \(urlStr) : \(error?.localizedDescription ?? "unknown")")
-                                self.stop()
+                                stop()
                                 return
                             }
                             
                             if let data = data,
-                                let resp = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                               let resp = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
                                 source.tileSpec = resp
-                                self.cacheFile(origURL, data: data)
+                                cacheFile(origURL, data: data)
 
                                 DispatchQueue.main.async {
-                                    self.outstandingFetches[fetchIdx] = nil
-                                    self.checkFinished()
+                                    outstandingFetches[fetchIdx] = nil
+                                    checkFinished()
                                 }
                             }
                         }
-                        self.outstandingFetches.append(dataTask)
+                        outstandingFetches.append(dataTask)
                         dataTask.resume()
                     } else {
                         print("Expecting either URL or tile info for a source.  Skipping this source.")
@@ -242,68 +245,67 @@ public class MapboxKindaMap {
         }
         
         // And for the sprite sheets
+        let scaleRatio = "@2x"
         if let spriteURLStr = styleSheet.spriteURL,
-            var spriteJSONurl = URL(string: spriteURLStr.appending("@2x.json")),
-            var spritePNGurl = URL(string: spriteURLStr.appending("@2x.png")) {
-                spriteJSONurl = self.fileOverride(spriteJSONurl)
-                spritePNGurl = self.fileOverride(spritePNGurl)
-                let fetchIdx1 = self.outstandingFetches.count
-                let dataTask1 = URLSession.shared.dataTask(with: self.makeURLRequest(self.cacheResolve(self.fileOverride(spriteJSONurl)))) { (data, _, error) in
-                    guard error == nil else {
-                        print("Failed to fetch spriteJSON from \(spriteURLStr)")
-                        self.stop()
-                        return
-                    }
-                    
-                    if let data = data, !data.isEmpty {
-                        self.spriteJSON = data
-                        self.cacheFile(spriteJSONurl, data: data)
-                    }
+           let spriteJSONRawUrl = URL(string: spriteURLStr.appending(scaleRatio).appending(".json")),
+           let spritePNGRawUrl = URL(string: spriteURLStr.appending(scaleRatio).appending(".png")) {
 
-                    DispatchQueue.main.async {
-                        if self.outstandingFetches.count > fetchIdx1 {
-                            self.outstandingFetches[fetchIdx1] = nil
-                        }
-                        self.checkFinished()
-                    }
+            let spriteJSONurl = self.fileOverride(spriteJSONRawUrl)
+            let spritePNGurl = self.fileOverride(spritePNGRawUrl)
+            let fetchIdx1 = self.outstandingFetches.count
+            let dataTask1 = URLSession.shared.dataTask(with: makeURLRequest(cacheResolve(spriteJSONurl))) { [self] (data, _, error) in
+                guard error == nil else {
+                    print("Failed to fetch spriteJSON from \(spriteURLStr)")
+                    self.stop()
+                    return
                 }
-                self.outstandingFetches.append(dataTask1)
-                dataTask1.resume()
-                let fetchIdx2 = self.outstandingFetches.count
-                let dataTask2 = URLSession.shared.dataTask(with: self.makeURLRequest(self.cacheResolve(self.fileOverride(spritePNGurl)))) { (data, _, error) in
-                    guard error == nil else {
-                        print("Failed to fetch spritePNG from \(spriteURLStr)")
-                        self.stop()
-                        return
-                    }
-                    if let data = data, !data.isEmpty {
-                        self.spritePNG = UIImage(data: data)
-                        self.cacheFile(spritePNGurl, data: data)
-                    }
+                
+                if let data = data, !data.isEmpty {
+                    spriteJSON = data
+                    self.cacheFile(spriteJSONurl, data: data)
+                }
 
-                    DispatchQueue.main.async {
-                        if self.outstandingFetches.count > fetchIdx2 {
-                            self.outstandingFetches[fetchIdx2] = nil
-                        }
-                        self.checkFinished()
+                DispatchQueue.main.async {
+                    if self.outstandingFetches.count > fetchIdx1 {
+                        self.outstandingFetches[fetchIdx1] = nil
                     }
+                    self.checkFinished()
                 }
-                self.outstandingFetches.append(dataTask2)
-                dataTask2.resume()
             }
-        
-        //if !success {
-        //    self.stop()
-        //}
+            self.outstandingFetches.append(dataTask1)
+            dataTask1.resume()
+
+            let fetchIdx2 = self.outstandingFetches.count
+            let dataTask2 = URLSession.shared.dataTask(with: makeURLRequest(cacheResolve(spritePNGurl))) { (data, _, error) in
+                guard error == nil else {
+                    print("Failed to fetch spritePNG from \(spriteURLStr)")
+                    self.stop()
+                    return
+                }
+                if let data = data, !data.isEmpty {
+                    self.spritePNG = UIImage(data: data)
+                    self.cacheFile(spritePNGurl, data: data)
+                }
+
+                DispatchQueue.main.async {
+                    if self.outstandingFetches.count > fetchIdx2 {
+                        self.outstandingFetches[fetchIdx2] = nil
+                    }
+                    self.checkFinished()
+                }
+            }
+            self.outstandingFetches.append(dataTask2)
+            dataTask2.resume()
+        }
     }
-        
+
     // Done messing with settings?  Then fire this puppy up
     // Will shut down the loader(s) it started
     public func start() {
         guard let viewC = viewC else {
             return
         }
-        
+
         if let styleSheetData = styleSheetData {
             guard let styleSheet = MapboxVectorStyleSet(json: styleSheetData,
                                                         settings: self.styleSettings,
@@ -322,11 +324,10 @@ public class MapboxKindaMap {
         } else if var styleURL = styleURL {
             // Dev might be overriding the source
             styleURL = fileOverride(styleURL)
-            styleURL = cacheResolve(styleURL)
-            
+
             // Go get the style sheet (this will also handle local
             let fetchIdx = self.outstandingFetches.count
-            let dataTask = URLSession.shared.dataTask(with: self.makeURLRequest(styleURL)) { (data, _, error) in
+            let dataTask = URLSession.shared.dataTask(with: makeURLRequest(cacheResolve(styleURL))) { (data, _, error) in
                 guard error == nil, var data = data, !data.isEmpty else {
                     print("Error fetching style sheet:\n\(String(describing: error))")
                     
@@ -355,20 +356,19 @@ public class MapboxKindaMap {
                     return
                 }
 
-                DispatchQueue.main.async {
-                    self.outstandingFetches[fetchIdx] = nil
+                DispatchQueue.main.async { [self] in
+                    outstandingFetches[fetchIdx] = nil
                     guard let styleSheet = MapboxVectorStyleSet(dict: jsonDict!,
-                                                                settings: self.styleSettings,
+                                                                settings: styleSettings,
                                                                 viewC: viewC) else {
                         print("Failed to parse style sheet")
-                        self.stop()
+                        stop()
                         return
                     }
-                    self.styleSheetData = data
+                    styleSheetData = data
                     self.styleSheet = styleSheet
-                    self.cacheFile(self.styleURL!, data: data)
-                    
-                    self.styleSheetKickoff()
+                    cacheFile(styleURL, data: data)
+                    styleSheetKickoff()
                 }
             }
             outstandingFetches.append(dataTask)
@@ -479,8 +479,9 @@ public class MapboxKindaMap {
             styleSettings.textScale = Float(0.5 * minImportance / (512.0 * 512.0))
         }
         
-        // We fetch the @2x versions of markers by default, so we need to scale back down
-        styleSettings.markerScale = Float(UIScreen.main.scale / 2.0) * 2.0 / 3.0
+        let defMarkerScaleFactor = 1.0 / 3.0
+        let defMarkerScale = UIScreen.main.scale.native * defMarkerScaleFactor
+        styleSettings.markerScale = Float(self.markerScale ?? defMarkerScale)
 
         // Image/vector hybrids draw the polygons into a background image
         if imageVectorHybrid {

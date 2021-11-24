@@ -187,15 +187,6 @@ using namespace WhirlyKit;
 
 - (void)runAddChangeRequests
 {
-    if ([self isCancelled]) {
-        std::lock_guard<std::mutex> guardLock(changeLock);
-        for (auto change : changeRequests) {
-            delete change;
-        }
-        changeRequests.clear();
-        return;
-    }
-
     inRunAddChangeRequests = true;
     for (NSObject<WhirlyKitLayer> *layer in layers) {
         if ([layer respondsToSelector:@selector(preSceneFlush:)])

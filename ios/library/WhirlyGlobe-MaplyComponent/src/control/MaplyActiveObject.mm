@@ -74,8 +74,11 @@ using namespace WhirlyKit;
 
 - (void)removeFromScene
 {
-    if (activeInter)
+    if (activeInter) {
         scene->removeActiveModel(nullptr, activeInter);
+        activeInter->activeObject = nil;
+        activeInter = nullptr;
+    }
 }
 
 - (void)startWithScene:(WhirlyKit::Scene *)inScene

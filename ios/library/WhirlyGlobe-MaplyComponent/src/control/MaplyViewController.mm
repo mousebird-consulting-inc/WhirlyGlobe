@@ -152,18 +152,12 @@ using namespace Maply;
 
 // Interface object between Obj-C and C++ for animation callbacks
 // Also used to catch view geometry updates
-class MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDelegate, public ViewWatcher
+struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDelegate, public ViewWatcher
 {
-public:
-    MaplyViewControllerAnimationWrapper()
-    : control(nil)
-    {
-    }
-    
     // Called by the View to set up view state per frame
-    void updateView(Maply::MapView *mapView)
+    void updateView(WhirlyKit::View *view)
     {
-        [control updateView:mapView];
+        [control updateView:(Maply::MapView *)view];
     }
     
     // Called by the view when things are changed
@@ -171,9 +165,10 @@ public:
     {
         [control viewUpdated:view];
     }
-    
-public:
-    MaplyViewController __weak * control;
+
+    virtual bool isUserMotion() const { return false; }
+
+    MaplyViewController __weak * control = nil;
 };
 
 @implementation MaplyViewController
@@ -789,12 +784,13 @@ public:
 {
     mapView->cancelAnimation();
     
-    AnimateViewTranslationRef anim = AnimateViewTranslationRef(new AnimateViewTranslation(mapView,renderControl->sceneRenderer.get(),newLoc,howLong));
+    const auto render = renderControl->sceneRenderer.get();
+    AnimateViewTranslationRef anim = std::make_shared<AnimateViewTranslation>(mapView,render,newLoc,howLong);
     anim->userMotion = false;
     anim->setBounds(bounds2d);
 
     curAnimation = anim;
-    mapView->setDelegate(anim);
+    mapView->setDelegate(std::move(anim));
 }
 
 // External facing version of rotateToPoint
@@ -1116,9 +1112,9 @@ public:
     // Tell the delegate what we're up to
     [animationDelegate mapViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
     
-    MaplyViewControllerAnimationWrapper *delegate = new MaplyViewControllerAnimationWrapper();
+    auto delegate = std::make_shared<MaplyViewControllerAnimationWrapper>();
     delegate->control = self;
-    mapView->setDelegate(MapViewAnimationDelegateRef(delegate));
+    mapView->setDelegate(std::move(delegate));
 }
 
 // Called every frame from within the map view
@@ -1482,18 +1478,8 @@ public:
     if (note.object != mapView->tag)
         return;
     
-    bool userMotion = false;
-    
-    auto delegate = mapView->getDelegate();
-    AnimateViewTranslation *viewTrans = dynamic_cast<AnimateViewTranslation *>(delegate.get());
-    if (viewTrans) {
-        userMotion = viewTrans->userMotion;
-    } else {
-        AnimateTranslateMomentum *viewTrans = dynamic_cast<AnimateTranslateMomentum *>(delegate.get());
-        if (viewTrans) {
-            userMotion = viewTrans->userMotion;
-        }
-    }
+    const auto delegate = mapView->getDelegate();
+    const bool userMotion = delegate && delegate->isUserMotion();
 
     isAnimating = false;
     [self handleStopMoving:userMotion];

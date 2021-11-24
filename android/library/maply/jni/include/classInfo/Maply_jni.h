@@ -432,6 +432,7 @@ struct JavaString
     operator bool() const { return cStr != nullptr; }
 
     const char *getCString() const { return cStr; }
+    std::string getString() const { return cStr ? cStr : std::string(); }
 
 private:
 	const char *cStr;
@@ -566,6 +567,11 @@ void ConvertIntArray(JNIEnv *env,jintArray &intArray,std::vector<int> &intVec);
 void ConvertLongLongArray(JNIEnv *env,jlongArray &longArray,std::vector<WhirlyKit::SimpleIdentity> &longVec);
 // Convert a Java float array into a std::vector of floats
 void ConvertFloatArray(JNIEnv *env,jfloatArray &floatArray,std::vector<float> &floatVec);
+
+/// Convert a Java array of Float (not float) to native floats, using the default for null or invalid entries
+void ConvertFloatObjArray(JNIEnv *,jobjectArray,std::vector<float> &, float defVal);
+std::vector<float> ConvertFloatObjArray(JNIEnv *, jobjectArray, float defVal);
+
 // Convert a Java double array into a std::vector of doubles
 void ConvertDoubleArray(JNIEnv *env,jdoubleArray &doubleArray,std::vector<double> &doubleVec);
 // Convert a Java boolean array into a std::vector of bools
@@ -584,6 +590,7 @@ void ConvertLongArrayToSet(JNIEnv *env,const jlongArray &longArray,std::set<Whir
 void ConvertLongArrayToSet(JNIEnv *env,const jlongArray &longArray,std::unordered_set<WhirlyKit::SimpleIdentity> &intSet);
 // Convert a Java String object array into a std::vector of std::strings
 void ConvertStringArray(JNIEnv *env,jobjectArray &objArray,std::vector<std::string> &strVec);
+std::vector<std::string> ConvertStringArray(JNIEnv *env,jobjectArray &objArray);
 
 // Return a Java long array
 jlongArray BuildLongArray(JNIEnv *env,const std::vector<WhirlyKit::SimpleIdentity> &longVec);

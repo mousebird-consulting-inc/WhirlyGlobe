@@ -156,8 +156,8 @@ static const float AnimLen = 1.0;
                 // Check if we're still within bounds
                 if (MaplyGestureWithinBounds(bounds, newLoc, sceneRender, &testMapView, &newCenter))
                 {
-                    auto animation = std::make_shared<AnimateViewTranslation>(mapView,sceneRender,newCenter,animTime);
-                    mapView->setDelegate(animation);
+                    mapView->setDelegate(std::make_shared<AnimateViewTranslation>(
+                        mapView,sceneRender,newCenter,animTime));
                 }
             }
         }

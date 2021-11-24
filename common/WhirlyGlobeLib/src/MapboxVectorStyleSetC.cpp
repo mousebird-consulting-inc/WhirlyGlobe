@@ -21,6 +21,8 @@
 #import "SharedAttributes.h"
 #import "WhirlyKitLog.h"
 #import "MapboxVectorStyleBackground.h"
+#import "MapboxVectorStyleLine.h"
+#import "MapboxVectorStyleSymbol.h"
 #import <regex>
 
 namespace WhirlyKit
@@ -494,27 +496,35 @@ bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,const DictionaryRe
     // Layers are where the action is
     const std::vector<DictionaryEntryRef> layerStyles = styleDict->getArray(strLayers);
     int which = 0;
-    for (const auto &layerStyle : layerStyles) {
-        if (layerStyle->getType() == DictTypeDictionary) {
-            auto layer = MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),(1*which + tileStyleSettings->baseDrawPriority));
-            if (!layer)
-            {
-                continue;
-            }
-
-            // Sort into various buckets for quick lookup
-            layersByName[layer->ident] = layer;
-            layersByUUID[layer->getUuid(inst)] = layer;
-            if (!layer->sourceLayer.empty())
-            {
-                layersBySource.insert(std::make_pair(layer->sourceLayer, layer));
-            }
-            layers.push_back(layer);
+    for (const auto &layerStyle : layerStyles)
+    {
+        if (layerStyle->getType() == DictTypeDictionary)
+        {
+            const auto pri = which + tileStyleSettings->baseDrawPriority;
+            auto layer = MapboxVectorStyleLayer::VectorStyleLayer(inst,this,layerStyle->getDict(),pri);
+            addLayer(inst, std::move(layer));
         }
         which++;
     }
     
     return true;
+}
+
+void MapboxVectorStyleSetImpl::addLayer(PlatformThreadInfo *inst, MapboxVectorStyleLayerRef layer)
+{
+    if (!layer)
+    {
+        return;
+    }
+
+    // Sort into various buckets for quick lookup
+    layersByName[layer->ident] = layer;
+    layersByUUID[layer->getUuid(inst)] = layer;
+    if (!layer->sourceLayer.empty())
+    {
+        layersBySource.insert(std::make_pair(layer->sourceLayer, layer));
+    }
+    layers.push_back(std::move(layer));
 }
 
 long long MapboxVectorStyleSetImpl::generateID()
@@ -1028,6 +1038,111 @@ void MapboxVectorStyleSetImpl::addSprites(MapboxVectorStyleSpritesRef newSprites
     sprites = std::move(newSprites);
 }
 
+bool MapboxVectorStyleSetImpl::hasRepresentations()
+{
+    return std::any_of(layers.begin(), layers.end(),
+                [](const auto &layer){ return !layer->getRepresentation().empty(); });
+}
+
+static std::string repLayerName(const std::string &ident, const std::string &repName)
+{
+    std::string s;
+    s.reserve(ident.size() + repName.size() + 1);
+    s.append(ident).append("_", 1).append(repName);
+    return s;
+}
+
+bool MapboxVectorStyleSetImpl::addRepresentations(PlatformThreadInfo *inst,
+                                                  const char* uuidAttr,
+                                                  const std::vector<std::string> &sources,
+                                                  const std::vector<std::string> &reps,
+                                                  const std::vector<float> &sizes,
+                                                  const std::vector<std::string> &colors)
+{
+    std::vector<MapboxVectorStyleLayerRef> newLayers;
+
+    // each layer-source
+    for (const auto &source : sources)
+    {
+        // find matching layers
+        const auto range = layersBySource.equal_range(source);
+
+        if (range.first == range.second)
+        {
+            wkLogLevel(Debug, "Layer source '%s' does not match any layers", source.c_str());
+            continue;
+        }
+
+        // each layer with matching source
+        for (auto iLayer = range.first; iLayer != range.second; ++iLayer)
+        {
+            // each representation name
+            for (size_t repIdx = 0; repIdx < reps.size(); ++repIdx)
+            {
+                const auto &repName = reps[repIdx];
+                const auto &size = sizes[repIdx];
+                const auto &color = colors[repIdx];
+
+                auto &layer = *iLayer->second;
+                const auto &ident = layer.ident;
+
+                if (!layer.representation.empty())
+                {
+                    // This is already a representation layer
+                    continue;
+                }
+
+                const auto repIdent = repLayerName(ident, repName);
+                if (std::any_of(range.first, range.second,
+                                [&](const auto &kv){ return kv.second->ident == repIdent; }))
+                {
+                    // This layer already has a corresponding layer for this representation
+                    continue;
+                }
+
+                wkLogLevel(Verbose, "Adding representation layer %s for %s with src=%s and rep=%s",
+                           repIdent.c_str(), layer.ident.c_str(), layer.sourceLayer.c_str(), repName.c_str());
+
+                // Make a copy of the layer
+                if (auto layerCopy = layer.clone())
+                {
+                    layer.repUUIDField = uuidAttr;
+                    layerCopy->repUUIDField = uuidAttr;
+                    layerCopy->representation = repName;
+                    layerCopy->ident = repIdent;
+                    layerCopy->visible = false;
+                    // todo: virtual methods for override color/size/etc.
+                    // todo: override arbitrary properties?
+                    if (size > 0)
+                    {
+                        if (auto sym = dynamic_cast<MapboxVectorLayerSymbol*>(layerCopy.get()))
+                        {
+                            sym->layout.iconSize = std::make_shared<MapboxTransDouble>(size);
+                        }
+                    }
+                    if (!color.empty())
+                    {
+                        if (auto lin = dynamic_cast<MapboxVectorLayerLine*>(layerCopy.get()))
+                        {
+                            const auto multiplyAlpha = false; // ?
+                            const auto colorRef = parseColor(color, std::string(), RGBAColorRef(), multiplyAlpha);
+                            lin->paint.color = std::make_shared<MapboxTransColor>(colorRef);
+                        }
+                    }
+                    newLayers.push_back(std::move(layerCopy));
+                }
+            }
+        }
+    }
+
+    for (auto &layer : newLayers)
+    {
+        addLayer(inst, std::move(layer));
+    }
+    return true;
+}
+
+
 //#define LOW_LEVEL_UNIT_TESTS
 #if defined(LOW_LEVEL_UNIT_TESTS)
 static struct UnitTests {
@@ -1068,7 +1183,7 @@ static struct UnitTests {
 
         //todo: hsl/hsla
 
-        wkLog("MapboxStyleSet Color Tests Passed");
+        wkLogLevel(Info, "MapboxStyleSet Color Tests Passed");
     }
     RGBAColorRef c(RGBAColor cv) const { return std::make_shared<RGBAColor>(cv); }
     RGBAColorRef c(uint32_t cv) const { return c(RGBAColor::FromARGBInt(cv)); }
@@ -1077,13 +1192,13 @@ static struct UnitTests {
     }
     void check(const RGBAColorRef &cv, const RGBAColorRef &exp, const char *v = nullptr) {
         if ((bool)cv != (bool)exp) {
-            wkLog("RGBAColor text failed: expected %s got %s%s%s",
+            wkLogLevel(Error, "RGBAColor text failed: expected %s got %s%s%s",
                   exp ? "value" : "null", cv ? "value" : "null",
                   v ? " from input: " : "", v ? v : "");
             assert(!"RGBAColor parse test failed");
         }
         if (cv && exp && *cv != *exp) {
-            wkLog("RGBAColor parse failed: expected %.8x got %.8x%s%s",
+            wkLogLevel(Error, "RGBAColor parse failed: expected %.8x got %.8x%s%s",
                   exp->asARGBInt(), cv->asARGBInt(),
                   v ? " from input: " : "", v ? v : "");
             assert(!"RGBAColor parse test failed");

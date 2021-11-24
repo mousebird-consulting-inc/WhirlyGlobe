@@ -90,14 +90,20 @@ using namespace Eigen;
     }
 }
 
+static const GeometryRaw emptyGeom;
+
+static const int corners[4][2] = {{0,0},{1,0},{1,1},{0,1}};
+
 // Return the ID for or generate a base model in the Geometry Manager
-- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer fontTexManager:(const WhirlyKit::FontTextureManager_iOSRef &)fontTexManager compObj:(MaplyComponentObject *)compObj mode:(MaplyThreadMode)threadMode
+- (WhirlyKit::SimpleIdentity)getBaseModel:(MaplyBaseInteractionLayer *)inLayer
+                           fontTexManager:(const WhirlyKit::FontTextureManager_iOSRef &)fontTexManager
+                                  compObj:(MaplyComponentObject *)compObj
+                                     mode:(MaplyThreadMode)threadMode
 {
     @synchronized(self)
     {
         if (layer)
             return baseModelID;
-        
         if (!inLayer)
             return EmptyIdentity;
 
@@ -108,35 +114,40 @@ using namespace Eigen;
         
         if (shape)
         {
-            ShapeManagerRef shapeManager = std::dynamic_pointer_cast<ShapeManager>(inLayer->scene->getManager(kWKShapeManager));
+            if (auto shapeManager = inLayer->scene->getManager<ShapeManager>(kWKShapeManager))
+            {
+                WhirlyKit::Shape *wkShape = nil;
+                if ([shape isKindOfClass:[MaplyShapeCircle class]])
+                    wkShape = [(MaplyShapeCircle *)shape asWKShape:nil];
+                else if ([shape isKindOfClass:[MaplyShapeSphere class]])
+                    wkShape = [(MaplyShapeSphere *)shape asWKShape:nil];
+                else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
+                    wkShape = [(MaplyShapeCylinder *)shape asWKShape:nil];
+                else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
+                    wkShape = [(MaplyShapeExtruded *)shape asWKShape:nil];
 
-            WhirlyKit::Shape *wkShape = nil;
-            if ([shape isKindOfClass:[MaplyShapeCircle class]])
-                wkShape = [(MaplyShapeCircle *)shape asWKShape:nil];
-            else if ([shape isKindOfClass:[MaplyShapeSphere class]])
-                wkShape = [(MaplyShapeSphere *)shape asWKShape:nil];
-            else if ([shape isKindOfClass:[MaplyShapeCylinder class]])
-                wkShape = [(MaplyShapeCylinder *)shape asWKShape:nil];
-            else if ([shape isKindOfClass:[MaplyShapeExtruded class]])
-                wkShape = [(MaplyShapeExtruded *)shape asWKShape:nil];
-
-            if (wkShape)
-                shapeManager->convertShape(*wkShape,procGeom);
-        } else {
+                if (wkShape)
+                {
+                    shapeManager->convertShape(*wkShape,procGeom);
+                }
+            }
+        }
+        else
+        {
             // Add the textures
             std::vector<std::string> texFileNames;
             [self getTextureFileNames:texFileNames];
             std::vector<SimpleIdentity> texIDMap(texFileNames.size());
+            const MaplyQuadImageFormat format = MaplyImage4Layer8Bit;
             int whichTex = 0;
             for (const std::string &texFileName : texFileNames)
             {
-                MaplyTexture *tex = [inLayer addImage:[UIImage imageNamed:[NSString stringWithFormat:@"%s",texFileName.c_str()]] imageFormat:MaplyImage4Layer8Bit mode:threadMode];
-                if (tex)
+                if (NSString* name = [NSString stringWithFormat:@"%s", texFileName.c_str()])
+                if (UIImage* img = [UIImage imageNamed:name])
+                if (MaplyTexture *tex = [inLayer addImage:img imageFormat:format mode:threadMode])
                 {
                     maplyTextures.insert(tex);
                     texIDMap[whichTex] = tex.texID;
-                } else {
-                    texIDMap[whichTex] = EmptyIdentity;
                 }
                 whichTex++;
             }
@@ -151,66 +162,68 @@ using namespace Eigen;
         for (const GeomStringWrapper &strWrap : strings)
         {
             // Convert the string to polygons
-            DrawableString *drawStr = fontTexManager->addString(NULL,strWrap.str,changes);
+            auto drawStr = fontTexManager->addString(nullptr,strWrap.str,changes);
+            if (!drawStr)
+            {
+                continue;
+            }
+
             for (const DrawableString::Rect &rect : drawStr->glyphPolys)
             {
-                // Find the appropriate geometry bucket
-                auto it = stringGeom.find(rect.subTex.texId);
-                GeometryRaw *geom = NULL;
-                if (it == stringGeom.end())
+                // Find or insert the appropriate geometry bucket
+                const auto result = stringGeom.insert(std::make_pair(rect.subTex.texId, emptyGeom));
+                auto &geom = result.first->second;
+                if (result.second)
                 {
-                    stringGeom[rect.subTex.texId] = GeometryRaw();
-                    geom = &stringGeom[rect.subTex.texId];
-                    geom->texIDs.push_back((int)rect.subTex.texId);
-                } else
-                    geom = &stringGeom[rect.subTex.texId];
-
-                // Convert and transform the points
-                int basePt = (int)geom->pts.size();
-                geom->pts.reserve(geom->pts.size()+4);
-                Point2d pts[4];
-                pts[0] = Point2d(rect.pts[0].x(),rect.pts[0].y());
-                pts[1] = Point2d(rect.pts[1].x(),rect.pts[0].y());
-                pts[2] = Point2d(rect.pts[1].x(),rect.pts[1].y());
-                pts[3] = Point2d(rect.pts[0].x(),rect.pts[1].y());
-                for (unsigned int ip=0;ip<4;ip++)
-                {
-                    auto &pt = pts[ip];
-                    Vector4d outPt = strWrap.mat * Vector4d(pt.x(),pt.y(),0.0,1.0);
-                    geom->pts.push_back(Point3d(outPt.x(),outPt.y(),outPt.z()));
+                    // A new item was inserted
+                    geom.texIDs.push_back((int)rect.subTex.texId);
+                    const int count = 3;
+                    geom.pts.reserve(4*count);
+                    geom.norms.reserve(4*count);
+                    geom.texCoords.reserve(4*count);
+                    geom.triangles.reserve(2*count);
                 }
 
-                // The normal is the same for everything
-                Vector4d norm = strWrap.mat * Vector4d(0,0,1,0);
-                geom->norms.reserve(geom->norms.size()+4);
+                const int basePt = (int)geom.pts.size();
+                const Vector4d norm = strWrap.mat * Vector4d(0,0,1,0);
+
                 for (unsigned int ip=0;ip<4;ip++)
-                    geom->norms.push_back(Point3d(norm.x(),norm.y(),norm.z()));
-                
-                // And the texture coordinates
-                geom->texCoords.reserve(geom->texCoords.size()+4);
-                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(0,0)));
-                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(1,0)));
-                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(1,1)));
-                geom->texCoords.push_back(rect.subTex.processTexCoord(TexCoord(0,1)));
-                
+                {
+                    // Convert and transform the points
+                    const auto x = rect.pts[corners[ip][0]].x();
+                    const auto y = rect.pts[corners[ip][1]].y();
+                    const Vector4d outPt = strWrap.mat * Vector4d(x,y,0.0,1.0);
+                    geom.pts.emplace_back(outPt.x(),outPt.y(),outPt.z());
+
+                    // The normal is the same for everything
+                    geom.norms.emplace_back(norm.x(),norm.y(),norm.z());
+
+                    // And the texture coordinates
+                    geom.texCoords.push_back(rect.subTex.processTexCoord(TexCoord(corners[ip][0],corners[ip][1])));
+                }
+
                 // Wire up the two triangles
-                geom->triangles.reserve(geom->triangles.size()+2);
-                geom->triangles.push_back(GeometryRaw::RawTriangle(basePt+0,basePt+1,basePt+2));
-                geom->triangles.push_back(GeometryRaw::RawTriangle(basePt+0,basePt+2,basePt+3));
+                geom.triangles.emplace_back(basePt+0,basePt+1,basePt+2);
+                geom.triangles.emplace_back(basePt+0,basePt+2,basePt+3);
             }
-            
+
             compObj->contents->drawStringIDs.insert(drawStr->getId());
-            delete drawStr;
         }
         
         // Convert the string geometry
-        procGeom.reserve(procGeom.size()+stringGeom.size());
+        if (procGeom.empty())
+        {
+            procGeom.reserve(stringGeom.size());
+        }
         for (auto &it : stringGeom)
+        {
             procGeom.push_back(it.second);
-        
-        GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(inLayer->scene->getManager(kWKGeometryManager));
-        GeometryInfo geomInfo;
-        baseModelID = geomManager->addBaseGeometry(procGeom, geomInfo, changes);
+        }
+
+        if (auto geomManager = inLayer->scene->getManager<GeometryManager>(kWKGeometryManager))
+        {
+            baseModelID = geomManager->addBaseGeometry(procGeom, GeometryInfo(), changes);
+        }
 
         // Need to flush these changes immediately
         inLayer->scene->addChangeRequests(changes);
