@@ -996,14 +996,6 @@ fragment float4 fragmentTri_wideVecPerf(
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
             constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-    float alpha = 1.0;
-    if (vert.edge > 0) {
-        float across = vert.edge / vert.w2;
-        if (abs(vert.texCoord.x) > 1-across) {
-            alpha = (1 - abs(vert.texCoord.x)) / across;
-        }
-    }
-
     if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
         if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
             // Pull the maskID from the input texture
@@ -1014,8 +1006,10 @@ fragment float4 fragmentTri_wideVecPerf(
                 discard_fragment();
         }
     }
+    
+    float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
 
-    return vert.color * float4(1,1,1,alpha);
+    return vert.color * float4(1,1,1,edgeAlpha);
 }
 
 
