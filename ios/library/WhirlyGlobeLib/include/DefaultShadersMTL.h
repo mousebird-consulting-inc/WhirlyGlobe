@@ -406,6 +406,7 @@ struct ProjVertexTriWideVecPerf {
     float4 color;
     float2 texCoord;
     float w2;
+    float edge;
     uint2 maskIDs;
 };
 
