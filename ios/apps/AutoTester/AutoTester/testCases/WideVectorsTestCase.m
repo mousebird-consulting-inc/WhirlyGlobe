@@ -237,35 +237,45 @@
 
 - (void)overlap:(MaplyBaseViewController *)viewC {
 
-    NSDictionary *wideDesc = @{
-        kMaplyColor: [UIColor colorWithRed:0 green:0 blue:1.0 alpha:0.2],
-        kMaplyFilled: @NO,
-        kMaplyEnable: @YES,
-        kMaplyFade: @0,
-        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
-        kMaplyVecCentered: @YES,
-        kMaplyVecTexture: [NSNull null],
-        kMaplyWideVecEdgeFalloff:@(5),
-        kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
-        kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-        kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
-        kMaplyWideVecOffset: @(10.0),
-        kMaplyWideVecMiterLimit: @(10.0),  // More than 10 degrees need a bevel join
-        kMaplyVecWidth: @(20.0),
-        kMaplyWideVecImpl: kMaplyWideVecImplPerf,//kMaplyWideVecImpl,
-    };
+    for (int j = 0; j < 2; ++j)
+    {
+        const int sep = 10;    // separation between perf/default sets, 0 to overlay for comparison
+        for (int i = 0; i < 5; ++i) {
+            MaplyCoordinate coords[3] = {
+                MaplyCoordinateMakeWithDegrees(-95 + i*1 - j * sep, 42),
+                MaplyCoordinateMakeWithDegrees(-90 + i*2 - j * sep, 40),
+                MaplyCoordinateMakeWithDegrees(-80 - i*2 - j * sep, 30),
+            };
+            MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:&coords[0] numCoords:3 attributes:nil];
+            [vecObj subdivideToGlobe:0.0001];
+            
+            NSDictionary *wideDesc = @{
+                kMaplyColor: j ? [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.2] :
+                                 [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.2],
+                kMaplyFilled: @NO,
+                kMaplyEnable: @YES,
+                kMaplyFade: @0,
+                kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+                kMaplyVecCentered: @YES,
+                kMaplyVecTexture: [NSNull null],
+                kMaplyWideVecEdgeFalloff:@(i),
+                kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+                kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+                kMaplyWideVecOffset: @(2 * i),
+                kMaplyWideVecMiterLimit: @(10.0),  // More than 10 degrees need a bevel join
+                kMaplyVecWidth: @(20.0),
+                kMaplyWideVecImpl: j ? kMaplyWideVecImplPerf : @"default",
+            };
 
-    NSMutableArray* objs = [NSMutableArray new];
-    for (int i = 0; i < 5; ++i) {
-        MaplyCoordinate coords[2] = {
-            MaplyCoordinateMakeWithDegrees(-90 + i*2, 40),
-            MaplyCoordinateMakeWithDegrees(-80 - i*2, 30),
-        };
-        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:&coords[0] numCoords:2 attributes:nil];
-        [vecObj subdivideToGlobe:0.0001];
-        [objs addObject:vecObj];
+            [viewC addWideVectors:@[vecObj] desc:wideDesc mode:MaplyThreadCurrent];
+
+            // Add a centerline
+            NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:wideDesc];
+            desc[kMaplyColor] = [UIColor colorWithRed:1.0 green:0 blue:1.0 alpha:0.2];
+            [viewC addVectors:@[vecObj] desc:desc mode:MaplyThreadCurrent];
+        }
     }
-    [viewC addWideVectors:objs desc:wideDesc mode:MaplyThreadCurrent];
 }
 
 - (void)wideLineTest:(MaplyBaseViewController *)viewC
