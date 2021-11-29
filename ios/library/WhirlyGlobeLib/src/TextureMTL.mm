@@ -343,6 +343,7 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (!texData)
     {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        desc.allowGPUOptimizedContents = false;
 
         // todo: maybe we want private for depth/stencil everywhere?
         // "MTLTextureDescriptor: Depth, Stencil, DepthStencil textures cannot be

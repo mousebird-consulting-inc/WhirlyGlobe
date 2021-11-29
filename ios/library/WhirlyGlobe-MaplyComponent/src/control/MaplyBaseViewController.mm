@@ -1263,6 +1263,18 @@ static const float PerfOutputDelay = 15.0;
     return displayCoord;
 }
 
+- (MaplyCoordinate3dD)displayPointFromGeoDD:(MaplyCoordinateD)geoCoord
+{
+    MaplyCoordinate3dD displayCoord = {0,0,0};
+    if (!renderControl)
+        return displayCoord;
+    
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal(Point2d(geoCoord.x,geoCoord.y)));
+    
+    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
+    return displayCoord;
+}
+
 - (float)currentMapScale
 {
     if (!renderControl)
