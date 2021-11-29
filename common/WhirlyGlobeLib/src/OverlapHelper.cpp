@@ -20,6 +20,7 @@
 #import "WhirlyGeometry.h"
 #import "VectorData.h"
 #import "Expect.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -89,7 +90,7 @@ bool OverlapHelper::checkObject(const Point2dVector &pts, const Mbr &objMbr,
                                 int sx, int sy, int ex, int ey, const char* mergeID)
 {
     const auto sizeGuess = (int)std::ceil((ex - sx + 1) * (ey - sy + 1) / overlapHeuristic);
-    std::unordered_set<int> indexes(sizeGuess);
+    std::unordered_set<int> indexes(std::max(1, sizeGuess));
 
     // Gather all the matching indexes, ignoring duplicates
     for (int ix=sx;ix<=ex;ix++)
@@ -166,8 +167,17 @@ void ClusterHelper::calcCells(const Mbr &checkMbr,int &sx,int &sy,int &ex,int &e
     sy = std::max(0,         (int)floor((checkMbr.ll().y()-mbr.ll().y())/cellSize.y()));
     ex = std::min(sizeX - 1, (int)ceil( (checkMbr.ur().x()-mbr.ll().x())/cellSize.x()));
     ey = std::min(sizeY - 1, (int)ceil( (checkMbr.ur().y()-mbr.ll().y())/cellSize.y()));
+
+    if (ex < sx || ey < sy)
+    {
+        wkLogLevel(Warn, "Invalid cluster cell range (%d,%d)/(%d,%d) from (%.1f,%.1f,%.1f,%.1f)/(%.1f,%.1f,%.1f,%.1f) in %d/%d cells, size %.2f/%.2f",
+                   sx, sy, ex, ey,
+                   mbr.ll().x(), mbr.ll().y(), mbr.ur().x(), mbr.ur().y(),
+                   checkMbr.ll().x(), checkMbr.ll().y(), checkMbr.ur().x(), checkMbr.ur().y(),
+                   sizeX, sizeY, cellSize.x(), cellSize.y());
+    }
 }
-    
+
 void ClusterHelper::addToCells(const Mbr &objMbr, int index)
 {
     int sx,sy,ex,ey;
