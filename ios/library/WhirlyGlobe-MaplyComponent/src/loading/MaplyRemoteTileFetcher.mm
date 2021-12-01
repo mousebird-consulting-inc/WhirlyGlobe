@@ -426,12 +426,12 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (void)setLocalStorage:(NSObject<MaplyTileLocalStorage> * __nonnull)inLocalStorage
+- (void)setLocalStorage:(NSObject<MaplyTileLocalStorage> *)inLocalStorage
 {
     localStorage = inLocalStorage;
 }
 
-- (void)setSecondChance:(NSObject<MaplyTileSecondChance> * __nonnull)inSecondChance
+- (void)setSecondChance:(NSObject<MaplyTileSecondChance> *)inSecondChance
 {
     secondChance = inSecondChance;
 }
