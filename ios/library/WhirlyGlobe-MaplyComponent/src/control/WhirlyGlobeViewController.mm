@@ -1378,7 +1378,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     const auto screenCenter = CGPointMake(CGRectGetMidX(self.view.frame), CGRectGetMidY(self.view.frame));
     const auto frameCenter = CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
     const auto offset = CGPointMake(frameCenter.x - screenCenter.x, frameCenter.y - screenCenter.y);
-    if (offset.x * offset.y != 0)
+    if (offset.x != 0 || offset.y != 0)
     {
         const auto invCenter = CGPointMake(screenCenter.x - offset.x, screenCenter.y - offset.y);
         MaplyCoordinate invGeo = {0,0};
@@ -1484,7 +1484,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         {
             *newPos = pos;
         }
-        return oldHeight;
+        return 0.0;
     }
     else if (minOnScreen)
     {
