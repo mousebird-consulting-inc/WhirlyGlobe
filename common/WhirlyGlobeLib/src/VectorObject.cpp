@@ -726,7 +726,7 @@ double VectorObject::areaOfOuterLoops() const
         const auto areal = dynamic_cast<VectorAreal*>(shape.get());
         if (areal && !areal->loops.empty())
         {
-            area = CalcLoopArea(areal->loops[0]);
+            area += CalcLoopArea(areal->loops[0]);
         }
     }
     
