@@ -1454,7 +1454,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
     GlobeView tempGlobe(*globeView);
 
-    const float oldHeight = globeView->getHeightAboveGlobe();
+    //const float oldHeight = globeView->getHeightAboveGlobe();
     //const Eigen::Quaterniond newRotQuat = tempGlobe.makeRotationToGeoCoord(GeoCoord(pos.x,pos.y), true);
     //tempGlobe.setRotQuat(newRotQuat,false);
 
