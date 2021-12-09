@@ -417,6 +417,16 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 - (MaplyVectorObject * __nonnull)arealsToLinears;
 
 /**
+    Reverse the direction of areal loops in-place
+ */
+- (void)reverseAreals;
+
+/**
+    Return a copy with the areal loops reversed
+ */
+- (MaplyVectorObject * __nonnull)reversedAreals;
+
+/**
     Filter out edges created from clipping areal features on the server.
  
     In some very specific cases (OSM water) we get polygons that are obviously clipped
