@@ -24,32 +24,41 @@
 
 namespace WhirlyKit
 {
+using TDefInt = detail::TDefaultIntermediate;
 
-template <typename T>
-double CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
+template <typename T, typename TRet = double, typename TInt = TDefInt>
+TRet CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>> &loop, size_t loopSize)
 {
-    if (loop.empty())
+    if (loopSize < 3 || loopSize > loop.size())
     {
         return 0;
     }
     // If the loop returns to the initial point, stop there.
     // If it does not, force it to be closed by re-considering the first point.
-    const bool closed = !loop.empty() && loop.front() == loop.back();
-    const auto loopSize = loop.size();
+    const bool closed = (loop[0] == loop[loopSize - 1]);
     const auto maxIter = closed ? loopSize - 1 : loopSize;
 
-    double area = 0.0;
+    TInt area = 0.0;
     for (unsigned int ii=0;ii<maxIter;ii++)
     {
         const auto &p1 = loop[ii];
         const auto &p2 = loop[(ii+1)%loopSize];
-        area += p1.x()*p2.y() - p1.y()*p2.x();
+
+        // Inputs may be floats or doubles.  Watch out for truncation on itermediate values.
+        area += (TInt)p1.x() * (TInt)p2.y();
+        area -= (TInt)p1.y() * (TInt)p2.x();
     }
-    return area;
+    return (TRet)area;
+}
+
+template <typename T, typename TRet, typename TInt>
+TRet CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
+{
+    return CalcLoopArea<T,TRet,TInt>(loop,loop.size());
 }
 
 // Calculate the centroid of a loop when the area is already known
-template <typename T>
+template <typename T, typename TInt>
 T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>> &loop, double loopArea)
 {
     if (loop.empty())
@@ -69,14 +78,14 @@ T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>> &loop, doubl
     const auto loopSize = loop.size();
     const auto maxIter = closed ? loopSize - 1 : loopSize;
 
-    double sumX = 0, sumY = 0;
+    TInt sumX = 0, sumY = 0;
     for (unsigned int ii=0;ii<maxIter;ii++)
     {
         const auto &p0 = loop[ii];
         const auto &p1 = loop[(ii+1)%loopSize];
-        const double b = (p0.x()*p1.y()-p1.x()*p0.y());
-        sumX += (p0.x()+p1.x())*b;
-        sumY += (p0.y()+p1.y())*b;
+        const auto b = ((TInt)p0.x())*((TInt)p1.y()) - ((TInt)p1.x())*((TInt)p0.y());
+        sumX += ((TInt)p0.x() + (TInt)p1.x()) * b;
+        sumY += ((TInt)p0.y() + (TInt)p1.y()) * b;
     }
 
     return {static_cast<typename T::Scalar>(sumX/(3*loopArea)),
@@ -84,20 +93,20 @@ T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>> &loop, doubl
 }
 
 // Calculate the centroid of an arbitrary loop
-template <typename T>
+template <typename T, typename TInt>
 T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
 {
-    return CalcLoopCentroid(loop, CalcLoopArea(loop));
+    return CalcLoopCentroid<T,TInt>(loop, CalcLoopArea<T,double,TInt>(loop));
 }
 
-template <typename T>
+template <typename T, typename TInt>
 T CalcCenterOfMass(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
 {
     if (loop.empty()) {
         return {0,0};
     }
 
-    double cx = 0, cy = 0;
+    TInt cx = 0, cy = 0;
     for (const auto &pt : loop) {
         cx += pt.x();
         cy += pt.y();
@@ -108,49 +117,51 @@ T CalcCenterOfMass(const std::vector<T,Eigen::aligned_allocator<T>> &loop)
 }
 
 // Export specific instantiations of the templates above.
-template double CalcLoopArea<Point2f>(const VectorRing&);
-template double CalcLoopArea<Point2d>(const Point2dVector&);
-template Point2f CalcLoopCentroid(const VectorRing&);
-template Point2d CalcLoopCentroid(const Point2dVector&);
-template Point2f CalcLoopCentroid(const VectorRing&, double);
-template Point2d CalcLoopCentroid(const Point2dVector&, double);
-template Point2f CalcCenterOfMass(const VectorRing&);
-template Point2d CalcCenterOfMass(const Point2dVector&);
+template double CalcLoopArea<Point2f,double,TDefInt>(const VectorRing&);
+template double CalcLoopArea<Point2d,double,TDefInt>(const Point2dVector&);
+template Point2f CalcLoopCentroid<typename VectorRing::value_type,TDefInt>(const VectorRing&);
+template Point2f CalcLoopCentroid<typename VectorRing::value_type,TDefInt>(const VectorRing&, double);
+template Point2d CalcLoopCentroid<typename Point2dVector::value_type,TDefInt>(const Point2dVector&);
+template Point2d CalcLoopCentroid<typename Point2dVector::value_type,TDefInt>(const Point2dVector&, double);
+template Point2f CalcCenterOfMass<typename VectorRing::value_type,TDefInt>(const VectorRing&);
+template Point2d CalcCenterOfMass<typename Point2dVector::value_type,TDefInt>(const Point2dVector&);
 
 // Break any edge longer than the given length
 void SubdivideEdges(const VectorRing &inPts,VectorRing &outPts,bool closed,float maxLen)
 {
-    const float maxLen2 = maxLen*maxLen;
+    const double maxLen2 = (double)maxLen * maxLen;
 
     if (outPts.empty())
     {
         outPts.reserve(2 * inPts.size());
     }
-    
+
     for (int ii=0;ii<(closed ? inPts.size() : inPts.size()-1);ii++)
     {
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
         outPts.push_back(p0);
-        Point2f dir = p1-p0;
-        const float dist2 = dir.squaredNorm();
+        Point2d dir = p1.cast<double>() - p0.cast<double>();
+        const double dist2 = dir.squaredNorm();
         if (dist2 > maxLen2)
         {
-            const float dist = sqrtf(dist2);
+            const double dist = std::sqrt(dist2);
             dir /= dist;
-            for (float pos=maxLen;pos<dist;pos+=maxLen)
+            for (double pos=maxLen;pos<dist;pos+=maxLen)
             {
-                outPts.emplace_back(p0+dir*pos);
+                outPts.emplace_back((p0.cast<double>()+dir*pos).cast<float>());
             }
         }
     }
     if (!closed)
+    {
         outPts.push_back(inPts.back());
+    }
 }
 
 void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,float maxLen)
 {
-    const float maxLen2 = maxLen*maxLen;
+    const double maxLen2 = (double)maxLen * maxLen;
 
     if (outPts.empty())
     {
@@ -163,12 +174,12 @@ void SubdivideEdges(const VectorRing3d &inPts,VectorRing3d &outPts,bool closed,f
         const Point3d &p1 = inPts[(ii+1)%inPts.size()];
         outPts.push_back(p0);
         Point3d dir = p1-p0;
-        const float dist2 = dir.squaredNorm();
+        const double dist2 = dir.squaredNorm();
         if (dist2 > maxLen2)
         {
-            const float dist = sqrtf(dist2);
+            const double dist = std::sqrt(dist2);
             dir /= dist;
-            for (float pos=maxLen;pos<dist;pos+=maxLen)
+            for (double pos=maxLen;pos<dist;pos+=maxLen)
             {
                 outPts.push_back(p0+dir*pos);
             }
@@ -1186,5 +1197,42 @@ bool VectorParseGeoJSONAssembly(const std::string &str,std::map<std::string,Shap
     return true;
 }
 
+//#define LOW_LEVEL_UNIT_TESTS
+#if defined(LOW_LEVEL_UNIT_TESTS)
+static struct UnitTests {
+    UnitTests() {
+        testArea<Point2fVector>("float", 1e-5);
+        testArea<Point2dVector>("double", 1e-8);
+        // todo: centroid, center-mass, subdivide, ...
+        wkLogLevel(Info, "VectorData unit tests passed");
+    }
+    template <typename TVec>
+    void testArea(const char* name, double threshold) {
+        wkLogLevel(Verbose,"Starting area tests for %s", name);
+
+        const TVec pts {
+            {-93.42748312189,48.62219265172},
+            {-93.42762783548,48.61944238743},
+            {-93.4210071888, 48.6193706394},
+            {-93.42748312189,48.62219265172}    // closed
+        };
+        const TVec rpts(pts.rbegin(), pts.rend());
+
+        const auto aClosed = CalcLoopArea(pts);
+        const auto aOpen = CalcLoopArea(pts, pts.size() - 1);
+        const auto aRevClosed = CalcLoopArea(rpts);
+        const auto aRevOpen = CalcLoopArea(rpts, rpts.size() - 1);
+
+        // Should do exactly the same operations for open and closed polygons
+        assert(aClosed == aOpen);
+        assert(aRevClosed == aRevOpen);
+
+        // Reversed polygons might get slightly different answers
+        const auto diff = (aClosed - (-aRevClosed)) / aClosed;
+        assert(diff <= threshold);
+    }
+} tests;
+#endif
+
 }
-#include <utility>
+
