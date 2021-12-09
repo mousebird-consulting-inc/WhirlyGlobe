@@ -104,11 +104,11 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (id)initWithRef:(const WhirlyKit::VectorObjectRef&)vecObj
+- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj
 {
     self = [super init];
     
-    vObj = vecObj;
+    vObj = std::move(vecObj);
     
     return self;
 }
@@ -763,6 +763,16 @@ using namespace WhirlyGlobe;
     return newVec;
 }
 
+- (void)reverseAreals
+{
+    vObj->reverseAreals();
+}
+
+- (MaplyVectorObject * __nonnull)reversedAreals
+{
+    return [[MaplyVectorObject alloc] initWithRef:vObj->reversedAreals()];
+}
+
 - (MaplyVectorObject *__nonnull)filterClippedEdges
 {
     MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
@@ -799,8 +809,9 @@ using namespace WhirlyGlobe;
     return newVec;
 }
 
-- (void)addShape:(const WhirlyKit::VectorShapeRef&)shape {
-  vObj->shapes.insert(shape);
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape
+{
+    vObj->shapes.insert(std::move(shape));
 }
 
 

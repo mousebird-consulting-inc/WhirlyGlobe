@@ -176,12 +176,18 @@ public:
      */
     VectorObjectRef filterClippedEdges() const;
 
-    // Convert any linear features into areals and return a new vector object
+    /// @brief Convert any linear features into areals and return a new vector object
     VectorObjectRef linearsToAreals() const;
     
-    // Convert any areal features into linears and return a new vector object
+    /// @brief Convert any areal features into linears and return a new vector object
     VectorObjectRef arealsToLinears() const;
-    
+
+    /// @brief Reverse the direction of areal loops
+    void reverseAreals();
+
+    /// @brief Create a copy with reversed loops
+    VectorObjectRef reversedAreals();
+
     /// @brief Add objects form the given GeoJSON string.
     /// @param json The GeoJSON data as a std::string
     /// @return True on success, false on failure.

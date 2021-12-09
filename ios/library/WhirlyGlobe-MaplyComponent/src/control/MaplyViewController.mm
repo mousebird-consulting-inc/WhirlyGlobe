@@ -1370,7 +1370,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     Maply::MapView tempMapView(*mapView);
 
     // Center the temporary view on the new center point at the current height
-    const Point3d oldLoc = tempMapView.getLoc();
+    //const Point3d oldLoc = tempMapView.getLoc();
 
     const Mbr mbr { { bbox.ll.x, bbox.ll.y }, { bbox.ur.x, bbox.ur.y } };
     const Point2d margin(marginX,marginY);
