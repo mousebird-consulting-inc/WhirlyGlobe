@@ -34,23 +34,21 @@ static const std::string vecBuilderName("Vector Layer"); // NOLINT(cert-err58-cp
 static const std::string vecManagerName("VectorManager"); // NOLINT(cert-err58-cpp)
 static const std::string colorStr("color"); // NOLINT(cert-err58-cpp)   constructor can throw
 
-VectorInfo::VectorInfo() :
-    filled(false), sample(false), texId(EmptyIdentity), texScale(1.0,1.0),
-    subdivEps(0.0), gridSubdiv(false), texProj(TextureProjectionNone),
-    color(RGBAColor(255,255,255,255)), lineWidth(1.0),
-    centered(true), vecCenterSet(false), vecCenter(0.0,0.0)
-{
-}
-
 VectorInfo::VectorInfo(const Dictionary &dict)
-: BaseInfo(dict)
+    : BaseInfo(dict)
 {
-    filled = dict.getBool(MaplyFilled,false);
-    sample = dict.getBool("sample",false);
-    texId = dict.getInt(MaplyVecTexture,EmptyIdentity);
-    texScale.x() = dict.getDouble(MaplyVecTexScaleX,1.0);
-    texScale.y() = dict.getDouble(MaplyVecTexScaleY,1.0);
-    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,0.0);
+    filled = dict.getBool(MaplyFilled,filled);
+    texId = dict.getInt(MaplyVecTexture,texId);
+    texScale = { dict.getDouble(MaplyVecTexScaleX,texScale.x()),
+                 dict.getDouble(MaplyVecTexScaleY,texScale.y()) };
+    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,subdivEps);
+    color = dict.getColor(MaplyColor,color);
+    lineWidth = (float)dict.getDouble(MaplyVecWidth,lineWidth);
+    centered = dict.getBool(MaplyVecCentered,centered);
+    closeAreals = dict.getBool(MaplyVecCloseAreals, closeAreals);
+
+    const auto sampleVal = (float)dict.getDouble("sample", 0.0);
+    sample = (sampleVal > 0) ? sampleVal : (dict.getBool("sample",sample) ? 0.1f : 0.0f);
 
     const std::string subdivType = dict.getString(MaplySubdivType);
     gridSubdiv = subdivType == MaplySubdivGrid;
@@ -64,24 +62,15 @@ VectorInfo::VectorInfo(const Dictionary &dict)
     {
         texProj = TextureProjectionScreen;
     }
-    else
-    {
-        texProj = TextureProjectionNone;
-    }
 
-    color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));
-    lineWidth = (float)dict.getDouble(MaplyVecWidth,1.0);
-    centered = dict.getBool(MaplyVecCentered,true);
-    vecCenterSet = false;
     if (dict.hasField(MaplyVecCenterX) && dict.hasField(MaplyVecCenterY))
     {
         vecCenterSet = true;
-        vecCenter.x() = dict.getDouble(MaplyVecCenterX);
-        vecCenter.y() = dict.getDouble(MaplyVecCenterY);
+        vecCenter = { dict.getDouble(MaplyVecCenterX), dict.getDouble(MaplyVecCenterY) };
     }
 }
 
-std::string VectorInfo::toString()
+std::string VectorInfo::toString() const
 {
     using std::to_string;
     std::string outStr = BaseInfo::toString();
@@ -102,7 +91,7 @@ std::string VectorInfo::toString()
     
     return outStr;
 }
-    
+
 void VectorSceneRep::clear(ChangeSet &changes)
 {
     for (auto it : drawIDs)
@@ -671,8 +660,9 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
         drawBuildTri.setCenter(center,geoCenter);
     }
 
-    VectorRing tempRing;
+    VectorRing tempRing, tempRing2;
     VectorRing3d tempRing3d;
+    constexpr auto localCoords = false;
 
     for (auto const &it : *shapes)
     {
@@ -681,27 +671,41 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
             if (vecInfo.filled)
             {
                 // Triangulate outside and loops
-                drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDictRef(), false);
+                drawBuildTri.addPoints(theAreal->loops,theAreal->getAttrDictRef(), localCoords);
+                continue;
             }
-            else
+
+            // Work through the loops
+            for (const auto& ring : theAreal->loops)
+            {
+                if (ring.size() < 3)
                 {
-                // Work through the loops
-                for (unsigned int ri=0;ri<theAreal->loops.size();ri++)
-                {
-                    const VectorRing &ring = theAreal->loops[ri];
-                    
-                    // Break the edges around the globe (presumably)
-                    if (vecInfo.sample > 0.0)
-                    {
-                        VectorRing newPts;
-                        SubdivideEdges(ring, newPts, false, vecInfo.sample);
-                        drawBuild.addPoints(newPts,true,theAreal->getAttrDictRef(),false);
-                    }
-                    else
-                    {
-                        drawBuild.addPoints(ring,true,theAreal->getAttrDictRef(),false);
-                    }
+                    // no can do... should we draw it as a line instead?
+                    continue;
                 }
+
+                const auto *theRing = &ring;
+                if (vecInfo.closeAreals && ring.front() != ring.back())
+                {
+                    // Make a copy, duplicating the first point at the end
+                    tempRing.clear();
+                    tempRing.reserve(ring.size() + 1);
+                    tempRing.assign(ring.begin(), ring.end());
+                    tempRing.push_back(ring.front());
+                    theRing = &tempRing;
+                }
+
+                const auto isClosed = (theRing->front() == theRing->back());
+
+                // Break the edges around the globe (presumably)
+                if (vecInfo.sample > 0.0)
+                {
+                    tempRing2.clear();
+                    SubdivideEdges(*theRing, tempRing2, isClosed, vecInfo.sample);
+                    theRing = &tempRing2;
+                }
+
+                drawBuild.addPoints(*theRing, isClosed, theAreal->getAttrDictRef(), localCoords);
             }
         }
         else if (const auto theLinear = dynamic_cast<VectorLinear*>(it.get()))
@@ -709,7 +713,7 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
             if (vecInfo.filled)
             {
                 // Triangulate the outside
-                drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDictRef(), false);
+                drawBuildTri.addPoints(theLinear->pts,theLinear->getAttrDictRef(), localCoords);
             }
             else
             {
@@ -717,11 +721,11 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
                 {
                     tempRing.clear();
                     SubdivideEdges(theLinear->pts, tempRing, false, vecInfo.sample);
-                    drawBuild.addPoints(tempRing,false,theLinear->getAttrDictRef(),false);
+                    drawBuild.addPoints(tempRing,false,theLinear->getAttrDictRef(),localCoords);
                 }
                 else
                 {
-                    drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDictRef(),false);
+                    drawBuild.addPoints(theLinear->pts,false,theLinear->getAttrDictRef(),localCoords);
                 }
             }
         }
@@ -730,7 +734,7 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
             if (vecInfo.filled)
             {
                 // Triangulate the outside
-                drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDictRef(), false);
+                drawBuildTri.addPoints(theLinear3d->pts,theLinear3d->getAttrDictRef(), localCoords);
             }
             else
             {
@@ -738,11 +742,11 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
                 {
                     tempRing3d.clear();
                     SubdivideEdges(theLinear3d->pts, tempRing3d, false, vecInfo.sample);
-                    drawBuild.addPoints(tempRing3d,false,theLinear3d->getAttrDictRef(),false);
+                    drawBuild.addPoints(tempRing3d,false,theLinear3d->getAttrDictRef(),localCoords);
                 }
                 else
                 {
-                    drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDictRef(),false);
+                    drawBuild.addPoints(theLinear3d->pts,false,theLinear3d->getAttrDictRef(),localCoords);
                 }
             }
         }

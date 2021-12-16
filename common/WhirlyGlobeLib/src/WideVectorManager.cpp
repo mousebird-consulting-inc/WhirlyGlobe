@@ -29,42 +29,59 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-WideVectorInfo::WideVectorInfo() :
-    implType(WideVecImplBasic), color(RGBAColor::white()), width(2.0),
-    repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
-    coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
-    texID(EmptyIdentity), miterLimit(2.0), offset(0.0f)
-{
-}
 
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
-    implType = WideVecImplBasic;
-    std::string implTypeStr = dict.getString(MaplyWideVecImpl);
-    if (!implTypeStr.compare(MaplyWideVecImplPerf))
-        implType = WideVecImplPerf;
-    color = dict.getColor(MaplyColor,RGBAColor::white());
-    width = dict.getDouble(MaplyVecWidth,2.0);
-    offset = (float)-dict.getDouble(MaplyWideVecOffset,0.0);
-    std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
-    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,0.0);
-    coordType = WideVecCoordScreen;
+    color = dict.getColor(MaplyColor,color);
+    width = dict.getDouble(MaplyVecWidth,width);
+    offset = (float)-dict.getDouble(MaplyWideVecOffset,-offset);
+    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,subdivEps);
+    texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
+    repeatSize = (float)dict.getDouble(MaplyWideVecTexRepeatLen,repeatSize);
+    edgeSize = (float)dict.getDouble(MaplyWideVecEdgeFalloff,edgeSize);
+    miterLimit = (float)dict.getDouble(MaplyWideVecMiterLimit,miterLimit);
+
+    const std::string implTypeStr = dict.getString(MaplyWideVecImpl);
+    implType = implTypeStr.compare(MaplyWideVecImplPerf) ? WideVecImplBasic : WideVecImplPerf;
+
+    closeAreals = dict.getBool(MaplyVecCloseAreals, closeAreals);
+
+    const std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
     if (!coordTypeStr.compare(MaplyWideVecCoordTypeReal))
         coordType = WideVecCoordReal;
     else if (!coordTypeStr.compare(MaplyWideVecCoordTypeScreen))
         coordType = WideVecCoordScreen;
-    joinType = WideVecMiterJoin;
-    std::string jointTypeStr = dict.getString(MaplyWideVecJoinType);
-    capType = WideVecButtCap;
+
     // Note: Not supporting this right now
-    //    _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
-    //    std::String capTypeStr = dict.getString(MaplyWideVecCapType);
-    //    _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
-    texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
-    repeatSize = (float)dict.getDouble(MaplyWideVecTexRepeatLen,32);
-    edgeSize = (float)dict.getDouble(MaplyWideVecEdgeFalloff,1.0);
-    miterLimit = (float)dict.getDouble(MaplyWideVecMiterLimit,2.0);
+    //const std::string jointTypeStr = dict.getString(MaplyWideVecJoinType);
+    //_joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
+    //const std::string capTypeStr = dict.getString(MaplyWideVecCapType);
+    //_capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
+}
+
+std::string WideVectorInfo::toString() const
+{
+    std::ostringstream ss;
+    ss << "\n"
+       << "color="      << color.asARGBInt() << "\n"
+       << "width="      << width << "\n"
+       << "offset="     << offset << "\n"
+       << "repeat="     << repeatSize << "\n"
+       << "edge="       << edgeSize << "\n"
+       << "subdivEps"   << subdivEps << "\n"
+       << "miterLimit"  << miterLimit << "\n"
+       << "closeAreals" << closeAreals << "\n"
+       << "implType="   << implType << "\n"
+       << "coordType="  << coordType << "\n"
+       << "joinType="   << joinType << "\n"
+       << "capType="    << capType << "\n"
+       << "texID="      << texID << "\n"
+       << "widthExp="   << (widthExp ? /*widthExp->toString()*/"(set)" : "(none)") << "\n"  // todo
+       << "offsetExp="  << (offsetExp ? /*offsetExp->toString()*/"(set)" : "(none)") << "\n"  // todo
+       << "opacityExp=" << (opacityExp ? /*opacityExp->toString()*/"(set)" : "(none)") << "\n"  // todo
+       << "colorExp="   << (colorExp ? /*colorExp->toString()*/"(set)" : "(none)") << "\n"; // todo
+    return BaseInfo::toString() + ss.str();
 }
 
 // Turn this on for smaller texture lengths
@@ -1057,7 +1074,7 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
             }
         }
         
-        if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
+        if (const auto lin = dynamic_cast<const VectorLinear*>(shape.get()))
         {
             builder.addLinear(lin->pts, centerUp, maskIDs, false);
         }
@@ -1065,17 +1082,26 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         {
             for (const auto &loop : ar->loops)
             {
-                if (loop.size() > 2 && (loop.begin() != loop.end() && vecInfo.implType != WideVecImplPerf))
+                if (loop.size() < 2)
+                {
+                    continue;
+                }
+
+                // todo: sample/subdivide edges
+
+                const auto *theLoop = &loop;
+                if (vecInfo.closeAreals && loop.size() > 2 && (loop.front() != loop.back()))
                 {
                     // Just tack on another point at the end.  Kind of dumb, but easy.
-                    tempLoop = loop;
-                    tempLoop.push_back(loop[0]);
-                    builder.addLinear(tempLoop, centerUp, maskIDs, true);
+                    tempLoop.clear();
+                    tempLoop.reserve(loop.size() + 1);
+                    tempLoop.assign(loop.begin(), loop.end());
+                    tempLoop.push_back(loop.front());
+                    theLoop = &tempLoop;
                 }
-                else
-                {
-                    builder.addLinear(loop, centerUp, maskIDs, true);
-                }
+
+                const bool isClosed = (theLoop->front() == theLoop->back());
+                builder.addLinear(*theLoop, centerUp, maskIDs, isClosed);
             }
         }
     }
