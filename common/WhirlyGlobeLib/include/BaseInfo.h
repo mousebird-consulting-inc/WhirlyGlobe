@@ -90,9 +90,8 @@ typedef std::shared_ptr<ColorExpressionInfo> ColorExpressionInfoRef;
 
 /** Object use as the base for parsing description dictionaries.
  */
-class BaseInfo
+struct BaseInfo
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     BaseInfo();
@@ -100,7 +99,7 @@ public:
     BaseInfo(const Dictionary &dict);
     
     // Convert contents to a string for debugging
-    virtual std::string toString();
+    virtual std::string toString() const;
     
     /// Set the various parameters on a basic drawable
     void setupBasicDrawable(BasicDrawableBuilder *drawBuild) const;

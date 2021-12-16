@@ -1,9 +1,8 @@
-/*
- *  ShapeDrawableBuilder.h
+/*  ShapeDrawableBuilder.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/11.
- *  Copyright 2011-2019 mousebird consulting.
+ *  Copyright 2011-2021 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Identifiable.h"
@@ -30,21 +28,20 @@ namespace WhirlyKit
 
 /// Used to pass shape info between the shape layer and the drawable builder
 ///  and within the threads of the shape layer
-class ShapeInfo : public BaseInfo
+struct ShapeInfo : public BaseInfo
 {
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
     ShapeInfo();
     ShapeInfo(const Dictionary &);
     virtual ~ShapeInfo() = default;
 
-public:
-    RGBAColor color;
-    float lineWidth;
-    bool insideOut;
-    bool hasCenter;
-    WhirlyKit::Point3d center;
+    // Convert contents to a string for debugging
+    virtual std::string toString() const { return BaseInfo::toString() + " +ShapeInfo..."; }
+
+    RGBAColor color = RGBAColor::white();
+    float lineWidth = 1.0f;
+    bool insideOut = false;
+    bool hasCenter = false;
+    WhirlyKit::Point3d center = { 0, 0, 0 };
 };
 typedef std::shared_ptr<ShapeInfo> ShapeInfoRef;
 

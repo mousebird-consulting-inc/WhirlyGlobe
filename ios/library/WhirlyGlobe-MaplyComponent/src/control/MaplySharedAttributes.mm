@@ -1,5 +1,4 @@
-/*
- *  MaplySharedAttributes.h
+/*  MaplySharedAttributes.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Ranen Ghosh on 2/24/16.
@@ -15,13 +14,16 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 // We pull in as many of the shared attributes as possible
+// Declare strings as ObjC for this compilation unit.
 #define WKString(str) @str
+
 #import "SharedAttributes.h"
 #import "MaplySharedAttributes.h"
+
+#define WKDefineConst(N) NSString* const kMaply##N = Maply##N;
 
 /// Use this hint to turn the zbuffer on or off.  Pass in an NSNumber boolean.  Takes effect on the next frame.
 NSString* const kMaplyRenderHintZBuffer = MaplyRenderHintZBuffer;
@@ -224,11 +226,16 @@ NSString* const kMaplyWideVecMiterLimit = MaplyWideVecMiterLimit;
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 NSString* const kMaplyWideVecTexRepeatLen = MaplyWideVecTexRepeatLen;
 
-NSString* const kMaplyWideVecImpl = MaplyWideVecImpl;
-NSString* const kMaplyWideVecImplPerf = MaplyWideVecImplPerf;
+/// Controls the wide vector implementation.  Basic implementation by default.
+WKDefineConst(WideVecImpl)
+WKDefineConst(WideVecImplDefault)
+WKDefineConst(WideVecImplPerf)
 
 /// Offset to left (negative) or right (positive) of the centerline
-NSString* const kMaplyWideVecOffset = MaplyWideVecOffset;
+WKDefineConst(WideVecOffset)
+
+/// Close any un-closed areal features when drawing lines for them
+WKDefineConst(VecCloseAreals)
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 NSString* const kMaplySubdivEpsilon = MaplySubdivEpsilon;

@@ -248,31 +248,28 @@ std::string to_string(T value)
     return os.str();
 }
 
-std::string BaseInfo::toString()
+std::string BaseInfo::toString() const
 {
-    std::string outStr =
-    (std::string)"minVis = " + to_string(minVis) + ";" +
-    " maxVis = " + to_string(maxVis) + ";" +
-    " minVisBand = " + to_string(minVisBand) + ";" +
-    " maxVisBand = " + to_string(maxVisBand) + ";" +
-    " minViewerDist = " + to_string(minViewerDist) + ";" +
-    " maxViewerDist = " + to_string(maxViewerDist) + ";" +
-    " zoomSlot = " + to_string(zoomSlot) + ";" +
-    " minZoomVis = " + to_string(minZoomVis) + ";" +
-    " maxZoomVis = " + to_string(maxZoomVis) + ";" +
-    " viewerCenter = (" + to_string(viewerCenter.x()) + "," + to_string(viewerCenter.y()) + "," + to_string(viewerCenter.z()) + ");" +
-    " drawOffset = " + to_string(drawOffset) + ";" +
-    " drawPriority = " + to_string(drawPriority) + ";" +
-    " enable = " + (enable ? "yes" : "no") + ";" +
-    " fade = " + to_string(fade) + ";" +
-    " fadeIn = " + to_string(fadeIn) + ";" +
-    " fadeOut = " + to_string(fadeOut) + ";" +
-    " fadeOutTime = " + to_string(fadeOutTime) + ";" +
-    " startEnable = " + to_string(startEnable) + ";" +
-    " endEnable = " + to_string(endEnable) + ";" +
-    " programID = " + to_string(programID) + ";";
-    
-    return outStr;
+    return "minVis = " + to_string(minVis) + ";" +
+           " maxVis = " + to_string(maxVis) + ";" +
+           " minVisBand = " + to_string(minVisBand) + ";" +
+           " maxVisBand = " + to_string(maxVisBand) + ";" +
+           " minViewerDist = " + to_string(minViewerDist) + ";" +
+           " maxViewerDist = " + to_string(maxViewerDist) + ";" +
+           " zoomSlot = " + to_string(zoomSlot) + ";" +
+           " minZoomVis = " + to_string(minZoomVis) + ";" +
+           " maxZoomVis = " + to_string(maxZoomVis) + ";" +
+           " viewerCenter = (" + to_string(viewerCenter.x()) + "," + to_string(viewerCenter.y()) + "," + to_string(viewerCenter.z()) + ");" +
+           " drawOffset = " + to_string(drawOffset) + ";" +
+           " drawPriority = " + to_string(drawPriority) + ";" +
+           " enable = " + (enable ? "yes" : "no") + ";" +
+           " fade = " + to_string(fade) + ";" +
+           " fadeIn = " + to_string(fadeIn) + ";" +
+           " fadeOut = " + to_string(fadeOut) + ";" +
+           " fadeOutTime = " + to_string(fadeOutTime) + ";" +
+           " startEnable = " + to_string(startEnable) + ";" +
+           " endEnable = " + to_string(endEnable) + ";" +
+           " programID = " + to_string(programID) + ";";
 }
     
 void BaseInfo::setupBasicDrawable(const BasicDrawableBuilderRef &drawBuild) const

@@ -63,27 +63,26 @@ typedef enum {TextureProjectionNone,TextureProjectionTanPlane,TextureProjectionS
 class VectorInfo : public BaseInfo
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
-    VectorInfo();
+    VectorInfo() = default;
     VectorInfo(const Dictionary &dict);
     virtual ~VectorInfo() = default;
 
     // Convert contents to a string for debugging
-    virtual std::string toString();
-    
-    bool                        filled;
-    float                       sample;
-    SimpleIdentity              texId;
-    Point2f                     texScale;
-    float                       subdivEps;
-    bool                        gridSubdiv;
-    TextureProjections          texProj;
-    RGBAColor                   color;
-    float                       lineWidth;
-    bool                        centered;
-    bool                        vecCenterSet;
-    Point2f                     vecCenter;
+    virtual std::string toString() const override;
+
+    bool                        filled = false;
+    float                       sample = 0.0f;
+    SimpleIdentity              texId = EmptyIdentity;
+    Point2f                     texScale = { 1.0f, 1.0f };
+    float                       subdivEps = 0.0f;
+    bool                        gridSubdiv = false;
+    TextureProjections          texProj = TextureProjectionNone;
+    RGBAColor                   color = RGBAColor::white();
+    float                       lineWidth = 1.0f;
+    bool                        centered = true;
+    bool                        vecCenterSet = false;
+    bool                        closeAreals = true;
+    Point2f                     vecCenter = { 0.0f, 0.0f };
     FloatExpressionInfoRef      opacityExp;
     ColorExpressionInfoRef      colorExp;
 };
