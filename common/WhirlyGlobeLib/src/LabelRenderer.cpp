@@ -226,6 +226,8 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
             if (label->isSelectable && label->selectID != EmptyIdentity)
                 screenShape->setId(label->selectID);
             screenShape->setWorldLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(label->loc)));
+            if (label->hasMotion)
+                screenShape->setMovingLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(label->endLoc)), label->startTime, label->endTime);
             
             // If there's an icon, we need to offset
             const Point2d iconSize = ((label->iconTexture == EmptyIdentity) ? Point2d(0,0) :
