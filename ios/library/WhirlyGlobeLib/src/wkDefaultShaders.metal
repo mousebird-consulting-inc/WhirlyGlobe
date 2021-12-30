@@ -969,7 +969,9 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
 
     outVert.w2 = vertArgs.wideVec.w2;
-    
+    outVert.edge = vertArgs.wideVec.edge;
+    outVert.texCoord = float2(interDir,0);
+
     if (isValid && dotProd > 0.0) {
         if (iPtsValid) {
             outVert.position = float4(iPts, 0.0, 1.0);
@@ -1004,8 +1006,10 @@ fragment float4 fragmentTri_wideVecPerf(
                 discard_fragment();
         }
     }
+    
+    float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
 
-    return vert.color;
+    return vert.color * float4(1,1,1,edgeAlpha);
 }
 
 

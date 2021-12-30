@@ -1,9 +1,8 @@
-/*
- *  WGVectorObject_private.h
+/*  WGVectorObject_private.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "visual_objects/MaplyVectorObject.h"
@@ -31,9 +29,9 @@
 }
 
 // Construct as a wrapper
-- (id)initWithRef:(const WhirlyKit::VectorObjectRef&)vecObj;
+- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj;
 
 // Construct a vector object from the Vector DB raw format
-- (void)addShape:(const WhirlyKit::VectorShapeRef&)shape;
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape;
 
 @end

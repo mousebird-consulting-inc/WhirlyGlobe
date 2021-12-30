@@ -1,9 +1,8 @@
-/*
- *  MaplyVectorObject.h
+/*  MaplyVectorObject.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Foundation/Foundation.h>
@@ -138,30 +136,64 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
 /** 
     Initialize with a linear feature.
  
-    This version takes an array of coordinate pairs (as NSNumber) and the attribution.  With this it will make a linear feature.
+    This version takes an array of coordinates (2 `NSNumber`s per coordinate, in degrees) and the attribution.
+    With this it will make a linear feature.
+    Prefer the `inDegrees:` overload to reduce ambiguity.
+    Returns nil if the coordinate array contains an odd number of values.
  */
-- (nonnull instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+- (nullable instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)coords
+                                attributes:(NSDictionary *__nullable)attr;
+
+/**
+    Initialize with a linear feature.
+ 
+    This version takes an array of coordinate pairs (as NSNumber) and the attribution.  With this it will make a linear feature.
+    Returns nil if the coordinate array contains an odd number of values.
+ */
+- (nullable instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)coords
+                                attributes:(NSDictionary *__nullable)attr
+                                 inDegrees:(bool)inDegrees;
 
 /** 
     Initialize with a linear feature.
-    
+ 
     This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a linear feature.
   */
-- (nonnull instancetype)initWithLineString:(const MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithLineString:(const MaplyCoordinate *__nonnull)coords
+                                 numCoords:(int)numCoords
+                                attributes:(NSDictionary *__nullable)attr;
 
 /** 
     Inintialize as an areal feature.
-    
-    This version takes an array of coordinates, the size of that array and the attribution.  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
+ 
+    This version takes an array of coordinates, the size of that array and the attribution.
+    With this it will make a single area feature with one (exterior) loop.  To add loops, call `addHole:numCoords:`
   */
-- (nonnull instancetype)initWithAreal:(const MaplyCoordinate *__nonnull)coords numCoords:(int)numCoords attributes:(NSDictionary *__nullable)attr;
+- (nonnull instancetype)initWithAreal:(const MaplyCoordinate *__nonnull)coords
+                            numCoords:(int)numCoords
+                           attributes:(NSDictionary *__nullable)attr;
 
 /**
   Inintialize as an areal feature.
-  
-  This version takes an array of coordinates (2 numbers per coordinate).  With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
+ 
+    This version takes an array of coordinates (2 `NSNumber`s per coordinate, in radians).
+    With this it will make a single area feature with one (exterior) loop.  To add loops, call addHole:numCoords:
+    Prefer the `inDegrees:` overload to reduce ambiguity.
+    Returns nil if the coordinate array contains an odd number of values.
 */
-- (nonnull instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr;
+- (nullable instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords
+                                 attributes:(NSDictionary *__nullable)attr;
+
+/**
+    Inintialize as an areal feature.
+ 
+    This version takes an array of coordinates (2 `NSNumber`s per coordinate, in radians).
+    With this it will make a single area feature with one (exterior) loop.  To add loops, call `addHole:numCoords:`
+    Returns nil if the coordinate array contains an odd number of values.
+*/
+- (nullable instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords
+                                 attributes:(NSDictionary *__nullable)attr
+                                  inDegrees:(bool)inDegrees;
 
 /** 
     Initializes with vectors parsed from geoJSON.
@@ -415,6 +447,16 @@ typedef NS_ENUM(NSInteger, MaplyVectorObjectType) {
     Convert any areal features into outlines.
   */
 - (MaplyVectorObject * __nonnull)arealsToLinears;
+
+/**
+    Reverse the direction of areal loops in-place
+ */
+- (void)reverseAreals;
+
+/**
+    Return a copy with the areal loops reversed
+ */
+- (MaplyVectorObject * __nonnull)reversedAreals;
 
 /**
     Filter out edges created from clipping areal features on the server.

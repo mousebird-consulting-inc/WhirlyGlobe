@@ -191,6 +191,9 @@
 /// Set the interpreter for the data coming back.  If you're just getting images, don't set this.
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> * __nonnull)interp;
 
+/// Return the current interpreter
+- (NSObject<MaplyLoaderInterpreter> * __nullable)getInterpreter;
+
 /**
  Change the interpreter and reload all the data.
  <br>

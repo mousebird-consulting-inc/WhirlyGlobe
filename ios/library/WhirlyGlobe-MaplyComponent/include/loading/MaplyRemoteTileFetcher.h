@@ -134,12 +134,12 @@
  fetchInfo is a MaplyRemoteTileFetchInfo describing the rest of the tile characteristics.
  tileID is the tile in question.
  */
-- (NSData * __nullable)dataForTile:(MaplyRemoteTileFetchInfo * __nonnull)fetchInfo tileID:(MaplyTileID)tileID;
+- (id __nullable)dataForTile:(MaplyRemoteTileFetchInfo * __nonnull)fetchInfo tileID:(MaplyTileID)tileID;
 
 @end
 
 /**
-    If a tile fetch request fails, this object allows you  second change to provide the data.
+    If a tile fetch request fails, this object allows you  second chance to provide the data.
     Maybe you have an old version in a cache somewhere.  Provide that.  Or fail and
     the tile fetch will continue to fail.
  */
@@ -150,7 +150,7 @@
  This might be an old version of the data you have lying around.  It's up to you.
  Returning nil means the fetch fails as normal.
  */
-- (NSData * __nullable)dataForTile:(MaplyRemoteTileFetchInfo * __nonnull)fetchInfo tileID:(MaplyTileID)tileID;
+- (id __nullable)dataForTile:(MaplyRemoteTileFetchInfo * __nonnull)fetchInfo tileID:(MaplyTileID)tileID;
 
 @end
 
@@ -173,11 +173,11 @@
 
 /// Local storage is for pre-downloaded tiles, rather than a cache.  This is consulted *before* we go out to the network.
 /// If it fails, then we hit the local file cache and then we hit the network
-- (void)setLocalStorage:(NSObject<MaplyTileLocalStorage> * __nonnull)localStorage;
+- (void)setLocalStorage:(NSObject<MaplyTileLocalStorage> * __nullable)localStorage;
 
 /// After a tile fails to load from local storage, local cache and then a remote request, you have one more chance to provide the data
 /// Useful if you've got an old version of the tile lying around you might use in a pinch
-- (void)setSecondChance:(NSObject<MaplyTileSecondChance> * __nonnull)secondChance;
+- (void)setSecondChance:(NSObject<MaplyTileSecondChance> * __nullable)secondChance;
 
 /// Return the fetching stats since the beginning or since the last reset
 - (MaplyRemoteTileFetcherStats * __nullable)getStats:(bool)allTime;

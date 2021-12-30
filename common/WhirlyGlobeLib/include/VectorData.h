@@ -1,9 +1,8 @@
-/*
- *  VectorData.h
+/*  VectorData.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/7/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -109,27 +107,35 @@ struct VectorShapeRefHash : std::hash<VectorShape*>
 /// cast to get the specfic type.  Don't forget to use the std dynamic cast
 //typedef std::set<VectorShapeRef,VectorShapeRefLess> ShapeSet;
 typedef std::unordered_set<VectorShapeRef, VectorShapeRefHash, VectorShapeRefEqual> ShapeSet;
-    
+
+namespace detail {
+    using TDefaultIntermediate = long double;
+}
+
 /// Calculate area of a loop
-template <typename T> double CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>>&);
+template <typename T, typename TRet = double, typename TInt = detail::TDefaultIntermediate>
+TRet CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>>&);
 
 /// Calculate the centroid of a loop
-template <typename T> T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>>&);
+template <typename T, typename TInt = detail::TDefaultIntermediate>
+T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>>&);
 
 /// Calculate the centroid of a loop when the area is already known
-template <typename T> T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>>&, double loopArea);
+template <typename T, typename TInt = detail::TDefaultIntermediate>
+T CalcLoopCentroid(const std::vector<T,Eigen::aligned_allocator<T>>&, double loopArea);
 
 /// Calculate the center of mass of the points
-template <typename T> T CalcCenterOfMass(const std::vector<T,Eigen::aligned_allocator<T>> &loop);
+template <typename T, typename TInt = detail::TDefaultIntermediate>
+T CalcCenterOfMass(const std::vector<T,Eigen::aligned_allocator<T>> &loop);
 
-extern template double CalcLoopArea<Point2f>(const VectorRing&);
-extern template double CalcLoopArea<Point2d>(const Point2dVector&);
-extern template Point2f CalcLoopCentroid(const VectorRing&);
-extern template Point2d CalcLoopCentroid(const Point2dVector&);
-extern template Point2f CalcLoopCentroid(const VectorRing&, double);
-extern template Point2d CalcLoopCentroid(const Point2dVector&, double);
-extern template Point2f CalcCenterOfMass(const VectorRing&);
-extern template Point2d CalcCenterOfMass(const Point2dVector&);
+extern template double CalcLoopArea<Point2f,double,detail::TDefaultIntermediate>(const VectorRing&);
+extern template double CalcLoopArea<Point2d,double,detail::TDefaultIntermediate>(const Point2dVector&);
+extern template Point2f CalcLoopCentroid<typename VectorRing::value_type,detail::TDefaultIntermediate>(const VectorRing&);
+extern template Point2f CalcLoopCentroid<typename VectorRing::value_type,detail::TDefaultIntermediate>(const VectorRing&, double);
+extern template Point2d CalcLoopCentroid<typename Point2dVector::value_type,detail::TDefaultIntermediate>(const Point2dVector&);
+extern template Point2d CalcLoopCentroid<typename Point2dVector::value_type,detail::TDefaultIntermediate>(const Point2dVector&, double);
+extern template Point2f CalcCenterOfMass<typename VectorRing::value_type,detail::TDefaultIntermediate>(const VectorRing&);
+extern template Point2d CalcCenterOfMass<typename Point2dVector::value_type,detail::TDefaultIntermediate>(const Point2dVector&);
 
 /// Collection of triangles forming a mesh
 class VectorTriangles : public VectorShape

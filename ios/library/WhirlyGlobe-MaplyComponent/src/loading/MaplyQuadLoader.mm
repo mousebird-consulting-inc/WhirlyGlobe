@@ -237,6 +237,10 @@ using namespace WhirlyKit;
     return samplingLayer->sampleControl.getDisplayControl()->getZoomSlot();
 }
 
+- (NSObject<MaplyLoaderInterpreter> *)getInterpreter
+{
+    return loadInterp;
+}
 
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
 {

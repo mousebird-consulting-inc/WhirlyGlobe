@@ -343,8 +343,6 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (!texData)
     {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
-        // Note: This is to allow snapshots to not crash
-        //       Instead of this we should be copying the parts we want out to a different buffer
         desc.allowGPUOptimizedContents = false;
 
         // todo: maybe we want private for depth/stencil everywhere?

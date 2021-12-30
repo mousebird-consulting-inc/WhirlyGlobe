@@ -717,7 +717,7 @@ bool VectorObject::pointNearLinear(const Point2d &coord,float maxDistance,
     
     return false;
 }
-    
+
 double VectorObject::areaOfOuterLoops() const
 {
     double area = 0.0;
@@ -726,13 +726,13 @@ double VectorObject::areaOfOuterLoops() const
         const auto areal = dynamic_cast<VectorAreal*>(shape.get());
         if (areal && !areal->loops.empty())
         {
-            area = CalcLoopArea(areal->loops[0]);
+            area += CalcLoopArea(areal->loops[0]);
         }
     }
     
     return area;
 }
-    
+
 bool VectorObject::boundingBox(Point2d &ll,Point2d &ur) const
 {
     bool valid = false;
@@ -758,13 +758,17 @@ bool VectorObject::boundingBox(Point2d &ll,Point2d &ur) const
 
 void VectorObject::addHole(const VectorRing &hole)
 {
+    if (shapes.empty())
+    {
+        return;
+    }
     const auto areal = dynamic_cast<VectorAreal*>(shapes.begin()->get());
     if (areal)
     {
         areal->loops.push_back(hole);
     }
 }
-    
+
 VectorObjectRef VectorObject::deepCopy() const
 {
     auto newVecObj = std::make_shared<VectorObject>();
@@ -1271,12 +1275,16 @@ VectorObjectRef VectorObject::linearsToAreals() const
 
     for (const auto &shape : shapes)
     {
-        if (const auto ar = std::dynamic_pointer_cast<VectorAreal>(shape)) {
-            newVec->shapes.insert(ar);
-        } else if (const auto ln = std::dynamic_pointer_cast<VectorLinear>(shape)) {
-            const auto newAr = VectorAreal::createAreal();
+        if (const auto ln = dynamic_cast<const VectorLinear*>(shape.get()))
+        {
+            auto newAr = VectorAreal::createAreal();
+            newAr->setAttrDict(ln->getAttrDict());
             newAr->loops.push_back(ln->pts);
             newVec->shapes.insert(newAr);
+        }
+        else
+        {
+            newVec->shapes.insert(std::move(shape));
         }
     }
 
@@ -1290,22 +1298,66 @@ VectorObjectRef VectorObject::arealsToLinears() const
 
     for (const auto &shape : shapes)
     {
-        if (const auto ar = dynamic_cast<VectorAreal*>(shape.get()))
+        if (const auto ar = dynamic_cast<const VectorAreal*>(shape.get()))
         {
-            for (const auto &loop : ar->loops) {
-                const auto newLn = VectorLinear::createLinear();
+            for (const auto &loop : ar->loops)
+            {
+                auto newLn = VectorLinear::createLinear();
                 newLn->setAttrDict(ar->getAttrDict());
                 newLn->pts = loop;
-                newVec->shapes.insert(newLn);
+                newVec->shapes.insert(std::move(newLn));
             }
-        } else if (const auto ln = std::dynamic_pointer_cast<VectorLinear>(shape)) {
-            newVec->shapes.insert(ln);
+        }
+        else
+        {
+            newVec->shapes.insert(shape);
         }
     }
-    
+
     return newVec;
 }
-    
+
+void VectorObject::reverseAreals()
+{
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                std::reverse(loop.begin(), loop.end());
+            }
+        }
+    }
+}
+
+VectorObjectRef VectorObject::reversedAreals()
+{
+    auto newVec = std::make_shared<VectorObject>();
+    newVec->shapes.reserve(shapes.size());
+
+    for (const auto &shape : shapes)
+    {
+        if (const auto ar = dynamic_cast<const VectorAreal*>(shape.get()))
+        {
+            auto newAr = VectorAreal::createAreal();
+            newAr->setAttrDict(ar->getAttrDict());
+            newAr->loops.reserve(ar->loops.size());
+            for (const auto &loop : ar->loops)
+            {
+                newAr->loops.emplace_back(loop.rbegin(), loop.rend());
+            }
+            newVec->shapes.insert(newAr);
+        }
+        else
+        {
+            newVec->shapes.insert(shape);
+        }
+    }
+
+    return newVec;
+}
+
 VectorObjectRef VectorObject::filterClippedEdges() const
 {
     auto newVec = std::make_shared<VectorObject>();

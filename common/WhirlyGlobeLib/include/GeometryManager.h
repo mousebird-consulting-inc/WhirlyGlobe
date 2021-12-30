@@ -30,11 +30,12 @@ typedef enum {GeometryBBoxSingle,GeometryBBoxTriangle,GeometryBBoxNone} Geometry
 // Used to pass geometry around internally
 struct GeometryInfo : public BaseInfo
 {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
     GeometryInfo() = default;
     GeometryInfo(const Dictionary &);
     virtual ~GeometryInfo() = default;
+
+    // Convert contents to a string for debugging
+    virtual std::string toString() const override { return BaseInfo::toString() + " +GeomInfo..."; }
 
     bool colorOverride = false;
     RGBAColor color = RGBAColor::white();
