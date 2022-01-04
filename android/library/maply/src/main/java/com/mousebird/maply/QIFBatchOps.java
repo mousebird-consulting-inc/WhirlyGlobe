@@ -1,9 +1,8 @@
-/*
- *  QIFBatchOps.java
+/*  QIFBatchOps.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,12 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-
 package com.mousebird.maply;
-
+import androidx.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
 /**
@@ -30,41 +28,37 @@ import java.util.ArrayList;
  */
 class QIFBatchOps
 {
-    ArrayList<TileFetchRequest> toCancel = new ArrayList<TileFetchRequest>();
-    ArrayList<TileFetchRequest> toStart = new ArrayList<TileFetchRequest>();
+    ArrayList<TileFetchRequest> toCancel = new ArrayList<>();
+    ArrayList<TileFetchRequest> toStart = new ArrayList<>();
 
-    QIFBatchOps()
-    {}
+    @SuppressWarnings("unused")		// Referenced by JNI
+    QIFBatchOps() {
+    }
 
     /**
      * Add a fetch request to cancel.
      */
-    void addToCancel(TileFetchRequest request)
-    {
+    void addToCancel(@NotNull TileFetchRequest request) {
         toCancel.add(request);
     }
 
     /**
      * Add a fetch request to start.
      */
-    void addToStart(TileFetchRequest request)
-    {
+    void addToStart(@NotNull TileFetchRequest request) {
         toStart.add(request);
     }
 
     /**
      * Process the outstanding starts and cancels we gathered.
      */
-    void process(TileFetcher fetcher)
-    {
+    void process(@Nullable TileFetcher fetcher) {
         // Just run the logic ourselves
         if (fetcher == null) {
             // Don't do anything for cancel
-
             for (TileFetchRequest request: toStart) {
                 request.callback.success(request, null);
             }
-
             return;
         }
 
@@ -81,16 +75,22 @@ class QIFBatchOps
         dispose();
     }
 
-    public void finalize()
-    {
+    // Get the tiles to be removed from the native object
+    public native @Nullable TileID[] getDeletes();
+
+    public void finalize() {
         dispose();
     }
-    static
-    {
+    native void dispose();
+
+    static {
         nativeInit();
     }
     private static native void nativeInit();
+
+    @SuppressWarnings("unused")		// Referenced by JNI
     native void initialise();
-    native void dispose();
+
+    @SuppressWarnings("unused")		// Referenced by JNI
     private long nativeHandle;
 }

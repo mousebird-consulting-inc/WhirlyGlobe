@@ -20,6 +20,7 @@ package com.mousebird.maply;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -88,6 +89,14 @@ public class Mbr
 		this((other != null) ? other.ll : null, (other != null) ? other.ur : null);
 	}
 
+	/**
+	 * Construct from a collection of points
+	 */
+	public Mbr(@NotNull Collection<Point2d> pts) {
+		for (Point2d p : pts) {
+			addPoint(p);
+		}
+	}
 
 	@NotNull
 	public String toString() {
@@ -227,8 +236,7 @@ public class Mbr
 	/**
 	 * Return a list of points corresponding to the corners of the MBR.
 	 */
-	public List<Point2d> asPoints()
-	{
+	public List<Point2d> asPoints() {
 		return isValid() ?
 				Arrays.asList(ll, new Point2d(ur.getX(),ll.getY()),
 		                      ur, new Point2d(ll.getX(),ur.getY())) :
@@ -240,5 +248,19 @@ public class Mbr
 	 */
 	public boolean isValid() {
 		return ll != null && ur != null;
+	}
+
+	/**
+	 * True if the bounding box is empty
+	 */
+	public boolean isEmpty() {
+		return ll.getX() == ur.getX() || ll.getY() == ur.getY();
+	}
+
+	/**
+	 * True if the bounding box is not empty
+	 */
+	public boolean isNotEmpty() {
+		return ll.getX() != ur.getX() || ll.getY() < ur.getY();
 	}
 }

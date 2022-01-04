@@ -1207,6 +1207,26 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 	}
 
 	/**
+	 * Return the extents of the current view
+	 */
+	public Mbr getCurrentViewExtents() {
+		final com.mousebird.maply.View view = this.view;
+		RenderController rc = renderControl;
+		if (view != null && rc != null) {
+			CoordSystemDisplayAdapter coordAdapter = view.getCoordAdapter();
+			if (coordAdapter != null) {
+				final CoordSystem coordSys = coordAdapter.getCoordSystem();
+				if (coordSys != null) {
+					final Point2d ll = new Point2d(0, rc.frameSize.getY());
+					final Point2d ur = new Point2d(rc.frameSize.getX(), 0);
+					return new Mbr(geoPointFromScreen(ll), geoPointFromScreen(ur));
+				}
+			}
+		}
+		return new Mbr();
+	}
+
+	/**
 	 * Batch version of the screenPointFromGeo method.  This version is here for users to
 	 * convert a whole group of coordinates all at once.  Doing it individually is just
 	 * too slow in Java.

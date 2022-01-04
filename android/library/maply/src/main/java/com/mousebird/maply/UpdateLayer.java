@@ -22,6 +22,10 @@ package com.mousebird.maply;
 
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -57,12 +61,12 @@ public class UpdateLayer extends Layer implements LayerThread.ViewWatcherInterfa
          */
         void teardown(UpdateLayer layer);
     }
-    public Delegate delegate = null;
+    public Delegate delegate;
 
-    WeakReference<BaseController> maplyControl = null;
+    private final @NotNull WeakReference<BaseController> maplyControl;
 
     public UpdateLayer(float moveDist, float minTime, Delegate delegate, BaseController inMaplyControl) {
-        maplyControl = new WeakReference<BaseController>(inMaplyControl);
+        maplyControl = new WeakReference<>(inMaplyControl);
 
         this.delegate = delegate;
         this.moveDist = moveDist;
@@ -75,10 +79,12 @@ public class UpdateLayer extends Layer implements LayerThread.ViewWatcherInterfa
         delegate.start(this);
 
         scheduleUpdate();
-        if (maplyControl != null) {
-            LayerThread layerThread = maplyControl.get().getLayerThread();
-            if (layerThread != null)
-                maplyControl.get().getLayerThread().addWatcher(this);
+        final BaseController control = maplyControl.get();
+        if (control != null) {
+            final LayerThread layerThread = control.getLayerThread();
+            if (layerThread != null) {
+                layerThread.addWatcher(this);
+            }
         }
     }
 
@@ -91,8 +97,8 @@ public class UpdateLayer extends Layer implements LayerThread.ViewWatcherInterfa
 
     ViewState viewState = null;
 
-    public float moveDist = 0.0f;
-    public float minTime = 0.2f;
+    public float moveDist;
+    public float minTime;
     public float maxLag = 0.0f;
 
     // Set if we've got an update in the queue
@@ -106,16 +112,13 @@ public class UpdateLayer extends Layer implements LayerThread.ViewWatcherInterfa
         {
             if (updateHandle == null)
             {
-                updateRun = new Runnable()
-                {
-                    @Override
-                    public void run()
-                    {
-                        runUpdate();
+                updateRun = this::runUpdate;
+                final BaseController control = maplyControl.get();
+                if (control != null) {
+                    final LayerThread thread = control.getLayerThread();
+                    if (thread != null) {
+                        updateHandle = thread.addDelayedTask(updateRun, 200);
                     }
-                };
-                if (maplyControl != null && maplyControl.get().getLayerThread() != null) {
-                    updateHandle = maplyControl.get().getLayerThread().addDelayedTask(updateRun, 200);
                 }
             }
         }
@@ -171,5 +174,12 @@ public class UpdateLayer extends Layer implements LayerThread.ViewWatcherInterfa
     @Override
     public float getMaxLagTime() {
         return maxLag;
+    }
+
+    /**
+     * Some tiles were just removed
+     */
+    @Override
+    public void tilesUnloaded(@NonNull TileID[] ids) {
     }
 }
