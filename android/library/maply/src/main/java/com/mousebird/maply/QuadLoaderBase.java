@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -103,7 +106,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *  @return The lower left and upper right corner of the tile in geographic coordinates.
      *          Returns null in case of error.
      */
-    public Mbr geoBoundsForTile(TileID tileID)
+    public @NotNull Mbr geoBoundsForTile(@NotNull TileID tileID)
     {
         Mbr mbr = new Mbr(new Point2d(),new Point2d());
         geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);

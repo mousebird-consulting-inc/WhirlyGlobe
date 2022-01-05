@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/8/17.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ template<> WideVectorInfoClassInfo *WideVectorInfoClassInfo::classInfoObj = null
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     WideVectorInfoClassInfo::getClassInfo(env,cls);
 }
@@ -38,163 +38,321 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_initialise
 {
     try
     {
-        WideVectorInfoRef *vecInfo = new WideVectorInfoRef(new WideVectorInfo());
-        WideVectorInfoClassInfo::getClassInfo()->setHandle(env,obj,vecInfo);
+        WideVectorInfoClassInfo::set(env, obj, new WideVectorInfoRef(std::make_shared<WideVectorInfo>()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env,obj);
+        classInfo->clearHandle(env,obj);
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColorInt
+  (JNIEnv *env, jobject obj, jint r, jint g, jint b, jint a)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
         {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-            if (!vecInfo)
-                return;
-            delete vecInfo;
-            
-            classInfo->clearHandle(env,obj);
+            (*vecInfo)->color = RGBAColor(r,g,b,a);
         }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_WideVectorInfo_getColor
+  (JNIEnv *env, jobject obj)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::dispose()");
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->color.asARGBInt();
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+    return 0;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColor
-(JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
+        (JNIEnv *env, jobject obj, jfloat r, jfloat g, jfloat b, jfloat a)
 {
-    try
-    {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->color = RGBAColor(r*255.0,g*255.0,b*255.0,a*255.0);
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setColor()");
-    }
+    Java_com_mousebird_maply_WideVectorInfo_setColorInt(env, obj,
+        (jint)(r*255.0f),(jint)(g*255.0f),(jint)(b*255.0f),(jint)(a*255.0f));
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setLineWidth
-(JNIEnv *env, jobject obj, jfloat val)
+  (JNIEnv *env, jobject obj, jfloat val)
 {
     try
     {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->width = val;
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->width = val;
+        }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_WideVectorInfo_getLineWidth
+  (JNIEnv *env, jobject obj)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setLineWidth()");
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->width;
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+    return 0.0f;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTextureRepeatLength
-(JNIEnv *env, jobject obj, jdouble repeatLen)
+  (JNIEnv *env, jobject obj, jdouble repeatLen)
 {
     try
     {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->repeatSize = repeatLen;
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->repeatSize = repeatLen;
+        }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_WideVectorInfo_getTextureRepeatLength
+  (JNIEnv *env, jobject obj)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setTextureRepeatLength()");
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->repeatSize;
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+    return 0.0;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setEdgeFalloff
-(JNIEnv *env, jobject obj, jdouble edgeFalloff)
+  (JNIEnv *env, jobject obj, jdouble edgeFalloff)
 {
     try
     {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->edgeSize = edgeFalloff;
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->edgeSize = edgeFalloff;
+        }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_WideVectorInfo_getEdgeFalloff
+  (JNIEnv *env, jobject obj)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setEdgeFalloff()");
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->edgeSize;
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+    return 0.0;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setJoinTypeNative
-(JNIEnv *env, jobject obj, jint joinType)
+  (JNIEnv *env, jobject obj, jint joinType)
 {
     try
     {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->joinType = (WideVectorLineJoinType)joinType;
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->joinType = (WideVectorLineJoinType)joinType;
+        }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_WideVectorInfo_getJoinTypeNative
+  (JNIEnv *env, jobject obj)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setJoinTypeNative()");
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->joinType;
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+    return 0;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setMitreLimit
-(JNIEnv *env, jobject obj, jdouble mitreLimit)
+  (JNIEnv *env, jobject obj, jdouble mitreLimit)
 {
     try
     {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->miterLimit = mitreLimit;
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->miterLimit = mitreLimit;
+        }
     }
-    catch (...)
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_WideVectorInfo_getMitreLimit
+        (JNIEnv *env, jobject obj)
+{
+    try
     {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setMitreLimit()");
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->miterLimit;
+        }
     }
+    MAPLY_STD_JNI_CATCH()
+    return 0.0;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setTexID
-(JNIEnv *env, jobject obj, jlong texID)
+  (JNIEnv *env, jobject obj, jlong texID)
 {
     try
     {
-        WideVectorInfoClassInfo *classInfo = WideVectorInfoClassInfo::getClassInfo();
-        WideVectorInfoRef *vecInfo = classInfo->getObject(env,obj);
-        if (!vecInfo)
-            return;
-        (*vecInfo)->texID = texID;
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->texID = texID;
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in WideVectorInfo::setTexId()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorInfo_getTexID
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->texID;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return EmptyIdentity;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setSelectable
+        (JNIEnv *env, jobject obj, jboolean enable)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->selectable = enable;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_WideVectorInfo_getSelectable
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->selectable;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setOffset
+        (JNIEnv *env, jobject obj, jdouble offset)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->offset = offset;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_WideVectorInfo_getOffset
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->offset;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return 0.0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setCloseAreals
+  (JNIEnv *env, jobject obj, jboolean close)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->closeAreals = close;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_WideVectorInfo_getCloseAreals
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->closeAreals;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}

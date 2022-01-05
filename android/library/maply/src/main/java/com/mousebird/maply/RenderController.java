@@ -2,7 +2,7 @@
  * AutoTesterAndroid.maply
  *
  * Created by Tim Sylvester on 24/03/2021
- * Copyright © 2021 mousebird consulting, inc.
+ * Copyright © 2022 mousebird consulting, inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
  * file except in compliance with the License. You may obtain a copy of the License at
@@ -32,6 +32,9 @@ import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
+
+import androidx.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import static javax.microedition.khronos.egl.EGL10.EGL_DRAW;
 import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
@@ -950,9 +953,8 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
-     * Add vectors to the MaplyController to display.  Vectors are linear or areal
-     * features with line width, filled style, color and so forth defined by the
-     * VectorInfo class.
+     * Add vectors to the MaplyController to display.  Vectors are linear or areal features with
+     * line width, filled style, color and so forth defined by the VectorInfo class.
      *
      * @param vecs A list of VectorObject's created by the user or read in from various sources.
      * @param vecInfo A description of how the vectors should look.
@@ -960,8 +962,9 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addVectors(final Collection<VectorObject> vecs,final VectorInfo vecInfo,
-                                      RenderController.ThreadMode mode)
+    public @Nullable ComponentObject addVectors(@NotNull final Collection<VectorObject> vecs,
+                                                @NotNull final VectorInfo vecInfo,
+                                                RenderController.ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -972,37 +975,39 @@ public class RenderController implements RenderControllerInterface
             }
 
             // Vectors are simple enough to just add
-            ChangeSet changes = new ChangeSet();
-            long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
-
-            // Track the vector ID for later use
-            if (vecId != EmptyIdentity)
-                compObj.addVectorID(vecId);
-
-            // Keep track of this one for selection
-            for (VectorObject vecObj : vecs)
-            {
-                if (!running) {
-                    return;
-                }
-
-                if (vecObj.getSelectable()) {
-                    compObj.addVector(vecObj);
-                    componentManager.addSelectableObject(vecObj.ident, vecObj, compObj);
-                }
+            final ChangeSet changes = new ChangeSet();
+            final long vecId = vecManager.addVectors(vecs.toArray(new VectorObject[0]), vecInfo, changes);
+            if (vecId == EmptyIdentity && !changes.any()) {
+                // Something went wrong, don't add selectable objects, etc.
+                // Note that the caller will still get a CO, it just doesn't represent anything.
+                return;
             }
 
-            if (vecInfo.disposeAfterUse || disposeAfterRemoval) {
-                for (VectorObject vecObj : vecs) {
-                    if (!vecObj.getSelectable()) {
-                        vecObj.dispose();
-                    }
+            // Track the vector ID for later use
+            compObj.addVectorID(vecId);
+
+            final boolean sel = vecInfo.getSelectable();
+            for (VectorObject vecObj : vecs) {
+                if (!running) {
+                    break;
+                }
+                // Keep track of this one for selection?
+                if (sel && vecObj.getSelectable()) {
+                    compObj.addVector(vecObj);
+                    componentManager.addSelectableObject(vecObj.ident, vecObj, compObj);
+                } else if (vecInfo.disposeAfterUse || disposeAfterRemoval) {
+                    vecObj.dispose();
                 }
             }
 
             componentManager.addComponentObject(compObj, changes);
             processChangeSet(changes);
         }, mode);
+
+        if (mode == ThreadMode.ThreadCurrent && compObj.getVectorIDs().length == 0) {
+            // In current-thread mode, we already know whether it worked or not.
+            return null;
+        }
 
         return compObj;
     }
@@ -1144,9 +1149,8 @@ public class RenderController implements RenderControllerInterface
     }
 
     /**
-     * Add wide vectors to the MaplyController to display.  Vectors are linear or areal
-     * features with line width, filled style, color and so forth defined by the
-     * WideVectorInfo class.
+     * Add wide vectors to the MaplyController to display.  Vectors are linear or areal features
+     * with line width, filled style, color and so forth defined by the WideVectorInfo class.
      * <br>
      * Wide vectors differ from regular lines in that they're implemented with a more
      * complicated shader.  They can be arbitrarily large, have textures, and have a transparent
@@ -1158,9 +1162,9 @@ public class RenderController implements RenderControllerInterface
      * @return The ComponentObject representing the vectors.  This is necessary for modifying
      * or deleting the vectors once created.
      */
-    public ComponentObject addWideVectors(final Collection<VectorObject> vecs,
-                                          final WideVectorInfo wideVecInfo,
-                                          ThreadMode mode)
+    public @Nullable ComponentObject addWideVectors(@NotNull final Collection<VectorObject> vecs,
+                                                    @NotNull final WideVectorInfo wideVecInfo,
+                                                    ThreadMode mode)
     {
         final ComponentObject compObj = componentManager.makeComponentObject();
 
@@ -1171,19 +1175,24 @@ public class RenderController implements RenderControllerInterface
             }
 
             // Vectors are simple enough to just add
-            ChangeSet changes = new ChangeSet();
-            long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
-
-            // Track the vector ID for later use
-            if (vecId != EmptyIdentity) {
-                compObj.addWideVectorID(vecId);
+            final ChangeSet changes = new ChangeSet();
+            final long vecId = wideVecManager.addVectors(vecs.toArray(new VectorObject[0]), wideVecInfo, changes);
+            if (vecId == EmptyIdentity && !changes.any()) {
+                // Something went wrong, don't add selectable objects, etc.
+                // Note that the caller will still get a CO, it just doesn't represent anything.
+                return;
             }
 
-            // todo: should we still produce a component object and add it as selectable if addVectors returned zero?
+            // Track the vector ID for later use
+            compObj.addWideVectorID(vecId);
 
+            final boolean sel = wideVecInfo.getSelectable();
             for (VectorObject vecObj : vecs) {
-                if (vecObj.getSelectable()) {
-                    // Keep track of this one for selection
+                if (!running) {
+                    break;
+                }
+                // Keep track of this one for selection?
+                if (sel && vecObj.getSelectable()) {
                     compObj.addVector(vecObj);
                     componentManager.addSelectableObject(vecObj.ident,vecObj,compObj);
                 } else if (wideVecInfo.disposeAfterUse || disposeAfterRemoval) {
@@ -1195,6 +1204,11 @@ public class RenderController implements RenderControllerInterface
             componentManager.addComponentObject(compObj, changes);
             processChangeSet(changes);
         }, mode);
+
+        if (mode == ThreadMode.ThreadCurrent && compObj.getWideVectorIDs().length == 0) {
+            // In current-thread mode, we already know whether it worked or not.
+            return null;
+        }
 
         return compObj;
     }

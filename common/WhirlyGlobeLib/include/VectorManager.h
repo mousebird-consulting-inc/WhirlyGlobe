@@ -82,6 +82,7 @@ public:
     bool                        centered = true;
     bool                        vecCenterSet = false;
     bool                        closeAreals = true;
+    bool                        selectable = true;
     Point2f                     vecCenter = { 0.0f, 0.0f };
     FloatExpressionInfoRef      opacityExp;
     ColorExpressionInfoRef      colorExp;

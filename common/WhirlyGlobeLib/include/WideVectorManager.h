@@ -67,6 +67,7 @@ public:
     float subdivEps = 0.0f;
     float miterLimit = 2.0f;
     bool closeAreals = true;
+    bool selectable = true;
 
     WideVectorCoordsType coordType = WideVecCoordScreen;
     WideVectorLineJoinType joinType = WideVecMiterJoin;

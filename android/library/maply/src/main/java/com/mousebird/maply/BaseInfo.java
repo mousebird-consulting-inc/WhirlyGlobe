@@ -93,7 +93,7 @@ public class BaseInfo
     /**
      * @return The Z offset for geometry.  Rarely used anymore.
      */
-    public native double getDrawOffset();
+    public native float getDrawOffset();
 
     /**
      * Set the drawPriority for the geometry.  Draw priority controls the order

@@ -64,7 +64,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_initialise
         batchOps->batchOpsObj = obj;
         info->setHandle(env, obj, batchOps);
     }
-    WK_STD_DTOR_CATCH()
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -84,7 +84,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_dispose
 
         info->clearHandle(env, obj);
     }
-    WK_STD_DTOR_CATCH()
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -109,7 +109,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_QIFBatchOps_getDeletes
             return BuildObjectArray(env,tileIDCls,objs);
         }
     }
-    WK_STD_DTOR_CATCH()
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
