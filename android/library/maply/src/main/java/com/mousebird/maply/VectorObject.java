@@ -212,6 +212,16 @@ public class VectorObject implements Iterable<VectorObject>
 	public native double areaOfOuterLoops();
 
 	/**
+	 * Reverse the direction of areal loops in this object
+	 */
+	public native void reverseAreals();
+
+	/**
+	 * Create a copy with reversed areal loops
+	 */
+	public native VectorObject reversedAreals();
+
+	/**
 	 * Returns the total number of points in a feature.  Used for assessing size.
      */
 	public native int countPoints();

@@ -201,6 +201,8 @@ public:
     /// @brief Assemblies are just concatenated JSON
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
 
+    static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObjectRef> &vecData);
+
 public:
     void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool geolib,bool edgeMode);
 

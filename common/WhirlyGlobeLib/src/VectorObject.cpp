@@ -70,7 +70,26 @@ bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::str
     
     return true;
 }
-    
+
+bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObjectRef> &vecData)
+{
+    // TODO: unordered_map?
+    std::map<std::string, ShapeSet> newShapes;
+
+    if (!VectorParseGeoJSONAssembly(json, newShapes))
+        return false;
+
+    for (auto const &it : newShapes)
+    {
+        auto vecObj = std::make_shared<VectorObject>();
+        vecObj->shapes.reserve(vecObj->shapes.size() + it.second.size());
+        vecObj->shapes.insert(it.second.begin(),it.second.end());
+        vecData[it.first] = std::move(vecObj);
+    }
+
+    return true;
+}
+
 bool VectorObject::fromShapeFile(const std::string &fileName)
 {
     ShapeReader shapeReader(fileName);

@@ -330,7 +330,7 @@ private:
 
 public:
 	// Create a new hash map
-	jobject makeHashMap(JNIEnv *env) { return env->NewObject(mapClass, mapInitMethodID, 1); }
+	jobject makeHashMap(JNIEnv *env) const { return env->NewObject(mapClass, mapInitMethodID, 1); }
 	static jobject make(JNIEnv *env) { return getClassInfo(env)->makeHashMap(env); }
 
 	void teardown(JNIEnv *env) {
