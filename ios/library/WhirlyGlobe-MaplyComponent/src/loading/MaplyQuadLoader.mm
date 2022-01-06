@@ -1,7 +1,7 @@
 /*  MaplyQuadLoader.mm
  *
  *  Created by Steve Gifford on 2/12/19.
- *  Copyright 2012-2021 Saildrone Inc
+ *  Copyright 2012-2022 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -123,6 +123,10 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
+    if (valid)
+    {
+        wkLogLevel(Warn, "MaplyQuadLoader dealloc without shutdown");
+    }
     if ([pendingReturns count])
     {
         wkLogLevel(Warn, "MaplyQuadLoaderBase - LoaderReturns not cleaned up");
@@ -372,8 +376,27 @@ using namespace WhirlyKit;
             NSLog(@"MaplyQuadLader:fetchRequestSuccess: client return unknown data type.  Dropping.");
         }
     }
-    
-    [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        if (valid)
+        {
+            [self->pendingReturns addObject:loadData];
+        }
+        else
+        {
+            // Shutdown already started, newly added objects may not be cleaned up.
+            [self cleanupLoadedData:loadData];
+        }
+    }
+
+    if (valid)
+    {
+        [self performSelector:@selector(mergeFetchRequest:)
+                     onThread:self->samplingLayer.layerThread
+                   withObject:loadData
+                waitUntilDone:NO];
+    }
 }
 
 // Called on SamplingLayer.layerThread
@@ -399,7 +422,6 @@ using namespace WhirlyKit;
 }
 
 // If we parsed the data, but need to drop it before it gets merged, we do it here
-// TODO: Not doing anything with the change list in loadReturn
 //       And this seems to have an ordering problem
 - (void)cleanupLoadedData:(MaplyLoaderReturn *)loadReturn
 {
@@ -408,18 +430,38 @@ using namespace WhirlyKit;
 
     SimpleIDSet compIDs;
     for (auto comp: loadReturn->loadReturn->compObjs)
+    {
         compIDs.insert(comp->getId());
+    }
+    loadReturn->loadReturn->compObjs.clear();
     for (auto comp: loadReturn->loadReturn->ovlCompObjs)
+    {
         compIDs.insert(comp->getId());
+    }
+    loadReturn->loadReturn->ovlCompObjs.clear();
     [renderC removeObjectsByID:compIDs mode:MaplyThreadCurrent];
+
+    for (auto change : loadReturn->loadReturn->changes)
+    {
+        delete change;
+    }
+    loadReturn->loadReturn->changes.clear();
 }
 
 // Called on the SamplingLayer.LayerThread
 - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
 {
     if (!loader || !valid)
+    {
+        [self cleanupLoadedData:loadReturn];
         return;
-    
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        [self->pendingReturns removeObject:loadReturn];
+    }
+
     // Could do this at startup too
     if (_numSimultaneousTiles > 0 && !serialQueue) {
         serialQueue = dispatch_queue_create("Quad Loader Serial", DISPATCH_QUEUE_SERIAL);
@@ -431,6 +473,7 @@ using namespace WhirlyKit;
     if (!loader->isFrameLoading(tileID,loadReturn->loadReturn->frame)) {
         if (_debugMode)
             NSLog(@"MaplyQuadImageLoader: Dropping fetched tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,loadReturn->loadReturn->frame->frameIndex);
+        [self cleanupLoadedData:loadReturn];
         return;
     }
     
@@ -467,7 +510,10 @@ using namespace WhirlyKit;
 
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
+            {
+                [self cleanupLoadedData:loadReturn];
                 return;
+            }
 
             auto loadAndMerge = ^{
                 // No load interpreter means the fetcher created the objects.  Hopefully.
@@ -478,18 +524,32 @@ using namespace WhirlyKit;
                 // If the load was canceled, or we're shutting down and the thread no
                 // longer exists, then we need to clean up the results to avoid leaks.
                 const auto thread = self->samplingLayer.layerThread;
-                if (!thread || [thread isCancelled]) {
+                if (!thread || [thread isCancelled])
+                {
                     [self cleanupLoadedData:loadReturn];
-                } else {
+                }
+                else
+                {
                     // Objects in this LoaderReturn have already been added to the base controller.
                     // If the layer thread is stopped between now and when the perform occurs, those
                     // objects will not be cleaned up by mergeLoadedTile(), and need to be cleaned up
                     // in shutdown() instead.
                     {
                         std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
-                        [self->pendingReturns addObject:loadReturn];
+                        if (self->valid)
+                        {
+                            [self->pendingReturns addObject:loadReturn];
+                        }
+                        else
+                        {
+                            // Shutdown already started, newly added objects may not be cleaned up.
+                            [self cleanupLoadedData:loadReturn];
+                        }
                     }
-                    [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
+                    if (self->valid)
+                    {
+                        [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
+                    }
                 }
             };
             
@@ -523,7 +583,8 @@ using namespace WhirlyKit;
         [self->pendingReturns removeObject:loadReturn];
     }
 
-    if (!loader || !thread || !valid) {
+    if (!loader || !thread || !valid)
+    {
         [self cleanupLoadedData:loadReturn];
         return;
     }
@@ -544,10 +605,9 @@ using namespace WhirlyKit;
 {
     {
         std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
-        if (auto __strong viewC = _viewC) {
-            for (MaplyLoaderReturn *loadReturn in pendingReturns) {
-                [self cleanupLoadedData:loadReturn];
-            }
+        for (MaplyLoaderReturn *loadReturn in pendingReturns)
+        {
+            [self cleanupLoadedData:loadReturn];
         }
         [pendingReturns removeAllObjects];
     }
@@ -555,12 +615,16 @@ using namespace WhirlyKit;
     ChangeSet changes;
     loader->cleanup(nullptr,changes);
 
-    if (!changes.empty()) {
+    if (!changes.empty())
+    {
         const auto __strong thread = samplingLayer.layerThread;
-        if (thread) {
+        if (thread)
+        {
             [thread addChangeRequests:changes];
             [thread flushChangeRequests];
-        } else {
+        }
+        else
+        {
             for (auto change : changes) {
                 delete change;
             }
@@ -578,11 +642,21 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    valid = false;
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        valid = false;
+    }
     
     const auto __strong thread = samplingLayer.layerThread;
     if (thread)
+    {
         [self performSelector:@selector(cleanup) onThread:thread withObject:nil waitUntilDone:NO];
+    }
+    else
+    {
+        wkLogLevel(Warn, "MaplyQuadLoader layer thread stopped before shutdown");
+        [self cleanup];
+    }
 }
 
 @end

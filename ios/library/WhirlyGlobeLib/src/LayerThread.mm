@@ -159,9 +159,22 @@ using namespace WhirlyKit;
 
 - (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)newChangeRequests
 {
+    if (self.isCancelled)
+    {
+        // We're already shutting down, and we may have already
+        // cleaned up the pending changes, so just discard these.
+        for (auto req : newChangeRequests)
+        {
+            delete req;
+        }
+        newChangeRequests.clear();
+    }
+
     if (newChangeRequests.empty())
+    {
         return;
-    
+    }
+
     std::lock_guard<std::mutex> guardLock(changeLock);
 
     // If we don't have one coming, schedule a merge
@@ -193,12 +206,13 @@ using namespace WhirlyKit;
             [layer preSceneFlush:self];
     }
     inRunAddChangeRequests = false;
-    
+
+    // Copy the pending changes to a local collection within the mutex.
+    // We must not return without passing these to the scene or destroying them.
     std::vector<WhirlyKit::ChangeRequest *> changesToProcess;
     {
         std::lock_guard<std::mutex> guardLock(changeLock);
-        changesToProcess = changeRequests;
-        changeRequests.clear();
+        changesToProcess = std::move(changeRequests);
     }
 
     bool requiresFlush = false;
@@ -206,15 +220,17 @@ using namespace WhirlyKit;
     ChangeSet changesToAdd;
     for (unsigned int ii=0;ii<changesToProcess.size();ii++)
     {
-        ChangeRequest *change = changesToProcess[ii];
-        if (change)
+        if (ChangeRequest *change = changesToProcess[ii])
         {
             requiresFlush |= change->needsFlush();
             change->setupForRenderer(_renderer->getRenderSetupInfo(),_scene);
             changesToAdd.push_back(changesToProcess[ii]);
-        } else
+        }
+        else
+        {
             // A NULL change request is just a flush request
             requiresFlush = true;
+        }
     }
     
     // If anything needed a flush after that, let's do it
@@ -225,7 +241,8 @@ using namespace WhirlyKit;
         if (changesToAdd.empty())
             changesToAdd.push_back(nullptr);
     }
-    
+
+    // Pass ownership of change requests to the scene
     _scene->addChangeRequests(changesToAdd);
 }
 
@@ -302,7 +319,7 @@ using namespace WhirlyKit;
             }
             [pauseLock unlock];
         }
-        
+
         [NSObject cancelPreviousPerformRequestsWithTarget:self];
         
         [_viewWatcher stop];
