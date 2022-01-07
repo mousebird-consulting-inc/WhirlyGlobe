@@ -1,9 +1,8 @@
-/*
- *  MaplyMBTileFetcher.mm
+/*  MaplyMBTileFetcher.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/13/18.
- *  Copyright 2011-2019 mousebird consulting inc
+ *  Copyright 2011-2022 mousebird consulting inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "data_sources/MaplyMBTileFetcher.h"
@@ -36,6 +34,12 @@ using namespace WhirlyKit;
 }
 
 - (nullable instancetype)initWithMBTiles:(NSString *__nonnull)mbTilesName
+{
+    return [self initWithMBTiles:mbTilesName cacheSize:-1];
+}
+
+- (nullable instancetype)initWithMBTiles:(NSString *__nonnull)mbTilesName
+                               cacheSize:(int)cacheSize
 {
     NSString *infoPath = nil;
     // See if that was a direct path first
@@ -59,18 +63,70 @@ using namespace WhirlyKit;
             }
         }
     }
-    
-    // Open the sqlite DB
-    sqlite3 *db = nil;
-    if (sqlite3_open([infoPath cStringUsingEncoding:NSASCIIStringEncoding],&db) != SQLITE_OK)
+
+    const char* nameStr = [infoPath cStringUsingEncoding:NSASCIIStringEncoding];
+    if (!nameStr || !nameStr[0])
     {
         return nil;
     }
-    
+
+    // Open the sqlite DB
+    sqlite3 *db = nil;
+    // Disable writes, eliminating the need for locking.
+    const int flags = SQLITE_OPEN_READONLY |
+                      SQLITE_OPEN_NOMUTEX;
+                      //| SQLITE_OPEN_EXRESCODE;    // extended error codes on failure - available in later versions
+    const int openRes = sqlite3_open_v2(nameStr, &db, flags, nullptr);
+    if (openRes != SQLITE_OK)
+    {
+        const char* const err = sqlite3_errstr(openRes);
+        wkLogLevel(Error, "SQLite failed to open '%s' - %d: %s", nameStr, openRes, err ? err : "?");
+        return nil;
+    }
+
     const auto cs = [[MaplySphericalMercator alloc] initWebStandard];
-    
+
+    if (cacheSize >= 0)
+    {
+        try
+        {
+            sqlhelpers::StatementRead pageStmt(db, "PRAGMA page_size", false);
+            const int pageSize = pageStmt.stepRow() ? pageStmt.getInt() : 0;
+            if (pageSize > 0)
+            {
+                const int cachePages = (cacheSize + pageSize - 1) / pageSize;
+                const auto sql = "PRAGMA cache_size=" + std::to_string(cachePages);
+                sqlhelpers::StatementRead configStmt(db, sql.c_str(), true);
+
+                sqlhelpers::StatementRead cacheStmt(db, "PRAGMA cache_size", false);
+                if (cacheStmt.stepRow())
+                {
+                    const int actualCachePages = cacheStmt.getInt();
+                    wkLogLevel(Info, "SQLite cache size set to %d pages = %d bytes",
+                               actualCachePages, actualCachePages * pageSize);
+                }
+            }
+        }
+        catch (const std::exception &e)
+        {
+            wkLogLevel(Warn, "Failed to set SQLite cache (%s)", e.what());
+        }
+        catch (int e)
+        {
+            const char* const str = sqlite3_errstr(e);
+            wkLogLevel(Warn, "Failed to set SQLite cache (%d): %s", e, str ? str : "?");
+        }
+        catch (...)
+        {
+            const int e = sqlite3_errcode(db);
+            const char* const str = sqlite3_errmsg(db);
+            wkLogLevel(Warn, "Failed to set SQLite cache (%d): %s", e, str ? str : "?");
+        }
+    }
+
     // Look at the metadata
     GeoMbr gmbr;
+    bool failed = false;
     try
     {
         sqlhelpers::StatementRead readStmt(db,@"select value from metadata where name='bounds';");
@@ -131,24 +187,41 @@ using namespace WhirlyKit;
         sqlhelpers::StatementRead testStmt(db,@"SELECT name FROM sqlite_master WHERE type='table' AND name='tiles';");
         if (testStmt.stepRow())
             tilesStyles = true;
-    } catch (int e) {
-        NSLog(@"Exception fetching MBTiles metadata (%d)", e);
-        if (db) {
-            sqlite3_close(db);
-        }
-        return nil;
-    } catch (...) {
-        NSLog(@"Unknown exception fetching MBTiles metadata");
-        if (db) {
+    }
+    catch (const std::exception &e)
+    {
+        wkLogLevel(Error, "Exception fetching MBTiles metadata (%s)", e.what());
+        failed = true;
+    }
+    catch (int e)
+    {
+        const char* const str = sqlite3_errstr(e);
+        wkLogLevel(Error, "Exception fetching MBTiles metadata (%d): %s", e, str ? str : "?");
+        failed = true;
+    }
+    catch (...)
+    {
+        const int e = sqlite3_errcode(db);
+        const char* const str = sqlite3_errmsg(db);
+        wkLogLevel(Error, "Exception fetching MBTiles metadata (%d): %s", e, str ? str : "?");
+        failed = true;
+    }
+
+    if (failed)
+    {
+        if (db)
+        {
             sqlite3_close(db);
         }
         return nil;
     }
 
-    self = [super initWithName:mbTilesName minZoom:minZoom maxZoom:maxZoom];
-    geoMbr = gmbr;
-    coordSys = cs;
-    sqlDb = db;
+    if ((self = [super initWithName:mbTilesName minZoom:minZoom maxZoom:maxZoom]))
+    {
+        geoMbr = gmbr;
+        coordSys = cs;
+        sqlDb = db;
+    }
     
     return self;
 }
