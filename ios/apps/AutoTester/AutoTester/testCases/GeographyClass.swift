@@ -21,8 +21,10 @@ public class GeographyClassTestCase: MaplyTestCase {
     var layers : [ImageLayer] = []
     var varTarget : MaplyVariableTarget? = nil
     
-    func setupMBTiles(_ name: String, offscreen: Bool, transparent: Bool, drawPriority: Int32, viewC: MaplyBaseViewController) -> ImageLayer? {
-        guard let fetcher = MaplyMBTileFetcher(mbTiles: name) else {
+    func setupMBTiles(_ name: String, offscreen: Bool, transparent: Bool,
+                      drawPriority: Int32, viewC: MaplyBaseViewController,
+                      cacheSize: Int32 = -1) -> ImageLayer? {
+        guard let fetcher = MaplyMBTileFetcher(mbTiles: name, cacheSize: cacheSize) else {
             return nil
         }
         
@@ -63,7 +65,8 @@ public class GeographyClassTestCase: MaplyTestCase {
                                     offscreen: false,
                                     transparent: false,
                                     drawPriority: kMaplyImageLayerDrawPriorityDefault,
-                                    viewC: viewC) {
+                                    viewC: viewC,
+                                    cacheSize: 0) {
             layers.append(layer)
         }
     }
