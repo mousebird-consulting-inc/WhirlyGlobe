@@ -299,10 +299,13 @@ static int BackImageWidth = 16, BackImageHeight = 16;
         loadReturn->loadReturn->changes.insert(loadReturn->loadReturn->changes.end(),
                                                vecTileReturn->data->changes.begin(),
                                                vecTileReturn->data->changes.end());
+        vecTileReturn->data->changes.clear();
         
-        if (!vecTileReturn->data->compObjs.empty())
-            compObjs.insert(compObjs.end(),vecTileReturn->data->compObjs.begin(),vecTileReturn->data->compObjs.end());
-        
+        compObjs.insert(compObjs.end(),
+                        std::make_move_iterator(vecTileReturn->data->compObjs.begin()),
+                        std::make_move_iterator(vecTileReturn->data->compObjs.end()));
+        vecTileReturn->data->compObjs.clear();
+
         const auto it = vecTileReturn->data->categories.find("overlay");
         if (it != vecTileReturn->data->categories.end()) {
             auto const &ids = it->second;
