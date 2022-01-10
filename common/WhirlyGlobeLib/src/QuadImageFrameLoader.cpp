@@ -1449,6 +1449,11 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
     if (!scene)
         return;
 
+    // We're shutting down, so don't do this
+    if (lastRunReqFlag && !*lastRunReqFlag)
+        return;
+
+
     ChangeSet changes;
 
     TimeInterval now = control->getScene()->getCurrentTime();
