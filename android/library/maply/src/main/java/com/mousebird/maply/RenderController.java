@@ -1004,9 +1004,12 @@ public class RenderController implements RenderControllerInterface
             processChangeSet(changes);
         }, mode);
 
-        if (mode == ThreadMode.ThreadCurrent && compObj.getVectorIDs().length == 0) {
-            // In current-thread mode, we already know whether it worked or not.
-            return null;
+        // In current-thread mode, we already know whether it worked or not.
+        if (mode == ThreadMode.ThreadCurrent) {
+            final long[] ids = compObj.getVectorIDs();
+            if (ids == null || ids.length == 0) {
+                return null;
+            }
         }
 
         return compObj;
@@ -1079,8 +1082,8 @@ public class RenderController implements RenderControllerInterface
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             // Vectors are simple enough to just add
-            ChangeSet changes = new ChangeSet();
-            long[] vecIDs = vecObj.getVectorIDs();
+            final ChangeSet changes = new ChangeSet();
+            final long[] vecIDs = vecObj.getVectorIDs();
             if (vecIDs != null) {
                 vecManager.changeVectors(vecIDs, vecInfo, changes);
                 processChangeSet(changes);
@@ -1102,8 +1105,8 @@ public class RenderController implements RenderControllerInterface
         // Do the actual work on the layer thread
         taskMan.addTask(() -> {
             // Vectors are simple enough to just add
-            ChangeSet changes = new ChangeSet();
-            long[] vecIDs = vecObj.getVectorIDs();
+            final ChangeSet changes = new ChangeSet();
+            final long[] vecIDs = vecObj.getVectorIDs();
             if (vecIDs != null) {
                 // todo: implement this
                 //vecManager.changeWideVectors(vecIDs, vecInfo, changes);
@@ -1131,8 +1134,8 @@ public class RenderController implements RenderControllerInterface
             }
 
             // Vectors are simple enough to just add
-            ChangeSet changes = new ChangeSet();
-            long[] vecIDs = vecObj.getVectorIDs();
+            final ChangeSet changes = new ChangeSet();
+            final long[] vecIDs = vecObj.getVectorIDs();
             if (vecIDs != null) {
                 for (long vecID : vecIDs) {
                     long newID = vecManager.instanceVectors(vecID, vecInfo, changes);
@@ -1205,9 +1208,12 @@ public class RenderController implements RenderControllerInterface
             processChangeSet(changes);
         }, mode);
 
-        if (mode == ThreadMode.ThreadCurrent && compObj.getWideVectorIDs().length == 0) {
-            // In current-thread mode, we already know whether it worked or not.
-            return null;
+        // In current-thread mode, we already know whether it worked or not.
+        if (mode == ThreadMode.ThreadCurrent) {
+            final long[] ids = compObj.getWideVectorIDs();
+            if (ids == null || ids.length == 0) {
+                return null;
+            }
         }
 
         return compObj;
@@ -1240,15 +1246,18 @@ public class RenderController implements RenderControllerInterface
             // Vectors are simple enough to just add
             ChangeSet changes = new ChangeSet();
 
-            for (long vecID : inCompObj.getWideVectorIDs()) {
-                if (!running) {
-                    return;
+            final long[] ids = inCompObj.getWideVectorIDs();
+            if (ids != null) {
+                for (long vecID : ids) {
+                    if (!running) {
+                        return;
+                    }
+
+                    long instID = wideVecManager.instanceVectors(vecID, wideVecInfo, changes);
+
+                    if (instID != EmptyIdentity)
+                        compObj.addWideVectorID(instID);
                 }
-
-                long instID = wideVecManager.instanceVectors(vecID,wideVecInfo,changes);
-
-                if (instID != EmptyIdentity)
-                    compObj.addWideVectorID(instID);
             }
 
             componentManager.addComponentObject(compObj, changes);
@@ -1362,7 +1371,7 @@ public class RenderController implements RenderControllerInterface
         taskMan.addTask(() -> {
             ChangeSet changes = new ChangeSet();
 
-            long[] stickerIDs = stickerObj.getStickerIDs();
+            final long[] stickerIDs = stickerObj.getStickerIDs();
             if (stickerIDs != null && stickerIDs.length > 0) {
                 for (long stickerID : stickerIDs) {
                     if (!running) {
