@@ -182,11 +182,35 @@ public:
     /// @brief Convert any areal features into linears and return a new vector object
     VectorObjectRef arealsToLinears() const;
 
+    /// @brief The number of linear features
+    int countLinears() const;
+
+    /// @brief The number of areal features
+    int countAreals() const;
+
     /// @brief Reverse the direction of areal loops
     void reverseAreals();
 
     /// @brief Create a copy with reversed loops
-    VectorObjectRef reversedAreals();
+    VectorObjectRef reversedAreals() const;
+
+    /// @brief The number of areal loops that are closed
+    int countClosedLoops() const;
+
+    /// @brief The number of areal loops that are not closed
+    int countUnClosedLoops() const;
+
+    /// @brief Ensure that loops are closed
+    void closeLoops();
+
+    /// @brief Ensure that loops are closed, returning a new object
+    VectorObjectRef closedLoops() const;
+
+    /// @brief Ensure that loops are not closed
+    void unCloseLoops();
+
+    /// @brief Ensure that loops are not closed, returning a new object
+    VectorObjectRef unClosedLoops() const;
 
     /// @brief Add objects form the given GeoJSON string.
     /// @param json The GeoJSON data as a std::string

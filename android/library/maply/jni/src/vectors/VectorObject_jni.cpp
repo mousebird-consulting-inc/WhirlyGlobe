@@ -478,8 +478,106 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_reversedAreals
     {
         if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
         {
-            auto newObj = (*vecObj)->reversedAreals();
-            return MakeVectorObjectWrapper(env, VectorObjectClassInfo::getClassInfo(), newObj);
+            if ((*vecObj)->countAreals() == 0)
+            {
+                return obj;
+            }
+            if (auto newObj = (*vecObj)->reversedAreals())
+            {
+                return MakeVectorObjectWrapper(env, VectorObjectClassInfo::getClassInfo(), newObj);
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_closeLoops
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        {
+            (*vecObj)->closeLoops();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_closedLoops
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        {
+            if ((*vecObj)->countUnClosedLoops() == 0)
+            {
+                // No un-closed loops, don't create a new object
+                return obj;
+            }
+            if (auto newObj = (*vecObj)->closedLoops())
+            {
+                return MakeVectorObjectWrapper(env, VectorObjectClassInfo::getClassInfo(), newObj);
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_unCloseLoops
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        {
+            (*vecObj)->unCloseLoops();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_unClosedLoops
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        {
+            if ((*vecObj)->countClosedLoops() == 0)
+            {
+                // No closed loops, don't create a new object
+                return obj;
+            }
+            if (auto newObj = (*vecObj)->unClosedLoops())
+            {
+                return MakeVectorObjectWrapper(env, VectorObjectClassInfo::getClassInfo(), newObj);
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_VectorObject_clone
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        {
+            if (auto newObj = (*vecObj)->deepCopy())
+            {
+                return MakeVectorObjectWrapper(env, VectorObjectClassInfo::getClassInfo(), newObj);
+            }
         }
     }
     MAPLY_STD_JNI_CATCH()

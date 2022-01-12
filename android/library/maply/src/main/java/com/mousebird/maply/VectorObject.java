@@ -222,9 +222,32 @@ public class VectorObject implements Iterable<VectorObject>
 	public native VectorObject reversedAreals();
 
 	/**
+	 * Ensure that areal loops are closed
+	 */
+	public native void closeLoops();
+	/**
+	 * Produce a new objet with closed loops
+	 */
+	public native VectorObject closedLoops();
+
+	/**
+	 * Ensure that areal loops are not closed
+	 */
+	public native void unCloseLoops();
+	/**
+	 * Produce a new objet with un-closed loops
+	 */
+	public native VectorObject unClosedLoops();
+
+	/**
 	 * Returns the total number of points in a feature.  Used for assessing size.
      */
 	public native int countPoints();
+
+	/**
+	 * Create a copy
+	 */
+	public native VectorObject clone();
 
 	/**
 	 * Bounding box of all the various features together

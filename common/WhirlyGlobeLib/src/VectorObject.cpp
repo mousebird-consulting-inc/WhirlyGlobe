@@ -259,7 +259,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot) const
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const float halfLen = totLen / 2.0f;
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
@@ -292,7 +292,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot) const
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const float halfLen = totLen / 2.0f;
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
@@ -353,7 +353,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot,CoordSystem *coordSy
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const float halfLen = totLen / 2.0f;
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
@@ -1303,7 +1303,7 @@ VectorObjectRef VectorObject::linearsToAreals() const
         }
         else
         {
-            newVec->shapes.insert(std::move(shape));
+            newVec->shapes.insert(shape);
         }
     }
 
@@ -1336,6 +1336,23 @@ VectorObjectRef VectorObject::arealsToLinears() const
     return newVec;
 }
 
+// Count collection contents castable to the specified type
+template <typename T, typename TIter>
+static int count(TIter beg, TIter end)
+{
+    return (int)std::count_if(beg, end, [](const auto& s) { return dynamic_cast<T*>(s.get()); });
+}
+
+int VectorObject::countLinears() const
+{
+    return count<VectorLinear>(shapes.cbegin(), shapes.cend());
+}
+
+int VectorObject::countAreals() const
+{
+    return count<VectorAreal>(shapes.cbegin(), shapes.cend());
+}
+
 void VectorObject::reverseAreals()
 {
     for (auto& shape : shapes)
@@ -1350,7 +1367,7 @@ void VectorObject::reverseAreals()
     }
 }
 
-VectorObjectRef VectorObject::reversedAreals()
+VectorObjectRef VectorObject::reversedAreals() const
 {
     auto newVec = std::make_shared<VectorObject>();
     newVec->shapes.reserve(shapes.size());
@@ -1375,6 +1392,98 @@ VectorObjectRef VectorObject::reversedAreals()
     }
 
     return newVec;
+}
+
+int VectorObject::countClosedLoops() const
+{
+    int n = 0;
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() == loop.back())
+                {
+                    ++n;
+                }
+            }
+        }
+    }
+    return n;
+}
+
+int VectorObject::countUnClosedLoops() const
+{
+    int n = 0;
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() != loop.back())
+                {
+                    ++n;
+                }
+            }
+        }
+    }
+    return n;
+}
+
+void VectorObject::closeLoops()
+{
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() != loop.back())
+                {
+                    loop.push_back(loop.front());
+                }
+            }
+        }
+    }
+}
+
+VectorObjectRef VectorObject::closedLoops() const
+{
+    if (auto newObj = deepCopy())
+    {
+        newObj->closeLoops();
+        return newObj;
+    }
+    return VectorObjectRef();
+}
+
+void VectorObject::unCloseLoops()
+{
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() == loop.back())
+                {
+                    loop.pop_back();
+                }
+            }
+        }
+    }
+}
+
+VectorObjectRef VectorObject::unClosedLoops() const
+{
+    if (auto newObj = deepCopy())
+    {
+        newObj->unCloseLoops();
+        return newObj;
+    }
+    return VectorObjectRef();
 }
 
 VectorObjectRef VectorObject::filterClippedEdges() const
@@ -1623,9 +1732,9 @@ void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double 
             lenSoFar += len;
             
             // Parabolic curve
-            const float b = 4*height;
-            const float a = -b;
-            const float thisHeight = a*(t*t) + b*t;
+            const double b = 4*height;
+            const double a = -b;
+            const double thisHeight = a*(t*t) + b*t;
             
             if (isFlat)
                 pt.z() = thisHeight;
