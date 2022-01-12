@@ -216,6 +216,6 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
 
 // Sample a great circle and throw in an interpolated height at each point
 void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
-                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,int minSamples);
     
 }

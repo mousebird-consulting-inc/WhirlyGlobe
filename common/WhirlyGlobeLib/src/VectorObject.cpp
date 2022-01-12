@@ -1585,7 +1585,7 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
 }
 
 void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
-                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,int minPts)
 {
     const bool isFlat = coordAdapter->isFlat();
     
@@ -1600,7 +1600,9 @@ void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double 
         
         VectorRing3d tmpPts;
         tmpPts.reserve(10); // ?
-        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
+
+
+        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, minPts);
         pts = tmpPts;
         
         // To apply the height, we'll need the total length
