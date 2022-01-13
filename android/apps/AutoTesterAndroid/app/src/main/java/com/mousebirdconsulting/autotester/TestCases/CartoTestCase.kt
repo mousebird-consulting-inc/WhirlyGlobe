@@ -102,12 +102,12 @@ class CartoTestCase(activity: Activity) :
 
         // Generate the fetch request for the chunk of data we want
         override fun fetchInfoForTile(tileID: TileID?, flipY: Boolean): Any {
-            val bbox = theLoader?.geoBoundsForTile(tileID)
+            val bbox = tileID?.let { theLoader?.geoBoundsForTile(it) } ?: Mbr()
 
             // Construct the query string
             val fetchInfo = RemoteTileFetchInfo()
             val toDeg = 180.0/ PI
-            val query = String.format(search,bbox!!.ll.x*toDeg,bbox.ll.y*toDeg,bbox.ur.x*toDeg,bbox.ur.y*toDeg)
+            val query = String.format(search,bbox.ll.x*toDeg,bbox.ll.y*toDeg,bbox.ur.x*toDeg,bbox.ur.y*toDeg)
             val encodeQuery = URLEncoder.encode(query,"utf-8")
             val fullURLStr = String.format("https://pluto.cartodb.com/api/v2/sql?format=GeoJSON&q=%s",encodeQuery)
             fetchInfo.urlReq = Request.Builder().url(URL(fullURLStr)).build()
@@ -134,6 +134,12 @@ class CartoTestCase(activity: Activity) :
             val vc = loader.controller
             loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoFill,ThreadMode.ThreadCurrent))
             loadReturn.addComponentObject(vc.addVector(vecObj,vecInfoOutline,ThreadMode.ThreadCurrent))
+        }
+    
+        /**
+         * Some tiles were just removed.
+         */
+        override fun tilesUnloaded(ids: Array<out TileID>) {
         }
     }
 }

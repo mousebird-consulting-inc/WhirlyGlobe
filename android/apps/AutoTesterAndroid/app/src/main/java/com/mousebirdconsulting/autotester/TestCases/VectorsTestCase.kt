@@ -128,10 +128,10 @@ class VectorsTestCase(activity: Activity?) :
         val s = selObjs.mapNotNull { it.selObj as? VectorObject }
             .mapNotNull {
                 val center = it.centroid() ?: it.center() ?: return@mapNotNull null
-                val name = it.attributes.getString("NAME_FORMA") ?:
-                    it.attributes.getString("NAME") ?:
-                    it.attributes.getString("ADMIN") ?:
-                    it.attributes.getString("title") ?: "?"
+                val name = it.attributes?.getString("NAME_FORMA") ?:
+                    it.attributes?.getString("NAME") ?:
+                    it.attributes?.getString("ADMIN") ?:
+                    it.attributes?.getString("title") ?: "?"
                 mapController?.animatePositionGeo(center, mapController.height, mapController.heading, 1.0)
                 globeController?.animatePositionGeo(center, globeController.height, globeController.heading, 1.0)
                 String.format("$name (%.5f,%.5f)",

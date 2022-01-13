@@ -72,12 +72,10 @@ void Java_com_mousebird_maply_VectorObject_dispose
 	try
 	{
 		VectorObjectClassInfo *classInfo = VectorObjectClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            VectorObjectRef *inst = classInfo->getObject(env,obj);
-            delete inst;
-            classInfo->clearHandle(env,obj);
-        }
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        VectorObjectRef *inst = classInfo->getObject(env,obj);
+        delete inst;
+        classInfo->clearHandle(env,obj);
 	}
     MAPLY_STD_JNI_CATCH()
 }
@@ -179,7 +177,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setAttributes
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addPoint
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
 	try
@@ -190,14 +188,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint
             VectorPointsRef pts = VectorPoints::createPoints();
             pts->pts.push_back(GeoCoord(pt->x(), pt->y()));
             pts->initGeoMbr();
-            (*vecObj)->shapes.insert(std::move(pts));
+            (*vecObj)->shapes.insert(pts);
+            return true;
         }
 	}
     MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addLinear
   (JNIEnv *env, jobject obj, jobjectArray ptsObj)
 {
 	try
@@ -208,23 +208,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
 
             VectorLinearRef lin = VectorLinear::createLinear();
 
-            JavaObjectArrayHelper ptsHelp(env,ptsObj);
+            JavaObjectArrayHelper ptsHelp(env, ptsObj);
             lin->pts.reserve(ptsHelp.numObjects());
 
             while (jobject ptObj = ptsHelp.getNextObject())
             {
-                const Point2d *pt = ptClassInfo->getObject(env,ptObj);
-                lin->pts.emplace_back(pt->x(),pt->y());
+                const Point2d *pt = ptClassInfo->getObject(env, ptObj);
+                lin->pts.emplace_back(pt->x(), pt->y());
             }
             lin->initGeoMbr();
-            (*vecObj)->shapes.insert(std::move(lin));
+            (*vecObj)->shapes.insert(lin);
+            return true;
         }
 	}
     MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2
   (JNIEnv *env, jobject obj, jobjectArray ptsObj)
 {
 	try
@@ -246,14 +248,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
                 ar->loops[0].emplace_back(pt->x(), pt->y());
             }
             ar->initGeoMbr();
-            (*vecObj)->shapes.insert(std::move(ar));
+            (*vecObj)->shapes.insert(ar);
+            return true;
         }
 	}
     MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2_3_3Lcom_mousebird_maply_Point2d_2
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2_3_3Lcom_mousebird_maply_Point2d_2
   (JNIEnv *env, jobject obj, jobjectArray outerLoopObj, jobjectArray holesArray)
 {
     try
@@ -269,7 +273,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
             {
                 jobjectArray ptsObj =
                         (loop == 0) ? outerLoopObj :
-                            (jobjectArray)env->GetObjectArrayElement(holesArray, loop - 1);
+                        (jobjectArray) env->GetObjectArrayElement(holesArray, loop - 1);
 
                 JavaObjectArrayHelper ptsHelp(env, ptsObj);
                 ar->loops[loop].reserve(ptsHelp.numObjects());
@@ -287,10 +291,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
             }
 
             ar->initGeoMbr();
-            (*vecObj)->shapes.insert(std::move(ar));
+            (*vecObj)->shapes.insert(ar);
+            return true;
         }
     }
     MAPLY_STD_JNI_CATCH()
+    return false;
 }
 
 extern "C"
@@ -877,6 +883,28 @@ jboolean Java_com_mousebird_maply_VectorObject_fromGeoJSON
 }
 
 extern "C"
+JNIEXPORT jobject Java_com_mousebird_maply_VectorObject_createLineString
+  (JNIEnv* env, jclass, jobjectArray ptsObjs, jobject attrObj)
+{
+    try
+    {
+        if (auto obj = MakeVectorObject(env, std::make_shared<VectorObject>()))
+        {
+            if (Java_com_mousebird_maply_VectorObject_addLinear(env, obj, ptsObjs))
+            {
+                if (attrObj)
+                {
+                    Java_com_mousebird_maply_VectorObject_setAttributes(env, obj, attrObj);
+                }
+                return obj;
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_fromShapeFile
   (JNIEnv *env, jobject obj, jstring jstr)
 {
@@ -901,7 +929,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_canSplit
 {
     try
     {
-        if (const auto vecObjPtr = VectorObjectClassInfo::get(env,obj))
+        if (auto vecObjPtr = VectorObjectClassInfo::get(env,obj))
         {
             return ((*vecObjPtr)->shapes.size() > 1);
         }

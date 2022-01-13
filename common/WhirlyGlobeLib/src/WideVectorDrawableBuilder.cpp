@@ -36,11 +36,7 @@ WideVectorDrawableBuilder::WideVectorDrawableBuilder(std::string name,
       p1_index(-1), n0_index(-1), offset_index(-1), c0_index(-1), tex_index(-1)
 {
 }
-    
-WideVectorDrawableBuilder::~WideVectorDrawableBuilder()
-{
-}
-    
+
 void WideVectorDrawableBuilder::Init(unsigned int numVert,
                                      unsigned int numTri,
                                      unsigned int numCenterline,
@@ -55,8 +51,14 @@ void WideVectorDrawableBuilder::Init(unsigned int numVert,
     basicDrawable->Init();
     basicDrawable->setupStandardAttributes();
     basicDrawable->setType(Triangles);
-    basicDrawable->points.reserve(numVert);
-    basicDrawable->tris.reserve(numTri);
+    if (numVert > 0)
+    {
+        basicDrawable->points.reserve(numVert);
+    }
+    if (numTri > 0)
+    {
+        basicDrawable->tris.reserve(numTri);
+    }
     
     if (implType == WideVecImplPerf) {
         instDrawable = renderer->makeBasicDrawableInstanceBuilder(name);
