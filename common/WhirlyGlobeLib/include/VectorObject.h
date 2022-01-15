@@ -61,7 +61,7 @@ public:
     
     /// @brief Return the attributes for the first shape or NULL
     MutableDictionaryRef getAttributes() const;
-    void setAttributes(MutableDictionaryRef newDict);
+    void setAttributes(const MutableDictionaryRef &newDict);
     
     /// Make a complete company (nothing shared) and return it
     VectorObjectRef deepCopy() const;
@@ -211,6 +211,9 @@ public:
 
     /// @brief Ensure that loops are not closed, returning a new object
     VectorObjectRef unClosedLoops() const;
+
+    /// @brief Check if any segments intersect any others
+    bool anyIntersections() const;
 
     /// @brief Add objects form the given GeoJSON string.
     /// @param json The GeoJSON data as a std::string

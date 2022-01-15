@@ -627,6 +627,21 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorObject_countPoints
 }
 
 extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_anyIntersections
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecObj = VectorObjectClassInfo::get(env,obj))
+        {
+            return (*vecObj)->anyIntersections();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_boundingBox
   (JNIEnv *env, jobject obj, jobject llObj, jobject urObj)
 {
@@ -891,6 +906,28 @@ JNIEXPORT jobject Java_com_mousebird_maply_VectorObject_createLineString
         if (auto obj = MakeVectorObject(env, std::make_shared<VectorObject>()))
         {
             if (Java_com_mousebird_maply_VectorObject_addLinear(env, obj, ptsObjs))
+            {
+                if (attrObj)
+                {
+                    Java_com_mousebird_maply_VectorObject_setAttributes(env, obj, attrObj);
+                }
+                return obj;
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jobject Java_com_mousebird_maply_VectorObject_createAreal
+  (JNIEnv* env, jclass, jobjectArray ptsObjs, jobject attrObj)
+{
+    try
+    {
+        if (auto obj = MakeVectorObject(env, std::make_shared<VectorObject>()))
+        {
+            if (Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2(env, obj, ptsObjs))
             {
                 if (attrObj)
                 {

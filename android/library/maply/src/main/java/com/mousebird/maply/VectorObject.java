@@ -241,9 +241,9 @@ public class VectorObject implements Iterable<VectorObject>
 	public native int countPoints();
 
 	/**
-	 * Create a copy
+	 * Returns true if any of the segments of lines or areas intersect any others
 	 */
-	public native VectorObject clone();
+	public native boolean anyIntersections();
 
 	/**
 	 * Bounding box of all the various features together
@@ -435,6 +435,21 @@ public class VectorObject implements Iterable<VectorObject>
 	@Nullable
 	public static native VectorObject createLineString(@NotNull Point2d[] points,
 	                                                   @Nullable AttrDictionary attrs);
+
+	/**
+	 * Create a new vector object as a polygon from a collection of points
+	 */
+	@Nullable
+	public static VectorObject createAreal(@NotNull Point2d[] points) {
+		return createAreal(points, null);
+	}
+
+	/**
+	 * Create a new vector object as a polygon from a collection of points and attributes
+	 */
+	@Nullable
+	public static native VectorObject createAreal(@NotNull Point2d[] points,
+												  @Nullable AttrDictionary attrs);
 
 	/**
 	 * Load vector objects from a Shapefile.

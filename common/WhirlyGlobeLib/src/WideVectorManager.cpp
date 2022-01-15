@@ -828,12 +828,7 @@ public:
                 makeDistinctTurns = true;
                 if (pts.size() > 2)
                 {
-                    if (pts.front() == pts.back())
-                    {
-                        startPoint = -3;
-                    } else {
-                        startPoint = -2;
-                    }
+                    startPoint = (pts.front() == pts.back()) ? -3 : -2;
                 }
             }
      
@@ -855,8 +850,9 @@ public:
             bool validLastPt = false;
             for (int ii=startPoint;ii<(int)pts.size();ii++)
             {
-                // Get the points in display space
-                const Point2f &geoA = pts[ii % pts.size()];
+                // Get the points in display space.
+                // Note that we may be starting with a negative index.
+                const Point2f &geoA = pts[(ii + pts.size()) % pts.size()];
 
                 if (validLastPt && geoA == lastPt)
                 {
@@ -1075,7 +1071,6 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         if (const auto lin = dynamic_cast<const VectorLinear*>(shape.get()))
         {
             builder.addLinear(lin->pts, centerUp, maskIDs, false);
-            //builder.addLinearDebug();
         }
         else if (const auto ar = dynamic_cast<VectorAreal*>(shape.get()))
         {
