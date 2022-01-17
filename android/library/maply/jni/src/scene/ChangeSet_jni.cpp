@@ -1,9 +1,8 @@
-/*
- *  ChangeSet_jni.cpp
+/*  ChangeSet_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <jni.h>
@@ -25,8 +23,9 @@
 
 using namespace WhirlyKit;
 
-template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = NULL;
+template<> ChangeSetClassInfo *ChangeSetClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_nativeInit
   (JNIEnv *env, jclass cls)
 {
@@ -36,100 +35,98 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_nativeInit
 JNIEXPORT jobject JNICALL MakeChangeSet(JNIEnv *env,const ChangeSet &changeSet)
 {
 	ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo(env,"com/mousebird/maply/ChangeSet");
-	jobject newObj = classInfo->makeWrapperObject(env,NULL);
+	jobject newObj = classInfo->makeWrapperObject(env,nullptr);
 	WhirlyKit::ChangeSetRef *inst = classInfo->getObject(env,newObj);
 	(*inst)->insert((*inst)->end(),changeSet.begin(),changeSet.end());
-
 	return newObj;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_initialise
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		ChangeSetRef *changeSet = new ChangeSetRef(new ChangeSet());
-		ChangeSetClassInfo::getClassInfo()->setHandle(env,obj,changeSet);
+		ChangeSetClassInfo::set(env, obj, new ChangeSetRef(std::make_shared<ChangeSet>()));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            ChangeSetRef *changeSet = classInfo->getObject(env,obj);
-            if (!changeSet)
-                return;
-
-            // Be sure to delete the contents
-            for (unsigned int ii = 0;ii<(*changeSet)->size();ii++)
-                delete (*changeSet)->at(ii);
-
-            delete changeSet;
-
-            classInfo->clearHandle(env,obj);
-        }
+		std::lock_guard<std::mutex> lock(disposeMutex);
+		if (const auto changeSet = classInfo->getObject(env,obj))
+		{
+			// Be sure to delete the contents
+			for (auto &change : **changeSet)
+			{
+				delete change;
+				change = nullptr;
+			}
+			delete changeSet;
+		}
+		classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_merge
   (JNIEnv *env, jobject obj, jobject otherObj)
 {
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		ChangeSetRef *changeSet = classInfo->getObject(env,obj);
-		ChangeSetRef *otherChangeSet = classInfo->getObject(env,otherObj);
-		if (!changeSet || !otherChangeSet)
-			return;
-		(*changeSet)->insert((*changeSet)->end(),(*otherChangeSet)->begin(),(*otherChangeSet)->end());
-		(*otherChangeSet)->clear();
+		if (const auto changeSet = classInfo->getObject(env,obj))
+		if (const auto otherSet = classInfo->getObject(env,otherObj))
+		if (!(*otherSet)->empty())
+		{
+			(*changeSet)->reserve((*changeSet)->size() + (*otherSet)->size());
+			(*changeSet)->insert((*changeSet)->end(),(*otherSet)->begin(),(*otherSet)->end());
+			(*otherSet)->clear();
+		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::merge()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
   (JNIEnv *env, jobject obj, jobject renderControlObj, jobject sceneObj)
 {
 	try
 	{
-		ChangeSetRef *changes = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
-		SceneRendererGLES_Android *sceneRender = SceneRendererInfo::getClassInfo()->getObject(env,renderControlObj);
-		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		ChangeSetRef *changes = ChangeSetClassInfo::get(env,obj);
+		SceneRendererGLES_Android *sceneRender = SceneRendererInfo::get(env,renderControlObj);
+		Scene *scene = SceneClassInfo::get(env,sceneObj);
 		if (!changes || !sceneRender || !scene)
+		{
 			return;
+		}
 
 	    bool requiresFlush = false;
 	    // Set up anything that needs to be set up
 	    ChangeSet changesToAdd;
-	    for (unsigned int ii = 0;ii<(*changes)->size();ii++)
+	    changesToAdd.reserve((*changes)->size());
+	    for (auto change : **changes)
 	    {
-	        ChangeRequest *change = (*changes)->at(ii);
 	        if (change)
 	        {
 	            requiresFlush |= change->needsFlush();
 	            change->setupForRenderer(sceneRender->getRenderSetupInfo(),scene);
 	            changesToAdd.push_back(change);
-	        } else
-	            // A NULL change request is just a flush request
+	        }
+	        else
+			{
+	            // A NULL change request is a flush request
 	            requiresFlush = true;
+			}
 	    }
 
 	    // If anything needed a flush after that, let's do it
@@ -138,81 +135,82 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	        glFlush();
 	    }
 
-//	    __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Processed %d changes",changesToAdd.size());
-
 	    scene->addChangeRequests(changesToAdd);
 		(*changes)->clear();
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::process()");
-	}
+	MAPLY_STD_JNI_CATCH()
+
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
   (JNIEnv *env, jobject obj, jobject texObj, jobject sceneObj, jint filterType)
 {
 	try
 	{
-		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		ChangeSetRef *changeSet = classInfo->getObject(env,obj);
-		Texture *texture = TextureClassInfo::getClassInfo()->getObject(env,texObj);
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
+		ChangeSetRef *changeSet = ChangeSetClassInfo::get(env,obj);
+		Texture *texture = TextureClassInfo::get(env,texObj);
+        Scene *scene = SceneClassInfo::get(env,sceneObj);
 		if (!changeSet || !texture || !scene)
+		{
 			return;
+		}
 
         // We take control of the Texture * as soon as it goes into the change set
         TextureClassInfo::getClassInfo()->clearHandle(env,texObj);
         switch (filterType)
         {
-            case 0:
-                texture->setInterpType(TexInterpNearest);
-                break;
-        	default:
-            case 1:
-                texture->setInterpType(TexInterpLinear);
-                break;
+            case 0: texture->setInterpType(TexInterpNearest); break;
+            default:
+            case 1: texture->setInterpType(TexInterpLinear); break;
         }
 
 		(*changeSet)->push_back(new AddTextureReq(texture));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::addTexture()");
-	}
+	MAPLY_STD_JNI_CATCH()
+
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_removeTexture
   (JNIEnv *env, jobject obj, jlong texID)
 {
 	try
 	{
-		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
-		if (!changeSet)
-			return;
+		if (const auto changeSet = ChangeSetClassInfo::get(env,obj))
+		{
+			(*changeSet)->push_back(new RemTextureReq(texID));
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
 
-		(*changeSet)->push_back(new RemTextureReq(texID));
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::removeTexture()");
-	}
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_clearRenderTarget
 		(JNIEnv *env, jobject obj, jlong renderTargetID)
 {
 	try
 	{
-		ChangeSetRef *changeSet = ChangeSetClassInfo::getClassInfo()->getObject(env,obj);
-		if (!changeSet)
-			return;
-
-		(*changeSet)->push_back(new ClearRenderTargetReq(renderTargetID));
+		if (const auto changeSet = ChangeSetClassInfo::get(env,obj))
+		{
+			(*changeSet)->push_back(new ClearRenderTargetReq(renderTargetID));
+		}
 	}
-	catch (...)
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_ChangeSet_count
+  (JNIEnv *env, jobject obj)
+{
+	try
 	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in ChangeSet::removeTexture()");
+		if (const auto changeSet = ChangeSetClassInfo::get(env,obj))
+		{
+			return (jint)(*changeSet)->size();
+		}
 	}
-
+	MAPLY_STD_JNI_CATCH()
+	return 0;
 }

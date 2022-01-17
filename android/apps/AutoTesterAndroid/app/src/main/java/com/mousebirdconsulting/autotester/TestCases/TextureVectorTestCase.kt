@@ -78,8 +78,8 @@ class TextureVectorTestCase(activity: Activity) : MaplyTestCase(activity, "Textu
                             // Center of the texture application
                             val center = loopObj.center()
                             val attrs = loopObj.attributes
-                            attrs.setDouble("veccenterx", center.x)
-                            attrs.setDouble("veccentery", center.y)
+                            attrs?.setDouble("veccenterx", center.x)
+                            attrs?.setDouble("veccentery", center.y)
 
                             var thisClipGridLon = ClipGridSize
                             if (isGlobe) {

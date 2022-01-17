@@ -52,7 +52,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     WideVectorDrawableBuilder(std::string name,const SceneRenderer *sceneRenderer,Scene *scene);
-    virtual ~WideVectorDrawableBuilder();
+    virtual ~WideVectorDrawableBuilder() = default;
 
     virtual void Init(unsigned int numVert,
                       unsigned int numTri,

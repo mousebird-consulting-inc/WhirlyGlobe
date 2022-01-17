@@ -60,7 +60,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_setAttributes
  * Method:    addPoint
  * Signature: (Lcom/mousebird/maply/Point2d;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addPoint
   (JNIEnv *, jobject, jobject);
 
 /*
@@ -68,7 +68,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addPoint
  * Method:    addLinear
  * Signature: ([Lcom/mousebird/maply/Point2d;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addLinear
   (JNIEnv *, jobject, jobjectArray);
 
 /*
@@ -76,7 +76,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addLinear
  * Method:    addAreal
  * Signature: ([Lcom/mousebird/maply/Point2d;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2
   (JNIEnv *, jobject, jobjectArray);
 
 /*
@@ -84,7 +84,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mo
  * Method:    addAreal
  * Signature: ([Lcom/mousebird/maply/Point2d;[[Lcom/mousebird/maply/Point2d;)V
  */
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2_3_3Lcom_mousebird_maply_Point2d_2
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorObject_addAreal___3Lcom_mousebird_maply_Point2d_2_3_3Lcom_mousebird_maply_Point2d_2
   (JNIEnv *, jobject, jobjectArray, jobjectArray);
 
 /*

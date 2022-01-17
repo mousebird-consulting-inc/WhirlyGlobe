@@ -1,9 +1,8 @@
-/*
- *  QuadImageFrameLoader_iOS.h
+/*  QuadImageFrameLoader_iOS.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/18/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadImageFrameLoader.h"
@@ -27,7 +25,7 @@
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(NSData *)data;
 // Called on a random dispatch queue
 - (void)fetchRequestFail:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame error:(NSError *)error;
-// Also called on a randomd ispatch queue
+// Also called on a random dispatch queue
 - (void)tileUnloaded:(MaplyTileID)tileID;
 @end
 

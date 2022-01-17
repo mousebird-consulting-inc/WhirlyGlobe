@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/17/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,10 +25,14 @@
 #import "WhirlyKitLog.h"
 #import "GlobeView.h"
 #import "MaplyView.h"
+
+#import "GeographicLib/Geocentric.hpp"
 #import "GeographicLib/Geodesic.hpp"
+#import "GeographicLib.h"
 
 namespace WhirlyKit
 {
+using namespace detail;
     
 VectorObject::VectorObject()
     : VectorObject(10)
@@ -62,7 +66,7 @@ bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::str
     
     for (auto const &it : newShapes)
     {
-        VectorObject *vecObj = new VectorObject();
+        auto *vecObj = new VectorObject();
         vecObj->shapes.reserve(vecObj->shapes.size() + it.second.size());
         vecObj->shapes.insert(it.second.begin(),it.second.end());
         vecData[it.first] = vecObj;
@@ -70,17 +74,36 @@ bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::str
     
     return true;
 }
-    
+
+bool VectorObject::FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObjectRef> &vecData)
+{
+    // TODO: unordered_map?
+    std::map<std::string, ShapeSet> newShapes;
+
+    if (!VectorParseGeoJSONAssembly(json, newShapes))
+        return false;
+
+    for (auto const &it : newShapes)
+    {
+        auto vecObj = std::make_shared<VectorObject>();
+        vecObj->shapes.reserve(vecObj->shapes.size() + it.second.size());
+        vecObj->shapes.insert(it.second.begin(),it.second.end());
+        vecData[it.first] = std::move(vecObj);
+    }
+
+    return true;
+}
+
 bool VectorObject::fromShapeFile(const std::string &fileName)
 {
     ShapeReader shapeReader(fileName);
     if (!shapeReader.isValid())
         return false;
     
-    const int numObj = shapeReader.getNumObjects();
+    const unsigned numObj = shapeReader.getNumObjects();
     shapes.reserve(shapes.size() + numObj);
     for (unsigned int ii=0;ii<numObj;ii++) {
-        shapes.insert(shapeReader.getObjectByIndex(ii, NULL));
+        shapes.insert(shapeReader.getObjectByIndex(ii, nullptr));
     }
     
     return true;
@@ -91,15 +114,17 @@ MutableDictionaryRef VectorObject::getAttributes() const
     return shapes.empty() ? MutableDictionaryRef() : (*shapes.begin())->getAttrDict();
 }
 
-void VectorObject::setAttributes(MutableDictionaryRef newDict)
+void VectorObject::setAttributes(const MutableDictionaryRef &newDict)
 {
     for (const auto &shape : shapes)
+    {
         shape->setAttrDict(newDict);
+    }
 }
 
 void VectorObject::mergeVectorsFrom(const VectorObject &otherVec)
 {
-    shapes.reserve(shapes.size() + otherVec.shapes.size());
+    shapes.reserve(otherVec.shapes.size());
     shapes.insert(otherVec.shapes.begin(),otherVec.shapes.end());
 }
 
@@ -108,7 +133,7 @@ void VectorObject::splitVectors(std::vector<VectorObject *> &vecs)
     vecs.reserve(vecs.size() + shapes.size());
     for (const auto &shape : shapes)
     {
-        VectorObject *vecObj = new VectorObject();
+        auto *vecObj = new VectorObject();
         vecObj->shapes.insert(shape);
         vecs.push_back(vecObj);
     }
@@ -119,15 +144,21 @@ bool VectorObject::center(Point2d &center) const
     Mbr mbr;
     for (const auto &shape : shapes)
     {
-        GeoMbr geoMbr = shape->calcGeoMbr();
-        mbr.addPoint(geoMbr.ll());
-        mbr.addPoint(geoMbr.ur());
+        const GeoMbr geoMbr = shape->calcGeoMbr();
+        if (geoMbr.valid())
+        {
+            mbr.addPoint(geoMbr.ll());
+            mbr.addPoint(geoMbr.ur());
+        }
     }
 
-    center.x() = (mbr.ll().x() + mbr.ur().x())/2.0;
-    center.y() = (mbr.ll().y() + mbr.ur().y())/2.0;
-
-    return true;
+    if (mbr.valid())
+    {
+        center.x() = (mbr.ll().x() + mbr.ur().x()) / 2.0;
+        center.y() = (mbr.ll().y() + mbr.ur().y()) / 2.0;
+        return true;
+    }
+    return false;
 }
 
 bool VectorObject::centroid(Point2d &centroid) const
@@ -138,29 +169,36 @@ bool VectorObject::centroid(Point2d &centroid) const
     for (const auto &shapeRef : shapes)
     {
         const auto shape = shapeRef.get();
-        if (const auto areal = dynamic_cast<const VectorAreal*>(shape)) {
-            if (areal->loops.size() > 0) {
-                for (unsigned int ii=0;ii<areal->loops.size();ii++)
+        if (const auto areal = dynamic_cast<const VectorAreal*>(shape))
+        {
+            if (!areal->loops.empty())
+            {
+                for (const auto &loop : areal->loops)
                 {
-                    const float area = CalcLoopArea(areal->loops[ii]);
+                    const float area = CalcLoopArea(loop);
                     if (std::abs(area) > std::abs(bigArea))
                     {
-                        bigLoop = &areal->loops[ii];
+                        bigLoop = &loop;
                         bigArea = area;
                     }
                 }
             }
-        } else if (const auto linear = dynamic_cast<const VectorLinear*>(shape)) {
+        } else if (const auto linear = dynamic_cast<const VectorLinear*>(shape))
+        {
             const GeoCoord midCoord = linear->geoMbr.mid();
             centroid.x() = midCoord.x();
             centroid.y() = midCoord.y();
             return true;
-        } else if (const auto linear3d = dynamic_cast<const VectorLinear3d*>(shape)) {
+        }
+        else if (const auto linear3d = dynamic_cast<const VectorLinear3d*>(shape))
+        {
             const GeoCoord midCoord = linear3d->geoMbr.mid();
             centroid.x() = midCoord.x();
             centroid.y() = midCoord.y();
             return true;
-        } else if (const auto pts = dynamic_cast<const VectorPoints*>(shape)) {
+        }
+        else if (const auto pts = dynamic_cast<const VectorPoints*>(shape))
+        {
             const GeoCoord midCoord = pts->geoMbr.mid();
             centroid.x() = midCoord.x();
             centroid.y() = midCoord.y();
@@ -181,19 +219,19 @@ bool VectorObject::centroid(Point2d &centroid) const
 bool VectorObject::largestLoopCenter(Point2d &center,Point2d &ll,Point2d &ur) const
 {
     // Find the loop with the largest area
-    float bigArea = -1.0;
+    double bigArea = -1.0;
     const VectorRing *bigLoop = nullptr;
     for (const auto &shape : shapes)
     {
         const auto areal = dynamic_cast<VectorAreal*>(shape.get());
-        if (areal && areal->loops.size() > 0)
+        if (areal && !areal->loops.empty())
         {
-            for (unsigned int ii=0;ii<areal->loops.size();ii++)
+            for (const auto &loop : areal->loops)
             {
-                const float area = std::abs(CalcLoopArea(areal->loops[ii]));
+                const auto area = std::abs(CalcLoopArea(loop));
                 if (area > bigArea)
                 {
-                    bigLoop = &areal->loops[ii];
+                    bigLoop = &loop;
                     bigArea = area;
                 }
             }
@@ -240,7 +278,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot) const
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const float halfLen = totLen / 2.0f;
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
@@ -273,7 +311,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot) const
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const float halfLen = totLen / 2.0f;
         
         // Now we'll walk along, looking for the middle
         float lenSoFar = 0.0;
@@ -334,10 +372,10 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot,CoordSystem *coordSy
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const float halfLen = totLen / 2.0f;
         
         // Now we'll walk along, looking for the middle
-        float lenSoFar = 0.0;
+        double lenSoFar = 0.0;
         for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             const Point3d pt0 = coordSys->geographicToLocal3d(GeoCoord(pts[ii].x(),pts[ii].y()));
@@ -350,7 +388,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot,CoordSystem *coordSy
                 const GeoCoord middleGeo = coordSys->localToGeographic(thePt);
                 middle.x() = middleGeo.x();
                 middle.y() = middleGeo.y();
-                rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+                rot = M_PI_2 - atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
                 return true;
             }
             
@@ -380,10 +418,10 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot,CoordSystem *coordSy
             const float len = (pts[ii+1]-pts[ii]).norm();
             totLen += len;
         }
-        const float halfLen = totLen / 2.0;
+        const double halfLen = totLen / 2.0;
         
         // Now we'll walk along, looking for the middle
-        float lenSoFar = 0.0;
+        double lenSoFar = 0.0;
         for (unsigned int ii=0;ii<pts.size()-1;ii++)
         {
             const GeoCoord geo0(pts[ii].x(),pts[ii].y());
@@ -398,7 +436,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot,CoordSystem *coordSy
                 const GeoCoord middleGeo = coordSys->localToGeographic(thePt);
                 middle.x() = middleGeo.x();
                 middle.y() = middleGeo.y();
-                rot = M_PI/2.0-atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
+                rot = M_PI_2 - atan2(pt1.y()-pt0.y(),pt1.x()-pt0.x());
                 return true;
             }
             
@@ -735,25 +773,26 @@ double VectorObject::areaOfOuterLoops() const
 
 bool VectorObject::boundingBox(Point2d &ll,Point2d &ur) const
 {
-    bool valid = false;
     Mbr mbr;
     for (const auto &shape : shapes)
     {
         const GeoMbr geoMbr = shape->calcGeoMbr();
-        mbr.addPoint(geoMbr.ll());
-        mbr.addPoint(geoMbr.ur());
-        valid = true;
+        if (geoMbr.valid())
+        {
+            mbr.addPoint(geoMbr.ll());
+            mbr.addPoint(geoMbr.ur());
+        }
     }
     
-    if (valid)
+    if (mbr.valid())
     {
         ll.x() = mbr.ll().x();
         ll.y() = mbr.ll().y();
         ur.x() = mbr.ur().x();
         ur.y() = mbr.ur().y();
+        return true;
     }
-    
-    return valid;
+    return false;
 }
 
 void VectorObject::addHole(const VectorRing &hole)
@@ -1072,7 +1111,97 @@ static void fixEdges(const VectorRing& outPts2D, VectorRing& offsetPts2D)
     offsetPts2D.back() = outPts2D.back() + Point2f(xOff,0.0);
 }
 
-static const GeographicLib::Geodesic &wgs84Geodesic = GeographicLib::Geodesic::WGS84();
+template <typename T>
+static inline Point3d toGeocentric(const Eigen::Matrix<T,2,1> &p, double geoidHeight = 0.0)
+{
+    double x = 0, y = 0, z = 0;
+    wgs84Geocentric().Forward(WhirlyKit::RadToDeg(p.y()),
+                              WhirlyKit::RadToDeg(p.x()),
+                              geoidHeight, x, y, z);
+    return {x,y,z};
+}
+
+// Test for any intersections among non-consecutive segments.
+// If `close` is true, consider an implicit segment from end-begin, if those are not equal.
+template <typename TIter>
+static bool anyIntersect(const TIter beg, const TIter end, bool close)
+{
+    if (std::distance(beg, end) < 4)
+    {
+        // triangles can't self-intersect
+        return false;
+    }
+
+    // We consider intersection between the segment from the current point
+    // to the next and the segment *after* the next, adjacent segment.
+    auto ia = beg;
+    auto ib = std::next(beg, 1);
+
+    auto a = Point3d();
+    auto b = toGeocentric(*ia);
+
+    for (;; ib = std::next(ia = ib))
+    {
+        auto ic = std::next(ib);
+        if (ic == end)
+        {
+            break;
+        }
+
+        a = b;
+        b = toGeocentric(*ib);
+
+        auto id = std::next(ic);
+
+        // Convert initial points to geocentric for intersection calculations
+        auto c = Point3d();
+        auto d = toGeocentric(*ic);
+
+        for (; ; id = std::next(ic = id))
+        {
+            // We have considered the final segment and might be done...
+            if (id == end)
+            {
+                // Unless we need to consider the implicit segment from the last to the first point...
+                if (close)
+                {
+                    // Are those equal?
+                    if (*ic == *beg)
+                    {
+                        // Yes, the sequence is explicitly closed, so we are done.
+                        break;
+                    }
+                    else
+                    {
+                        // No, check the implicit closing segment by wrapping to the first point
+                        id = beg;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            // Step forward
+            c = d;
+            d = toGeocentric(*id);
+
+            // Check A-B against C-D
+            if (Geocentric::checkIntersection(a, b, c, d, wgs84Geodesic()))
+            {
+                return true;
+            }
+
+            if (id == beg)
+            {
+                // wrap-around case
+                break;
+            }
+        }
+    }
+    return false;
+}
 
 static std::pair<double,double> CalcInv(const Point2f &p1, const Point2f &p2)
 {
@@ -1081,7 +1210,7 @@ static std::pair<double,double> CalcInv(const Point2f &p1, const Point2f &p2)
     const auto lat2 = WhirlyKit::RadToDeg(p2.y());
     const auto lon2 = WhirlyKit::RadToDeg(p2.x());
     double dist = 0.0, az1 = 0.0, az2 = 0.0;
-    wgs84Geodesic.Inverse(lat1, lon1, lat2, lon2, dist, az1, az2);
+    detail::wgs84Geodesic().Inverse(lat1, lon1, lat2, lon2, dist, az1, az2);
     return std::make_pair(dist,WhirlyKit::DegToRad(az1));
 }
 
@@ -1092,7 +1221,7 @@ static std::pair<bool,Point2f> CalcDirect(const Point2f &origin, double az, doub
     const auto azDeg = WhirlyKit::RadToDeg(az);
 
     double lat2 = 0.0, lon2 = 0.0;
-    const auto res = wgs84Geodesic.Direct(lat1, lon1, azDeg, dist, lat2, lon2);
+    const auto res = detail::wgs84Geodesic().Direct(lat1, lon1, azDeg, dist, lat2, lon2);
 
     return std::make_pair(std::isfinite(res),
                           Point2f((float)WhirlyKit::DegToRad(lon2),
@@ -1148,7 +1277,7 @@ static void SubdivideGeoLib(Tin beg, Tin end, Tout out, double maxDistMeters)
 
 template <typename T> struct Adapt3dTo2f : std::vector<Point2f>::const_iterator
 {
-    Adapt3dTo2f(T i) : _i(i) {}
+    explicit Adapt3dTo2f(T i) : _i(i) {}
     Adapt3dTo2f(const Adapt3dTo2f &i) : _i(i._i) {}
     Point2f operator*() const { return Point2f(_i->x(),_i->y()); }
     Adapt3dTo2f& operator++() { ++_i; return *this; }
@@ -1159,7 +1288,7 @@ template <typename T> struct Adapt3dTo2f : std::vector<Point2f>::const_iterator
 };
 template <typename T> struct Adapt2fTo3d
 {
-    Adapt2fTo3d(T i) : _i(i) {}
+    explicit Adapt2fTo3d(T i) : _i(i) {}
     Adapt2fTo3d& operator*() { return *this; }
     Adapt2fTo3d& operator++() { ++_i; return this; }
     Adapt2fTo3d operator++(int) { auto x = *this; ++_i; return x; }
@@ -1195,7 +1324,7 @@ void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDispl
 {
     CoordSystem *coordSys = adapter->getCoordSystem();
 
-    const auto geoDist = useGeoLib ? epsilon * wgs84Geodesic.EquatorialRadius() : 0.0;
+    const auto geoDist = useGeoLib ? epsilon * detail::wgs84Geodesic().EquatorialRadius() : 0.0;
 
     for (const auto &shapeRef : shapes)
     {
@@ -1284,7 +1413,7 @@ VectorObjectRef VectorObject::linearsToAreals() const
         }
         else
         {
-            newVec->shapes.insert(std::move(shape));
+            newVec->shapes.insert(shape);
         }
     }
 
@@ -1317,6 +1446,23 @@ VectorObjectRef VectorObject::arealsToLinears() const
     return newVec;
 }
 
+// Count collection contents castable to the specified type
+template <typename T, typename TIter>
+static int count(TIter beg, TIter end)
+{
+    return (int)std::count_if(beg, end, [](const auto& s) { return dynamic_cast<T*>(s.get()); });
+}
+
+int VectorObject::countLinears() const
+{
+    return count<VectorLinear>(shapes.cbegin(), shapes.cend());
+}
+
+int VectorObject::countAreals() const
+{
+    return count<VectorAreal>(shapes.cbegin(), shapes.cend());
+}
+
 void VectorObject::reverseAreals()
 {
     for (auto& shape : shapes)
@@ -1331,7 +1477,7 @@ void VectorObject::reverseAreals()
     }
 }
 
-VectorObjectRef VectorObject::reversedAreals()
+VectorObjectRef VectorObject::reversedAreals() const
 {
     auto newVec = std::make_shared<VectorObject>();
     newVec->shapes.reserve(shapes.size());
@@ -1356,6 +1502,123 @@ VectorObjectRef VectorObject::reversedAreals()
     }
 
     return newVec;
+}
+
+int VectorObject::countClosedLoops() const
+{
+    int n = 0;
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() == loop.back())
+                {
+                    ++n;
+                }
+            }
+        }
+    }
+    return n;
+}
+
+int VectorObject::countUnClosedLoops() const
+{
+    int n = 0;
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() != loop.back())
+                {
+                    ++n;
+                }
+            }
+        }
+    }
+    return n;
+}
+
+void VectorObject::closeLoops()
+{
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() != loop.back())
+                {
+                    loop.push_back(loop.front());
+                }
+            }
+        }
+    }
+}
+
+VectorObjectRef VectorObject::closedLoops() const
+{
+    if (auto newObj = deepCopy())
+    {
+        newObj->closeLoops();
+        return newObj;
+    }
+    return VectorObjectRef();
+}
+
+void VectorObject::unCloseLoops()
+{
+    for (auto& shape : shapes)
+    {
+        if (auto areal = dynamic_cast<VectorAreal*>(shape.get()))
+        {
+            for (auto &loop : areal->loops)
+            {
+                if (loop.size() > 2 && loop.front() == loop.back())
+                {
+                    loop.pop_back();
+                }
+            }
+        }
+    }
+}
+
+VectorObjectRef VectorObject::unClosedLoops() const
+{
+    if (auto newObj = deepCopy())
+    {
+        newObj->unCloseLoops();
+        return newObj;
+    }
+    return VectorObjectRef();
+}
+
+bool VectorObject::anyIntersections() const
+{
+    for (const auto &shape : shapes)
+    {
+        if (const auto ln = dynamic_cast<const VectorLinear*>(shape.get()))
+        {
+            if (anyIntersect(ln->pts.cbegin(), ln->pts.cend(), false))
+            {
+                return true;
+            }
+        }
+        else if (const auto ar = dynamic_cast<const VectorAreal*>(shape.get()))
+        {
+            for (const auto &loop : ar->loops)
+            {
+                if (anyIntersect(loop.cbegin(), loop.cend(), true))
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 VectorObjectRef VectorObject::filterClippedEdges() const
@@ -1566,7 +1829,7 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
 }
 
 void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
-                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples)
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,int minPts)
 {
     const bool isFlat = coordAdapter->isFlat();
     
@@ -1581,7 +1844,9 @@ void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double 
         
         VectorRing3d tmpPts;
         tmpPts.reserve(10); // ?
-        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, samples);
+
+
+        SubdivideEdgesToSurfaceGC(inPts, tmpPts, false, coordAdapter, 1.0, 0.0, minPts);
         pts = tmpPts;
         
         // To apply the height, we'll need the total length
@@ -1602,9 +1867,9 @@ void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double 
             lenSoFar += len;
             
             // Parabolic curve
-            const float b = 4*height;
-            const float a = -b;
-            const float thisHeight = a*(t*t) + b*t;
+            const double b = 4*height;
+            const double a = -b;
+            const double thisHeight = a*(t*t) + b*t;
             
             if (isFlat)
                 pt.z() = thisHeight;

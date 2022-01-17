@@ -22,6 +22,8 @@ import android.util.Log;
 
 import androidx.annotation.CallSuper;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
@@ -152,6 +154,9 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
             }
             layerThread.addChanges(changes);
         }
+    }
+
+    public void tilesUnloaded(@NotNull TileID[] ids) {
     }
 
     // Called no more often than 1/10 of a second

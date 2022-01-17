@@ -61,7 +61,7 @@ public:
     
     /// @brief Return the attributes for the first shape or NULL
     MutableDictionaryRef getAttributes() const;
-    void setAttributes(MutableDictionaryRef newDict);
+    void setAttributes(const MutableDictionaryRef &newDict);
     
     /// Make a complete company (nothing shared) and return it
     VectorObjectRef deepCopy() const;
@@ -182,11 +182,38 @@ public:
     /// @brief Convert any areal features into linears and return a new vector object
     VectorObjectRef arealsToLinears() const;
 
+    /// @brief The number of linear features
+    int countLinears() const;
+
+    /// @brief The number of areal features
+    int countAreals() const;
+
     /// @brief Reverse the direction of areal loops
     void reverseAreals();
 
     /// @brief Create a copy with reversed loops
-    VectorObjectRef reversedAreals();
+    VectorObjectRef reversedAreals() const;
+
+    /// @brief The number of areal loops that are closed
+    int countClosedLoops() const;
+
+    /// @brief The number of areal loops that are not closed
+    int countUnClosedLoops() const;
+
+    /// @brief Ensure that loops are closed
+    void closeLoops();
+
+    /// @brief Ensure that loops are closed, returning a new object
+    VectorObjectRef closedLoops() const;
+
+    /// @brief Ensure that loops are not closed
+    void unCloseLoops();
+
+    /// @brief Ensure that loops are not closed, returning a new object
+    VectorObjectRef unClosedLoops() const;
+
+    /// @brief Check if any segments intersect any others
+    bool anyIntersections() const;
 
     /// @brief Add objects form the given GeoJSON string.
     /// @param json The GeoJSON data as a std::string
@@ -201,6 +228,8 @@ public:
     /// @brief Assemblies are just concatenated JSON
     static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObject *> &vecData);
 
+    static bool FromGeoJSONAssembly(const std::string &json,std::map<std::string,VectorObjectRef> &vecData);
+
 public:
     void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool geolib,bool edgeMode);
 
@@ -214,6 +243,6 @@ void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height
 
 // Sample a great circle and throw in an interpolated height at each point
 void SampleGreatCircleStatic(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
-                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double samples);
+                             const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,int minSamples);
     
 }

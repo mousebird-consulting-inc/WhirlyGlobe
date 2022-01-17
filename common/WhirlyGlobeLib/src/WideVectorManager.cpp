@@ -434,8 +434,8 @@ public:
         {
             WideVectorLineJoinType joinType = vecInfo->joinType;
             // Switch to a bevel join if the angle is too great for a miter
-            double miterLimit = vecInfo->miterLimit;
-            if (joinType == WideVecMiterJoin && angleBetween > (M_PI-miterLimit*M_PI/180.0))
+            const double miterLimit = vecInfo->miterLimit * M_PI / 180.0;
+            if (joinType == WideVecMiterJoin && angleBetween > (M_PI - miterLimit))
                 joinType = WideVecBevelJoin;
             // We don't do bevels below 30 degrees
             if (joinType == WideVecBevelJoin && angleBetween > 150.0 / 180.0 * M_PI)
@@ -569,7 +569,7 @@ public:
     
     
     // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,WideVectorDrawableBuilderRef &drawable,bool closed,bool buildSegment,bool buildJunction)
+    void addPoint(const Point3d &inPt,const Point3d &up,const WideVectorDrawableBuilderRef &drawable,bool closed,bool buildSegment,bool buildJunction)
     {
         // Compare with the last point, if it's the same, toss it
         if (!pts.empty() && pts.back() == inPt && !closed)
@@ -587,7 +587,7 @@ public:
     }
     
     // Flush out any outstanding points
-    void flush(WideVectorDrawableBuilderRef &drawable,bool buildLastSegment, bool buildLastJunction)
+    void flush(const WideVectorDrawableBuilderRef &drawable,bool buildLastSegment, bool buildLastJunction)
     {
         if (pts.size() >= 2)
         {
@@ -828,12 +828,7 @@ public:
                 makeDistinctTurns = true;
                 if (pts.size() > 2)
                 {
-                    if (pts.front() == pts.back())
-                    {
-                        startPoint = -3;
-                    } else {
-                        startPoint = -2;
-                    }
+                    startPoint = (pts.front() == pts.back()) ? -3 : -2;
                 }
             }
      
@@ -849,33 +844,32 @@ public:
             // Guess at how many points and triangles we'll need
             int totalTriCount = (int)(5*pts.size());
             int totalPtCount = totalTriCount * 3;
-            if (totalTriCount < 0)  totalTriCount = 0;
-            if (totalPtCount < 0)  totalPtCount = 0;
-            
+
             // Work through the segments
             Point2f lastPt;
             bool validLastPt = false;
             for (int ii=startPoint;ii<(int)pts.size();ii++)
             {
-                // Get the points in display space
-                Point2f geoA = pts[(ii+pts.size())%pts.size()];
-                
-                if (validLastPt && geoA == lastPt)
-                    continue;
+                // Get the points in display space.
+                // Note that we may be starting with a negative index.
+                const Point2f &geoA = pts[(ii + pts.size()) % pts.size()];
 
-                Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
-                Point3d dispPa = coordAdapter->localToDisplay(localPa);
-                Point3d thisUp = up;
-                if (!coordAdapter->isFlat())
-                    thisUp = coordAdapter->normalForLocal(localPa);
-                
+                if (validLastPt && geoA == lastPt)
+                {
+                    continue;
+                }
+
+                const Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
+                const Point3d dispPa = coordAdapter->localToDisplay(localPa);
+                const Point3d thisUp = coordAdapter->isFlat() ? up : coordAdapter->normalForLocal(localPa);
+
                 // Get a drawable ready
-                int triCount = 2+3;
-                int ptCount = triCount*3;
-                WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount,0);
+                const int triCount = 2+3;
+                const int ptCount = triCount*3;
+                auto thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount,0);
                 vecBuilder.maskEntries = maskEntries;
-                totalTriCount -= triCount;
-                totalPtCount -= ptCount;
+                totalTriCount -= std::min(triCount,totalTriCount);
+                totalPtCount -= std::min(ptCount, totalPtCount);
                 drawMbr.addPoint(geoA);
                 
                 bool doSegment = !closed || (ii > 0);
