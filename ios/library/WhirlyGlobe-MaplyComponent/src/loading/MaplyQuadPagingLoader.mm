@@ -125,6 +125,10 @@ using namespace WhirlyKit;
 
 - (void)reload
 {
+    // Called before it's set up.  Dude.  Calm down.
+    if (!samplingLayer)
+        return;
+    
     [super reload];
 }
 
