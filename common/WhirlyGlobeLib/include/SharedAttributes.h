@@ -1,5 +1,4 @@
-/*
- *  SharedAttributes
+/*  SharedAttributes
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 /// Wrapper for string (Objective-C vs. other)
@@ -235,6 +233,9 @@
 /// Basic or performance mode for wide vectors
 #define MaplyWideVecImpl WKString("widevecimplementation")
 
+/// Default/old mode for wide vectors
+#define MaplyWideVecImplDefault WKString("widevecdefault")
+
 /// Performance mode for wide vectors
 #define MaplyWideVecImplPerf WKString("widevecperformance")
 
@@ -280,6 +281,9 @@
 
 /// Offset to left (negative) or right (positive) of the centerline
 #define MaplyWideVecOffset WKString("vecOffset")
+
+/// Close any un-closed areal features when drawing lines for them
+#define MaplyVecCloseAreals WKString("vecCloseAreals")
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 #define MaplySubdivEpsilon WKString("subdivisionepsilon")

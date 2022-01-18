@@ -60,18 +60,27 @@ public class QuadImageLoaderBase extends QuadLoaderBase
     // We want them to be able to modify settings before it starts
     public void delayedInit(final SamplingParams params)
     {
-        if (tileFetcher == null) {
-            tileFetcher = getController().addTileFetcher("Image Fetcher");
+        final BaseController controller = getController();
+        if (controller != null && tileFetcher == null) {
+            tileFetcher = controller.addTileFetcher("Image Fetcher");
         }
 
         if (loadInterp == null) {
             loadInterp = new ImageLoaderInterpreter();
         }
 
-        samplingLayer = new WeakReference<>(getController().findSamplingLayer(params,this));
+        if (controller != null) {
+            samplingLayer = new WeakReference<>(controller.findSamplingLayer(params, this));
+        }
+
         loadInterp.setLoader(this);
 
-        delayedInitNative(getController().getScene());
+        if (controller != null) {
+            final Scene scene = controller.getScene();
+            if (scene != null) {
+                delayedInitNative(scene);
+            }
+        }
     }
 
     protected native void delayedInitNative(Scene scene);

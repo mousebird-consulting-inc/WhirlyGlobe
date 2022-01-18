@@ -37,10 +37,19 @@
 - (void) overlayCountries: (MaplyBaseViewController*) baseVC
 {
     NSDictionary *vectorDict = @{
-            kMaplyColor: [UIColor whiteColor],
-            kMaplySelectable: @(true),
-            kMaplyFade: @(0.2),
-            kMaplyVecWidth: @(4.0)};
+        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+        kMaplyColor: [UIColor redColor],
+        kMaplySelectable: @(true),
+        kMaplyFade: @(0.2),
+    };
+    NSDictionary *wideDict = @{
+        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault),
+        kMaplyVecCloseAreals: @(false),
+        kMaplyColor: [UIColor whiteColor],
+        kMaplySelectable: @(false),
+        kMaplyFade: @(0.2),
+        kMaplyVecWidth: @(3.0),
+    };
     NSArray * paths = [[NSBundle mainBundle] pathsForResourcesOfType:@"geojson" inDirectory:nil];
     for (NSString* fileName  in paths) {
         // We only want the three letter countries
@@ -58,6 +67,10 @@
                 wgVecObj.selectable = true;
                 [self.vecList addObject:wgVecObj];
                 MaplyComponentObject *compObj = [baseVC addVectors:@[wgVecObj] desc:vectorDict];
+                if (compObj) {
+                    [self.compObjs addObject:compObj];
+                }
+                compObj = [baseVC addWideVectors:@[wgVecObj] desc:wideDict];
                 if (compObj) {
                     [self.compObjs addObject:compObj];
                 }

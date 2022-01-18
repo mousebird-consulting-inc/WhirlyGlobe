@@ -104,11 +104,13 @@ using namespace WhirlyGlobe;
     return self;
 }
 
-- (id)initWithRef:(const WhirlyKit::VectorObjectRef&)vecObj
+- (id)initWithRef:(WhirlyKit::VectorObjectRef)vecObj
 {
     self = [super init];
-    
-    vObj = vecObj;
+    if (!self)
+        return nil;
+
+    vObj = std::move(vecObj);
     
     return self;
 }
@@ -122,31 +124,43 @@ using namespace WhirlyGlobe;
 /// Construct with a single point ref
 - (instancetype)initWithPointRef:(const MaplyCoordinate *)coord attributes:(NSDictionary *)attr
 {
-    self = [super init];
-    
-    if (self)
+    if ((self = [super init]))
     {
         VectorPointsRef pts = VectorPoints::createPoints();
-        pts->pts.push_back(GeoCoord(coord->x,coord->y));
-        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
-        vObj = std::make_shared<VectorObject>();
-        pts->setAttrDict(dict);
+        pts->pts.emplace_back(coord->x,coord->y);
         pts->initGeoMbr();
-        vObj->shapes.insert(pts);
+        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
+        pts->setAttrDict(std::move(dict));
+        vObj = std::make_shared<VectorObject>();
+        vObj->shapes.insert(std::move(pts));
     }
     
     return self;
 }
 
-- (instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)inCoords attributes:(NSDictionary *)attr
+- (instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)inCoords
+                        attributes:(NSDictionary *)attr
 {
+    return [self initWithLineString:inCoords attributes:attr inDegrees:true];
+}
+
+- (instancetype)initWithLineString:(const NSArray<NSNumber*> *__nonnull)inCoords
+                        attributes:(NSDictionary *)attr
+                         inDegrees:(bool)inDegrees
+{
+    if ((inCoords.count % 2) != 0)
+    {
+        NSLog(@"Expecting an even number of coordinates in initWithArealArray:");
+        return nil;
+    }
+
     const int numCoords = [inCoords count]/2;
     std::vector<MaplyCoordinate> coords(numCoords);
 
     for (int i = 0; i < numCoords; i++) {
         const float x = [inCoords[2*i] floatValue];
         const float y = [inCoords[2*i+1] floatValue];
-        coords[i] = MaplyCoordinateMakeWithDegrees(x, y);
+        coords[i] = inDegrees ? MaplyCoordinateMakeWithDegrees(x, y) : MaplyCoordinateMake(x, y);
     }
 
     self = [self initWithLineString:&coords[0] numCoords:numCoords attributes:attr];
@@ -157,75 +171,73 @@ using namespace WhirlyGlobe;
 /// Construct with a linear feature (e.g. line string)
 - (instancetype)initWithLineString:(const MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
-    self = [super init];
-    
-    if (self)
+    if ((self = [super init]))
     {
         vObj = std::make_shared<VectorObject>();
 
         VectorLinearRef lin = VectorLinear::createLinear();
         lin->pts.reserve(numCoords);
         for (unsigned int ii=0;ii<numCoords;ii++)
+        {
             lin->pts.emplace_back(coords[ii].x,coords[ii].y);
+        }
         auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
-        lin->setAttrDict(dict);
+        lin->setAttrDict(std::move(dict));
         lin->initGeoMbr();
-        vObj->shapes.insert(lin);
+        vObj->shapes.insert(std::move(lin));
     }
-    
     return self;
 }
 
 /// Construct as an areal with an exterior
 - (instancetype)initWithAreal:(const MaplyCoordinate *)coords numCoords:(int)numCoords attributes:(NSDictionary *)attr
 {
-    self = [super init];
-    
-    if (self)
+    if ((self = [super init]))
     {
-        vObj = std::make_shared<VectorObject>();
-
         VectorArealRef areal = VectorAreal::createAreal();
         VectorRing pts;
         pts.reserve(numCoords);
         for (unsigned int ii=0;ii<numCoords;ii++)
+        {
             pts.emplace_back(coords[ii].x,coords[ii].y);
-        areal->loops.push_back(pts);
+        }
+        areal->loops.push_back(std::move(pts));
         auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
-        areal->setAttrDict(dict);
+        areal->setAttrDict(std::move(dict));
         areal->initGeoMbr();
-        vObj->shapes.insert(areal);
+        vObj = std::make_shared<VectorObject>();
+        vObj->shapes.insert(std::move(areal));
     }
-    
     return self;
 }
 
-- (nonnull instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords attributes:(NSDictionary *__nullable)attr
+- (nullable instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)coords
+                                 attributes:(NSDictionary *__nullable)attr
 {
-    self = [super init];
-    if ([coords count] % 1 != 0) {
+    return [self initWithArealArray:coords attributes:attr inDegrees:false];
+}
+
+- (nullable instancetype)initWithArealArray:(const NSArray<NSNumber *> *__nonnull)inCoords
+                                 attributes:(NSDictionary *__nullable)attr
+                                  inDegrees:(bool)inDegrees
+{
+    if ((inCoords.count % 2) != 0)
+    {
         NSLog(@"Expecting an even number of coordinates in initWithArealArray:");
         return nil;
     }
-    
-    if (self)
-    {
-        vObj = std::make_shared<VectorObject>();
 
-        VectorArealRef areal = VectorAreal::createAreal();
-        VectorRing pts;
-        pts.reserve([coords count]);
-        for (unsigned int ii=0;ii<[coords count];ii+=2)
-            pts.emplace_back([[coords objectAtIndex:ii] doubleValue],[[coords objectAtIndex:ii+1] doubleValue]);
-        areal->loops.push_back(pts);
-        auto dict = std::make_shared<iosMutableDictionary>([NSMutableDictionary dictionaryWithDictionary:attr]);
-        areal->setAttrDict(dict);
-        areal->initGeoMbr();
-        vObj->shapes.insert(areal);
+    const int numCoords = inCoords.count/2;
+    std::vector<MaplyCoordinate> coords(numCoords);
+
+    for (int i = 0; i < numCoords; i++) {
+        const float x = [inCoords[2*i] floatValue];
+        const float y = [inCoords[2*i+1] floatValue];
+        coords[i] = inDegrees ? MaplyCoordinateMakeWithDegrees(x, y) : MaplyCoordinateMake(x, y);
     }
-    
-    return self;
 
+    self = [self initWithAreal:&coords[0] numCoords:numCoords attributes:attr];
+    return self;
 }
 
 /// Construct from GeoJSON
@@ -763,6 +775,16 @@ using namespace WhirlyGlobe;
     return newVec;
 }
 
+- (void)reverseAreals
+{
+    vObj->reverseAreals();
+}
+
+- (MaplyVectorObject * __nonnull)reversedAreals
+{
+    return [[MaplyVectorObject alloc] initWithRef:vObj->reversedAreals()];
+}
+
 - (MaplyVectorObject *__nonnull)filterClippedEdges
 {
     MaplyVectorObject *newVec = [[MaplyVectorObject alloc] init];
@@ -799,8 +821,9 @@ using namespace WhirlyGlobe;
     return newVec;
 }
 
-- (void)addShape:(const WhirlyKit::VectorShapeRef&)shape {
-  vObj->shapes.insert(shape);
+- (void)addShape:(WhirlyKit::VectorShapeRef)shape
+{
+    vObj->shapes.insert(std::move(shape));
 }
 
 

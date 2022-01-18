@@ -1,9 +1,8 @@
-/*
- *  WhirlyGlobeViewController.mm
+/*  WhirlyGlobeViewController.mm
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <WhirlyGlobe_iOS.h>
@@ -1336,22 +1334,83 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     [self handleStopMoving:userMotion];
 }
 
-// See if the given bounding box is all on sreen
-- (bool)checkCoverage:(Mbr &)mbr globeView:(WhirlyGlobe::GlobeView *)theView height:(float)height
+// See if the given bounding box is all on screen
+- (bool)checkCoverage:(const Mbr &)mbr
+            globeView:(WhirlyGlobe::GlobeView *)theView
+                  loc:(MaplyCoordinate)loc
+               height:(float)height
+                frame:(CGRect)frame
+               newLoc:(MaplyCoordinate *)newLoc
 {
+    return [self checkCoverage:mbr
+                     globeView:theView
+                           loc:loc
+                        height:height
+                         frame:frame
+                        newLoc:newLoc
+                        margin:{0.0,0.0}];
+}
+
+- (bool)checkCoverage:(const Mbr &)mbr
+            globeView:(WhirlyGlobe::GlobeView *)theView
+                  loc:(MaplyCoordinate)loc
+               height:(float)height
+                frame:(CGRect)frame
+               newLoc:(MaplyCoordinate *)newLoc
+               margin:(const Point2d &)margin
+{
+    if (!theView || frame.size.width * frame.size.height == 0)
+    {
+        return false;
+    }
+    if (newLoc)
+    {
+        *newLoc = loc;
+    }
+
+    // Center the given location
+    Eigen::Quaterniond newRotQuat = theView->makeRotationToGeoCoord(GeoCoord(loc.x,loc.y), true);
+    theView->setRotQuat(newRotQuat,false);
     theView->setHeightAboveGlobe(height, false);
+
+    // If they want to center in an area other than the whole view frame, we need to work out
+    // what center point will place the given location at the center of the given view frame.
+    const auto screenCenter = CGPointMake(CGRectGetMidX(self.view.frame), CGRectGetMidY(self.view.frame));
+    const auto frameCenter = CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
+    const auto offset = CGPointMake(frameCenter.x - screenCenter.x, frameCenter.y - screenCenter.y);
+    if (offset.x != 0 || offset.y != 0)
+    {
+        const auto invCenter = CGPointMake(screenCenter.x - offset.x, screenCenter.y - offset.y);
+        MaplyCoordinate invGeo = {0,0};
+        if (![self geoPointFromScreen:invCenter theView:theView geoCoord:&invGeo])
+        {
+            return false;
+        }
+
+        // Place the given location at the center of the given frame
+        newRotQuat = theView->makeRotationToGeoCoord(Point2d(invGeo.x,invGeo.y), true);
+        theView->setRotQuat(newRotQuat,false);
+
+        if (newLoc)
+        {
+            *newLoc = invGeo;
+        }
+    }
 
     Point2fVector pts;
     mbr.asPoints(pts);
-    CGRect frame = self.view.frame;
-    for (unsigned int ii=0;ii<pts.size();ii++)
+
+    for (const auto &pt : pts)
     {
-        Point2f pt = pts[ii];
-        MaplyCoordinate geoCoord;
-        geoCoord.x = pt.x();  geoCoord.y = pt.y();
-        CGPoint screenPt = [self pointOnScreenFromGeo:geoCoord globeView:theView];
-        if (screenPt.x < 0 || screenPt.y < 0 || screenPt.x > frame.size.width || screenPt.y > frame.size.height)
+        const CGPoint screenPt = [self pointOnScreenFromGeo:{pt.x(), pt.y()} globeView:theView];
+        if (!std::isfinite(screenPt.y) ||
+            screenPt.x < frame.origin.x - margin.x() ||
+            screenPt.y < frame.origin.y - margin.y() ||
+            screenPt.x > frame.origin.x + frame.size.width + margin.x() ||
+            screenPt.y > frame.origin.y + frame.size.height + margin.y())
+        {
             return false;
+        }
     }
     
     return true;
@@ -1359,17 +1418,49 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
 {
-    if (!globeView) {
+    return [self findHeightToViewBounds:bbox pos:pos marginX:0 marginY:0];
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
+                        marginX:(double)marginX
+                        marginY:(double)marginY
+{
+    return [self findHeightToViewBounds:bbox
+                                    pos:pos
+                                  frame:self.view.frame
+                                 newPos:nil
+                                marginX:marginX
+                                marginY:marginY];
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
+                          frame:(CGRect)frame
+                         newPos:(MaplyCoordinate *)newPos
+                        marginX:(double)marginX
+                        marginY:(double)marginY
+{
+    if (!globeView)
+    {
         return 0;
     }
-    GlobeView tempGlobe(*globeView);
-    
-    float oldHeight = globeView->getHeightAboveGlobe();
-    Eigen::Quaterniond newRotQuat = tempGlobe.makeRotationToGeoCoord(GeoCoord(pos.x,pos.y), true);
-    tempGlobe.setRotQuat(newRotQuat,false);
 
-    Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
-    
+    // checkCoverage won't work if the frame size isn't set
+    if (frame.size.width * frame.size.height == 0)
+    {
+        return 0;
+    }
+
+    GlobeView tempGlobe(*globeView);
+
+    //const float oldHeight = globeView->getHeightAboveGlobe();
+    //const Eigen::Quaterniond newRotQuat = tempGlobe.makeRotationToGeoCoord(GeoCoord(pos.x,pos.y), true);
+    //tempGlobe.setRotQuat(newRotQuat,false);
+
+    const Mbr mbr({ bbox.ll.x, bbox.ll.y }, { bbox.ur.x, bbox.ur.y });
+    const Point2d margin(marginX, marginY);
+
     double minHeight = tempGlobe.minHeightAboveGlobe();
     double maxHeight = tempGlobe.maxHeightAboveGlobe();
     if (pinchDelegate)
@@ -1379,39 +1470,49 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     }
 
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr globeView:&tempGlobe height:minHeight];
-    bool maxOnScreen = [self checkCoverage:mbr globeView:&tempGlobe height:maxHeight];
-    if (!minOnScreen && !maxOnScreen)
+    MaplyCoordinate minPos, maxPos;
+    const bool minOnScreen = [self checkCoverage:mbr globeView:&tempGlobe loc:pos height:minHeight
+                                           frame:frame newLoc:&minPos margin:margin];
+          bool maxOnScreen = [self checkCoverage:mbr globeView:&tempGlobe loc:pos height:maxHeight
+                                           frame:frame newLoc:&maxPos margin:margin];
+
+    // If there's a frame offset, max height will often
+    // fail, so we need to search both directions.
+    if (!minOnScreen && !maxOnScreen && !newPos)
     {
-        tempGlobe.setHeightAboveGlobe(oldHeight,false);
-        return oldHeight;
+        if (newPos)
+        {
+            *newPos = pos;
+        }
+        return 0.0;
     }
-    
-    // Now for the binary search
-    float minRange = 1e-5;
-    do
+    else if (minOnScreen)
     {
-        float midHeight = (minHeight + maxHeight)/2.0;
-        bool midOnScreen = [self checkCoverage:mbr globeView:&tempGlobe height:midHeight];
-        
-        if (!minOnScreen && midOnScreen)
+        if (newPos)
+        {
+            *newPos = minPos;
+        }
+        return minHeight;
+    }
+
+    // minHeight is out but maxHeight works.
+    // Binary search to find the lowest height that still works.
+    constexpr float minRange = 1e-5;
+    while (maxHeight - minHeight > minRange)
+    {
+        const float midHeight = (minHeight + maxHeight)/2.0;
+        if ([self checkCoverage:mbr globeView:&tempGlobe loc:pos height:midHeight
+                          frame:frame newLoc:newPos margin:margin])
         {
             maxHeight = midHeight;
-            maxOnScreen = midOnScreen;
-        } else if (!midOnScreen && maxOnScreen)
-        {
-            minHeight = midHeight;
-            minOnScreen = midOnScreen;
-        } else {
-            // Not expecting this
-            break;
+            maxOnScreen = true;
         }
-        
-        if (maxHeight-minHeight < minRange)
-            break;
-    } while (true);
-    
-    return maxHeight;
+        else
+        {
+            (maxOnScreen ? minHeight : maxHeight) = midHeight;
+        }
+    }
+    return maxOnScreen ? maxHeight : 0.0;
 }
 
 - (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord
@@ -1471,21 +1572,35 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (bool)geoPointFromScreen:(CGPoint)screenPt geoCoord:(MaplyCoordinate *)retCoord
 {
-    if (!renderControl)
+    return [self geoPointFromScreen:screenPt theView:globeView.get() geoCoord:retCoord];
+}
+
+- (bool)geoPointFromScreen:(CGPoint)screenPt
+                   theView:(WhirlyGlobe::GlobeView * __nonnull)theView
+                  geoCoord:(MaplyCoordinate * __nonnull)retCoord
+{
+    if (!renderControl || !theView)
+    {
         return false;
-    
+    }
+
+    const auto *coordAdapter = theView->coordAdapter;
+    const auto *coordSys = coordAdapter->getCoordSystem();
+    const auto frameSize = renderControl->sceneRenderer->getFramebufferSizeScaled();
+
 	Point3d hit;
     Point2f screenPt2f(screenPt.x,screenPt.y);
-	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
-    if (globeView->pointOnSphereFromScreen(screenPt2f, theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
+	Eigen::Matrix4d theTransform = theView->calcFullMatrix();
+    if (theView->pointOnSphereFromScreen(screenPt2f, theTransform, frameSize, hit, true))
     {
-        GeoCoord geoCoord = renderControl->visualView->coordAdapter->getCoordSystem()->localToGeographic(renderControl->visualView->coordAdapter->displayToLocal(hit));
-        retCoord->x = geoCoord.x();
-        retCoord->y = geoCoord.y();
-        
+        if (retCoord)
+        {
+            const GeoCoord geoCoord = coordSys->localToGeographic(coordAdapter->displayToLocal(hit));
+            *retCoord = { geoCoord.x(), geoCoord.y() };
+        }
         return true;
-	} else
-        return false;
+	}
+    return false;
 }
 
 - (nullable NSValue *)geoPointFromScreen:(CGPoint)screenPt

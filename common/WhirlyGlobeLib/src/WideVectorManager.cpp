@@ -29,42 +29,59 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-WideVectorInfo::WideVectorInfo() :
-    implType(WideVecImplBasic), color(RGBAColor::white()), width(2.0),
-    repeatSize(32.0), edgeSize(1.0), subdivEps(0.0),
-    coordType(WideVecCoordScreen), joinType(WideVecMiterJoin), capType(WideVecButtCap),
-    texID(EmptyIdentity), miterLimit(2.0), offset(0.0f)
-{
-}
 
 WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     : BaseInfo(dict)
 {
-    implType = WideVecImplBasic;
-    std::string implTypeStr = dict.getString(MaplyWideVecImpl);
-    if (!implTypeStr.compare(MaplyWideVecImplPerf))
-        implType = WideVecImplPerf;
-    color = dict.getColor(MaplyColor,RGBAColor::white());
-    width = dict.getDouble(MaplyVecWidth,2.0);
-    offset = (float)-dict.getDouble(MaplyWideVecOffset,0.0);
-    std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
-    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,0.0);
-    coordType = WideVecCoordScreen;
+    color = dict.getColor(MaplyColor,color);
+    width = dict.getDouble(MaplyVecWidth,width);
+    offset = (float)-dict.getDouble(MaplyWideVecOffset,-offset);
+    subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,subdivEps);
+    texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
+    repeatSize = (float)dict.getDouble(MaplyWideVecTexRepeatLen,repeatSize);
+    edgeSize = (float)dict.getDouble(MaplyWideVecEdgeFalloff,edgeSize);
+    miterLimit = (float)dict.getDouble(MaplyWideVecMiterLimit,miterLimit);
+
+    const std::string implTypeStr = dict.getString(MaplyWideVecImpl);
+    implType = implTypeStr.compare(MaplyWideVecImplPerf) ? WideVecImplBasic : WideVecImplPerf;
+
+    closeAreals = dict.getBool(MaplyVecCloseAreals, closeAreals);
+
+    const std::string coordTypeStr = dict.getString(MaplyWideVecCoordType);
     if (!coordTypeStr.compare(MaplyWideVecCoordTypeReal))
         coordType = WideVecCoordReal;
     else if (!coordTypeStr.compare(MaplyWideVecCoordTypeScreen))
         coordType = WideVecCoordScreen;
-    joinType = WideVecMiterJoin;
-    std::string jointTypeStr = dict.getString(MaplyWideVecJoinType);
-    capType = WideVecButtCap;
+
     // Note: Not supporting this right now
-    //    _joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
-    //    std::String capTypeStr = dict.getString(MaplyWideVecCapType);
-    //    _capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
-    texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
-    repeatSize = (float)dict.getDouble(MaplyWideVecTexRepeatLen,32);
-    edgeSize = (float)dict.getDouble(MaplyWideVecEdgeFalloff,1.0);
-    miterLimit = (float)dict.getDouble(MaplyWideVecMiterLimit,2.0);
+    //const std::string jointTypeStr = dict.getString(MaplyWideVecJoinType);
+    //_joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
+    //const std::string capTypeStr = dict.getString(MaplyWideVecCapType);
+    //_capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
+}
+
+std::string WideVectorInfo::toString() const
+{
+    std::ostringstream ss;
+    ss << "\n"
+       << "color="      << color.asARGBInt() << "\n"
+       << "width="      << width << "\n"
+       << "offset="     << offset << "\n"
+       << "repeat="     << repeatSize << "\n"
+       << "edge="       << edgeSize << "\n"
+       << "subdivEps"   << subdivEps << "\n"
+       << "miterLimit"  << miterLimit << "\n"
+       << "closeAreals" << closeAreals << "\n"
+       << "implType="   << implType << "\n"
+       << "coordType="  << coordType << "\n"
+       << "joinType="   << joinType << "\n"
+       << "capType="    << capType << "\n"
+       << "texID="      << texID << "\n"
+       << "widthExp="   << (widthExp ? /*widthExp->toString()*/"(set)" : "(none)") << "\n"  // todo
+       << "offsetExp="  << (offsetExp ? /*offsetExp->toString()*/"(set)" : "(none)") << "\n"  // todo
+       << "opacityExp=" << (opacityExp ? /*opacityExp->toString()*/"(set)" : "(none)") << "\n"  // todo
+       << "colorExp="   << (colorExp ? /*colorExp->toString()*/"(set)" : "(none)") << "\n"; // todo
+    return BaseInfo::toString() + ss.str();
 }
 
 // Turn this on for smaller texture lengths
@@ -417,8 +434,8 @@ public:
         {
             WideVectorLineJoinType joinType = vecInfo->joinType;
             // Switch to a bevel join if the angle is too great for a miter
-            double miterLimit = vecInfo->miterLimit;
-            if (joinType == WideVecMiterJoin && angleBetween > (M_PI-miterLimit*M_PI/180.0))
+            const double miterLimit = vecInfo->miterLimit * M_PI / 180.0;
+            if (joinType == WideVecMiterJoin && angleBetween > (M_PI - miterLimit))
                 joinType = WideVecBevelJoin;
             // We don't do bevels below 30 degrees
             if (joinType == WideVecBevelJoin && angleBetween > 150.0 / 180.0 * M_PI)
@@ -552,7 +569,7 @@ public:
     
     
     // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,WideVectorDrawableBuilderRef &drawable,bool closed,bool buildSegment,bool buildJunction)
+    void addPoint(const Point3d &inPt,const Point3d &up,const WideVectorDrawableBuilderRef &drawable,bool closed,bool buildSegment,bool buildJunction)
     {
         // Compare with the last point, if it's the same, toss it
         if (!pts.empty() && pts.back() == inPt && !closed)
@@ -570,7 +587,7 @@ public:
     }
     
     // Flush out any outstanding points
-    void flush(WideVectorDrawableBuilderRef &drawable,bool buildLastSegment, bool buildLastJunction)
+    void flush(const WideVectorDrawableBuilderRef &drawable,bool buildLastSegment, bool buildLastJunction)
     {
         if (pts.size() >= 2)
         {
@@ -811,12 +828,7 @@ public:
                 makeDistinctTurns = true;
                 if (pts.size() > 2)
                 {
-                    if (pts.front() == pts.back())
-                    {
-                        startPoint = -3;
-                    } else {
-                        startPoint = -2;
-                    }
+                    startPoint = (pts.front() == pts.back()) ? -3 : -2;
                 }
             }
      
@@ -832,33 +844,32 @@ public:
             // Guess at how many points and triangles we'll need
             int totalTriCount = (int)(5*pts.size());
             int totalPtCount = totalTriCount * 3;
-            if (totalTriCount < 0)  totalTriCount = 0;
-            if (totalPtCount < 0)  totalPtCount = 0;
-            
+
             // Work through the segments
             Point2f lastPt;
             bool validLastPt = false;
             for (int ii=startPoint;ii<(int)pts.size();ii++)
             {
-                // Get the points in display space
-                Point2f geoA = pts[(ii+pts.size())%pts.size()];
-                
-                if (validLastPt && geoA == lastPt)
-                    continue;
+                // Get the points in display space.
+                // Note that we may be starting with a negative index.
+                const Point2f &geoA = pts[(ii + pts.size()) % pts.size()];
 
-                Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
-                Point3d dispPa = coordAdapter->localToDisplay(localPa);
-                Point3d thisUp = up;
-                if (!coordAdapter->isFlat())
-                    thisUp = coordAdapter->normalForLocal(localPa);
-                
+                if (validLastPt && geoA == lastPt)
+                {
+                    continue;
+                }
+
+                const Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(geoA.x(),geoA.y()));
+                const Point3d dispPa = coordAdapter->localToDisplay(localPa);
+                const Point3d thisUp = coordAdapter->isFlat() ? up : coordAdapter->normalForLocal(localPa);
+
                 // Get a drawable ready
-                int triCount = 2+3;
-                int ptCount = triCount*3;
-                WideVectorDrawableBuilderRef thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount,0);
+                const int triCount = 2+3;
+                const int ptCount = triCount*3;
+                auto thisDrawable = getDrawable(ptCount,triCount,totalPtCount,totalTriCount,0);
                 vecBuilder.maskEntries = maskEntries;
-                totalTriCount -= triCount;
-                totalPtCount -= ptCount;
+                totalTriCount -= std::min(triCount,totalTriCount);
+                totalPtCount -= std::min(ptCount, totalPtCount);
                 drawMbr.addPoint(geoA);
                 
                 bool doSegment = !closed || (ii > 0);
@@ -1057,7 +1068,7 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
             }
         }
         
-        if (const auto lin = std::dynamic_pointer_cast<VectorLinear>(shape))
+        if (const auto lin = dynamic_cast<const VectorLinear*>(shape.get()))
         {
             builder.addLinear(lin->pts, centerUp, maskIDs, false);
         }
@@ -1065,17 +1076,26 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         {
             for (const auto &loop : ar->loops)
             {
-                if (loop.size() > 2 && (loop.begin() != loop.end() && vecInfo.implType != WideVecImplPerf))
+                if (loop.size() < 2)
+                {
+                    continue;
+                }
+
+                // todo: sample/subdivide edges
+
+                const auto *theLoop = &loop;
+                if (vecInfo.closeAreals && loop.size() > 2 && (loop.front() != loop.back()))
                 {
                     // Just tack on another point at the end.  Kind of dumb, but easy.
-                    tempLoop = loop;
-                    tempLoop.push_back(loop[0]);
-                    builder.addLinear(tempLoop, centerUp, maskIDs, true);
+                    tempLoop.clear();
+                    tempLoop.reserve(loop.size() + 1);
+                    tempLoop.assign(loop.begin(), loop.end());
+                    tempLoop.push_back(loop.front());
+                    theLoop = &tempLoop;
                 }
-                else
-                {
-                    builder.addLinear(loop, centerUp, maskIDs, true);
-                }
+
+                const bool isClosed = (theLoop->front() == theLoop->back());
+                builder.addLinear(*theLoop, centerUp, maskIDs, isClosed);
             }
         }
     }

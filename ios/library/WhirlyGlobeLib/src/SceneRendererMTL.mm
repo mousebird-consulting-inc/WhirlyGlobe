@@ -603,7 +603,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     Matrix4d modelTransInv4d = modelTrans4d.inverse();
     Vector4d eyeVec4d = modelTransInv4d * Vector4d(0,0,1,0.0);
     baseFrameInfo.heightAboveSurface = theView->heightAboveSurface();
-    if (scene->getCoordAdapter()->isFlat()) {
+    const bool isFlat = scene->getCoordAdapter()->isFlat();
+    if (isFlat) {
         Vector4d eyePos4d = modelTransInv4d * Vector4d(0.0,0.0,0.0,1.0);
         eyePos4d /= eyePos4d.w();
         baseFrameInfo.eyePos = Vector3d(eyePos4d.x(),eyePos4d.y(),eyePos4d.z());
@@ -815,7 +816,11 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
-                        [cmdEncode setCullMode:MTLCullModeFront];
+                        // Front-face culling on by default for globes
+                        // Note: Would like to not set this every time
+                        if (!isFlat) {
+                            [cmdEncode setCullMode:MTLCullModeFront];
+                        }
                         for (const auto &drawGroup : targetContainerMTL->drawGroups) {
                             if (drawGroup->numCommands > 0) {
                                 [cmdEncode setDepthStencilState:drawGroup->depthStencil];
@@ -861,10 +866,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                         bool lastZBufferWrite = zBufferWrite;
                         bool lastZBufferRead = zBufferRead;
 
-                        // Backface culling on by default
+                        // Front-face culling on by default for globes
                         // Note: Would like to not set this every time
-                        [cmdEncode setCullMode:MTLCullModeFront];
-                        
+                        if (!isFlat) {
+                            [cmdEncode setCullMode:MTLCullModeFront];
+                        }
+
                         // Work through the drawables
                         for (const auto &draw : targetContainer->drawables) {
                             auto drawMTL = std::dynamic_pointer_cast<DrawableMTL>(draw);

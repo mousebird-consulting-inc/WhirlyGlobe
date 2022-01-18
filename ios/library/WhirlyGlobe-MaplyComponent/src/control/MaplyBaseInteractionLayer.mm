@@ -1779,9 +1779,12 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     std::vector<VectorShapeRef> shapes;
     for (const MaplyVectorObject *vecObj in vectors)
     {
-        for (auto shape: vecObj->vObj->shapes) {
-            auto dict = std::dynamic_pointer_cast<iosMutableDictionary>(shape->getAttrDict());
-            [self resolveMaskIDs:dict->dict compObj:compObj];
+        for (const auto &shape: vecObj->vObj->shapes)
+        {
+            if (auto dict = dynamic_cast<const iosMutableDictionary*>(shape->getAttrDictRef().get()))
+            {
+                [self resolveMaskIDs:dict->dict compObj:compObj];
+            }
         }
 
         // Maybe need to make a copy if we're going to sample

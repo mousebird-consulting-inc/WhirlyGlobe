@@ -1,7 +1,7 @@
 /*  MaplyQuadLoader.mm
  *
  *  Created by Steve Gifford on 2/12/19.
- *  Copyright 2012-2021 Saildrone Inc
+ *  Copyright 2012-2022 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ using namespace WhirlyKit;
     loadReturn = std::make_shared<QuadLoaderReturn>(loader->loader->getGeneration());
     viewC = loader.viewC;
     
-    return self;	
+    return self;
 }
 
 - (void)setTileID:(MaplyTileID)tileID
@@ -106,7 +106,11 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
     _flipY = true;
     _viewC = inViewC;
     _numSimultaneousTiles = 8;
@@ -118,11 +122,15 @@ using namespace WhirlyKit;
 
 - (bool)delayedInit
 {
-    return true;
+    return valid;
 }
 
 - (void)dealloc
 {
+    if (valid)
+    {
+        wkLogLevel(Warn, "MaplyQuadLoader dealloc without shutdown");
+    }
     if ([pendingReturns count])
     {
         wkLogLevel(Warn, "MaplyQuadLoaderBase - LoaderReturns not cleaned up");
@@ -132,10 +140,8 @@ using namespace WhirlyKit;
 - (bool)isLoading
 {
     // Maybe we're still setting up
-    if (!loader)
-        return true;
-    
-    return loader->getLoadingStatus();
+    const auto ldr = loader;
+    return !ldr || ldr->getLoadingStatus();
 }
 
 - (MaplyBoundingBox)geoBoundsForTile:(MaplyTileID)tileID
@@ -185,10 +191,9 @@ using namespace WhirlyKit;
 
 - (MaplyBoundingBox)boundsForTile:(MaplyTileID)tileID
 {
+    const MaplyBoundingBoxD boundsD = [self boundsForTileD:tileID];
+
     MaplyBoundingBox bounds;
-    MaplyBoundingBoxD boundsD;
-    
-    boundsD = [self boundsForTileD:tileID];
     bounds.ll = MaplyCoordinateMake(boundsD.ll.x, boundsD.ll.y);
     bounds.ur = MaplyCoordinateMake(boundsD.ur.x, boundsD.ur.y);
     
@@ -200,14 +205,12 @@ using namespace WhirlyKit;
      if (!samplingLayer)
         return kMaplyNullBoundingBoxD;
     
-    MaplyBoundingBoxD bounds;
-    
-    
     QuadDisplayControllerNewRef control = [samplingLayer.quadLayer getController];
     if (!control)
-        return bounds;
-    
-    MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+        return kMaplyNullBoundingBoxD;
+
+    const MbrD mbrD = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    MaplyBoundingBoxD bounds;
     bounds.ll = MaplyCoordinateDMake(mbrD.ll().x(), mbrD.ll().y());
     bounds.ur = MaplyCoordinateDMake(mbrD.ur().x(), mbrD.ur().y());
     
@@ -220,11 +223,11 @@ using namespace WhirlyKit;
     if (!control)
         return MaplyCoordinate3dMake(0.0, 0.0, 0.0);
 
-    Mbr mbr = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
-    Point2d pt((mbr.ll().x()+mbr.ur().x())/2.0,(mbr.ll().y()+mbr.ur().y())/2.0);
-    Scene *scene = control->getScene();
-    Point3d locCoord = CoordSystemConvert3d(control->getCoordSys(), scene->getCoordAdapter()->getCoordSystem(), Point3d(pt.x(),pt.y(),0.0));
-    Point3d dispCoord = scene->getCoordAdapter()->localToDisplay(locCoord);
+    const Mbr mbr = control->getQuadTree()->generateMbrForNode(WhirlyKit::QuadTreeNew::Node(tileID.x,tileID.y,tileID.level));
+    const Point2d pt((mbr.ll().x()+mbr.ur().x())/2.0,(mbr.ll().y()+mbr.ur().y())/2.0);
+    const Scene *scene = control->getScene();
+    const Point3d locCoord = CoordSystemConvert3d(control->getCoordSys(), scene->getCoordAdapter()->getCoordSystem(), Point3d(pt.x(),pt.y(),0.0));
+    const Point3d dispCoord = scene->getCoordAdapter()->localToDisplay(locCoord);
     
     return MaplyCoordinate3dMake(dispCoord.x(), dispCoord.y(), dispCoord.z());
 }
@@ -264,16 +267,18 @@ using namespace WhirlyKit;
 
 - (void)changeTileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *)tileInfos
 {
-    if (!samplingLayer)
-        return;
-    
     const auto __strong thread = samplingLayer.layerThread;
-    if ([NSThread currentThread] != thread) {
+    if (!thread)
+    {
+        return;
+    }
+
+    if ([NSThread currentThread] != thread)
+    {
         [self performSelector:@selector(changeTileInfos:) onThread:thread withObject:tileInfos waitUntilDone:false];
         return;
     }
 
-    
     ChangeSet changes;
     loader->setTileInfos(tileInfos);
     loader->reload(nullptr,-1,changes);
@@ -282,11 +287,14 @@ using namespace WhirlyKit;
 
 - (void)changeInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
 {
-    if (!samplingLayer)
-        return;
-    
     const auto __strong thread = samplingLayer.layerThread;
-    if ([NSThread currentThread] != thread) {
+    if (!thread)
+    {
+        return;
+    }
+
+    if ([NSThread currentThread] != thread)
+    {
         [self performSelector:@selector(changeInterpreter:) onThread:thread withObject:interp waitUntilDone:false];
         return;
     }
@@ -309,20 +317,26 @@ using namespace WhirlyKit;
 
 - (void)reloadAreas:(NSArray<NSValue*>*)bounds
 {
-    if (!samplingLayer)
-        return;
-
     const auto __strong thread = samplingLayer.layerThread;
-    if ([NSThread currentThread] != thread) {
+    const auto ldr = loader;
+    if (!thread || !ldr)
+    {
+        return;
+    }
+
+    if ([NSThread currentThread] != thread)
+    {
         [self performSelector:@selector(reloadAreas:) onThread:thread withObject:bounds waitUntilDone:false];
         return;
     }
 
     std::vector<Mbr> boxes;
     const auto count = bounds ? [bounds count] : 0;
-    if (count) {
+    if (count)
+    {
         boxes.reserve(count);
-        for (int i = 0; i < count; ++i) {
+        for (int i = 0; i < count; ++i)
+        {
             const auto v = [bounds[i] maplyBoundingBoxValue];
             boxes.emplace_back(Point2f(v.ll.x,v.ll.y), Point2f(v.ur.x,v.ur.y));
         }
@@ -330,17 +344,21 @@ using namespace WhirlyKit;
     auto const* boxPtr = boxes.empty() ? nullptr : &boxes[0];
     
     ChangeSet changes;
-    loader->reload(nullptr,-1,boxPtr,(int)boxes.size(),changes);
+    ldr->reload(nullptr,-1,boxPtr,(int)boxes.size(),changes);
     [thread addChangeRequests:changes];
 }
 
 - (void)updatePriorities
 {
-    if (!samplingLayer)
-        return;
-    
     const auto __strong thread = samplingLayer.layerThread;
-    if ([NSThread currentThread] != thread) {
+    const auto ldr = loader;
+    if (!thread || !ldr)
+    {
+        return;
+    }
+
+    if ([NSThread currentThread] != thread)
+    {
         [self performSelector:@selector(updatePriorities) onThread:thread withObject:nil waitUntilDone:false];
         return;
     }
@@ -351,7 +369,8 @@ using namespace WhirlyKit;
 // Called on a random dispatch queue
 - (void)fetchRequestSuccess:(MaplyTileFetchRequest *)request tileID:(MaplyTileID)tileID frame:(int)frame data:(id)data;
 {
-    if (!loader || !valid)
+    const auto __strong thread = self->samplingLayer.layerThread;
+    if (!loader || !valid || !thread)
         return;
     
     if (loader->getDebugMode())
@@ -372,8 +391,27 @@ using namespace WhirlyKit;
             NSLog(@"MaplyQuadLader:fetchRequestSuccess: client return unknown data type.  Dropping.");
         }
     }
-    
-    [self performSelector:@selector(mergeFetchRequest:) onThread:self->samplingLayer.layerThread withObject:loadData waitUntilDone:NO];
+
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        if (valid)
+        {
+            [self->pendingReturns addObject:loadData];
+        }
+        else
+        {
+            // Shutdown already started, newly added objects may not be cleaned up.
+            [self cleanupLoadedData:loadData];
+        }
+    }
+
+    if (valid)
+    {
+        [self performSelector:@selector(mergeFetchRequest:)
+                     onThread:thread
+                   withObject:loadData
+                waitUntilDone:NO];
+    }
 }
 
 // Called on SamplingLayer.layerThread
@@ -399,7 +437,6 @@ using namespace WhirlyKit;
 }
 
 // If we parsed the data, but need to drop it before it gets merged, we do it here
-// TODO: Not doing anything with the change list in loadReturn
 //       And this seems to have an ordering problem
 - (void)cleanupLoadedData:(MaplyLoaderReturn *)loadReturn
 {
@@ -408,18 +445,38 @@ using namespace WhirlyKit;
 
     SimpleIDSet compIDs;
     for (auto comp: loadReturn->loadReturn->compObjs)
+    {
         compIDs.insert(comp->getId());
+    }
+    loadReturn->loadReturn->compObjs.clear();
     for (auto comp: loadReturn->loadReturn->ovlCompObjs)
+    {
         compIDs.insert(comp->getId());
+    }
+    loadReturn->loadReturn->ovlCompObjs.clear();
     [renderC removeObjectsByID:compIDs mode:MaplyThreadCurrent];
+
+    for (auto change : loadReturn->loadReturn->changes)
+    {
+        delete change;
+    }
+    loadReturn->loadReturn->changes.clear();
 }
 
 // Called on the SamplingLayer.LayerThread
 - (void)mergeFetchRequest:(MaplyLoaderReturn *)loadReturn
 {
     if (!loader || !valid)
+    {
+        [self cleanupLoadedData:loadReturn];
         return;
-    
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        [self->pendingReturns removeObject:loadReturn];
+    }
+
     // Could do this at startup too
     if (_numSimultaneousTiles > 0 && !serialQueue) {
         serialQueue = dispatch_queue_create("Quad Loader Serial", DISPATCH_QUEUE_SERIAL);
@@ -431,6 +488,7 @@ using namespace WhirlyKit;
     if (!loader->isFrameLoading(tileID,loadReturn->loadReturn->frame)) {
         if (_debugMode)
             NSLog(@"MaplyQuadImageLoader: Dropping fetched tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,loadReturn->loadReturn->frame->frameIndex);
+        [self cleanupLoadedData:loadReturn];
         return;
     }
     
@@ -467,7 +525,10 @@ using namespace WhirlyKit;
 
         dispatch_async(theQueue, ^{
             if (!self->valid || !self->_viewC)
+            {
+                [self cleanupLoadedData:loadReturn];
                 return;
+            }
 
             auto loadAndMerge = ^{
                 // No load interpreter means the fetcher created the objects.  Hopefully.
@@ -477,19 +538,33 @@ using namespace WhirlyKit;
                 // Merge in the results on the sampling layer thread.
                 // If the load was canceled, or we're shutting down and the thread no
                 // longer exists, then we need to clean up the results to avoid leaks.
-                const auto thread = self->samplingLayer.layerThread;
-                if (!thread || [thread isCancelled]) {
+                const auto __strong thread = self->samplingLayer.layerThread;
+                if (!thread || [thread isCancelled])
+                {
                     [self cleanupLoadedData:loadReturn];
-                } else {
+                }
+                else
+                {
                     // Objects in this LoaderReturn have already been added to the base controller.
                     // If the layer thread is stopped between now and when the perform occurs, those
                     // objects will not be cleaned up by mergeLoadedTile(), and need to be cleaned up
                     // in shutdown() instead.
                     {
                         std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
-                        [self->pendingReturns addObject:loadReturn];
+                        if (self->valid)
+                        {
+                            [self->pendingReturns addObject:loadReturn];
+                        }
+                        else
+                        {
+                            // Shutdown already started, newly added objects may not be cleaned up.
+                            [self cleanupLoadedData:loadReturn];
+                        }
                     }
-                    [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
+                    if (self->valid)
+                    {
+                        [self performSelector:@selector(mergeLoadedTile:) onThread:thread withObject:loadReturn waitUntilDone:NO];
+                    }
                 }
             };
             
@@ -523,7 +598,8 @@ using namespace WhirlyKit;
         [self->pendingReturns removeObject:loadReturn];
     }
 
-    if (!loader || !thread || !valid) {
+    if (!loader || !thread || !valid)
+    {
         [self cleanupLoadedData:loadReturn];
         return;
     }
@@ -542,12 +618,13 @@ using namespace WhirlyKit;
 
 - (void)cleanup
 {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedInit) object:nil];
+
     {
         std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
-        if (auto __strong viewC = _viewC) {
-            for (MaplyLoaderReturn *loadReturn in pendingReturns) {
-                [self cleanupLoadedData:loadReturn];
-            }
+        for (MaplyLoaderReturn *loadReturn in pendingReturns)
+        {
+            [self cleanupLoadedData:loadReturn];
         }
         [pendingReturns removeAllObjects];
     }
@@ -555,15 +632,21 @@ using namespace WhirlyKit;
     ChangeSet changes;
     loader->cleanup(nullptr,changes);
 
-    if (!changes.empty()) {
+    if (!changes.empty())
+    {
         const auto __strong thread = samplingLayer.layerThread;
-        if (thread) {
+        if (thread)
+        {
             [thread addChangeRequests:changes];
             [thread flushChangeRequests];
-        } else {
-            for (auto change : changes) {
+        }
+        else
+        {
+            for (auto change : changes)
+            {
                 delete change;
             }
+            changes.clear();
         }
     }
 
@@ -578,11 +661,23 @@ using namespace WhirlyKit;
 
 - (void)shutdown
 {
-    valid = false;
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(delayedInit) object:nil];
+
+    {
+        std::lock_guard<std::mutex> lock(self->pendingReturnsLock);
+        valid = false;
+    }
     
     const auto __strong thread = samplingLayer.layerThread;
     if (thread)
+    {
         [self performSelector:@selector(cleanup) onThread:thread withObject:nil waitUntilDone:NO];
+    }
+    else
+    {
+        wkLogLevel(Warn, "MaplyQuadLoader layer thread stopped before shutdown");
+        [self cleanup];
+    }
 }
 
 @end

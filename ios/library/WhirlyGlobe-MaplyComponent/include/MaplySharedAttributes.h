@@ -224,6 +224,9 @@ extern NSString* const kMaplyWideVecCoordTypeScreen;
 /// Controls the wide vector implementation.  Basic implementation by default.
 extern NSString* const kMaplyWideVecImpl;
 
+/// Default/old implementation of the wide vectors
+extern NSString* const kMaplyWideVecImplDefault;
+
 /// Performance implementation of the wide vectors
 extern NSString* const kMaplyWideVecImplPerf;
 
@@ -264,6 +267,9 @@ extern NSString* const kMaplyWideVecTexRepeatLen;
 
 /// Offset to left (negative) or right (positive) of the centerline
 extern NSString* const kMaplyWideVecOffset;
+
+/// Close any un-closed areal features when drawing lines for them
+extern NSString* const kMaplyVecCloseAreals;
 
 /// If set we'll break up a vector feature to the given epsilon on a globe surface
 extern NSString* const kMaplySubdivEpsilon;

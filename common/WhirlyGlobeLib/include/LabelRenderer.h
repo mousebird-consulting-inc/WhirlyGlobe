@@ -76,6 +76,9 @@ public:
     LabelInfo(const Dictionary &dict,bool screenObject);
     virtual ~LabelInfo() = default;
 
+    // Convert contents to a string for debugging
+    virtual std::string toString() const override { return BaseInfo::toString() + " +LabelInfo..."; }
+
     bool hasTextColor = false;
     RGBAColor textColor = RGBAColor::white();
     RGBAColor backColor = RGBAColor::clear();

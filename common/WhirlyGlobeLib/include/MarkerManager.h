@@ -62,12 +62,14 @@ public:
 typedef std::set<MarkerSceneRep *,IdentifiableSorter> MarkerSceneRepSet;
 
 // Used to pass marker information between threads
-class MarkerInfo : public BaseInfo
+struct MarkerInfo : public BaseInfo
 {
-public:
     MarkerInfo(bool screenObject);
     MarkerInfo(const Dictionary &,bool screenObject);
     virtual ~MarkerInfo() = default;
+
+    // Convert contents to a string for debugging
+    virtual std::string toString() const { return BaseInfo::toString() + " + MarkerInfo..."; }
 
     RGBAColor color;
     bool screenObject;

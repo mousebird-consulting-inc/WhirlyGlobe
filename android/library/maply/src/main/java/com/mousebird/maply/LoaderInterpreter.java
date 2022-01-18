@@ -1,9 +1,8 @@
-/*
- *  LoaderInterpreter
+/*  LoaderInterpreter
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/20/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
+import org.jetbrains.annotations.NotNull;
 
 /**
  *  Loader Interpreter converts raw data into images and objects.
@@ -33,7 +32,7 @@ public interface LoaderInterpreter
      *
      * If you need to tweak loader settings, do it here.
      */
-    public void setLoader(QuadLoaderBase loader);
+    void setLoader(QuadLoaderBase loader);
 
     /**
      *  Parse the data coming back from a remote request and turn it into something we can use.
@@ -41,5 +40,10 @@ public interface LoaderInterpreter
      *  Convert the data passed in to image and component objects (e.g. add stuff to the visuals).
      *  Everything added should be disabled to start.
      */
-    public void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader);
+    void dataForTile(LoaderReturn loadReturn,QuadLoaderBase loader);
+
+    /**
+     * Some tiles were just removed.
+     */
+    void tilesUnloaded(@NotNull TileID[] ids);
 }

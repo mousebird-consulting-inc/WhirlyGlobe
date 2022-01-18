@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/22/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@
  */
 
 package com.mousebird.maply;
-
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -38,13 +39,11 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
 
     protected WeakReference<QuadSamplingLayer> samplingLayer;
 
-    protected QuadLoaderBase(BaseController inControl)
-    {
+    protected QuadLoaderBase(BaseController inControl) {
         control = new WeakReference<>(inControl);
     }
 
-    protected QuadLoaderBase(BaseController inControl,SamplingParams params,int numFrames,Mode mode)
-    {
+    protected QuadLoaderBase(BaseController inControl,SamplingParams params,int numFrames,Mode mode) {
         control = new WeakReference<>(inControl);
         initialise(params,numFrames,mode.ordinal());
     }
@@ -107,7 +106,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      *  @return The lower left and upper right corner of the tile in geographic coordinates.
      *          Returns null in case of error.
      */
-    public Mbr geoBoundsForTile(TileID tileID)
+    public @NotNull Mbr geoBoundsForTile(@NotNull TileID tileID)
     {
         Mbr mbr = new Mbr(new Point2d(),new Point2d());
         geoBoundsForTileNative(tileID.x,tileID.y,tileID.level,mbr.ll,mbr.ur);
@@ -213,11 +212,13 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      * Attach a LoaderReturn to the frame assets.
      * Required for cancellation to be notated on the loader return.
      */
+    @SuppressWarnings("unused") // Used by JNI
     public native void setLoadReturn(LoaderReturn loadReturn);
 
     /**
      * Detach a LoaderReturn from the frame assets
      */
+    @SuppressWarnings("unused") // Used by JNI
     public native void clearLoadReturn(LoaderReturn loadReturn);
 
     /**
@@ -311,12 +312,26 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
     public void processBatchOps(QIFBatchOps batchOps)
     {
+        final TileID[] deletes = batchOps.getDeletes();
+
         batchOps.process(tileFetcher);
+
+        if (deletes != null && deletes.length > 0) {
+            QuadSamplingLayer layer = getSamplingLayer();
+            if (layer != null) {
+                layer.tilesUnloaded(deletes);
+            }
+            LoaderInterpreter li = loadInterp;
+            if (li != null) {
+                li.tilesUnloaded(deletes);
+            }
+        }
     }
 
     // Frame assets are used C++ side, but we have to hold a reference to them
     //  or they disappear at inopportune times.  We don't look inside them here.
-    HashSet<QIFFrameAsset> frameAssets = new HashSet<>();
+    @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+    private final HashSet<QIFFrameAsset> frameAssets = new HashSet<>();
 
     // Stop tracking a frame asset
     public void clearFrameAsset(QIFFrameAsset frameAsset)
@@ -382,7 +397,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
-    private void fetchSuccess(TileFetchRequest fetchRequest, TileID tileID, int frame, long frameID, byte[] data) {
+    private void fetchSuccess(@SuppressWarnings("unused") TileFetchRequest fetchRequest,
+                              TileID tileID, int frame, long frameID, byte[] data) {
         final LoaderInterpreter theLoadInterp = loadInterp;
         final QuadSamplingLayer layer = getSamplingLayer();
 
@@ -463,7 +479,8 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
-    private void fetchFailed(TileFetchRequest fetchRequest, String errorMessage) {
+    private void fetchFailed(@SuppressWarnings("unused") TileFetchRequest fetchRequest,
+                             @SuppressWarnings("unused") String errorMessage) {
         final QuadSamplingLayer layer = getSamplingLayer();
         if (layer != null && !layer.isShuttingDown) {
             layer.layerThread.addTask(() -> {

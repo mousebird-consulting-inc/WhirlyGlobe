@@ -300,16 +300,22 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
                                ChangeSet &changes) {
     // Sometimes changes are made directly with the managers and we need to reflect that
     //  even if those features are immediately deleted
-    if (!loadReturn->changes.empty())
-        changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
+    changes.insert(changes.end(),loadReturn->changes.begin(),loadReturn->changes.end());
+    loadReturn->changes.clear();
     
     auto frame = loadReturn->frame ? findFrameFor(loadReturn->frame) : nullptr;
     if (loadReturn->frame && !frame)
     {
         if (!loadReturn->compObjs.empty())
+        {
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);
+            loadReturn->compObjs.clear();
+        }
         if (!loadReturn->ovlCompObjs.empty())
+        {
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->ovlCompObjs, changes);
+            loadReturn->ovlCompObjs.clear();
+        }
         wkLogLevel(Warn,"QuadImageFrameLoader: Got frame back outside of range");
         return false;
     }
@@ -317,9 +323,15 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     // Check the generation.  This is how we catch old data that was in transit.
     if (loadReturn->generation < loader->getGeneration()) {
         if (!loadReturn->compObjs.empty())
+        {
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->compObjs, changes);
+            loadReturn->compObjs.clear();
+        }
         if (!loadReturn->ovlCompObjs.empty())
+        {
             loader->compManager->removeComponentObjects(threadInfo,loadReturn->ovlCompObjs, changes);
+            loadReturn->ovlCompObjs.clear();
+        }
 //        wkLogLevel(Debug, "QuadImageFrameLoader: Dropped an old loadReturn after a reload.");
         return true;
     }
@@ -337,8 +349,10 @@ bool QIFTileAsset::frameLoaded(PlatformThreadInfo *threadInfo,
     // Component objects (if there)
     for (const ComponentObjectRef& compObj : loadReturn->compObjs)
         compObjs.insert(compObj->getId());
+    loadReturn->compObjs.clear();
     for (const ComponentObjectRef& ovlCompObj : loadReturn->ovlCompObjs)
         ovlCompObjs.insert(ovlCompObj->getId());
+    loadReturn->ovlCompObjs.clear();
     
     if (frame) {
         // Clear out the old texture if it's there
@@ -1023,27 +1037,43 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     }
 
     // If there is a tile, then notify it
-    if (tile) {
-        if (failed) {
+    if (tile)
+    {
+        if (failed)
+        {
             tile->frameFailed(threadInfo, this, loadReturn, changes);
-        } else {
-            if (!tile->frameLoaded(threadInfo, this, loadReturn, texs, changes))
-                failed = true;
+        }
+        else if (!tile->frameLoaded(threadInfo, this, loadReturn, texs, changes))
+        {
+            failed = true;
         }
     }
 
-    // For whatever reason, didn't correctly integrate the tile
-    // so now delete everything
-    if (failed) {
+    // For whatever reason, didn't correctly integrate the tile, so now delete everything
+    if (failed)
+    {
         for (auto tex: texs)
+        {
             delete tex;
+        }
         texs.clear();
+
+        // Keep the changes created while setting up objects
+        changes.insert(changes.end(), loadReturn->changes.begin(), loadReturn->changes.end());
+        loadReturn->changes.clear();
+
+        // Remove any objects that were added
         SimpleIDSet compObjs;
         for (const auto& compObj : loadReturn->compObjs)
+        {
             compObjs.insert(compObj->getId());
+        }
         for (const auto& compObj : loadReturn->ovlCompObjs)
+        {
             compObjs.insert(compObj->getId());
+        }
         compManager->removeComponentObjects(threadInfo, compObjs, changes);
+
         loadReturn->clear();
     }
 }
@@ -1448,6 +1478,11 @@ void QuadImageFrameLoader::updateForFrame(RendererFrameInfo *frameInfo)
     Scene *scene = control->getScene();
     if (!scene)
         return;
+
+    // We're shutting down, so don't do this
+    if (lastRunReqFlag && !*lastRunReqFlag)
+        return;
+
 
     ChangeSet changes;
 

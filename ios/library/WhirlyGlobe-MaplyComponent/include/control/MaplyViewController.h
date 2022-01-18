@@ -1,9 +1,8 @@
-/*
- *  MaplyViewController.h
+/*  MaplyViewController.h
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -586,24 +584,48 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     
     @param pos Where the view will be looking.
   */
-- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos;
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos;
 
 /** 
     Find a height that shows the given bounding box.
- 
     This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
- 
-    This version takes a margin to add around the outside of the area.
+
+    This version takes a margin to add around the outside of the area.  Positive margins increase the screen area considered, making the
+    given area larger.  Negative margins make the specified area smaller.
  
     @param bbox The bounding box (in radians) we're trying to view.
- 
     @param pos Where the view will be looking.
- 
     @param marginX Horizontal boundary around the area
- 
     @param marginY Vertical boundary around the area
  */
-- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos marginX:(double)marginX marginY:(double)marginY;
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
+                        marginX:(double)marginX
+                        marginY:(double)marginY;
+
+/**
+    Find a height that shows the given bounding box.
+    This method will search for a height that shows the given bounding box within the view.  The search is inefficient, so don't call this a lot.
+
+    This version takes a margin to add around the outside of the area.  Positive margins increase the screen area considered, making the
+    given area larger.  Negative margins make the specified area smaller.
+
+    This version attempts to place the given bounds within a rectangle other than the whole view frame.
+
+    @param bbox The bounding box (in radians) we're trying to view.
+    @param pos Where the view will be looking.
+    @param frame The screen area to consider.
+    @param newPos (out,optional) The center location needed to place \c pos at the center of \c frame
+    @param marginX Horizontal boundary around the area
+    @param marginY Vertical boundary around the area
+ */
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
+                          frame:(CGRect)frame
+                         newPos:(MaplyCoordinate *_Nullable)newPos
+                        marginX:(double)marginX
+                        marginY:(double)marginY;
 
 /**
  

@@ -247,7 +247,7 @@ class SimpleStyleManager(context: Context, vc: RenderControllerInterface, assetM
     
     private fun addFeaturesInternal(obj: VectorObject, optStyle: SimpleStyle? = null, mode: ThreadMode = threadCurrent): Sequence<ComponentObject> {
         val vc = this.vc.get() ?: return sequenceOf()
-        val style = optStyle ?: makeStyle(obj.attributes)
+        val style = optStyle ?: obj.attributes?.let(this::makeStyle) ?: SimpleStyle()
         when (obj.vectorType) {
             VectorObject.MaplyVectorObjectType.MaplyVectorPointType -> {
                 var markerObj: ComponentObject? = null

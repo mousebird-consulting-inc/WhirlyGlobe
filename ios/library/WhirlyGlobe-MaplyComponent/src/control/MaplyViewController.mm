@@ -1,9 +1,8 @@
-/*
- *  MaplyViewController.mm
+/*  MaplyViewController.mm
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2021 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <WhirlyGlobe_iOS.h>
@@ -1261,23 +1259,67 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 }
 
 // See if the given bounding box is all on screen
-- (bool)checkCoverage:(const Mbr &)mbr mapView:(Maply::MapView *)theView height:(float)height margin:(const Point2d &)margin
+- (bool)checkCoverage:(const Mbr &)mbr
+              mapView:(Maply::MapView *)theView
+                  loc:(MaplyCoordinate)loc
+               height:(float)height
+                frame:(CGRect)frame
+               newLoc:(MaplyCoordinate *)newLoc
+               margin:(const Point2d &)margin
 {
-    // Center the bound
-    const Point3d localMid = mapView->coordAdapter->getCoordSystem()->geographicToLocal(mbr.mid().cast<double>());
+    if (frame.size.width == 0 || frame.size.height == 0)
+    {
+        return false;
+    }
+    if (newLoc)
+    {
+        *newLoc = loc;
+    }
+
+    const auto &coordAdapter = mapView->coordAdapter;
+    const auto *coordSys = coordAdapter->getCoordSystem();
+
+    // Center the given location
+    Point3d localMid = coordSys->geographicToLocal(Point2d(loc.x, loc.y));
     theView->setLoc(Point3d(localMid.x(),localMid.y(),height),false);
+
+    // If they want to center in an area other than the whole view frame, we need to work out
+    // what center point will place the given location at the center of the given view frame.
+    const auto screenCenter = CGPointMake(CGRectGetMidX(self.view.frame), CGRectGetMidY(self.view.frame));
+    const auto frameCenter = CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
+    const auto offset = CGPointMake(frameCenter.x - screenCenter.x, frameCenter.y - screenCenter.y);
+    if (offset.x != 0 || offset.y != 0)
+    {
+        const auto invCenter = CGPointMake(screenCenter.x - offset.x,screenCenter.y - offset.y);
+        MaplyCoordinate invGeo = {0,0};
+        if (![self geoFromScreenPoint:invCenter view:theView geo:&invGeo])
+        {
+            return false;
+        }
+
+        // Place the given location at the center of the given frame
+        localMid = coordSys->geographicToLocal(Point2d(invGeo.x, invGeo.y));
+        theView->setLoc(Point3d(localMid.x(), localMid.y(), height), false);
+        
+        if (newLoc)
+        {
+            *newLoc = invGeo;
+        }
+    }
 
     // Get the corners
     Point2fVector pts;
     mbr.asPoints(pts);
 
-    // Check each one
-    const CGRect &frame = self.view.frame;
+    // Check if each corner is within the given frame in this view
     for (const auto &pt : pts)
     {
         const CGPoint screenPt = [self screenPointFromGeo:{pt.x(),pt.y()} mapView:theView];
-        if (screenPt.x < -margin.x() || screenPt.x > frame.size.width + margin.x() ||
-            screenPt.y < -margin.y() || screenPt.y > frame.size.height + margin.y())
+        if (!std::isfinite(screenPt.y) ||
+            screenPt.x < frame.origin.x - margin.x() ||
+            screenPt.y < frame.origin.y - margin.y() ||
+            screenPt.x > frame.origin.x + frame.size.width + margin.x() ||
+            screenPt.y > frame.origin.y + frame.size.height + margin.y())
         {
             return false;
         }
@@ -1285,32 +1327,53 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     return true;
 }
 
-- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
 {
-    return [self findHeightToViewBounds:bbox pos:pos marginX:0 marginY:0];
+    return [self findHeightToViewBounds:bbox
+                                    pos:pos
+                                marginX:0
+                                marginY:0];
 }
 
-- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox pos:(MaplyCoordinate)pos marginX:(double)marginX marginY:(double)marginY
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
+                        marginX:(double)marginX
+                        marginY:(double)marginY
 {
-    const Point2d margin(marginX,marginY);
-    
+    return [self findHeightToViewBounds:bbox
+                                    pos:pos
+                                  frame:self.view.frame
+                                 newPos:nil
+                                marginX:marginX
+                                marginY:marginY];
+}
+
+- (float)findHeightToViewBounds:(MaplyBoundingBox)bbox
+                            pos:(MaplyCoordinate)pos
+                          frame:(CGRect)frame
+                         newPos:(MaplyCoordinate *)newPos
+                        marginX:(double)marginX
+                        marginY:(double)marginY
+{
     if (!mapView)
     {
         return 0;
     }
+
+    // checkCoverage won't work if the frame size isn't set
+    if (frame.size.height * frame.size.width == 0)
+    {
+        return 0;
+    }
+
     Maply::MapView tempMapView(*mapView);
 
     // Center the temporary view on the new center point at the current height
-    const Point3d oldLoc = tempMapView.getLoc();
-    Point3d newLoc = Point3d(pos.x,pos.y,oldLoc.z());
-    if (_coordSys)
-    {
-        newLoc = _coordSys->coordSystem->geographicToLocal3d(GeoCoord(pos.x,pos.y));
-        newLoc.z() = oldLoc.z();
-    }
-    tempMapView.setLoc(newLoc, false);
+    //const Point3d oldLoc = tempMapView.getLoc();
 
-    const Mbr mbr(Point2f(bbox.ll.x,bbox.ll.y),Point2f(bbox.ur.x,bbox.ur.y));
+    const Mbr mbr { { bbox.ll.x, bbox.ll.y }, { bbox.ur.x, bbox.ur.y } };
+    const Point2d margin(marginX,marginY);
 
     float minHeight = tempMapView.minHeightAboveSurface();
     float maxHeight = tempMapView.maxHeightAboveSurface();
@@ -1321,37 +1384,45 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     }
     
     // Check that we can at least see it
-    bool minOnScreen = [self checkCoverage:mbr mapView:&tempMapView height:minHeight margin:margin];
-    bool maxOnScreen = [self checkCoverage:mbr mapView:&tempMapView height:maxHeight margin:margin];
+    MaplyCoordinate minPos, maxPos;
+    const bool minOnScreen = [self checkCoverage:mbr mapView:&tempMapView loc:pos height:minHeight
+                                           frame:frame newLoc:&minPos margin:margin];
+    const bool maxOnScreen = [self checkCoverage:mbr mapView:&tempMapView loc:pos height:maxHeight
+                                           frame:frame newLoc:&maxPos margin:margin];
     if (!minOnScreen && !maxOnScreen)
     {
-        tempMapView.setLoc(oldLoc,false);
-        return oldLoc.z();
-    } else if (minOnScreen) {
-        // already fits at min zoom
-        maxHeight = minHeight;
-    } else {
-        // Now for the binary search
-        float minRange = 1e-5;
-        do
+        if (newPos)
         {
-            float midHeight = (minHeight + maxHeight)/2.0;
-            bool midOnScreen = [self checkCoverage:mbr mapView:&tempMapView height:midHeight margin:margin];
-        
-            if (!minOnScreen && midOnScreen)
-            {
-                maxHeight = midHeight;
-                maxOnScreen = YES;
-            } else if (!midOnScreen && maxOnScreen) {
-                minHeight = midHeight;
-                minOnScreen = NO;
-            } else {
-                // Not expecting this
-                break;
-            }
-        } while (maxHeight-minHeight > minRange);
+            *newPos = pos;
+        }
+        return 0.0;
     }
-    
+    else if (minOnScreen)
+    {
+        // already fits at min zoom
+        if (newPos)
+        {
+            *newPos = minPos;
+        }
+        return minHeight;
+    }
+
+    // minHeight is out but maxHeight works.
+    // Binary search to find the lowest height that still works.
+    constexpr float minRange = 1e-5;
+    while (maxHeight - minHeight > minRange)
+    {
+        const float midHeight = (minHeight + maxHeight)/2.0;
+        if ([self checkCoverage:mbr mapView:&tempMapView loc:pos height:midHeight
+                         frame:frame newLoc:newPos margin:margin])
+        {
+            maxHeight = midHeight;
+        }
+        else
+        {
+            minHeight = midHeight;
+        }
+    }
     return maxHeight;
 }
 
@@ -1511,23 +1582,45 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     }
 }
 
-- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point {
-      Point3d hit;
-    SceneRenderer *sceneRender = wrapView.renderer;
-    Eigen::Matrix4d theTransform = mapView->calcFullMatrix();
-    auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
-    Point2f point2f(point.x,point.y);
-    if (mapView->pointOnPlaneFromScreen(point2f, &theTransform, frameSizeScaled, &hit, true))
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point
+{
+    return [self geoFromScreenPoint:point view:mapView.get()];
+}
+
+- (MaplyCoordinate)geoFromScreenPoint:(CGPoint)point view:(MapView*)view
+{
+    MaplyCoordinate geo = {0,0};
+    [self geoFromScreenPoint:point view:view geo:&geo];
+    return geo;
+}
+
+- (bool)geoFromScreenPoint:(CGPoint)point geo:(MaplyCoordinate*)geo
+{
+    return [self geoFromScreenPoint:point view:mapView.get() geo:geo];
+}
+
+- (bool)geoFromScreenPoint:(CGPoint)point view:(MapView*)view geo:(MaplyCoordinate*)geo
+{
+    if (view)
     {
-        Point3d localPt = coordAdapter->displayToLocal(hit);
-        GeoCoord coord = coordAdapter->getCoordSystem()->localToGeographic(localPt);
-        MaplyCoordinate maplyCoord;
-        maplyCoord.x = coord.x();
-        maplyCoord.y  = coord.y();
-        return maplyCoord;
-    } else {
-        return MaplyCoordinateMakeWithDegrees(0, 0);
+        SceneRenderer *sceneRender = wrapView.renderer;
+        Eigen::Matrix4d theTransform = view->calcFullMatrix();
+        const auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
+
+        Point2f point2f(point.x,point.y);
+        Point3d hit;
+        if (view->pointOnPlaneFromScreen(point2f, &theTransform, frameSizeScaled, &hit, true))
+        {
+            if (geo)
+            {
+                const Point3d localPt = coordAdapter->displayToLocal(hit);
+                const GeoCoord coord = coordAdapter->getCoordSystem()->localToGeographic(localPt);
+                *geo = {coord.x(), coord.y()};
+            }
+            return true;
+        }
     }
+    return false;
 }
 
 

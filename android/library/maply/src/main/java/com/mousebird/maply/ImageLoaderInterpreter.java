@@ -1,9 +1,8 @@
-/*
- *  ImageLoaderInterpreter.java
+/*  ImageLoaderInterpreter.java
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro on 3/20/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -24,10 +22,12 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Field;
 
 /**
- *  Image loader intrepreter turns data objects into ImageTiles.
+ *  Image loader interpreter turns data objects into ImageTiles.
  *
  *  This is the default interpreter used by the QuadImageLoader.
  */
@@ -68,7 +68,7 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
         ImageLoaderReturn loadReturn = (ImageLoaderReturn)inLoadReturn;
 
         BitmapFactory.Options options = new BitmapFactory.Options();
-// 		                options.inScaled = false;
+        //options.inScaled = false;
         if (hasPremultiplyOption && usePremultiply)
             options.inPremultiplied = false;
 
@@ -85,4 +85,10 @@ public class ImageLoaderInterpreter implements LoaderInterpreter
         }
     }
 
+    /**
+     * Some tiles were just removed.
+     */
+    @Override
+    public void tilesUnloaded(@NonNull TileID[] ids) {
+    }
 }
