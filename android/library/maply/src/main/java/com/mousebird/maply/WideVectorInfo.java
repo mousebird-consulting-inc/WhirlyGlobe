@@ -92,7 +92,7 @@ public class WideVectorInfo extends BaseInfo
     public native void setEdgeFalloff(double falloff);
     public native double getEdgeFalloff();
 
-    public enum JoinType {MiterJoin,BevelJoin};
+    public enum JoinType {MiterJoin,RoundJoin,BevelJoin};
 
     /**
      * When lines meet in a join there are several options for representing them.
