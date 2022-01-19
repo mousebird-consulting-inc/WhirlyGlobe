@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,29 +26,28 @@ typedef JavaClassInfo<WhirlyKit::SingleLabelAndroid> LabelClassInfo;
 template<> LabelClassInfo *LabelClassInfo::classInfoObj = nullptr;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_nativeInit(JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_nativeInit
+  (JNIEnv *env, jclass cls)
 {
 	LabelClassInfo::getClassInfo(env,cls);
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_initialise(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_initialise
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		SingleLabelAndroid *label = new SingleLabelAndroid();
-		LabelClassInfo::getClassInfo()->setHandle(env,obj,label);
+		LabelClassInfo::set(env,obj,new SingleLabelAndroid());
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_dispose(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_dispose
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
@@ -60,14 +59,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_dispose(JNIEnv *en
 			classInfo->clearHandle(env, obj);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectID(JNIEnv *env, jobject obj, jlong newID)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectID
+  (JNIEnv *env, jobject obj, jlong newID)
 {
     try
     {
@@ -76,14 +73,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setSelectID(JNIEnv
 			label->selectID = newID;
 		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setSelectID()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLoc(JNIEnv *env, jobject obj, jobject ptObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLoc
+  (JNIEnv *env, jobject obj, jobject ptObj)
 {
 	try
 	{
@@ -96,14 +91,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLoc(JNIEnv *env
 			}
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setLoc()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setEndLoc(JNIEnv *env, jobject obj, jobject ptObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setEndLoc
+  (JNIEnv *env, jobject obj, jobject ptObj)
 {
 	try
 	{
@@ -116,14 +109,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setEndLoc(JNIEnv *
 			}
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setEndLoc()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setAnimationRange(JNIEnv *env, jobject obj, jdouble startTime, jdouble endTime)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setAnimationRange
+  (JNIEnv *env, jobject obj, jdouble startTime, jdouble endTime)
 {
 	try
 	{
@@ -131,16 +122,15 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setAnimationRange(
 		{
 			label->startTime = startTime;
 			label->endTime = endTime;
+			label->hasMotion = (endTime > startTime);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setAnimationRange()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation(JNIEnv *env, jobject obj, jdouble rot)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation
+  (JNIEnv *env, jobject obj, jdouble rot)
 {
 	try
 	{
@@ -149,14 +139,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setRotation(JNIEnv
 			label->rotation = rot;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setRotation()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLockRotation(JNIEnv *env, jobject obj, jboolean lockRotation)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLockRotation
+  (JNIEnv *env, jobject obj, jboolean lockRotation)
 {
 	try
 	{
@@ -165,14 +153,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLockRotation(JN
 			label->keepUpright = !lockRotation;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setLockRotation()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_addText(JNIEnv *env, jobject obj, jintArray textArray, jint len)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_addText
+  (JNIEnv *env, jobject obj, jintArray textArray, jint len)
 {
 	try
 	{
@@ -188,14 +174,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_addText(JNIEnv *en
 			label->codePointsLines.push_back(codePoints);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::addText()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setOffset(JNIEnv *env, jobject obj, jobject ptObj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setOffset
+  (JNIEnv *env, jobject obj, jobject ptObj)
 {
 	try
 	{
@@ -208,14 +192,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setOffset(JNIEnv *
 			}
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setOffset()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutPlacement(JNIEnv *env, jobject obj, jint layoutPlacement)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutPlacement
+  (JNIEnv *env, jobject obj, jint layoutPlacement)
 {
 	try
 	{
@@ -224,14 +206,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutPlacement
 			label->layoutPlacement = layoutPlacement;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setLayoutPlacement()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportance(JNIEnv *env, jobject obj, jfloat layoutImportance)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportance
+  (JNIEnv *env, jobject obj, jfloat layoutImportance)
 {
     try
     {
@@ -244,14 +224,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutImportanc
 			}
 		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setLayoutImportance()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutSize(JNIEnv *env, jobject obj, jdouble sizeX, jdouble sizeY)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutSize
+  (JNIEnv *env, jobject obj, jdouble sizeX, jdouble sizeY)
 {
 	try
 	{
@@ -260,14 +238,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setLayoutSize(JNIE
 			label->layoutSize = Point2d(sizeX,sizeY);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setLayoutSize()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setUniqueID(JNIEnv *env, jobject obj, jstring uniqueStr)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setUniqueID
+  (JNIEnv *env, jobject obj, jstring uniqueStr)
 {
     try
     {
@@ -277,8 +253,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_InternalLabel_setUniqueID(JNIEnv
 			label->uniqueID = jStr.getCString();
 		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in InternalLabel::setUniqueID()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
