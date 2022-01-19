@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 10/30/19.
-//  Copyright © 2019 mousebird consulting. All rights reserved.
+//  Copyright © 2019-2022 mousebird consulting. All rights reserved.
 //
 
 import UIKit
@@ -54,6 +54,21 @@ class LayerStartupShutdownTestCase: MaplyTestCase {
         self.testCase.mapViewController = mapViewController
         self.testCase.baseViewController = mapViewController
         self.testCase.setUpWithMap(self.mapViewController!)
+
+        if let vc = baseViewController,
+           let image = UIImage(named: "marker-stroked-24@2x"),
+           let tex = vc.addTexture(image, desc: nil, mode: .current) {
+            for i in (0..<100) {
+                let marker = MaplyScreenMarker()
+                marker.loc = MaplyCoordinateMakeWithDegrees(Float(i), Float(i))
+                marker.size = CGSize(width: 32, height: 32)
+                marker.image = tex
+                marker.layoutImportance = Float.infinity
+                if let co = vc.addScreenMarkers([marker], desc: nil, mode: .any) {
+                    vc.remove([co], mode: .any)
+                }
+            }
+        }
 
         // Shut it down in a bit
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {

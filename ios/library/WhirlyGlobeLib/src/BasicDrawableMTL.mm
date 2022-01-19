@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #import "TextureMTL.h"
 #import "SceneMTL.h"
 #import "DefaultShadersMTL.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -644,6 +645,12 @@ void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<
 
 void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
 {
+    if (!setupForMTL)
+    {
+        wkLogLevel(Warn, "Drawable %lld not set up - skipping", getId());
+        return;
+    }
+
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,(ProgramMTL *)frameInfo->program,(RenderTargetMTL *)frameInfo->renderTarget);
@@ -761,6 +768,12 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
         return;
     }
     
+    if (!setupForMTL)
+    {
+        wkLogLevel(Warn, "Drawable %lld not set up - skipping", getId());
+        return;
+    }
+
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,program,renderTarget);
     
     // Wire up the various inputs that we know about
