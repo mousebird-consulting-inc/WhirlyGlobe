@@ -637,8 +637,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     outVert.texCoord = float2(vert.texInfo.x, texPos);
     float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
                        uniforms.pMatrix * (uniforms.mvMatrix * float4(realPosOffset,0.0) + uniforms.mvMatrixDiff * float4(realPosOffset,0.0));
-    screenPos /= screenPos.w;
-    outVert.position = float4(screenPos.xy,0,1.0);
+    outVert.position = float4(screenPos.xy,0,screenPos.w);
 
     outVert.dotProd = calcGlobeDotProd(uniforms,pos,vert.normal);
     outVert.w2 = w2;
@@ -705,8 +704,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     outVert.texCoord = float2(vert.texInfo.x, texPos);
     float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
                        uniforms.pMatrix * (uniforms.mvMatrix * float4(realPosOffset,0.0) + uniforms.mvMatrixDiff * float4(realPosOffset,0.0));
-    screenPos /= screenPos.w;
-    outVert.position = float4(screenPos.xy,0,1.0);
+    outVert.position = float4(screenPos.xy,0,screenPos.w);
 
     outVert.dotProd = calcGlobeDotProd(uniforms,pos,vert.normal);
     outVert.w2 = w2;
