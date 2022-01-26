@@ -3664,7 +3664,58 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 - (NSObject*)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint
 {
-    return nil;
+    return [[self selectMultipleLabelsAndMarkersForScreenPoint:screenPoint] firstObject];
+}
+
+- (NSMutableArray*)selectMultipleLabelsAndMarkersForScreenPoint:(CGPoint)screenPoint
+{
+    NSMutableArray *retSelectArr = [NSMutableArray array];
+    return retSelectArr;
+}
+
+- (NSMutableArray*)convertSelectedObjects:(std::vector<SelectionManager::SelectedObject>)selectedObjs
+{
+    NSMutableArray *retSelectArr = [NSMutableArray array];
+    if (!selectedObjs.empty())
+    {
+        // Work through the objects the manager found, creating entries for each
+        for (unsigned int ii=0;ii<selectedObjs.size();ii++)
+        {
+            SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
+
+            for (auto selectID : theSelObj.selectIDs)
+            {
+                MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+                selObj.selectedObj = compManager->getSelectObject(selectID);
+
+                selObj.screenDist = theSelObj.screenDist;
+                selObj.cluster = theSelObj.isCluster;
+                selObj.zDist = theSelObj.distIn3D;
+
+                if (selObj.selectedObj)
+                    [retSelectArr addObject:selObj];
+            }
+        }
+    }
+
+    return retSelectArr;
+}
+
+- (NSMutableArray*)convertSelectedVecObjects:(NSArray<MaplyVectorObject *>*)vecObjs
+{
+    NSMutableArray *retSelectArr = [NSMutableArray array];
+
+    for (MaplyVectorObject *vecObj in vecObjs)
+    {
+        MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+        selObj.selectedObj = vecObj;
+        selObj.screenDist = 0.0;
+        // Note: Not quite right
+        selObj.zDist = 0.0;
+        [retSelectArr addObject:selObj];
+    }
+    
+    return retSelectArr;
 }
 
 - (void)dumpStats

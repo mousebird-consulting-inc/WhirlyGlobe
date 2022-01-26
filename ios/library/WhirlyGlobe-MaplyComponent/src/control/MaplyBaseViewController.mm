@@ -1212,8 +1212,14 @@ static const float PerfOutputDelay = 15.0;
 {
     if (!renderControl)
         return nil;
-    
-    return [renderControl->interactLayer findVectorsInPoint:Point2f(coord.x,coord.y)];
+
+    NSMutableArray *retSelectArr = [renderControl->interactLayer selectMultipleLabelsAndMarkersForScreenPoint:[self screenPointFromGeo:coord]];
+
+    NSArray *vecObjs = [renderControl->interactLayer findVectorsInPoint:Point2f(coord.x,coord.y) inView:self multi:true];
+
+    [retSelectArr addObjectsFromArray:[renderControl->interactLayer convertSelectedVecObjects:vecObjs]];
+
+    return retSelectArr;
 }
 
 #pragma mark - Properties
