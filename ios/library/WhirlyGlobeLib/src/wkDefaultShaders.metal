@@ -336,7 +336,6 @@ vertex ProjVertexTriA vertexTri_noLight(
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
 
@@ -364,7 +363,6 @@ vertex ProjVertexTriA vertexTri_noLightExp(
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
 
@@ -409,7 +407,6 @@ vertex ProjVertexTriA vertexTri_light(
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
                                         uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
     
@@ -449,7 +446,6 @@ vertex ProjVertexTriA vertexTri_lightExp(
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
                                         uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
     
@@ -515,7 +511,6 @@ vertex ProjVertexTriB vertexTri_multiTex(
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
                                         uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
     outVert.color = resolveLighting(vertPos,
