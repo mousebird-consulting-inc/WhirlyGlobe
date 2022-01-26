@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.author           = { "Steve Gifford" => "contact@mousebirdconsulting.com" }
   s.social_media_url = 'https://twitter.com/@mousebirdc'
 
-  s.platform         = :ios, '9.0'
+  s.platform         = :ios, '12.0'
   s.requires_arc     = true
 
   s.source           = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
