@@ -45,14 +45,14 @@ using namespace WhirlyKit;
         if([vc isKindOfClass:[MaplyViewController class]])
         {
             const MaplyCoordinate coord = [(MaplyViewController*)vc geoFromScreenPoint:location];
-            selectedObject = [[layer findVectorsInPoint:Point2f(coord.x, coord.y)] firstObject];
+            selectedObject = [[layer findVectorsInPoint:Point2f(coord.x, coord.y) inView:vc multi:true] firstObject];
         }
         else
         { //globe
             MaplyCoordinate coord;
             if([(WhirlyGlobeViewController*)vc geoPointFromScreen:location geoCoord:&coord])
             {
-                selectedObject = [[layer findVectorsInPoint:Point2f(coord.x, coord.y)] firstObject];
+                selectedObject = [[layer findVectorsInPoint:Point2f(coord.x, coord.y) inView:vc multi:true] firstObject];
             }
         }
     }

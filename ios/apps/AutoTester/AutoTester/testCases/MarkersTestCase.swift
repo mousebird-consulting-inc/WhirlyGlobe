@@ -85,9 +85,11 @@ extension MarkersTestCase {
             return
         }
         let objs = viewC.objects(atCoord: coord) ?? []
-        let vc = UIAlertController(title: nil, message: "\(objs.count) selectable objects found at tapped location", preferredStyle: .alert)
+        let labelsAndMarkers = viewC.labelsAndMarkers(atCoord: coord) ?? []
+
+        let vc = UIAlertController(title: nil, message: "\(objs.count) selectable vector objects and \(labelsAndMarkers.count) selectable labels and markers found at tapped location", preferredStyle: .alert)
         viewC.present(vc, animated: true, completion: nil)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             viewC.dismiss(animated: true, completion: nil)
         }
     }

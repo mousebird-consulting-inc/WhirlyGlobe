@@ -3631,11 +3631,6 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 
 // Search for a point inside any of our vector objects
 // Runs in layer thread
-- (NSArray *)findVectorsInPoint:(Point2f)pt
-{
-    return [self findVectorsInPoint:pt inView:nil multi:true];
-}
-
 - (NSArray *)findVectorsInPoint:(Point2f)pt inView:(MaplyBaseViewController *)vc multi:(bool)multi
 {
     if (!layerThread || !vc || !vc->renderControl)

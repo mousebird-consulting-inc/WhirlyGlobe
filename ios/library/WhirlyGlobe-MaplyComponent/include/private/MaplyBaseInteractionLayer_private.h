@@ -205,7 +205,6 @@
 - (void)removeImageTexture:(MaplyTexture *__nonnull)tex changes:(WhirlyKit::ChangeSet &)changes;
 
 // Do a point in poly check for vectors we're representing
-- (NSArray *__nullable)findVectorsInPoint:(WhirlyKit::Point2f)pt;
 - (NSArray *__nullable)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*__nullable)vc multi:(bool)multi;
 
 // Find MaplySelectableObjects at a screen point
