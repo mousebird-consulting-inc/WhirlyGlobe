@@ -2831,12 +2831,7 @@
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
 					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
-					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
-					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
-					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
@@ -2868,12 +2863,7 @@
 				DEVELOPMENT_TEAM = BFXSGS6V8N;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/\"/**",
 					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
-					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/vector_tiles\"",
-					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include/private\"",
-					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include/\"",
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;

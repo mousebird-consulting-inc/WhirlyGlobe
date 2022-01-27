@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
+#import <MaplyCoordinate.h>
 
 /** 
     The View Tracker associates a view with a geographic location.

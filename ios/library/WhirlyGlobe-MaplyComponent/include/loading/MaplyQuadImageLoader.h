@@ -17,13 +17,13 @@
  *
  */
 
-#import "MaplyControllerLayer.h"
-#import "MaplyCoordinateSystem.h"
-#import "MaplyTileSourceNew.h"
-#import "MaplyRenderController.h"
-#import "MaplyQuadSampler.h"
-#import "MaplyRemoteTileFetcher.h"
-#import "MaplyQuadLoader.h"
+#import <MaplyControllerLayer.h>
+#import <MaplyCoordinateSystem.h>
+#import <MaplyTileSourceNew.h>
+#import <MaplyRenderController.h>
+#import <MaplyQuadSampler.h>
+#import <MaplyRemoteTileFetcher.h>
+#import <MaplyQuadLoader.h>
 
 /**
  This version of the loader return is used by the MaplyImageLoaderInterpreter.

@@ -18,7 +18,7 @@
  *
  */
 
-#import "MaplyTileSourceNew.h"
+#import <MaplyTileSourceNew.h>
 
 /** Simple Tile Fetcher is meant for sub classing.
  

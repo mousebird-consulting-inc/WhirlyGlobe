@@ -1,0 +1,6 @@
+framework module WhirlyGlobeMaplyComponent {
+  umbrella header "WhirlyGlobeMaplyComponent.h"
+
+  export *
+  module * { export * }
+}

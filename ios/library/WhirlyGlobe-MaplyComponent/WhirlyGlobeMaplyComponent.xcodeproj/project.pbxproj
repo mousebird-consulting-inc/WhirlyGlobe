@@ -887,6 +887,7 @@
 		2BE7E7B9221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */; };
 		2BE7E7BB221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */; };
 		2BE7E7BC221B99FA00E4EFBA /* MaplyQuadLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7A22216163A00815D9C /* MaplyQuadLoader.mm */; };
+		310419E027A31020004B25E1 /* WhirlyGlobe-Maply-Umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 310419DF27A31020004B25E1 /* WhirlyGlobe-Maply-Umbrella.h */; };
 		313363AB253E5A2B007C2F27 /* WorkRegion_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 313363AA253E5A24007C2F27 /* WorkRegion_private.h */; };
 		315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */; };
 		315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */; };
@@ -1895,6 +1896,8 @@
 		2BE7E7B22214C6EB00E4EFBA /* QuadDisplayControllerNew.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadDisplayControllerNew.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadDisplayControllerNew.cpp; sourceTree = "<group>"; };
 		2BE7E7B8221B22DE00E4EFBA /* QuadImageFrameLoader_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuadImageFrameLoader_iOS.h; sourceTree = "<group>"; };
 		2BE7E7BA221B22E500E4EFBA /* QuadImageFrameLoader_iOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QuadImageFrameLoader_iOS.mm; sourceTree = "<group>"; };
+		310419DF27A31020004B25E1 /* WhirlyGlobe-Maply-Umbrella.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WhirlyGlobe-Maply-Umbrella.h"; sourceTree = "<group>"; };
+		310419E127A31464004B25E1 /* module.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 		313363AA253E5A24007C2F27 /* WorkRegion_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkRegion_private.h; sourceTree = "<group>"; };
 		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
 		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
@@ -3377,6 +3380,7 @@
 		2BE536F51D2499E500B60FAD = {
 			isa = PBXGroup;
 			children = (
+				310419E127A31464004B25E1 /* module.modulemap */,
 				2BE53AC61D249E1500B60FAD /* CoreLocation.framework */,
 				2BE53AC41D249E0600B60FAD /* libz.tbd */,
 				2BE53AC21D249DDE00B60FAD /* libsqlite3.tbd */,
@@ -3427,6 +3431,7 @@
 		2BE537191D249A1200B60FAD /* include */ = {
 			isa = PBXGroup;
 			children = (
+				310419DF27A31020004B25E1 /* WhirlyGlobe-Maply-Umbrella.h */,
 				2BE537971D249A1200B60FAD /* WhirlyGlobeComponent.h */,
 				2BE537281D249A1200B60FAD /* MaplyComponent.h */,
 				2BE537251D249A1200B60FAD /* MaplyBridge.h */,
@@ -4065,6 +4070,7 @@
 				2BE539521D249BEF00B60FAD /* AAAngularSeparation.h in Headers */,
 				2B82B5FD1E82E2490095FB14 /* internalJSONNode.h in Headers */,
 				2BE538391D249A1200B60FAD /* MaplyBaseInteractionLayer_private.h in Headers */,
+				310419E027A31020004B25E1 /* WhirlyGlobe-Maply-Umbrella.h in Headers */,
 				3183312E259112BA005FEF70 /* AzimuthalEquidistant.hpp in Headers */,
 				2BE538241D249A1200B60FAD /* MaplyShape.h in Headers */,
 				2BE538411D249A1200B60FAD /* MaplyInteractionLayer_private.h in Headers */,
@@ -5100,6 +5106,7 @@
 		2BE537141D2499E500B60FAD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5142,6 +5149,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
+				MODULEMAP_FILE = module.modulemap;
 				MTL_COMPILER_FLAGS = "-fpreserve-invariance";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_LANGUAGE_REVISION = Metal21;
@@ -5157,6 +5165,7 @@
 		2BE537151D2499E500B60FAD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5197,6 +5206,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MACH_O_TYPE = mh_dylib;
+				MODULEMAP_FILE = module.modulemap;
 				MTL_COMPILER_FLAGS = "-fpreserve-invariance";
 				MTL_LANGUAGE_REVISION = Metal21;
 				OTHER_CFLAGS = "";

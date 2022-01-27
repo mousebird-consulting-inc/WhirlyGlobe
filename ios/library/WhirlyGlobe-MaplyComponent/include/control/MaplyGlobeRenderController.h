@@ -19,8 +19,8 @@
 */
 
 #import <UIKit/UIKit.h>
-#import "MaplyRenderController.h"
-#import "MaplyRemoteTileFetcher.h"
+#import <MaplyRenderController.h>
+#import <MaplyRemoteTileFetcher.h>
 
 /**
     Animation State used by the WhirlyGlobeViewControllerAnimationDelegate.

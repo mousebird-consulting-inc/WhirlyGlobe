@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyGlobeRenderController.h"
-#import "MaplyBaseViewController.h"
+#import <MaplyGlobeRenderController.h>
+#import <MaplyBaseViewController.h>
 
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;

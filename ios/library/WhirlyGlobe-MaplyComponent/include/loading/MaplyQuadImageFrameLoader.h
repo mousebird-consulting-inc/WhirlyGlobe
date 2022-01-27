@@ -17,8 +17,8 @@
  *
  */
 
-#import "MaplyQuadImageLoader.h"
-#import "MaplyActiveObject.h"
+#import <MaplyQuadImageLoader.h>
+#import <MaplyActiveObject.h>
 
 @class MaplyQuadImageFrameLoader;
 

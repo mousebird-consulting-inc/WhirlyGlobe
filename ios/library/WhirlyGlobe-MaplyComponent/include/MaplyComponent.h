@@ -1,5 +1,4 @@
-/*
- *  MaplyComponent.h
+/*  MaplyComponent.h
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 9/6/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplySharedAttributes.h"
@@ -101,3 +99,4 @@
 #import "MaplyRenderTarget.h"
 #import "MaplyShader.h"
 #import "MaplyVertexAttribute.h"
+

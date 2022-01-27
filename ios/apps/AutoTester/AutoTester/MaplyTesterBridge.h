@@ -9,7 +9,7 @@
 #ifndef AutoTester_MaplyTesterBridge_h
 #define AutoTester_MaplyTesterBridge_h
 
-#import "MaplyBridge.h"
+//#import <MaplyBridge.h>
 
 #import "GeoJSONSource.h"
 #import "GeographicLib.h"

@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MaplyCoordinate.h"
+#import <MaplyCoordinate.h>
 
 /** 
     Coordinate system for tiling systems and data sources and such.
