@@ -24,8 +24,11 @@ using namespace Eigen;
 
 namespace Maply {
     
-bool MaplyGestureWithinBounds(const Point2dVector &bounds,const Point3d &loc,
-                              SceneRenderer *sceneRender,MapView *testMapView,Point3d *newCenter)
+bool MaplyGestureWithinBounds(const Point2dVector &bounds,
+                              const Point3d &loc,
+                              SceneRenderer *sceneRender,
+                              MapView *testMapView,
+                              Point3d *newCenter)
 {
     if (newCenter)
         *newCenter = loc;

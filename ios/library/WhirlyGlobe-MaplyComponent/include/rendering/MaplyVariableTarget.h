@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyTexture.h"
-#import "MaplyRenderTarget.h"
-#import "MaplyRenderController.h"
+#import <WhirlyGlobeMaplyComponent/MaplyTexture.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderTarget.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
 
 /**
     A variable target manages two pass rendering for one type of variable.

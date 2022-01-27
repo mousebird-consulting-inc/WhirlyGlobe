@@ -17,9 +17,10 @@
  */
 
 #import "gestures/MaplyPinchDelegate.h"
-#import "SceneRenderer.h"
-#import "MaplyZoomGestureDelegate_private.h"
+#import "private/MaplyPinchDelegate_private.h"
+#import "private/MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
+#import "SceneRenderer.h"
 #import "ViewWrapper.h"
 
 using namespace WhirlyKit;
@@ -99,7 +100,7 @@ using namespace Maply;
 
                 testMapView.setLoc(newLoc, false);
                 Point3d newCenter;
-                if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter))
+                if (MaplyGestureWithinBounds([self getBounds],newLoc,sceneRenderer,&testMapView,&newCenter))
                 {
                     self.mapView->setLoc(newCenter, true);
                 }

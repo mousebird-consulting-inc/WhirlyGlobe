@@ -7,11 +7,6 @@
 //
 
 #import "WideVectorsTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyTextureBuilder.h"
-#import "MaplyScreenLabel.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyViewController.h"
 #import "AutoTester-Swift.h"
 
 @implementation WideVectorsTestCase

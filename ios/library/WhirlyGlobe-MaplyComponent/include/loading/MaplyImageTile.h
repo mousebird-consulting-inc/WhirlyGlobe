@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyRenderController.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
 
 @class MaplyElevationChunk;
 

@@ -17,8 +17,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyTileSourceNew.h>
-#import <MaplyBaseViewController.h>
+#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
+#import <WhirlyGlobeMaplyComponent/MaplyBaseViewController.h>
 
 @class MaplyVectorTileData;
 

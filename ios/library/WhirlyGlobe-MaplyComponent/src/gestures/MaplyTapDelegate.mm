@@ -1,5 +1,4 @@
-/*
- *  MaplyTapDelegate.mm
+/*  MaplyTapDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/20/12.
@@ -15,10 +14,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/MaplyTapDelegate.h"
+#import "private/MaplyTapDelegate_private.h"
+#import "gestures/MaplyTapMessage.h"
+#import "private/MaplyTapMessage_private.h"
 #import "SceneRenderer.h"
 #import "MaplyView.h"
 #import "GlobeMath.h"

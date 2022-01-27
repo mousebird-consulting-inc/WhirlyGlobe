@@ -26,6 +26,7 @@
 #import "MaplyVectorObject_private.h"
 #import "math/MaplyCoordinate.h"
 #import "ImageTexture_private.h"
+#import "private/MaplyTapMessage_private.h"
 #import <vector>
 
 using namespace Eigen;

@@ -17,7 +17,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyBaseViewController.h"
+#import <WhirlyGlobeMaplyComponent/MaplyBaseViewController.h>
 
 #define GEOJSON_MAX_POINTS 4096
 

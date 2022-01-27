@@ -16,9 +16,9 @@
  *  limitations under the License.
  */
 
-#import "MaplyTileSourceNew.h"
-#import "MaplySimpleTileFetcher.h"
-#import "MaplyCoordinateSystem.h"
+#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
+#import <WhirlyGlobeMaplyComponent/MaplySimpleTileFetcher.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
 
 /**
     MBTiles tile fetcher.

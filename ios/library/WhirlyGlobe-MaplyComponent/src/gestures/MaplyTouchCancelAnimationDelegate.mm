@@ -1,5 +1,4 @@
-/*
- *  MaplyTouchCancelAnimationDelegate.mm
+/*  MaplyTouchCancelAnimationDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by Jesse Crocker on 7/15/14.
@@ -15,11 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 
 #import "gestures/MaplyTouchCancelAnimationDelegate.h"
+#import "private/MaplyTouchCancelAnimationDelegate_private.h"
 
 @implementation MaplyTouchCancelAnimationDelegate
 

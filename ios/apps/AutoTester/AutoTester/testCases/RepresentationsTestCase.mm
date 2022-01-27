@@ -8,9 +8,6 @@
 
 #import "VectorsTestCase.h"
 #import "RepresentationsTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyViewController.h"
-#import "WhirlyGlobeViewController.h"
 #import "AutoTester-Swift.h"
 
 #include <stdlib.h>

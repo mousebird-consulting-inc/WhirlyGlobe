@@ -7,10 +7,6 @@
 //
 
 #import "LabelAnimationTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyViewController.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyScreenLabel.h"
 #import "AutoTester-Swift.h"
 
 @implementation LabelAnimationTestCase {

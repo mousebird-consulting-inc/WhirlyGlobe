@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
 
 @class MaplyVectorObject;
 

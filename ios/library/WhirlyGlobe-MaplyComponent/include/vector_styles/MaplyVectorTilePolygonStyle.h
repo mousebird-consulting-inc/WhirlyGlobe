@@ -16,8 +16,8 @@
  *  limitations under the License.
  */
 
-#import "MaplyVectorStyle.h"
-#import "MaplyVectorTileStyle.h"
+#import <WhirlyGlobeMaplyComponent/MaplyVectorStyle.h>
+#import <WhirlyGlobeMaplyComponent/MaplyVectorTileStyle.h>
 
 /** 
     Implementation of the polygon style symbolizer for Maply Vector Tiles.

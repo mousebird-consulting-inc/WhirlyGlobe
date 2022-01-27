@@ -7,9 +7,6 @@
 //
 
 #import "LoftedPolysTestCase.h"
-#import "MaplyVectorObject.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyComponentObject.h"
 #import "VectorsTestCase.h"
 
 @implementation LoftedPolysTestCase

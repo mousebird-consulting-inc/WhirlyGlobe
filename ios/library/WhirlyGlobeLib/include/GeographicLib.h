@@ -9,7 +9,7 @@
 #ifndef GeographicLib_Wrapper_h
 #define GeographicLib_Wrapper_h
 
-#import "math/MaplyCoordinate.h"
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
 
 typedef struct GeoLibInv_t {
     double distance;    // meters

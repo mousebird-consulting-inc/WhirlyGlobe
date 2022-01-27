@@ -18,27 +18,27 @@
 
 #import <UIKit/UIKit.h>
 #import <Metal/Metal.h>
-#import <MaplyCoordinate.h>
-#import <MaplyScreenMarker.h>
-#import <MaplyVectorObject.h>
-#import <MaplyViewTracker.h>
-#import <MaplyComponentObject.h>
-#import <MaplySharedAttributes.h>
-#import <MaplyControllerLayer.h>
-#import <MaplyLight.h>
-#import <MaplyShader.h>
-#import <MaplyActiveObject.h>
-#import <MaplyTexture.h>
-#import <MaplyAnnotation.h>
-#import <MaplyParticleSystem.h>
-#import <MaplyPoints.h>
-#import <MaplyCluster.h>
-#import <Maply3DTouchPreviewDatasource.h>
-#import <MaplyLocationTracker.h>
-#import <MaplyRenderTarget.h>
-#import <MaplyRenderController.h>
-#import <MaplyRemoteTileFetcher.h>
-#import <MaplyVertexAttribute.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
+#import <WhirlyGlobeMaplyComponent/MaplyScreenMarker.h>
+#import <WhirlyGlobeMaplyComponent/MaplyVectorObject.h>
+#import <WhirlyGlobeMaplyComponent/MaplyViewTracker.h>
+#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
+#import <WhirlyGlobeMaplyComponent/MaplySharedAttributes.h>
+#import <WhirlyGlobeMaplyComponent/MaplyControllerLayer.h>
+#import <WhirlyGlobeMaplyComponent/MaplyLight.h>
+#import <WhirlyGlobeMaplyComponent/MaplyShader.h>
+#import <WhirlyGlobeMaplyComponent/MaplyActiveObject.h>
+#import <WhirlyGlobeMaplyComponent/MaplyTexture.h>
+#import <WhirlyGlobeMaplyComponent/MaplyAnnotation.h>
+#import <WhirlyGlobeMaplyComponent/MaplyParticleSystem.h>
+#import <WhirlyGlobeMaplyComponent/MaplyPoints.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCluster.h>
+#import <WhirlyGlobeMaplyComponent/Maply3DTouchPreviewDatasource.h>
+#import <WhirlyGlobeMaplyComponent/MaplyLocationTracker.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderTarget.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRemoteTileFetcher.h>
+#import <WhirlyGlobeMaplyComponent/MaplyVertexAttribute.h>
 
 typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 typedef void (__strong ^InitCompletionBlock)(void);

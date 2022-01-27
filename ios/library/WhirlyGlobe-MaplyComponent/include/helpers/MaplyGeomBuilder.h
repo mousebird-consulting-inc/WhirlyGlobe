@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
-#import "MaplyRenderController.h"
-#import "MaplyGeomModel.h"
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
+#import <WhirlyGlobeMaplyComponent/MaplyGeomModel.h>
 
 /** 
     Geometry State is used to describe the visual look of objects as they're added.

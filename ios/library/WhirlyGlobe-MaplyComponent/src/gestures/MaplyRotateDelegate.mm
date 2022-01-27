@@ -1,5 +1,4 @@
-/*
- *  MaplyRotateDelegate.mm
+/*  MaplyRotateDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by rghosh0 around 9/26/13.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/MaplyRotateDelegate.h"
+#import "private/MaplyRotateDelegate_private.h"
 
 using namespace WhirlyKit;
 using namespace Maply;

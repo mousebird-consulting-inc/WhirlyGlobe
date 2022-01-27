@@ -63,23 +63,20 @@ Pod::Spec.new do |s|
     mc.source_files =
         'common/WhirlyGlobeLib/src/*.{c,cpp}',
         'common/WhirlyGlobeLib/include/*.h',
-        'common/WhirlyGlobeLib/include/vector_tile.pb.h',
         'ios/library/WhirlyGlobeLib/src/*.{mm,m,cpp,metal}',
         'ios/library/WhirlyGlobeLib/include/*.h',
         'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h',
-        'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}',
-        'ios/library/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h'
+        'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}'
     mc.preserve_paths = 
         'common/local_libs/eigen/Eigen/**'
     mc.public_header_files =
         'common/WhirlyGlobeLib/include/*.h',
-        'ios/library/WhirlyGlobe-MaplyComponent/include/*.h',
-        "ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/*.h",
+        'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h',
+        'ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSData+Zlib.h',
         'ios/library/WhirlyGlobeLib/include/GeographicLib.h'    # That we have to name it here means it probably belongs somewhere else...
     mc.private_header_files =
-        'common/WhirlyGlobeLib/include/vector_tile.pb.h',
-        'ios/library/WhirlyGlobeLib/include/*.h',
-        'ios/library/WhirlyGlobe-MaplyComponent/include/MaplyBridge.h'
+        'common/WhirlyGlobeLib/include/**/*.h',
+        'ios/library/WhirlyGlobeLib/include/*.h'
     mc.dependency 'WhirlyGlobe/locallibs'
     mc.dependency 'WhirlyGlobe/glues'
     mc.dependency 'SMCalloutView'

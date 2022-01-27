@@ -1,6 +1,4 @@
-/*
- *  MaplyZoomGestureDelegate.mm
- *
+/*  MaplyZoomGestureDelegate.mm
  *
  *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -15,10 +13,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/MaplyZoomGestureDelegate.h"
+#import "private/MaplyZoomGestureDelegate_private.h"
 #import "gestures/MaplyPanDelegate.h"
 #import "MaplyAnimateTranslation.h"
 #import "ViewWrapper.h"
@@ -41,21 +39,23 @@ using namespace WhirlyKit;
 }
 
 // We'll let other gestures run
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-    return TRUE;
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+        shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return true;
 }
 
-- (void)setBounds:(WhirlyKit::Point2d *)inBounds
+- (const WhirlyKit::Point2dVector &)getBounds {
+    return bounds;
+}
+
+- (void)setBounds:(const WhirlyKit::Point2d *)inBounds
 {
     bounds.clear();
-    for (unsigned int ii=0;ii<4;ii++)
-        bounds.push_back(inBounds[ii]);
+    bounds.insert(bounds.end(), &inBounds[0], &inBounds[4]);
 }
 
 // Called for double tap actions
-- (void)tapGesture:(id)sender
-{
+- (void)tapGesture:(id)sender {
     UITapGestureRecognizer *tap = sender;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;

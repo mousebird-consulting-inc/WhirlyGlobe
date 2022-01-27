@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyImageTile.h>
-#import <MaplyCoordinate.h>
-#import <MaplyCoordinateSystem.h>
+#import <WhirlyGlobeMaplyComponent/MaplyImageTile.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
 
 /**
  This represents the indentifier for a unique tile in the pyramid.

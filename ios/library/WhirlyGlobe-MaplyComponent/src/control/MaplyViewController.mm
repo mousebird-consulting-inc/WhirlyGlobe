@@ -18,12 +18,22 @@
 
 #import <WhirlyGlobe_iOS.h>
 #import "MaplyViewController.h"
-#import "MaplyViewController_private.h"
-#import "MaplyInteractionLayer_private.h"
-#import "MaplyCoordinateSystem_private.h"
-#import "MaplyAnnotation_private.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "GlobeView_iOS.h"
+#import "private/MaplyViewController_private.h"
+#import "private/MaplyInteractionLayer_private.h"
+#import "private/MaplyCoordinateSystem_private.h"
+#import "private/MaplyAnnotation_private.h"
+#import "private/MaplyDoubleTapDelegate_private.h"
+#import "private/MaplyDoubleTapDragDelegate_private.h"
+#import "private/MaplyPanDelegate_private.h"
+#import "private/MaplyPinchDelegate_private.h"
+#import "private/MaplyRotateDelegate_private.h"
+#import "private/MaplyTapDelegate_private.h"
+#import "private/MaplyTapMessage_private.h"
+#import "private/MaplyTouchCancelAnimationDelegate_private.h"
+#import "private/MaplyTwoFingerTapDelegate_private.h"
+#import "private/MaplyZoomGestureDelegate_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -958,12 +968,13 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 }
 
 // Bounds check on a single point
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRenderer *)sceneRender mapView:(Maply::MapView *)testMapView newCenter:(Point3d *)newCenter
+- (bool)withinBounds:(const Point3d &)loc
+                view:(UIView *)view
+            renderer:(SceneRenderer *)sceneRender
+             mapView:(Maply::MapView *)testMapView
+           newCenter:(Point3d *)newCenter
 {
-    if (bounds.empty())
-        return true;
-    
-    return MaplyGestureWithinBounds(bounds,loc,sceneRender,testMapView,newCenter);
+    return bounds.empty() || MaplyGestureWithinBounds(bounds,loc,sceneRender,testMapView,newCenter);
 }
 
 // External facing set position

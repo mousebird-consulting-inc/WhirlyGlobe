@@ -19,6 +19,8 @@
 #ifndef GeographicLib_h
 #define GeographicLib_h
 
+#if defined __cplusplus
+
 #import "WhirlyVector.h"
 #import <tuple>
 
@@ -67,11 +69,7 @@ extern std::tuple<double,double,double> OrthoDist(const Point3d &gca, const Poin
 
 }}
 
-#if defined __cplusplus
 extern "C" {
-#endif
-
-#if defined __cplusplus
 }   // extern "C"
 #endif
 

@@ -7,9 +7,6 @@
 //
 
 #import "MaplyTestCase.h"
-#import "WhirlyGlobeComponent.h"
-#import "MaplyComponent.h"
-
 
 @implementation MaplyTestCase
 

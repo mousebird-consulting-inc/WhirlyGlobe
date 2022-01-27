@@ -1,5 +1,4 @@
-/*
- *  MaplyTapMessage.mm
+/*  MaplyTapMessage.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/19/11.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/MaplyTapMessage.h"

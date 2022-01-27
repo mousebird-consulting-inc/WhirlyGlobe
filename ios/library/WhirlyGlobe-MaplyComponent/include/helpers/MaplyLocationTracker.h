@@ -20,7 +20,7 @@
 
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
-#import <MaplyCoordinate.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
 
 #define LOC_TRACKER_POS_MARKER_SIZE 32
 

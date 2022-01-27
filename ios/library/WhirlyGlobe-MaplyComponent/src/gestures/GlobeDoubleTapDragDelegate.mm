@@ -1,6 +1,4 @@
-/*
- *  GlobeDoubleTapDragDelegate.mm
- *
+/*  GlobeDoubleTapDragDelegate.mm
  *
  *  Created by Steve Gifford on 2/7/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -15,13 +13,14 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
 #import "GlobeMath.h"
 #import "gestures/GlobeDoubleTapDragDelegate.h"
+#import "private/GlobeDoubleTapDragDelegate_private.h"
 #import "GlobeView.h"
+#import "GlobeView_iOS.h"
 #import "ViewWrapper.h"
 #import "SceneRenderer.h"
 

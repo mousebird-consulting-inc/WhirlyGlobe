@@ -9,10 +9,14 @@
 #ifndef AutoTester_MaplyTesterBridge_h
 #define AutoTester_MaplyTesterBridge_h
 
-//#import <MaplyBridge.h>
+#import <WhirlyGlobeMaplyComponent/MaplyBridge.h>
+#import <WhirlyGlobeMaplyComponent/GeoJSONSource.h>
+#import <WhirlyGlobeMaplyComponent/MaplyShape.h>
+#import <WhirlyGlobeMaplyComponent/MaplyBaseViewController.h>
+#import <WhirlyGlobeMaplyComponent/MaplyGeomModel.h>
+#import <WhirlyGlobeMaplyComponent/MaplyMatrix.h>
+#import <WhirlyGlobeMaplyComponent/MaplyViewController.h>
 
-#import "GeoJSONSource.h"
-#import "GeographicLib.h"
 
 #import "MaplyTestCase.h"
 #import "VectorsTestCase.h"
@@ -33,10 +37,13 @@
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
+#import "ActiveObjectTestCase.h"
 #import "GlyphProblemTestCase.h"
 #import "ChangeVectorsTestCase.h"
 #import "RepresentationsTestCase.h"
 #import "LIDARTestCase.h"
 #import "ParticleTest.h"
+
+#import "GeographicLib.h"
 
 #endif

@@ -1,5 +1,4 @@
-/*
- *  MaplyCoordinateSystem.h
+/*  MaplyCoordinateSystem.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
@@ -15,11 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Foundation/Foundation.h>
-#import <MaplyCoordinate.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
 
 /** 
     Coordinate system for tiling systems and data sources and such.

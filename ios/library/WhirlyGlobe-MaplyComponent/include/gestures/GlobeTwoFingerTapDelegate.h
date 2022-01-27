@@ -1,6 +1,4 @@
-/*
- *  GlobeTwoFingerTapDelegate.h
- *
+/*  GlobeTwoFingerTapDelegate.h
  *
  *  Created by Steve Gifford on 2/7/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -15,17 +13,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Foundation/Foundation.h>
-#import "GlobeView_iOS.h"
-#import "GlobePinchDelegate.h"
+#import <UIKit/UIKit.h>
 
 @interface WhirlyGlobeTwoFingerTapDelegate : NSObject<UIGestureRecognizerDelegate>
-
-/// Create a double tap gesture and a delegate and wire them up to the given UIView
-+ (WhirlyGlobeTwoFingerTapDelegate *)twoFingerTapDelegateForView:(UIView *)view globeView:(WhirlyGlobe::GlobeView_iOS *)globeView;
 
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
 
@@ -37,8 +30,5 @@
 
 /// Zoom limits
 @property (nonatomic) float minZoom,maxZoom;
-
-// If set, we calculate the tilt every time we update
-@property (nonatomic) WhirlyGlobe::TiltCalculatorRef tiltDelegate;
 
 @end

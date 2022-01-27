@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "MaplyCoordinate.h"
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
 
 /** 
     The Marker places a UIImage on the globe or map at a given location.

@@ -88,7 +88,6 @@
 		2B81009D221F4EA900CFF779 /* CartoDBTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D84433EA1C14E4E700A52117 /* CartoDBTestCase.m */; };
 		2B8849FB1E37F9B30027C397 /* stadium-utm-quad-data.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 2B8849FA1E37F9B30027C397 /* stadium-utm-quad-data.sqlite */; };
 		2BA827CD225EBDBF00324594 /* GeoJSONStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */; };
-		2BB4766920004763006AAACB /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */; };
 		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
 		2BBCE41C2220A4170013E158 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
@@ -109,6 +108,7 @@
 		2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF29B8E24D226B000553963 /* LegendViewController.swift */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
 		31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */; };
+		31041A2227A36D53004B25E1 /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A902680F597007BE16F /* ATS_Route.shp */; };
 		311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A912680F597007BE16F /* Airspace_Boundary.dbf */; };
 		311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A922680F597007BE16F /* Airspace_Boundary.shx */; };
@@ -608,7 +608,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				2BB4766920004763006AAACB /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */,
+				31041A2227A36D53004B25E1 /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2833,6 +2833,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include\"/**",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent\"",
+					"\"$(SRCROOT)/../../../common/WhirlyGlobeLib/include\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
@@ -2865,6 +2869,10 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
 					"\"$(SRCROOT)/../../../common/local_libs/eigen\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobeLib/include\"",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent/include\"/**",
+					"\"$(SRCROOT)/../../library/WhirlyGlobe-MaplyComponent\"",
+					"\"$(SRCROOT)/../../../common/WhirlyGlobeLib/include\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;

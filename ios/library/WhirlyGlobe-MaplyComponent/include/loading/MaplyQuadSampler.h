@@ -18,10 +18,10 @@
  *
  */
 
-#import <MaplyControllerLayer.h>
-#import <MaplyCoordinateSystem.h>
-#import <MaplyTileSourceNew.h>
-#import <MaplyRenderController.h>
+#import <WhirlyGlobeMaplyComponent/MaplyControllerLayer.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
+#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
+#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
 
 /**
     Sampling parameters.

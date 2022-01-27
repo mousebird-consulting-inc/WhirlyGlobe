@@ -15,7 +15,8 @@
  *  limitations under the License.
  */
 
-#import "gestures/GlobeDoubleTapDelegate.h"
+#import "GlobeDoubleTapDelegate.h"
+#import "GlobeDoubleTapDelegate_private.h"
 #import "GlobeAnimateHeight.h"
 #import "ViewWrapper.h"
 #import "SceneRenderer.h"

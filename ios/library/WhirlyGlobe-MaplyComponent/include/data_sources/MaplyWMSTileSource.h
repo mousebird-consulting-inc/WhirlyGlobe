@@ -1,5 +1,4 @@
-/*
- *  MaplyWMSTileSource.h
+/*  MaplyWMSTileSource.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 7/25/13.
@@ -15,11 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import "MaplyTileSourceNew.h"
-#import "MaplyCoordinateSystem.h"
+#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
 
 /** A bounding box for a specific CRS in that coordinate
     system.  This is part of the Web Map Server parser.

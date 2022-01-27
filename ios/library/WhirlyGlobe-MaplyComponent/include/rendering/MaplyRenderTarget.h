@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <MaplyTexture.h>
+#import <WhirlyGlobeMaplyComponent/MaplyTexture.h>
 
 typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
     /// Don't generate a mipmap

@@ -19,7 +19,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "MapnikStyleRule.h"
+#import <WhirlyGlobeMaplyComponent/MapnikStyleRule.h>
 
 @interface MapnikStyle : NSObject
 

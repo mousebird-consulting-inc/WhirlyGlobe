@@ -18,7 +18,7 @@
  *
  */
 
-#import <MaplyCoordinate.h>
+#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
 
 /// WhirlyGlobe just takes geo coordinates.
 /// This contains lon and lat values in the x and y fields.
