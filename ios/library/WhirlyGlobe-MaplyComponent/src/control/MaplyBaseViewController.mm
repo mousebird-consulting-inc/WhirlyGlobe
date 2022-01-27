@@ -1208,12 +1208,20 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
--(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
+- (NSArray*)objectsAtCoord:(MaplyCoordinate)coord
 {
     if (!renderControl)
         return nil;
-    
-    return [renderControl->interactLayer findVectorsInPoint:Point2f(coord.x,coord.y)];
+
+    return [renderControl->interactLayer findVectorsInPoint:Point2f(coord.x,coord.y) inView:self multi:true];
+}
+
+- (NSArray*)labelsAndMarkersAtCoord:(MaplyCoordinate)coord
+{
+    if (!renderControl)
+        return nil;
+
+    return [renderControl->interactLayer selectMultipleLabelsAndMarkersForScreenPoint:[self screenPointFromGeo:coord]];
 }
 
 #pragma mark - Properties

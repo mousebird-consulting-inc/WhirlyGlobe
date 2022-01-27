@@ -1462,13 +1462,22 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 - (void)disable3dTouchSelection;
 
 /** 
-    Return all the selectable objects at the given location.
+    Return all the selectable vector objects at the given location.
     
     Objects can be selected via the delegate or the search can be run directly here.
     
     This is not thread safe and will block the main thread.
   */
 - (NSArray * _Nullable)objectsAtCoord:(MaplyCoordinate)coord;
+
+/**
+    Return all the selectable labels and markers at the given location.
+
+    Objects can be selected via the delegate or the search can be run directly here.
+
+    This is not thread safe and will block the main thread.
+ */
+- (NSArray * _Nullable)labelsAndMarkersAtCoord:(MaplyCoordinate)coord;
 
 /// Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
