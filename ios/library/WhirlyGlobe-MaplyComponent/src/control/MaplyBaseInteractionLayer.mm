@@ -3668,28 +3668,25 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     return retSelectArr;
 }
 
-- (NSMutableArray*)convertSelectedObjects:(std::vector<SelectionManager::SelectedObject>)selectedObjs
+- (NSMutableArray*__nullable)convertSelectedObjects:(const std::vector<WhirlyKit::SelectionManager::SelectedObject> &)selectedObjs
 {
     NSMutableArray *retSelectArr = [NSMutableArray array];
-    if (!selectedObjs.empty())
+    // Work through the objects the manager found, creating entries for each
+    for (unsigned int ii = 0; ii < selectedObjs.size(); ii++)
     {
-        // Work through the objects the manager found, creating entries for each
-        for (unsigned int ii=0;ii<selectedObjs.size();ii++)
+        const SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
+
+        for (auto selectID : theSelObj.selectIDs)
         {
-            SelectionManager::SelectedObject &theSelObj = selectedObjs[ii];
+            MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
+            selObj.selectedObj = compManager->getSelectObject(selectID);
 
-            for (auto selectID : theSelObj.selectIDs)
-            {
-                MaplySelectedObject *selObj = [[MaplySelectedObject alloc] init];
-                selObj.selectedObj = compManager->getSelectObject(selectID);
+            selObj.screenDist = theSelObj.screenDist;
+            selObj.cluster = theSelObj.isCluster;
+            selObj.zDist = theSelObj.distIn3D;
 
-                selObj.screenDist = theSelObj.screenDist;
-                selObj.cluster = theSelObj.isCluster;
-                selObj.zDist = theSelObj.distIn3D;
-
-                if (selObj.selectedObj)
-                    [retSelectArr addObject:selObj];
-            }
+            if (selObj.selectedObj)
+                [retSelectArr addObject:selObj];
         }
     }
 

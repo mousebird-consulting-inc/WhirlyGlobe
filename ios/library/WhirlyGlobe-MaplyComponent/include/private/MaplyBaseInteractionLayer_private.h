@@ -210,7 +210,7 @@
 // Find MaplySelectableObjects at a screen point
 - (NSObject*__nullable)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint;
 - (NSMutableArray*__nullable)selectMultipleLabelsAndMarkersForScreenPoint:(CGPoint)screenPoint;
-- (NSMutableArray*__nullable)convertSelectedObjects:(std::vector<WhirlyKit::SelectionManager::SelectedObject>)selectedObjs;
+- (NSMutableArray*__nullable)convertSelectedObjects:(const std::vector<WhirlyKit::SelectionManager::SelectedObject> &)selectedObjs;
 - (NSMutableArray*__nullable)convertSelectedVecObjects:(NSArray<MaplyVectorObject *>*__nullable)vecObjs;
 
 // Find the Maply object corresponding to the given ID (from the selection manager).
