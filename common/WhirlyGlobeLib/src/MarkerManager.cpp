@@ -622,6 +622,9 @@ void MarkerManager::enableMarkers(SimpleIDSet &markerIDs,bool enable,ChangeSet &
 
 void MarkerManager::removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes)
 {
+    if (!scene)
+        return;
+    
     const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
     const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
 

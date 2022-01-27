@@ -59,10 +59,10 @@ public:
     double maxHeightAboveGlobe() const;
 
     /// Set the height above globe, taking constraints into account
-    void setHeightAboveGlobe(double newH);
+    virtual void setHeightAboveGlobe(double newH);
 
     /// This version allows you to not update the watchers, if you're doing a bunch of updates at once
-    void setHeightAboveGlobe(double newH,bool updateWatchers);
+    virtual void setHeightAboveGlobe(double newH,bool updateWatchers);
 
     /// This version avoids the limit calculations (Kind of a hack)
     void setHeightAboveGlobeNoLimits(double newH,bool updateWatchers);
@@ -71,10 +71,10 @@ public:
     void setCenterOffset(double offX,double offY,bool updateWatchers);
 
     /// Update the quaternion
-    void setRotQuat(Eigen::Quaterniond rotQuat);
+    virtual void setRotQuat(Eigen::Quaterniond rotQuat);
 
     /// This version allows you to not update the watchers.
-    void setRotQuat(Eigen::Quaterniond rotQuat,bool updateWatchers);
+    virtual void setRotQuat(Eigen::Quaterniond rotQuat,bool updateWatchers);
     
     /// Return the current quaternion
     Eigen::Quaterniond getRotQuat() const { return rotQuat; }

@@ -207,7 +207,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
                                               ChangeSet &changes,
                                               __unused bool disposeAfterRemoval)    // used by platform override
 {
-    if (compIDs.empty())
+    if (compIDs.empty() || !scene)
         return;
     
     std::vector<ComponentObjectRef> compRefs;
