@@ -18,8 +18,8 @@ class ParticleTestCase: MaplyTestCase {
 	}
 	
 	fileprivate func setUpOverlay (_ baseView: MaplyBaseViewController) {
-		let partDelegate = ParticleTileDelegate(url: "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", minZoom: Int32(2), maxZoom: Int32(5), viewC: baseView)
-		let layer = MaplyQuadPagingLoader()//coordSystem: (partDelegate?.coordSys)!, delegate: partDelegate!)
+		//let partDelegate = ParticleTileDelegate(url: "http://tilesets.s3-website-us-east-1.amazonaws.com/wind_test/{dir}_tiles/{z}/{x}/{y}.png", minZoom: Int32(2), maxZoom: Int32(5), viewC: baseView)
+		//let layer = MaplyQuadPagingLoader()//coordSystem: (partDelegate?.coordSys)!, delegate: partDelegate!)
 		//layer?.flipY = false;
 		//baseView.add(layer!)
 	}

@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Tim Sylvester on 6 Jan. 2020.
-//  Copyright © 2021 mousebird consulting.
+//  Copyright 2021-2022 mousebird consulting.
 //
 
 #import "VectorsTestCase.h"

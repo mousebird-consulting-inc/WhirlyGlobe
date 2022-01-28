@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Tim Sylvester on 1/14/22.
- *  Copyright 2022-2022 mousebird consulting
+ *  Copyright 2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

@@ -40,10 +40,7 @@ class GraphBuilder {
 class AirwayTestCase: MaplyTestCase {
     
     override init() {
-        super.init()
-        
-        self.name = "Airways & Airspaces"
-        self.implementations = [.globe, .map]
+        super.init(name: "Airways & Airspaces", supporting: [.globe, .map])
     }
     
     let baseCase = StamenWatercolorRemote()
