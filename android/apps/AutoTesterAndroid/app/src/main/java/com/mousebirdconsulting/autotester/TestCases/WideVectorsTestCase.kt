@@ -80,27 +80,27 @@ class WideVectorsTestCase(activity: Activity?) :
     }
     
     private fun offsetTests(vc: BaseController): Collection<ComponentObject> {
-        val sep = 15 // separation for when/if performance implementation is supported
+        val rsep = 1.5 // separation for when/if performance implementation is supported
+        val csep = 1.2
+        val cs = 0.1
         return (0..1).flatMap { k ->
-            (0..0).flatMap { j ->
+            (0..1).flatMap { j ->
                 (0..4).flatMap { i ->
-                    val lat = 35
-                    val lon = (j+k) * sep - 80
+                    val lat = 40 - (k * rsep)
+                    val lon = j * csep - 90
                     val coords = arrayOf(
-                        Point2d.FromDegrees((-15 + i * 1 + lon).toDouble(), lat + 17.0),
-                        Point2d.FromDegrees((-10 + i * 2 + lon).toDouble(), lat + 15.0),
-                        Point2d.FromDegrees((  0 - i * 2 + lon).toDouble(), lat + 0.0),
-                        Point2d.FromDegrees((-15 + i * 1 + lon).toDouble(), lat + 17.0),
+                        Point2d.FromDegrees((-11*cs + i*1*cs + lon), lat + 13*cs),
+                        Point2d.FromDegrees(( -7*cs + i*2*cs + lon), lat + 11*cs),
+                        Point2d.FromDegrees((  0*cs - i*2*cs + lon), lat +  0*cs),
+                        Point2d.FromDegrees((-13*cs + i*1*cs + lon), lat + 13*cs),
                     )
             
                     val wideInfo = WideVectorInfo().also {
-                        if (j == 0) it.setColor(0.0f, 0.0f, 1.0f, 0.5f)
-                        else it.setColor(1.0f, 0.0f, 0.0f, 0.5f)
-                        //it.filled = false
+                        if (j == 0) it.setColor(0.0f, 0.0f, 1.0f, 0.75f)
+                        else it.setColor(1.0f, 0.0f, 0.0f, 0.75f)
                         it.enable = true
                         it.setFade(0.0)
                         it.drawPriority = VectorInfo.VectorPriorityDefault
-                        //it.centered = true
                         it.edgeFalloff = i.toDouble()
                         it.joinType = if (k == 0) WideVectorInfo.JoinType.BevelJoin else WideVectorInfo.JoinType.MiterJoin
                         it.offset = (2 * i).toDouble()
@@ -111,12 +111,21 @@ class WideVectorsTestCase(activity: Activity?) :
                     val info = VectorInfo().also {
                         it.setColor(1.0f, 0.0f, 1.0f, 0.5f)
                         it.enable = true
-                        it.drawPriority = wideInfo.drawPriority
+                        it.drawPriority = wideInfo.drawPriority + 10
                     }
             
-                    val vecObj = VectorObject.createLineString(coords)?.subdivideToGlobe(0.0001)
+                    val vecAttrs = AttrDictionary()
+                    val clAttrs = AttrDictionary()
+                    if (k > 0) {
+                        val cc = 50 * i;
+                        vecAttrs.setInt("color", Color.argb(129, 0,cc,255 - cc));
+                        clAttrs.setInt("color", Color.argb(192,0,255 - cc,cc));
+                    }
+                    val vecObj = VectorObject.createLineString(coords, vecAttrs)?.subdivideToGlobe(0.0001)
+                    val clObj = VectorObject.createLineString(coords, clAttrs)?.subdivideToGlobe(0.0001)
+                    
                     listOfNotNull(
-                        vc.addVector(vecObj, info, ThreadMode.ThreadCurrent),
+                        vc.addVector(clObj, info, ThreadMode.ThreadCurrent),
                         vc.addWideVector(vecObj, wideInfo, ThreadMode.ThreadCurrent)
                     )
                 }

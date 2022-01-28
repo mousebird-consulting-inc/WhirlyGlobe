@@ -361,7 +361,8 @@ MutableDictionaryRef iosMutableDictionary::copy() const
 /// Returns true if the field exists
 bool iosMutableDictionary::hasField(const std::string &name) const
 {
-    return [dict objectForKey:StdStringToString(name)] != nil;
+    const id value = [dict objectForKey:StdStringToString(name)];
+    return (value != nil) && ![value isKindOfClass:NSNull.class];
 }
 
 /// Returns the field type

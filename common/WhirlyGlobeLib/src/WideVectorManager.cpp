@@ -617,14 +617,21 @@ public:
 };
 
 // Used to build up drawables
-class WideVectorDrawableConstructor
+struct WideVectorDrawableConstructor
 {
-public:
-    WideVectorDrawableConstructor(SceneRenderer *sceneRender,Scene *scene,const WideVectorInfo *vecInfo,int numMaskIDs)
-    : sceneRender(sceneRender), scene(scene), vecInfo(vecInfo), drawable(nullptr), centerValid(false), localCenter(0,0,0), dispCenter(0,0,0), numMaskIDs(numMaskIDs)
+    WideVectorDrawableConstructor(SceneRenderer *sceneRender,
+                                  Scene *scene,
+                                  const WideVectorInfo *vecInfo,
+                                  int numMaskIDs,
+                                  bool doColors) :
+        sceneRender(sceneRender),
+        scene(scene),
+        vecInfo(vecInfo),
+        numMaskIDs(numMaskIDs),
+        doColors(doColors),
+        coordAdapter(scene->getCoordAdapter()),
+        coordSys(scene->getCoordAdapter()->getCoordSystem())
     {
-        coordAdapter = scene->getCoordAdapter();
-        coordSys = coordAdapter->getCoordSystem();
     }
     
     // Center to use for drawables we create
@@ -634,9 +641,20 @@ public:
         localCenter = newLocalCenter;
         dispCenter = newDispCenter;
     }
-    
+
+    void setColor(const RGBAColor &c)
+    {
+        if (doColors && c != color)
+        {
+            flush();
+            color = c;
+        }
+    }
+
     // Build or return a suitable drawable (depending on the mode)
-    WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,int ptCountAllocate,int triCountAllocate,int clineCount)
+    WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,
+                                             int ptCountAllocate,int triCountAllocate,
+                                             int clineCount)
     {
         if (vecInfo->implType == WideVecImplPerf) {
             // Performance mode uses instancing and makes the renderer do the work
@@ -645,7 +663,7 @@ public:
             {
                 flush();
 
-                WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
+                auto wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
                 wideDrawable->Init(ptCountAllocate,triCountAllocate,clineCount,
                                    vecInfo->implType,
                                    !scene->getCoordAdapter()->isFlat(),
@@ -668,6 +686,10 @@ public:
                     maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptCount);
 
                 drawable->setColor(vecInfo->color);
+                if (doColors)
+                {
+                    drawable->setColor(color);
+                }
 
                 int baseTexId = 0;
                 if (vecInfo->texID != EmptyIdentity)
@@ -717,6 +739,11 @@ public:
                     maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptAlloc);
 
                 drawable->setColor(vecInfo->color);
+                if (doColors)
+                {
+                    drawable->setColor(color);
+                }
+
                 int baseTexId = 0;
                 if (vecInfo->texID != EmptyIdentity)
                     drawable->setTexId(baseTexId++, vecInfo->texID);
@@ -966,17 +993,20 @@ protected:
         drawable = nullptr;
     }
 
-    bool centerValid;
-    int numMaskIDs;
+    bool centerValid = false;
+    int numMaskIDs = 0;
     std::vector<SimpleIdentity> maskEntries;
-    Point3d localCenter,dispCenter;
+    Point3d localCenter = {0,0,0};
+    Point3d dispCenter = {0,0,0};
     Mbr drawMbr;
-    SceneRenderer *sceneRender;
-    Scene *scene;
-    CoordSystemDisplayAdapter *coordAdapter;
-    CoordSystem *coordSys;
+    SceneRenderer *sceneRender = nullptr;
+    Scene *scene = nullptr;
+    CoordSystemDisplayAdapter *coordAdapter = nullptr;
+    CoordSystem *coordSys = nullptr;
+    bool doColors = false;
+    RGBAColor color = RGBAColor::white();
     const WideVectorInfo *vecInfo;
-    WideVectorDrawableBuilderRef drawable;
+    WideVectorDrawableBuilderRef drawable = nullptr;
     std::vector<WideVectorDrawableBuilderRef> drawables;
 };
     
@@ -1009,16 +1039,22 @@ WideVectorManager::~WideVectorManager()
     sceneReps.clear();
 }
 
+static const std::string colorStr = "color"; // NOLINT(cert-err58-cpp)   constructor can throw
 static const std::string maskID0 = "maskID0"; // NOLINT
 
 SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &shapes,const WideVectorInfo &vecInfo,ChangeSet &changes)
 {
     // Calculate a center for this geometry
+    bool doColors = false;
     bool hasMaskIDs = false;
     GeoMbr geoMbr;
     for (const auto &shape : shapes)
     {
-        if (!hasMaskIDs && shape->getAttrDict()->hasField(maskID0))
+        if (!doColors && shape->getAttrDictRef()->hasField(colorStr))
+        {
+            doColors = true;
+        }
+        if (!hasMaskIDs && shape->getAttrDictRef()->hasField(maskID0))
         {
             hasMaskIDs = true;
         }
@@ -1031,7 +1067,8 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         return EmptyIdentity;
     }
 
-    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo,hasMaskIDs ? WhirlyKitMaxMasks : 0);
+    const int maskIDs = hasMaskIDs ? WhirlyKitMaxMasks : 0;
+    WideVectorDrawableConstructor builder(renderer,scene,&vecInfo,maskIDs,doColors);
 
     const GeoCoord centerGeo = geoMbr.mid();
 
@@ -1041,10 +1078,18 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
     const auto centerUp = coordAdapter->isFlat() ? Point3d(0,0,1) : coordAdapter->normalForLocal(localCenter);
     
     builder.setCenter(localCenter,centerDisp);
+    builder.setColor(vecInfo.color);
 
     VectorRing tempLoop;
     for (const auto &shape : shapes)
     {
+        const auto &attrs = shape->getAttrDictRef();
+
+        if (attrs->hasField(colorStr))
+        {
+            builder.setColor(attrs->getColor(colorStr, vecInfo.color));
+        }
+
         // Look for mask IDs.
         // Only support 2 for now
         std::vector<SimpleIdentity> maskIDs;
@@ -1053,9 +1098,9 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
             for (unsigned int ii=0;ii<2;ii++)
             {
                 std::string attrName = "maskID" + std::to_string(ii);
-                if (shape->getAttrDict()->hasField(attrName))
+                if (attrs->hasField(attrName))
                 {
-                    maskIDs.push_back(shape->getAttrDict()->getInt64(attrName));
+                    maskIDs.push_back(attrs->getInt64(attrName));
                 }
             }
         }
