@@ -905,6 +905,8 @@
 		31041A1C27A36842004B25E1 /* MaplyTapMessage_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A1B27A36842004B25E1 /* MaplyTapMessage_private.h */; };
 		31041A1E27A368E7004B25E1 /* MaplyTouchCancelAnimationDelegate_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A1D27A368E7004B25E1 /* MaplyTouchCancelAnimationDelegate_private.h */; };
 		31041A2027A36989004B25E1 /* MaplyTwoFingerTapDelegate_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A1F27A36989004B25E1 /* MaplyTwoFingerTapDelegate_private.h */; };
+		31041A3327A45A56004B25E1 /* GeographicLib_ObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A3227A45A56004B25E1 /* GeographicLib_ObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		31041A3527A45A68004B25E1 /* GeographicLib.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3427A45A68004B25E1 /* GeographicLib.mm */; };
 		313363AB253E5A2B007C2F27 /* WorkRegion_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 313363AA253E5A24007C2F27 /* WorkRegion_private.h */; };
 		315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */; };
 		315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */; };
@@ -990,8 +992,6 @@
 		31833161259112BA005FEF70 /* TransverseMercator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3183310F259112BA005FEF70 /* TransverseMercator.cpp */; };
 		31833162259112BA005FEF70 /* TransverseMercatorExact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833110259112BA005FEF70 /* TransverseMercatorExact.cpp */; };
 		31833163259112BA005FEF70 /* Geoid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31833111259112BA005FEF70 /* Geoid.cpp */; };
-		31833167259114A0005FEF70 /* GeographicLib.h in Headers */ = {isa = PBXBuildFile; fileRef = 31833166259114A0005FEF70 /* GeographicLib.h */; };
-		3183316B259114B0005FEF70 /* GeographicLib.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183316A259114B0005FEF70 /* GeographicLib.mm */; };
 		31872FD52550ED71002C9C73 /* maply_pb_names.h in Headers */ = {isa = PBXBuildFile; fileRef = 31872FD42550ED71002C9C73 /* maply_pb_names.h */; };
 		31942FC6254B5C0A0006B499 /* maply_pb_common.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942F9C254B5C0A0006B499 /* maply_pb_common.c */; };
 		31942FCD254B5C0A0006B499 /* maply_pb_decode.c in Sources */ = {isa = PBXBuildFile; fileRef = 31942FA4254B5C0A0006B499 /* maply_pb_decode.c */; };
@@ -1931,6 +1931,8 @@
 		31041A1B27A36842004B25E1 /* MaplyTapMessage_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTapMessage_private.h; sourceTree = "<group>"; };
 		31041A1D27A368E7004B25E1 /* MaplyTouchCancelAnimationDelegate_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTouchCancelAnimationDelegate_private.h; sourceTree = "<group>"; };
 		31041A1F27A36989004B25E1 /* MaplyTwoFingerTapDelegate_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTwoFingerTapDelegate_private.h; sourceTree = "<group>"; };
+		31041A3227A45A56004B25E1 /* GeographicLib_ObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographicLib_ObjC.h; sourceTree = "<group>"; };
+		31041A3427A45A68004B25E1 /* GeographicLib.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeographicLib.mm; sourceTree = "<group>"; };
 		313363AA253E5A24007C2F27 /* WorkRegion_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkRegion_private.h; sourceTree = "<group>"; };
 		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
 		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
@@ -2016,8 +2018,6 @@
 		3183310F259112BA005FEF70 /* TransverseMercator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransverseMercator.cpp; sourceTree = "<group>"; };
 		31833110259112BA005FEF70 /* TransverseMercatorExact.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransverseMercatorExact.cpp; sourceTree = "<group>"; };
 		31833111259112BA005FEF70 /* Geoid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geoid.cpp; sourceTree = "<group>"; };
-		31833166259114A0005FEF70 /* GeographicLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographicLib.h; sourceTree = "<group>"; };
-		3183316A259114B0005FEF70 /* GeographicLib.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeographicLib.mm; sourceTree = "<group>"; };
 		31872FD42550ED71002C9C73 /* maply_pb_names.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = maply_pb_names.h; sourceTree = "<group>"; };
 		31942F9C254B5C0A0006B499 /* maply_pb_common.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maply_pb_common.c; sourceTree = "<group>"; };
 		31942FA4254B5C0A0006B499 /* maply_pb_decode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maply_pb_decode.c; sourceTree = "<group>"; };
@@ -3113,6 +3113,7 @@
 		2B8797102203B5A400EF801D /* helpers */ = {
 			isa = PBXGroup;
 			children = (
+				31041A3427A45A68004B25E1 /* GeographicLib.mm */,
 				2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */,
 				2BE537AE1D249A1200B60FAD /* MaplyIconManager.mm */,
 				2BE537A51D249A1200B60FAD /* MaplyColorRampGenerator.mm */,
@@ -3284,6 +3285,7 @@
 		2BC41C9021F10179002926B7 /* helpers */ = {
 			isa = PBXGroup;
 			children = (
+				31041A3227A45A56004B25E1 /* GeographicLib_ObjC.h */,
 				2BE5372F1D249A1200B60FAD /* MaplyGeomBuilder.h */,
 				2BE537311D249A1200B60FAD /* MaplyIconManager.h */,
 				E5D2D6621DE67B1400E02305 /* MaplyLocationTracker.h */,
@@ -3327,7 +3329,6 @@
 		2BC90D5B223308B900D8B606 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
-				31833166259114A0005FEF70 /* GeographicLib.h */,
 				2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */,
 			);
 			name = "geometry utils";
@@ -3336,7 +3337,6 @@
 		2BC90D5E223308CF00D8B606 /* geometry utils */ = {
 			isa = PBXGroup;
 			children = (
-				3183316A259114B0005FEF70 /* GeographicLib.mm */,
 				2BC90D5F223308DB00D8B606 /* ScreenObject_iOS.mm */,
 			);
 			name = "geometry utils";
@@ -4150,6 +4150,7 @@
 				2B846F0B21F158E100EF2A82 /* GeometryManager.h in Headers */,
 				2BE5396B1D249BEF00B60FAD /* AAMoonIlluminatedFraction.h in Headers */,
 				2B846F0521F158E100EF2A82 /* WideVectorManager.h in Headers */,
+				31041A3327A45A56004B25E1 /* GeographicLib_ObjC.h in Headers */,
 				2BE5396C1D249BEF00B60FAD /* AAMoonMaxDeclinations.h in Headers */,
 				2B446B4F21F7E7B80078A975 /* WideVectorDrawableBuilder.h in Headers */,
 				2B699855228DD31F00C31E3F /* SceneRendererMTL.h in Headers */,
@@ -4305,7 +4306,6 @@
 				2B69984A228DD31F00C31E3F /* BasicDrawableInstanceBuilderMTL.h in Headers */,
 				2B82B5E31E82E2490095FB14 /* dict.h in Headers */,
 				3183313D259112BA005FEF70 /* EllipticFunction.hpp in Headers */,
-				31833167259114A0005FEF70 /* GeographicLib.h in Headers */,
 				2BB8A3F421ED43D10025DA98 /* MaplyZoomGestureDelegate.h in Headers */,
 				2B699852228DD31F00C31E3F /* WrapperMTL.h in Headers */,
 				2BE539831D249BEF00B60FAD /* AASaturnMoons.h in Headers */,
@@ -4587,6 +4587,7 @@
 				2B8A788B228607B3008B0A1F /* Program.cpp in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
 				2BC90D60223308DB00D8B606 /* ScreenObject_iOS.mm in Sources */,
+				31041A3527A45A68004B25E1 /* GeographicLib.mm in Sources */,
 				31833141259112BA005FEF70 /* GravityModel.cpp in Sources */,
 				2BE1E766220A567100815D9C /* MaplyControllerLayer.mm in Sources */,
 				2B60F43E24523FAB00CF9339 /* MapboxVectorStyleSet.mm in Sources */,
@@ -4651,7 +4652,6 @@
 				2B82B5F21E82E2490095FB14 /* sweep.cpp in Sources */,
 				2B82B6A81E82E24A0095FB14 /* pj_qsfn.c in Sources */,
 				2B3F451D243FD82200F85414 /* GeoJSONSource.mm in Sources */,
-				3183316B259114B0005FEF70 /* GeographicLib.mm in Sources */,
 				2BE539971D249BEF00B60FAD /* AAElliptical.cpp in Sources */,
 				2BE539B21D249BEF00B60FAD /* AAPhysicalJupiter.cpp in Sources */,
 				2BE1E75B2208F33900815D9C /* SingleLabel_iOS.mm in Sources */,

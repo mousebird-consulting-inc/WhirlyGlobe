@@ -16,6 +16,7 @@
 #import <WhirlyGlobeMaplyComponent/MaplyGeomModel.h>
 #import <WhirlyGlobeMaplyComponent/MaplyMatrix.h>
 #import <WhirlyGlobeMaplyComponent/MaplyViewController.h>
+#import <WhirlyGlobeMaplyComponent/GeographicLib_ObjC.h>
 
 
 #import "MaplyTestCase.h"

@@ -27,10 +27,14 @@ Pod::Spec.new do |s|
   s.source           = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
 
   s.compiler_flags = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 '
-  s.xcconfig = { "HEADER_SEARCH_PATHS" => " \"$(SDKROOT)/usr/include/libxml2\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/eigen/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/nanopb/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/lodepng\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/GeographicLib/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" ",
-        "MTL_LANGUAGE_REVISION" => "Metal21" }
+  s.xcconfig = {
+      "HEADER_SEARCH_PATHS" => " \"$(SDKROOT)/usr/include/libxml2\" \"$(PODS_ROOT)/KissXML/KissXML/\" \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/eigen/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/nanopb/\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/clipper\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/lodepng\" \"${PODS_ROOT}/WhirlyGlobe/common/local_libs/glues/include/\" \"$(PODS_ROOT)/WhirlyGlobe/common/local_libs/GeographicLib/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/private/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/\" \"$(PODS_ROOT)/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/\" ",
+        "MTL_LANGUAGE_REVISION" => "Metal21",
+        "DEFINES_MODULE" => "YES"
+    }
 
   s.default_subspec = 'MaplyComponent'
+  s.module_name     = "WhirlyGlobeMaplyComponent"
 
   s.subspec 'locallibs' do |ll|
     ll.source_files =
@@ -66,14 +70,13 @@ Pod::Spec.new do |s|
         'ios/library/WhirlyGlobeLib/src/*.{mm,m,cpp,metal}',
         'ios/library/WhirlyGlobeLib/include/*.h',
         'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h',
-        'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}'
+        'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}',
+        'ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent/*.h'
     mc.preserve_paths = 
         'common/local_libs/eigen/Eigen/**'
     mc.public_header_files =
-        'common/WhirlyGlobeLib/include/*.h',
         'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h',
-        'ios/library/WhirlyGlobe-MaplyComponent/include/UIKit/NSData+Zlib.h',
-        'ios/library/WhirlyGlobeLib/include/GeographicLib.h'    # That we have to name it here means it probably belongs somewhere else...
+        'ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent/*.h'
     mc.private_header_files =
         'common/WhirlyGlobeLib/include/**/*.h',
         'ios/library/WhirlyGlobeLib/include/*.h'

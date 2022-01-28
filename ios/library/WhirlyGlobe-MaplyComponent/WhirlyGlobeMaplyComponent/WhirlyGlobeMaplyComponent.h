@@ -16,6 +16,7 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <WhirlyGlobeMaplyComponent/PublicHeader.h>
 
+#import <WhirlyGlobeMaplyComponent/GeographicLib_ObjC.h>
 #import <WhirlyGlobeMaplyComponent/GeoJSONSource.h>
 #import <WhirlyGlobeMaplyComponent/GlobeDoubleTapDelegate.h>
 #import <WhirlyGlobeMaplyComponent/GlobeDoubleTapDragDelegate.h>
