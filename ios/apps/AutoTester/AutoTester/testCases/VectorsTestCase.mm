@@ -42,6 +42,7 @@
         kMaplyFade: @(0.2),
     };
     NSDictionary *wideDict = @{
+        kMaplyWideVecImpl: kMaplyWideVecImplPerf,
         kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault),
         kMaplyVecCloseAreals: @(false),
         kMaplyColor: [UIColor whiteColor],
