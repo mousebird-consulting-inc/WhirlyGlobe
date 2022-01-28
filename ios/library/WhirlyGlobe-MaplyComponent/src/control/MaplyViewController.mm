@@ -1248,13 +1248,16 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord mapView:(Maply::MapView *)theView
 {
     if (!renderControl)
-        return CGPointMake(0.0, 0.0);
-    
-    Point3d pt = theView->coordAdapter->localToDisplay(theView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
-    
-    Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
-    auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
-    Point2f screenPt = theView->pointOnScreenFromPlane(pt, &modelTrans, frameSizeScaled);
+    {
+        return CGPointZero;
+    }
+
+    const auto adapter = theView->coordAdapter;
+    const Point3d localPt = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
+    const Point3d displayPt = adapter->localToDisplay(localPt);
+    const Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
+    const Point2f frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
+    const Point2f screenPt = theView->pointOnScreenFromPlane(displayPt, &modelTrans, frameSizeScaled);
     return CGPointMake(screenPt.x(),screenPt.y());
 }
 
