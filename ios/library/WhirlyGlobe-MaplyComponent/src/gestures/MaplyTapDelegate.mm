@@ -75,12 +75,13 @@ using namespace Maply;
     auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
     if (mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
+        const Point3d localPt = coordAdapter->displayToLocal(hit);
+
         MaplyTapMessage *msg = [[MaplyTapMessage alloc] init];
-        [msg setTouchLoc:touchLoc];
-        [msg setView:tap.view];
-		[msg setWorldLoc:Point3f(hit.x(),hit.y(),hit.z())];
-        Point3d localPt = coordAdapter->displayToLocal(hit);
-		[msg setWhereGeo:coordAdapter->getCoordSystem()->localToGeographic(localPt)];
+        msg.view = tap.view;
+        msg.touchLoc = touchLoc;
+		msg.worldLoc = Point3f(hit.x(),hit.y(),hit.z());
+		msg.whereGeo = coordAdapter->getCoordSystem()->localToGeographic(localPt);
         msg.heightAboveSurface = hit.z();
 		
 		[[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:MaplyTapMsg object:msg]];
