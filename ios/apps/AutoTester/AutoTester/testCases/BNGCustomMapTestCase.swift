@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 10/12/15.
-//  Copyright © 2015-2021 mousebird consulting.
+//  Copyright 2015-2022 mousebird consulting.
 //
 
 import UIKit

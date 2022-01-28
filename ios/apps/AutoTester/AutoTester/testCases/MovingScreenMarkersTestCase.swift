@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Tim Sylvester on 9 Feb. 2021
-//  Copyright © 2021 mousebird consulting.
+//  Copyright 2021-2022 mousebird consulting.
 //
 
 import Foundation

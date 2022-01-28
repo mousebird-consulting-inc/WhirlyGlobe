@@ -3,7 +3,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Tim Sylvester on 10/19/2020.
- *  Copyright 2020 mousebird consulting
+ *  Copyright 2020-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

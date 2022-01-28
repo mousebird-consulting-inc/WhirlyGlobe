@@ -2,7 +2,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 10/26/12.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

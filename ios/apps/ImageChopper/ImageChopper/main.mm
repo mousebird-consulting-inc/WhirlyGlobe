@@ -3,7 +3,7 @@
 //  ImageChopper
 //
 //  Created by Stephen Gifford on 4/18/11.
-//  Copyright 2011 mousebird consulting. All rights reserved.
+//  Copyright 2011-2022 mousebird consulting. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

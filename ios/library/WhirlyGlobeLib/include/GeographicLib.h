@@ -3,7 +3,7 @@
 //  WhirlyGlobeLib
 //
 //  Created by Tim Sylvester on 12/14/20.
-//  Copyright © 2020 mousebird consulting. All rights reserved.
+//  Copyright 2020 mousebird consulting. All rights reserved.
 //
 
 #ifndef GeographicLib_Wrapper_h

@@ -3,7 +3,7 @@
 //  WhirlyGlobeMaplyComponent
 //
 //  Created by Steve Gifford on 6/29/16.
-//  Copyright © 2016-2019 mousebird consulting.
+//  Copyright 2016-2019 mousebird consulting.
 //
 
 #import <UIKit/UIKit.h>

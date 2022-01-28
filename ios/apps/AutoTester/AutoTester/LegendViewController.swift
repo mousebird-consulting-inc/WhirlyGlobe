@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 7/29/20.
-//  Copyright © 2020 mousebird consulting. All rights reserved.
+//  Copyright 2020-2022 mousebird consulting. All rights reserved.
 //
 
 import Foundation

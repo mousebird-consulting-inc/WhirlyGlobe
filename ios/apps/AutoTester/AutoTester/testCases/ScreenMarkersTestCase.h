@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 6/16/16.
-//  Copyright © 2016-2017 mousebird consulting.
+//  Copyright 2016-2017 mousebird consulting.
 //
 
 #import "MaplyTestCase.h"

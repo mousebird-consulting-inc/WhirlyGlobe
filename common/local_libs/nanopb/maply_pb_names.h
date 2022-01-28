@@ -3,7 +3,7 @@
 //  WhirlyGlobeMaplyComponent
 //
 //  Created by Tim Sylvester on 11/2/20.
-//  Copyright © 2020 mousebird consulting. All rights reserved.
+//  Copyright 2020 mousebird consulting. All rights reserved.
 //
 
 #ifndef maply_pb_names_h
