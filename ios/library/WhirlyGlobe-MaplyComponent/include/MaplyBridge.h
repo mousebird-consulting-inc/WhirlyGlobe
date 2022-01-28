@@ -3,7 +3,7 @@
  *  MaplyBridge
  *
  *  Created by jmnavarro on 7/19/15.
- *  Copyright 2015 mousebird consulting
+ *  Copyright 2015-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

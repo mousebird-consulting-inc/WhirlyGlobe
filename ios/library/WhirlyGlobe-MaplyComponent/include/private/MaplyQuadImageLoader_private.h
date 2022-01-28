@@ -2,7 +2,7 @@
  *  MaplyQuadImageLoader_private.h
  *
  *  Created by Steve Gifford on 4/10/18.
- *  Copyright 2012-2018 Saildrone Inc
+ *  Copyright 2012-2022 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

@@ -5,7 +5,7 @@ package com.mousebird.maply;
  *  com.mousebirdconsulting.maply
  *
  *  Created by Steve Gifford on 4/17/16.
- *  Copyright 2013-2016 mousebird consulting
+ *  Copyright 2013-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

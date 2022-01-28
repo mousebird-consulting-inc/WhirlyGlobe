@@ -2,7 +2,7 @@
  *  MaplyQuadLoader.h
  *
  *  Created by Steve Gifford on 2/12/19.
- *  Copyright 2012-2019 Saildrone Inc
+ *  Copyright 2012-2022 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
