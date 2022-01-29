@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
   s.social_media_url = 'https://twitter.com/@mousebirdc'
   s.platform         = :ios, '12.0'
   s.requires_arc     = true
-  s.source           = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'topic/temp' }
+  s.source           = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'topic/xcframework' }
   s.module_name      = "WhirlyGlobeMaplyComponent"
   s.default_subspec  = 'MaplyComponent'
   s.compiler_flags   = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 '
@@ -49,7 +49,6 @@ Pod::Spec.new do |s|
     "CLANG_WARN_DOCUMENTATION_COMMENTS" => "NO",
     "GCC_WARN_INHIBIT_ALL_WARNINGS" => "YES"
   }
-
 
   s.subspec 'locallibs' do |ll|
     ll.source_files =
@@ -88,7 +87,9 @@ Pod::Spec.new do |s|
         'ios/library/WhirlyGlobe-MaplyComponent/src/**/*.{mm,m,cpp,metal}',
         'ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent/*.h'
     mc.exclude_files =
-        'common/WhirlyGlobeLib/src/*GLES.{h,cpp}'
+        'common/WhirlyGlobeLib/src/*GLES.{h,cpp}',
+        'ios/library/WhirlyGlobeLib/src/Texture_iOS.mm',
+        'ios/library/WhirlyGlobeLib/include/TextureGLES_iOS.h'
     mc.public_header_files =
         'ios/library/WhirlyGlobe-MaplyComponent/include/**/*.h',
         'ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent/*.h'
