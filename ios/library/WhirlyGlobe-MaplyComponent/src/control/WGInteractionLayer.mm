@@ -1,5 +1,4 @@
-/*
- *  WGInteractionLayer_private.h
+/*  WGInteractionLayer_private.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WGInteractionLayer_private.h"
@@ -23,10 +21,12 @@
 #import "visual_objects/MaplyMarker.h"
 #import "visual_objects/MaplyScreenLabel.h"
 #import "visual_objects/MaplyLabel.h"
-#import "MaplyVectorObject_private.h"
 #import "visual_objects/MaplyShape.h"
 #import "visual_objects/MaplySticker.h"
+#import "private/MaplyVectorObject_private.h"
 #import "math/MaplyCoordinate.h"
+#import "gestures/GlobeTapMessage.h"
+#import "private/GlobeTapMessage_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

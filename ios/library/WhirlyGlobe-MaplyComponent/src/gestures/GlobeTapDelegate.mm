@@ -18,6 +18,7 @@
 
 #import "gestures/GlobeTapDelegate.h"
 #import "private/GlobeTapDelegate_private.h"
+#import "private/GlobeTapMessage_private.h"
 #import "SceneRenderer.h"
 #import "GlobeMath.h"
 #import "ViewWrapper.h"

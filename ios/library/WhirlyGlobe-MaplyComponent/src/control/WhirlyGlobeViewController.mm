@@ -27,6 +27,8 @@
 #import "private/GlobeTapDelegate_private.h"
 #import "private/GlobeTiltDelegate_private.h"
 #import "private/GlobeTwoFingerTapDelegate_private.h"
+#import "gestures/GlobeTapMessage.h"
+#import "private/GlobeTapMessage_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;

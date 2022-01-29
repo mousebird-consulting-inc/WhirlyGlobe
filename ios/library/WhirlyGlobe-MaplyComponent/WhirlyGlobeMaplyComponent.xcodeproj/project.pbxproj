@@ -907,6 +907,7 @@
 		31041A2027A36989004B25E1 /* MaplyTwoFingerTapDelegate_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A1F27A36989004B25E1 /* MaplyTwoFingerTapDelegate_private.h */; };
 		31041A3327A45A56004B25E1 /* GeographicLib_ObjC.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A3227A45A56004B25E1 /* GeographicLib_ObjC.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		31041A3527A45A68004B25E1 /* GeographicLib.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3427A45A68004B25E1 /* GeographicLib.mm */; };
+		31041A4327A4C3F8004B25E1 /* GlobeTapMessage_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31041A4227A4C3F8004B25E1 /* GlobeTapMessage_private.h */; };
 		313363AB253E5A2B007C2F27 /* WorkRegion_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 313363AA253E5A24007C2F27 /* WorkRegion_private.h */; };
 		315082CA254CD29000A0A2B2 /* VectorTilePBFParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */; };
 		315082D0254CD2BF00A0A2B2 /* VectorTilePBFParser.h in Headers */ = {isa = PBXBuildFile; fileRef = 315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */; };
@@ -1933,6 +1934,7 @@
 		31041A1F27A36989004B25E1 /* MaplyTwoFingerTapDelegate_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTwoFingerTapDelegate_private.h; sourceTree = "<group>"; };
 		31041A3227A45A56004B25E1 /* GeographicLib_ObjC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeographicLib_ObjC.h; sourceTree = "<group>"; };
 		31041A3427A45A68004B25E1 /* GeographicLib.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeographicLib.mm; sourceTree = "<group>"; };
+		31041A4227A4C3F8004B25E1 /* GlobeTapMessage_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeTapMessage_private.h; sourceTree = "<group>"; };
 		313363AA253E5A24007C2F27 /* WorkRegion_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkRegion_private.h; sourceTree = "<group>"; };
 		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
 		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
@@ -3494,6 +3496,7 @@
 				31041A0427A3528F004B25E1 /* GlobePinchDelegate_private.h */,
 				31041A0927A35AD4004B25E1 /* GlobeRotateDelegate_private.h */,
 				31041A0B27A35C59004B25E1 /* GlobeTapDelegate_private.h */,
+				31041A4227A4C3F8004B25E1 /* GlobeTapMessage_private.h */,
 				31041A0D27A35D2C004B25E1 /* GlobeTiltDelegate_private.h */,
 				31041A0627A35591004B25E1 /* GlobeTwoFingerTapDelegate_private.h */,
 				2BE5375B1D249A1200B60FAD /* ImageTexture_private.h */,
@@ -3962,6 +3965,7 @@
 				2B846F0A21F158E100EF2A82 /* VectorManager.h in Headers */,
 				2B446AE621F299E50078A975 /* ShapeDrawableBuilder.h in Headers */,
 				2B846F1121F158E100EF2A82 /* BillboardManager.h in Headers */,
+				31041A4327A4C3F8004B25E1 /* GlobeTapMessage_private.h in Headers */,
 				2B82B6DA1E82E24A0095FB14 /* NSDictionary+Stuff.h in Headers */,
 				2B82B6141E82E2490095FB14 /* JSONSharedString.h in Headers */,
 				3183313B259112BA005FEF70 /* CircularEngine.hpp in Headers */,
