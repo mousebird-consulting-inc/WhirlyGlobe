@@ -235,8 +235,58 @@
 	return @[lines,screenLines,realLines,labelObj];
 }
 
-- (void)overlap:(MaplyBaseViewController *)viewC {
+// Like `overlap:` but confirms that splitting vector colors within a single CO/info context
+- (void)vecColors:(MaplyBaseViewController *)viewC {
+    const auto cx = -60.0;
+    const auto cy = 40.0;
+    const auto cs = 0.1;
+    NSMutableArray<MaplyVectorObject *> *objs = [NSMutableArray arrayWithCapacity:5];
+    for (int i = 0; i < 5; ++i) {   // lines
+        const MaplyCoordinate coords[] = {
+            MaplyCoordinateMakeWithDegrees(cx - 4*cs + i*1*cs, cy + 3*cs),
+            MaplyCoordinateMakeWithDegrees(cx + 2*cs + i*3*cs, cy - 2*cs),
+            MaplyCoordinateMakeWithDegrees(cx + 8*cs - i*2*cs, cy - 6*cs),
+        };
 
+        const auto cc = 0.2f * i;
+        UIColor *vecColor = [UIColor colorWithRed:0 green:cc blue:1.0f-cc alpha:0.5];
+        NSDictionary *vecDesc = @{ kMaplyColor: vecColor };
+
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:&coords[0]
+                                                                        numCoords:sizeof(coords)/sizeof(coords[0])
+                                                                       attributes:vecDesc];
+        [vecObj subdivideToGlobe:0.0001];
+        [objs addObject:vecObj];
+    }
+
+    NSDictionary *wideDesc = @{
+        kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:0.2],
+        kMaplyEnable: @YES,
+        kMaplyFade: @0,
+        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 1),
+        kMaplyWideVecEdgeFalloff:@(5),
+        kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+        kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+        kMaplyWideVecCoordType: kMaplyWideVecCoordTypeScreen,
+        kMaplyWideVecOffset: @(5),
+        kMaplyWideVecMiterLimit: @(10.0),
+        kMaplyVecWidth: @(10.0),
+        //kMaplyWideVecImpl: kMaplyWideVecImplDefault,
+        kMaplyWideVecImpl: kMaplyWideVecImplPerf,
+    };
+
+    [viewC addWideVectors:objs desc:wideDesc mode:MaplyThreadCurrent];
+
+    NSMutableDictionary *desc = [NSMutableDictionary dictionaryWithDictionary:wideDesc];
+    for (int i = 0; i < 5; ++i) {
+        const auto cc = 0.2f * i;
+        UIColor *clColor = [UIColor colorWithRed:0 green:1.0f-cc blue:cc alpha:0.5];
+        objs[i].attributes[kMaplyColor] = clColor;
+    }
+    [viewC addVectors:objs desc:desc mode:MaplyThreadCurrent];
+}
+
+- (void)overlap:(MaplyBaseViewController *)viewC {
     const auto cx = -90.0;
     const auto cy = 40.0;
     const auto cs = 0.1;
@@ -317,6 +367,8 @@
     //    [self addGeoJson:@"uturn.geojson"];
     
     [self overlap:viewC];
+    
+    [self vecColors:viewC];
 }
 
 
