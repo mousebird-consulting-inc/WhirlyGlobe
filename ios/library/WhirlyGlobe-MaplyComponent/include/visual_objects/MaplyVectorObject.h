@@ -18,8 +18,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyCoordinateSystem.h>
 
 @class MaplyBaseViewController;
 

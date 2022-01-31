@@ -17,7 +17,7 @@
  *
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyQuadLoader.h>
+#import <WhirlyGlobe/MaplyQuadLoader.h>
 
 /**
  This version of the loader return is used by the MaplyQuadPagingLoader.

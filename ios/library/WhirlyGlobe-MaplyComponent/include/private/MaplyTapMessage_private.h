@@ -17,8 +17,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyVector.h>
-#import <WhirlyGlobeMaplyComponent/MapView_iOS.h>
+#import <WhirlyGlobe/WhirlyVector.h>
+#import <WhirlyGlobe/MapView_iOS.h>
 
 /// This is the notification you get for a tap on the map
 #define MaplyTapMsg @"MaplyTap"

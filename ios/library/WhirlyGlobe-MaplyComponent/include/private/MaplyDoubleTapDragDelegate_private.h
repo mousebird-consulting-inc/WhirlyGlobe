@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyDoubleTapDragDelegate.h>
+#import <WhirlyGlobe/MaplyDoubleTapDragDelegate.h>
 
 // Sent out when the double tap delegate takes control
 #define kMaplyDoubleTapDragDidStart @"WKMaplyDoubleTapDragStarted"

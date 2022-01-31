@@ -17,7 +17,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyTapMessage.h>
+#import <WhirlyGlobe/MaplyTapMessage.h>
 
 /** Maply tap gesture delegate responds to a tap
  by sending out a notification.

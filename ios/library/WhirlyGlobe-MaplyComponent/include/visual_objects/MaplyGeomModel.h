@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyMatrix.h>
-#import <WhirlyGlobeMaplyComponent/MaplyShape.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyMatrix.h>
+#import <WhirlyGlobe/MaplyShape.h>
 
 @class MaplyShader;
 

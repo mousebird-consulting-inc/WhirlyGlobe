@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
 
 typedef NS_ENUM(NSInteger, MaplyLabelJustify) {
 	MaplyLabelJustifyLeft,

@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
 
 /** 
     Stickers are rectangles placed on the globe with an image.

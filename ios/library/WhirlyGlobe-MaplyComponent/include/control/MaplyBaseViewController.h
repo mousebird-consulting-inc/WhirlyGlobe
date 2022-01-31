@@ -18,27 +18,27 @@
 
 #import <UIKit/UIKit.h>
 #import <Metal/Metal.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyScreenMarker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyVectorObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplyViewTracker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplySharedAttributes.h>
-#import <WhirlyGlobeMaplyComponent/MaplyControllerLayer.h>
-#import <WhirlyGlobeMaplyComponent/MaplyLight.h>
-#import <WhirlyGlobeMaplyComponent/MaplyShader.h>
-#import <WhirlyGlobeMaplyComponent/MaplyActiveObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplyTexture.h>
-#import <WhirlyGlobeMaplyComponent/MaplyAnnotation.h>
-#import <WhirlyGlobeMaplyComponent/MaplyParticleSystem.h>
-#import <WhirlyGlobeMaplyComponent/MaplyPoints.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCluster.h>
-#import <WhirlyGlobeMaplyComponent/Maply3DTouchPreviewDatasource.h>
-#import <WhirlyGlobeMaplyComponent/MaplyLocationTracker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderTarget.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRemoteTileFetcher.h>
-#import <WhirlyGlobeMaplyComponent/MaplyVertexAttribute.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyVectorObject.h>
+#import <WhirlyGlobe/MaplyViewTracker.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplySharedAttributes.h>
+#import <WhirlyGlobe/MaplyControllerLayer.h>
+#import <WhirlyGlobe/MaplyLight.h>
+#import <WhirlyGlobe/MaplyShader.h>
+#import <WhirlyGlobe/MaplyActiveObject.h>
+#import <WhirlyGlobe/MaplyTexture.h>
+#import <WhirlyGlobe/MaplyAnnotation.h>
+#import <WhirlyGlobe/MaplyParticleSystem.h>
+#import <WhirlyGlobe/MaplyPoints.h>
+#import <WhirlyGlobe/MaplyCluster.h>
+#import <WhirlyGlobe/Maply3DTouchPreviewDatasource.h>
+#import <WhirlyGlobe/MaplyLocationTracker.h>
+#import <WhirlyGlobe/MaplyRenderTarget.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
+#import <WhirlyGlobe/MaplyRemoteTileFetcher.h>
+#import <WhirlyGlobe/MaplyVertexAttribute.h>
 
 typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 typedef void (__strong ^InitCompletionBlock)(void);

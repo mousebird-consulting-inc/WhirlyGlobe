@@ -17,8 +17,8 @@
  *
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyQuadImageLoader.h>
-#import <WhirlyGlobeMaplyComponent/MaplyActiveObject.h>
+#import <WhirlyGlobe/MaplyQuadImageLoader.h>
+#import <WhirlyGlobe/MaplyActiveObject.h>
 
 @class MaplyQuadImageFrameLoader;
 

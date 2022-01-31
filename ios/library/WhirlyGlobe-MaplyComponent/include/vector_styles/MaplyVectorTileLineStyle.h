@@ -16,8 +16,8 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyVectorStyle.h>
-#import <WhirlyGlobeMaplyComponent/MaplyVectorTileStyle.h>
+#import <WhirlyGlobe/MaplyVectorStyle.h>
+#import <WhirlyGlobe/MaplyVectorTileStyle.h>
 
 /** 
     Implementation of the line style symbolizer for Maply Vector Tiles.

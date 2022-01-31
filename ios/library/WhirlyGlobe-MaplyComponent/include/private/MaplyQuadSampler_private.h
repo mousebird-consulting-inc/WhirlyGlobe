@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "loading/MaplyQuadSampler.h"
 #import "QuadTileBuilder.h"
 #import "QuadDisplayLayerNew.h"

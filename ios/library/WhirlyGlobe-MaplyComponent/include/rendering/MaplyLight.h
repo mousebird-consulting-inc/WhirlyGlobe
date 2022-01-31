@@ -18,7 +18,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
 
 /** 
     The Light provides a simple interface to basic lighting within the toolkit.

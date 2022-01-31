@@ -18,12 +18,12 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobeMaplyComponent/MaplyControllerLayer.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
-#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyQuadSampler.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRemoteTileFetcher.h>
+#import <WhirlyGlobe/MaplyControllerLayer.h>
+#import <WhirlyGlobe/MaplyCoordinateSystem.h>
+#import <WhirlyGlobe/MaplyTileSourceNew.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
+#import <WhirlyGlobe/MaplyQuadSampler.h>
+#import <WhirlyGlobe/MaplyRemoteTileFetcher.h>
 
 @class MaplyQuadLoaderBase;
 

@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyGlobeViewController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyLight.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/MaplyLight.h>
 
 /** 
     Sets up the objects and shaders to implement an atmosphere.

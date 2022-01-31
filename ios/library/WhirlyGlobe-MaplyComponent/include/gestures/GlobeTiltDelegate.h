@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/GlobePinchDelegate.h>
+#import <WhirlyGlobe/GlobePinchDelegate.h>
 
 // The tilt delegate handle the 3D camera tilt
 @interface WhirlyGlobeTiltDelegate : NSObject<UIGestureRecognizerDelegate>

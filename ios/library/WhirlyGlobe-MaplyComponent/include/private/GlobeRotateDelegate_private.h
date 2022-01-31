@@ -17,7 +17,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/GlobeView_iOS.h>
+#import <WhirlyGlobe/GlobeView_iOS.h>
 
 namespace WhirlyGlobe
 {

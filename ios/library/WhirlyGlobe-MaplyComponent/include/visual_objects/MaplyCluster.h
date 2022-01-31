@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyScreenMarker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyShader.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyShader.h>
 
 @class MaplyBaseViewController;
 

@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "visual_objects/MaplyTexture.h"
 #import "control/MaplyRenderController.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @class MaplyBaseInteractionLayer;
 

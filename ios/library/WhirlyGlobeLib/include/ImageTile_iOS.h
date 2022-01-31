@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "SceneRenderer.h"
 
 namespace WhirlyKit

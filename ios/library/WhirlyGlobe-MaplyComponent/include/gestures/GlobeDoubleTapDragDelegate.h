@@ -16,7 +16,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobeMaplyComponent/GlobePinchDelegate.h>
+#import <WhirlyGlobe/GlobePinchDelegate.h>
 
 // Sent out when the double tap delegate takes control
 #define kGlobeDoubleTapDragDidStart @"WKGlobeDoubleTapDragStarted"

@@ -27,10 +27,6 @@ WhirlyGlobeSrc/AutoTester/AutoTester.xcworkspace
 android/**/local.properties
 android/library/Android/.gradle
 android/library/maply/.cxx
-ios/library/WhirlyGlobe-MaplyComponent/build
-ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.framework
-ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcframework
-ios/library/WhirlyGlobe-MaplyComponent/archives
 
 podlint\.txt
 

@@ -3,21 +3,20 @@
 //  WhirlyGlobeSwiftTester
 //
 //  Created by jmnavarro on 16/09/15.
-//  Copyright (c) 2015-2020 mousebird consulting. All rights reserved.
+//  Copyright 2015-2022 mousebird consulting. All rights reserved.
 //
 
 #ifndef AutoTester_MaplyTesterBridge_h
 #define AutoTester_MaplyTesterBridge_h
 
-#import <WhirlyGlobeMaplyComponent/MaplyBridge.h>
-#import <WhirlyGlobeMaplyComponent/GeoJSONSource.h>
-#import <WhirlyGlobeMaplyComponent/MaplyShape.h>
-#import <WhirlyGlobeMaplyComponent/MaplyBaseViewController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyGeomModel.h>
-#import <WhirlyGlobeMaplyComponent/MaplyMatrix.h>
-#import <WhirlyGlobeMaplyComponent/MaplyViewController.h>
-#import <WhirlyGlobeMaplyComponent/GeographicLib_ObjC.h>
-
+#import <WhirlyGlobe/MaplyBridge.h>
+#import <WhirlyGlobe/GeoJSONSource.h>
+#import <WhirlyGlobe/MaplyShape.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
+#import <WhirlyGlobe/MaplyGeomModel.h>
+#import <WhirlyGlobe/MaplyMatrix.h>
+#import <WhirlyGlobe/MaplyViewController.h>
+#import <WhirlyGlobe/GeographicLib_ObjC.h>
 
 #import "MaplyTestCase.h"
 #import "VectorsTestCase.h"
@@ -38,7 +37,6 @@
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
-#import "ActiveObjectTestCase.h"
 #import "GlyphProblemTestCase.h"
 #import "ChangeVectorsTestCase.h"
 #import "RepresentationsTestCase.h"

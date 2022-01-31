@@ -19,7 +19,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
 
 /**
  Holds info about a single style from the MaplySimpleStyleManager.

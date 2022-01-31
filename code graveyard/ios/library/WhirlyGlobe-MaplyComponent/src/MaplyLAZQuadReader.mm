@@ -19,7 +19,7 @@
 #import "FMDatabase.h"
 #import "FMDatabaseQueue.h"
 #import "laszip_api.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyLAZMeshBuilder.h"
 #import "WhirlyGlobeViewController_private.h"
 #import "MaplyCoordinateSystem_private.h"

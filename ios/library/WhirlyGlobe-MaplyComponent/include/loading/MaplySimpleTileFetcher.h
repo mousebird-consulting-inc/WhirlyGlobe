@@ -18,7 +18,7 @@
  *
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
+#import <WhirlyGlobe/MaplyTileSourceNew.h>
 
 /** Simple Tile Fetcher is meant for sub classing.
  

@@ -19,7 +19,7 @@
  */
 
 #import "rendering/MaplyVertexAttribute.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyVertexAttribute()
 {

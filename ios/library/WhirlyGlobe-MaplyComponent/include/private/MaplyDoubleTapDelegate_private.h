@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MapView_iOS.h>
+#import <WhirlyGlobe/MapView_iOS.h>
 
 @interface MaplyDoubleTapDelegate ()
 

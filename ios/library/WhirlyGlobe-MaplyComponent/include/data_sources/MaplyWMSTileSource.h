@@ -16,8 +16,8 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyTileSourceNew.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinateSystem.h>
+#import <WhirlyGlobe/MaplyTileSourceNew.h>
+#import <WhirlyGlobe/MaplyCoordinateSystem.h>
 
 /** A bounding box for a specific CRS in that coordinate
     system.  This is part of the Web Map Server parser.

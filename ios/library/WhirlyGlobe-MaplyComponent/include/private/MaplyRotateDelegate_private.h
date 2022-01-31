@@ -17,7 +17,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MapView_iOS.h>
+#import "MapView_iOS.h"
 
 namespace Maply
 {

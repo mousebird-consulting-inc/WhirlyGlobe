@@ -20,7 +20,7 @@
 
 
 #import <UIKit/UIKit.h>
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "InteractionLayer.h"
 #import "OptionsViewController.h"
 #import "PanDelegateFixed.h"

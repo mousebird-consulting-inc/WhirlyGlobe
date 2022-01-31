@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 #import "Dictionary_NSDictionary.h"
 #import "RawData_NSData.h"

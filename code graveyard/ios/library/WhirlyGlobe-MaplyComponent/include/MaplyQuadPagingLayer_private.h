@@ -19,7 +19,7 @@
  */
 
 #import "MaplyQuadPagingLayer.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyQuadPagingLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadLoader>
 

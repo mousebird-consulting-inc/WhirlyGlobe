@@ -35,7 +35,7 @@ typedef struct
 } MaplyCoordinate;
 
 
-static const MaplyCoordinate kMaplyNullCoordinate = {.x = FLT_MIN, .y = FLT_MIN};
+extern const MaplyCoordinate kMaplyNullCoordinate;
 
 
 /** 
@@ -49,7 +49,7 @@ typedef struct
     double x,y;
 } MaplyCoordinateD;
 
-static const MaplyCoordinateD kMaplyNullCoordinateD = {.x = DBL_MIN, .y = DBL_MIN};
+extern const MaplyCoordinateD kMaplyNullCoordinateD;
 
 
 /** 
@@ -84,7 +84,7 @@ typedef struct
     double x,y,z;
 } MaplyCoordinate3dD;
 
-static const MaplyCoordinate3dD kMaplyNullCoordinate3dD = {.x = DBL_MIN, .y = DBL_MIN, .z = DBL_MIN};
+extern const MaplyCoordinate3dD kMaplyNullCoordinate3dD;
 
 /** 
     An NSObject based wrapper for 3D coordinates.
@@ -112,10 +112,7 @@ typedef struct
     MaplyCoordinate ur;
 } MaplyBoundingBox;
 
-static const MaplyBoundingBox kMaplyNullBoundingBox = {
-	.ll = {.x = FLT_MIN, .y = FLT_MIN},
-	.ur = {.x = FLT_MIN, .y = FLT_MIN}
-};
+extern const MaplyBoundingBox kMaplyNullBoundingBox;
 
 /**
     A category that uses NSValue to store MaplyCoordinate data
@@ -152,10 +149,7 @@ typedef struct
 	MaplyCoordinateD ur;
 } MaplyBoundingBoxD;
 
-static const MaplyBoundingBoxD kMaplyNullBoundingBoxD = {
-	.ll = {.x = DBL_MIN, .y = DBL_MIN},
-	.ur = {.x = DBL_MIN, .y = DBL_MIN}
-};
+extern const MaplyBoundingBoxD kMaplyNullBoundingBoxD;
 
 #if __cplusplus
 extern "C" {

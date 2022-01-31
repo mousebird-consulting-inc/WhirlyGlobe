@@ -6,6 +6,7 @@
 //  Copyright 2021-2022 mousebird consulting. All rights reserved.
 //
 import UIKit
+import WhirlyGlobe
 
 class MapTilerCircleTestCase: MapTilerTestCase {
 

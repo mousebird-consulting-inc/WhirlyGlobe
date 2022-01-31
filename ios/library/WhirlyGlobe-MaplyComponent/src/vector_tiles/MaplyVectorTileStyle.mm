@@ -21,7 +21,7 @@
 #import "vector_styles/MaplyVectorTileMarkerStyle.h"
 #import "vector_styles/MaplyVectorTilePolygonStyle.h"
 #import "vector_styles/MaplyVectorTileTextStyle.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "control/MaplyBaseViewController.h"
 
 using namespace WhirlyKit;

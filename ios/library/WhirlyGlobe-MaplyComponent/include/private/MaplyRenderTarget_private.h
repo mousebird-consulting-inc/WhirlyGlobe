@@ -20,7 +20,7 @@
 
 #import "rendering/MaplyRenderTarget.h"
 #import "MaplyRenderController_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyRenderTarget()
 

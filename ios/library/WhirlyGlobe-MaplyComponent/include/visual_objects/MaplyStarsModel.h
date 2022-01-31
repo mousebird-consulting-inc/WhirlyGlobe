@@ -17,8 +17,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
 
 /** 
     The Stars Model parses and then displays a star field.

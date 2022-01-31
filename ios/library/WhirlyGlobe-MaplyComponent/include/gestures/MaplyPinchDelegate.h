@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyZoomGestureDelegate.h>
+#import <WhirlyGlobe/MaplyZoomGestureDelegate.h>
 
 @interface MaplyPinchDelegate : MaplyZoomGestureDelegate
 

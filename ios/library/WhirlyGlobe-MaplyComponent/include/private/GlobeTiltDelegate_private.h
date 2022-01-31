@@ -16,9 +16,10 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyGlobe.h>
-#import <WhirlyGlobeMaplyComponent/GlobePinchDelegate.h>
-#import <WhirlyGlobeMaplyComponent/GlobeView_iOS.h>
+#import <WhirlyGlobe/WhirlyGlobe.h>
+#import <WhirlyGlobe/GlobePinchDelegate.h>
+#import <WhirlyGlobe/GlobeView_iOS.h>
+#import "GlobeAnimateHeight.h"
 
 // Sent out when the tilt delegate takes control
 #define kTiltDelegateDidStart @"WKTiltDelegateStarted"

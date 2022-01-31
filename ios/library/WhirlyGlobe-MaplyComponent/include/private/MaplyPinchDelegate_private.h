@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyPinchDelegate.h>
+#import <WhirlyGlobe/MaplyPinchDelegate.h>
 #import "MapView_iOS.h"
 
 @interface MaplyPinchDelegate ()

@@ -18,20 +18,20 @@
  *
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyScreenMarker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyVectorObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplySharedAttributes.h>
-#import <WhirlyGlobeMaplyComponent/MaplyLight.h>
-#import <WhirlyGlobeMaplyComponent/MaplyShader.h>
-#import <WhirlyGlobeMaplyComponent/MaplyTexture.h>
-#import <WhirlyGlobeMaplyComponent/MaplyParticleSystem.h>
-#import <WhirlyGlobeMaplyComponent/MaplyPoints.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCluster.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderTarget.h>
-#import <WhirlyGlobeMaplyComponent/MaplyActiveObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplyControllerLayer.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyVectorObject.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplySharedAttributes.h>
+#import <WhirlyGlobe/MaplyLight.h>
+#import <WhirlyGlobe/MaplyShader.h>
+#import <WhirlyGlobe/MaplyTexture.h>
+#import <WhirlyGlobe/MaplyParticleSystem.h>
+#import <WhirlyGlobe/MaplyPoints.h>
+#import <WhirlyGlobe/MaplyCluster.h>
+#import <WhirlyGlobe/MaplyRenderTarget.h>
+#import <WhirlyGlobe/MaplyActiveObject.h>
+#import <WhirlyGlobe/MaplyControllerLayer.h>
 
 @class MaplyRemoteTileFetcher;
 

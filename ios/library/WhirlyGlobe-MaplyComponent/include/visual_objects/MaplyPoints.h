@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyRenderController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyMatrix.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
+#import <WhirlyGlobe/MaplyMatrix.h>
 
 /** 
     The Maply Points object is used to add a large number of static points to the scene.

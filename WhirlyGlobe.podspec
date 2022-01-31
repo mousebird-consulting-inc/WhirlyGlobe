@@ -23,11 +23,20 @@ Pod::Spec.new do |s|
   s.platform         = :ios, '12.0'
   s.requires_arc     = true
   s.source           = { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'topic/xcframework' }
-  s.module_name      = "WhirlyGlobeMaplyComponent"
-  s.default_subspec  = 'MaplyComponent'
-  s.compiler_flags   = '-D__USE_SDL_GLES__ -D__IPHONEOS__ -DSQLITE_OPEN_READONLY -DHAVE_PTHREAD=1 -DUNORDERED=1 '
+  s.module_name      = "WhirlyGlobe"
+  s.default_subspec  = "WhirlyGlobe"
+  s.compiler_flags   = ""
 
   s.pod_target_xcconfig = { 
+    "DEFINES_MODULE" => "YES",
+    "MTL_LANGUAGE_REVISION" => "Metal21",
+    "GCC_PREPROCESSOR_DEFINITIONS" => %w(
+      __USE_SDL_GLES__
+      __IPHONEOS__
+      SQLITE_OPEN_READONLY
+      HAVE_PTHREAD=1
+      UNORDERED=1
+      ).join(" "),
     "HEADER_SEARCH_PATHS" => %w(
       "$(SDKROOT)/usr/include/libxml2"
       "$(PODS_ROOT)/KissXML/KissXML/"
@@ -40,12 +49,10 @@ Pod::Spec.new do |s|
       "${PODS_TARGET_SRCROOT}/ios/library/WhirlyGlobe-MaplyComponent/include/private/"
       "${PODS_TARGET_SRCROOT}/ios/library/WhirlyGlobe-MaplyComponent/include/"
       "${PODS_TARGET_SRCROOT}/ios/library/WhirlyGlobe-MaplyComponent/include/vector_tiles/"
-    ).join(" "),
+      ).join(" "),
     # For angle-bracket includes
     "SYSTEM_HEADER_SEARCH_PATHS" => %w(
-    ).join(" "),
-    "MTL_LANGUAGE_REVISION" => "Metal21",
-    "DEFINES_MODULE" => "YES",
+      ).join(" "),
     "CLANG_WARN_DOCUMENTATION_COMMENTS" => "NO",
     "GCC_WARN_INHIBIT_ALL_WARNINGS" => "YES"
   }
@@ -77,7 +84,7 @@ Pod::Spec.new do |s|
     gl.private_header_files = 'common/local_libs/glues/**/*.h'
   end
 
-  s.subspec 'MaplyComponent' do |mc|
+  s.subspec 'WhirlyGlobe' do |mc|
     mc.source_files =
         'common/WhirlyGlobeLib/src/*.{c,cpp}',
         'common/WhirlyGlobeLib/include/*.h',

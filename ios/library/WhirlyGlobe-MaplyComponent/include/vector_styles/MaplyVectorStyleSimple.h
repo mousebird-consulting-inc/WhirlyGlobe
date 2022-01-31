@@ -17,7 +17,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobeMaplyComponent/MapboxVectorTiles.h>
+#import <WhirlyGlobe/MapboxVectorTiles.h>
 
 /** 
     Simple default style to see something in vector tile data.

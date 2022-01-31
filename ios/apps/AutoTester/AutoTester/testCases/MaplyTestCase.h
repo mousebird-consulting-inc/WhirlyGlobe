@@ -7,11 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyGlobeComponent.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponent.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplyViewController.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/WhirlyGlobeComponent.h>
+#import <WhirlyGlobe/MaplyComponent.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplyViewController.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
 
 @class MaplyViewController;
 @class MaplyBaseViewController;

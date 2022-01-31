@@ -17,13 +17,13 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <WhirlyGlobeMaplyComponent/MaplyCoordinate.h>
-#import <WhirlyGlobeMaplyComponent/MaplyScreenMarker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyVectorObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplyViewTracker.h>
-#import <WhirlyGlobeMaplyComponent/MaplyComponentObject.h>
-#import <WhirlyGlobeMaplyComponent/MaplySharedAttributes.h>
-#import <WhirlyGlobeMaplyComponent/MaplyBaseViewController.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyVectorObject.h>
+#import <WhirlyGlobe/MaplyViewTracker.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplySharedAttributes.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
 
 @class MaplyControllerLayer;
 @class MaplyViewController;

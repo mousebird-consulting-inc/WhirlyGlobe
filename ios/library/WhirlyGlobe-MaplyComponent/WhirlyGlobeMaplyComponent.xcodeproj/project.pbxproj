@@ -606,7 +606,7 @@
 		2BC3D6EC220B713700CE91D0 /* sqlhelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC3D6EB220B713700CE91D0 /* sqlhelpers.h */; };
 		2BC3D6EE220B714100CE91D0 /* sqlhelpers.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */; };
 		2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */; };
-		2BC90D532231A30F00D8B606 /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */; };
+		2BC90D532231A30F00D8B606 /* WhirlyGlobeLib.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D522231A30F00D8B606 /* WhirlyGlobeLib.h */; };
 		2BC90D58223306D300D8B606 /* ScreenObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D57223306D300D8B606 /* ScreenObject.h */; };
 		2BC90D5A223306EA00D8B606 /* ScreenObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2BC90D59223306EA00D8B606 /* ScreenObject.cpp */; };
 		2BC90D5D223308C700D8B606 /* ScreenObject_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */; };
@@ -664,8 +664,7 @@
 		2BE1E79F2215F6FC00815D9C /* ImageTile_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E79E2215F6FC00815D9C /* ImageTile_iOS.h */; };
 		2BE1E7A12215F70400815D9C /* ImageTile_iOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BE1E7A02215F70400815D9C /* ImageTile_iOS.mm */; };
 		2BE1E7A522161BD600815D9C /* QuadLoaderReturn.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE1E7A422161BD600815D9C /* QuadLoaderReturn.h */; };
-		2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */; };
+		2BE5370A1D2499E500B60FAD /* WhirlyGlobe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2BE536FF1D2499E500B60FAD /* WhirlyGlobe.framework */; };
 		2BE5370F1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */; };
 		2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5371B1D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2BE537F81D249A1200B60FAD /* Maply3dTouchPreviewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2BE5371C1D249A1200B60FAD /* Maply3dTouchPreviewDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1003,6 +1002,7 @@
 		31A2B37F26AA136A00221CFF /* Expect.h in Headers */ = {isa = PBXBuildFile; fileRef = 31A2B37E26AA136900221CFF /* Expect.h */; };
 		31CAB8DF2792126A00A5F744 /* GeographicLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */; };
 		31DDA0A627A4D3B800865ECE /* WhirlyGlobe_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */; };
+		31DDA4BA27A8787D00865ECE /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		727E05F327158118005576CB /* MaplyRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF720126FBD0099F405 /* MaplyRenderController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		727E05F4271583AC005576CB /* MaplySimpleTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7E689E22A1E34B00BBFD9E /* MaplySimpleTileFetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C490572A265AB9E3001E4A98 /* bucketalloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4905728265AB9E3001E4A98 /* bucketalloc.cpp */; };
@@ -1597,7 +1597,7 @@
 		2BC3D6EB220B713700CE91D0 /* sqlhelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sqlhelpers.h; sourceTree = "<group>"; };
 		2BC3D6ED220B714100CE91D0 /* sqlhelpers.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = sqlhelpers.mm; sourceTree = "<group>"; };
 		2BC3D6F7220CAAC700CE91D0 /* WhirlyKitLog.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WhirlyKitLog.mm; sourceTree = "<group>"; };
-		2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobe.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyGlobe.h; sourceTree = "<group>"; };
+		2BC90D522231A30F00D8B606 /* WhirlyGlobeLib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyGlobeLib.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyGlobeLib.h; sourceTree = "<group>"; };
 		2BC90D57223306D300D8B606 /* ScreenObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ScreenObject.h; path = ../../../../common/WhirlyGlobeLib/include/ScreenObject.h; sourceTree = "<group>"; };
 		2BC90D59223306EA00D8B606 /* ScreenObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ScreenObject.cpp; path = ../../../../common/WhirlyGlobeLib/src/ScreenObject.cpp; sourceTree = "<group>"; };
 		2BC90D5C223308C700D8B606 /* ScreenObject_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenObject_iOS.h; sourceTree = "<group>"; };
@@ -1629,8 +1629,7 @@
 		2BE1E7A22216163A00815D9C /* MaplyQuadLoader.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyQuadLoader.mm; sourceTree = "<group>"; };
 		2BE1E7A422161BD600815D9C /* QuadLoaderReturn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadLoaderReturn.h; path = ../../../../common/WhirlyGlobeLib/include/QuadLoaderReturn.h; sourceTree = "<group>"; };
 		2BE1E7A622161C0200815D9C /* QuadLoaderReturn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = QuadLoaderReturn.cpp; path = ../../../../common/WhirlyGlobeLib/src/QuadLoaderReturn.cpp; sourceTree = "<group>"; };
-		2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobeMaplyComponent.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobeMaplyComponent.h; sourceTree = "<group>"; };
+		2BE536FF1D2499E500B60FAD /* WhirlyGlobe.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobe.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE537041D2499E500B60FAD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2BE537091D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WhirlyGlobeMaplyComponentTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2BE5370E1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WhirlyGlobeMaplyComponentTests.m; sourceTree = "<group>"; };
@@ -2032,6 +2031,7 @@
 		31CAB8DD27920F4A00A5F744 /* GeographicLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GeographicLib.h; path = ../../../../common/WhirlyGlobeLib/include/GeographicLib.h; sourceTree = "<group>"; };
 		31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GeographicLib.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeographicLib.cpp; sourceTree = "<group>"; };
 		31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
+		31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		C4905728265AB9E3001E4A98 /* bucketalloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bucketalloc.cpp; sourceTree = "<group>"; };
 		C4905729265AB9E3001E4A98 /* bucketalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bucketalloc.h; sourceTree = "<group>"; };
 		C490572C265ABAB8001E4A98 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../include/glues.h; sourceTree = "<group>"; };
@@ -2075,7 +2075,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2BE5370A1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
+				2BE5370A1D2499E500B60FAD /* WhirlyGlobe.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2896,7 +2896,7 @@
 		2B846EF421F158CD00EF2A82 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2BC90D522231A30F00D8B606 /* WhirlyGlobe.h */,
+				2BC90D522231A30F00D8B606 /* WhirlyGlobeLib.h */,
 				2B23133121F9371F006AA344 /* util */,
 				2B446AEC21F79A390078A975 /* geometry utils */,
 				2B446B0621F79A8B0078A975 /* coord systems */,
@@ -3439,7 +3439,7 @@
 		2BE537001D2499E500B60FAD /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */,
+				2BE536FF1D2499E500B60FAD /* WhirlyGlobe.framework */,
 				2BE537091D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests.xctest */,
 			);
 			name = Products;
@@ -3448,7 +3448,7 @@
 		2BE537011D2499E500B60FAD /* WhirlyGlobeMaplyComponent */ = {
 			isa = PBXGroup;
 			children = (
-				2BE537021D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h */,
+				31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */,
 				2BE537191D249A1200B60FAD /* include */,
 				2BE537991D249A1200B60FAD /* src */,
 				2BE537041D2499E500B60FAD /* Info.plist */,
@@ -4189,7 +4189,7 @@
 				31041A0A27A35AD4004B25E1 /* GlobeRotateDelegate_private.h in Headers */,
 				2B82B5F91E82E2490095FB14 /* libjson.h in Headers */,
 				2BE53A961D249C9000B60FAD /* DDXMLElement.h in Headers */,
-				2BC90D532231A30F00D8B606 /* WhirlyGlobe.h in Headers */,
+				2BC90D532231A30F00D8B606 /* WhirlyGlobeLib.h in Headers */,
 				2BE538191D249A1200B60FAD /* MaplyPoints.h in Headers */,
 				2B0D978824490B4B00F64852 /* MapboxVectorStyleCircle.h in Headers */,
 				2BB8A3EE21ED43D10025DA98 /* MaplyDoubleTapDragDelegate.h in Headers */,
@@ -4215,7 +4215,6 @@
 				2BE539871D249BEF00B60FAD /* AASun.h in Headers */,
 				2BE538201D249A1200B60FAD /* MaplyScreenLabel.h in Headers */,
 				2BE539611D249BEF00B60FAD /* AAGalileanMoons.h in Headers */,
-				2BE537031D2499E500B60FAD /* WhirlyGlobeMaplyComponent.h in Headers */,
 				2B699856228DD31F00C31E3F /* DynamicTextureAtlasMTL.h in Headers */,
 				2BE538581D249A1200B60FAD /* WGInteractionLayer_private.h in Headers */,
 				2BE1E79F2215F6FC00815D9C /* ImageTile_iOS.h in Headers */,
@@ -4255,6 +4254,7 @@
 				2BE537F71D249A1200B60FAD /* Maply3DTouchPreviewDatasource.h in Headers */,
 				31041A0C27A35C59004B25E1 /* GlobeTapDelegate_private.h in Headers */,
 				2BA827C7225E6F1700324594 /* MapboxVectorTiles.h in Headers */,
+				31DDA4BA27A8787D00865ECE /* WhirlyGlobe.h in Headers */,
 				2BB8A3F621ED43D10025DA98 /* MaplyPinchDelegate.h in Headers */,
 				31041A1A27A3672D004B25E1 /* MaplyTapDelegate_private.h in Headers */,
 				2B810091221E07EE00CFF779 /* VectorObject.h in Headers */,
@@ -4409,9 +4409,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2BE536FE1D2499E500B60FAD /* WhirlyGlobeMaplyComponent */ = {
+		2BE536FE1D2499E500B60FAD /* WhirlyGlobe */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2BE537131D2499E500B60FAD /* Build configuration list for PBXNativeTarget "WhirlyGlobeMaplyComponent" */;
+			buildConfigurationList = 2BE537131D2499E500B60FAD /* Build configuration list for PBXNativeTarget "WhirlyGlobe" */;
 			buildPhases = (
 				2BE536FA1D2499E500B60FAD /* Sources */,
 				2BE536FB1D2499E500B60FAD /* Frameworks */,
@@ -4422,9 +4422,9 @@
 			);
 			dependencies = (
 			);
-			name = WhirlyGlobeMaplyComponent;
+			name = WhirlyGlobe;
 			productName = WhirlyGlobeMaplyComponent;
-			productReference = 2BE536FF1D2499E500B60FAD /* WhirlyGlobeMaplyComponent.framework */;
+			productReference = 2BE536FF1D2499E500B60FAD /* WhirlyGlobe.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		2BE537081D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests */ = {
@@ -4475,7 +4475,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2BE536FE1D2499E500B60FAD /* WhirlyGlobeMaplyComponent */,
+				2BE536FE1D2499E500B60FAD /* WhirlyGlobe */,
 				2BE537081D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests */,
 			);
 		};
@@ -5049,7 +5049,7 @@
 /* Begin PBXTargetDependency section */
 		2BE5370C1D2499E500B60FAD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 2BE536FE1D2499E500B60FAD /* WhirlyGlobeMaplyComponent */;
+			target = 2BE536FE1D2499E500B60FAD /* WhirlyGlobe */;
 			targetProxy = 2BE5370B1D2499E500B60FAD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -5180,7 +5180,6 @@
 		2BE537141D2499E500B60FAD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5238,7 +5237,6 @@
 		2BE537151D2499E500B60FAD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
@@ -5324,7 +5322,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2BE537131D2499E500B60FAD /* Build configuration list for PBXNativeTarget "WhirlyGlobeMaplyComponent" */ = {
+		2BE537131D2499E500B60FAD /* Build configuration list for PBXNativeTarget "WhirlyGlobe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2BE537141D2499E500B60FAD /* Debug */,

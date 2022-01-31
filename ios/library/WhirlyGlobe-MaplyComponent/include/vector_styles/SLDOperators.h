@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobeMaplyComponent/SLDExpressions.h>
+#import <WhirlyGlobe/SLDExpressions.h>
 
 /** @brief Base class for elements of ogc:comparisonOps or ogc:logicOps.
  

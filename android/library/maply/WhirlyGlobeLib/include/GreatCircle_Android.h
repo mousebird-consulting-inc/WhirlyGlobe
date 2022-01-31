@@ -20,7 +20,7 @@
 #import <jni.h>
 #endif
 #import "Maply_jni.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 namespace WhirlyKit
 {

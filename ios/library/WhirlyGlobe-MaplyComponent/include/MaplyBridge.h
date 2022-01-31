@@ -16,8 +16,8 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobeMaplyComponent/MaplyComponent.h>
-#import <WhirlyGlobeMaplyComponent/MaplyBaseViewController.h>
-#import <WhirlyGlobeMaplyComponent/WhirlyGlobeViewController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyGlobeRenderController.h>
-#import <WhirlyGlobeMaplyComponent/MaplyViewController.h>
+#import <WhirlyGlobe/MaplyComponent.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/MaplyGlobeRenderController.h>
+#import <WhirlyGlobe/MaplyViewController.h>

@@ -20,7 +20,7 @@
 
 #import "MaplyMBTileSource.h"
 #import "MaplyCoordinateSystem.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyCoordinateSystem_private.h"
 #include <exception>
 
