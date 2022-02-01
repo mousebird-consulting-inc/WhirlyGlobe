@@ -2178,10 +2178,14 @@ static const float FullExtentEps = 1e-5;
                 if (CheckPointAndNormFacing(pt,pt.normalized(),modelTrans,modelAndViewNormalMat) < 0.0)
                     continue;
                 
-                Point2f screenPt = globeView->pointOnScreenFromSphere(pt, &modelTrans, frameSizeScaled);
+                const Point2f screenPt = globeView->pointOnScreenFromSphere(pt, &modelTrans, frameSizeScaled);
+                const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSizeScaled();
             
-                if (screenPt.x() < 0 || screenPt.y() < 0 || screenPt.x() > renderControl->sceneRenderer->framebufferWidth || screenPt.y() > renderControl->sceneRenderer->framebufferHeight)
+                if (screenPt.x() < 0 || screenPt.y() < 0 ||
+                    screenPt.x() > frameSize.x() || screenPt.y() > frameSize.y())
+                {
                     continue;
+                }
 
                 // Include the pole and just do the whole area
                 switch (ii)
