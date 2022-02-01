@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -151,11 +151,17 @@ Scene *SceneRenderer::getScene()
 View *SceneRenderer::getView()
     { return theView; }
 
-float SceneRenderer::getScale()
+float SceneRenderer::getScale() const
     { return scale; }
 
 void SceneRenderer::setScale(float newScale)
     { scale = newScale; }
+
+void SceneRenderer::setFramebufferSize(float width, float height)
+{
+    framebufferWidth = width;
+    framebufferHeight = height;
+}
 
 void SceneRenderer::setZBufferMode(WhirlyKitSceneRendererZBufferMode inZBufferMode)
     { zBufferMode = inZBufferMode; }
@@ -171,9 +177,9 @@ void SceneRenderer::setView(View *newView)
     
 void SceneRenderer::addRenderTarget(RenderTargetRef newTarget)
 {
-    auto workGroup = workGroups[WorkGroup::Offscreen];
+    const auto &workGroup = workGroups[WorkGroup::Offscreen];
     workGroup->renderTargetContainers.push_back(workGroup->makeRenderTargetContainer(newTarget));
-    renderTargets.insert(renderTargets.begin(),newTarget);
+    renderTargets.insert(renderTargets.begin(),std::move(newTarget));
 }
 
 void SceneRenderer::addDrawable(DrawableRef newDrawable)
@@ -289,21 +295,33 @@ void SceneRenderer::removeRenderTarget(SimpleIdentity targetID)
 }
 
 void SceneRenderer::defaultTargetInit(RenderTarget *)
-    { }
+{ }
 
 void SceneRenderer::presentRender()
-    { }
+{ }
 
-Point2f SceneRenderer::getFramebufferSize()
+Point2f SceneRenderer::getFramebufferSize() const
 {
     return Point2f(framebufferWidth,framebufferHeight);
 }
 
-Point2f SceneRenderer::getFramebufferSizeScaled()
+Mbr SceneRenderer::getFramebufferBound(float margin) const
 {
-    return Point2f(framebufferWidth/scale,framebufferHeight/scale);
+    const Point2f size = getFramebufferSize();
+    return { size * -margin, size * (1.0f + margin) };
 }
-    
+
+Point2f SceneRenderer::getFramebufferSizeScaled() const
+{
+    return Point2f(framebufferWidth,framebufferHeight) / ((scale != 0) ? scale : 1.0f);
+}
+
+Mbr SceneRenderer::getFramebufferBoundScaled(float margin) const
+{
+    const Point2f size = getFramebufferSizeScaled();
+    return { size * -margin, size * (1.0f + margin) };
+}
+
 void SceneRenderer::setRenderUntil(TimeInterval newRenderUntil)
 {
     renderUntil = std::max(renderUntil,newRenderUntil);
@@ -357,7 +375,7 @@ void SceneRenderer::setScene(WhirlyKit::Scene *newScene)
     }
 }
 
-RGBAColor SceneRenderer::getClearColor()
+RGBAColor SceneRenderer::getClearColor() const
 {
     return clearColor;
 }

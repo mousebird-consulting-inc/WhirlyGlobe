@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/19/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -67,8 +67,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_dispose
         {
             (*compManager)->clearJNI(env);
             delete compManager;
+            classInfo->clearHandle(env,obj);
         }
-        classInfo->clearHandle(env,obj);
 	}
     MAPLY_STD_JNI_CATCH()
 }
@@ -212,3 +212,22 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_ComponentManager_findVec
     return nullptr;
 }
 
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ComponentManager_setRepresentation
+  (JNIEnv *env, jobject obj,
+   jstring repNameStr, jstring fallbackStr,
+   jobjectArray uuidArr, jobject changeSetObj)
+{
+    try
+    {
+        if (const auto compManager = ComponentManagerClassInfo::get(env,obj))
+        if (const auto changeSet = ChangeSetClassInfo::get(env,changeSetObj))
+        {
+            const JavaString repName(env, repNameStr);
+            const JavaString fallbackRepName(env, fallbackStr);
+            const auto uuids = ConvertStringArray(env, uuidArr);
+            (*compManager)->setRepresentation(repName.getString(), fallbackRepName.getString(), uuids, **changeSet);
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}

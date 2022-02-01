@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/25/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -670,7 +670,7 @@ static struct UnitTests {
         //geoMbrOverlap<GeoMbrD,float>();
         //geoMbrOverlap<GeoMbrD,double>();
 
-        wkLog("Vector unit tests passed");
+        wkLogLevel(Info, "Vector unit tests passed");
     }
     template <typename T> void genericMbr() {
         using TP = typename T::value_type;

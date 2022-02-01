@@ -3,7 +3,7 @@
 *  WhirlyGlobeComponent
 *
 *  Created by Steve Gifford on 10/23/10.
-*  Copyright 2011-2019 mousebird consulting
+*  Copyright 2011-2022 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -126,9 +126,9 @@ using namespace WhirlyGlobe;
     // otherwise, use kCGImageAlphaPremultipliedLast
     CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, [_data bytes], [_data length], NULL);
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    int framebufferWidth = renderControl->sceneRenderer->framebufferWidth;
-    int framebufferHeight = renderControl->sceneRenderer->framebufferHeight;
-    CGImageRef iref = CGImageCreate(framebufferWidth, framebufferHeight, 8, 32, framebufferWidth * 4, colorspace, kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
+    CGImageRef iref = CGImageCreate(frameSize.x(), frameSize.y(), 8, 32, frameSize.x() * 4, colorspace,
+                                    kCGBitmapByteOrder32Big | kCGImageAlphaPremultipliedLast,
                                     ref, NULL, true, kCGRenderingIntentDefault);
     
     // OpenGL ES measures data in PIXELS
@@ -139,8 +139,8 @@ using namespace WhirlyGlobe;
         // Set the scale parameter to your OpenGL ES view's contentScaleFactor
         // so that you get a high-resolution snapshot when its value is greater than 1.0
         CGFloat scale = 1.0;
-        widthInPoints = framebufferWidth / scale;
-        heightInPoints = framebufferHeight / scale;
+        widthInPoints = frameSize.x() / scale;
+        heightInPoints = frameSize.y() / scale;
         UIGraphicsBeginImageContextWithOptions(CGSizeMake(widthInPoints, heightInPoints), NO, scale);
     }
     

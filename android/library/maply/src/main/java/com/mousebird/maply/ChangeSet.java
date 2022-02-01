@@ -1,9 +1,8 @@
-/*
- *  ChangeSet.java
+/*  ChangeSet.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -25,12 +23,10 @@ package com.mousebird.maply;
  * track visual changes in the map or globe.  Most of the action
  * takes place behind the scenes and users of the Maply API should
  * not be manipulating these.
- * 
  */
 public class ChangeSet
 {
-	public ChangeSet()
-	{
+	public ChangeSet() {
 		initialise();
 	}
 	
@@ -50,17 +46,19 @@ public class ChangeSet
 	// Create whatever objects want to be created.
 	// We're assuming a valid EGL context is in place
 	public native void process(RenderController renderControl,Scene scene);
-	
-	static
-	{
+
+	public native int count();
+	public boolean any() { return count() > 0; }
+
+	static {
 		nativeInit();
 	}
 	private static native void nativeInit();
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 	native void initialise();
-	native void dispose();	
-	private long nativeHandle;	
+	native void dispose();
+	@SuppressWarnings("unused")	// Used by JNI
+	private long nativeHandle;
 }

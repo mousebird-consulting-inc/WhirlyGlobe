@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/3/13.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -74,8 +74,11 @@ using namespace WhirlyKit;
 
 - (void)removeFromScene
 {
-    if (activeInter)
+    if (activeInter) {
         scene->removeActiveModel(nullptr, activeInter);
+        activeInter->activeObject = nil;
+        activeInter = nullptr;
+    }
 }
 
 - (void)startWithScene:(WhirlyKit::Scene *)inScene

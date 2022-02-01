@@ -2,7 +2,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2021 mousebird consulting
+ *  Copyright 2012-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@
 #import "rendering/MaplyVertexAttribute.h"
 
 typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
+typedef void (__strong ^InitCompletionBlock)(void);
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -1293,6 +1294,15 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
   */
 - (MaplyCoordinate3dD)displayPointFromGeoD:(MaplyCoordinate)geoCoord;
 
+/**
+    Utility routine to convert from a lat/lon (in radians) to display coordinates
+    
+    This is a simple routine to get display coordinates from geocoordinates.  Display coordinates for the globe are based on a radius of 1.0 and an origin of (0,0,0).
+    
+    @return The input coordinate in display coordinates.
+  */
+- (MaplyCoordinate3dD)displayPointFromGeoDD:(MaplyCoordinateD)geoCoord;
+
 /** 
     If you've paused the animation earlier, this will start it again.
     
@@ -1453,13 +1463,22 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 - (void)disable3dTouchSelection;
 
 /** 
-    Return all the selectable objects at the given location.
+    Return all the selectable vector objects at the given location.
     
     Objects can be selected via the delegate or the search can be run directly here.
     
     This is not thread safe and will block the main thread.
   */
 - (NSArray * _Nullable)objectsAtCoord:(MaplyCoordinate)coord;
+
+/**
+    Return all the selectable labels and markers at the given location.
+
+    Objects can be selected via the delegate or the search can be run directly here.
+
+    This is not thread safe and will block the main thread.
+ */
+- (NSArray * _Nullable)labelsAndMarkersAtCoord:(MaplyCoordinate)coord;
 
 /// Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;
@@ -1553,5 +1572,11 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 
 /// Return the renderer type being used
 - (MaplyRenderType)getRenderType;
+
+/**
+    Blocks to be called after the view is set up, or immediately if it is already set up.
+    Similar to `addPostSurfaceRunnable` on Android.
+*/
+- (void)addPostInitBlock:(_Nonnull InitCompletionBlock)block;
 
 @end

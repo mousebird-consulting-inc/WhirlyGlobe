@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@
 package com.mousebird.maply;
 
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
 
@@ -98,6 +100,13 @@ class LayoutLayer extends Layer implements LayerThread.ViewWatcherInterface
 	public float getMaxLagTime() {
 		// Want an update no less often than this
 		return 1.0f;
+	}
+
+	/**
+	 * Some tiles were just removed
+	 */
+	@Override
+	public void tilesUnloaded(@NonNull TileID[] ids) {
 	}
 
 	public void addClusterGenerator(ClusterGenerator generator) {

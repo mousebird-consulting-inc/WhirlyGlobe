@@ -3,7 +3,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@
 #import "FontTextureManager_iOS.h"
 #import "ViewWrapper.h"
 
-@interface MaplyBaseViewController() <SMCalloutViewDelegate>
+@interface MaplyBaseViewController() <SMCalloutViewDelegate, ViewWrapperDelegateProtocol>
 {
 @public
     MaplyRenderController *renderControl;

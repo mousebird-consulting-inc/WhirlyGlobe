@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 11/2/16.
-//  Copyright © 2016-2021 mousebird consulting.
+//  Copyright 2016-2022 mousebird consulting.
 //
 
 #import "TextureVectorTestCase.h"

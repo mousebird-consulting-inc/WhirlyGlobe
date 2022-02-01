@@ -3,7 +3,7 @@
 //  HelloEarth
 //
 //  Created by Steve Gifford on 11/18/14.
-//  Copyright © 2014-2017 mousebird consulting.
+//  Copyright 2014-2022 mousebird consulting.
 //
 
 #import "CartoDBInterpreter.h"

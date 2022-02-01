@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/18/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import android.util.Log;
 
 import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -153,6 +154,11 @@ public class ComponentManager
 
     public native SelectedObject[] findVectors(Point2d geoPt, double maxDist, ViewState viewState,
                                                Point2d  frameSize, int limit);
+
+    /**
+     * Set the representation for a set of unique features
+     */
+    public native void setRepresentation(String repName, String fallbackName, String[] uuids, ChangeSet changes);
 
     static {
         nativeInit();

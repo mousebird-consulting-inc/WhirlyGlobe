@@ -3,7 +3,7 @@
  *
  *
  *  Created by Jesse Crocker on 2/4/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,26 +53,31 @@ using namespace Maply;
     Point3d curLoc = self.mapView->getLoc();
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = self.mapView->calcFullMatrix();
-    CGPoint touchLoc = [tap locationInView:tap.view];
-    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
-    if (self.mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, Point2f(sceneRenderer->framebufferWidth/wrapView.contentScaleFactor,sceneRenderer->framebufferHeight/wrapView.contentScaleFactor), &hit, true))
+    const Eigen::Matrix4d theTransform = self.mapView->calcFullMatrix();
+    const CGPoint touchLoc = [tap locationInView:tap.view];
+    const Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    const Point2f frameSize = sceneRenderer->getFramebufferSize();
+    if (self.mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSize / wrapView.contentScaleFactor, &hit, true))
     {
-        double newZ = curLoc.z() + (curLoc.z() - self.minZoom)/2.0;
+        const double newZ = curLoc.z() + (curLoc.z() - self.minZoom)/2.0;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
-            Point3d newLoc(hit.x(),hit.y(),newZ);
-            Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
+            const Point3d newLoc(hit.x(),hit.y(),newZ);
+            const Point3f newLoc3f(newLoc.x(),newLoc.y(),newLoc.z());
             Point3d newCenter;
             Maply::MapView testMapView(*(self.mapView));
 
             // Check if we're still within bounds
-            if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter)) {
-                Maply::AnimateViewTranslationRef animation = AnimateViewTranslationRef(new AnimateViewTranslation(self.mapView,sceneRenderer,newCenter,_animTime));
-                self.mapView->setDelegate(animation);
+            if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter))
+            {
+                AnimateViewTranslation x(self.mapView,sceneRenderer,newCenter,_animTime);
+                self.mapView->setDelegate(std::make_shared<AnimateViewTranslation>(
+                    self.mapView,sceneRenderer,newCenter,_animTime));
             }
         }
-    } else {
+    }
+    else
+    {
         // Not expecting this case
     }
     

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/24/12.
- *  Copyright 2011-2017 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ void SceneGraphManager::update(ViewStateRef viewState,ChangeSet &changes)
     activeDrawIDs = shouldBeOn;
 }
         
-void SceneGraphManager::addDrawable(BasicDrawable *draw,ChangeSet &changes)
+void SceneGraphManager::addDrawable(const BasicDrawableRef &draw,ChangeSet &changes)
 {
     drawables.insert(draw->getId());
     changes.push_back(new AddDrawableReq(draw));

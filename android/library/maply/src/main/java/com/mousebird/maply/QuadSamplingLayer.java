@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ package com.mousebird.maply;
 import android.util.Log;
 
 import androidx.annotation.CallSuper;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -152,6 +154,9 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
             }
             layerThread.addChanges(changes);
         }
+    }
+
+    public void tilesUnloaded(@NotNull TileID[] ids) {
     }
 
     // Called no more often than 1/10 of a second

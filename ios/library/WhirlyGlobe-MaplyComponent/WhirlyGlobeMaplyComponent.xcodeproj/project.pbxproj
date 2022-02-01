@@ -982,6 +982,7 @@
 		31942FE7254B5C0A0006B499 /* maply_pb_decode.h in Headers */ = {isa = PBXBuildFile; fileRef = 31942FC5254B5C0A0006B499 /* maply_pb_decode.h */; };
 		3194300A254B77F00006B499 /* vector_tile.pb.c in Sources */ = {isa = PBXBuildFile; fileRef = 31943009254B77F00006B499 /* vector_tile.pb.c */; };
 		31A2B37F26AA136A00221CFF /* Expect.h in Headers */ = {isa = PBXBuildFile; fileRef = 31A2B37E26AA136900221CFF /* Expect.h */; };
+		31CAB8DF2792126A00A5F744 /* GeographicLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */; };
 		C490572A265AB9E3001E4A98 /* bucketalloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4905728265AB9E3001E4A98 /* bucketalloc.cpp */; };
 		C490572B265AB9E3001E4A98 /* bucketalloc.h in Headers */ = {isa = PBXBuildFile; fileRef = C4905729265AB9E3001E4A98 /* bucketalloc.h */; };
 		C490572D265ABAB8001E4A98 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = C490572C265ABAB8001E4A98 /* glues.h */; };
@@ -1987,8 +1988,8 @@
 		31942FC5254B5C0A0006B499 /* maply_pb_decode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maply_pb_decode.h; sourceTree = "<group>"; };
 		31943009254B77F00006B499 /* vector_tile.pb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vector_tile.pb.c; path = ../../../../common/WhirlyGlobeLib/src/vector_tile.pb.c; sourceTree = "<group>"; };
 		31A2B37E26AA136900221CFF /* Expect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Expect.h; path = ../../../../common/WhirlyGlobeLib/include/Expect.h; sourceTree = "<group>"; };
-		E56DB3D41D6B1B17007000D2 /* SLDStyleSet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLDStyleSet.h; sourceTree = "<group>"; };
-		E56DB3D71D6B1B5A007000D2 /* SLDStyleSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLDStyleSet.m; sourceTree = "<group>"; };
+		31CAB8DD27920F4A00A5F744 /* GeographicLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GeographicLib.h; path = ../../../../common/WhirlyGlobeLib/include/GeographicLib.h; sourceTree = "<group>"; };
+		31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GeographicLib.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeographicLib.cpp; sourceTree = "<group>"; };
 		C4905728265AB9E3001E4A98 /* bucketalloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bucketalloc.cpp; sourceTree = "<group>"; };
 		C4905729265AB9E3001E4A98 /* bucketalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bucketalloc.h; sourceTree = "<group>"; };
 		C490572C265ABAB8001E4A98 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../include/glues.h; sourceTree = "<group>"; };
@@ -2129,6 +2130,7 @@
 				2B446AF221F79A5F0078A975 /* WhirlyGeometry.h */,
 				2B446AF621F79A5F0078A975 /* WhirlyOctEncoding.h */,
 				2B446AF721F79A5F0078A975 /* WhirlyVector.h */,
+				31CAB8DD27920F4A00A5F744 /* GeographicLib.h */,
 			);
 			name = "geometry utils";
 			sourceTree = "<group>";
@@ -2149,6 +2151,7 @@
 				2B446B0D21F79AD00078A975 /* WhirlyGeometry.cpp */,
 				2B446B0A21F79AD00078A975 /* WhirlyOctEncoding.cpp */,
 				2B446B0E21F79AD00078A975 /* WhirlyVector.cpp */,
+				31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */,
 			);
 			name = "geometry utils";
 			sourceTree = "<group>";
@@ -4941,6 +4944,7 @@
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
 				2B82B6611E82E24A0095FB14 /* pj_errno.c in Sources */,
 				2B3F451A243F8FBF00F85414 /* MaplyVectorStyleC.cpp in Sources */,
+				31CAB8DF2792126A00A5F744 /* GeographicLib.cpp in Sources */,
 				2B8A78DE228C851D008B0A1F /* MaplyBaseInteractionLayer.mm in Sources */,
 				2B8A78A022864901008B0A1F /* MarkerManager.cpp in Sources */,
 				2B82B6751E82E24A0095FB14 /* PJ_imw_p.c in Sources */,

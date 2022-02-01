@@ -43,7 +43,6 @@
 		2B29944B243BA08D00677DE4 /* MapboxKindaMap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B29944A243BA08D00677DE4 /* MapboxKindaMap.swift */; };
 		2B29944D243BA16000677DE4 /* SimpleStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B29944C243BA16000677DE4 /* SimpleStyleTestCase.swift */; };
 		2B29944F243BA31900677DE4 /* cube.obj in Resources */ = {isa = PBXBuildFile; fileRef = 2B29944E243BA31900677DE4 /* cube.obj */; };
-		2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */; };
 		2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */; };
 		2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = E5679F451CB72DE800369A15 /* WMSTestCase.m */; };
 		2B4B30AA2395E0DE00854073 /* MapboxTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B30A32395E0DE00854073 /* MapboxTestCase.swift */; };
@@ -109,6 +108,7 @@
 		2BF29B8C24D2268200553963 /* LegendViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF29B8B24D2268200553963 /* LegendViewController.storyboard */; };
 		2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF29B8E24D226B000553963 /* LegendViewController.swift */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */; };
 		311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A902680F597007BE16F /* ATS_Route.shp */; };
 		311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A912680F597007BE16F /* Airspace_Boundary.dbf */; };
 		311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A922680F597007BE16F /* Airspace_Boundary.shx */; };
@@ -531,7 +531,7 @@
 		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
 		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
-		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */; };
+		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */; };
 		D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */; };
 		D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */; };
 		D8228A921BE77816001D6914 /* MovingScreenLabelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8228A911BE77816001D6914 /* MovingScreenLabelsTestCase.swift */; };
@@ -655,8 +655,6 @@
 		2B29944A243BA08D00677DE4 /* MapboxKindaMap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = MapboxKindaMap.swift; path = "../../../library/WhirlyGlobe-MaplyComponent/src/helpers/MapboxKindaMap.swift"; sourceTree = "<group>"; };
 		2B29944C243BA16000677DE4 /* SimpleStyleTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleStyleTestCase.swift; sourceTree = "<group>"; };
 		2B29944E243BA31900677DE4 /* cube.obj */ = {isa = PBXFileReference; lastKnownFileType = text; name = cube.obj; path = resources/cube.obj; sourceTree = SOURCE_ROOT; };
-		2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ActiveObjectTestCase.h; sourceTree = "<group>"; };
-		2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActiveObjectTestCase.m; sourceTree = "<group>"; };
 		2B361E3921237CFE0074D06D /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		2B392B6F1C5AC59D001EE40B /* RunwayBuilderTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RunwayBuilderTestCase.h; sourceTree = "<group>"; };
 		2B392B701C5AC59D001EE40B /* RunwayBuilderTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RunwayBuilderTestCase.m; sourceTree = "<group>"; };
@@ -720,6 +718,7 @@
 		2BF29B8E24D226B000553963 /* LegendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendViewController.swift; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
+		31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveObjectTestCase.swift; sourceTree = "<group>"; };
 		311E0A902680F597007BE16F /* ATS_Route.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shp; path = ../../../resources/vectors/faa/ATS_Route.shp; sourceTree = SOURCE_ROOT; };
 		311E0A912680F597007BE16F /* Airspace_Boundary.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.dbf; path = ../../../resources/vectors/faa/Airspace_Boundary.dbf; sourceTree = SOURCE_ROOT; };
 		311E0A922680F597007BE16F /* Airspace_Boundary.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shx; path = ../../../resources/vectors/faa/Airspace_Boundary.shx; sourceTree = SOURCE_ROOT; };
@@ -1152,7 +1151,7 @@
 		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
-		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WideVectorsTestCase.m; sourceTree = "<group>"; };
+		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorsTestCase.mm; sourceTree = "<group>"; };
 		D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarsSunTestCase.swift; sourceTree = "<group>"; };
 		D8200C9D1BE9516300B22CF5 /* ShapesTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapesTestCase.h; sourceTree = "<group>"; };
 		D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StickersTestCase.swift; sourceTree = "<group>"; };
@@ -1345,8 +1344,7 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
-				2B2A417C1D83454900098E12 /* ActiveObjectTestCase.h */,
-				2B2A417D1D83454900098E12 /* ActiveObjectTestCase.m */,
+				31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */,
 				2B6611E525D1C35D009D228F /* AirwayTestCase.swift */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
 				2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */,
@@ -1430,7 +1428,7 @@
 				2BBB70811D5E9079009B67A6 /* VectorStyleTestCase.h */,
 				2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */,
 				D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */,
-				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.m */,
+				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */,
 				E5679F441CB72DE800369A15 /* WMSTestCase.h */,
 				E5679F451CB72DE800369A15 /* WMSTestCase.m */,
 			);
@@ -2608,7 +2606,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B1E85A622B44D5800AB7208 /* BillboardTestCase.swift in Sources */,
-				2B2A417E1D83454900098E12 /* ActiveObjectTestCase.m in Sources */,
 				2BA827CD225EBDBF00324594 /* GeoJSONStyleTestCase.swift in Sources */,
 				E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */,
 				2BDEB3021C924842003259B3 /* ExtrudedModelTestCase.m in Sources */,
@@ -2620,6 +2617,7 @@
 				2B73D6B4207C106C00AF5095 /* GlobeSamplerTestCase.swift in Sources */,
 				2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */,
 				311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */,
+				31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */,
 				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
@@ -2631,7 +2629,7 @@
 				2B4B30AD2395E0DE00854073 /* LayerStartupShutdownTestCase.swift in Sources */,
 				E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */,
 				2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */,
-				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.m in Sources */,
+				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.mm in Sources */,
 				2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */,
 				2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */,
 				2BC41C8321F00AA6002926B7 /* BNGCustomMapTestCase.swift in Sources */,

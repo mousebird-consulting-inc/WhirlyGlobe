@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/15/13.
- *  Copyright 2011-2021 mousebird consulting.
+ *  Copyright 2011-2022 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -89,6 +89,8 @@ public:
 
     Point3dVector layoutShape;
 
+    std::string mergeID;
+
     /// If we're placing glyphs individually we'll do it with matrices
     std::vector<std::vector<Eigen::Matrix3d> > layoutPlaces;
     std::vector<Point3d> layoutModelPlaces;
@@ -104,11 +106,11 @@ public:
             WhirlyKitLayoutPlacementLeft | WhirlyKitLayoutPlacementRight |
             WhirlyKitLayoutPlacementAbove | WhirlyKitLayoutPlacementBelow;
 };
+using LayoutObjectRef = std::shared_ptr<LayoutObject>;
 
 // Private fields we use for object layout
-class LayoutObjectEntry : public Identifiable
+struct LayoutObjectEntry : public Identifiable
 {
-public:
     LayoutObjectEntry(SimpleIdentity theId);
     LayoutObjectEntry(const LayoutObject&);
     LayoutObjectEntry(LayoutObject&&) noexcept;
@@ -254,6 +256,9 @@ public:
     /// Move objects for layout (thread safe)
     void addLayoutObjects(std::vector<LayoutObject> &&newObjects);
 
+    /// Move objects for layout (thread safe)
+    void addLayoutObjects(std::vector<LayoutObjectRef> &&newObjects);
+
     /// Remove objects for layout (thread safe)
     void removeLayoutObjects(const SimpleIDSet &oldObjects);
     
@@ -360,7 +365,7 @@ protected:
     typedef std::set<ClusteredObjects *,ClusteredObjectsSorter> ClusteredObjectsSet;
 
     void runLayoutClustering(PlatformThreadInfo *threadInfo,
-                             LayoutContainerVec layoutObjs,
+                             LayoutContainerVec &layoutObjs,
                              ClusteredObjectsSet &clusterGroups,
                              std::vector<ClusterEntry> &clusterEntries,
                              std::vector<ClusterGenerator::ClusterClassParams> &outClusterParams,
@@ -416,6 +421,7 @@ protected:
     int maxDisplayObjects = 0;
     /// If there were updates since the last layout
     bool hasUpdates = false;
+    bool hasRemoves = false;
     /// Cancel a layout run in progress
     volatile bool cancelLayout = false;
     /// Enable drawing layout boundaries

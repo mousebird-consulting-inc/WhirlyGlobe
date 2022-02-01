@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,11 +35,12 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         return;
     }
 
-    const double frameSize = std::min(frameInfo->sceneRenderer->framebufferWidth, frameInfo->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
+    const double frameSpan = std::min(frameSize.x(), frameSize.y());
     const double screenSize = std::min(frameInfo->screenSizeInDisplayCoords.x(), frameInfo->screenSizeInDisplayCoords.y());
     const double screenWidth = frameInfo->screenSizeInDisplayCoords.x();
-    const double pixDispScale = screenSize / frameSize;
-    const double texScale = frameSize / (screenWidth * texRepeat);
+    const double pixDispScale = screenSize / frameSpan;
+    const double texScale = frameSpan / (screenWidth * texRepeat);
     const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
 
     Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
@@ -149,7 +150,7 @@ varying vec4 v_color;
 void main()
 {
     v_color = a_color;
-    float t0 = clamp(a_c0 * u_real_w2,-4.0,5.0);    // Position along the line
+    float t0 = clamp(a_c0 * u_real_w2,-1.0,2.0);    // Position along the line
     vec3 v = a_p1 - a_position;
     vec3 dir = normalize(v);
     float realCenterLine = a_offset.z * u_wideOffset * u_real_w2 / u_w2;
@@ -191,7 +192,7 @@ varying float v_dot;
 void main()
 {
     v_color = a_color;
-    float t0 = clamp(a_c0 * u_real_w2,-4.0,5.0);        //  Position along the line
+    float t0 = clamp(a_c0 * u_real_w2,-1.0,2.0);        //  Position along the line
     vec3 v = a_p1 - a_position;
     vec3 dir = normalize(v);
     float realCenterLine = a_offset.z * u_wideOffset * u_real_w2 / u_w2;

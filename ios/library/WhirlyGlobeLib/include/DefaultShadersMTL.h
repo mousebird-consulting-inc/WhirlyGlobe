@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -406,6 +406,7 @@ struct ProjVertexTriWideVecPerf {
     float4 color;
     float2 texCoord;
     float w2;
+    float edge;
     uint2 maskIDs;
 };
 

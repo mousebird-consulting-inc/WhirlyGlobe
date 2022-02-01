@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2014 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class TextureManager
 			if (hash1 < hash2)
 				return -1;
 			return 1;
-		}		
+		}
 	};
 	
 	TreeSet<TextureWrapper> textures = new TreeSet<TextureWrapper>();

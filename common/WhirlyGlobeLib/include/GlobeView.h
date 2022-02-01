@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,18 +19,24 @@
 #import "WhirlyKitView.h"
 #import "GlobeMath.h"
 
+namespace WhirlyKit
+{
+class View;
+class SceneRenderer;
+}
+
 namespace WhirlyGlobe
 {
-    
+
 class GlobeView;
-    
+
 /// Animation callback
-class GlobeViewAnimationDelegate
+struct GlobeViewAnimationDelegate : public WhirlyKit::ViewAnimationDelegate
 {
-public:
-    /// Called every tick to update the globe position
-    virtual void updateView(GlobeView *globeView) = 0;
+    virtual bool isUserMotion() const = 0;
+    virtual void updateView(WhirlyKit::View *) = 0;
 };
+
 typedef std::shared_ptr<GlobeViewAnimationDelegate> GlobeViewAnimationDelegateRef;
 
 /** Parameters associated with viewing the globe.
@@ -53,10 +59,10 @@ public:
     double maxHeightAboveGlobe() const;
 
     /// Set the height above globe, taking constraints into account
-    void setHeightAboveGlobe(double newH);
+    virtual void setHeightAboveGlobe(double newH);
 
     /// This version allows you to not update the watchers, if you're doing a bunch of updates at once
-    void setHeightAboveGlobe(double newH,bool updateWatchers);
+    virtual void setHeightAboveGlobe(double newH,bool updateWatchers);
 
     /// This version avoids the limit calculations (Kind of a hack)
     void setHeightAboveGlobeNoLimits(double newH,bool updateWatchers);
@@ -65,10 +71,10 @@ public:
     void setCenterOffset(double offX,double offY,bool updateWatchers);
 
     /// Update the quaternion
-    void setRotQuat(Eigen::Quaterniond rotQuat);
+    virtual void setRotQuat(Eigen::Quaterniond rotQuat);
 
     /// This version allows you to not update the watchers.
-    void setRotQuat(Eigen::Quaterniond rotQuat,bool updateWatchers);
+    virtual void setRotQuat(Eigen::Quaterniond rotQuat,bool updateWatchers);
     
     /// Return the current quaternion
     Eigen::Quaterniond getRotQuat() const { return rotQuat; }

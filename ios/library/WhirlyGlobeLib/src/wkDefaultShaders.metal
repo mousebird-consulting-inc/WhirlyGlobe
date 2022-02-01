@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -336,7 +336,6 @@ vertex ProjVertexTriA vertexTri_noLight(
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
 
@@ -364,7 +363,6 @@ vertex ProjVertexTriA vertexTri_noLightExp(
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
 
@@ -409,7 +407,6 @@ vertex ProjVertexTriA vertexTri_light(
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
                                         uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
     
@@ -449,7 +446,6 @@ vertex ProjVertexTriA vertexTri_lightExp(
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
                                         uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
     
@@ -515,7 +511,6 @@ vertex ProjVertexTriB vertexTri_multiTex(
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
                                         uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        pt /= pt.w;
         outVert.position = pt;
     }
     outVert.color = resolveLighting(vertPos,
@@ -630,7 +625,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     float realCenterLine = centerLine * pixScale;
     
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
-    t0 = clamp(t0,-4.0,5.0);
+    t0 = clamp(t0,-1.0,2.0);
     float3 dir = normalize(vert.p1 - vert.position);
     float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
@@ -642,8 +637,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
     outVert.texCoord = float2(vert.texInfo.x, texPos);
     float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
                        uniforms.pMatrix * (uniforms.mvMatrix * float4(realPosOffset,0.0) + uniforms.mvMatrixDiff * float4(realPosOffset,0.0));
-    screenPos /= screenPos.w;
-    outVert.position = float4(screenPos.xy,0,1.0);
+    outVert.position = float4(screenPos.xy,0,screenPos.w);
 
     outVert.dotProd = calcGlobeDotProd(uniforms,pos,vert.normal);
     outVert.w2 = w2;
@@ -698,7 +692,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     float realCenterLine = centerLine * pixScale;
     
     float t0 = vert.c0 * (realWidth2 + realCenterLine);
-    t0 = clamp(t0,-4.0,5.0);
+    t0 = clamp(t0,-1.0,2.0);
     float3 dir = normalize(vert.p1 - vert.position);
     float3 realPosOffset = (vert.p1 - vert.position) * t0 +
                      dir * realWidth2 * vert.offset.y +
@@ -710,8 +704,7 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     outVert.texCoord = float2(vert.texInfo.x, texPos);
     float4 screenPos = uniforms.pMatrix * (uniforms.mvMatrix * float4(pos,1.0) + uniforms.mvMatrixDiff * float4(pos,1.0)) +
                        uniforms.pMatrix * (uniforms.mvMatrix * float4(realPosOffset,0.0) + uniforms.mvMatrixDiff * float4(realPosOffset,0.0));
-    screenPos /= screenPos.w;
-    outVert.position = float4(screenPos.xy,0,1.0);
+    outVert.position = float4(screenPos.xy,0,screenPos.w);
 
     outVert.dotProd = calcGlobeDotProd(uniforms,pos,vert.normal);
     outVert.w2 = w2;
@@ -969,7 +962,9 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
 
     outVert.w2 = vertArgs.wideVec.w2;
-    
+    outVert.edge = vertArgs.wideVec.edge;
+    outVert.texCoord = float2(interDir,0);
+
     if (isValid && dotProd > 0.0) {
         if (iPtsValid) {
             outVert.position = float4(iPts, 0.0, 1.0);
@@ -1004,8 +999,10 @@ fragment float4 fragmentTri_wideVecPerf(
                 discard_fragment();
         }
     }
+    
+    float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
 
-    return vert.color;
+    return vert.color * float4(1,1,1,edgeAlpha);
 }
 
 

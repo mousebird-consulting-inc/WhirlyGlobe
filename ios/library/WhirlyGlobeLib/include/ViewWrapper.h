@@ -1,9 +1,8 @@
-/*
- *  ViewWrapper.h
+/*  ViewWrapper.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/15/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,21 +14,28 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
-#import "SceneRenderer.h"
 
-/** OpenGL View is a
- base class for implementing an open GL rendering view.
- This is modeled off of the example.  We subclass this for
- our own purposes.
+namespace WhirlyKit
+{
+    class SceneRenderer;
+}
+
+@protocol ViewWrapperDelegateProtocol
+- (void)layoutDidRun;
+@end
+
+/** Base class for implementing a Metal rendering view.
+ This is modeled off of the example.  We subclass this for our own purposes.
  */
 @protocol WhirlyKitViewWrapper
 
 /// Renderer we're using
-@property (nonatomic) WhirlyKit::SceneRenderer *renderer;
+@property (nonatomic) WhirlyKit::SceneRenderer * _Nullable renderer;
+
+@property (nonatomic) NSObject<ViewWrapperDelegateProtocol> * __weak _Nullable wrapperDelegate;
 
 /// True if we've got a displayLink turned on to animate.
 - (BOOL)isAnimating;

@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -37,12 +37,13 @@ typedef std::vector<Point3f,Eigen::aligned_allocator<Point3f> > Point3fVector;
 typedef std::vector<Point3d,Eigen::aligned_allocator<Point3d> > Point3dVector;
 typedef std::vector<Eigen::Vector4f,Eigen::aligned_allocator<Eigen::Vector4f> > Vector4fVector;
 typedef std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d> > Vector4dVector;
-	
+
 /// Convenience wrapper for texture coordinate
-class TexCoord : public Eigen::Vector2f
+struct TexCoord : public Eigen::Vector2f
 {
-public:
-	TexCoord() { }
+    TexCoord() { }
+    TexCoord(const TexCoord& that) : Eigen::Vector2f(that) { }
+    TexCoord(const Eigen::Vector2f& that) : Eigen::Vector2f(that) { }
 	TexCoord(float u,float v) : Eigen::Vector2f(u,v) { }
 	float u() const { return x(); }
 	float &u() { return x(); }

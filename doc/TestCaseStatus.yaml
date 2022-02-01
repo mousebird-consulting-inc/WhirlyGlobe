@@ -462,10 +462,9 @@ cases:
     Map: ✓
     Globe: ✓
     Issues: 
-      - Loader sometimes not shutting down when cycling styles, leaving map elements behind
       - Needs `imageVectorHybrid` even when not really appropriate
   Issues:
-    - Highway shield markers + text don't work correctly
+    - Highway shield markers + text don't align precisely
     - Blocky basemaps sometimes, adjust importance values?
   Checks:
     - Vector and hybrid styles display correctly

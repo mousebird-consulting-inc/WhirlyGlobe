@@ -1,9 +1,8 @@
-/*
- *  MTLView.mm
+/*  MTLView.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/20/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MTLView.h"
+#import "WhirlyKitLog.h"
+#import "SceneRendererMTL.h"
 
 using namespace WhirlyKit;
 
@@ -30,13 +30,21 @@ using namespace WhirlyKit;
     bool animating;
 }
 
+// defined in WhirlyKitViewWrapper
+@synthesize renderer;
+@synthesize wrapperDelegate;
+
 - (id)initWithDevice:(id<MTLDevice>)mtlDevice
 {
-    self = [super initWithFrame:CGRectZero device:mtlDevice];
+    if (!(self = [super initWithFrame:CGRectZero device:mtlDevice]))
+    {
+        return nil;
+    }
 
     self.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
     self.depthStencilPixelFormat = MTLPixelFormatDepth32Float;
-    if (@available(iOS 13.0, *)) {
+    if (@available(iOS 13.0, *))
+    {
         self.depthStencilAttachmentTextureUsage = MTLTextureUsageShaderWrite | MTLTextureUsageShaderRead | MTLTextureUsageRenderTarget;
     }
     self.framebufferOnly = true;
@@ -51,18 +59,18 @@ using namespace WhirlyKit;
 {
     super.contentScaleFactor = contentScaleFactor;
     
-    if (_renderer)
-        _renderer->setScale(contentScaleFactor);
+    if (renderer)
+        renderer->setScale(contentScaleFactor);
 }
 
-- (void)setRenderer:(WhirlyKit::SceneRenderer *)renderer
+- (void)setRenderer:(WhirlyKit::SceneRenderer *)inRenderer
 {
-    SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(renderer);
+    SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(inRenderer);
     if (!renderMTL)
         return;
 
-    _renderer = renderer;
-    _renderer->setScale(self.contentScaleFactor);
+    self->renderer = inRenderer;
+    self->renderer->setScale(self.contentScaleFactor);
 
     renderMTL->setup(self.frame.size.width, self.frame.size.height,false);
 }
@@ -71,12 +79,23 @@ using namespace WhirlyKit;
 {
     [super layoutSubviews];
     
-    SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(_renderer);
-    if (!renderMTL)
-        return;
-
-    renderMTL->resize((int)self.frame.size.width*self.contentScaleFactor,
-                      (int)self.frame.size.height*self.contentScaleFactor);
+    if (auto renderMTL = dynamic_cast<SceneRendererMTL *>(renderer))
+    {
+        const CGSize size = self.frame.size;
+        const auto width = (int)(size.width * self.contentScaleFactor);
+        const auto height = (int)(size.height * self.contentScaleFactor);
+        if (width > 0 && height > 0)
+        {
+            if (renderMTL->resize(width, height))
+            {
+                [self.wrapperDelegate layoutDidRun];
+            }
+        }
+        else
+        {
+            wkLogLevel(Debug, "Ignoring empty view resize");
+        }
+    }
 }
 
 - (id<CAMetalDrawable>)getDrawable
@@ -88,7 +107,7 @@ using namespace WhirlyKit;
 {
     [super draw];
     
-    SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(_renderer);
+    SceneRendererMTL *renderMTL = dynamic_cast<SceneRendererMTL *>(renderer);
     if (!renderMTL)
         return;
     
@@ -125,7 +144,7 @@ using namespace WhirlyKit;
 
 - (void) teardown
 {
-    _renderer = nil;
+    self->renderer = nil;
 }
 
 @end

@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/15.
- *  Copyright 2011-2021 mousebird consulting.
+ *  Copyright 2011-2022 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #import "WhirlyGeometry.h"
 #import "VectorData.h"
 #import "Expect.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -27,44 +28,47 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
 
-OverlapHelper::OverlapHelper(const Mbr &mbr,int sizeX,int sizeY) :
-    mbr(mbr), sizeX(sizeX), sizeY(sizeY)
+OverlapHelper::OverlapHelper(const Mbr &mbr, int sizeX, int sizeY, size_t count) :
+    mbr(mbr),
+    sizeX(sizeX),
+    sizeY(sizeY),
+    totalObjs(count),
+    cellSize(mbr.span().cwiseQuotient(Point2f(sizeX, sizeY)))
 {
-    grid.resize(sizeX*sizeY);
-    cellSize = Point2f((mbr.ur().x()-mbr.ll().x())/(float)sizeX,
-                       (mbr.ur().y()-mbr.ll().y())/(float)sizeY);
+    grid.resize(sizeX * sizeY);
+
+    if (count > 0)
+    {
+        objects.reserve(count);
+    }
+}
+
+bool OverlapHelper::addCheckObject(const Point2dVector &pts, const std::string &mergeID)
+{
+    return addCheckObject(pts, mergeID.empty() ? nullptr : mergeID.c_str());
+}
+bool OverlapHelper::checkObject(const Point2dVector &pts, const std::string &mergeID)
+{
+    return checkObject(pts, mergeID.empty() ? nullptr : mergeID.c_str());
 }
 
 // Try to add an object.  Might fail (kind of the whole point).
-bool OverlapHelper::addCheckObject(const Point2dVector &pts)
+bool OverlapHelper::addCheckObject(const Point2dVector &pts, const char* mergeID)
 {
     const Mbr objMbr(pts);
 
     int sx,sy,ex,ey;
     calcCells(objMbr, sx,sy,ex,ey);
 
-    if (!checkObject(pts, objMbr, sx,sy,ex,ey))
+    if (!checkObject(pts, objMbr, sx,sy,ex,ey, mergeID))
     {
         return false;
     }
 
     // Okay, so it doesn't overlap.  Let's add it where needed.
-    objects.resize(objects.size()+1);
+    addObject(pts, mergeID ? mergeID : std::string(),
+              sx, sy, ex, ey);
 
-    const int newId = (int)(objects.size()-1);
-
-    BoundedObject &newObj = objects[newId];
-    newObj.pts = pts;
-
-    for (int ix=sx;ix<=ex;ix++)
-    {
-        for (int iy=sy;iy<=ey;iy++)
-        {
-            std::vector<int> &objList = grid[iy*sizeX + ix];
-            objList.push_back(newId);
-        }
-    }
-    
     return true;
 }
 
@@ -76,37 +80,43 @@ void OverlapHelper::calcCells(const Mbr &objMbr, int &sx, int &sy, int &ex, int 
     ey = std::min(sizeY - 1, (int) ceil((objMbr.ur().y() - mbr.ll().y()) / cellSize.y()));
 }
 
-bool OverlapHelper::checkObject(const Point2dVector &pts, const Mbr &objMbr,
-                                int sx, int sy, int ex, int ey)
+static inline bool eq(const char* ida, const std::string &idb)
 {
+    // Don't create a temporary string object for for `ida`
+    return ida && ida == idb;
+}
+
+bool OverlapHelper::checkObject(const Point2dVector &pts, const Mbr &objMbr,
+                                int sx, int sy, int ex, int ey, const char* mergeID)
+{
+    const auto sizeGuess = (int)std::ceil((ex - sx + 1) * (ey - sy + 1) / overlapHeuristic);
+    std::unordered_set<int> indexes(std::max(1, sizeGuess));
+
+    // Gather all the matching indexes, ignoring duplicates
     for (int ix=sx;ix<=ex;ix++)
     {
         for (int iy=sy;iy<=ey;iy++)
         {
-            const std::vector<int> &objList = grid[iy*sizeX + ix];
-            for (int ii : objList)
-            {
-                const BoundedObject &testObj = objects[ii];
-                // This will result in testing the same thing multiple times
-                if (ConvexPolyIntersect(testObj.pts,pts))
-                {
-                    return false;
-                }
-            }
+            const auto &cellIndexes = cellAt(ix, iy).objIndexes;
+            indexes.insert(cellIndexes.begin(), cellIndexes.end());
         }
     }
-    return true;
+    // Check each unique object index, unless it shares the same ID
+    return !std::any_of(indexes.begin(), indexes.end(), [&](int ii) {
+            return !eq(mergeID, objects[ii].mergeID) &&
+                    ConvexPolyIntersect(objects[ii].pts,pts);
+        });
 }
 
-bool OverlapHelper::checkObject(const Point2dVector &pts)
+bool OverlapHelper::checkObject(const Point2dVector &pts, const char* mergeID)
 {
     const Mbr objMbr(pts);
     int sx,sy,ex,ey;
     calcCells(objMbr, sx,sy,ex,ey);
-    return checkObject(pts, objMbr, sx,sy,ex,ey);
+    return checkObject(pts, objMbr, sx,sy,ex,ey, mergeID);
 }
 
-void OverlapHelper::addObject(const Point2dVector &pts)
+void OverlapHelper::addObject(Point2dVector pts, std::string mergeID)
 {
     const Mbr objMbr(pts);
 
@@ -114,19 +124,26 @@ void OverlapHelper::addObject(const Point2dVector &pts)
     calcCells(objMbr, sx,sy,ex,ey);
 
     // Okay, so it doesn't overlap.  Let's add it where needed.
-    objects.resize(objects.size()+1);
+    addObject(std::move(pts), std::move(mergeID), sx, sy, ex, ey);
+}
 
-    const int newId = (int)(objects.size()-1);
-
-    BoundedObject &newObj = objects[newId];
-    newObj.pts = pts;
+void OverlapHelper::addObject(Point2dVector pts, std::string mergeID,
+                              int sx, int sy, int ex, int ey)
+{
+    objects.emplace_back(std::move(pts), std::move(mergeID));
+    const auto newId = (int)(objects.size() - 1);
+    const auto sizeEstimate = std::max((int)std::ceil(totalObjs * overlapHeuristic),5);
 
     for (int ix=sx;ix<=ex;ix++)
     {
         for (int iy=sy;iy<=ey;iy++)
         {
-            std::vector<int> &objList = grid[iy*sizeX + ix];
-            objList.push_back(newId);
+            auto &cell = cellAt(ix, iy);
+            if (cell.objIndexes.empty())
+            {
+                cell.objIndexes.reserve(sizeEstimate);
+            }
+            cell.objIndexes.push_back(newId);
         }
     }
 }
@@ -138,11 +155,10 @@ ClusterHelper::SimpleObject::SimpleObject()
 
 ClusterHelper::ClusterHelper(const Mbr &mbr,int sizeX,int sizeY,float resScale, Point2d clusterMarkerSize) :
     mbr(mbr), sizeX(sizeX), sizeY(sizeY), resScale(resScale),
+    cellSize(mbr.span().cwiseQuotient(Point2f(sizeX, sizeY)).cast<double>()),
     clusterMarkerSize(std::move(clusterMarkerSize))
 {
-    grid.resize(sizeX*sizeY);
-    cellSize = Point2d((mbr.ur().x()-mbr.ll().x())/(double)sizeX,
-                       (mbr.ur().y()-mbr.ll().y())/(double)sizeY);
+    grid.resize(sizeX * sizeY);
 }
     
 void ClusterHelper::calcCells(const Mbr &checkMbr,int &sx,int &sy,int &ex,int &ey)
@@ -151,8 +167,17 @@ void ClusterHelper::calcCells(const Mbr &checkMbr,int &sx,int &sy,int &ex,int &e
     sy = std::max(0,         (int)floor((checkMbr.ll().y()-mbr.ll().y())/cellSize.y()));
     ex = std::min(sizeX - 1, (int)ceil( (checkMbr.ur().x()-mbr.ll().x())/cellSize.x()));
     ey = std::min(sizeY - 1, (int)ceil( (checkMbr.ur().y()-mbr.ll().y())/cellSize.y()));
+
+    if (ex < sx || ey < sy)
+    {
+        wkLogLevel(Warn, "Invalid cluster cell range (%d,%d)/(%d,%d) from (%.1f,%.1f,%.1f,%.1f)/(%.1f,%.1f,%.1f,%.1f) in %d/%d cells, size %.2f/%.2f",
+                   sx, sy, ex, ey,
+                   mbr.ll().x(), mbr.ll().y(), mbr.ur().x(), mbr.ur().y(),
+                   checkMbr.ll().x(), checkMbr.ll().y(), checkMbr.ur().x(), checkMbr.ur().y(),
+                   sizeX, sizeY, cellSize.x(), cellSize.y());
+    }
 }
-    
+
 void ClusterHelper::addToCells(const Mbr &objMbr, int index)
 {
     int sx,sy,ex,ey;

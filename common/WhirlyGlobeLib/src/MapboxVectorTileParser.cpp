@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/25/16.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -213,17 +213,12 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,
         // Ask the subclass to run the style and fill in the VectorTileData
         buildForStyle(styleInst,it.first,vecs,styleData,cancelFn);
 
-        if (cancelFn(styleInst))
-        {
-            return false;
-        }
-
         // Sort the results into categories if needed
         auto catIt = styleCategories.find(it.first);
         if (catIt != styleCategories.end() && !styleData->compObjs.empty())
         {
             const std::string &category = catIt->second;
-            auto compObjs = styleData->compObjs;
+            auto &compObjs = styleData->compObjs;
             auto categoryIt = tileData->categories.find(category);
             if (categoryIt != tileData->categories.end())
             {
@@ -234,6 +229,14 @@ bool MapboxVectorTileParser::parse(PlatformThreadInfo *styleInst,
         
         // Merge this into the general return data
         tileData->mergeFrom(styleData.get());
+
+        // The changes in `tileData` represent objects already tracked
+        // in the managers they must be merged or we'll have leaks, so
+        // we can't return between the build and the merge above.
+        if (cancelFn(styleInst))
+        {
+            return false;
+        }
     }
     
     // These are layered on top for debugging

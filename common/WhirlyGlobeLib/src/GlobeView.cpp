@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/14/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -225,11 +225,11 @@ Eigen::Matrix4d GlobeView::calcModelMatrix() const
     Point2d modelOff(0.0,0.0);
     if (centerOffset.x() != 0.0 || centerOffset.y() != 0.0) {
         // imagePlaneSize is actually half the image plane size in the horizontal
-        modelOff = Point2d(centerOffset.x() * imagePlaneSize, centerOffset.y() * imagePlaneSize) * (heightAboveGlobe+1.0)/nearPlane;
+        modelOff = (centerOffset * imagePlaneSize) * (heightAboveGlobe+1.0)/nearPlane;
     }
     
-    Eigen::Affine3d trans(Eigen::Translation3d(modelOff.x(),modelOff.y(),-calcEarthZOffset()));
-	Eigen::Affine3d rot(rotQuat);
+    const Eigen::Affine3d trans(Eigen::Translation3d(modelOff.x(),modelOff.y(),-calcEarthZOffset()));
+	const Eigen::Affine3d rot(rotQuat);
 	
 	return (trans * rot).matrix();
 }
@@ -431,9 +431,10 @@ void GlobeView::cancelAnimation()
 void GlobeView::animate()
 {
     // Have to hold on to the delegate because it can call cancelAnimation.... which frees the delegate
-    auto theDelegate = delegate;
-    if (theDelegate)
+    if (auto theDelegate = delegate)
+    {
         theDelegate->updateView(this);
+    }
 }
     
 ViewStateRef GlobeView::makeViewState(SceneRenderer *renderer)

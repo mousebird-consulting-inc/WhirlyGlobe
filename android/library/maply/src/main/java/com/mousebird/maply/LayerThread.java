@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -90,6 +92,11 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		 * How long the layer can go without a viewUpdated() call.
 		 */
 		float getMaxLagTime();
+
+		/**
+		 * Some tiles were just removed
+		 */
+		void tilesUnloaded(@NotNull TileID[] ids);
 	}
 
 	// If set, this is a full layer thread.  If not, it just has the context

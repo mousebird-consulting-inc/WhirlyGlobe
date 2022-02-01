@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/4/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,11 +31,12 @@ public:
     SingleLabel_iOS(NSString* s = nullptr) : text(s) {}
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(PlatformThreadInfo *threadInfo,
-                                                                  const LabelInfo *,
-                                                                  const FontTextureManagerRef &fontTexManager,
-                                                                  float &lineHeight,
-                                                                  ChangeSet &changes) override;
+    virtual std::vector<std::unique_ptr<DrawableString>> generateDrawableStrings(
+        PlatformThreadInfo *,
+        const LabelInfo *,
+        const FontTextureManagerRef &,
+        float &lineHeight,
+        ChangeSet &) override;
     
     // Pass this around as an NSString
     NSString *text;

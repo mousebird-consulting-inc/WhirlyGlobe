@@ -1,9 +1,8 @@
-/*
- *  sqlhelpers.mm
+/*  sqlhelpers.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/8/09.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "sqlhelpers.h"
@@ -28,13 +26,15 @@ namespace sqlhelpers
 void OneShot(sqlite3 *db,const char *stmtStr)
 {
 	sqlite3_stmt *stmt = NULL;
-	if (sqlite3_prepare_v2(db,stmtStr,-1,&stmt,NULL) != SQLITE_OK)
-		throw 1;
-	
-	if (sqlite3_step(stmt) != SQLITE_DONE)
+    int res = sqlite3_prepare_v2(db,stmtStr,-1,&stmt,NULL);
+	if (res != SQLITE_OK)
+		throw res;
+
+    res = sqlite3_step(stmt);
+	if (res != SQLITE_DONE)
 	{
 		sqlite3_finalize(stmt);
-		throw 1;
+		throw res;
 	}
 	
 	sqlite3_finalize(stmt);
@@ -99,13 +99,13 @@ bool StatementRead::stepRow()
     
     curField = 0;
 	
-	int ret = sqlite3_step(stmt);
+	const int ret = sqlite3_step(stmt);
 	if (ret == SQLITE_ROW)
 		return true;
 	if (ret == SQLITE_DONE)
 		return false;
 	
-	throw 1;
+	throw ret;
 }
 	
 // Done with the statement
@@ -123,7 +123,7 @@ void StatementRead::finalize()
 int StatementRead::getInt()
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	return sqlite3_column_int(stmt, curField++);
 }
@@ -132,7 +132,7 @@ int StatementRead::getInt()
 double StatementRead::getDouble()
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	return sqlite3_column_double(stmt, curField++);
 }
@@ -141,7 +141,7 @@ double StatementRead::getDouble()
 NSString *StatementRead::getString()
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	const char *str = (const char *)sqlite3_column_text(stmt, curField++);
 	if (str == nil)
@@ -154,7 +154,7 @@ NSString *StatementRead::getString()
 BOOL StatementRead::getBool()
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	const char *str = (const char *)sqlite3_column_text(stmt, curField++);
 	
@@ -167,7 +167,7 @@ BOOL StatementRead::getBool()
 NSData *StatementRead::getBlob()
 {
     if (isFinalized)
-            throw 1;
+        throw SQLITE_IOERR_CLOSE;
 
     const char *blob = (const char *)sqlite3_column_blob(stmt, curField);
     int blobSize = sqlite3_column_bytes(stmt,curField);
@@ -191,10 +191,11 @@ StatementWrite::StatementWrite(sqlite3 *db,NSString *stmtStr)
 void StatementWrite::init(sqlite3 *db,const char *stmtStr)
 {
 	isFinalized = false;
-	if (sqlite3_prepare_v2(db,stmtStr,-1,&stmt,NULL) != SQLITE_OK)
+    const int res = sqlite3_prepare_v2(db,stmtStr,-1,&stmt,NULL);
+	if (res != SQLITE_OK)
     {
         NSLog(@"Sqlite error: %s",sqlite3_errmsg(db));
-		throw 1;
+		throw res;
     }
 	curField = 1;
 }
@@ -209,10 +210,11 @@ StatementWrite::~StatementWrite()
 void StatementWrite::go()
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
-	if (sqlite3_step(stmt) != SQLITE_DONE)
-		throw 1;
+    const int res = sqlite3_step(stmt);
+	if (res != SQLITE_DONE)
+		throw res;
 }
 	
 // Finalize the statement
@@ -230,7 +232,7 @@ void StatementWrite::finalize()
 void StatementWrite::add(int iVal)
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	sqlite3_bind_int(stmt,curField++,iVal);
 }
@@ -239,7 +241,7 @@ void StatementWrite::add(int iVal)
 void StatementWrite::add(double dVal)
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	sqlite3_bind_double(stmt,curField++,dVal);
 }
@@ -259,7 +261,7 @@ void StatementWrite::add(NSString *str)
 void StatementWrite::add(BOOL bVal)
 {
 	if (isFinalized)
-		throw 1;
+		throw SQLITE_IOERR_CLOSE;
 	
 	sqlite3_bind_text(stmt, curField++, (bVal ? "yes" : "no"), -1, SQLITE_STATIC);
 }

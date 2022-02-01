@@ -2,7 +2,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2021 mousebird consulting
+ *  Copyright 2012-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  */
 
 #import "control/MaplyBaseViewController.h"
-#import "MaplyBaseViewController_private.h"
+#import "private/MaplyBaseViewController_private.h"
 #import "UIKit/NSData+Zlib.h"
 
 #import "MaplyTexture_private.h"
@@ -115,11 +115,13 @@ using namespace WhirlyKit;
 {
     MaplyLocationTracker *_locationTracker;
     bool _layoutFade;
+    NSMutableArray<InitCompletionBlock> *_postInitCalls;
 }
 
 - (instancetype)init{
     self = [super init];
     _layoutFade = false;
+    _postInitCalls = [NSMutableArray new];
     return self;
 }
 
@@ -169,14 +171,13 @@ using namespace WhirlyKit;
 - (void)loadSetup_mtlView
 {
     SceneRendererMTL *renderMTL = (SceneRendererMTL *)renderControl->sceneRenderer.get();
-    
-    WhirlyKitMTLView *mtlView = [[WhirlyKitMTLView alloc] initWithDevice:((RenderSetupInfoMTL *) renderMTL->getRenderSetupInfo())->mtlDevice];
+    RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *) renderMTL->getRenderSetupInfo();
+
+    WhirlyKitMTLView *mtlView = [[WhirlyKitMTLView alloc] initWithDevice:setupInfo->mtlDevice];
+    mtlView.preferredFramesPerSecond = (_frameInterval > 0) ? (60.0 / _frameInterval) : 120;
+    mtlView.wrapperDelegate = self;
+
     wrapView = mtlView;
-    if (_frameInterval <= 0)
-        mtlView.preferredFramesPerSecond = 120;
-    else {
-        mtlView.preferredFramesPerSecond = 60 / _frameInterval;
-    }
 }
 
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer
@@ -305,7 +306,7 @@ using namespace WhirlyKit;
     annotations = [NSMutableArray array];
         
     // View placement manager
-    viewPlacementModel = ViewPlacementActiveModelRef(new ViewPlacementActiveModel());
+    viewPlacementModel = std::make_shared<ViewPlacementActiveModel>();
     renderControl->scene->addActiveModel(viewPlacementModel);
 
     // Apply layout fade option set before init to the newly-created manager
@@ -426,9 +427,16 @@ using namespace WhirlyKit;
 
 - (void)viewWillLayoutSubviews
 {
-    if (wrapView) {
+    if (wrapView)
+    {
         wrapView.frame = self.view.bounds;
     }
+}
+
+- (void)viewDidLayoutSubviews
+{
+    // The layout hasn't actually run yet, it's only been kicked off
+    // See `layoutDidRun:`
 }
 
 - (void)didReceiveMemoryWarning
@@ -1208,12 +1216,20 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
--(NSArray*)objectsAtCoord:(MaplyCoordinate)coord
+- (NSArray*)objectsAtCoord:(MaplyCoordinate)coord
 {
     if (!renderControl)
         return nil;
-    
-    return [renderControl->interactLayer findVectorsInPoint:Point2f(coord.x,coord.y)];
+
+    return [renderControl->interactLayer findVectorsInPoint:Point2f(coord.x,coord.y) inView:self multi:true];
+}
+
+- (NSArray*)labelsAndMarkersAtCoord:(MaplyCoordinate)coord
+{
+    if (!renderControl)
+        return nil;
+
+    return [renderControl->interactLayer selectMultipleLabelsAndMarkersForScreenPoint:[self screenPointFromGeo:coord]];
 }
 
 #pragma mark - Properties
@@ -1263,12 +1279,24 @@ static const float PerfOutputDelay = 15.0;
     return displayCoord;
 }
 
+- (MaplyCoordinate3dD)displayPointFromGeoDD:(MaplyCoordinateD)geoCoord
+{
+    MaplyCoordinate3dD displayCoord = {0,0,0};
+    if (!renderControl)
+        return displayCoord;
+    
+    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal(Point2d(geoCoord.x,geoCoord.y)));
+    
+    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
+    return displayCoord;
+}
+
 - (float)currentMapScale
 {
     if (!renderControl)
         return 0.0;
     
-    Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
     if (frameSize.x() == 0)
         return MAXFLOAT;
     return (float)renderControl->visualView->currentMapScale(frameSize);
@@ -1279,7 +1307,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return 0.0;
     
-    Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
     if (frameSize.x() == 0)
         return -1.0;
     return (float)renderControl->visualView->heightForMapScale(scale,frameSize);
@@ -1429,7 +1457,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return 0.0;
     
-    Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
     if (frameSize.x() == 0)
         return MAXFLOAT;
     return (float)renderControl->visualView->currentMapZoom(frameSize,coordinate.y);
@@ -1588,7 +1616,8 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl || !renderControl->sceneRenderer)
         return CGSizeZero;
     
-    return CGSizeMake(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
+    return CGSizeMake(frameSize.x(), frameSize.y());
 }
 
 - (MaplyRenderType)getRenderType
@@ -1649,6 +1678,31 @@ static const float PerfOutputDelay = 15.0;
 - (MaplyRemoteTileFetcher *)addTileFetcher:(NSString * __nonnull)name
 {
     return renderControl ? [renderControl addTileFetcher:name] : nil;
+}
+
+- (void)layoutDidRun
+{
+    // Layout complete, we can do stuff like `findHeightToViewBounds` now
+    for (InitCompletionBlock block in _postInitCalls)
+    {
+        block();
+    }
+    _postInitCalls = nil;
+}
+
+- (void)addPostInitBlock:(_Nonnull InitCompletionBlock)block
+{
+    if (block)
+    {
+        if (_postInitCalls)
+        {
+            [_postInitCalls addObject:block];
+        }
+        else
+        {
+            block();
+        }
+    }
 }
 
 @end

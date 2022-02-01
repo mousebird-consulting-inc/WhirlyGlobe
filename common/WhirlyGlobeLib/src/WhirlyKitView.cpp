@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,27 +29,31 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-View::View() :
-    coordAdapter(nullptr)
+View::View()
 {
     fieldOfView = 60.0 / 360.0 * 2 * M_PI;  // 60 degree field of view
-    nearPlane = 0.001;
     imagePlaneSize = nearPlane * std::tan(fieldOfView / 2.0f);
-    farPlane = 10.0;
-    centerOffset = Point2d(0.0,0.0);
     lastChangedTime = TimeGetCurrent();
-    continuousZoom = false;
 }
     
-View::View(const View &that)
-    : fieldOfView(that.fieldOfView), nearPlane(that.nearPlane), imagePlaneSize(that.imagePlaneSize),
-    farPlane(that.farPlane), lastChangedTime(that.lastChangedTime), continuousZoom(that.continuousZoom),
-    coordAdapter(that.coordAdapter)
+View::View(const View &that) :
+    nearPlane(that.nearPlane),
+    farPlane(that.farPlane),
+    fieldOfView(that.fieldOfView),
+    imagePlaneSize(that.imagePlaneSize),
+    lastChangedTime(that.lastChangedTime),
+    continuousZoom(that.continuousZoom),
+    coordAdapter(that.coordAdapter),
+    centerOffset(that.centerOffset)
 {
 }
-    
+
 void View::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,Point2d &ll,Point2d &ur,double & near,double &far)
 {
+    if (frameWidth == 0)
+    {
+        return;
+    }
 	ll.x() = -imagePlaneSize;
 	ur.x() = imagePlaneSize;
 	const double ratio =  ((double)frameHeight / (double)frameWidth);

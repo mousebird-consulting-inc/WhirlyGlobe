@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/23/11.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -38,7 +38,9 @@ public:
     AnimateViewRotation(GlobeView *globeView,const Eigen::Quaterniond &newRot,WhirlyKit::TimeInterval howLong);
 
     /// Update the globe view
-    virtual void updateView(GlobeView *globeView);
+    virtual void updateView(WhirlyKit::View *);
+
+    virtual bool isUserMotion() const { return false; }
 
 protected:
     /// When to start the animation.  Can be in the past

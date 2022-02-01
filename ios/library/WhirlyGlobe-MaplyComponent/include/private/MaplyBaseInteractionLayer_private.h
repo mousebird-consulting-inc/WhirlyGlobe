@@ -2,7 +2,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2021 mousebird consulting
+ *  Copyright 2012-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -205,10 +205,13 @@
 - (void)removeImageTexture:(MaplyTexture *__nonnull)tex changes:(WhirlyKit::ChangeSet &)changes;
 
 // Do a point in poly check for vectors we're representing
-- (NSArray *__nullable)findVectorsInPoint:(WhirlyKit::Point2f)pt;
 - (NSArray *__nullable)findVectorsInPoint:(WhirlyKit::Point2f)pt inView:(MaplyBaseViewController*__nullable)vc multi:(bool)multi;
 
+// Find MaplySelectableObjects at a screen point
 - (NSObject*__nullable)selectLabelsAndMarkerForScreenPoint:(CGPoint)screenPoint;
+- (NSMutableArray*__nullable)selectMultipleLabelsAndMarkersForScreenPoint:(CGPoint)screenPoint;
+- (NSMutableArray*__nullable)convertSelectedObjects:(const std::vector<WhirlyKit::SelectionManager::SelectedObject> &)selectedObjs;
+- (NSMutableArray*__nullable)convertSelectedVecObjects:(NSArray<MaplyVectorObject *>*__nullable)vecObjs;
 
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe

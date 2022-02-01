@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -296,14 +296,15 @@ void MapView::cancelAnimation()
 void MapView::animate()
 {
     // Have to hold on to the delegate because it can call cancelAnimation.... which frees the delegate
-    auto theDelegate = delegate;
-    if (theDelegate)
+    if (auto theDelegate = delegate)
+    {
         theDelegate->updateView(this);
+    }
 }
     
 ViewStateRef MapView::makeViewState(SceneRenderer *renderer)
 {
-    return ViewStateRef(new MapViewState(this,renderer));
+    return std::make_shared<MapViewState>(this,renderer);
 }
 
 MapViewState::MapViewState(MapView *mapView,SceneRenderer *renderer)

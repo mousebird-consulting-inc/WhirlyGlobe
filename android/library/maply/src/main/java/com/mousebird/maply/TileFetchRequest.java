@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro on 3/20/19.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import java.util.Objects;
  */
 public class TileFetchRequest implements Comparable<TileFetchRequest>
 {
+    private long id = Identifiable.genID();
+
     /**
      * Priority before importance.  Less is more important
      */
@@ -111,6 +113,7 @@ public class TileFetchRequest implements Comparable<TileFetchRequest>
         if (res == 0) res = -Float.compare(importance, other.importance);
         if (res == 0) res = group - other.group;
         if (res == 0) res = (int)(tileSource - other.tileSource);
+        if (res == 0) res = (int)(id - other.id);
         return res;
     }
 
@@ -118,23 +121,19 @@ public class TileFetchRequest implements Comparable<TileFetchRequest>
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TileFetchRequest)) return false;
-        TileFetchRequest that = (TileFetchRequest)o;
-        return priority == that.priority &&
-                Float.compare(that.importance, importance) == 0 &&
-                group == that.group &&
-                tileSource == that.tileSource;
+        return id == ((TileFetchRequest)o).id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(priority, importance, group, tileSource, fetchInfo);
+        return Objects.hash(id, priority, importance, group, tileSource, fetchInfo);
     }
 
     @NotNull
     @SuppressLint("DefaultLocale")
     @Override
     public String toString() {
-        return String.format("TileFetchRequest{%d,%f,%d,%d,%s}",
+        return String.format("TileFetchRequest{id=%d,pri=%d,imp=%f,grp=%d,src=%d,info=%s}",id,
                 priority, importance, group, tileSource,
                 (fetchInfo != null) ? fetchInfo.toString() : "null");
     }

@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2020 mousebird consulting.
+ *  Copyright 2011-2022 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -51,23 +51,30 @@ typedef enum {WideVecImplBasic,WideVecImplPerf} WideVecImplType;
 class WideVectorInfo : public BaseInfo
 {
 public:
-    WideVectorInfo();
+    WideVectorInfo() = default;
     WideVectorInfo(const Dictionary &dict);
     virtual ~WideVectorInfo() = default;
 
-    WideVecImplType implType;
-    RGBAColor color;
-    float width;
-    float offset;
-    float repeatSize;
-    float edgeSize;
-    float subdivEps;
-    WideVectorCoordsType coordType;
-    WideVectorLineJoinType joinType;
-    WideVectorLineCapType capType;
-    SimpleIdentity texID;
-    float miterLimit;
-    
+    // Convert contents to a string for debugging
+    virtual std::string toString() const override;
+
+    WideVecImplType implType = WideVecImplBasic;
+    RGBAColor color = RGBAColor::white();
+    float width = 2.0f;
+    float offset = 0.0f;
+    float repeatSize = 32.0f;
+    float edgeSize = 1.0f;
+    float subdivEps = 0.0f;
+    float miterLimit = 2.0f;
+    bool closeAreals = true;
+    bool selectable = true;
+
+    WideVectorCoordsType coordType = WideVecCoordScreen;
+    WideVectorLineJoinType joinType = WideVecMiterJoin;
+    WideVectorLineCapType capType = WideVecButtCap;
+
+    SimpleIdentity texID = EmptyIdentity;
+
     FloatExpressionInfoRef widthExp;
     FloatExpressionInfoRef offsetExp;
     FloatExpressionInfoRef opacityExp;

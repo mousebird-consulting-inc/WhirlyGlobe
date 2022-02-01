@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -57,14 +57,14 @@ WorkGroupMTL::~WorkGroupMTL()
 {
 }
 
-RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget)
-: RenderTargetContainer(renderTarget)
+RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget) :
+    RenderTargetContainer(std::move(renderTarget))
 {
 }
 
 RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer(RenderTargetRef renderTarget)
 {
-    return std::make_shared<RenderTargetContainerMTL>(renderTarget);
+    return std::make_shared<RenderTargetContainerMTL>(std::move(renderTarget));
 }
 
 SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
@@ -86,15 +86,15 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     init();
         
     // Calculation shaders
-    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::Calculation)));
+    workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::Calculation));
     // Offscreen target render group
-    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::Offscreen)));
+    workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::Offscreen));
     // Middle one for weird stuff
-    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::ReduceOps)));
+    workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::ReduceOps));
     // Last workgroup is used for on screen rendering
-    workGroups.push_back(WorkGroupRef(new WorkGroupMTL(WorkGroup::ScreenRender)));
+    workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::ScreenRender));
 
-    scale = inScale;
+    setScale(inScale);
     setupInfo.mtlDevice = mtlDevice;
     setupInfo.uniformBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
     setupInfo.lightingBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Lighting));
@@ -137,9 +137,9 @@ bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
     defaultTarget->clearEveryFrame = true;
-    if (offscreen) {
-        framebufferWidth = sizeX;
-        framebufferHeight = sizeY;
+    if (offscreen)
+    {
+        setFramebufferSize(sizeX, sizeY);
         
         // Create the texture we'll use right here
         TextureMTLRef fbTexMTL = TextureMTLRef(new TextureMTL("Framebuffer Texture"));
@@ -189,8 +189,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     if (framebufferTex)
         return false;
     
-    framebufferWidth = sizeX;
-    framebufferHeight = sizeY;
+    setFramebufferSize(sizeX, sizeY);
     
     RenderTargetRef defaultTarget = renderTargets.back();
     defaultTarget->width = sizeX;
@@ -214,7 +213,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
     CopyIntoMtlFloat3(uniforms.eyeVec,frameInfo->eyeVec);
     CopyIntoMtlFloat2(uniforms.screenSizeInDisplayCoords,Point2f(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()));
-    Point2f frameSize(frameInfo->sceneRenderer->framebufferWidth,frameInfo->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.globeMode = !coordAdapter->isFlat();
     uniforms.frameCount = frameCount;
@@ -468,7 +467,7 @@ RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
     const Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
     
     // Set up a projection matrix
-    const Point2f frameSize(framebufferWidth,framebufferHeight);
+    const Point2f frameSize = getFramebufferSize();
     const Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
 
     const Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
@@ -521,11 +520,12 @@ void SceneRendererMTL::render(TimeInterval duration,
     
     frameCount++;
     
-    TimeInterval now = scene->getCurrentTime();
+    const TimeInterval now = scene->getCurrentTime();
     
     teardownInfo = NULL;
 
-    if (framebufferWidth <= 0 || framebufferHeight <= 0)
+    const Point2f frameSize = getFramebufferSize();
+    if (frameSize.x() <= 0 || frameSize.y() <= 0)
     {
         // Process the scene even if the window isn't up
         processScene(now);
@@ -557,7 +557,6 @@ void SceneRendererMTL::render(TimeInterval duration,
     Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
     
     // Set up a projection matrix
-    Point2f frameSize(framebufferWidth,framebufferHeight);
     Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
 
     Eigen::Matrix4d modelAndViewMat4d = viewTrans4d * modelTrans4d;
@@ -603,7 +602,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     Matrix4d modelTransInv4d = modelTrans4d.inverse();
     Vector4d eyeVec4d = modelTransInv4d * Vector4d(0,0,1,0.0);
     baseFrameInfo.heightAboveSurface = theView->heightAboveSurface();
-    if (scene->getCoordAdapter()->isFlat()) {
+    const bool isFlat = scene->getCoordAdapter()->isFlat();
+    if (isFlat) {
         Vector4d eyePos4d = modelTransInv4d * Vector4d(0.0,0.0,0.0,1.0);
         eyePos4d /= eyePos4d.w();
         baseFrameInfo.eyePos = Vector3d(eyePos4d.x(),eyePos4d.y(),eyePos4d.z());
@@ -815,7 +815,11 @@ void SceneRendererMTL::render(TimeInterval duration,
 
                 if (indirectRender) {
                     if (@available(iOS 12.0, *)) {
-                        [cmdEncode setCullMode:MTLCullModeFront];
+                        // Front-face culling on by default for globes
+                        // Note: Would like to not set this every time
+                        if (!isFlat) {
+                            [cmdEncode setCullMode:MTLCullModeFront];
+                        }
                         for (const auto &drawGroup : targetContainerMTL->drawGroups) {
                             if (drawGroup->numCommands > 0) {
                                 [cmdEncode setDepthStencilState:drawGroup->depthStencil];
@@ -861,10 +865,12 @@ void SceneRendererMTL::render(TimeInterval duration,
                         bool lastZBufferWrite = zBufferWrite;
                         bool lastZBufferRead = zBufferRead;
 
-                        // Backface culling on by default
+                        // Front-face culling on by default for globes
                         // Note: Would like to not set this every time
-                        [cmdEncode setCullMode:MTLCullModeFront];
-                        
+                        if (!isFlat) {
+                            [cmdEncode setCullMode:MTLCullModeFront];
+                        }
+
                         // Work through the drawables
                         for (const auto &draw : targetContainer->drawables) {
                             auto drawMTL = std::dynamic_pointer_cast<DrawableMTL>(draw);

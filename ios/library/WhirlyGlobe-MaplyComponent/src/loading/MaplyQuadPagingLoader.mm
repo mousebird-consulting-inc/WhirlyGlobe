@@ -1,8 +1,7 @@
-/*
- *  MaplyQuadPagingLoader.mm
+/*  MaplyQuadPagingLoader.mm
  *
  *  Created by Steve Gifford on 2/21/91.
- *  Copyright 2012-2019 mousebird consulting
+ *  Copyright 2012-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,7 +13,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "loading/MaplyQuadPagingLoader.h"
@@ -54,10 +52,13 @@ using namespace WhirlyKit;
 - (NSArray<MaplyComponentObject *> *)getCompObjs
 {
     NSMutableArray *ret = [[NSMutableArray alloc] init];
-    for (auto compObj : loadReturn->compObjs) {
-        MaplyComponentObject *compObjWrap = [[MaplyComponentObject alloc] init];
-        compObjWrap->contents = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj);
-        [ret addObject:compObjWrap];
+    for (auto compObj : loadReturn->compObjs)
+    {
+        if (MaplyComponentObject *compObjWrap = [[MaplyComponentObject alloc] init])
+        {
+            compObjWrap->contents = std::dynamic_pointer_cast<ComponentObject_iOS>(compObj);
+            [ret addObject:compObjWrap];
+        }
     }
     
     return ret;
@@ -72,24 +73,26 @@ using namespace WhirlyKit;
                      loadInterp:(NSObject<MaplyLoaderInterpreter> *)inLoadInterp
                           viewC:(MaplyBaseViewController * )inViewC
 {
-    self = [super initWithViewC:inViewC];
+    if (!(self = [super initWithViewC:inViewC]))
+    {
+        return nil;
+    }
 
     params = inParams->params;
     params.generateGeom = false;
     
     loadInterp = inLoadInterp;
-    
+
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params,
-                                                                            tileInfo,
-                                                                            QuadImageFrameLoader::Object));
+    const auto mode = QuadImageFrameLoader::Object;
+    self->loader = std::make_shared<QuadImageFrameLoader_ios>(params, tileInfo, mode);
 
     self.flipY = true;
     self.debugMode = false;
     self->minLevel = tileInfo.minZoom;
     self->maxLevel = tileInfo.maxZoom;
     self->valid = true;
-    
+
     // Start things out after a delay
     // This lets the caller mess with settings
     [self performSelector:@selector(delayedInit) withObject:nil afterDelay:0.0];
@@ -99,19 +102,33 @@ using namespace WhirlyKit;
 
 - (bool)delayedInit
 {
-    loader->layer = self;
-    
+    if (![super delayedInit])
+    {
+        return false;
+    }
+
     const auto __strong vc = self.viewC;
-    if (!tileFetcher) {
+    const auto ldr = loader;
+
+    if (vc && !tileFetcher)
+    {
         tileFetcher = [vc addTileFetcher:MaplyQuadImageLoaderFetcherName];
     }
-    loader->tileFetcher = tileFetcher;
-    loader->layer = self;
 
-    samplingLayer = [[vc getRenderControl] findSamplingLayer:params forUser:self->loader];
+    if (ldr)
+    {
+        ldr->tileFetcher = tileFetcher;
+        ldr->layer = self;
+    }
+
+    samplingLayer = [[vc getRenderControl] findSamplingLayer:params forUser:ldr];
+
     // Do this again in case they changed them
-    loader->setSamplingParams(params);
-    loader->setFlipY(self.flipY);
+    if (ldr)
+    {
+        ldr->setSamplingParams(params);
+        ldr->setFlipY(self.flipY);
+    }
 
     [loadInterp setLoader:self];
 
@@ -125,6 +142,10 @@ using namespace WhirlyKit;
 
 - (void)reload
 {
+    // Called before it's set up.  Dude.  Calm down.
+    if (!samplingLayer)
+        return;
+    
     [super reload];
 }
 

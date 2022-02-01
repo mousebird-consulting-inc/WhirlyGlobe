@@ -4,7 +4,7 @@
  *
  *  Created by Jesse Crocker, Trailbehind inc. on 3/31/14.
  *  Recreated by Steve Gifford on 4/10/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.

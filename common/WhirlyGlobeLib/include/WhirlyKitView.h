@@ -1,9 +1,8 @@
-/*
- *  View.h
+/*  WhirlyKitView.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2012 mousebird consulting
+ *  Copyright 2012-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <set>
@@ -26,7 +24,7 @@
 
 namespace WhirlyKit
 {
-    
+
 class SceneRenderer;
 class View;
 class ViewState;
@@ -40,8 +38,15 @@ public:
     /// Called when the view changes position
     virtual void viewUpdated(View *view) = 0;
 };
-
 typedef std::set<ViewWatcher *> ViewWatcherSet;
+
+struct ViewAnimationDelegate
+{
+    virtual bool isUserMotion() const = 0;
+
+    /// Called every tick to update the view position
+    virtual void updateView(WhirlyKit::View *) = 0;
+};
 
 /** Whirly Kit View is the base class for the views
     used in WhirlyGlobe and Maply.  It contains the general purpose
@@ -130,15 +135,18 @@ public:
     /// Used by subclasses to notify all the watchers of updates
     virtual void runViewUpdates();
     
-    double fieldOfView,imagePlaneSize,nearPlane,farPlane;
-    Point2d centerOffset;
+    double fieldOfView = 0.0;
+    double imagePlaneSize = 0.0;
+    double nearPlane = 0.001;
+    double farPlane = 10.0;
+    Point2d centerOffset = { 0, 0 };
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// The last time the position was changed
-    TimeInterval lastChangedTime;
+    TimeInterval lastChangedTime = 0.0;
     /// Display adapter and coordinate system we're working in
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = nullptr;
     /// If set, we'll scale the near and far clipping planes as we get closer
-    bool continuousZoom;
+    bool continuousZoom = false;
     
     /// Called when positions are updated
     ViewWatcherSet watchers;

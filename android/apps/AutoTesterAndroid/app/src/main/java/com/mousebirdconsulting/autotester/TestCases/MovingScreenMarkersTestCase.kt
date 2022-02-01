@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Tim Sylvester on 9 Feb 2021.
- *  Copyright 2021 mousebird consulting
+ *  Copyright 2021-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ package com.mousebirdconsulting.autotester.TestCases
 
 import android.app.Activity
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Handler
 import com.mousebird.maply.*
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
@@ -56,8 +57,8 @@ class MovingScreenMarkersTestCase(activity: Activity) :
                 controller.addTexture(icon1, null, threadCurrent)!!)
 
         timerRunnable = Runnable {
-            clearMarkers()
-            markerObj = makeMarkers()
+            clear()
+            objs.addAll(makeMarkers())
             timerRunnable?.let {
                 timerHandler.postDelayed(it, (1000 * duration).toLong())
             }
@@ -72,25 +73,24 @@ class MovingScreenMarkersTestCase(activity: Activity) :
             timerHandler.removeCallbacks(it)
         }
 
+        clear()
+
         baseCase.shutdown()
         super.shutdown()
     }
 
-    private fun clearMarkers() {
-        markerObj?.also {
-            controller.removeObject(it, threadCurrent)
-            markerObj = null
-        }
+    private fun clear() {
+        controller.removeObjects(objs, threadCurrent)
+        objs.clear()
     }
 
-    private fun makeMarkers(): ComponentObject? {
+    private fun makeMarkers(): Collection<ComponentObject> {
         val pts = arrayOf(
                 Point2d.FromDegrees(0.0, 0.0),
                 Point2d.FromDegrees(10.0, 10.0),
                 Point2d.FromDegrees(0.0, 20.0),
                 Point2d.FromDegrees(-10.0, 10.0)
         )
-
         val markers = pts.indices.map {
             ScreenMovingMarker().apply {
                 duration = this@MovingScreenMarkersTestCase.duration
@@ -102,9 +102,27 @@ class MovingScreenMarkersTestCase(activity: Activity) :
                 layoutImportance = Float.MAX_VALUE
             }
         }
-        return controller.addScreenMovingMarkers(markers, MarkerInfo(), threadCurrent)
+        val labels = pts.indices.map {
+            ScreenMovingLabel().apply {
+                duration = this@MovingScreenMarkersTestCase.duration
+                //period = this@MovingScreenMarkersTestCase.duration / 2
+                loc = pts[it]
+                endLoc = pts[(it + 1) % pts.size]
+                layoutImportance = Float.MAX_VALUE
+                offset = Point2d(20.0, -10.0)
+                text = "<=="
+            }
+        }
+        val labelInfo = LabelInfo().apply {
+            textColor = Color.RED
+            fontSize = 20.0f
+        }
+        return listOfNotNull(
+            controller.addScreenMovingMarkers(markers, MarkerInfo(), threadCurrent),
+            controller.addScreenMovingLabels(labels, labelInfo, threadCurrent)
+        )
     }
-
+    
     private val threadCurrent = ThreadMode.ThreadCurrent
 
     private var baseCase = VectorsTestCase(activity)
@@ -114,5 +132,5 @@ class MovingScreenMarkersTestCase(activity: Activity) :
     private val timerHandler = Handler()
 
     private var textures: Array<MaplyTexture>? = null
-    private var markerObj: ComponentObject? = null
+    private val objs = ArrayList<ComponentObject>()
 }

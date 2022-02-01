@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -70,8 +70,21 @@ bool MapboxVectorLayerFill::parse(PlatformThreadInfo *inst,
     return true;
 }
 
-void MapboxVectorLayerFill::cleanup(PlatformThreadInfo *inst,ChangeSet &changes)
+MapboxVectorStyleLayerRef MapboxVectorLayerFill::clone() const
 {
+    auto layer = std::make_shared<MapboxVectorLayerFill>(styleSet);
+    layer->copy(*this);
+    return layer;
+}
+
+MapboxVectorStyleLayer& MapboxVectorLayerFill::copy(const MapboxVectorStyleLayer& that)
+{
+    this->MapboxVectorStyleLayer::copy(that);
+    if (const auto fill = dynamic_cast<const MapboxVectorLayerFill*>(&that))
+    {
+        operator=(*fill);
+    }
+    return *this;
 }
 
 void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
@@ -91,7 +104,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
         return;
     }
 
-    const auto compObj = styleSet->makeComponentObject(inst, desc);
+    auto compObj = styleSet->makeComponentObject(inst, desc);
 
     // not currently supported
     //compObj->representation = representation;
@@ -241,7 +254,7 @@ void MapboxVectorLayerFill::buildObjects(PlatformThreadInfo *inst,
     if (!compObj->vectorIDs.empty())
     {
         styleSet->compManage->addComponentObject(compObj, tileInfo->changes);
-        tileInfo->compObjs.push_back(compObj);
+        tileInfo->compObjs.push_back(std::move(compObj));
     }
 }
 

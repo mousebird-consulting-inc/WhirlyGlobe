@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 10/12/15.
-//  Copyright © 2015-2021 mousebird consulting.
+//  Copyright 2015-2022 mousebird consulting.
 //
 
 import UIKit
@@ -26,12 +26,15 @@ class BNGTestCase: MaplyTestCase {
 
         bngCase.createBritishNationalOverlayLocal(globeVC)
 
-        let bound = bngCase.geoBound(BNGCustomMapTestCase.buildBritishNationalGrid(false))
-        let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
-                                     y: (bound.ll.y + bound.ur.y) / 2.0)
-        let h = globeVC.findHeight(toViewBounds: bound, pos: middle)
-        globeVC.setPosition(middle, height: h/3)
-        globeVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
+        globeVC.addPostInitBlock { [weak self] in
+            guard let self = self else { return }
+            let bound = self.bngCase.geoBound(BNGCustomMapTestCase.buildBritishNationalGrid(false))
+            let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
+                                         y: (bound.ll.y + bound.ur.y) / 2.0)
+            let h = globeVC.findHeight(toViewBounds: bound, pos: middle)
+            globeVC.setPosition(middle, height: h/3)
+            globeVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
+        }
 	}
 
     override func stop() {

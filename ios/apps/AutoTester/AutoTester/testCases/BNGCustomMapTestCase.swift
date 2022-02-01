@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 10/12/15.
-//  Copyright © 2015-2021 mousebird consulting.
+//  Copyright 2015-2022 mousebird consulting.
 //
 
 import UIKit
@@ -21,12 +21,15 @@ class BNGCustomMapTestCase: MaplyTestCase {
         baseCase.setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC)
 
-        let bound = geoBound(Self.buildBritishNationalGrid(false))
-        let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
-                                     y: (bound.ll.y + bound.ur.y) / 2.0)
-        let h = mapVC.findHeight(toViewBounds: bound, pos: middle)
-        mapVC.setPosition(middle, height: h/3)
-        mapVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
+        mapVC.addPostInitBlock { [weak self] in
+            guard let self = self else { return }
+            let bound = self.geoBound(Self.buildBritishNationalGrid(false))
+            let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
+                                         y: (bound.ll.y + bound.ur.y) / 2.0)
+            let h = mapVC.findHeight(toViewBounds: bound, pos: middle)
+            mapVC.setPosition(middle, height: h/3)
+            mapVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
+        }
 	}
 
     public func geoBound(_ coordSys: MaplyCoordinateSystem) -> MaplyBoundingBox {

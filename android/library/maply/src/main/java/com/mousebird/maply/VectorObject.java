@@ -1,9 +1,8 @@
-/*
- *  VectorObject
+/*  VectorObject
  *  com.mousebirdconsulting.maply
  *
  *  Created by Steve Gifford on 12/30/13.
- *  Copyright 2013-2014 mousebird consulting
+ *  Copyright 2013-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
@@ -24,10 +22,7 @@ import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
-import java.util.Vector;
 
 /**
  * The Maply VectorObject represents a group of vector features.  There can be a single point in here,
@@ -43,13 +38,13 @@ import java.util.Vector;
  * @author sjg
  *
  */
+@SuppressWarnings("unused")
 public class VectorObject implements Iterable<VectorObject>
 {
 	/**
 	 * Construct empty.
 	 */
-	public VectorObject()
-	{
+	public VectorObject() {
 		initialise(ident);
 	}
 
@@ -59,32 +54,33 @@ public class VectorObject implements Iterable<VectorObject>
 	long ident = Identifiable.genID();
 
 	public enum MaplyVectorObjectType {
-		MaplyVectorNoneType(0), MaplyVectorPointType(1), MaplyVectorLinearType(2), MaplyVectorLinear3dType(3), MaplyVectorArealType(4), MaplyVectorMultiType(5);
+		MaplyVectorNoneType(0),
+		MaplyVectorPointType(1),
+		MaplyVectorLinearType(2),
+		MaplyVectorLinear3dType(3),
+		MaplyVectorArealType(4),
+		MaplyVectorMultiType(5);
 		private final int objType;
-		MaplyVectorObjectType(int objType) {this.objType = objType;}
-		public int getValue() { return objType;}
-	};
+		MaplyVectorObjectType(int objType) {
+			this.objType = objType;
+		}
+		public int getValue() {
+			return objType;
+		}
+	}
 
 	/**
 	 * The vector type is one of point, linear, linear3d, areal, or a combination.
 	 */
 	public MaplyVectorObjectType getVectorType()
 	{
-		int vectorType = getVectorTypeNative();
-		if (vectorType == MaplyVectorObjectType.MaplyVectorNoneType.getValue())
-			return MaplyVectorObjectType.MaplyVectorNoneType;
-		else if (vectorType == MaplyVectorObjectType.MaplyVectorPointType.getValue())
-			return MaplyVectorObjectType.MaplyVectorPointType;
-		else if (vectorType == MaplyVectorObjectType.MaplyVectorLinearType.getValue())
-			return MaplyVectorObjectType.MaplyVectorLinearType;
-		else if (vectorType == MaplyVectorObjectType.MaplyVectorLinear3dType.getValue())
-			return MaplyVectorObjectType.MaplyVectorLinear3dType;
-		else if (vectorType == MaplyVectorObjectType.MaplyVectorArealType.getValue())
-			return MaplyVectorObjectType.MaplyVectorArealType;
-		else if (vectorType == MaplyVectorObjectType.MaplyVectorMultiType.getValue())
-			return MaplyVectorObjectType.MaplyVectorMultiType;
-		else
-			return MaplyVectorObjectType.MaplyVectorNoneType;
+		final int vectorType = getVectorTypeNative();
+		for (MaplyVectorObjectType value : MaplyVectorObjectType.values()) {
+			if (value.getValue() == vectorType) {
+				return value;
+			}
+		}
+		return MaplyVectorObjectType.MaplyVectorNoneType;
 	}
 	private native int getVectorTypeNative();
 
@@ -104,6 +100,7 @@ public class VectorObject implements Iterable<VectorObject>
 	 * If there are multiple features, we get the first one.
 	 * May return a copy of the internal attribute dictionary.
 	 */
+	@Nullable
 	public native AttrDictionary getAttributes();
 
 	/**
@@ -122,22 +119,22 @@ public class VectorObject implements Iterable<VectorObject>
 	/**
 	 * Add a single point
 	 */
-	public native void addPoint(Point2d pt);
+	public native boolean addPoint(Point2d pt);
 
 	/**
 	 *  Add a linear feature
 	 */
-	public native void addLinear(Point2d pts[]);
+	public native boolean addLinear(Point2d[] pts);
 	
 	/**
 	 *  Add an areal feature with one external loop.
 	 */
-	public native void addAreal(Point2d pts[]);
+	public native boolean addAreal(Point2d[] pts);
 
 	/**
 	 * Add an areal feature with a single exterior loop and one or more interior loops.
      */
-	public native void addAreal(Point2d ext[],Point2d holes[][]);
+	public native boolean addAreal(Point2d[] ext, Point2d[][] holes);
 
 	/**
 	 * Merge the vectors from the other vector object into this one.
@@ -149,8 +146,7 @@ public class VectorObject implements Iterable<VectorObject>
 	 * each of this individually, this iterator will handle that efficiently.
 	 */
 	@Override
-	public VectorIterator iterator() 
-	{
+	public VectorIterator iterator() {
 		return new VectorIterator(this);
 	}
 
@@ -212,9 +208,42 @@ public class VectorObject implements Iterable<VectorObject>
 	public native double areaOfOuterLoops();
 
 	/**
+	 * Reverse the direction of areal loops in this object
+	 */
+	public native void reverseAreals();
+
+	/**
+	 * Create a copy with reversed areal loops
+	 */
+	public native VectorObject reversedAreals();
+
+	/**
+	 * Ensure that areal loops are closed
+	 */
+	public native void closeLoops();
+	/**
+	 * Produce a new objet with closed loops
+	 */
+	public native VectorObject closedLoops();
+
+	/**
+	 * Ensure that areal loops are not closed
+	 */
+	public native void unCloseLoops();
+	/**
+	 * Produce a new objet with un-closed loops
+	 */
+	public native VectorObject unClosedLoops();
+
+	/**
 	 * Returns the total number of points in a feature.  Used for assessing size.
      */
 	public native int countPoints();
+
+	/**
+	 * Returns true if any of the segments of lines or areas intersect any others
+	 */
+	public native boolean anyIntersections();
 
 	/**
 	 * Bounding box of all the various features together
@@ -228,13 +257,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 The epsilon is in display coordinates (radius = 1.0).
 	 This routine breaks this up along geographic boundaries.
 	 */
-	public VectorObject subdivideToGlobe(double epsilon)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!subdivideToGlobeNative(retVecObj,epsilon))
-			return null;
-
-		return retVecObj;
+	public VectorObject subdivideToGlobe(double epsilon) {
+		final VectorObject retVecObj = new VectorObject();
+		return subdivideToGlobeNative(retVecObj,epsilon) ? retVecObj : null;
 	}
 
 	private native boolean subdivideToGlobeNative(VectorObject retVecObj,double epsilon);
@@ -244,13 +269,9 @@ public class VectorObject implements Iterable<VectorObject>
 
 	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon using a great circle route.  The epsilon is in display coordinates (radius = 1.0).
 	 */
-	public VectorObject subdivideToGlobeGreatCircle(double epsilon)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!subdivideToGlobeGreatCircleNative(retVecObj,epsilon))
-			return null;
-
-		return retVecObj;
+	public VectorObject subdivideToGlobeGreatCircle(double epsilon) {
+		final VectorObject retVecObj = new VectorObject();
+		return subdivideToGlobeGreatCircleNative(retVecObj,epsilon) ? retVecObj : null;
 	}
 
 	private native boolean subdivideToGlobeGreatCircleNative(VectorObject retVecObj,double epsilon);
@@ -260,13 +281,9 @@ public class VectorObject implements Iterable<VectorObject>
 
 	 This version samples a great circle to display on a flat map.
 	 */
-	public VectorObject subdivideToFlatGreatCircle(double epsilon)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!subdivideToFlatGreatCircleNative(retVecObj,epsilon))
-			return null;
-
-		return retVecObj;
+	public VectorObject subdivideToFlatGreatCircle(double epsilon) {
+		final VectorObject retVecObj = new VectorObject();
+		return subdivideToFlatGreatCircleNative(retVecObj,epsilon) ? retVecObj : null;
 	}
 
 	private native boolean subdivideToFlatGreatCircleNative(VectorObject retVecObj,double epsilon);
@@ -277,13 +294,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 This will break up long edges in a vector until they lie flat on a globe to a given epsilon
 	 using a great circle route.  The epsilon is in display coordinates (radius = 1.0).
 	 */
-	public VectorObject subdivideToGlobeGreatCirclePrecise(double epsilon)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!subdivideToGlobeGreatCirclePreciseNative(retVecObj,epsilon))
-			return null;
-
-		return retVecObj;
+	public VectorObject subdivideToGlobeGreatCirclePrecise(double epsilon) {
+		final VectorObject retVecObj = new VectorObject();
+		return subdivideToGlobeGreatCirclePreciseNative(retVecObj,epsilon) ? retVecObj : null;
 	}
 
 	private native boolean subdivideToGlobeGreatCirclePreciseNative(VectorObject retVecObj,double epsilon);
@@ -293,27 +306,23 @@ public class VectorObject implements Iterable<VectorObject>
 
 	 This version samples a great circle to display on a flat map.
 	 */
-	public VectorObject subdivideToFlatGreatCirclePrecise(double epsilon)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!subdivideToFlatGreatCirclePreciseNative(retVecObj,epsilon))
-			return null;
-
-		return retVecObj;
+	public VectorObject subdivideToFlatGreatCirclePrecise(double epsilon) {
+		final VectorObject retVecObj = new VectorObject();
+		return subdivideToFlatGreatCirclePreciseNative(retVecObj,epsilon) ? retVecObj : null;
 	}
 
 	private native boolean subdivideToFlatGreatCirclePreciseNative(VectorObject retVecObj,double epsilon);
 
 	/**
-	 * Tesselate the areal features and return a new vector object.
+	 * Tessellate the areal features and return a new vector object.
 	 */
-	public VectorObject tesselate()
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!tesselateNative(retVecObj))
-			return null;
-
-		return retVecObj;
+	@Deprecated
+	public VectorObject tesselate() {
+		return tessellate();
+	}
+	public VectorObject tessellate() {
+		final VectorObject retVecObj = new VectorObject();
+		return tesselateNative(retVecObj) ? retVecObj : null;
 	}
 
 	private native boolean tesselateNative(VectorObject retVecObj);
@@ -321,13 +330,9 @@ public class VectorObject implements Iterable<VectorObject>
 	/**
 	 * Clip the given areal features to a grid of the given size.
 	 */
-	public VectorObject clipToGrid(Point2d size)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!clipToGridNative(retVecObj,size.getX(),size.getY()))
-			return null;
-
-		return retVecObj;
+	public VectorObject clipToGrid(Point2d size) {
+		final VectorObject retVecObj = new VectorObject();
+		return clipToGridNative(retVecObj,size.getX(),size.getY()) ? retVecObj : null;
 	}
 
 	private native boolean clipToGridNative(VectorObject retVecObj,double sizeX,double sizeY);
@@ -335,13 +340,9 @@ public class VectorObject implements Iterable<VectorObject>
 	/**
 	 * Clip the given features to an Mbr
 	 */
-	public VectorObject clipToMbr(Mbr mbr)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!clipToMbrNative(retVecObj, mbr.ll.getX(), mbr.ll.getY(), mbr.ur.getX(), mbr.ur.getY()))
-			return null;
-
-		return retVecObj;
+	public VectorObject clipToMbr(Mbr mbr) {
+		final VectorObject retVecObj = new VectorObject();
+		return clipToMbrNative(retVecObj, mbr.ll.getX(), mbr.ll.getY(), mbr.ur.getX(), mbr.ur.getY()) ? retVecObj : null;
     }
 
 	private native boolean clipToMbrNative(VectorObject retVecObj,double llX,double llY, double urX, double urY);
@@ -356,13 +357,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 * @param destSystem Destination coordinate system that we'll project data into.
 	 * @return The new vector object or null.
 	 */
-	public VectorObject reproject(CoordSystem srcSystem,double scale,CoordSystem destSystem)
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!reprojectNative(retVecObj,srcSystem,scale,destSystem))
-			return null;
-
-		return retVecObj;
+	public VectorObject reproject(CoordSystem srcSystem,double scale,CoordSystem destSystem) {
+		final VectorObject retVecObj = new VectorObject();
+		return reprojectNative(retVecObj,srcSystem,scale,destSystem) ? retVecObj : null;
 	}
 
 	private native boolean reprojectNative(VectorObject vecObj,CoordSystem srcSystem,double scale,CoordSystem destSystem);
@@ -377,12 +374,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 *
 	 * @return The filtered vector object or null.
 	 */
-	public VectorObject filterClippedEdges()
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!filterClippedEdgesNative(retVecObj))
-			return null;
-		return retVecObj;
+	public VectorObject filterClippedEdges() {
+		final VectorObject retVecObj = new VectorObject();
+		return filterClippedEdgesNative(retVecObj) ? retVecObj : null;
 	}
 
 	private native boolean filterClippedEdgesNative(VectorObject vecObj);
@@ -391,12 +385,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 * Convert any linears features into areals, by closing them and return
 	 * a new vector object or null.
 	 */
-	public VectorObject linearsToAreals()
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!linearsToArealsNative(retVecObj))
-			return null;
-		return retVecObj;
+	public VectorObject linearsToAreals() {
+		final VectorObject retVecObj = new VectorObject();
+		return linearsToArealsNative(retVecObj) ? retVecObj : null;
 	}
 
 	private native boolean linearsToArealsNative(VectorObject vecObj);
@@ -405,12 +396,9 @@ public class VectorObject implements Iterable<VectorObject>
 	 * Convert any areal features to linears (just the outline) and return
 	 * a new vector object or null.
 	 */
-	public VectorObject arealsToLinears()
-	{
-		VectorObject retVecObj = new VectorObject();
-		if (!arealsToLinearsNative(retVecObj))
-			return null;
-		return retVecObj;
+	public VectorObject arealsToLinears() {
+		final VectorObject retVecObj = new VectorObject();
+		return arealsToLinearsNative(retVecObj) ? retVecObj : null;
 	}
 
 	private native boolean arealsToLinearsNative(VectorObject vecObj);
@@ -432,6 +420,36 @@ public class VectorObject implements Iterable<VectorObject>
 		VectorObject vo = new VectorObject();
 		return vo.fromGeoJSON(json) ? vo : null;
 	}
+
+	/**
+	 * Create a new vector object as a linear from a collection of points
+	 */
+	@Nullable
+	public static VectorObject createLineString(@NotNull Point2d[] points) {
+		return createLineString(points, null);
+	}
+
+	/**
+	 * Create a new vector object as a linear from a collection of points and attributes
+	 */
+	@Nullable
+	public static native VectorObject createLineString(@NotNull Point2d[] points,
+	                                                   @Nullable AttrDictionary attrs);
+
+	/**
+	 * Create a new vector object as a polygon from a collection of points
+	 */
+	@Nullable
+	public static VectorObject createAreal(@NotNull Point2d[] points) {
+		return createAreal(points, null);
+	}
+
+	/**
+	 * Create a new vector object as a polygon from a collection of points and attributes
+	 */
+	@Nullable
+	public static native VectorObject createAreal(@NotNull Point2d[] points,
+												  @Nullable AttrDictionary attrs);
 
 	/**
 	 * Load vector objects from a Shapefile.
@@ -461,11 +479,9 @@ public class VectorObject implements Iterable<VectorObject>
 	/**
 	 * Make a complete copy of the vector object and return it.
 	 */
-	public VectorObject deepCopy()
-	{
-		VectorObject vecObj = new VectorObject();
+	public VectorObject deepCopy() {
+		final VectorObject vecObj = new VectorObject();
 		deepCopyNative(vecObj);
-
 		return vecObj;
 	}
 
@@ -473,18 +489,14 @@ public class VectorObject implements Iterable<VectorObject>
 
 	/**
 	 * Load vector objects from a GeoJSON assembly, which is just a bunch of GeoJSON stuck together.
-	 * @param json
-	 * @return
 	 */
 	static public native Map<String,VectorObject> FromGeoJSONAssembly(String json);
 
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 
-	static
-	{
+	static {
 		nativeInit();
 	}
 	private static native void nativeInit();

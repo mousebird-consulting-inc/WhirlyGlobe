@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/24/12.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ public:
     virtual ~SceneGraphManager();
     
     /// Add a drawable to be referenced by the scenegraph
-    void addDrawable(BasicDrawable *draw,ChangeSet &changes);
+    void addDrawable(const BasicDrawableRef &draw,ChangeSet &changes);
     
     /// Add the given scenegraph fragment
     void attachSceneFragment(SimpleIdentity attachID,SceneGraphNode *node);

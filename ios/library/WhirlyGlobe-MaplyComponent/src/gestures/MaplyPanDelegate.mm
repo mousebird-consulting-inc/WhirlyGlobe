@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -156,8 +156,8 @@ static const float AnimLen = 1.0;
                 // Check if we're still within bounds
                 if (MaplyGestureWithinBounds(bounds, newLoc, sceneRender, &testMapView, &newCenter))
                 {
-                    auto animation = std::make_shared<AnimateViewTranslation>(mapView,sceneRender,newCenter,animTime);
-                    mapView->setDelegate(animation);
+                    mapView->setDelegate(std::make_shared<AnimateViewTranslation>(
+                        mapView,sceneRender,newCenter,animTime));
                 }
             }
         }

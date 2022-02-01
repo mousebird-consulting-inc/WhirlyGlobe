@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@
 #import "ScreenSpaceBuilder.h"
 #import "FontTextureManager.h"
 #import "SharedAttributes.h"
-
 #import "LabelManager.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -55,6 +55,22 @@ SingleLabel::SingleLabel() :
 LabelManager::LabelManager()
     : textureAtlasSize(LabelTextureAtlasSizeDefault), maskProgID(EmptyIdentity)
 {
+}
+
+LabelManager::~LabelManager()
+{
+    // destructors must never throw, wrap stuff that might fail
+    try
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+
+        auto reps = std::move(labelReps);
+        for (auto rep : reps)
+        {
+            delete rep;
+        }
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
@@ -152,36 +168,33 @@ SimpleIdentity LabelManager::addLabels(PlatformThreadInfo *threadInfo,
     if (const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager))
     {
         int n = 0;
-        for (unsigned int ii=0;ii<labelRenderer.selectables2D.size();ii++)
+        for (const auto &sel : labelRenderer.selectables2D)
         {
             if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
             {
                 return EmptyIdentity;
             }
-            const RectSelectable2D &sel = labelRenderer.selectables2D[ii];
             selectManager->addSelectableScreenRect(sel.selectID,sel.center,sel.pts,
                                                    sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
-        for (unsigned int ii=0;ii<labelRenderer.movingSelectables2D.size();ii++)
+        for (const auto &sel : labelRenderer.movingSelectables2D)
         {
             if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
             {
                 return EmptyIdentity;
             }
-            const auto &sel = labelRenderer.movingSelectables2D[ii];
             selectManager->addSelectableMovingScreenRect(sel.selectID,sel.center,sel.endCenter,
                                                          sel.startTime,sel.endTime,sel.pts,
                                                          sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }
-        for (unsigned int ii=0;ii<labelRenderer.selectables3D.size();ii++)
+        for (const auto &sel : labelRenderer.selectables3D)
         {
             if (((++n) % cancelCheckBatch) == 0 && cancelFn(threadInfo))
             {
                 return EmptyIdentity;
             }
-            const auto &sel = labelRenderer.selectables3D[ii];
             selectManager->addSelectableRect(sel.selectID,sel.pts,sel.minVis,sel.maxVis,sel.enable);
             labelRep->selectIDs.insert(sel.selectID);
         }

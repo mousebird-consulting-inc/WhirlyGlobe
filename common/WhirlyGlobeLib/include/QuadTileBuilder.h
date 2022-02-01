@@ -29,9 +29,34 @@ class QuadTileBuilder;
  
     This is passed to a Tile Builder Delegate when changes are being made in the Tile Builder;
   */
-class TileBuilderDelegateInfo {
-public:
-    int targetLevel;
+struct TileBuilderDelegateInfo
+{
+    TileBuilderDelegateInfo() = default;
+    TileBuilderDelegateInfo(const TileBuilderDelegateInfo&) = default;
+    TileBuilderDelegateInfo(TileBuilderDelegateInfo &&that) noexcept :
+        targetLevel(that.targetLevel),
+        loadTiles(std::move(that.loadTiles)),
+        unloadTiles(std::move(that.unloadTiles)),
+        enableTiles(std::move(that.enableTiles)),
+        disableTiles(std::move(that.disableTiles)),
+        changeTiles(std::move(that.changeTiles))
+    {
+    }
+    TileBuilderDelegateInfo& operator=(const TileBuilderDelegateInfo&) = default;
+    TileBuilderDelegateInfo& operator=(TileBuilderDelegateInfo &&that) noexcept
+    {
+        if (this != &that) {
+            targetLevel = that.targetLevel;
+            loadTiles = std::move(that.loadTiles);
+            unloadTiles = std::move(that.unloadTiles);
+            enableTiles = std::move(that.enableTiles);
+            disableTiles = std::move(that.disableTiles);
+            changeTiles = std::move(that.changeTiles);
+        }
+        return *this;
+    }
+
+    int targetLevel = -1;
     LoadedTileVec loadTiles;
     QuadTreeNew::NodeSet unloadTiles;
     LoadedTileVec enableTiles,disableTiles;

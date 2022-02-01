@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -218,14 +218,20 @@ public:
     virtual void setClearColor(const RGBAColor &color);
     
     /// Return the current clear color
-    RGBAColor getClearColor();
+    RGBAColor getClearColor() const;
     
     /// Get the framebuffer size (in pixels)
-    Point2f getFramebufferSize();
-    
+    Point2f getFramebufferSize() const;
+
+    /// Get the framebuffer size (in pixels) with a margin
+    Mbr getFramebufferBound(float marginFrac) const;
+
     /// Get the framebuffer size (divided by scale)
-    Point2f getFramebufferSizeScaled();
-    
+    Point2f getFramebufferSizeScaled() const;
+
+    /// Get the framebuffer size (divided by scale) with a margin
+    Mbr getFramebufferBoundScaled(float marginFrac) const;
+
     /// Return the attached Scene
     Scene *getScene();
     
@@ -233,11 +239,11 @@ public:
     View *getView();
     
     /// Return the device scale (e.g. retina vs. not)
-    float getScale();
-    
+    float getScale() const;
+
     /// Set the screen scale (can vary)
     void setScale(float newScale);
-    
+
     /// Used by the subclasses to determine if the view changed and needs to be updated
     virtual bool viewDidChange();
     
@@ -325,24 +331,8 @@ public:
     /// Maps name IDs to slots (slots are just used by Metal)
     virtual int getSlotForNameID(SimpleIdentity nameID);
 
-    /// The pixel width of the CAEAGLLayer.
-    int framebufferWidth;
-    /// The pixel height of the CAEAGLLayer.
-    int framebufferHeight;
-    
-    /// Scale, to reflect the device's screen
-    float scale;
+    const std::vector<RenderTargetRef> &getRenderTargets() const { return renderTargets; }
 
-    std::vector<RenderTargetRef> renderTargets;
-    std::vector<WorkGroupRef> workGroups;
-
-    // Drawables that we currently know about, but are off
-    std::set<DrawableRef> offDrawables;
-
-    // Explicitly clear any held structures
-    void shutdown();
-
-public:
     // Called by the subclass
     virtual void init();
     
@@ -354,9 +344,23 @@ public:
     
     // Update the extra frame rendering count
     virtual void updateExtraFrames();
-    
+
+    const RenderTeardownInfoRef &getTeardownInfo() const { return teardownInfo; }
+
+protected:
+    /// Set the framebuffer size
+    /// You probably want resize() instead.
+    void setFramebufferSize(float width, float height);
+    void setFramebufferSize(const Point2f &size) { setFramebufferSize(size.x(), size.y()); }
+
+    // Explicitly clear any held structures
+    void shutdown();
+
+public:
     /// Scene we're drawing.  This is set from outside
     Scene *scene;
+
+protected:
     /// The view controls how we're looking at the scene
     View *theView;
     /// Set this mode to modify how Z buffering is used (if at all)
@@ -402,9 +406,9 @@ public:
     
     // If we're an offline renderer, the texture we're rendering into
     TextureRef framebufferTex;
-    
+
     TimeInterval lightsLastUpdated;
-    Material defaultMat;    
+    Material defaultMat;
     std::vector<DirectionalLight> lights;
 
     // Everything torn down until the next frame
@@ -412,6 +416,21 @@ public:
     
     // Map Name IDs to slots (when using Metal)
     std::map<SimpleIdentity,int> slotMap;
+
+protected:
+    /// The pixel width of the CAEAGLLayer.
+    int framebufferWidth;
+    /// The pixel height of the CAEAGLLayer.
+    int framebufferHeight;
+    
+    /// Scale, to reflect the device's screen
+    float scale;
+
+    std::vector<RenderTargetRef> renderTargets;
+    std::vector<WorkGroupRef> workGroups;
+
+    // Drawables that we currently know about, but are off
+    std::set<DrawableRef> offDrawables;
 };
 
 typedef std::shared_ptr<SceneRenderer> SceneRendererRef;

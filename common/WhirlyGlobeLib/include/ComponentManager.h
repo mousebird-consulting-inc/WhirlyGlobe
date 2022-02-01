@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/15/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ class ComponentObject : public Identifiable
 {
     friend class ComponentManager;
 public:
-    virtual ~ComponentObject();
+    virtual ~ComponentObject() = default;
     
     SimpleIDSet markerIDs;
     SimpleIDSet labelIDs;

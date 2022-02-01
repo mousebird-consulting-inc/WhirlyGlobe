@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/22/13.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -81,6 +81,8 @@ public:
     int layoutPlacement;
     /// Shape for label to follow
     VectorRing layoutShape;
+    /// Identifies objects to be laid out together
+    std::string mergeID;
 
     // If set, we'll draw an outline to the mask target
     WhirlyKit::SimpleIdentity maskID;
@@ -90,12 +92,12 @@ public:
     LabelInfoRef infoOverride;
 
     // Used to build the drawable string on specific platforms
-    virtual std::vector<DrawableString *> generateDrawableStrings(
-            PlatformThreadInfo *threadInfo,
+    virtual std::vector<std::unique_ptr<DrawableString>> generateDrawableStrings(
+            PlatformThreadInfo *,
             const LabelInfo *,
-            const FontTextureManagerRef &fontTexManager,
+            const FontTextureManagerRef &,
             float &lineHeight,
-            ChangeSet &changes) = 0;
+            ChangeSet &) = 0;
 };
 typedef std::shared_ptr<SingleLabel> SingleLabelRef;
     
@@ -108,7 +110,7 @@ class LabelManager : public SceneManager
 {
 public:
     LabelManager();
-    virtual ~LabelManager() = default;
+    virtual ~LabelManager();
 
     /// Add the given set of labels, returning an ID that represents the whole thing
     SimpleIdentity addLabels(PlatformThreadInfo *threadInfo,

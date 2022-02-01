@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 namespace WhirlyKit
 {
 
-std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(
+std::vector<std::unique_ptr<DrawableString>> SingleLabelAndroid::generateDrawableStrings(
         PlatformThreadInfo *inThreadInfo,
         const LabelInfo *inLabelInfo,
         const FontTextureManagerRef &inFontTexManager,
@@ -42,24 +42,21 @@ std::vector<DrawableString *> SingleLabelAndroid::generateDrawableStrings(
     // May need the line height for multi-line labels
     lineHeight = labelInfo->lineHeight;
 
-    std::vector<DrawableString *> drawStrs;
+    std::vector<std::unique_ptr<DrawableString>> drawStrs;
     drawStrs.reserve(codePointsLines.size());
 
-    int whichLine = 0;
+    float offset = 0.0f;
     for (const auto &codePoints : codePointsLines)
     {
         if (auto drawStr = fontTexManager->addString(threadInfo,codePoints,labelInfo,changes))
         {
-            drawStrs.push_back(drawStr);
-
             // Modify the MBR if this is a multi-line label
-            if (whichLine > 0)
-            {
-                drawStr->mbr.ll().y() += lineHeight * whichLine;
-                drawStr->mbr.ur().y() += lineHeight * whichLine;
-            }
+            drawStr->mbr.ll().y() += offset;
+            drawStr->mbr.ur().y() += offset;
+
+            drawStrs.push_back(std::move(drawStr));
         }
-        whichLine++;
+        offset += lineHeight;
     }
 
     return drawStrs;

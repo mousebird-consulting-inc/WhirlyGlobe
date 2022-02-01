@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/16/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ package com.mousebird.maply;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -415,6 +417,13 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 }
             }
         }
+    }
+
+    /**
+     * Some tiles were just removed.
+     */
+    @Override
+    public void tilesUnloaded(@NonNull TileID[] ids) {
     }
 
     private Bitmap lastBackground = null;

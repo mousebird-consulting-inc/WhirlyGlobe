@@ -3,7 +3,7 @@
  *
  *
  *  Created by Jesse Crocker on 2/3/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,18 +60,18 @@ using namespace Maply;
     auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
     if (self.mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSizeScaled, &hit, true))
     {
-        double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
+        const double newZ = curLoc.z() - (curLoc.z() - self.minZoom)/2.0;
         
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))
         {
-            Point3d newLoc(hit.x(),hit.y(),newZ);
+            const Point3d newLoc(hit.x(),hit.y(),newZ);
             Point3d newCenter;
             MapView testMapView(*(self.mapView));
             // Check if we're still within bounds
             if (MaplyGestureWithinBounds(bounds, newLoc, sceneRenderer, &testMapView, &newCenter))
             {
-                MapViewAnimationDelegateRef animation(new AnimateViewTranslation(self.mapView,sceneRenderer,newCenter,_animTime));
-                self.mapView->setDelegate(animation);
+                self.mapView->setDelegate(std::make_shared<AnimateViewTranslation>(
+                    self.mapView,sceneRenderer,newCenter,_animTime));
             }
         }
     } else {

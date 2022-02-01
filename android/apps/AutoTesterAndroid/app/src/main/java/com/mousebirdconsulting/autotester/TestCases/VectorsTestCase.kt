@@ -12,24 +12,29 @@ import okio.source
 import java.util.*
 
 class VectorsTestCase(activity: Activity?) :
-        MaplyTestCase(activity, "Vectors Test", TestExecutionImplementation.Both) {
+        MaplyTestCase(activity, "Vectors", TestExecutionImplementation.Both) {
 
     private val compObjs = ArrayList<ComponentObject>()
 
     @Throws(Exception::class)
     private fun overlayCountries(baseVC: BaseController) {
-        val vectorInfo = WideVectorInfo().apply {
-            setColor(Color.RED)
-            setLineWidth(4f)
+        val vectorInfo = VectorInfo().apply {
+            color = Color.RED
+            drawPriority = RenderController.VectorDrawPriorityDefault+1
+        }
+        val wideInfo = WideVectorInfo().apply {
+            color = Color.WHITE
+            drawPriority = RenderController.VectorDrawPriorityDefault
+            lineWidth = 5f
         }
         val assetMgr = activity.assets
-        val jsons = assetMgr.list("country_json_50m")!!
         var loaded = 0
         var msg: Toast? = null
-        for (path in jsons) {
+        val paths = assetMgr.list("country_json_50m")
+        paths?.forEach { path ->
             val txt = "Loading %s : %.1f%%".format(
                 path.removeSuffix(".geojson"),
-                ++loaded * 100.0 / jsons.size)
+                ++loaded * 100.0 / paths.size)
             activity.runOnUiThread {
                 msg?.cancel()
                 msg = Toast.makeText(activity.applicationContext, txt, Toast.LENGTH_SHORT)
@@ -44,7 +49,7 @@ class VectorsTestCase(activity: Activity?) :
             }
             Log.d("Maply", "Loading $path")
             if (!baseVC.isRunning || canceled) {
-                break
+                return@forEach
             }
             VectorObject.createFromGeoJSON(json)?.apply {
                 selectable = true
@@ -52,10 +57,11 @@ class VectorsTestCase(activity: Activity?) :
                 vectors.add(vec)
                 // We use ThreadAny here so that it's handled correctly if the map is shut
                 // down while we're running.
-                baseVC.addWideVector(vec, vectorInfo, ThreadMode.ThreadAny)?.let { co ->
-                    compObjs.add(co)
-                    onVectorLoaded?.invoke(vec,co)
-                }
+                val cos = listOfNotNull(
+                    baseVC.addVector(vec, vectorInfo, ThreadMode.ThreadAny),
+                    baseVC.addWideVector(vec, wideInfo, ThreadMode.ThreadAny))
+                compObjs.addAll(cos)
+                onVectorLoaded?.invoke(vec,cos)
             }
         }
         activity.runOnUiThread { msg?.cancel() }
@@ -69,8 +75,8 @@ class VectorsTestCase(activity: Activity?) :
         
         // Then change to white
         val newVectorInfo = WideVectorInfo().apply {
-            setColor(Color.WHITE)
-            setLineWidth(4f)
+            color = Color.WHITE
+            lineWidth = 4f
         }
         // todo: doesn't work yet
         for (compObj in compObjs) {
@@ -79,7 +85,7 @@ class VectorsTestCase(activity: Activity?) :
     }
 
     var onVectorsLoaded: ((Collection<VectorObject>)->Unit)? = null
-    var onVectorLoaded: ((VectorObject,ComponentObject)->Unit)? = null
+    var onVectorLoaded: ((VectorObject,Collection<ComponentObject>)->Unit)? = null
     
     @Throws(Exception::class)
     override fun setUpWithMap(mapVC: MapController): Boolean {
@@ -128,10 +134,10 @@ class VectorsTestCase(activity: Activity?) :
         val s = selObjs.mapNotNull { it.selObj as? VectorObject }
             .mapNotNull {
                 val center = it.centroid() ?: it.center() ?: return@mapNotNull null
-                val name = it.attributes.getString("NAME_FORMA") ?:
-                    it.attributes.getString("NAME") ?:
-                    it.attributes.getString("ADMIN") ?:
-                    it.attributes.getString("title") ?: "?"
+                val name = it.attributes?.getString("NAME_FORMA") ?:
+                    it.attributes?.getString("NAME") ?:
+                    it.attributes?.getString("ADMIN") ?:
+                    it.attributes?.getString("title") ?: "?"
                 mapController?.animatePositionGeo(center, mapController.height, mapController.heading, 1.0)
                 globeController?.animatePositionGeo(center, globeController.height, globeController.heading, 1.0)
                 String.format("$name (%.5f,%.5f)",

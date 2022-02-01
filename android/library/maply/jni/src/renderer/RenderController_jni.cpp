@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -170,12 +170,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RenderController_setScene(JNIEnv
 {
 	try
 	{
-		SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj);
-		Scene *scene = SceneClassInfo::getClassInfo()->getObject(env,sceneObj);
-		if (!renderer || !scene)
-			return;
-
-		renderer->setScene(scene);
+		if (SceneRendererGLES_Android *renderer = SceneRendererInfo::getClassInfo()->getObject(env,obj))
+		{
+			if (sceneObj)
+			{
+				if (Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj))
+				{
+					renderer->setScene(scene);
+				}
+			}
+			else
+			{
+				renderer->setScene(nullptr);
+			}
+		}
 	}
 	catch (...)
 	{

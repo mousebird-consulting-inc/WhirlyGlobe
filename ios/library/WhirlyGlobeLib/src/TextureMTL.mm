@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -343,6 +343,7 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     if (!texData)
     {
         desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        desc.allowGPUOptimizedContents = false;
 
         // todo: maybe we want private for depth/stencil everywhere?
         // "MTLTextureDescriptor: Depth, Stencil, DepthStencil textures cannot be

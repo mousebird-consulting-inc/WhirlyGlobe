@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/28/11.
- *  Copyright 2011-2021 mousebird consulting.
+ *  Copyright 2011-2022 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,19 +33,12 @@ namespace WhirlyKit
 {
 
 ShapeInfo::ShapeInfo()
-    : color(RGBAColor(255,255,255,255))
-    , lineWidth(1.0)
-    , insideOut(false)
-    , hasCenter(false)
-    , center(0.0,0.0,0.0)
 {
     zBufferRead = true;
 }
 
 ShapeInfo::ShapeInfo(const Dictionary &dict)
     : BaseInfo(dict)
-    , hasCenter(false)
-    , center(0,0,0)
 {
     zBufferRead = dict.getBool(MaplyZBufferRead, true);
     color = dict.getColor(MaplyColor,RGBAColor(255,255,255,255));

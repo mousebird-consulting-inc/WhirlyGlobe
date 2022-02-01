@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 3/11/16.
-//  Copyright © 2016-2021 mousebird consulting. All rights reserved.
+//  Copyright 2016-2022 mousebird consulting. All rights reserved.
 //
 
 import Foundation
@@ -326,7 +326,17 @@ class GreatCircleTestCase: MaplyTestCase {
                 compObjs.append(obj)
             }
         }
-        
+
+        do {
+        let points = [MaplyCoordinateMakeWithDegrees(0.167914, 51.197795),MaplyCoordinateMakeWithDegrees(-0.119376, 51.225319)]
+
+        let vector = MaplyVectorObject(lineString: points, numCoords: 2, attributes: [kMaplyColor:UIColor.orange])
+
+            let desc = [kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault+200,kMaplyVecWidth:6]
+            if let co = viewC.addWideVectors([vector], desc: desc, mode: MaplyThreadMode.current) {
+                compObjs.append(co)
+            }
+        }
         return compObjs;
     }
 

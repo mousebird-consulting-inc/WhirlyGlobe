@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by Steve Gifford on 2/8/21.
-//  Copyright © 2021 mousebird consulting. All rights reserved.
+//  Copyright 2021-2022 mousebird consulting. All rights reserved.
 //
 
 import Foundation
@@ -40,10 +40,7 @@ class GraphBuilder {
 class AirwayTestCase: MaplyTestCase {
     
     override init() {
-        super.init()
-        
-        self.name = "Airways & Airspaces"
-        self.implementations = [.globe, .map]
+        super.init(name: "Airways & Airspaces", supporting: [.globe, .map])
     }
     
     let baseCase = StamenWatercolorRemote()

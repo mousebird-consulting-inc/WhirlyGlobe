@@ -3,7 +3,7 @@
 //  AutoTester
 //
 //  Created by zhoujiong on 2019/11/12.
-//  Copyright © 2019 mousebird consulting. All rights reserved.
+//  Copyright 2019-2022 mousebird consulting. All rights reserved.
 //
 
 #import "MaplyTestCase.h"

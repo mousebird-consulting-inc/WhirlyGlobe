@@ -3,7 +3,7 @@
 //  WhirlyGlobeMaplyComponent
 //
 //  Created by Tim Sylvester on 10/30/20.
-//  Copyright © 2020 mousebird consulting. All rights reserved.
+//  Copyright 2020 mousebird consulting. All rights reserved.
 //
 
 #ifndef VectorTilePBFParser_h

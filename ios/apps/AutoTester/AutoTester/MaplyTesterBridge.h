@@ -11,6 +11,9 @@
 
 #import "MaplyBridge.h"
 
+#import "GeoJSONSource.h"
+#import "GeographicLib.h"
+
 #import "MaplyTestCase.h"
 #import "VectorsTestCase.h"
 #import "TextureVectorTestCase.h"
@@ -30,12 +33,9 @@
 #import "PagingLayerTestCase.h"
 #import "VectorHoleTestCase.h"
 #import "VectorStyleTestCase.h"
-#import "ActiveObjectTestCase.h"
-#import "GeoJSONSource.h"
 #import "GlyphProblemTestCase.h"
 #import "ChangeVectorsTestCase.h"
 #import "RepresentationsTestCase.h"
-#import "GeographicLib.h"
 #import "LIDARTestCase.h"
 #import "ParticleTest.h"
 

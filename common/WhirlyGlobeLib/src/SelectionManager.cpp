@@ -4,7 +4,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/26/11.
- *  Copyright 2011-2021 mousebird consulting.
+ *  Copyright 2011-2022 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -779,22 +779,18 @@ void SelectionManager::getScreenSpaceObjects(const PlacementInfo &pInfo,std::vec
 SelectionManager::PlacementInfo::PlacementInfo(ViewStateRef inViewState,SceneRenderer *renderer)
     : viewState(std::move(inViewState))
 {
-    const float scale = renderer->getScale();
-    
     // Sort out what kind of view it is
     globeViewState = dynamic_cast<WhirlyGlobe::GlobeViewState *>(viewState.get());
     mapViewState = dynamic_cast<Maply::MapViewState *>(viewState.get());
     heightAboveSurface = globeViewState ? globeViewState->heightAboveGlobe :
-                            mapViewState ? mapViewState->heightAboveSurface : 0;
+                           mapViewState ? mapViewState->heightAboveSurface : 0;
     
     // Calculate a slightly bigger framebuffer to grab nearby features
-    frameSize = Point2f(renderer->framebufferWidth,renderer->framebufferHeight);
-    frameSizeScale = Point2f((float)renderer->framebufferWidth/scale,
-                             (float)renderer->framebufferHeight/scale);
-    const float marginX = frameSize.x() * 0.25f;
-    const float marginY = frameSize.y() * 0.25f;
-    frameMbr.ll() = Point2f(0 - marginX,0 - marginY);
-    frameMbr.ur() = Point2f(frameSize.x() + marginX,frameSize.y() + marginY);
+    frameSize = renderer->getFramebufferSize();
+    frameSizeScale = renderer->getFramebufferSizeScaled();
+
+    const float margin = 0.25f;
+    frameMbr = renderer->getFramebufferBound(margin);
 }
 
 void SelectionManager::projectWorldPointToScreen(const Point3d &worldLoc,const PlacementInfo &pInfo,Point2dVector &screenPts,float scale)
@@ -933,7 +929,7 @@ void SelectionManager::pickObjects(const Point2f &touchPt,float maxDist,const Vi
     const Matrix4d modelTrans = pInfo.viewState->fullMatrices[0];
     const Matrix4d normalMat = pInfo.viewState->fullMatrices[0].inverse().transpose();
 
-    const Point2f frameBufferSize(renderer->framebufferWidth, renderer->framebufferHeight);
+    const Point2f frameBufferSize = renderer->getFramebufferSize();
 
     const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager);
 

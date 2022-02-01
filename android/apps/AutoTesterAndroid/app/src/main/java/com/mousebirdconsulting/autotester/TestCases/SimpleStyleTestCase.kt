@@ -41,8 +41,7 @@ class SimpleStyleTestCase(activity: Activity) : MaplyTestCase(activity, "Simple 
         super.userDidSelect(mapControl, selObjs, loc, screenLoc)
         selObjs?.forEach { so ->
             (so.selObj as? VectorObject)?.let { obj ->
-                val json = obj.attributes.getString("json")
-                val x = json
+                val json = obj.attributes?.getString("json")
             }
         }
     }
@@ -88,12 +87,10 @@ class SimpleStyleTestCase(activity: Activity) : MaplyTestCase(activity, "Simple 
                     obj.selectable = true
                     if (obj.attributes == null) {
                         // has no effect if the vector object has no shapes
-                        obj.attributes = AttrDictionary()
+                        obj.setAttributes(AttrDictionary())
                     }
-                    if (obj.attributes != null) {
-                        obj.attributes.setString("json", json);
-                    }
-
+                    obj.attributes?.setString("json", json);
+        
                     if (obj.fromGeoJSON(json)) {
                         styleMan.addFeatures(obj, threadAny)
                     } else {

@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/21/14.
- *  Copyright 2011-2021 mousebird consulting.
+ *  Copyright 2011-2022 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ namespace WhirlyKit
 {
 
 class ScreenSpaceObject;
+using ScreenSpaceObjectRef = std::shared_ptr<ScreenSpaceObject>;
 struct ScreenSpaceConvexGeometry;
 struct ScreenSpaceObjectLocation;
 
@@ -139,7 +140,10 @@ public:
     void addScreenObjects(std::vector<ScreenSpaceObject *> &screenObjects,
                           const std::vector<Eigen::Matrix3d> *places = nullptr,
                           SimpleIDUnorderedSet *drawIDs = nullptr);
-    
+    void addScreenObjects(std::vector<ScreenSpaceObjectRef> &screenObjects,
+                          const std::vector<Eigen::Matrix3d> *places = nullptr,
+                          SimpleIDUnorderedSet *drawIDs = nullptr);
+
     /// Add a single screen space object
     void addScreenObject(const ScreenSpaceObject &screenObject,
                          const Point3d &worldLoc,
@@ -298,7 +302,8 @@ protected:
     ScreenSpaceBuilder::DrawableState state;
     std::vector<ScreenSpaceConvexGeometry> geometry;
 };
-    
+using ScreenSpaceObjectRef = std::shared_ptr<ScreenSpaceObject>;
+
 /** We use the screen space object location to communicate where
     a screen space object is on the screen.
   */

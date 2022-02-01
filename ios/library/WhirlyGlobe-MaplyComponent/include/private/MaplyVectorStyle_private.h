@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -97,9 +97,10 @@ public:
                                            const std::vector<double> &dashComponents) override;
     
     /// Make platform specific label info object (ideally we're caching these)
-    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *_Nullable inst,
-                                       const std::vector<std::string> &fontName,
-                                       float fontSize) override;
+    virtual LabelInfoRef makeLabelInfo(PlatformThreadInfo *_Nullable,
+                                       const std::vector<std::string> &fontNames,
+                                       float fontHeight,
+                                       bool mergedSymbol) override;
 
     /// Create a local platform label (fonts are local, and other stuff)
     virtual SingleLabelRef makeSingleLabel(PlatformThreadInfo *_Nullable inst,

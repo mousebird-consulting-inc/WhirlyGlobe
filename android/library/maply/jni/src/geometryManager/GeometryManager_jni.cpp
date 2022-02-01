@@ -1,9 +1,8 @@
-/*
- *  GeometryManager_jni.cpp
+/*  GeometryManager_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg
- *  Copyright 2011-2016 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 #import "GeometryManager_jni.h"
 #import "Geometry_jni.h"
@@ -26,52 +24,53 @@ using namespace Eigen;
 using namespace WhirlyKit;
 using namespace Maply;
 
-template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = NULL;
+template<> GeometryManagerClassInfo *GeometryManagerClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     GeometryManagerClassInfo::getClassInfo(env, cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_initialise
-(JNIEnv *env, jobject obj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try
     {
-        Scene *scene = SceneClassInfo::getClassInfo()->getObject(env, sceneObj);
-        if (!scene)
-            return;
-        GeometryManagerRef geomManager = std::dynamic_pointer_cast<GeometryManager>(scene->getManager(kWKGeometryManager));
-        GeometryManagerClassInfo::getClassInfo()->setHandle(env,obj,new GeometryManagerRef(geomManager));
+        if (Scene *scene = SceneClassInfo::get(env, sceneObj))
+        {
+            auto geomManager = scene->getManager<GeometryManager>(kWKGeometryManager);
+            GeometryManagerClassInfo::getClassInfo()->setHandle(env, obj, new GeometryManagerRef(geomManager));
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         GeometryManagerClassInfo *classInfo = GeometryManagerClassInfo::getClassInfo();
-        GeometryManagerRef *geomManager = GeometryManagerClassInfo::getClassInfo()->getObject(env, obj);
-        if (geomManager)
+        std::lock_guard<std::mutex> guard(disposeMutex);
+        if (GeometryManagerRef *geomManager = classInfo->getObject(env, obj))
+        {
             delete geomManager;
-        classInfo->clearHandle(env, obj);
+            classInfo->clearHandle(env, obj);
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
-(JNIEnv *env, jobject obj, jobjectArray rawGeomArr, jobjectArray modelInstArr, jobject geomInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray rawGeomArr,
+   jobjectArray modelInstArr, jobject geomInfoObj, jobject changeSetObj)
 {
     try
     {
@@ -80,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
         GeometryInfoRef *geomInfo = GeometryInfoClassInfo::getClassInfo()->getObject(env,geomInfoObj);
         if (!geomManager || !changeSet || !geomInfo)
         {
-            __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "One of the inputs was null in GeometryManager::addGeometry()");
+            __android_log_print(ANDROID_LOG_WARN, "Maply", "One of the inputs was null in GeometryManager::addGeometry()");
             return EmptyIdentity;
         }
         
@@ -115,16 +114,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometry
 
         return (*geomManager)->addGeometry(geoms,geomInsts,*(*geomInfo),*(changeSet->get()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometry()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
-(JNIEnv *env, jobject obj, jobjectArray rawGeomArr, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobjectArray rawGeomArr, jobject changeSetObj)
 {
     try
     {
@@ -150,16 +146,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addBaseGeometry
         GeometryInfo geomInfo;
         return (*geomManager)->addBaseGeometry(geoms,geomInfo,*(changeSet->get()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addBaseGeometry()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInstances
-(JNIEnv *env, jobject obj, jlong baseGeomID, jobjectArray modelInstArr, jobject geomInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jlong baseGeomID, jobjectArray modelInstArr, jobject geomInfoObj, jobject changeSetObj)
 {
     try
     {
@@ -184,16 +177,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryInst
 
         return (*geomManager)->addGeometryInstances(baseGeomID,geomInsts,*(*geomInfo),*(changeSet->get()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometryInstances()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoints
-(JNIEnv *env, jobject obj, jobject pointsObj, jobject matObj, jobject geomInfoObj, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jobject pointsObj, jobject matObj, jobject geomInfoObj, jobject changeSetObj)
 {
     try
     {
@@ -212,16 +202,13 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_GeometryManager_addGeometryPoin
 
         return (*geomManager)->addGeometryPoints(*rawPoints,*mat,*(*geomInfo),*(changeSet->get()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::addGeometryPoints()");
-    }
-    
+    MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_enableGeometry
-(JNIEnv *env, jobject obj, jlongArray geomIDs, jboolean enable, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jlongArray geomIDs, jboolean enable, jobject changeSetObj)
 {
     try
     {
@@ -236,14 +223,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_enableGeometry
 
         (*geomManager)->enableGeometry(idSet,enable,*(changeSet->get()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::enableGeometry()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_removeGeometry
-(JNIEnv *env, jobject obj, jlongArray geomIDs, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jlongArray geomIDs, jobject changeSetObj)
 {
     try
     {
@@ -258,8 +243,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GeometryManager_removeGeometry
         
         (*geomManager)->removeGeometry(idSet,*(changeSet->get()));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in GeometryManager::removeGeometry()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

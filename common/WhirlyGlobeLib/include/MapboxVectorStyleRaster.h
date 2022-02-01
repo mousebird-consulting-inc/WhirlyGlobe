@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/17/15.
- *  Copyright 2011-2021 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -32,14 +32,17 @@ public:
                        const DictionaryRef &styleEntry,
                        const MapboxVectorStyleLayerRef &refLayer,
                        int drawPriority) override;
-    
+
+    virtual MapboxVectorStyleLayerRef clone() const override;
+    virtual MapboxVectorStyleLayer& copy(const MapboxVectorStyleLayer&) override;
+
     virtual void buildObjects(PlatformThreadInfo *inst,
                               const std::vector<VectorObjectRef> &vecObjs,
                               const VectorTileDataRef &tileInfo,
                               const Dictionary *desc,
                               const CancelFunction &cancelFn) override;
     
-    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override;
+    virtual void cleanup(PlatformThreadInfo *inst,ChangeSet &changes) override { }
 
 protected:
 };

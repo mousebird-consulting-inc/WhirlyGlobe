@@ -3,7 +3,7 @@
  *
  *
  *  Created by Jesse Crocker on 2/4/14.
- *  Copyright 2011-2019 mousebird consulting
+ *  Copyright 2011-2022 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -60,16 +60,17 @@ using namespace WhirlyKit;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;
 
-    Point3d curLoc = _mapView->getLoc();
+    const Point3d curLoc = _mapView->getLoc();
 //    NSLog(@"curLoc x:%f y:%f z:%f", curLoc.x(), curLoc.y(), curLoc.z());
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = _mapView->calcFullMatrix();
-    CGPoint touchLoc = [tap locationInView:tap.view];
-    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
-    if (_mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, Point2f(sceneRenderer->framebufferWidth/wrapView.contentScaleFactor,sceneRenderer->framebufferHeight/wrapView.contentScaleFactor), &hit, true))
+    const Eigen::Matrix4d theTransform = _mapView->calcFullMatrix();
+    const CGPoint touchLoc = [tap locationInView:tap.view];
+    const Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    const Point2f frameSize = sceneRenderer->getFramebufferSize();
+    if (_mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSize/wrapView.contentScaleFactor, &hit, true))
     {
-        double newZ = curLoc.z() - (curLoc.z() - _minZoom)/2.0;
+        const double newZ = curLoc.z() - (curLoc.z() - _minZoom)/2.0;
         Point2d newCenter;
         if (_minZoom >= _maxZoom || (_minZoom < newZ && newZ < _maxZoom))
         {
