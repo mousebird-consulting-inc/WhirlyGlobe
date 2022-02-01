@@ -41,6 +41,7 @@
 #import "rendering/MaplyVertexAttribute.h"
 
 typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
+typedef void (__strong ^InitCompletionBlock)(void);
 
 /** 
     When selecting multiple objects, one or more of these is returned.
@@ -1571,5 +1572,11 @@ typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 
 /// Return the renderer type being used
 - (MaplyRenderType)getRenderType;
+
+/**
+    Blocks to be called after the view is set up, or immediately if it is already set up.
+    Similar to `addPostSurfaceRunnable` on Android.
+*/
+- (void)addPostInitBlock:(_Nonnull InitCompletionBlock)block;
 
 @end

@@ -313,7 +313,7 @@ Mbr SceneRenderer::getFramebufferBound(float margin) const
 
 Point2f SceneRenderer::getFramebufferSizeScaled() const
 {
-    return Point2f(framebufferWidth/scale,framebufferHeight/scale);
+    return Point2f(framebufferWidth,framebufferHeight) / ((scale != 0) ? scale : 1.0f);
 }
 
 Mbr SceneRenderer::getFramebufferBoundScaled(float margin) const

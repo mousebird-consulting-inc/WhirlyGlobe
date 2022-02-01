@@ -21,7 +21,7 @@ class BNGCustomMapTestCase: MaplyTestCase {
         baseCase.setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC)
 
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) { [weak self] in
+        mapVC.addPostInitBlock { [weak self] in
             guard let self = self else { return }
             let bound = self.geoBound(Self.buildBritishNationalGrid(false))
             let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,

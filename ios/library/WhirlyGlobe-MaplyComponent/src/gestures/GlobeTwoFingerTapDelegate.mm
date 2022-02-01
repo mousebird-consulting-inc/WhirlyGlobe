@@ -1,7 +1,6 @@
 /*
  *  GlobeTwoFingerTapDelegate.mm
  *
- *
  *  Created by Steve Gifford on 2/7/14.
  *  Copyright 2011-2022 mousebird consulting
  *
@@ -21,6 +20,7 @@
 #import "gestures/GlobeTwoFingerTapDelegate.h"
 #import "GlobeAnimateHeight.h"
 #import "ViewWrapper.h"
+#import "SceneRenderer.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
@@ -51,7 +51,7 @@ using namespace WhirlyGlobe;
 	UITapGestureRecognizer *tap = sender;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)tap.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;
-    auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
+    const auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
 	
     // Just figure out where we tapped
 	Point3d hit;

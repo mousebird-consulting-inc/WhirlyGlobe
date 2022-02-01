@@ -1527,13 +1527,22 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 - (CGPoint)pointOnScreenFromGeo:(MaplyCoordinate)geoCoord globeView:(GlobeView *)theView
 {
     if (!renderControl)
-        return CGPointMake(0.0, 0.0);
-    
+    {
+        return CGPointZero;
+    }
+
+    const Point2f frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
+    if (frameSizeScaled.x() <= 0 || frameSizeScaled.y() <= 0)
+    {
+        // Called too early, wait until we're set up
+        return CGPointZero;
+    }
+
     Point3d pt = theView->coordAdapter->localToDisplay(theView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
     Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
     
-    auto screenPt = theView->pointOnScreenFromSphere(pt, &modelTrans, renderControl->sceneRenderer->getFramebufferSizeScaled());
+    auto screenPt = theView->pointOnScreenFromSphere(pt, &modelTrans, frameSizeScaled);
     return CGPointMake(screenPt.x(),screenPt.y());
 }
 

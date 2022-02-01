@@ -135,15 +135,18 @@ public:
     /// Used by subclasses to notify all the watchers of updates
     virtual void runViewUpdates();
     
-    double fieldOfView,imagePlaneSize,nearPlane,farPlane;
-    Point2d centerOffset;
+    double fieldOfView = 0.0;
+    double imagePlaneSize = 0.0;
+    double nearPlane = 0.001;
+    double farPlane = 10.0;
+    Point2d centerOffset = { 0, 0 };
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// The last time the position was changed
-    TimeInterval lastChangedTime;
+    TimeInterval lastChangedTime = 0.0;
     /// Display adapter and coordinate system we're working in
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter;
+    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = nullptr;
     /// If set, we'll scale the near and far clipping planes as we get closer
-    bool continuousZoom;
+    bool continuousZoom = false;
     
     /// Called when positions are updated
     ViewWatcherSet watchers;
