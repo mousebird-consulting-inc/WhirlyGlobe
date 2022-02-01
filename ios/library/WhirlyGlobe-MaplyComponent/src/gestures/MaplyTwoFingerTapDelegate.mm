@@ -56,7 +56,8 @@ using namespace Maply;
     const Eigen::Matrix4d theTransform = self.mapView->calcFullMatrix();
     const CGPoint touchLoc = [tap locationInView:tap.view];
     const Point2f touchLoc2f(touchLoc.x,touchLoc.y);
-    if (self.mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, Point2f(sceneRenderer->framebufferWidth/wrapView.contentScaleFactor,sceneRenderer->framebufferHeight/wrapView.contentScaleFactor), &hit, true))
+    const Point2f frameSize = sceneRenderer->getFramebufferSize();
+    if (self.mapView->pointOnPlaneFromScreen(touchLoc2f, &theTransform, frameSize / wrapView.contentScaleFactor, &hit, true))
     {
         const double newZ = curLoc.z() + (curLoc.z() - self.minZoom)/2.0;
         if (self.minZoom >= self.maxZoom || (self.minZoom < newZ && newZ < self.maxZoom))

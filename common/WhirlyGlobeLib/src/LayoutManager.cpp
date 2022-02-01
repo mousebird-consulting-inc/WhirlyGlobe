@@ -768,7 +768,7 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     }
 
     // Extents for the layout helpers
-    const Point2f frameBufferSize(renderer->framebufferWidth, renderer->framebufferHeight);
+    const Point2f frameBufferSize = renderer->getFramebufferSize();
     const Mbr screenMbr(frameBufferSize * -ScreenBuffer,
                         frameBufferSize * (1.0 + ScreenBuffer));
 
@@ -1740,7 +1740,7 @@ void LayoutManager::handleFadeOut(const TimeInterval curTime,
         }
 
         // Build drawables for them...
-        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+        ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
         buildDrawables(ssBuild, /*doFades*/false, /*doClusters=*/false, curTime, nullptr,
                        rebuildLayoutObjs, oldClusters, oldClusterParams, nullptr, nullptr);
         const auto newDraws = ssBuild.flushChanges(changes);
@@ -1873,7 +1873,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
     // Generate the drawables.
     // Note that the renderer is not managed by a shared pointer, and will be destroyed
     // during shutdown, so we must stop using it quickly if controller shutdown is initiated.
-    ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->scale);
+    ScreenSpaceBuilder ssBuild(renderer,coordAdapter,renderer->getScale());
 
     //wkLog("Starting Layout t=%f", curTime);
 

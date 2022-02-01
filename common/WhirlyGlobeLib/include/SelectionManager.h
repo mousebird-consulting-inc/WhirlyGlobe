@@ -321,6 +321,8 @@ public:
         
         Point2f frameSize;
         Point2f frameSizeScale;
+
+        /// frame with margin, not scaled
         Mbr frameMbr;
     };
 

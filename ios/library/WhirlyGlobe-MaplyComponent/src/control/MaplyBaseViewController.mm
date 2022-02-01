@@ -305,7 +305,7 @@ using namespace WhirlyKit;
     annotations = [NSMutableArray array];
         
     // View placement manager
-    viewPlacementModel = ViewPlacementActiveModelRef(new ViewPlacementActiveModel());
+    viewPlacementModel = std::make_shared<ViewPlacementActiveModel>();
     renderControl->scene->addActiveModel(viewPlacementModel);
 
     // Apply layout fade option set before init to the newly-created manager
@@ -1288,7 +1288,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return 0.0;
     
-    Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
     if (frameSize.x() == 0)
         return MAXFLOAT;
     return (float)renderControl->visualView->currentMapScale(frameSize);
@@ -1299,7 +1299,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return 0.0;
     
-    Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
     if (frameSize.x() == 0)
         return -1.0;
     return (float)renderControl->visualView->heightForMapScale(scale,frameSize);
@@ -1449,7 +1449,7 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl)
         return 0.0;
     
-    Point2f frameSize(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
     if (frameSize.x() == 0)
         return MAXFLOAT;
     return (float)renderControl->visualView->currentMapZoom(frameSize,coordinate.y);
@@ -1608,7 +1608,8 @@ static const float PerfOutputDelay = 15.0;
     if (!renderControl || !renderControl->sceneRenderer)
         return CGSizeZero;
     
-    return CGSizeMake(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
+    return CGSizeMake(frameSize.x(), frameSize.y());
 }
 
 - (MaplyRenderType)getRenderType

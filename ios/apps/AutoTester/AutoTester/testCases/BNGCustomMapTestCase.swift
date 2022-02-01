@@ -21,12 +21,15 @@ class BNGCustomMapTestCase: MaplyTestCase {
         baseCase.setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC)
 
-        let bound = geoBound(Self.buildBritishNationalGrid(false))
-        let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
-                                     y: (bound.ll.y + bound.ur.y) / 2.0)
-        let h = mapVC.findHeight(toViewBounds: bound, pos: middle)
-        mapVC.setPosition(middle, height: h/3)
-        mapVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.1) { [weak self] in
+            guard let self = self else { return }
+            let bound = self.geoBound(Self.buildBritishNationalGrid(false))
+            let middle = MaplyCoordinate(x: (bound.ll.x + bound.ur.x) / 2.0,
+                                         y: (bound.ll.y + bound.ur.y) / 2.0)
+            let h = mapVC.findHeight(toViewBounds: bound, pos: middle)
+            mapVC.setPosition(middle, height: h/3)
+            mapVC.animate(toPosition: middle, height: h, heading: 0, time: 1)
+        }
 	}
 
     public func geoBound(_ coordSys: MaplyCoordinateSystem) -> MaplyBoundingBox {

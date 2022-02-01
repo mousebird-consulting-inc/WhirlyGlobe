@@ -31,7 +31,7 @@ void RenderTeardownInfo::destroyTexture(SceneRenderer *renderer,const TextureBas
 
 void RenderTeardownInfo::destroyDrawable(SceneRenderer *renderer,const DrawableRef &draw)
 {
-    draw->teardownForRenderer(renderer->getRenderSetupInfo(), renderer->getScene(), renderer->teardownInfo);
+    draw->teardownForRenderer(renderer->getRenderSetupInfo(), renderer->getScene(), renderer->getTeardownInfo());
 }
 
 bool ChangeRequest::needsFlush() { return false; }

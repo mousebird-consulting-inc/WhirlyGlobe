@@ -1,5 +1,4 @@
-/*
- *  ViewPlacementGenerator.h
+/*  ViewPlacementGenerator.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/25/12.
@@ -15,12 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Foundation/Foundation.h>
 #import <math.h>
-#import "WhirlyVector.h"
 #import "Scene.h"
 #import "DataLayer.h"
 #import "LayerThread.h"

@@ -132,7 +132,7 @@ public:
     if (!lastViewState)
     {
         const auto __strong thread = layerThread;
-        if (thread.renderer->framebufferWidth != 0)
+        if (thread.renderer->getFramebufferSize().x() != 0)
         {
             lastViewState = view->makeViewState(thread.renderer);
         }
@@ -189,7 +189,7 @@ public:
         return;
     
     // The view has to be valid first
-    if (thread.renderer->framebufferWidth <= 0.0)
+    if (thread.renderer->getFramebufferSize().x() <= 0.0)
     {
         // Let's check back every so often
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(viewUpdated:) object:nil];

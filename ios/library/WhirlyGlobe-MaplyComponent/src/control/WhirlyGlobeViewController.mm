@@ -1176,12 +1176,16 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 {
     if (!renderControl)
         return;
-    
-    Point2f screenCorners[4];
-    screenCorners[0] = Point2f(0.0, 0.0);
-    screenCorners[1] = Point2f(renderControl->sceneRenderer->framebufferWidth,0.0);
-    screenCorners[2] = Point2f(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
-    screenCorners[3] = Point2f(0.0, renderControl->sceneRenderer->framebufferHeight);
+
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
+    const Point2f frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
+
+    const Point2f screenCorners[4] = {
+        Point2f(0.0, 0.0),
+        Point2f(frameSize.x(),0.0),
+        frameSize,
+        Point2f(0.0, frameSize.y()),
+    };
     
     Eigen::Matrix4d modelTrans;
     Eigen::Affine3d trans(Eigen::Translation3d(0,0,-globeView->calcEarthZOffset()));
@@ -1190,7 +1194,6 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     
     modelTrans = viewMat * modelMat;
 
-    auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
     for (unsigned int ii=0;ii<4;ii++)
     {
         Point3d hit;
@@ -1548,7 +1551,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     }
 
     const auto adapter = renderControl->visualView->coordAdapter;
-    Point3d localPt = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
+    const Point3d localPt = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
     const Point3d displayPt = adapter->localToDisplay(localPt);
     const Point3f displayPtf = displayPt.cast<float>();
     
@@ -1964,16 +1967,19 @@ static const float FullExtentEps = 1e-5;
     if (!renderControl)
         return 0;
     
-    float extentEps = visualBoxes ? FullExtentEps : 0.0;
+    const float extentEps = visualBoxes ? FullExtentEps : 0.0;
     
-    Point2f screenCorners[4];
-    screenCorners[0] = Point2f(0.0, 0.0);
-    screenCorners[1] = Point2f(renderControl->sceneRenderer->framebufferWidth,0.0);
-    screenCorners[2] = Point2f(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
-    screenCorners[3] = Point2f(0.0, renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
+    const Point2f frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
+
+    const Point2f screenCorners[4] = {
+        { 0.0, 0.0 },
+        { frameSize.x(), 0.0 },
+        frameSize,
+        { 0.0, frameSize.y() },
+    };
     
-    Eigen::Matrix4d modelTrans = globeView->calcFullMatrix();
-    auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
+    const Eigen::Matrix4d modelTrans = globeView->calcFullMatrix();
 
     Point3d corners[4];
     bool cornerValid[4];
@@ -2162,11 +2168,9 @@ static const float FullExtentEps = 1e-5;
             }
         } else {
             // Check the poles
-            Point3d poles[2];
-            poles[0] = Point3d(0,0,1);
-            poles[1] = Point3d(0,0,-1);
+            const Point3d poles[2] = { { 0, 0, 1 }, { 0, 0, -1 } };
             
-            Eigen::Matrix4d modelAndViewNormalMat = modelTrans.inverse().transpose();
+            const Eigen::Matrix4d modelAndViewNormalMat = modelTrans.inverse().transpose();
             
             for (unsigned int ii=0;ii<2;ii++)
             {
