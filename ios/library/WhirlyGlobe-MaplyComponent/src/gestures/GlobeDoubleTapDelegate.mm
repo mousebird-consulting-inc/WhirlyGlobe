@@ -1,6 +1,4 @@
-/*
- *  GlobeDoubleTapDelegate.mm
- *
+/*  GlobeDoubleTapDelegate.mm
  *
  *  Created by Steve Gifford on 2/7/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -15,12 +13,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/GlobeDoubleTapDelegate.h"
 #import "GlobeAnimateHeight.h"
 #import "ViewWrapper.h"
+#import "SceneRenderer.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;
@@ -54,19 +52,19 @@ using namespace WhirlyGlobe;
 
     // Just figure out where we tapped
 	Point3d hit;
-    Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
-    CGPoint touchLoc = [tap locationInView:tap.view];
-    Point2f touchLoc2f(touchLoc.x,touchLoc.y);
+    const Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
+    const CGPoint touchLoc = [tap locationInView:tap.view];
+    const Point2f touchLoc2f(touchLoc.x,touchLoc.y);
     auto frameSizeScaled = sceneRenderer->getFramebufferSizeScaled();
     if (globeView->pointOnSphereFromScreen(touchLoc2f, theTransform, frameSizeScaled, hit, true))
     {
-        double curH = globeView->getHeightAboveGlobe();
-        double newH = curH / _zoomTapFactor;
+        const double curH = globeView->getHeightAboveGlobe();
+        const double newH = curH / _zoomTapFactor;
         if (_minZoom < newH && newH < _maxZoom)
         {
-            auto animate = new AnimateViewHeight(globeView,newH,_zoomAnimationDuration);
+            auto animate = std::make_shared<AnimateViewHeight>(globeView,newH,_zoomAnimationDuration);
             animate->setTiltDelegate(_tiltDelegate);
-            globeView->setDelegate(GlobeViewAnimationDelegateRef(animate));
+            globeView->setDelegate(std::move(animate));
         }
     }
 }

@@ -867,7 +867,8 @@ using namespace Eigen;
     if (!sceneRenderer)
         return CGSizeZero;
     
-    return CGSizeMake(sceneRenderer->framebufferWidth,sceneRenderer->framebufferHeight);
+    const Point2f size = sceneRenderer->getFramebufferSize();
+    return CGSizeMake(size.x(),size.y());
 }
 
 // MARK: Snapshot protocol

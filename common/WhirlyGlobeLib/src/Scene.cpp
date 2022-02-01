@@ -737,9 +737,9 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
     TextureBaseRef tex = scene->getTexture(texture);
     if (tex)
     {
-        if (renderer->teardownInfo)
+        if (auto info = renderer->getTeardownInfo())
         {
-            renderer->teardownInfo->destroyTexture(renderer,tex);
+            info->destroyTexture(renderer,tex);
         }
         scene->removeTexture(texture);
     } else
@@ -816,10 +816,9 @@ RemDrawableReq::RemDrawableReq(SimpleIdentity drawId,TimeInterval inWhen)
 
 void RemDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-    DrawableRef draw = scene->getDrawable(drawID);
-    if (draw)
+    if (DrawableRef draw = scene->getDrawable(drawID))
     {
-        renderer->removeDrawable(draw, true, renderer->teardownInfo);
+        renderer->removeDrawable(draw, true, renderer->getTeardownInfo());
         scene->remDrawable(draw);
     }
     else
@@ -836,7 +835,7 @@ void AddProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
 
 void RemProgramReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-    scene->removeProgram(programId,renderer->teardownInfo);
+    scene->removeProgram(programId,renderer->getTeardownInfo());
 }
     
 RunBlockReq::RunBlockReq(BlockFunc newFunc) : func(std::move(newFunc))

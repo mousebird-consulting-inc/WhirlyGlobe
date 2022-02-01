@@ -23,6 +23,7 @@
 #import "gestures/GlobeDoubleTapDragDelegate.h"
 #import "GlobeView.h"
 #import "ViewWrapper.h"
+#import "SceneRenderer.h"
 
 using namespace WhirlyKit;
 using namespace WhirlyGlobe;

@@ -1632,11 +1632,13 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (!renderControl)
         return;
     
-    CGPoint screenCorners[4];
-    screenCorners[0] = CGPointMake(0.0, 0.0);
-    screenCorners[1] = CGPointMake(renderControl->sceneRenderer->framebufferWidth,0.0);
-    screenCorners[2] = CGPointMake(renderControl->sceneRenderer->framebufferWidth,renderControl->sceneRenderer->framebufferHeight);
-    screenCorners[3] = CGPointMake(0.0, renderControl->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = renderControl->sceneRenderer->getFramebufferSize();
+    const CGPoint screenCorners[4] = {
+        CGPointMake(0.0f, 0.0f),
+        CGPointMake(frameSize.x(),0.0f),
+        CGPointMake(frameSize.x(),frameSize.y()),
+        CGPointMake(0.0f, frameSize.y()),
+    };
     
     for (unsigned int ii=0;ii<4;ii++)
     {

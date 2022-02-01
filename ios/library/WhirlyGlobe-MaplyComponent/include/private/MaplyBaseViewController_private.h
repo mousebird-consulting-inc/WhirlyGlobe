@@ -37,7 +37,7 @@
 #import "FontTextureManager_iOS.h"
 #import "ViewWrapper.h"
 
-@interface MaplyBaseViewController() <SMCalloutViewDelegate>
+@interface MaplyBaseViewController() <SMCalloutViewDelegate, ViewWrapperDelegateProtocol>
 {
 @public
     MaplyRenderController *renderControl;

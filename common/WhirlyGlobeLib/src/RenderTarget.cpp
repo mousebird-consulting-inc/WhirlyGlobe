@@ -66,7 +66,7 @@ AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,i
 // Set up a render target
 void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
-    RenderTargetRef renderTarget = RenderTargetRef(renderer->makeRenderTarget());
+    auto renderTarget = renderer->makeRenderTarget();
     renderTarget->setId(renderTargetID);
     renderTarget->width = width;
     renderTarget->height = height;
@@ -81,35 +81,38 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view
     renderTarget->calcMinMax = calcMinMax;
     renderTarget->init(renderer,scene,texID);
     
-    renderer->addRenderTarget(renderTarget);
+    renderer->addRenderTarget(std::move(renderTarget));
 }
 
-ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID)
-: renderTargetID(renderTargetID), texID(texID)
+ChangeRenderTargetReq::ChangeRenderTargetReq(SimpleIdentity renderTargetID,SimpleIdentity texID) :
+    renderTargetID(renderTargetID),
+    texID(texID)
 {
 }
 
 void ChangeRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
-    for (RenderTargetRef renderTarget : renderer->renderTargets)
+    for (const auto &renderTarget : renderer->getRenderTargets())
     {
-        if (renderTarget->getId() == renderTargetID) {
+        if (renderTarget->getId() == renderTargetID)
+        {
             renderTarget->setTargetTexture(renderer,scene,texID);
             break;
         }
     }
 }
 
-ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID)
-: renderTargetID(targetID)
+ClearRenderTargetReq::ClearRenderTargetReq(SimpleIdentity targetID) :
+    renderTargetID(targetID)
 {
 }
 
 void ClearRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
-    for (RenderTargetRef renderTarget : renderer->renderTargets)
+    for (const auto &renderTarget : renderer->getRenderTargets())
     {
-        if (renderTarget->getId() == renderTargetID) {
+        if (renderTarget->getId() == renderTargetID)
+        {
             renderTarget->clearOnce = true;
             break;
         }
