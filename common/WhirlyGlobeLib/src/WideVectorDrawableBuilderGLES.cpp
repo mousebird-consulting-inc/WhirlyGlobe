@@ -35,11 +35,12 @@ void WideVectorTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *fr
         return;
     }
 
-    const double frameSize = std::min(frameInfo->sceneRenderer->framebufferWidth, frameInfo->sceneRenderer->framebufferHeight);
+    const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
+    const double frameSpan = std::min(frameSize.x(), frameSize.y());
     const double screenSize = std::min(frameInfo->screenSizeInDisplayCoords.x(), frameInfo->screenSizeInDisplayCoords.y());
     const double screenWidth = frameInfo->screenSizeInDisplayCoords.x();
-    const double pixDispScale = screenSize / frameSize;
-    const double texScale = frameSize / (screenWidth * texRepeat);
+    const double pixDispScale = screenSize / frameSpan;
+    const double texScale = frameSpan / (screenWidth * texRepeat);
     const float zoom = (opacityExp || colorExp || widthExp) ? getZoom(*inDraw,*frameInfo->scene,0.0f) : 0.0f;
 
     Vector4f c = colorExp ? colorExp->evaluateF(zoom,color) : color.asRGBAVecF();
