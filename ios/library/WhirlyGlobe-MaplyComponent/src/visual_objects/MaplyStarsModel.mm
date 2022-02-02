@@ -130,7 +130,7 @@ typedef struct
         [partSys addTexture:starTex];
     [partSys addAttribute:@"a_position" type:MaplyShaderAttrTypeFloat3];
     [partSys addAttribute:@"a_size" type:MaplyShaderAttrTypeFloat];
-    partSysObj = [inViewC addParticleSystem:partSys desc:desc mode:mode];
+    //partSysObj = [inViewC addParticleSystem:partSys desc:desc mode:mode];
 
     // Data arrays for particles
     // We'll clear them out in case we don't fill them out completely

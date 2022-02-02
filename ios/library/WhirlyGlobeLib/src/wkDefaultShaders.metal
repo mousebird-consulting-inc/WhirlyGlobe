@@ -1230,7 +1230,8 @@ struct VertexOut {
 };
 
 vertex VertexOut vertStars(constant VertexIn* vertex_array [[ buffer(0) ]],
-                      unsigned int vid [[ vertex_id ]]) {
+                           unsigned int vid [[ vertex_id ]],
+                           constant VertexArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]]) {
     VertexIn v = vertex_array[vid];
     VertexOut outVertex = VertexOut();
     outVertex.computedPosition = float4(v.a_position, 1.0);
