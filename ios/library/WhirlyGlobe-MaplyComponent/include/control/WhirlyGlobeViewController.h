@@ -421,6 +421,11 @@
   */
 - (void)setFarClipPlane:(double)farClipPlane;
 
+/**
+    Get the maximum height (in radii) that will be visible, based on the current far-plane setting.
+ */
+- (double)getMaxHeightAboveGlobe;
+
 /** 
     Set the simplified tilt mode.  We'll tilt toward the horizon as the user gets closer to the ground.
     

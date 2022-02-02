@@ -64,6 +64,8 @@ typedef struct
     float x,y,z;
 } MaplyCoordinate3d;
 
+extern const MaplyCoordinate3d kMaplyNullCoordinate3d;
+
 /** 
     An NSObject based wrapper for 3D coordinates.
     

@@ -937,105 +937,110 @@ using namespace Eigen;
     NSError *err = nil;
     id<MTLLibrary> mtlLib = [mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
     
-    ProgramRef defaultLineShader = ProgramRef(new ProgramMTL([kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],
-                                                             [mtlLib newFunctionWithName:@"vertexLineOnly_globe"],
-                                                             [mtlLib newFunctionWithName:@"fragmentLineOnly_globe"]));
-    ProgramRef defaultLineShaderNoBack = ProgramRef(new ProgramMTL([kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],
-                                                             [mtlLib newFunctionWithName:@"vertexLineOnly_flat"],
-                                                             [mtlLib newFunctionWithName:@"fragmentLineOnly_flat"]));
-    if (isGlobe)
-        [self addShader:kMaplyShaderDefaultLine program:defaultLineShader];
-    else
-        [self addShader:kMaplyShaderDefaultLine program:defaultLineShaderNoBack];
+    auto defaultLineShader = std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultLine cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexLineOnly_globe"],
+        [mtlLib newFunctionWithName:@"fragmentLineOnly_globe"]);
+    auto defaultLineShaderNoBack = std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultLineNoBackface cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexLineOnly_flat"],
+        [mtlLib newFunctionWithName:@"fragmentLineOnly_flat"]);
+
+    [self addShader:kMaplyShaderDefaultLine program:isGlobe ? defaultLineShader : defaultLineShaderNoBack];
     [self addShader:kMaplyShaderDefaultLineNoBackface program:defaultLineShaderNoBack];
 
     // Default triangle shaders
-    [self addShader:kMaplyShaderDefaultTri
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_light"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
-    [self addShader:kMaplyShaderTriExp
-            program:ProgramRef(new ProgramMTL([kMaplyShaderTriExp cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_lightExp"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
-    [self addShader:kMaplyShaderDefaultTriNoLighting
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_noLight"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
-    [self addShader:kMaplyShaderNoLightTriangleExp
-            program:ProgramRef(new ProgramMTL([kMaplyShaderNoLightTriangleExp cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_noLightExp"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_basic"]))];
+    [self addShader:kMaplyShaderDefaultTri program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultTri cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_light"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"])];
+    [self addShader:kMaplyShaderTriExp program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderTriExp cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_lightExp"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"])];
+    [self addShader:kMaplyShaderDefaultTriNoLighting program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultTriNoLighting cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_noLight"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"])];
+    [self addShader:kMaplyShaderNoLightTriangleExp program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderNoLightTriangleExp cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_noLightExp"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"])];
 
     // TODO: Screen Space Texture application
 
     // Multitexture shader - Used for animation
-    [self addShader:kMaplyShaderDefaultTriMultiTex
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
+    [self addShader:kMaplyShaderDefaultTriMultiTex program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
+        [mtlLib newFunctionWithName:@"fragmentTri_multiTex"])];
     
     // Multitexture ramp shader - Very simple implementation of animated color lookup
-    [self addShader:kMaplyShaderDefaultTriMultiTexRamp
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTexRamp"]))];
+    [self addShader:kMaplyShaderDefaultTriMultiTexRamp program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultTriMultiTexRamp cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
+        [mtlLib newFunctionWithName:@"fragmentTri_multiTexRamp"])];
     
     // MultiTexture for Markers
-    [self addShader:kMaplyShaderDefaultMarker
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
+    [self addShader:kMaplyShaderDefaultMarker program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultTriMultiTex cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_multiTex"],
+        [mtlLib newFunctionWithName:@"fragmentTri_multiTex"])];
 
     // Model Instancing
-    [self addShader:kMaplyShaderDefaultModelTri
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],
-                                              [mtlLib newFunctionWithName:@"vertexTri_model"],
-                                              [mtlLib newFunctionWithName:@"fragmentTri_multiTex"]))];
+    [self addShader:kMaplyShaderDefaultModelTri program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_model"],
+        [mtlLib newFunctionWithName:@"fragmentTri_multiTex"])];
 
-    // TODO: Night/Day Shader
+    // Night/Day Shader
+    [self addShader:kMaplyShaderDefaultTriNightDay program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_multiTex_nightDay"],
+        [mtlLib newFunctionWithName:@"fragmentTri_multiTex_nightDay"])];
 
     // Billboards
-    ProgramRef billboardProg(new ProgramMTL([kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding],
-                                            [mtlLib newFunctionWithName:@"vertexTri_billboard"],
-                                            [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
+    auto billboardProg = std::make_shared<ProgramMTL>(
+        [kMaplyShaderBillboardGround cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_billboard"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"]);
     [self addShader:kMaplyShaderBillboardGround program:billboardProg];
     [self addShader:kMaplyShaderBillboardEye program:billboardProg];
 
     // Wide vectors
-    [self addShader:kMaplyShaderDefaultWideVector
-            program:ProgramRef(new ProgramMTL([kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
-                                        [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
-    [self addShader:kMaplyShaderWideVectorExp
-            program:ProgramRef(new ProgramMTL([kMaplyShaderWideVectorExp cStringUsingEncoding:NSASCIIStringEncoding],
-                                        [mtlLib newFunctionWithName:@"vertexTri_wideVecExp"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"]))];
-    [self addShader:kMaplyShaderWideVectorPerformance
-            program:ProgramRef(new ProgramMTL([kMaplyShaderWideVectorPerformance cStringUsingEncoding:NSASCIIStringEncoding],
-                                        [mtlLib newFunctionWithName:@"vertexTri_wideVecPerf"],
-                                        [mtlLib newFunctionWithName:@"fragmentTri_wideVecPerf"]))];
+    [self addShader:kMaplyShaderDefaultWideVector program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderDefaultWideVector cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_wideVec"],
+        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"])];
+    [self addShader:kMaplyShaderWideVectorExp program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderWideVectorExp cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_wideVecExp"],
+        [mtlLib newFunctionWithName:@"fragmentTri_wideVec"])];
+    [self addShader:kMaplyShaderWideVectorPerformance program: std::make_shared<ProgramMTL>(
+        [kMaplyShaderWideVectorPerformance cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_wideVecPerf"],
+        [mtlLib newFunctionWithName:@"fragmentTri_wideVecPerf"])];
     
     // Screen Space (motion and regular are the same)
-    ProgramRef screenSpace = ProgramRef(new
-            ProgramMTL([kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],
-                       [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
-                       [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
+    auto screenSpace = std::make_shared<ProgramMTL>(
+        [kMaplyScreenSpaceDefaultProgram cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"]);
     [self addShader:kMaplyScreenSpaceDefaultProgram program:screenSpace];
     [self addShader:kMaplyScreenSpaceDefaultMotionProgram program:screenSpace];
     
     // Renders the mask ID to the screen
-    ProgramRef screenSpaceMask = ProgramRef(new
-            ProgramMTL(MaplyScreenSpaceMaskShader,
-                       [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
-                       [mtlLib newFunctionWithName:@"fragmentTri_mask"]));
+    auto screenSpaceMask = std::make_shared<ProgramMTL>(
+        MaplyScreenSpaceMaskShader,
+        [mtlLib newFunctionWithName:@"vertexTri_screenSpace"],
+        [mtlLib newFunctionWithName:@"fragmentTri_mask"]);
     [self addShader:kMaplyScreenSpaceMaskProgram program:screenSpaceMask];
     
     // Screen Space that handles expressions
-    ProgramRef screenSpaceExp = ProgramRef(new
-            ProgramMTL([kMaplyScreenSpaceExpProgram cStringUsingEncoding:NSASCIIStringEncoding],
-                       [mtlLib newFunctionWithName:@"vertexTri_screenSpaceExp"],
-                       [mtlLib newFunctionWithName:@"fragmentTri_basic"]));
+    auto screenSpaceExp = std::make_shared<ProgramMTL>(
+        [kMaplyScreenSpaceExpProgram cStringUsingEncoding:NSASCIIStringEncoding],
+        [mtlLib newFunctionWithName:@"vertexTri_screenSpaceExp"],
+        [mtlLib newFunctionWithName:@"fragmentTri_basic"]);
     [self addShader:kMaplyScreenSpaceExpProgram program:screenSpaceExp];
 
     // TODO: Particles
