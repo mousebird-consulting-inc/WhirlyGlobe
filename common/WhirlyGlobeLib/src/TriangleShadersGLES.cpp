@@ -538,8 +538,7 @@ attribute vec3 a_normal;
 varying mediump vec2 v_texCoord0;
 varying mediump vec2 v_texCoord1;
 varying mediump vec4 v_color;
-varying mediump vec3 v_adjNorm;
-varying mediump vec3 v_lightDir;
+varying float v_ndotl;
 
 void main()
 {
@@ -554,8 +553,9 @@ void main()
         v_texCoord1 = a_texCoord0;
 
    v_color = a_color;
-   v_adjNorm = light[0].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;
-   v_lightDir = (u_numLights > 0) ? light[0].direction : vec3(1,0,0);
+   vec3 adjNorm = light[0].viewdepend > 0.0 ? normalize((u_mvpMatrix * vec4(a_normal.xyz, 0.0)).xyz) : a_normal.xzy;
+   vec3 lightDir = (u_numLights > 0) ? light[0].direction : vec3(1,0,0);
+   v_ndotl = pow(max(0.0, dot(adjNorm, lightDir)), 0.5);
    v_color = vec4(light[0].ambient.xyz * material.ambient.xyz * a_color.xyz + light[0].diffuse.xyz * a_color.xyz,a_color.a) * u_fade;
 
    gl_Position = u_mvpMatrix * vec4(a_position,1.0);
@@ -571,18 +571,14 @@ uniform sampler2D s_baseMap1;
 varying vec2      v_texCoord0;
 varying vec2      v_texCoord1;
 varying vec4      v_color;
-varying vec3      v_adjNorm;
-varying vec3      v_lightDir;
+varying float     v_ndotl;
 
 void main()
 {
-   float ndotl = max(0.0, dot(v_adjNorm, v_lightDir));
-   ndotl = pow(ndotl,0.5);
-
 // Note: Put the color back
   vec4 baseColor0 = texture2D(s_baseMap0, v_texCoord0);
   vec4 baseColor1 = texture2D(s_baseMap1, v_texCoord1);
-  gl_FragColor = mix(baseColor0,baseColor1,1.0-ndotl);
+  gl_FragColor = mix(baseColor0,baseColor1,1.0-v_ndotl);
 }
 )";
     
