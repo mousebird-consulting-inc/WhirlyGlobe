@@ -537,10 +537,11 @@ vertex ProjVertexTriB vertexTri_multiTex(
 }
 
 // Fragment shader that handles to two textures
-fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
-                                     constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-                                     constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                                     constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+fragment float4 fragmentTri_multiTex(
+        ProjVertexTriB vert [[stage_in]],
+        constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+        constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     
@@ -556,6 +557,80 @@ fragment float4 fragmentTri_multiTex(ProjVertexTriB vert [[stage_in]],
         // Note: There are times we may not want to reuse the same texture coordinates
         float4 color1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0);
         return vert.color * mix(color0,color1,fragArgs.uniDrawState.interp);
+    }
+}
+
+vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
+                VertexTriB vert [[stage_in]],
+                constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
+                constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
+                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+{
+    ProjVertexTriNightDay outVert;
+
+    const float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
+    if (vertArgs.uniDrawState.clipCoords)
+        outVert.position = float4(vertPos,1.0);
+    else {
+        const float4 v = vertArgs.uniDrawState.singleMat * float4(vert.position,1.0);
+        outVert.position = uniforms.pMatrix * (uniforms.mvMatrix * v + uniforms.mvMatrixDiff * v);
+    }
+
+    outVert.color = resolveLighting(vertPos, vert.normal, float4(vert.color),
+                                    lighting, uniforms.mvpMatrix) *
+                    calculateFade(uniforms,vertArgs.uniDrawState);
+    //outVert.color = float4(1,1,1,1);
+
+    // Handle the various texture coordinate input options (none, 1, or 2)
+    const int numTextures = TexturesBase(texArgs.texPresent);
+    if (numTextures == 0) {
+        outVert.texCoord0 = float2(0.0,0.0);
+        outVert.texCoord1 = float2(0.0,0.0);
+    } else if (numTextures == 1) {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
+        outVert.texCoord1 = outVert.texCoord0;
+    } else {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
+        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texArgs,1);
+    }
+
+    float3 adjNorm = vert.normal;
+    float3 lightDir = float3(1,0,0);
+    if (lighting.numLights > 0) {
+        const constant thread Light &light = lighting.lights[0];
+        if (light.viewDepend) {
+            adjNorm = normalize((uniforms.mvpMatrix * float4(vert.normal.xyz, 0.0)).xyz);
+        } else {
+            adjNorm = vert.normal.xzy;
+        }
+        lightDir = light.direction;
+    }
+    outVert.ndotl = pow(max(0.0, dot(adjNorm, lightDir)), 0.5);
+
+    return outVert;
+}
+
+fragment float4 fragmentTri_multiTex_nightDay(
+        ProjVertexTriNightDay vert [[stage_in]],
+        constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
+        constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
+{
+    int numTextures = TexturesBase(texArgs.texPresent);
+
+    // Handle none, 1 or 2 textures
+    if (numTextures == 0) {
+        return vert.color;
+    } else if (numTextures == 1) {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord0);
+    } else {
+        // Note: There are times we may not want to reuse the same texture coordinates
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        float4 color0 = texArgs.tex[0].sample(sampler2d, vert.texCoord0);
+        float4 color1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0);
+        return vert.color * mix(color0,color1, 1.0 - vert.ndotl);
     }
 }
 

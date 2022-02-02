@@ -361,6 +361,14 @@ struct ProjVertexTriB {
     float2 texCoord1;
 };
 
+struct ProjVertexTriNightDay {
+    float4 position [[invariant]] [[position]];
+    float4 color;
+    float2 texCoord0;
+    float2 texCoord1;
+    float ndotl;
+};
+
 /**
  Wide Vector Shaders
  These work to build/render objects in 2D space, but based
