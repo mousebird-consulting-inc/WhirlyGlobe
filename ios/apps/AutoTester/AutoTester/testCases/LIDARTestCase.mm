@@ -7,7 +7,6 @@
 //
 
 #import "LIDARTestCase.h"
-#import "WhirlyGlobeComponent.h"
 
 @implementation LIDARTestCase
 {

@@ -35,7 +35,7 @@
 #include <set>
 #import <Accelerate/Accelerate.h>
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "vector_styles/MaplyVectorStyle.h"
 #import "private/MaplyVectorStyle_private.h"
 #import "MaplyVectorObject_private.h"

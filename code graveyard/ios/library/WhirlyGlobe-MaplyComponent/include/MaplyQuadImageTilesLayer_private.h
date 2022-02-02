@@ -20,7 +20,7 @@
 
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyViewControllerLayer_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyQuadImageTilesLayer() <WhirlyKitQuadDataStructure,WhirlyKitQuadTileImageDataSource>
 

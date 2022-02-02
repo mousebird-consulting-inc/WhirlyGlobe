@@ -21,7 +21,7 @@
 #import "MaplyQuadSampler_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyBaseViewController_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 using namespace WhirlyKit;
 

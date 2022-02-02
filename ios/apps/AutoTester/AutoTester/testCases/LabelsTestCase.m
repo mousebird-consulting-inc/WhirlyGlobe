@@ -7,11 +7,7 @@
 //
 
 #import "LabelsTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyLabel.h"
 #import "VectorsTestCase.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyViewController.h"
 
 @implementation LabelsTestCase
 

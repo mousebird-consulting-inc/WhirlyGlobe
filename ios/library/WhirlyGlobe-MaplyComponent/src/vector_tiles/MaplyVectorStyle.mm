@@ -21,7 +21,7 @@
 #import "private/MapboxVectorTiles_private.h"
 #import "private/MaplyVectorObject_private.h"
 #import "helpers/MaplyTextureBuilder.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyTexture_private.h"
 #import "Dictionary_NSDictionary.h"
 

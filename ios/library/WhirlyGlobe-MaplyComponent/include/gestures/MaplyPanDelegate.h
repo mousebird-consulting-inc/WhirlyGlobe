@@ -1,4 +1,4 @@
-/*  MaplyPanDelegateMap.h
+/*  MaplyPanDelegate.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/10/12.
@@ -17,21 +17,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import <vector>
-#import "MapView_iOS.h"
-
-// Sent out when the pan delegate takes control
-#define kPanDelegateDidStart @"WKPanDelegateStarted"
-// Sent out when the pan delegate finished (but hands off to momentum)
-#define kPanDelegateDidEnd @"WKPanDelegateEnded"
-
-#define kPanDelegateMinTime 0.1
 
 // Custom pan gesture recognizer that plays well with scroll views.
-@interface MinDelay2DPanGestureRecognizer : UIPanGestureRecognizer {
-    // time of start of gesture
-    CFTimeInterval startTime;
-}
+@interface MinDelay2DPanGestureRecognizer : UIPanGestureRecognizer
 
 - (void)forceEnd;
 
@@ -39,12 +27,6 @@
 
 @interface MaplyPanDelegate : NSObject <UIGestureRecognizerDelegate>
 
-/// Create a pinch gesture and a delegate and wire them up to the given UIView
-+ (MaplyPanDelegate *)panDelegateForView:(UIView *)view mapView:(Maply::MapView_iOSRef)mapView useCustomPanRecognizer:(bool)useCustomPanRecognizer;
-
 @property (nonatomic,weak) UIGestureRecognizer *gestureRecognizer;
-
-/// Set the bounding rectangle
-- (void)setBounds:(WhirlyKit::Point2d *)bounds;
 
 @end

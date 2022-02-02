@@ -25,7 +25,7 @@
 #import "QuadDisplayLayer.h"
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyImageTile_private.h"
 #import "MaplyTexture_private.h"
 #import "MaplyRenderController_private.h"

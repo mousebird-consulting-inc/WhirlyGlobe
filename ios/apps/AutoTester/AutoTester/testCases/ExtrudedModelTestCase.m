@@ -6,7 +6,6 @@
 //  Copyright 2016-2022 mousebird consulting.
 //
 
-#import <WhirlyGlobeComponent.h>
 #import "ExtrudedModelTestCase.h"
 #import "AutoTester-Swift.h"
 

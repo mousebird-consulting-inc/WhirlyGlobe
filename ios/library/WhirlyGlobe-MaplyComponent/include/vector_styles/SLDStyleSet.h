@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "vector_tiles/MapboxVectorTiles.h"
+#import <WhirlyGlobe/MapboxVectorTiles.h>
 
 /** @brief Class corresponding to the sld:NamedLayer element
  @see http://schemas.opengis.net/sld/1.1.0/StyledLayerDescriptor.xsd for SLD v1.1.0

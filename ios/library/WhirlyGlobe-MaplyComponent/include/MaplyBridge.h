@@ -1,5 +1,4 @@
-/*
- *  MaplyBridge.h
+/*  MaplyBridge.h
  *  MaplyBridge
  *
  *  Created by jmnavarro on 7/19/15.
@@ -15,11 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import "MaplyComponent.h"
-#import "control/MaplyBaseViewController.h"
-#import "control/WhirlyGlobeViewController.h"
-#import "control/MaplyGlobeRenderController.h"
-#import "control/MaplyViewController.h"
+#import <WhirlyGlobe/MaplyComponent.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/MaplyGlobeRenderController.h>
+#import <WhirlyGlobe/MaplyViewController.h>

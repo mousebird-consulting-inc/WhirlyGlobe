@@ -1,5 +1,5 @@
 //
-//  geowrap.c
+//  GeographicLib.mm
 //  WhirlyGlobeLib
 //
 //  Created by Tim Sylvester on 12/14/20.
@@ -9,8 +9,8 @@
 #import "GeographicLib/Geodesic.hpp"
 #import "GeographicLib/Geocentric.hpp"
 
-#import "../../../../common/WhirlyGlobeLib/include/GeographicLib.h"
-#import "../include/GeographicLib.h"
+#import "GeographicLib.h"
+#import "GeographicLib_ObjC.h"
 #import "CoordSystem.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitLog.h"

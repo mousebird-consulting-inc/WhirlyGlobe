@@ -19,7 +19,7 @@
  */
 
 #import "MaplySimpleTileFetcher.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 using namespace WhirlyKit;
 

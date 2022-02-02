@@ -19,7 +19,7 @@
  */
 
 #import "MaplyRemoteTileElevationSource.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadImageTilesLayer.h"
 #import "MaplyRemoteTileSource_private.h"

@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import WhirlyGlobe
 
 struct LocationInfo {
 	var name: String

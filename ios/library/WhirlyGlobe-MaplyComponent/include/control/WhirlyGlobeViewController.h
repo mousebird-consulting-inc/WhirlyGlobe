@@ -1,5 +1,5 @@
 /*
- *  GlobeViewController.h
+ *  WhirlyGlobeViewController.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "control/MaplyGlobeRenderController.h"
-#import "control/MaplyBaseViewController.h"
+#import <WhirlyGlobe/MaplyGlobeRenderController.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
 
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;

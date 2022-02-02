@@ -20,7 +20,7 @@
 
 #import "math/MaplyCoordinateSystem.h"
 #import "math/MaplyCoordinate.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyCoordinateSystem()
 {

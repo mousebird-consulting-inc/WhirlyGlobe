@@ -1,5 +1,4 @@
-/*
- *  WGCoordinate.m
+/*  WGCoordinate.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/17/12.
@@ -15,12 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import "WGCoordinate.h"
-#import "math/MaplyCoordinate.h"
-#import <WhirlyGlobe_iOS.h>
+#import <WhirlyGlobe/WGCoordinate.h>
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import "WhirlyGlobe_iOS.h"
 
 using namespace WhirlyKit;
 

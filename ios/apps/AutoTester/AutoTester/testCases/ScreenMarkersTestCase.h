@@ -7,7 +7,6 @@
 //
 
 #import "MaplyTestCase.h"
-#import "MaplyComponentObject.h"
 
 @interface ScreenMarkersTestCase : MaplyTestCase
 

@@ -18,20 +18,20 @@
  *
  */
 
-#import "math/MaplyCoordinate.h"
-#import "visual_objects/MaplyScreenMarker.h"
-#import "visual_objects/MaplyVectorObject.h"
-#import "visual_objects/MaplyComponentObject.h"
-#import "MaplySharedAttributes.h"
-#import "rendering/MaplyLight.h"
-#import "rendering/MaplyShader.h"
-#import "visual_objects/MaplyTexture.h"
-#import "visual_objects/MaplyParticleSystem.h"
-#import "visual_objects/MaplyPoints.h"
-#import "visual_objects/MaplyCluster.h"
-#import "rendering/MaplyRenderTarget.h"
-#import "control/MaplyActiveObject.h"
-#import "control/MaplyControllerLayer.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyVectorObject.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplySharedAttributes.h>
+#import <WhirlyGlobe/MaplyLight.h>
+#import <WhirlyGlobe/MaplyShader.h>
+#import <WhirlyGlobe/MaplyTexture.h>
+#import <WhirlyGlobe/MaplyParticleSystem.h>
+#import <WhirlyGlobe/MaplyPoints.h>
+#import <WhirlyGlobe/MaplyCluster.h>
+#import <WhirlyGlobe/MaplyRenderTarget.h>
+#import <WhirlyGlobe/MaplyActiveObject.h>
+#import <WhirlyGlobe/MaplyControllerLayer.h>
 
 @class MaplyRemoteTileFetcher;
 

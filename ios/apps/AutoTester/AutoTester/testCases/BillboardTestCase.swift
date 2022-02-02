@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import WhirlyGlobe
 
 class BillboardTestCase : MaplyTestCase {
     

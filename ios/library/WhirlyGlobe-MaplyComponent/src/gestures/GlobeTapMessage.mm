@@ -1,5 +1,4 @@
-/*
- *  TapMessage.mm
+/*  GlobeTapMessage.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import "GlobeTapMessage.h"
+#import "gestures/GlobeTapMessage.h"
+#import "private/GlobeTapMessage_private.h"
 
 using namespace WhirlyKit;
 

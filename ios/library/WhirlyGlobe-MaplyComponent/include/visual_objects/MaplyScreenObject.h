@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
-#import "control/MaplyRenderController.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
 
 /** 
     The Maply Screen Object is used to build up a more complex screen object from multiple pieces.

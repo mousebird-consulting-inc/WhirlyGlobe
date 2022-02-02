@@ -7,14 +7,11 @@
 //
 
 #import "ShapesTestCase.h"
-#import "MaplyShape.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyGeomModel.h"
-#import "MaplyMatrix.h"
-#import "MaplyViewController.h"
 #import "AutoTester-Swift.h"
 
-#import "../../../common/WhirlyGlobeLib/include/WhirlyVector.h"
+#import "WhirlyVector.h"
+
+#import <vector>
 
 // Simple representation of locations and name for testing
 typedef struct

@@ -3,17 +3,23 @@
 //  AutoTester
 //
 //  Created by jmnavarro on 13/10/15.
-//  Copyright 2015-2022 mousebird consulting.
+//  Copyright 2015-2017 mousebird consulting.
 //
 
 #import <UIKit/UIKit.h>
-#import "WhirlyGlobeComponent.h"
-#import "MaplyComponent.h"
+#import <WhirlyGlobe/WhirlyGlobeComponent.h>
+#import <WhirlyGlobe/MaplyComponent.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplyViewController.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
 
 @class MaplyViewController;
+@class MaplyBaseViewController;
 @class WhirlyGlobeViewController;
 @class MaplyTestCase;
 @class MaplyCoordinateSystem;
+@protocol WhirlyGlobeViewControllerDelegate;
+@protocol MaplyViewControllerDelegate;
 
 typedef void (^TestCaseResult)(MaplyTestCase * _Nonnull testCase);
 

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import WhirlyGlobeMaplyComponent
+import WhirlyGlobe
 
 class LegendCell: UITableViewCell {
 

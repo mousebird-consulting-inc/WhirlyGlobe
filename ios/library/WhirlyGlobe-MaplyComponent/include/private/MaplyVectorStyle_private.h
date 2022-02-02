@@ -17,7 +17,7 @@
  */
 
 #import "MaplyVectorStyle.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "Dictionary_NSDictionary.h"
 
 @interface MaplyVectorStyleSettings()

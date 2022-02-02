@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
-#import "visual_objects/MaplyScreenObject.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenObject.h>
 
 /** 
     A billboard is tied to a specific point, but rotates to face the user.

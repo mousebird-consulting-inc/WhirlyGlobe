@@ -19,7 +19,7 @@
  */
 
 #import "MaplyElevationSource.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 /** An adapter object that converts Maply elevation chunks (the simple version)
     to WhirlyKitElevationChunk data.

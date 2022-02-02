@@ -19,7 +19,7 @@
  */
 
 #import "MaplyQuadTracker.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyQuadTracker()
 

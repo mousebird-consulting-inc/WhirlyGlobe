@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WhirlyGlobe
 
 public class GeographyClassTestCase: MaplyTestCase {
 

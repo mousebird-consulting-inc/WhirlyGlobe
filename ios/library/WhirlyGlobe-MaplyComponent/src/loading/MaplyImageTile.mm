@@ -21,7 +21,7 @@
 #import "loading/MaplyImageTile.h"
 #import "MaplyImageTile_private.h"
 #import "MaplyRenderController_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 using namespace WhirlyKit;
 

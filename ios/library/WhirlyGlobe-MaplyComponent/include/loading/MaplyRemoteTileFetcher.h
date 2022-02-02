@@ -18,8 +18,8 @@
  *
  */
 
-#import "loading/MaplyTileSourceNew.h"
-#import "math/MaplyCoordinateSystem.h"
+#import <WhirlyGlobe/MaplyTileSourceNew.h>
+#import <WhirlyGlobe/MaplyCoordinateSystem.h>
 
 /**
  Remote Tile Info Object (New)

@@ -19,7 +19,7 @@
  */
 
 #import "visual_objects/MaplyShape.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @interface MaplyShapeCircle()
 

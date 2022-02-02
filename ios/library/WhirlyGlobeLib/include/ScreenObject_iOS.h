@@ -18,7 +18,7 @@
  *
  */
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import <Foundation/Foundation.h>
 
 namespace WhirlyKit

@@ -19,8 +19,8 @@
  */
 
 #import <Foundation/Foundation.h>
-#import "vector_styles/MaplyVectorStyle.h"
-#import "vector_tiles/MapboxVectorTiles.h"
+#import <WhirlyGlobe/MaplyVectorStyle.h>
+#import <WhirlyGlobe/MapboxVectorTiles.h>
 
 typedef NS_ENUM(NSUInteger,MapboxLayerType) {
     MapboxLayerTypeBackground,

@@ -18,27 +18,27 @@
 
 #import <UIKit/UIKit.h>
 #import <Metal/Metal.h>
-#import "math/MaplyCoordinate.h"
-#import "visual_objects/MaplyScreenMarker.h"
-#import "visual_objects/MaplyVectorObject.h"
-#import "control/MaplyViewTracker.h"
-#import "visual_objects/MaplyComponentObject.h"
-#import "MaplySharedAttributes.h"
-#import "control/MaplyControllerLayer.h"
-#import "rendering/MaplyLight.h"
-#import "rendering/MaplyShader.h"
-#import "control/MaplyActiveObject.h"
-#import "visual_objects/MaplyTexture.h"
-#import "control/MaplyAnnotation.h"
-#import "visual_objects/MaplyParticleSystem.h"
-#import "visual_objects/MaplyPoints.h"
-#import "visual_objects/MaplyCluster.h"
-#import "gestures/Maply3DTouchPreviewDatasource.h"
-#import "helpers/MaplyLocationTracker.h"
-#import "rendering/MaplyRenderTarget.h"
-#import "control/MaplyRenderController.h"
-#import "loading/MaplyRemoteTileFetcher.h"
-#import "rendering/MaplyVertexAttribute.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyVectorObject.h>
+#import <WhirlyGlobe/MaplyViewTracker.h>
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/MaplySharedAttributes.h>
+#import <WhirlyGlobe/MaplyControllerLayer.h>
+#import <WhirlyGlobe/MaplyLight.h>
+#import <WhirlyGlobe/MaplyShader.h>
+#import <WhirlyGlobe/MaplyActiveObject.h>
+#import <WhirlyGlobe/MaplyTexture.h>
+#import <WhirlyGlobe/MaplyAnnotation.h>
+#import <WhirlyGlobe/MaplyParticleSystem.h>
+#import <WhirlyGlobe/MaplyPoints.h>
+#import <WhirlyGlobe/MaplyCluster.h>
+#import <WhirlyGlobe/Maply3DTouchPreviewDatasource.h>
+#import <WhirlyGlobe/MaplyLocationTracker.h>
+#import <WhirlyGlobe/MaplyRenderTarget.h>
+#import <WhirlyGlobe/MaplyRenderController.h>
+#import <WhirlyGlobe/MaplyRemoteTileFetcher.h>
+#import <WhirlyGlobe/MaplyVertexAttribute.h>
 
 typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 typedef void (__strong ^InitCompletionBlock)(void);

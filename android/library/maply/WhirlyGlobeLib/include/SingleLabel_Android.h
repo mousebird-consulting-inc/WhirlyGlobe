@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 namespace WhirlyKit
 {

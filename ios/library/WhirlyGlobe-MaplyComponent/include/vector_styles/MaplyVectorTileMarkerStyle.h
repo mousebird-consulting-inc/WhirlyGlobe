@@ -16,8 +16,8 @@
  *  limitations under the License.
  */
 
-#import "vector_styles/MaplyVectorStyle.h"
-#import "vector_styles/MaplyVectorTileStyle.h"
+#import <WhirlyGlobe/MaplyVectorStyle.h>
+#import <WhirlyGlobe/MaplyVectorTileStyle.h>
 
 /** 
     Implementation of the marker style symbolizer for Maply Vector Tiles.

@@ -24,7 +24,7 @@
 #import "MaplyActiveObject.h"
 #import "MaplyActiveObject_private.h"
 #import "MaplyBaseViewController_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyImageTile_private.h"
 #import "MaplyElevationSource_private.h"
 

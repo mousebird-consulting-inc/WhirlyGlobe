@@ -1,5 +1,4 @@
-/*
- *  TiltDelegate.mm
+/*  GlobeTiltDelegate.mm
  *
  *  Created by Stephen Gifford on 1/5/15.
  *  Copyright 2011-2022 mousebird consulting
@@ -14,10 +13,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/GlobeTiltDelegate.h"
+#import "private/GlobeTiltDelegate_private.h"
 #import "gestures/GlobePinchDelegate.h"
 #import "ViewWrapper.h"
 

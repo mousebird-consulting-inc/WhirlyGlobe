@@ -20,7 +20,7 @@
 
 #import <list>
 #import <Foundation/Foundation.h>
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 typedef std::set<WhirlyKit::SimpleIdentity> SimpleIDSet;
 
