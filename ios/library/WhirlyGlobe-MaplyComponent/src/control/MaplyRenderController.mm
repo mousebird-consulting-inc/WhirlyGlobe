@@ -393,14 +393,14 @@ using namespace Eigen;
         scene->removeProgram(shaderToRemove.program->getId(),NULL);
 }
 
-- (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name
+- (MaplyShader *__nullable)getShaderByName:(const NSString *__nonnull)name
 {
     if (!interactLayer)
         return nil;
 
     @synchronized (interactLayer->shaders) {
         for (MaplyShader *shader in interactLayer->shaders)
-            if (![shader.name compare:name])
+            if (![name compare:shader.name])
                 return shader;
     }
     

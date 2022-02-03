@@ -179,11 +179,13 @@ class StarsSunTestCase: MaplyTestCase {
         // Put the terminator in view
         globeVC.setPosition(MaplyCoordinateMake(sun.position.x + Float.pi * 0.3, 0.0), height: 2.0)
 
-        // todo: use an active object to update more
+        // todo: use an active object to update more smoothly
         timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self, weak globeVC] (t) in
             guard let self = self, let vc = globeVC, t.isValid else { return }
             self.renderOffset = -self.startDate.timeIntervalSinceNow * self.timeFactor
-            _ = self.setupSunAndMoon(vc)
+            if let sun = self.setupSunAndMoon(vc) {
+                self.atmosObj?.setSunPosition(sun.direction)
+            }
         }
 	}
 
