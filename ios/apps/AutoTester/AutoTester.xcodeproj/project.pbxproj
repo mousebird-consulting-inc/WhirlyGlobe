@@ -107,8 +107,8 @@
 		2BF29B8C24D2268200553963 /* LegendViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF29B8B24D2268200553963 /* LegendViewController.storyboard */; };
 		2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF29B8E24D226B000553963 /* LegendViewController.swift */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
+		31041A2227A36D53004B25E1 /* WhirlyGlobe.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */; };
-		31041A2227A36D53004B25E1 /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A902680F597007BE16F /* ATS_Route.shp */; };
 		311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A912680F597007BE16F /* Airspace_Boundary.dbf */; };
 		311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A922680F597007BE16F /* Airspace_Boundary.shx */; };
@@ -526,7 +526,7 @@
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DA1CDFA7DE00F68045 /* globe.png */; };
 		8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DB1CDFA7DE00F68045 /* map.png */; };
-		8F858B011E7FE7EB00037D4E /* WhirlyGlobeMaplyComponent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */; };
+		8F858B011E7FE7EB00037D4E /* WhirlyGlobe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */; };
 		8F981DB81DE3577C00717DF1 /* ne_10m_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */; };
 		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
@@ -608,7 +608,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				31041A2227A36D53004B25E1 /* WhirlyGlobeMaplyComponent.framework in Embed Frameworks */,
+				31041A2227A36D53004B25E1 /* WhirlyGlobe.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1222,7 +1222,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */,
-				8F858B011E7FE7EB00037D4E /* WhirlyGlobeMaplyComponent.framework in Frameworks */,
+				8F858B011E7FE7EB00037D4E /* WhirlyGlobe.framework in Frameworks */,
 				E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */,
 				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
 				E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */,
@@ -1980,7 +1980,7 @@
 		8F858AF71E7FE60C00037D4E /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */,
+				8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */,
 				8F858AFE1E7FE60C00037D4E /* WhirlyGlobeMaplyComponentTests.xctest */,
 			);
 			name = Products;
@@ -2081,10 +2081,10 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		8F858AFC1E7FE60C00037D4E /* WhirlyGlobeMaplyComponent.framework */ = {
+		8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
-			path = WhirlyGlobeMaplyComponent.framework;
+			path = WhirlyGlobe.framework;
 			remoteRef = 8F858AFB1E7FE60C00037D4E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -2839,7 +2839,6 @@
 					"\"$(SRCROOT)/../../../common/WhirlyGlobeLib/include\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;
@@ -2875,7 +2874,6 @@
 					"\"$(SRCROOT)/../../../common/WhirlyGlobeLib/include\"",
 				);
 				INFOPLIST_FILE = AutoTester/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;

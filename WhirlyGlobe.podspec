@@ -35,7 +35,6 @@ Pod::Spec.new do |s|
       __IPHONEOS__
       SQLITE_OPEN_READONLY
       HAVE_PTHREAD=1
-      UNORDERED=1
       ).join(" "),
     "HEADER_SEARCH_PATHS" => %w(
       "$(SDKROOT)/usr/include/libxml2"
