@@ -25,10 +25,10 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Sun_getDirection
 
 /*
  * Class:     com_mousebird_maply_Sun
- * Method:    asPosition
- * Signature: ()[F
+ * Method:    getPosition
+ * Signature: ()Lcom/mousebird/maply/Point2d;
  */
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Sun_asPosition
+JNIEXPORT jobject JNICALL va_com_mousebird_maply_Sun_getPosition
   (JNIEnv *, jobject);
 
 /*

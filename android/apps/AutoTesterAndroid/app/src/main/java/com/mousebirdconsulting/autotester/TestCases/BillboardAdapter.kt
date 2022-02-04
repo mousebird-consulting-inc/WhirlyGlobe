@@ -53,8 +53,8 @@ class BillboardAdapter(private val viewC: GlobeController,
         
         // Sun
         val billSun = Billboard().apply {
-            val sunPosition = sun.asPosition()
-            center = Point3d(sunPosition[0].toDouble(), sunPosition[1].toDouble(), 5.4 * EarthRadius)
+            val sunPosition = sun.position
+            center = Point3d(sunPosition.x, sunPosition.y, 5.4 * EarthRadius)
             selectable = false
     
             screenObject = ScreenObject().apply {
@@ -77,7 +77,7 @@ class BillboardAdapter(private val viewC: GlobeController,
             cal.timeZone = SimpleTimeZone(SimpleTimeZone.UTC_TIME, "UTC")
             
             val moon = Moon(cal)
-            val moonPosition = moon.asPosition()
+            val moonPosition = moon.position
 
             center = Point3d(moonPosition.x, moonPosition.y, 5.4 * EarthRadius)
             screenObject = ScreenObject().apply {
@@ -95,6 +95,8 @@ class BillboardAdapter(private val viewC: GlobeController,
             waveLength = floatArrayOf(0.650f, 0.570f, 0.475f)
             setSunPosition(sun.direction)
         }
+        
+        viewC.setPositionGeo(sun.position.x + 2 * Math.PI, 0.0, 2.0)
     }
 
     var atmosphere: Atmosphere? = null
