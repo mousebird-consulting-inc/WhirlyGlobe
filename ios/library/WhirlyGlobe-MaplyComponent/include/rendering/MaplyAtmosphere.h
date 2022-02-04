@@ -25,7 +25,7 @@
     Sets up the objects and shaders to implement an atmosphere.
     
     This object sets up a shader implementation of the simple atmosphere from GPU Gems 2
-    http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter16.html
+    https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-16-accurate-atmospheric-scattering
 */
 @interface MaplyAtmosphere : NSObject
 
