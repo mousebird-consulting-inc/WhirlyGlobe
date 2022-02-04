@@ -103,7 +103,7 @@ BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
         VertexAttributeMTL *ptsAttr = (VertexAttributeMTL *)basicDraw->vertexAttributes[ptsIndex];
         ptsAttr->slot = WhirlyKitShader::WKSVertexPositionAttribute;
         ptsAttr->reserve(points.size());
-        for (auto pt : points)
+        for (const auto &pt : points)
             ptsAttr->addVector3f(pt);
         draw->tris = tris;
         
@@ -117,7 +117,7 @@ BasicDrawableRef BasicDrawableBuilderMTL::getDrawable()
                 FloatExpressionToMtl(opacityExp, vecExp.opacityExp);
             
             BasicDrawable::UniformBlock uniBlock;
-            uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&vecExp length:sizeof(vecExp)]));
+            uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&vecExp length:sizeof(vecExp)]);
             uniBlock.bufferID = WhirlyKitShader::WKSUniformVecEntryExp;
             basicDraw->setUniBlock(uniBlock);
         }
