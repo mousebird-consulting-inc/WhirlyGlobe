@@ -25,7 +25,8 @@ namespace WhirlyKitAtmosphereShader
 
 // Entries in the free form argument buffers
 // We start after 400 from the default shaders
-enum AtmosArgBufferEntries {
+enum AtmosArgBufferEntries
+{
     AtmosUniformVertEntry = 501,
     AtmosUniformFragEntry = 502,
 };
@@ -34,42 +35,31 @@ enum AtmosArgBufferEntries {
 // Uniforms passed into the shaders
 struct AtmosShaderVertUniforms
 {
-    float discardZero;    // Zero is a discard value
-    simd_float2 minMax;   // Data value min/max
-    int component;        // Which component we're pulling from
-
-    simd::float4x4 mvpMatrix;   // "uniform mat4  u_mvpMatrix;\n"+
-    simd::float3 cameraPos;     // "uniform vec3 u_v3CameraPos;\n"+
-    float cameraHeight;         // "uniform float u_fCameraHeight;\n"+
-    float cameraHeight2;        // "uniform float u_fCameraHeight2;\n"+
-    simd::float3 lightPos;      // "uniform vec3 u_v3LightPos;\n"+
-
-    float innerRadius;          // "uniform float u_fInnerRadius;\n"+
-    float innerRadius2;         // "uniform float u_fInnerRadius2;\n"+
-    float outerRadius;          // "uniform float u_fOuterRadius;\n"+
-    float outerRadius2;         // "uniform float u_fOuterRadius2;\n"+
-    float scale;                // "uniform float u_fScale;\n"+
-    float scaleDepth;           // "uniform float u_fScaleDepth;\n"+
-    float scaleOverScaleDepth;  // "uniform float u_fScaleOverScaleDepth;\n"+
-
-    float kr;                   // "uniform float u_Kr;\n"+
-    float kr4PI;                // "uniform float u_Kr4PI;\n"+
-    float km;                   // "uniform float u_Km;\n"+
-    float km4PI;                // "uniform float u_Km4PI;\n"+
-    float eSun;                 // "uniform float u_ESun;\n"+
-    float kmESun;               // "uniform float u_KmESun;\n"+
-    float krESun;               // "uniform float u_KrESun;\n"+
-    simd::float3 invWavelength; // "uniform vec3 u_v3InvWavelength ;\n"+
-    float samples;              // "uniform float u_fSamples;\n"+
-    int nSamples;               // "uniform int u_nSamples;\n"+
+    simd::float3 lightPos;      // sun position (todo: use scene light info)
+    float cameraHeight;
+    float innerRadius;          // The inner (planetary) radius
+    float outerRadius;          // The outer (atmosphere) radius
+    float scale;                // 1 / (outerRadius - innerRadius)
+    float scaleDepth;           // The altitude at which the atmosphere's average density is found
+    float scaleOverScaleDepth;
+    float c;                    // cameraHeight^2 - outerRadius^2
+    float kr;                   // scattering parameters
+    float kr4PI;
+    float km;
+    float km4PI;
+    float eSun;
+    float kmESun;
+    float krESun;
+    simd::float3 invWavelength; // 1 / pow(wavelength, 4) for RGB
+    int samples;                // Number of samples to take between entry and exit points
 };
 
 struct AtmosShaderFragUniforms
 {
-    float g;
+    simd::float3 lightPos;      // sun position (todo: use scene light info)
+    float g;                    // ?
     float g2;
     float exposure;
-    simd::float3 lightPos;
 };
 
 }

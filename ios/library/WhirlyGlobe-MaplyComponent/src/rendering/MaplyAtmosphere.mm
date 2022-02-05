@@ -121,11 +121,9 @@ using namespace Eigen;
     WhirlyKitAtmosphereShader::AtmosShaderVertUniforms vu;
     memset(&vu, 0, sizeof(vu));
     vu.cameraHeight = cameraHeight;
-    vu.cameraHeight2 = cameraHeight * cameraHeight;
     vu.innerRadius = 1.0f;
-    vu.innerRadius2 = vu.innerRadius * vu.innerRadius;
     vu.outerRadius = atm.outerRadius;
-    vu.outerRadius2 = vu.outerRadius * vu.outerRadius;
+    vu.c = cameraHeight * cameraHeight - vu.outerRadius * vu.outerRadius;
     vu.scale = 1 / (vu.outerRadius - vu.innerRadius);
     vu.scaleDepth = 0.25f;
     vu.scaleOverScaleDepth = vu.scale / vu.scaleDepth;
@@ -136,9 +134,7 @@ using namespace Eigen;
     vu.krESun = vu.kr * vu.eSun;
     vu.kr4PI = (float)(vu.kr * 4.0 * M_PI);
     vu.km4PI = (float)(vu.km * 4.0 * M_PI);
-    vu.samples = (float)atm.numSamples;
-    vu.nSamples = atm.numSamples;
-    CopyIntoMtlFloat3(vu.cameraPos, cameraPos);
+    vu.samples = atm.numSamples;
     CopyIntoMtlFloat3(vu.lightPos, sunDir3d);
     CopyIntoMtlFloat3(vu.invWavelength, Point3f(wavelength[0], wavelength[1], wavelength[2]));
 
@@ -148,7 +144,7 @@ using namespace Eigen;
     fu.g2 = fu.g * fu.g;
     fu.exposure = atm.exposure;
     CopyIntoMtlFloat3(fu.lightPos, sunDir3d);
-    
+
     NSData *vBlock = [[NSData alloc] initWithBytes:&vu length:sizeof(vu)];
     NSData *fBlock = [[NSData alloc] initWithBytes:&fu length:sizeof(fu)];
 
@@ -186,7 +182,7 @@ using namespace Eigen;
     _Kr = 0.0025;
     _Km = 0.0010;
     _ESun = 20.0;
-    _numSamples = 3;
+    _numSamples = 5;
     _outerRadius = 1.05;
     _g = -0.95;
     _exposure = 2.0;
@@ -295,7 +291,8 @@ using namespace Eigen;
         kMaplyShapeCenterY: @(0.0),
         kMaplyShapeCenterZ: @(0.0),
         kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
-        kMaplyShader: kMaplyAtmosphereProgram
+        kMaplyShader: kMaplyAtmosphereProgram,
+        kMaplyFade: @(5.0),
     };
 
     compObj = [vc addShapes:@[sphere] desc:desc];
