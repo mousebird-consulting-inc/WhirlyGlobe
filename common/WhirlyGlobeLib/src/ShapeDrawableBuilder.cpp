@@ -145,7 +145,7 @@ void ShapeDrawableBuilder::flush()
 
             if (shapeInfo.fade > 0.0)
             {
-                TimeInterval curTime = time_t();
+                const TimeInterval curTime = sceneRender->getScene()->getCurrentTime();
                 drawable->setFade(curTime,curTime+shapeInfo.fade);
             }
             drawables.push_back(drawable);
@@ -409,7 +409,7 @@ void ShapeDrawableBuilderTri::flush()
 
             if (shapeInfo.fade > 0.0)
             {
-                TimeInterval curTime = time_t(NULL);
+                const TimeInterval curTime = sceneRender->getScene()->getCurrentTime();
                 drawable->setFade(curTime,curTime+shapeInfo.fade);
             }
             drawables.push_back(drawable);
