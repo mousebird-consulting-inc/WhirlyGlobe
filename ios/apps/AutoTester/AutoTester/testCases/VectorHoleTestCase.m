@@ -7,7 +7,7 @@
 //
 
 #import "VectorHoleTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @interface VectorHoleTestCase()
 

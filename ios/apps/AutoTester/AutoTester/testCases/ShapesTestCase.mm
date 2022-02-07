@@ -7,7 +7,7 @@
 //
 
 #import "ShapesTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 #import "WhirlyVector.h"
 

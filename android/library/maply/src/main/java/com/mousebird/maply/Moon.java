@@ -63,7 +63,7 @@ public class Moon {
     /**
      * @return the location above the globe in lon/lat/distance.  Yay geocentric!
      */
-    public Point3d asPosition() {
+    public Point3d getPosition() {
         double[] pos = this.getPositionOfMoon();
         return new Point3d(pos[0], pos[1], 5.0);
     }

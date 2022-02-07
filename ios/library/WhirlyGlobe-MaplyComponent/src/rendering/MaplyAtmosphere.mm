@@ -1,5 +1,4 @@
-/*
- *  MaplyAtmosphere.mm
+/*  MaplyAtmosphere.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/30/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <WhirlyGlobe_iOS.h>
@@ -23,239 +21,11 @@
 #import "visual_objects/MaplyShape.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
+#import "MaplyRenderController_private.h"
+#import "AtmosphereShadersMTL.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
-
-#if 0
-static const char *vertexShaderAtmosTri = R"(
-precision highp float;
-
-uniform mat4  u_mvpMatrix;
-uniform vec3 u_v3CameraPos;
-uniform float u_fCameraHeight2;
-uniform vec3 u_v3LightPos;
-
-uniform float u_fInnerRadius;
-uniform float u_fInnerRadius2;
-uniform float u_fOuterRadius;
-uniform float u_fOuterRadius2;
-uniform float u_fScale;
-uniform float u_fScaleDepth;
-uniform float u_fScaleOverScaleDepth;
-
-uniform float u_Kr;
-uniform float u_Kr4PI;
-uniform float u_Km;
-uniform float u_Km4PI;
-uniform float u_ESun;
-uniform float u_KmESun;
-uniform float u_KrESun;
-uniform vec3 u_v3InvWavelength;
-uniform float u_fSamples;
-uniform int u_nSamples;
-
-attribute vec3 a_position;
-
-varying highp vec3 v3Direction;
-varying highp vec3 v3RayleighColor;
-varying highp vec3 v3MieColor;
-
-float scale(float fCos)
-{
-  float x = 1.0 - fCos;
-  return u_fScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
-}
-
-void main()
-{
-   vec3 v3Pos = a_position.xyz;
-   vec3 v3Ray = v3Pos - u_v3CameraPos;
-   float fFar = length(v3Ray);
-   v3Ray /= fFar;
-
-  float B = 2.0 * dot(u_v3CameraPos, v3Ray);
-  float C = u_fCameraHeight2 - u_fOuterRadius2;
-  float fDet = max(0.0, B*B - 4.0 * C);
-  float fNear = 0.5 * (-B - sqrt(fDet));
-
-   vec3 v3Start = u_v3CameraPos + v3Ray * fNear;
-   fFar -= fNear;
-
-   float fStartAngle = dot(v3Ray, v3Start) / u_fOuterRadius;
-   float fStartDepth = exp(-1.0/u_fScaleDepth);
-   float fStartOffset = fStartDepth * scale(fStartAngle);
-
-   float fSampleLength = fFar / u_fSamples;
-   float fScaledLength = fSampleLength * u_fScale;
-   vec3 v3SampleRay = v3Ray * fSampleLength;
-   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;
-
-   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);
-   vec3 v3Attenuate;
-   for (int i=0; i<u_nSamples; i++)
-   {
-     float fHeight = length(v3SamplePoint);
-     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));
-     float fLightAngle = dot(u_v3LightPos, v3SamplePoint) / fHeight;
-     float fCameraAngle = dot(v3Ray, v3SamplePoint) / fHeight;
-     float fScatter = (fStartOffset + fDepth *(scale(fLightAngle) - scale(fCameraAngle)));
-     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));
-     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
-     v3SamplePoint += v3SampleRay;
-   }
-
-   v3MieColor = v3FrontColor * u_KmESun;
-   v3RayleighColor = v3FrontColor * (u_v3InvWavelength * u_KrESun + u_Km4PI);
-   v3Direction = u_v3CameraPos - v3Pos;
-
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
-}
-)";
-
-static const char *fragmentShaderAtmosTri = R"(
-precision highp float;
-
-uniform float g;
-uniform float g2;
-uniform float fExposure;
-uniform vec3 u_v3LightPos;
-
-varying highp vec3 v3Direction;
-varying highp vec3 v3RayleighColor;
-varying highp vec3 v3MieColor;
-
-void main()
-{
-  float fCos = dot(u_v3LightPos, normalize(v3Direction)) / length(v3Direction);
-  float fCos2 = fCos*fCos;
-  float rayPhase = 0.75 + 0.75*fCos2;
-  float miePhase = 1.5 * ((1.0 - g2) / (2.0 + g2)) * (1.0 + fCos2) / pow(1.0 + g2 - 2.0*g*fCos, 1.5);
-  vec3 color = rayPhase * v3RayleighColor + miePhase * v3MieColor;
-  color = 1.0 - exp(color * -fExposure);
-  gl_FragColor = vec4(color,color.b);
-}
-)";
-#endif
-
-#define kAtmosphereShader @"Atmosphere Shader"
-
-#if 0
-static const char *vertexShaderGroundTri = R"(
-precision highp float;
-
-uniform mat4  u_mvpMatrix;
-uniform vec3 u_v3CameraPos;
-uniform float u_fCameraHeight2;
-uniform vec3 u_v3LightPos;
-
-uniform float u_fInnerRadius;
-uniform float u_fInnerRadius2;
-uniform float u_fOuterRadius;
-uniform float u_fOuterRadius2;
-uniform float u_fScale;
-uniform float u_fScaleDepth;
-uniform float u_fScaleOverScaleDepth;
-
-uniform float u_Kr;
-uniform float u_Kr4PI;
-uniform float u_Km;
-uniform float u_Km4PI;
-uniform float u_ESun;
-uniform float u_KmESun;
-uniform float u_KrESun;
-uniform vec3 u_v3InvWavelength;
-uniform float u_fSamples;
-uniform int u_nSamples;
-
-attribute vec3 a_position;
-attribute vec3 a_normal;
-attribute vec2 a_texCoord0;
-attribute vec2 a_texCoord1;
-
-varying mediump vec3 v_color;
-varying mediump vec3 v_v3attenuate;
-varying mediump vec2 v_texCoord0;
-varying mediump vec2 v_texCoord1;
-
-float scale(float fCos)
-{
-  float x = 1.0 - fCos;
-  return u_fScaleDepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
-}
-
-void main()
-{
-   vec3 v3Pos = a_normal.xyz;
-   vec3 v3Ray = v3Pos - u_v3CameraPos;
-   float fFar = length(v3Ray);
-   v3Ray /= fFar;
-
-  float B = 2.0 * dot(u_v3CameraPos, v3Ray);
-  float C = u_fCameraHeight2 - u_fOuterRadius2;
-  float fDet = max(0.0, B*B - 4.0 * C);
-  float fNear = 0.5 * (-B - sqrt(fDet));
-
-   vec3 v3Start = u_v3CameraPos + v3Ray * fNear;
-   fFar -= fNear;
-
-   float fDepth = exp((u_fInnerRadius - u_fOuterRadius) / u_fScaleDepth);
-   float fCameraAngle = dot(-v3Ray, v3Pos) / length (v3Pos);
-   float fLightAngle = dot(u_v3LightPos, v3Pos) / length(v3Pos);
-   float fCameraScale = scale(fCameraAngle);
-   float fLightScale = scale(fLightAngle);
-   float fCameraOffset = fDepth*fCameraScale;
-   float fTemp = (fLightScale + fCameraScale);
-
-   float fSampleLength = fFar / u_fSamples;
-   float fScaledLength = fSampleLength * u_fScale;
-   vec3 v3SampleRay = v3Ray * fSampleLength;
-   vec3 v3SamplePoint = v3Start + v3SampleRay * 0.5;
-
-   vec3 v3FrontColor = vec3(0.0, 0.0, 0.0);
-   vec3 v3Attenuate;
-   for (int i=0; i<u_nSamples; i++)
-   {
-     float fHeight = length(v3SamplePoint);
-     float fDepth = exp(u_fScaleOverScaleDepth * (u_fInnerRadius - fHeight));
-     float fScatter = fDepth*fTemp - fCameraOffset;
-     v3Attenuate = exp(-fScatter * (u_v3InvWavelength * u_Kr4PI + u_Km4PI));
-     v3FrontColor += v3Attenuate * (fDepth * fScaledLength);
-     v3SamplePoint += v3SampleRay;
-   }
-
-   v_v3attenuate = v3Attenuate;
-   v_color = v3FrontColor * (u_v3InvWavelength * u_KrESun + u_KmESun);
-   v_texCoord0 = a_texCoord0;
-   v_texCoord1 = a_texCoord1;
-
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
-}
-)";
-
-// Note: Not finished with these
-
-static const char *fragmentShaderGroundTri = R"(
-precision highp float;
-
-uniform sampler2D s_baseMap0;
-uniform sampler2D s_baseMap1;
-
-varying vec3      v_color;
-varying vec2      v_texCoord0;
-varying vec2      v_texCoord1;
-varying vec3      v_v3attenuate;
-
-void main()
-{
-  vec3 dayColor = texture2D(s_baseMap0, v_texCoord0).xyz * v_v3attenuate;
-  vec3 nightColor = texture2D(s_baseMap1, v_texCoord1).xyz * (1.0 - v_v3attenuate);
-  gl_FragColor = vec4(v_color, 1.0) + vec4(dayColor + nightColor, 1.0);
-}
-)";
-#endif
-
-#define kAtmosphereGroundShader @"Atmosphere Ground Shader"
 
 @interface SunUpdater : MaplyActiveObject
 @property (nonatomic) bool lockToCamera;
@@ -267,18 +37,25 @@ void main()
     bool started;
     MaplyCoordinate3d sunPos;
     MaplyShader *shader,*groundShader;
-    MaplyAtmosphere * __weak atm;
+    MaplyAtmosphere * __weak atmosphere;
     Vector3d lastCameraPos;
 }
 
-- (instancetype)initWithShader:(MaplyShader *)inShader groundShader:(MaplyShader *)inGroundShader atm:(MaplyAtmosphere *)inAtm viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (instancetype _Nullable)initWithShader:(MaplyShader *)inShader
+                            groundShader:(MaplyShader *)inGroundShader
+                                     atm:(MaplyAtmosphere *)inAtm
+                                   viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
-    self = [super initWithViewController:viewC];
+    if (!(self = [super initWithViewController:viewC]))
+    {
+        return nil;
+    }
+
     changed = true;
     started = false;
     shader = inShader;
     groundShader = inGroundShader;
-    atm = inAtm;
+    atmosphere = inAtm;
     _lockToCamera = false;
     
     return self;
@@ -297,67 +74,10 @@ void main()
 
 - (void)setLockToCamera:(bool)lockToCamera
 {
-    _lockToCamera = lockToCamera;
-    changed = true;
-}
-
-static bool nameIDsSetup = false;
-static StringIdentity v3CameraPosNameID;
-static StringIdentity v3LightPosNameID;
-static StringIdentity v3InvWavelengthNameID;
-static StringIdentity fCameraHeightNameID;
-static StringIdentity fCameraHeight2NameID;
-static StringIdentity fInnerRadiusNameID;
-static StringIdentity fInnerRadius2NameID;
-static StringIdentity fOuterRadiusNameID;
-static StringIdentity fOuterRadius2NameID;
-static StringIdentity fScaleNameID;
-static StringIdentity fScaleDepthNameID;
-static StringIdentity fScaleOverScaleDepthNameID;
-static StringIdentity KrNameID;
-static StringIdentity Kr4PINameID;
-static StringIdentity KmNameID;
-static StringIdentity Km4PINameID;
-static StringIdentity ESunNameID;
-static StringIdentity KmESunNameID;
-static StringIdentity KrESunNameID;
-static StringIdentity fSamplesNameID;
-static StringIdentity nSamplesNameID;
-static StringIdentity gNameID;
-static StringIdentity g2NameID;
-static StringIdentity fExposureNameID;
-
-- (void)setupStringIndices
-{
-    if (nameIDsSetup)
-        return;
-    
-    v3CameraPosNameID = StringIndexer::getStringID("u_v3CameraPos");
-    v3LightPosNameID = StringIndexer::getStringID("u_v3LightPos");
-    v3InvWavelengthNameID = StringIndexer::getStringID("u_v3InvWavelength");
-    fCameraHeightNameID = StringIndexer::getStringID("u_fCameraHeight");
-    fCameraHeight2NameID = StringIndexer::getStringID("u_fCameraHeight2");
-    fInnerRadiusNameID = StringIndexer::getStringID("u_fInnerRadius");
-    fInnerRadius2NameID = StringIndexer::getStringID("u_fInnerRadius2");
-    fOuterRadiusNameID = StringIndexer::getStringID("u_fOuterRadius");
-    fOuterRadius2NameID = StringIndexer::getStringID("u_fOuterRadius2");
-    fScaleNameID = StringIndexer::getStringID("u_fScale");
-    fScaleDepthNameID = StringIndexer::getStringID("u_fScaleDepth");
-    fScaleOverScaleDepthNameID = StringIndexer::getStringID("u_fScaleOverScaleDepth");
-    KrNameID = StringIndexer::getStringID("u_Kr");
-    Kr4PINameID = StringIndexer::getStringID("u_Kr4PI");
-    KmNameID = StringIndexer::getStringID("u_Km");
-    Km4PINameID = StringIndexer::getStringID("u_Km4PI");
-    ESunNameID = StringIndexer::getStringID("u_ESun");
-    KmESunNameID = StringIndexer::getStringID("u_KmESun");
-    KrESunNameID = StringIndexer::getStringID("u_KrESun");
-    fSamplesNameID = StringIndexer::getStringID("u_fSamples");
-    nSamplesNameID = StringIndexer::getStringID("u_nSamples");
-    gNameID = StringIndexer::getStringID("g");
-    g2NameID = StringIndexer::getStringID("g2");
-    fExposureNameID = StringIndexer::getStringID("fExposure");
-
-    nameIDsSetup = true;
+    if (_lockToCamera != lockToCamera) {
+        _lockToCamera = lockToCamera;
+        changed = true;
+    }
 }
 
 // Thanks to: http://stainlessbeer.weebly.com/planets-9-atmospheric-scattering.html
@@ -366,7 +86,12 @@ static StringIdentity fExposureNameID;
 - (void)updateForFrame:(void *)frameInfoVoid
 {
     RendererFrameInfo *frameInfo = (RendererFrameInfo *)frameInfoVoid;
-    [self setupStringIndices];
+
+    __strong MaplyAtmosphere *atm = atmosphere;
+    if (!atm)
+    {
+        return;
+    }
     
     if (!changed && started)
     {
@@ -385,25 +110,53 @@ static StringIdentity fExposureNameID;
     if (_lockToCamera)
         sunDir3d = cameraPos;
     sunDir3d.normalize();
-    //double cameraHeight = cameraPos.norm();
-    //float scale = 1.0f / (atm.outerRadius - 1.f);
-    //float scaleDepth = 0.25;
+    const auto cameraHeight = (float)cameraPos.norm();
     float wavelength[3];
     [atm getWavelength:wavelength];
     for (unsigned int ii=0;ii<3;ii++)
-        wavelength[ii] = (float)(1.0/pow(wavelength[ii],4.0));
-    
-    //MaplyShader *shaders[2] = {shader,groundShader};
-    for (unsigned int ii=0;ii<2;ii++)
     {
-        //MaplyShader *thisShader = shaders[ii];
-        // TODO: Update for Metal
-        NSLog(@"MaplyAtmosphere not implemented for Metal.");
+        wavelength[ii] = (float)(1.0/pow(wavelength[ii],4.0));
+    }
+
+    WhirlyKitAtmosphereShader::AtmosShaderVertUniforms vu;
+    memset(&vu, 0, sizeof(vu));
+    vu.cameraHeight = cameraHeight;
+    vu.innerRadius = 1.0f;
+    vu.outerRadius = atm.outerRadius;
+    vu.c = cameraHeight * cameraHeight - vu.outerRadius * vu.outerRadius;
+    vu.scale = 1 / (vu.outerRadius - vu.innerRadius);
+    vu.scaleDepth = 0.25f;
+    vu.scaleOverScaleDepth = vu.scale / vu.scaleDepth;
+    vu.kr = atm.Kr;
+    vu.km = atm.Km;
+    vu.eSun = atm.ESun;
+    vu.kmESun = vu.km * vu.eSun;
+    vu.krESun = vu.kr * vu.eSun;
+    vu.kr4PI = (float)(vu.kr * 4.0 * M_PI);
+    vu.km4PI = (float)(vu.km * 4.0 * M_PI);
+    vu.samples = atm.numSamples;
+    CopyIntoMtlFloat3(vu.lightPos, sunDir3d);
+    CopyIntoMtlFloat3(vu.invWavelength, Point3f(wavelength[0], wavelength[1], wavelength[2]));
+
+    WhirlyKitAtmosphereShader::AtmosShaderFragUniforms fu;
+    memset(&fu, 0, sizeof(fu));
+    fu.g = atm.g;
+    fu.g2 = fu.g * fu.g;
+    fu.exposure = atm.exposure;
+    CopyIntoMtlFloat3(fu.lightPos, sunDir3d);
+
+    NSData *vBlock = [[NSData alloc] initWithBytes:&vu length:sizeof(vu)];
+    NSData *fBlock = [[NSData alloc] initWithBytes:&fu length:sizeof(fu)];
+
+    for (MaplyShader *shader : {shader, groundShader})
+    {
+        [shader setUniformBlock:vBlock buffer:WhirlyKitAtmosphereShader::AtmosUniformVertEntry];
+        [shader setUniformBlock:fBlock buffer:WhirlyKitAtmosphereShader::AtmosUniformFragEntry];
     }
     
     changed = false;
     started = true;
-    lastCameraPos = cameraPos;    
+    lastCameraPos = cameraPos;
 }
 
 @end
@@ -417,16 +170,19 @@ static StringIdentity fExposureNameID;
     float wavelength[3];
 }
 
-- (instancetype)initWithViewC:(WhirlyGlobeViewController *)inViewC
+- (instancetype _Nullable)initWithViewC:(WhirlyGlobeViewController *)inViewC
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
     
     viewC = inViewC;
     
     _Kr = 0.0025;
     _Km = 0.0010;
     _ESun = 20.0;
-    _numSamples = 3;
+    _numSamples = 5;
     _outerRadius = 1.05;
     _g = -0.95;
     _exposure = 2.0;
@@ -434,13 +190,45 @@ static StringIdentity fExposureNameID;
     wavelength[1] = 0.570;
     wavelength[2] = 0.475;
 
+    id<MTLLibrary> lib = [inViewC getMetalLibrary];
+    MaplyRenderController *control = [inViewC getRenderControl];
+    
     // Atmosphere shader
-    shader = [self setupShader];
-    
+    shader = [inViewC getShaderByName:kMaplyAtmosphereProgram];
     if (!shader)
-        return nil;
+    {
+        auto air = std::make_shared<ProgramMTL>(
+            [kMaplyAtmosphereProgram cStringUsingEncoding:NSASCIIStringEncoding],
+            [lib newFunctionWithName:@"vertexTri_atmos"],
+            [lib newFunctionWithName:@"fragmentTri_atmos"]);
+        if (air->valid)
+        {
+            [control addShader:kMaplyAtmosphereProgram program:air];
+            shader = [inViewC getShaderByName:kMaplyAtmosphereProgram];
+        }
+        if (!shader)
+        {
+            return nil;
+        }
+    }
     
-    _groundShader = [self setupGroundShader];
+    _groundShader = [inViewC getShaderByName:kMaplyAtmosphereGroundProgram];
+    if (!_groundShader)
+    {
+        auto ground = std::make_shared<ProgramMTL>(
+            [kMaplyAtmosphereProgram cStringUsingEncoding:NSASCIIStringEncoding],
+            [lib newFunctionWithName:@"vertexTri_atmosGround"],
+            [lib newFunctionWithName:@"fragmentTri_atmosGround"]);
+        if (ground->valid)
+        {
+            [control addShader:kMaplyAtmosphereGroundProgram program:ground];
+            _groundShader = [inViewC getShaderByName:kMaplyAtmosphereGroundProgram];
+        }
+        if (!_groundShader)
+        {
+            return nil;
+        }
+    }
 
     [self complexAtmosphere];
     
@@ -476,77 +264,68 @@ static StringIdentity fExposureNameID;
 - (void)setLockToCamera:(bool)lockToCamera
 {
     _lockToCamera = lockToCamera;
-    if (sunUpdater)
-        sunUpdater.lockToCamera = _lockToCamera;
+    sunUpdater.lockToCamera = _lockToCamera;
 }
 
 - (void)complexAtmosphere
 {
+    const auto __strong vc = viewC;
+    if (!vc)
+    {
+        return;
+    }
+
     // Make a sphere for the outer atmosphere
     MaplyShapeSphere *sphere = [[MaplyShapeSphere alloc] init];
     sphere.center = MaplyCoordinateMake(0, 0);
     sphere.height = -1.0;
     sphere.radius = _outerRadius;
-    
-    const auto __strong vc = viewC;
-    compObj = [vc addShapes:@[sphere] desc:@{kMaplyZBufferRead: @(NO),
-                                             kMaplyZBufferWrite: @(NO),
-                                             kMaplyShapeSampleX: @(120),
-                                             kMaplyShapeSampleY: @(60),
-                                             kMaplyShapeInsideOut: @(YES),
-                                             kMaplyShapeCenterX: @(0.0),
-                                             kMaplyShapeCenterY: @(0.0),
-                                             kMaplyShapeCenterZ: @(0.0),
-                                             kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
-                                             kMaplyShader: kAtmosphereShader}];
-    
-    sunUpdater = [[SunUpdater alloc] initWithShader:shader groundShader:_groundShader atm:self viewC:vc];
-    [vc addActiveObject:sunUpdater];
-}
 
-- (MaplyShader *)setupGroundShader
-{
-    // TODO: Switch to Metal
-//    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereGroundShader vertex:[NSString stringWithFormat:@"%s",vertexShaderGroundTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderGroundTri] viewC:viewC];
-    MaplyShader *theShader = nil;
-    if (!theShader.valid)
-        return nil;
-    if (theShader)
-        [viewC addShaderProgram:theShader];
-    
-    return theShader;
+    NSDictionary *desc = @{
+        kMaplyZBufferRead: @(NO),
+        kMaplyZBufferWrite: @(NO),
+        kMaplyShapeSampleX: @(120),
+        kMaplyShapeSampleY: @(60),
+        kMaplyShapeInsideOut: @(YES),
+        kMaplyShapeCenterX: @(0.0),
+        kMaplyShapeCenterY: @(0.0),
+        kMaplyShapeCenterZ: @(0.0),
+        kMaplyDrawPriority: @(kMaplyAtmosphereDrawPriorityDefault),
+        kMaplyShader: kMaplyAtmosphereProgram,
+        kMaplyFade: @(5.0),
+    };
+
+    compObj = [vc addShapes:@[sphere] desc:desc];
+    if (compObj)
+    {
+        sunUpdater = [[SunUpdater alloc] initWithShader:shader groundShader:_groundShader atm:self viewC:vc];
+        if (sunUpdater)
+        {
+            [vc addActiveObject:sunUpdater];
+        }
+    }
 }
 
 - (void)setSunPosition:(MaplyCoordinate3d)sunPos
 {
-    if (sunUpdater)
-        [sunUpdater setSunPosition:sunPos];
-}
-
-- (MaplyShader *)setupShader
-{
-// TODO: Switch to Metal
-//    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereShader vertex:[NSString stringWithFormat:@"%s",vertexShaderTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderTri] viewC:viewC];
-//    MaplyShader *theShader = [[MaplyShader alloc] initWithName:kAtmosphereShader vertex:[NSString stringWithFormat:@"%s",vertexShaderAtmosTri] fragment:[NSString stringWithFormat:@"%s",fragmentShaderAtmosTri] viewC:viewC];
-    MaplyShader *theShader = nil;
-    if (!theShader.valid)
-        return nil;
-    if (theShader)
-        [viewC addShaderProgram:theShader];
-    
-    return theShader;
+    [sunUpdater setSunPosition:sunPos];
 }
 
 - (void)removeFromViewC
 {
-    const auto __strong vc = viewC;
-    if (compObj)
-        [vc removeObject:compObj];
-    compObj = nil;
-    if (sunUpdater)
-        [vc removeActiveObject:sunUpdater];
-    sunUpdater = nil;
-    // Note: Should remove shader
+    if (const auto __strong vc = viewC)
+    {
+        if (compObj)
+        {
+            [vc removeObject:compObj];
+            compObj = nil;
+        }
+        if (sunUpdater)
+        {
+            [vc removeActiveObject:sunUpdater];
+            sunUpdater = nil;
+        }
+    }
 }
 
 @end

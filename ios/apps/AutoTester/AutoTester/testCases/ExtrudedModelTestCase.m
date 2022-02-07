@@ -7,7 +7,7 @@
 //
 
 #import "ExtrudedModelTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 static const float EarthRadius = 6371000;
 

@@ -23,6 +23,7 @@ using namespace WhirlyKit;
 
 const MaplyCoordinate kMaplyNullCoordinate = {.x = FLT_MIN, .y = FLT_MIN};
 const MaplyCoordinateD kMaplyNullCoordinateD = {.x = DBL_MIN, .y = DBL_MIN};
+const MaplyCoordinate3d kMaplyNullCoordinate3d = {.x = FLT_MIN, .y = FLT_MIN, .z = FLT_MIN };
 const MaplyCoordinate3dD kMaplyNullCoordinate3dD = {.x = DBL_MIN, .y = DBL_MIN, .z = DBL_MIN};
 const MaplyBoundingBox kMaplyNullBoundingBox = { .ll = {.x = FLT_MIN, .y = FLT_MIN}, .ur = {.x = FLT_MIN, .y = FLT_MIN} };
 const MaplyBoundingBoxD kMaplyNullBoundingBoxD = { .ll = {.x = DBL_MIN, .y = DBL_MIN}, .ur = {.x = DBL_MIN, .y = DBL_MIN} };

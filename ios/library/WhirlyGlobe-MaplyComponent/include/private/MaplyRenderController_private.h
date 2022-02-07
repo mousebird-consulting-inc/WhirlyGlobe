@@ -1,5 +1,4 @@
-/*
- *  MaplyRenderController_private.h
+/*  MaplyRenderController_private.h
  *  WhirlyGlobeMaplyComponent
  *
  *  Created by Stephen Gifford on 1/19/18.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "control/MaplyRenderController.h"
@@ -25,6 +23,7 @@
 #import "MaplyShader_private.h"
 #import "MaplyCoordinateSystem_private.h"
 #import "MaplyQuadSampler_private.h"
+#import "ProgramMTL.h"
 
 @class MaplyBaseInteractionLayer;
 
@@ -128,5 +127,7 @@
 
 // Version of remove objects that takes raw IDs
 - (void)removeObjectsByID:(const WhirlyKit::SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode;
+
+- (void)addShader:(NSString *)inName program:(WhirlyKit::ProgramRef)program;
 
 @end

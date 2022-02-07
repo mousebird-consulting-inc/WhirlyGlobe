@@ -368,4 +368,7 @@ NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
 NSString* const kMaplyScreenSpaceMaskProgram = @"Screenspace mask";
 NSString* const kMaplyScreenSpaceExpProgram = @"Screenspace with expressions";
 
-NSString* const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";
+NSString * const kMaplyAtmosphereProgram = @"Default Atmosphere";
+NSString * const kMaplyAtmosphereGroundProgram = @"Default Atmosphere Ground";
+
+NSString * const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";

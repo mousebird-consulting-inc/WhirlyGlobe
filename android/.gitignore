@@ -1,0 +1,12 @@
+**/local.properties
+library/Android/.gradle
+library/maply/.cxx
+library/maply/\.externalNativeBuild/
+apps/AutoTesterAndroid/app/release/
+library/maply/.cxx/
+apps/AutoTesterAndroid/app/gradle/wrapper/
+apps/AutoTesterAndroid/app/gradlew
+apps/AutoTesterAndroid/app/gradlew.bat
+library/Android/build/
+library/Android/libs/
+library/Android/obj/

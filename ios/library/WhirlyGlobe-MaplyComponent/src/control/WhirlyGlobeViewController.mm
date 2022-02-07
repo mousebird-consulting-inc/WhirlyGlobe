@@ -590,6 +590,11 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     globeView->setFarClippingPlane(farClipPlane);
 }
 
+- (double)getMaxHeightAboveGlobe
+{
+    return globeView->maxHeightAboveGlobe();
+}
+
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
 {
     tiltControlDelegate = StandardTiltDelegateRef(new StandardTiltDelegate(globeView.get()));

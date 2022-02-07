@@ -543,7 +543,7 @@ static const float PerfOutputDelay = 15.0;
     [renderControl addShaderProgram:shader];
 }
 
-- (MaplyShader *)getShaderByName:(NSString *)name
+- (MaplyShader *)getShaderByName:(const NSString *)name
 {
     return [renderControl getShaderByName:name];
 }

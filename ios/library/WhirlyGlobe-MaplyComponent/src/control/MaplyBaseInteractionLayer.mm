@@ -2065,7 +2065,6 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
 
     iosDictionary dictWrap(inDesc);
     ShapeInfo shapeInfo(dictWrap);
-    shapeInfo.insideOut = false;
     [self resolveInfoDefaults:inDesc info:&shapeInfo defaultShader:kMaplyDefaultTriangleShader];
     [self resolveDrawPriority:inDesc info:&shapeInfo drawPriority:kMaplyShapeDrawPriorityDefault offset:0];
 

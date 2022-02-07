@@ -911,7 +911,7 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  
  @return Returns the registered shader if it found one.
  */
-- (MaplyShader *__nullable)getShaderByName:(NSString *__nonnull)name;
+- (MaplyShader *__nullable)getShaderByName:(const NSString *__nonnull)name;
 
 /**
  Remove a shader that was added earlier.

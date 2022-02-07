@@ -7,7 +7,7 @@
 //
 
 #import "VectorsTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 #include <stdlib.h>
 
