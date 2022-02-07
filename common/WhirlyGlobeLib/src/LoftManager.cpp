@@ -347,15 +347,23 @@ public:
                 drawable->setLocalMbr(Mbr(Point2f(drawMbr.ll().x(),drawMbr.ll().y()),Point2f(drawMbr.ur().x(),drawMbr.ur().y())));
                 if (centerValid)
                 {
-                    Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
-                    Matrix4d transMat = trans.matrix();
+                    const Eigen::Affine3d trans(Eigen::Translation3d(center.x(),center.y(),center.z()));
+                    const Matrix4d transMat = trans.matrix();
                     drawable->setMatrix(&transMat);
                 }
-                if (polyInfo.fade > 0)
+
+                if (polyInfo.fadeIn > 0.0)
                 {
-                    TimeInterval curTime = scene->getCurrentTime();
-                    drawable->setFade(curTime,curTime+polyInfo.fade);
+                    // fadeDown < fadeUp : fading in
+                    const TimeInterval curTime = scene->getCurrentTime();
+                    drawable->setFade(curTime,curTime+polyInfo.fadeIn);
                 }
+                else if (polyInfo.fadeOut > 0.0 && polyInfo.fadeOutTime > 0.0)
+                {
+                    // fadeUp < fadeDown : fading out
+                    drawable->setFade(/*down=*/polyInfo.fadeOutTime+polyInfo.fadeOut, /*up=*/polyInfo.fadeOutTime);
+                }
+
                 sceneRep->drawIDs.insert(drawable->getDrawableID());
                 changes.push_back(new AddDrawableReq(drawable->getDrawable()));
             }
@@ -458,7 +466,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     LoftedPolySceneRep *sceneRep = new LoftedPolySceneRep();
     loftID = sceneRep->getId();
-    sceneRep->fade = polyInfo.fade;
+    sceneRep->fadeOut = polyInfo.fadeOut;
     
     Point3d center(0,0,0);
     bool centerValid = false;
@@ -563,30 +571,25 @@ void LoftManager::removeLoftedPolys(const SimpleIDSet &polyIDs,ChangeSet &change
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    for (SimpleIDSet::iterator idIt = polyIDs.begin(); idIt != polyIDs.end(); ++idIt)
+    for (const auto polyID : polyIDs)
     {
-        LoftedPolySceneRep dummyRep(*idIt);
-        LoftedPolySceneRepSet::iterator it = loftReps.find(&dummyRep);
+        LoftedPolySceneRep dummyRep(polyID);
+        const auto it = loftReps.find(&dummyRep);
         if (it != loftReps.end())
         {
-            LoftedPolySceneRep *sceneRep = *it;
-
-            TimeInterval removeTime = 0.0;
-            if (sceneRep->fade > 0.0)
+            const LoftedPolySceneRep *sceneRep = *it;
+            const TimeInterval curTime = scene->getCurrentTime();
+            for (const auto id : sceneRep->drawIDs)
             {
-                TimeInterval curTime = scene->getCurrentTime();
-                                
-                for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                     idIt != sceneRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt,curTime,curTime+sceneRep->fade));
-
-                removeTime = curTime + sceneRep->fade;
+                TimeInterval removeTime = 0.0;
+                if (sceneRep->fadeOut > 0.0)
+                {
+                    changes.push_back(new FadeChangeRequest(id,curTime,curTime+sceneRep->fadeOut));
+                    removeTime = curTime + sceneRep->fadeOut;
+                }
+                changes.push_back(new RemDrawableReq(id,removeTime));
             }
-            
-            
-            for (SimpleIDSet::iterator idIt = sceneRep->drawIDs.begin();
-                 idIt != sceneRep->drawIDs.end(); ++idIt)
-                changes.push_back(new RemDrawableReq(*idIt,removeTime));
+
             loftReps.erase(it);
             delete sceneRep;
         }

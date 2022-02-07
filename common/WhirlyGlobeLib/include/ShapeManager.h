@@ -43,7 +43,7 @@ struct ShapeSceneRep : public Identifiable
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs in the selection layer
-    float fade;  // Time to fade away for removal
+    float fadeOut = 0.0;  // Time to fade away for removal
 };
     
 typedef std::set<ShapeSceneRep *,IdentifiableSorter> ShapeSceneRepSet;

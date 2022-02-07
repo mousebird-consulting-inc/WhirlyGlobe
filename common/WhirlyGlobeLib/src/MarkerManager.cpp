@@ -319,7 +319,8 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
             }
             else if (markerInfo.fadeOut > 0.0 && markerInfo.fadeOutTime > 0.0)
             {
-                shape->setFade(markerInfo.fadeOutTime, markerInfo.fadeOutTime+markerInfo.fadeOut);
+                // up<down=fade out
+                shape->setFade(/*up=*/markerInfo.fadeOutTime, /*down=*/markerInfo.fadeOutTime+markerInfo.fadeOut);
             }
 
             shape->setVisibility((float)markerInfo.minVis, (float)markerInfo.maxVis);

@@ -692,7 +692,7 @@ SimpleIdentity ShapeManager::addShapes(const std::vector<Shape*> &shapes, const 
     auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 
     auto sceneRep = std::make_unique<ShapeSceneRep>();
-    sceneRep->fade = (float)shapeInfo.fade;
+    sceneRep->fadeOut = (float)shapeInfo.fadeOut;
 
     // Figure out a good center
     Point3d center(0,0,0);
@@ -757,16 +757,20 @@ void ShapeManager::removeShapes(const SimpleIDSet &shapeIDs,ChangeSet &changes)
     std::lock_guard<std::mutex> guardLock(lock);
 
     const TimeInterval curTime = scene->getCurrentTime();
-    for (auto shapeID : shapeIDs) {
+    for (auto shapeID : shapeIDs)
+    {
         ShapeSceneRep dummyRep(shapeID);
         auto sit = shapeReps.find(&dummyRep);
-        if (sit != shapeReps.end()) {
+        if (sit != shapeReps.end())
+        {
             ShapeSceneRep *shapeRep = *sit;
-
             TimeInterval removeTime = 0.0;
-            if (shapeRep->fade > 0.0) {
-                for (auto idIt = shapeRep->drawIDs.begin(); idIt != shapeRep->drawIDs.end(); ++idIt)
-                    changes.push_back(new FadeChangeRequest(*idIt, curTime, curTime+shapeRep->fade));
+            if (shapeRep->fadeOut > 0.0)
+            {
+                for (auto id : shapeRep->drawIDs)
+                {
+                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+shapeRep->fadeOut));
+                }
             }
             
 			shapeRep->clearContents(selectManager, changes, removeTime);

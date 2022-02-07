@@ -961,15 +961,15 @@ struct WideVectorDrawableConstructor
         const TimeInterval curTime = scene->getCurrentTime();
         
         auto *sceneRep = new WideVectorSceneRep();
-        sceneRep->fade = (float)vecInfo->fade;
+        sceneRep->fadeOut = (float)vecInfo->fadeOut;
         for (const auto &theDrawable : drawables)
         {
             if (auto drawID = theDrawable->getBasicDrawableID())
                 sceneRep->drawIDs.insert(drawID);
             if (auto drawID = theDrawable->getInstanceDrawableID())
                 sceneRep->instIDs.insert(drawID);
-            if (vecInfo->fade > 0.0)
-                theDrawable->setFade(curTime, curTime + vecInfo->fade);
+            if (vecInfo->fadeOut > 0.0)
+                theDrawable->setFade(curTime, curTime + vecInfo->fadeOut);
             if (auto draw = theDrawable->getBasicDrawable())
                 changes.push_back(new AddDrawableReq(draw));
             if (auto draw = theDrawable->getInstanceDrawable())
@@ -1283,7 +1283,7 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
             WideVectorSceneRep *sceneRep = *it;
 
             TimeInterval removeTime = 0.0;
-            if (sceneRep->fade > 0.0)
+            if (sceneRep->fadeOut > 0.0)
             {
                 std::unordered_set<SimpleIdentity> allIDs(sceneRep->drawIDs.size() + sceneRep->instIDs.size());
                 allIDs.insert(sceneRep->drawIDs.begin(), sceneRep->drawIDs.end());
@@ -1291,10 +1291,10 @@ void WideVectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
 
                 for (const auto id : allIDs)
                 {
-                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fade));
+                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fadeOut));
                 }
                 
-                removeTime = curTime + sceneRep->fade;
+                removeTime = curTime + sceneRep->fadeOut;
             }
             
             sceneRep->clearContents(changes,removeTime);

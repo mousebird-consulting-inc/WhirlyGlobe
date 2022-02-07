@@ -94,19 +94,17 @@ public:
 typedef std::shared_ptr<BillboardInfo> BillboardInfoRef;
 
 /// Used internally to track billboard geometry
-class BillboardSceneRep : public Identifiable
+struct BillboardSceneRep : public Identifiable
 {
-public:
-    BillboardSceneRep();
-    BillboardSceneRep(SimpleIdentity inId);
-    ~BillboardSceneRep() = default;
+    BillboardSceneRep() = default;
+    BillboardSceneRep(SimpleIdentity inId) : Identifiable(inId) {}
 
     // Clear the contents out of the scene
     void clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
 
     SimpleIDSet drawIDs;  // Drawables created for this
     SimpleIDSet selectIDs;  // IDs used for selection
-    float fade;  // Time to fade away for removal
+    float fadeOut = 0.0;  // Time to fade away for removal
 };
 
 typedef std::set<BillboardSceneRep *,IdentifiableSorter> BillboardSceneRepSet;
