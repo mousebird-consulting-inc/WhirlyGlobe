@@ -7,7 +7,7 @@
 //
 
 #import "LabelAnimationTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation LabelAnimationTestCase {
     NSTimer *_labelAnimationTimer;

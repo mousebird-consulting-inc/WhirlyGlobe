@@ -7,7 +7,7 @@
 //
 
 #import "FindHeightTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation FindHeightTestCase {
     MaplyBaseViewController *_baseVC;

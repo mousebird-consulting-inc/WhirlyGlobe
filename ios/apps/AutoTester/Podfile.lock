@@ -1,0 +1,60 @@
+PODS:
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
+  - KissXML (5.3.1):
+    - KissXML/All (= 5.3.1)
+  - KissXML/Additions (5.3.1):
+    - KissXML/Core
+  - KissXML/All (5.3.1):
+    - KissXML/Additions
+    - KissXML/Core
+  - KissXML/Core (5.3.1)
+  - libjson (7.6.1)
+  - proj4 (4.8.0)
+  - SMCalloutView (2.1.5)
+  - WhirlyGlobe (3.5):
+    - WhirlyGlobe/WhirlyGlobe (= 3.5)
+  - WhirlyGlobe/glues (3.5)
+  - WhirlyGlobe/locallibs (3.5)
+  - WhirlyGlobe/WhirlyGlobe (3.5):
+    - FMDB
+    - KissXML
+    - libjson
+    - proj4
+    - SMCalloutView
+    - WhirlyGlobe/glues
+    - WhirlyGlobe/locallibs
+
+DEPENDENCIES:
+  - WhirlyGlobe (from `https://github.com/mousebird/WhirlyGlobe.git`, branch `topic/sun-stars-case`)
+
+SPEC REPOS:
+  trunk:
+    - FMDB
+    - KissXML
+    - libjson
+    - proj4
+    - SMCalloutView
+
+EXTERNAL SOURCES:
+  WhirlyGlobe:
+    :branch: topic/sun-stars-case
+    :git: https://github.com/mousebird/WhirlyGlobe.git
+
+CHECKOUT OPTIONS:
+  WhirlyGlobe:
+    :commit: 988e7e743304925f2e69f76090ed1805db9ada11
+    :git: https://github.com/mousebird/WhirlyGlobe.git
+
+SPEC CHECKSUMS:
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  KissXML: 5c8e0f2e8b9f071d3e1ae123dec3eb5da615c10c
+  libjson: 1a065ca64704a5d1b51c3754268998942d57ac6f
+  proj4: 234525105d05a33b2ae9a90a6fe3935f7a246f7e
+  SMCalloutView: 5c0ee363dc8e7204b2fda17dfad38c93e9e23481
+  WhirlyGlobe: 72e575d95c9dd9b286f0ada088fb3fb0e7b19c8e
+
+PODFILE CHECKSUM: f0bda966e4050effe4692f7a207e825ef6a967d8
+
+COCOAPODS: 1.11.2

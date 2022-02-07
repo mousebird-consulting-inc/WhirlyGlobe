@@ -7,7 +7,7 @@
 //
 
 #import "ShapefileTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation ShapefileTestCase
 {

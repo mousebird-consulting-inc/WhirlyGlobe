@@ -1,0 +1,36 @@
+# Podfile for AutoTesterPod project
+
+project 'AutoTesterPod.xcodeproj'
+platform :ios, '12.0'
+install! 'cocoapods', :deterministic_uuids => false
+
+target 'AutoTesterPod' do
+  pod 'WhirlyGlobe', { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }
+end
+
+post_install do |installer|
+  #require 'fileutils'
+  #installer.pods_project.targets.each do |target|
+  #  target.build_configurations.each do |config|
+  #    config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
+  #  end
+  #end
+
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings.delete 'ARCHS'
+      config.build_settings.delete 'IPHONEOS_DEPLOYMENT_TARGET'
+    end
+  end
+
+  # uvGO project settings cause ~20k documentation warnings from WG-Maply.
+  # Override these settings for that project to avoid slow XCode response.
+  installer.pods_project.targets.each do |target|
+    if target.name == 'WhirlyGlobe'
+      #target.build_configurations.each do |config|
+      #  config.build_settings['WARNING_CFLAGS'] = '-Wno-documentation'
+      #end
+    end
+  end
+end
+

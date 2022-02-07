@@ -7,7 +7,7 @@
 //
 
 #import "TextureVectorTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation TextureVectorTestCase
 {

@@ -107,8 +107,8 @@
 		2BF29B8C24D2268200553963 /* LegendViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2BF29B8B24D2268200553963 /* LegendViewController.storyboard */; };
 		2BF29B8F24D226B000553963 /* LegendViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF29B8E24D226B000553963 /* LegendViewController.swift */; };
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
-		31041A2227A36D53004B25E1 /* WhirlyGlobe.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */; };
+		311C6A0527B1AC7F0016BC7E /* wkDefaultShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 311C6A0427B1AC7E0016BC7E /* wkDefaultShaders.metal */; };
 		311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A902680F597007BE16F /* ATS_Route.shp */; };
 		311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A912680F597007BE16F /* Airspace_Boundary.dbf */; };
 		311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A922680F597007BE16F /* Airspace_Boundary.shx */; };
@@ -526,7 +526,6 @@
 		88FF5EF31BC31D95002F15CE /* tl_2013_06075_roads.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = 88FF5DF41BC31D95002F15CE /* tl_2013_06075_roads.sqlite */; };
 		8F4D91DC1CDFA7DE00F68045 /* globe.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DA1CDFA7DE00F68045 /* globe.png */; };
 		8F4D91DD1CDFA7DE00F68045 /* map.png in Resources */ = {isa = PBXBuildFile; fileRef = 8F4D91DB1CDFA7DE00F68045 /* map.png */; };
-		8F858B011E7FE7EB00037D4E /* WhirlyGlobe.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */; };
 		8F981DB81DE3577C00717DF1 /* ne_10m_roads.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB21DE3577C00717DF1 /* ne_10m_roads.dbf */; };
 		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
@@ -544,6 +543,7 @@
 		D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */; };
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
 		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
+		E0D333623509A56C61C2228C /* libPods-AutoTesterPod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B0C308BBE20E3D71A8EEB294 /* libPods-AutoTesterPod.a */; };
 		E53CF5DA1E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */; };
 		E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */; };
 		E53CF5E41E1EAF73000FB5C1 /* firehouse.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */; };
@@ -577,30 +577,6 @@
 		E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5D2D6741DEDEABF00E02305 /* AnimationDelegateTestCase.swift */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		2BB4766A20004763006AAACB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 2BE536FE1D2499E500B60FAD;
-			remoteInfo = WhirlyGlobeMaplyComponent;
-		};
-		8F858AFB1E7FE60C00037D4E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 2BE536FF1D2499E500B60FAD;
-			remoteInfo = WhirlyGlobeMaplyComponent;
-		};
-		8F858AFD1E7FE60C00037D4E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 2BE537091D2499E500B60FAD;
-			remoteInfo = WhirlyGlobeMaplyComponentTests;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		2BB4766C20004764006AAACB /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -608,7 +584,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				31041A2227A36D53004B25E1 /* WhirlyGlobe.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -616,6 +591,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1EECB7330E20B0B0F0973EF5 /* Pods-AutoTesterPod.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTesterPod.debug.xcconfig"; path = "Target Support Files/Pods-AutoTesterPod/Pods-AutoTesterPod.debug.xcconfig"; sourceTree = "<group>"; };
 		2B033BD024F6D7B200B55248 /* Roboto-Italic.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Italic.ttf"; path = "../../../../resources/fonts/Roboto-Italic.ttf"; sourceTree = "<group>"; };
 		2B033BD124F6D7B300B55248 /* Roboto-Thin.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Thin.ttf"; path = "../../../../resources/fonts/Roboto-Thin.ttf"; sourceTree = "<group>"; };
 		2B033BD224F6D7B300B55248 /* Roboto-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Roboto-Bold.ttf"; path = "../../../../resources/fonts/Roboto-Bold.ttf"; sourceTree = "<group>"; };
@@ -713,13 +689,13 @@
 		2BD914E7256F1F8A00E724A8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExtrudedModelTestCase.h; sourceTree = "<group>"; };
 		2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExtrudedModelTestCase.m; sourceTree = "<group>"; };
-		2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = WhirlyGlobeMaplyComponent.xcodeproj; path = "../../library/WhirlyGlobe-MaplyComponent/WhirlyGlobeMaplyComponent.xcodeproj"; sourceTree = "<group>"; };
 		2BF29B8B24D2268200553963 /* LegendViewController.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LegendViewController.storyboard; sourceTree = "<group>"; };
 		2BF29B8E24D226B000553963 /* LegendViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendViewController.swift; sourceTree = "<group>"; };
 		2BFC7E4F1D132DCB0040E2A3 /* ScreenMarkersTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScreenMarkersTestCase.h; sourceTree = "<group>"; };
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveObjectTestCase.swift; sourceTree = "<group>"; };
-		311C6A0227B193AE0016BC7E /* SwiftBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftBridge.h; sourceTree = "<group>"; };
+		311C6A0127B1939F0016BC7E /* SwiftBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftBridge.h; sourceTree = "<group>"; };
+		311C6A0427B1AC7E0016BC7E /* wkDefaultShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = wkDefaultShaders.metal; path = Pods/WhirlyGlobe/ios/library/WhirlyGlobeLib/src/wkDefaultShaders.metal; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.metal; };
 		311E0A902680F597007BE16F /* ATS_Route.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shp; path = ../../../resources/vectors/faa/ATS_Route.shp; sourceTree = SOURCE_ROOT; };
 		311E0A912680F597007BE16F /* Airspace_Boundary.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.dbf; path = ../../../resources/vectors/faa/Airspace_Boundary.dbf; sourceTree = SOURCE_ROOT; };
 		311E0A922680F597007BE16F /* Airspace_Boundary.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shx; path = ../../../resources/vectors/faa/Airspace_Boundary.shx; sourceTree = SOURCE_ROOT; };
@@ -745,6 +721,7 @@
 		3183380E25A67CD8005FEF70 /* RepresentationsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepresentationsTestCase.h; sourceTree = "<group>"; };
 		31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTileImageFetcher.swift; sourceTree = "<group>"; };
 		31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatCircleTestCase.swift; sourceTree = "<group>"; };
+		3D6D9431634E599E2DCD9E5E /* Pods-AutoTesterPod.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTesterPod.release.xcconfig"; path = "Target Support Files/Pods-AutoTesterPod/Pods-AutoTesterPod.release.xcconfig"; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
 		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
@@ -753,7 +730,7 @@
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
 		88BF11481BCD3DA40002205E /* MaplyTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestCase.m; sourceTree = "<group>"; };
 		88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StamenWatercolorRemote.swift; sourceTree = "<group>"; };
-		88E4B8BF1B83B6AB0050D21B /* AutoTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		88E4B8BF1B83B6AB0050D21B /* AutoTesterPod.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoTesterPod.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		88E4B8C41B83B6AB0050D21B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		88E4B8C91B83B6AB0050D21B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -1151,6 +1128,7 @@
 		8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shp; sourceTree = "<group>"; };
 		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
+		B0C308BBE20E3D71A8EEB294 /* libPods-AutoTesterPod.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AutoTesterPod.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
 		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorsTestCase.mm; sourceTree = "<group>"; };
 		D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarsSunTestCase.swift; sourceTree = "<group>"; };
@@ -1223,11 +1201,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				2B1806D322AECF4300DD3DB1 /* Accelerate.framework in Frameworks */,
-				8F858B011E7FE7EB00037D4E /* WhirlyGlobe.framework in Frameworks */,
 				E5D2D66E1DE6C26A00E02305 /* libc++.tbd in Frameworks */,
 				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
 				E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */,
 				E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */,
+				E0D333623509A56C61C2228C /* libPods-AutoTesterPod.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1337,7 +1315,7 @@
 				E5D2D66B1DE6C26000E02305 /* libz.tbd */,
 				E5D2D6691DE6C25A00E02305 /* libxml2.tbd */,
 				E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */,
-				2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */,
+				B0C308BBE20E3D71A8EEB294 /* libPods-AutoTesterPod.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1439,17 +1417,19 @@
 		88E4B8B61B83B6AB0050D21B = {
 			isa = PBXGroup;
 			children = (
+				311C6A0427B1AC7E0016BC7E /* wkDefaultShaders.metal */,
 				88E4B8C11B83B6AB0050D21B /* AutoTester */,
 				88E4B8C01B83B6AB0050D21B /* Products */,
 				88FF5BDF1BC31D3C002F15CE /* Resources */,
 				3651D5D283D23F0C2EFDE845 /* Frameworks */,
+				B896A30D27C259475AB0907B /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
 		88E4B8C01B83B6AB0050D21B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				88E4B8BF1B83B6AB0050D21B /* AutoTester.app */,
+				88E4B8BF1B83B6AB0050D21B /* AutoTesterPod.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1474,7 +1454,7 @@
 		88E4B8C21B83B6AB0050D21B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				311C6A0227B193AE0016BC7E /* SwiftBridge.h */,
+				311C6A0127B1939F0016BC7E /* SwiftBridge.h */,
 				2B033BCE24F6D78400B55248 /* fonts */,
 				88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */,
 				88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */,
@@ -1979,13 +1959,13 @@
 			name = Icons;
 			sourceTree = "<group>";
 		};
-		8F858AF71E7FE60C00037D4E /* Products */ = {
+		B896A30D27C259475AB0907B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */,
-				8F858AFE1E7FE60C00037D4E /* WhirlyGlobeMaplyComponentTests.xctest */,
+				1EECB7330E20B0B0F0973EF5 /* Pods-AutoTesterPod.debug.xcconfig */,
+				3D6D9431634E599E2DCD9E5E /* Pods-AutoTesterPod.release.xcconfig */,
 			);
-			name = Products;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		E5941DB51E0CEA5700E1C8B3 /* belfast_northern_ireland */ = {
@@ -2021,10 +2001,11 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		88E4B8BE1B83B6AB0050D21B /* AutoTester */ = {
+		88E4B8BE1B83B6AB0050D21B /* AutoTesterPod */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "AutoTester" */;
+			buildConfigurationList = 88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "AutoTesterPod" */;
 			buildPhases = (
+				5094E5961184D4972CD670A5 /* [CP] Check Pods Manifest.lock */,
 				88E4B8BB1B83B6AB0050D21B /* Sources */,
 				88E4B8BC1B83B6AB0050D21B /* Frameworks */,
 				88E4B8BD1B83B6AB0050D21B /* Resources */,
@@ -2033,11 +2014,10 @@
 			buildRules = (
 			);
 			dependencies = (
-				2BB4766B20004763006AAACB /* PBXTargetDependency */,
 			);
-			name = AutoTester;
+			name = AutoTesterPod;
 			productName = HelloEarthSwift;
-			productReference = 88E4B8BF1B83B6AB0050D21B /* AutoTester.app */;
+			productReference = 88E4B8BF1B83B6AB0050D21B /* AutoTesterPod.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -2058,7 +2038,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 88E4B8BA1B83B6AB0050D21B /* Build configuration list for PBXProject "AutoTester" */;
+			buildConfigurationList = 88E4B8BA1B83B6AB0050D21B /* Build configuration list for PBXProject "AutoTesterPod" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -2069,35 +2049,12 @@
 			mainGroup = 88E4B8B61B83B6AB0050D21B;
 			productRefGroup = 88E4B8C01B83B6AB0050D21B /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 8F858AF71E7FE60C00037D4E /* Products */;
-					ProjectRef = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
-				88E4B8BE1B83B6AB0050D21B /* AutoTester */,
+				88E4B8BE1B83B6AB0050D21B /* AutoTesterPod */,
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = WhirlyGlobe.framework;
-			remoteRef = 8F858AFB1E7FE60C00037D4E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		8F858AFE1E7FE60C00037D4E /* WhirlyGlobeMaplyComponentTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = WhirlyGlobeMaplyComponentTests.xctest;
-			remoteRef = 8F858AFD1E7FE60C00037D4E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		88E4B8BD1B83B6AB0050D21B /* Resources */ = {
@@ -2602,11 +2559,37 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		5094E5961184D4972CD670A5 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-AutoTesterPod-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		88E4B8BB1B83B6AB0050D21B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				311C6A0527B1AC7F0016BC7E /* wkDefaultShaders.metal in Sources */,
 				2B1E85A622B44D5800AB7208 /* BillboardTestCase.swift in Sources */,
 				2BA827CD225EBDBF00324594 /* GeoJSONStyleTestCase.swift in Sources */,
 				E5679F481CB72DE800369A15 /* LabelAnimationTestCase.m in Sources */,
@@ -2680,14 +2663,6 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
-/* Begin PBXTargetDependency section */
-		2BB4766B20004763006AAACB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = WhirlyGlobeMaplyComponent;
-			targetProxy = 2BB4766A20004763006AAACB /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXVariantGroup section */
 		88E4B8C81B83B6AB0050D21B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
@@ -2747,8 +2722,8 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					"SWIFT_BRIDGE=AutoTesterPod-Swift.h",
 					"DEBUG=1",
-					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
@@ -2803,7 +2778,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
-				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"SWIFT_BRIDGE=AutoTesterPod-Swift.h",
+					"NDEBUG=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -2822,6 +2800,7 @@
 		};
 		88E4B8DF1B83B6AC0050D21B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1EECB7330E20B0B0F0973EF5 /* Pods-AutoTesterPod.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
@@ -2844,7 +2823,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;
-				PRODUCT_NAME = AutoTester;
+				PRODUCT_NAME = AutoTesterPod;
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTS_MACCATALYST = YES;
@@ -2857,6 +2836,7 @@
 		};
 		88E4B8E01B83B6AC0050D21B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3D6D9431634E599E2DCD9E5E /* Pods-AutoTesterPod.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++14";
@@ -2879,7 +2859,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MARKETING_VERSION = 3.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.mousebirdconsulting.AutoTesterApp;
-				PRODUCT_NAME = AutoTester;
+				PRODUCT_NAME = AutoTesterPod;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTS_MACCATALYST = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/AutoTester/MaplyTesterBridge.h";
@@ -2892,7 +2872,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		88E4B8BA1B83B6AB0050D21B /* Build configuration list for PBXProject "AutoTester" */ = {
+		88E4B8BA1B83B6AB0050D21B /* Build configuration list for PBXProject "AutoTesterPod" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88E4B8DC1B83B6AC0050D21B /* Debug */,
@@ -2901,7 +2881,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "AutoTester" */ = {
+		88E4B8DE1B83B6AC0050D21B /* Build configuration list for PBXNativeTarget "AutoTesterPod" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				88E4B8DF1B83B6AC0050D21B /* Debug */,

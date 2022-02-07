@@ -8,7 +8,7 @@
 
 #import "WMSTestCase.h"
 #import "DDXML.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation WMSTestCase {
     MaplyBaseViewController *_baseVC;

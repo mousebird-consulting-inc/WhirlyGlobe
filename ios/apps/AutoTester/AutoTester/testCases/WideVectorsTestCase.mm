@@ -7,7 +7,7 @@
 //
 
 #import "WideVectorsTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation WideVectorsTestCase
 {

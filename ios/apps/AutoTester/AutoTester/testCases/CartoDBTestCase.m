@@ -8,7 +8,7 @@
 
 #import "CartoDBTestCase.h"
 #import "CartoDBInterpreter.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation CartoDBTestCase
 {
