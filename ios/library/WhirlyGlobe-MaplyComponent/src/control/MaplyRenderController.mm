@@ -189,7 +189,7 @@ using namespace Eigen;
     if (err) {
         NSLog(@"Failed to set up default Metal library in MaplyRenderController::loadSetup.  Things will be missing.");
     }
-    SceneRendererMTLRef sceneRendererMTL = SceneRendererMTLRef(new SceneRendererMTL(mtlDevice,mtlLib,1.0));
+    SceneRendererMTLRef sceneRendererMTL = std::make_shared<SceneRendererMTL>(mtlDevice,mtlLib,1.0);
     if (offlineMode)
         sceneRendererMTL->setup((int)initialFramebufferSize.width,(int)initialFramebufferSize.height, true);
     sceneRenderer = sceneRendererMTL;

@@ -1003,7 +1003,6 @@
 		31CAB8DF2792126A00A5F744 /* GeographicLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */; };
 		31DDA0A627A4D3B800865ECE /* WhirlyGlobe_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */; };
 		31DDA4BA27A8787D00865ECE /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		31DDA4CB27AB473A00865ECE /* AtmosphereShaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 31DDA4CA27AB473A00865ECE /* AtmosphereShaders.metal */; };
 		31DDA4CD27AB476400865ECE /* AtmosphereShadersMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */; };
 		31DDA4CE27AB477300865ECE /* DefaultShadersMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6998872293418F00C31E3F /* DefaultShadersMTL.h */; };
 		727E05F327158118005576CB /* MaplyRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF720126FBD0099F405 /* MaplyRenderController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2035,7 +2034,6 @@
 		31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GeographicLib.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeographicLib.cpp; sourceTree = "<group>"; };
 		31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
 		31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
-		31DDA4CA27AB473A00865ECE /* AtmosphereShaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; name = AtmosphereShaders.metal; path = ../src/AtmosphereShaders.metal; sourceTree = "<group>"; };
 		31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AtmosphereShadersMTL.h; sourceTree = "<group>"; };
 		C4905728265AB9E3001E4A98 /* bucketalloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bucketalloc.cpp; sourceTree = "<group>"; };
 		C4905729265AB9E3001E4A98 /* bucketalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bucketalloc.h; sourceTree = "<group>"; };
@@ -2411,7 +2409,6 @@
 			children = (
 				2B6998872293418F00C31E3F /* DefaultShadersMTL.h */,
 				2B69987F228E26B500C31E3F /* wkDefaultShaders.metal */,
-				31DDA4CA27AB473A00865ECE /* AtmosphereShaders.metal */,
 				31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */,
 			);
 			name = "metal shaders";
@@ -4600,7 +4597,6 @@
 				3183313E259112BA005FEF70 /* DMS.cpp in Sources */,
 				2B82B6B41E82E24A0095FB14 /* PJ_tmerc.c in Sources */,
 				2B8796D321FFC59D00EF801D /* NSString+Stuff.mm in Sources */,
-				31DDA4CB27AB473A00865ECE /* AtmosphereShaders.metal in Sources */,
 				2B3F451E243FD82200F85414 /* MaplyVectorStyle.mm in Sources */,
 				2B8A788B228607B3008B0A1F /* Program.cpp in Sources */,
 				2B8797222203BF7900EF801D /* MaplyBillboard.mm in Sources */,
