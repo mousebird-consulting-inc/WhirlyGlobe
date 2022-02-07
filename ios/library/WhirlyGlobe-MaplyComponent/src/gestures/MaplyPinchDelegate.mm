@@ -46,12 +46,12 @@ using namespace Maply;
 // Called for pinch actions
 - (void)pinchGesture:(id)sender
 {
-	UIPinchGestureRecognizer *pinch = sender;
+    UIPinchGestureRecognizer *pinch = sender;
     if ([pinch numberOfTouches] < 2)
     {
         return;
     }
-	UIGestureRecognizerState theState = pinch.state;
+    UIGestureRecognizerState theState = pinch.state;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pinch.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;
 
