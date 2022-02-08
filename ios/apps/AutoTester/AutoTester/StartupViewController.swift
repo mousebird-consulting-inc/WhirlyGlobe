@@ -25,6 +25,7 @@ class StartupViewController: UITableViewController, UIPopoverPresentationControl
         ClusteredMarkersTestCase(),
         ESRIRemoteTestCase(),
         ExtrudedModelTestCase(),
+        FadeTestCase(),
         FindHeightTestCase(),
         GeoJSONStyleTestCase(),
         GeographyClassTestCase(),

@@ -94,7 +94,7 @@ struct BaseInfo
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    BaseInfo();
+    BaseInfo() = default;
     BaseInfo(const BaseInfo &that);
     BaseInfo(const Dictionary &dict);
     
@@ -109,26 +109,31 @@ struct BaseInfo
     void setupBasicDrawableInstance(BasicDrawableInstanceBuilder *drawBuild) const;
     void setupBasicDrawableInstance(const BasicDrawableInstanceBuilderRef &drawBuild) const;
 
-    double minVis,maxVis;
-    double minVisBand,maxVisBand;
-    double minViewerDist,maxViewerDist;
-    int zoomSlot;
-    double minZoomVis,maxZoomVis;
-    Point3d viewerCenter;
-    double drawOffset;
+    double minVis = DrawVisibleInvalid;
+    double maxVis = DrawVisibleInvalid;
+    double minVisBand = DrawVisibleInvalid;
+    double maxVisBand = DrawVisibleInvalid;
+    double minViewerDist = DrawVisibleInvalid;
+    double maxViewerDist = DrawVisibleInvalid;
+    double minZoomVis = DrawVisibleInvalid;
+    double maxZoomVis = DrawVisibleInvalid;
+    int zoomSlot = -1;
+    Point3d viewerCenter = {DrawVisibleInvalid,DrawVisibleInvalid,DrawVisibleInvalid};
+    double drawOffset = 0.0;
     int64_t drawOrder = DrawOrderTiles;
-    int drawPriority;
-    bool enable;
-    double fade;
-    double fadeIn;
-    double fadeOut;
-    TimeInterval fadeOutTime;
-    TimeInterval startEnable,endEnable;
-    SimpleIdentity programID;
-    int extraFrames;
-    bool zBufferRead,zBufferWrite;
-    SimpleIdentity renderTargetID;
-    bool hasExp;   // Set if we're requiring the expressions to be passed through (problem on Metal)
+    int drawPriority = 0;
+    bool enable = true;
+    TimeInterval fadeIn = 0.0;
+    TimeInterval fadeOut = 0.0;
+    TimeInterval fadeOutTime = 0.0;
+    TimeInterval startEnable = 0.0;
+    TimeInterval endEnable = 0.0;
+    SimpleIdentity programID = EmptyIdentity;
+    int extraFrames = 0;
+    bool zBufferRead = false;
+    bool zBufferWrite = false;
+    SimpleIdentity renderTargetID = EmptyIdentity;
+    bool hasExp = false;   // Set if we're requiring the expressions to be passed through (problem on Metal)
     
     SingleVertexAttributeSet uniforms;
 

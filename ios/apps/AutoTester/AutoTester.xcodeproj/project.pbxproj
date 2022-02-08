@@ -109,6 +109,7 @@
 		2BFC7E511D132DCB0040E2A3 /* ScreenMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */; };
 		31041A2227A36D53004B25E1 /* WhirlyGlobe.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */; };
+		311C6A0B27B1C3FC0016BC7E /* FadeTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 311C6A0927B1C3FC0016BC7E /* FadeTestCase.swift */; };
 		311E0A9C2680F597007BE16F /* ATS_Route.shp in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A902680F597007BE16F /* ATS_Route.shp */; };
 		311E0A9D2680F597007BE16F /* Airspace_Boundary.dbf in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A912680F597007BE16F /* Airspace_Boundary.dbf */; };
 		311E0A9E2680F597007BE16F /* Airspace_Boundary.shx in Resources */ = {isa = PBXBuildFile; fileRef = 311E0A922680F597007BE16F /* Airspace_Boundary.shx */; };
@@ -720,6 +721,7 @@
 		2BFC7E501D132DCB0040E2A3 /* ScreenMarkersTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScreenMarkersTestCase.m; sourceTree = "<group>"; };
 		31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveObjectTestCase.swift; sourceTree = "<group>"; };
 		311C6A0227B193AE0016BC7E /* SwiftBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SwiftBridge.h; sourceTree = "<group>"; };
+		311C6A0927B1C3FC0016BC7E /* FadeTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FadeTestCase.swift; sourceTree = "<group>"; };
 		311E0A902680F597007BE16F /* ATS_Route.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ATS_Route.shp; path = ../../../resources/vectors/faa/ATS_Route.shp; sourceTree = SOURCE_ROOT; };
 		311E0A912680F597007BE16F /* Airspace_Boundary.dbf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.dbf; path = ../../../resources/vectors/faa/Airspace_Boundary.dbf; sourceTree = SOURCE_ROOT; };
 		311E0A922680F597007BE16F /* Airspace_Boundary.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = Airspace_Boundary.shx; path = ../../../resources/vectors/faa/Airspace_Boundary.shx; sourceTree = SOURCE_ROOT; };
@@ -1364,6 +1366,7 @@
 				311E0AAA26865D2C007BE16F /* ESRIRemoteTestCase.swift */,
 				2BDEB3001C924842003259B3 /* ExtrudedModelTestCase.h */,
 				2BDEB3011C924842003259B3 /* ExtrudedModelTestCase.m */,
+				311C6A0927B1C3FC0016BC7E /* FadeTestCase.swift */,
 				E5679F461CB72DE800369A15 /* FindHeightTestCase.h */,
 				E5679F471CB72DE800369A15 /* FindHeightTestCase.m */,
 				2B249F3E23F4A82600CFA3D0 /* GeographyClass.swift */,
@@ -2657,6 +2660,7 @@
 				2BBCE41C2220A4170013E158 /* PagingLayerTestCase.m in Sources */,
 				2B4B30AB2395E0DE00854073 /* StartupShutdownTestCase.swift in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
+				311C6A0B27B1C3FC0016BC7E /* FadeTestCase.swift in Sources */,
 				31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */,
 				2B4B30AA2395E0DE00854073 /* MapboxTestCase.swift in Sources */,
 				D8341A711BE2C8D200411A46 /* VectorsTestCase.mm in Sources */,

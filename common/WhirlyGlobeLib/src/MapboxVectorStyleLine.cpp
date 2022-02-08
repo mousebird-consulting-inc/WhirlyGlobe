@@ -222,7 +222,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.hasExp = true;
     vecInfo.coordType = WideVecCoordScreen;
     vecInfo.programID = styleSet->wideVectorProgramID;
-    vecInfo.fade = fade;
+    vecInfo.fadeIn = fade;
+    vecInfo.fadeOut = fade;
     vecInfo.zoomSlot = styleSet->zoomSlot;
     vecInfo.color = *color;
     vecInfo.width = (float)width;

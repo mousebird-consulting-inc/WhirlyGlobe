@@ -240,11 +240,18 @@ public:
                     drawable->setMatrix(&transMat);
                 }
                 
-                if (vecInfo->fade > 0.0)
+                if (vecInfo->fadeIn > 0.0)
                 {
+                    // fadeDown < fadeUp : fading in
                     const TimeInterval curTime = scene->getCurrentTime();
-                    drawable->setFade(curTime,curTime+vecInfo->fade);
+                    drawable->setFade(curTime,curTime+vecInfo->fadeIn);
                 }
+                else if (vecInfo->fadeOut > 0.0 && vecInfo->fadeOutTime > 0.0)
+                {
+                    // fadeUp < fadeDown : fading out
+                    drawable->setFade(/*down=*/vecInfo->fadeOutTime+vecInfo->fadeOut, /*up=*/vecInfo->fadeOutTime);
+                }
+
                 changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
             }
             drawable = nullptr;
@@ -555,13 +562,19 @@ public:
                     drawable->setMatrix(trans.matrix());
                 }
                 sceneRep->drawIDs.insert(drawable->getDrawableID());
-                
-                if (vecInfo->fade > 0.0)
+
+                if (vecInfo->fadeIn > 0.0)
                 {
+                    // fadeDown < fadeUp = fading in
                     const TimeInterval curTime = scene->getCurrentTime();
-                    drawable->setFade(curTime,curTime+vecInfo->fade);
+                    drawable->setFade(curTime,curTime+vecInfo->fadeIn);
                 }
-                
+                else if (vecInfo->fadeOutTime > 0.0)
+                {
+                    // fadeUp < fadeDown = fading out
+                    drawable->setFade(/*down=*/vecInfo->fadeOutTime+vecInfo->fadeOut, /*up=*/vecInfo->fadeOutTime);
+                }
+
                 changeRequests.push_back(new AddDrawableReq(drawable->getDrawable()));
             }
             drawable = nullptr;
@@ -598,7 +611,7 @@ SimpleIdentity VectorManager::addVectors(const ShapeSet *shapes, const VectorInf
         return EmptyIdentity;
     
     auto *sceneRep = new VectorSceneRep();
-    sceneRep->fade = (float)vecInfo.fade;
+    sceneRep->fadeOut = (float)vecInfo.fadeOut;
 
     // Look for per vector colors
     bool doColors = false;
@@ -795,7 +808,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> &shap
     }
 
     auto sceneRep = std::make_unique<VectorSceneRep>();
-    sceneRep->fade = (float)vecInfo.fade;
+    sceneRep->fadeOut = (float)vecInfo.fadeOut;
 
     // Look for per vector colors
     bool doColors = (vecInfo.colorExp || vecInfo.opacityExp);
@@ -1072,8 +1085,8 @@ void VectorManager::removeVectors(SimpleIDSet &vecIDs,ChangeSet &changes)
         std::unique_ptr<VectorSceneRep> sceneRep(*it);
         vectorReps.erase(it);
 
-        const bool fade = (sceneRep->fade > 0.0);
-        const auto fadeT = fade ? (curTime + sceneRep->fade) : 0.0;
+        const bool fade = (sceneRep->fadeOut > 0.0);
+        const auto fadeT = fade ? (curTime + sceneRep->fadeOut) : 0.0;
 
         // Make a copy and merge the IDs into it
         allIDs.clear();

@@ -41,19 +41,17 @@ float calculateFade(constant Uniforms &uni,
                 fade = 1.0;
             else
                 fade = (uni.currentTime - uniA.fadeDown)/(uniA.fadeUp - uniA.fadeDown);
-    } else {
-        if (uniA.fadeUp < uniA.fadeDown)
-        {
-            // Heading to 0
-            if (uni.currentTime < uniA.fadeUp)
-                fade = 1.0;
+    } else if (uniA.fadeUp < uniA.fadeDown) {
+        // Heading to 0
+        if (uni.currentTime < uniA.fadeUp)
+            fade = 1.0;
+        else
+            if (uni.currentTime > uniA.fadeDown)
+                fade = 0.0;
             else
-                if (uni.currentTime > uniA.fadeDown)
-                    fade = 0.0;
-                else
-                    fade = 1.0-(uni.currentTime - uniA.fadeUp)/(uniA.fadeDown - uniA.fadeUp);
-        }
+                fade = 1.0-(uni.currentTime - uniA.fadeUp)/(uniA.fadeDown - uniA.fadeUp);
     }
+
     // Deal with the range based fade
     if (uni.height > 0.0)
     {
