@@ -264,6 +264,22 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
             }
         }
 
+        ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
+        ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
+        if (thisOvjObjs != null) {
+            Collections.addAll(ovlObjs, thisOvjObjs);
+        }
+
+        // Capture changes immediately so they are cleaned up
+        loadReturn.mergeChanges(tileData.getChangeSet());
+
+        if (loadReturn.isCanceled()) {
+            // We'll lose the component objects if we don't put them in here
+            loadReturn.addComponentObjects(tileData.getComponentObjects());
+            loadReturn.addOverlayComponentObjects(ovlObjs.toArray(new ComponentObject[0]));
+            return;
+        }
+
         if (images.isEmpty() && pbfData.isEmpty()) {
             loadReturn.errorString = "No usable data";
             return;
@@ -277,20 +293,6 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
 
         try (LayerThread.WorkWrapper wr = samplingLayer.layerThread.startOfWorkWrapper()) {
             if (wr == null) {
-                return;
-            }
-
-            ArrayList<ComponentObject> ovlObjs = new ArrayList<>();
-            ComponentObject[] thisOvjObjs = tileData.getComponentObjects("overlay");
-            if (thisOvjObjs != null) {
-                Collections.addAll(ovlObjs, thisOvjObjs);
-            }
-
-            loadReturn.mergeChanges(tileData.getChangeSet());
-
-            if (loadReturn.isCanceled()) {
-                // We'll lose the component objects if we don't put them in here
-                loadReturn.addComponentObjects(tileData.getComponentObjects());
                 return;
             }
 
