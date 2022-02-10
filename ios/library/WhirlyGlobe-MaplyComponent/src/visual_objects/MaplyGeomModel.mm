@@ -74,19 +74,21 @@ using namespace Eigen;
 }
 
 // Convert to raw geometry
-- (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)outRawGeom withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap
+- (void)asRawGeometry:(std::vector<WhirlyKit::GeometryRaw> &)outRawGeom
+       withTexMapping:(const std::vector<WhirlyKit::SimpleIdentity> &)texFileMap
 {
-    outRawGeom.reserve(outRawGeom.size()+rawGeom.size());
+    outRawGeom.reserve(rawGeom.size());
     // Remap the texture IDs to something used by the scene
-    for (auto geom : rawGeom)
+    for (const auto &geom : rawGeom)
     {
-        for (unsigned int ii=0;ii<geom.texIDs.size();ii++) {
-            if (geom.texIDs[ii] >= 0 && geom.texIDs[ii] < texFileMap.size())
+        outRawGeom.push_back(geom);
+        for (auto &texID : outRawGeom.back().texIDs)
+        {
+            if (texID >= 0 && texID < texFileMap.size())
             {
-                geom.texIDs[ii] = (int)texFileMap[geom.texIDs[ii]];
+                texID = (int)texFileMap[texID];
             }
         }
-        outRawGeom.push_back(geom);
     }
 }
 

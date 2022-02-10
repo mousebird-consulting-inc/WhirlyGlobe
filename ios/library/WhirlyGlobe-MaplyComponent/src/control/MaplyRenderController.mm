@@ -995,7 +995,7 @@ using namespace Eigen;
 
     // Night/Day Shader
     [self addShader:kMaplyShaderDefaultTriNightDay program: std::make_shared<ProgramMTL>(
-        [kMaplyShaderDefaultModelTri cStringUsingEncoding:NSASCIIStringEncoding],
+        [kMaplyShaderDefaultTriNightDay cStringUsingEncoding:NSASCIIStringEncoding],
         [mtlLib newFunctionWithName:@"vertexTri_multiTex_nightDay"],
         [mtlLib newFunctionWithName:@"fragmentTri_multiTex_nightDay"])];
 

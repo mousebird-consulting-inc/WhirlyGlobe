@@ -194,23 +194,23 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
         int baseVert = draw->getNumPoints();
         for (unsigned int jj=0;jj<3;jj++)
         {
-            const Point3d &pt = pts[tri.verts[jj]];
+            const int vjj = tri.verts[jj];
+            const Point3d &pt = pts[vjj];
             Vector4d outPt = mat * Eigen::Vector4d(pt.x(),pt.y(),pt.z(),1.0);
             Point3d newPt(outPt.x()/outPt.w(),outPt.y()/outPt.w(),outPt.z()/outPt.w());
             draw->addPoint(newPt);
             if (!norms.empty())
             {
-                const Point3d &norm = norms[tri.verts[jj]];
+                const Point3d &norm = norms[vjj];
                 // Note: Not the right way to transform normals
                 Vector4d projNorm = mat * Eigen::Vector4d(norm.x(),norm.y(),norm.z(),0.0);
                 Point3d newNorm(projNorm.x(),projNorm.y(),projNorm.z());
                 newNorm.normalize();
                 draw->addNormal(newNorm);
             }
-            if (!texCoords.empty())
-                draw->addTexCoord(0,texCoords[tri.verts[jj]]);
+            draw->addTexCoord(0, (vjj < texCoords.size()) ? texCoords[vjj] : TexCoord(0,0));
             if (!colors.empty() && !colorOverride)
-                draw->addColor(colors[tri.verts[jj]]);
+                draw->addColor(colors[vjj]);
         }
         
         draw->addTriangle(BasicDrawable::Triangle(baseVert,baseVert+1,baseVert+2));
@@ -822,8 +822,13 @@ SimpleIdentity GeometryManager::addGeometryInstances(SimpleIdentity baseGeomID,c
     // Check for moving models
     bool hasMotion = false;
     for (const GeometryInstance &inst : instances)
+    {
         if (inst.duration > 0.0)
+        {
             hasMotion = true;
+            break;
+        }
+    }
     
     // Work through the model instances
     std::vector<BasicDrawableInstance::SingleInstance> singleInsts;

@@ -2318,13 +2318,16 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     if (geomManager)
     {
         // Regular geometry instances
-        for (auto it : instSort)
+        for (const auto &it : instSort)
         {
             // Set up the textures and convert the geometry
-            MaplyGeomModel *model = it->model;
+            const MaplyGeomModel *model = it->model;
             
             // Return an existing base model or make a new one
-            SimpleIdentity baseModelID = [model getBaseModel:self fontTexManager:fontTexManager compObj:compObj mode:threadMode];
+            const SimpleIdentity baseModelID = [model getBaseModel:self
+                                                    fontTexManager:fontTexManager
+                                                           compObj:compObj
+                                                              mode:threadMode];
             
             // Reference count the textures for this comp obj
             compObj->contents->texs.insert(model->maplyTextures.begin(),model->maplyTextures.end());
@@ -2333,19 +2336,18 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
             {
                 // Convert the instances
                 std::vector<GeometryInstance> matInst;
+                matInst.reserve(it->instances.size());
                 for (unsigned int ii=0;ii<it->instances.size();ii++)
                 {
                     MaplyGeomModelInstance *modelInst = it->instances[ii];
-                    Matrix4d localMat = localMat.Identity();
 
                     // Local transformation, before the placement
-                    if (modelInst.transform)
-                        localMat = modelInst.transform.mat;
+                    Matrix4d localMat = modelInst.transform ? modelInst.transform.mat : localMat.Identity();
                     
                     // Add in the placement
-                    Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
-                    Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
-                    Point3d norm = coordAdapter->normalForLocal(localPt);
+                    const Point3d localPt = coordSys->geographicToLocal(Point2d(modelInst.center.x,modelInst.center.y));
+                    const Point3d dispLoc = coordAdapter->localToDisplay(Point3d(localPt.x(),localPt.y(),modelInst.center.z));
+                    const Point3d norm = coordAdapter->normalForLocal(localPt);
                                         
                     // Construct a set of axes to build the shape around
                     Point3d xAxis,yAxis;
