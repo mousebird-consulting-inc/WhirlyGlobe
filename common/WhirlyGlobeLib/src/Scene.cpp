@@ -194,18 +194,24 @@ Scene::~Scene()
 
     if (fontTextureManager)
     {
-        fontTextureManager->teardown(nullptr);
+        ChangeSet changes;
+        fontTextureManager->clear(changes);
+        discardChanges(changes);
         fontTextureManager.reset();
     }
 }
 
-void Scene::teardown(PlatformThreadInfo*)
+void Scene::teardown(PlatformThreadInfo* env)
 {
     {
         std::lock_guard<std::mutex> guardLock(managerLock);
         for (auto &manager : managers)
         {
             manager.second->teardown();
+        }
+        if (fontTextureManager)
+        {
+            fontTextureManager->teardown(env);
         }
     }
     setRenderer(nullptr);
