@@ -167,8 +167,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_changeRenderTarget(JNIEnv 
     {
         if (Scene *scene = SceneClassInfo::get(env,obj))
         {
-            ChangeSet changes = { new ChangeRenderTargetReq(renderTargetID, texID) };
-            scene->addChangeRequests(changes);
+            scene->addChangeRequest(new ChangeRenderTargetReq(renderTargetID, texID));
         }
     }
     MAPLY_STD_JNI_CATCH()
@@ -181,8 +180,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_removeRenderTargetNative(J
     {
         if (Scene *scene = SceneClassInfo::get(env,obj))
         {
-            ChangeSet changes = { new RemRenderTargetReq(targetID) };
-            scene->addChangeRequests(changes);
+            scene->addChangeRequest(new RemRenderTargetReq(targetID));
         }
     }
     MAPLY_STD_JNI_CATCH()
