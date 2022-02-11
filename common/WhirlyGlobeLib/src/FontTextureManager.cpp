@@ -18,7 +18,6 @@
 
 #import "FontTextureManager.h"
 #import "WhirlyVector.h"
-#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -26,15 +25,6 @@ using namespace WhirlyKit;
 namespace WhirlyKit
 {
     
-FontManager::FontManager() :
-    refCount(0),
-    color(255,255,255,255),
-    outlineColor(0,0,0,0),
-    backColor(0,0,0,0),
-    outlineSize(0.0)
-{
-}
-
 FontManager::~FontManager()
 {
     for (auto glyph : glyphs)
@@ -53,9 +43,9 @@ FontManager::GlyphInfo *FontManager::findGlyph(WKGlyph glyph)
 }
 
 // Add the given glyph info
-FontManager::GlyphInfo *FontManager::addGlyph(WKGlyph glyph,SubTexture subTex,const Point2f &size,const Point2f &offset,const Point2f &textureOffset)
+FontManager::GlyphInfo *FontManager::addGlyph(WKGlyph glyph,const SubTexture &subTex,const Point2f &size,const Point2f &offset,const Point2f &textureOffset)
 {
-    GlyphInfo *info = new GlyphInfo(glyph);
+    auto info = new GlyphInfo(glyph);
     info->size = size;
     info->offset = offset;
     info->textureOffset = textureOffset;
@@ -110,27 +100,23 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
 }
 
                 
-FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene)
-: sceneRender(sceneRender), scene(scene), texAtlas(nullptr)
+FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene) :
+    sceneRender(sceneRender),
+    scene(scene)
 {
 }
 
 FontTextureManager::~FontTextureManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    delete texAtlas;
-    texAtlas = nullptr;
-    for (auto drawStringRep : drawStringReps)
-    {
-        delete drawStringRep;
-    }
-    drawStringReps.clear();
-    fontManagers.clear();
+    ChangeSet changes;
+    clear(changes);
+    discardChanges(changes);
 }
     
 void FontTextureManager::init()
 {
+    // Note: caller must own mutex lock
+
     if (!texAtlas)
     {
         // Let's do the biggest possible texture with small cells 32 bits deep
@@ -154,6 +140,7 @@ void FontTextureManager::clear(ChangeSet &changes)
     {
         delete drawStringRep;
     }
+    drawStringReps.clear();
     fontManagers.clear();
 }
 
@@ -161,7 +148,7 @@ void FontTextureManager::removeString(PlatformThreadInfo *inst, SimpleIdentity d
 {
     std::lock_guard<std::mutex> guardLock(lock);
 
-    DrawStringRep *theRep = nullptr;
+    DrawStringRep *theRep;
     {
         DrawStringRep dummyRep(drawStringId);
         auto it = drawStringReps.find(&dummyRep);
