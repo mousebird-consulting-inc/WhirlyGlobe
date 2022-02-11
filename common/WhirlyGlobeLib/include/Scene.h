@@ -272,7 +272,7 @@ public:
     void addChangeRequest(ChangeRequest *newChange);
     /// Add a list of change requets.  You can call this from any thread.
     /// This is the faster option if you have more than one change request
-    void addChangeRequests(const ChangeSet &newchanges);
+    void addChangeRequests(ChangeSet &newchanges);
     
     /// Process change requests
     /// Only the renderer should call this in the rendering thread

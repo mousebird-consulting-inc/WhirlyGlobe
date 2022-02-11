@@ -31,10 +31,6 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-VectorTileData::VectorTileData()
-{
-}
-    
 VectorTileData::VectorTileData(const VectorTileData &that)
     : ident(that.ident), bbox(that.bbox), geoBBox(that.geoBBox)
 {
@@ -42,30 +38,62 @@ VectorTileData::VectorTileData(const VectorTileData &that)
     
 VectorTileData::~VectorTileData()
 {
-    for (auto it : vecObjsByStyle)
-        delete it.second;
+#if defined(DEBUG)
+    if (std::any_of(changes.begin(), changes.end(), [](auto i){ return i; }))
+    {
+        wkLogLevel(Debug, "VectorTileData disposed with pending changes");
+    }
+#endif
+    clear();
 }
     
 void VectorTileData::mergeFrom(VectorTileData *that)
 {
-    compObjs.insert(compObjs.end(),that->compObjs.begin(),that->compObjs.end());
-    images.insert(images.end(),that->images.begin(),that->images.end());
-    vecObjs.insert(vecObjs.end(),that->vecObjs.begin(),that->vecObjs.end());
-    for (auto it : that->vecObjsByStyle) {
-        auto it2 = vecObjsByStyle.find(it.first);
-        if (it2 != vecObjsByStyle.end())
-            it2->second->insert(it2->second->end(),it.second->begin(),it.second->end());
+    compObjs.insert(compObjs.end(),
+                    std::make_move_iterator(that->compObjs.begin()),
+                    std::make_move_iterator(that->compObjs.end()));
+    images.insert(images.end(),
+                  std::make_move_iterator(that->images.begin()),
+                  std::make_move_iterator(that->images.end()));
+    vecObjs.insert(vecObjs.end(),
+                   std::make_move_iterator(that->vecObjs.begin()),
+                   std::make_move_iterator(that->vecObjs.end()));
+
+    for (auto &kv : that->vecObjsByStyle)
+    {
+        const auto res = vecObjsByStyle.insert(kv);
+        if (!res.second)
+        {
+            // Already present, merge
+            auto &curVal = *(res.first->second);
+            curVal.insert(curVal.end(),
+                          std::make_move_iterator(kv.second->begin()),
+                          std::make_move_iterator(kv.second->end()));
+        }
+        kv.second = nullptr;    // ownership transferred, don't delete
+    }
+
+    for (auto &kv : that->categories)
+    {
+        const auto res = categories.insert(std::make_pair(kv.first, decltype(kv.second)()));
+        auto &newVal = res.first->second;
+        if (newVal.empty())
+        {
+            // replace
+            std::swap(newVal, kv.second);
+        }
         else
-            vecObjsByStyle[it.first] = it.second;
-    }
-    that->vecObjsByStyle.clear();
-    for (auto it : that->categories) {
-        categories[it.first] = it.second;
+        {
+            // merge
+            newVal.insert(newVal.end(),
+                          std::make_move_iterator(kv.second.begin()),
+                          std::make_move_iterator(kv.second.end()));
+        }
     }
     
-    if (!that->changes.empty())
-        changes.insert(changes.end(),that->changes.begin(),that->changes.end());
-    
+    changes.insert(changes.end(),that->changes.begin(),that->changes.end());
+    that->changes.clear();
+
     that->clear();
 }
 
@@ -74,31 +102,38 @@ void VectorTileData::clear()
     compObjs.clear();
     images.clear();
     vecObjs.clear();
+    categories.clear();
+
+    for (auto it : changes)
+    {
+        delete it;
+    }
+    changes.clear();
 
     for (auto it : vecObjsByStyle)
+    {
         delete it.second;
+    }
     vecObjsByStyle.clear();
-    categories.clear();
-    
-    changes.clear();
 }
 
-MapboxVectorTileParser::MapboxVectorTileParser(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate)
-    : localCoords(false), keepVectors(false), parseAll(false), styleDelegate(styleDelegate)
+MapboxVectorTileParser::MapboxVectorTileParser(PlatformThreadInfo *inst,
+                                               VectorStyleDelegateImplRef inStyleDelegate) :
+    styleDelegate(std::move(inStyleDelegate))
 {
     // Index all the categories ahead of time.  Once.
-    std::vector<VectorStyleImplRef> allStyles = styleDelegate->allStyles(inst);
-    for (VectorStyleImplRef style: allStyles) {
-        std::string category = style->getCategory(inst);
-        if (!category.empty()) {
-            long long styleID = style->getUuid(inst);
-            addCategory(category, styleID);
+    if (styleDelegate)
+    {
+        for (const VectorStyleImplRef &style : styleDelegate->allStyles(inst))
+        {
+            const std::string category = style->getCategory(inst);
+            if (!category.empty())
+            {
+                const long long styleID = style->getUuid(inst);
+                addCategory(category, styleID);
+            }
         }
     }
-}
-
-MapboxVectorTileParser::~MapboxVectorTileParser()
-{
 }
 
 void MapboxVectorTileParser::setUUIDName(const std::string &name)
@@ -126,7 +161,7 @@ void MapboxVectorTileParser::addCategory(const std::string &category,long long s
 static inline double secondsSince(const std::chrono::steady_clock::time_point &t0)
 {
     using namespace std::chrono;
-    return duration_cast<nanoseconds>(steady_clock::now() - t0).count() / 1.0e9;
+    return (double)duration_cast<nanoseconds>(steady_clock::now() - t0).count() / 1.0e9;
 }
 
 static bool noCancel(PlatformThreadInfo*) { return false; }

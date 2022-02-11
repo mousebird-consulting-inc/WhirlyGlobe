@@ -59,24 +59,33 @@ void ImageTile_Android::setBitmap(JNIEnv *env,jobject bitmapObj)
         return;
     }
     // Copy the raw data over to the texture
-    void* bitmapPixels;
-    if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) < 0)
+    void* bitmapPixels = nullptr;
+    if (AndroidBitmap_lockPixels(env, bitmapObj, &bitmapPixels) != ANDROID_BITMAP_RESULT_SUCCESS)
     {
         return;
     }
 
-    if (info.height > 0 && info.width > 0)
+    try
     {
-        //uint32_t* src = (uint32_t*) bitmapPixels;
-        rawData = std::make_shared<MutableRawData>(bitmapPixels,info.height*info.width*4);
+        if (info.height > 0 && info.width > 0)
+        {
+            rawData = std::make_shared<MutableRawData>(bitmapPixels, info.height * info.width * 4);
+        }
+
+        type = MaplyImgTypeRawImage;
+        borderSize = 0;
+        width = (int)info.width;
+        targetWidth = width;
+        height = (int)info.height;
+        targetHeight = height;
+        components = 4;
     }
-
-    type = MaplyImgTypeRawImage;
-    borderSize = 0;
-    width = info.width; targetWidth = width;
-    height = info.height; targetHeight = height;
-    components = 4;
-
+    catch (...)
+    {
+        // Make sure to release the lock, even in case of an exception
+        AndroidBitmap_unlockPixels(env, bitmapObj);
+        throw;
+    }
     AndroidBitmap_unlockPixels(env, bitmapObj);
 }
 

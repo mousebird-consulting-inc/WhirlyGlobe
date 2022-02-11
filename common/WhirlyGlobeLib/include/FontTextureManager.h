@@ -43,8 +43,8 @@ class FontManager : public Identifiable
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
+    FontManager() = default;
     FontManager(SimpleIdentity theId) : Identifiable(theId) { }
-    FontManager();
     virtual ~FontManager();
     
     // Comparison operator
@@ -82,7 +82,9 @@ public:
     GlyphInfo *findGlyph(WKGlyph glyph);
     
     // Add the given glyph info
-    GlyphInfo *addGlyph(WKGlyph glyph,SubTexture subTex,const Point2f &size,const Point2f &offset,const Point2f &textureOffset);
+    GlyphInfo *addGlyph(WKGlyph glyph,const SubTexture &subTex,
+                        const Point2f &size,const Point2f &offset,
+                        const Point2f &textureOffset);
     
     // Remove references to the given glyphs.
     void addGlyphRefs(const GlyphSet &usedGlyphs);
@@ -90,14 +92,14 @@ public:
     // Returns a list of texture references to remove
     void removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubTexture> &toRemove);
     
-    int refCount;
-    RGBAColor color;
-    RGBAColor backColor;
+    int refCount = 0;
+    RGBAColor color = RGBAColor::white();
+    RGBAColor backColor = RGBAColor::black();
+    RGBAColor outlineColor = RGBAColor::black();
     std::string fontName;
-    RGBAColor outlineColor;
-    float outlineSize;
-    float pointSize;
-    
+    float outlineSize = 0.0f;
+    float pointSize = 0.0f;
+
 protected:
     // Maps Glyphs (shorts) to texture and region
     typedef std::set<GlyphInfo *,GlyphInfoSorter> GlyphInfoSet;
@@ -177,9 +179,9 @@ protected:
 
     FontManagerMap fontManagers;
 
-    SceneRenderer *sceneRender;
-    Scene *scene;
-    DynamicTextureAtlas *texAtlas;
+    SceneRenderer *sceneRender = nullptr;
+    Scene *scene = nullptr;
+    DynamicTextureAtlas *texAtlas = nullptr;
     DrawStringRepSet drawStringReps;
     std::mutex lock;    
 };

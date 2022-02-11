@@ -37,6 +37,7 @@ JNIEXPORT jobject JNICALL MakeChangeSet(JNIEnv *env,const ChangeSet &changeSet)
 	ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo(env,"com/mousebird/maply/ChangeSet");
 	jobject newObj = classInfo->makeWrapperObject(env,nullptr);
 	WhirlyKit::ChangeSetRef *inst = classInfo->getObject(env,newObj);
+	(*inst)->reserve(changeSet.size());
 	(*inst)->insert((*inst)->end(),changeSet.begin(),changeSet.end());
 	return newObj;
 }
@@ -61,9 +62,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_dispose
 	try
 	{
 		ChangeSetClassInfo *classInfo = ChangeSetClassInfo::getClassInfo();
-		std::lock_guard<std::mutex> lock(disposeMutex);
+		std::unique_lock<std::mutex> lock(disposeMutex);
 		if (const auto changeSet = classInfo->getObject(env,obj))
 		{
+			classInfo->clearHandle(env,obj);
+			lock.unlock();
+
 			// Be sure to delete the contents
 			for (auto &change : **changeSet)
 			{
@@ -72,7 +76,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_dispose
 			}
 			delete changeSet;
 		}
-		classInfo->clearHandle(env,obj);
 	}
 	MAPLY_STD_JNI_CATCH()
 }
@@ -128,6 +131,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	            requiresFlush = true;
 			}
 	    }
+		(*changes)->clear();
 
 	    // If anything needed a flush after that, let's do it
 	    if (requiresFlush)
@@ -136,7 +140,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	    }
 
 	    scene->addChangeRequests(changesToAdd);
-		(*changes)->clear();
 	}
 	MAPLY_STD_JNI_CATCH()
 

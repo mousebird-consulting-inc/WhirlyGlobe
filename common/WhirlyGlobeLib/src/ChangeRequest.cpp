@@ -24,6 +24,16 @@
 namespace WhirlyKit
 {
 
+void discardChanges(ChangeSet &changes)
+{
+    for (auto &change : changes)
+    {
+        delete change;
+        change = nullptr;
+    }
+    changes.clear();
+}
+
 void RenderTeardownInfo::destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex)
 {
     tex->destroyInRenderer(renderer->getRenderSetupInfo(), renderer->getScene());

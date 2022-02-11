@@ -57,6 +57,7 @@ void FontTextureManager_Android::FontManager_Android::teardown(PlatformThreadInf
 		((PlatformInfo_Android*)inst)->env->DeleteGlobalRef(typefaceObj);
 		typefaceObj = nullptr;
 	}
+	this->FontManager::teardown(inst);
 }
 
 FontTextureManager_Android::FontTextureManager_Android(PlatformThreadInfo *inst,
@@ -135,6 +136,10 @@ void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)
 	charRenderObj = nullptr;
 	renderMethodID = nullptr;
 	glyphClassRef = nullptr;
+
+	ChangeSet changes;
+	clear(changes);
+	discardChanges(changes);
 }
 
 std::unique_ptr<DrawableString> FontTextureManager_Android::addString(

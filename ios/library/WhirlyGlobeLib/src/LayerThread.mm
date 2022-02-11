@@ -151,13 +151,12 @@ using namespace WhirlyKit;
 
 - (void)addChangeRequest:(WhirlyKit::ChangeRequest *)changeRequest
 {
-    std::vector<WhirlyKit::ChangeRequest *> requests;
+    ChangeSet requests;
     requests.push_back(changeRequest);
-    
     [self addChangeRequests:requests];
 }
 
-- (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)newChangeRequests
+- (void)addChangeRequests:(ChangeSet &)newChangeRequests
 {
     if (self.isCancelled)
     {
@@ -182,6 +181,7 @@ using namespace WhirlyKit;
         [self performSelector:@selector(runAddChangeRequests) onThread:self withObject:nil waitUntilDone:NO];
     
     changeRequests.insert(changeRequests.end(), newChangeRequests.begin(), newChangeRequests.end());
+    newChangeRequests.clear();
 }
 
 - (void)flushChangeRequests
