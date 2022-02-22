@@ -20,6 +20,7 @@ package com.mousebird.maply;
 import android.graphics.Color;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
 
 /**
  * The Wide Vector Info class holds visual information related to groups of vectors.
@@ -112,10 +113,10 @@ public class WideVectorInfo extends BaseInfo
     public native double getMitreLimit();
 
     /**
-     * This the texture to be applied to the widened vector.
+     * This is the texture to be applied to the widened vector.
      */
-    public void setTexture(MaplyTexture tex) {
-        setTexID(tex.texID);
+    public void setTexture(@Nullable MaplyTexture tex) {
+        setTexID((tex != null) ? tex.texID : 0);
     }
 
     /**
