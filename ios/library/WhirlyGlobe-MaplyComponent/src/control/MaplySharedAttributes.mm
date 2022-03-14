@@ -45,9 +45,9 @@ NSString* const kMaplyMinVis = MaplyMinVis;
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 NSString* const kMaplyMaxVis = MaplyMaxVis;
 /// Minimum distance from the viewer at which to display geometry.
-NSString* const kMaplyViewerMinDist = MaplyMinVisBand;
+NSString* const kMaplyViewerMinDist = MaplyMinViewerDist;
 /// Maximum distance from the viewer at which to display geometry.
-NSString* const kMaplyViewerMaxDist = MaplyMaxVisBand;
+NSString* const kMaplyViewerMaxDist = MaplyMaxViewerDist;
 /// Center to use when evaluating distance to viewable geometry (X)
 NSString* const kMaplyViewableCenterX = MaplyViewableCenterX;
 /// Center to use when evaluating distance to viewable geometry (Y)
