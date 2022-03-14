@@ -61,9 +61,18 @@ class ModelsTestCase: MaplyTestCase {
 					modelInstances.append(mInst)
 
 				}
-				globeVC.addModelInstances(modelInstances, desc: [:], mode: MaplyThreadMode.current)
+                let h = Float(0.1)
+                let desc = [
+                    kMaplyEnable: true,
+                    kMaplyViewerMinDist: 1.01,
+                    kMaplyViewerMaxDist: 1.01 + h,
+                    kMaplyViewableCenterX: 0.0,
+                    kMaplyViewableCenterY: 0.0,
+                    kMaplyViewableCenterZ: 0.0,
+                ] as [AnyHashable:Any]
+				globeVC.addModelInstances(modelInstances, desc: desc, mode: MaplyThreadMode.current)
 				globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-94.58, 39.1) ,time: 1.0)
-				globeVC.height = 0.1
+				globeVC.height = h
 			}
 		}
 	}
