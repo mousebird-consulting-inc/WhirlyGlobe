@@ -133,6 +133,8 @@ MapboxVectorStyleLayer& MapboxVectorLayerLine::copy(const MapboxVectorStyleLayer
     return *this;
 }
 
+static const std::string colorStr = "color"; // NOLINT(cert-err58-cpp)   constructor can throw
+
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          const std::vector<VectorObjectRef> &inVecObjs,
                                          const VectorTileDataRef &tileInfo,
@@ -259,6 +261,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     auto const capacity = inVecObjs.size() * 5;  // ?
     std::unordered_map<std::string,ShapeRefVec> shapesByUUID(capacity);
 
+    const bool colorOverride = styleSet->tileStyleSettings->enableOverrideColor;
+
     // Gather all the linear features
     for (const auto &vecObj : vecObjs)
     {
@@ -281,6 +285,12 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         if (shapes.empty())
             shapes.reserve(shapes.size() + vecObj->shapes.size());
         std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
+
+        // If individual vector objects aren't allowed to override colors, drop the color attribute.
+        if (!colorOverride)
+        {
+            attrs->removeField(colorStr);
+        }
     }
 
     for (const auto &kvp : shapesByUUID)

@@ -30,65 +30,76 @@ namespace WhirlyKit
  
  This is the object backing the ObjC and Android versions.
  */
-class VectorStyleSettingsImpl
+struct VectorStyleSettingsImpl
 {
-public:
-    VectorStyleSettingsImpl(double scale);
+    VectorStyleSettingsImpl(float scale);
 
     /// Local renderer scale (iOS only)
-    float rendererScale;
+    float rendererScale = 1.0f;
     /// Line widths will be scaled by this amount before display.
-    float lineScale;
+    float lineScale = 1.0f;
     /// Text sizes will be scaled by this amount before display.
-    float textScale;
+    float textScale = 1.0f;
     /// Markers (symbols+circles) will be scaled by this amount before display.
-    float markerScale;
+    float markerScale = 1.0f;
     /// Circles will be scaled by this amount before display.
-    float circleScale;
+    float circleScale = 1.0f;
     /// Symbols will be scaled by this amount before display.
-    float symbolScale;
+    float symbolScale = 1.0f;
     /// Importance for markers in the layout engine
-    float markerImportance;
+    float markerImportance = 2.0f;
     /// Default marker size when none is specified
-    float markerSize;
+    float markerSize = 10.0f;
     /// Importance for labels in the layout engine
-    float labelImportance;
-    /// If set we'll use the zoom levels defined in the style
-    bool useZoomLevels;
+    float labelImportance = 1.5f;
 
     /// For symbols we'll try to pull a UUID out of this field to stick in the marker and label uniqueID
     std::string uuidField;
 
     /// Draw priority calculated as offset from here
-    int baseDrawPriority;
+    int baseDrawPriority = 0;
 
     /// Offset between levels
-    int drawPriorityPerLevel;
+    int drawPriorityPerLevel = 0;
 
     /**
         The overall map scale calculations will be scaled by this amount.
-        
-        We use the map scale calculations to figure out what is dispalyed and when.  Not what to load in, mind you, that's a separate, but related calculation.  This controls the scaling of those calculations.  Scale it down to load things in later, up to load them in sooner.
+
+        We use the map scale calculations to figure out what is dispalyed and when.  Not what to load in, mind you,
+        that's a separate, but related calculation.  This controls the scaling of those calculations.  Scale it down to
+        load things in later, up to load them in sooner.
       */
-    float mapScaleScale;
+    float mapScaleScale = 1.0f;
 
     /// Dashed lines will be scaled by this amount before display.
-    float dashPatternScale;
-
-    /// Use widened vectors (which do anti-aliasing and such)
-    bool useWideVectors;
+    float dashPatternScale = 1.0f;
 
     /// Where we're using old vectors (e.g. not wide) scale them by this amount
-    float oldVecWidthScale;
+    float oldVecWidthScale = 1.0f;
 
     /// If we're using widened vectors, only activate them for strokes wider than this.  Defaults to zero.
-    float wideVecCuttoff;
+    float wideVecCuttoff = 0.0f;
 
     /// If set, this is the shader we'll use on the areal features.
     std::string arealShaderName;
 
+    /// If set we'll use the zoom levels defined in the style
+    bool useZoomLevels = false;
+
+    /// Use widened vectors (which do anti-aliasing and such)
+    bool useWideVectors = false;
+
     /// If set, we'll make all the features selectable.  If not, we won't.
-    bool selectable;
+    bool selectable = false;
+
+    // Allow color attributes on individual vector objects to override layer styles
+    bool enableOverrideColor = false;
+
+    /// Read from the z buffer (fill)
+    bool zBufferRead = false;
+
+    /// Write to the z buffer (fill)
+    bool zBufferWrite = false;
 
     /// If set, icons will be loaded from this directory
     std::string iconDirectory;
@@ -97,13 +108,7 @@ public:
     std::string fontName;
     
     /// If we're using a dfiferent areal shader, set it up here
-    SimpleIdentity settingsArealShaderID;
-
-    /// Read from the z buffer (fill)
-    bool zBufferRead;
-
-    /// Write to the z buffer (fill)
-    bool zBufferWrite;
+    SimpleIdentity settingsArealShaderID = EmptyIdentity;
 };
 typedef std::shared_ptr<VectorStyleSettingsImpl> VectorStyleSettingsImplRef;
 
