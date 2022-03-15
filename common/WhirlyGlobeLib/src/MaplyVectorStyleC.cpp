@@ -21,29 +21,12 @@
 namespace WhirlyKit
 {
 
-VectorStyleSettingsImpl::VectorStyleSettingsImpl(double scale)
+VectorStyleSettingsImpl::VectorStyleSettingsImpl(float scale) :
+    rendererScale(scale),
+    lineScale    (scale),
+    textScale    (scale),
+    markerScale  (scale)
 {
-    rendererScale = (float)scale;
-    lineScale = rendererScale;
-    textScale = rendererScale;
-    markerScale = rendererScale;
-    circleScale = 1.0f;
-    symbolScale = 1.0f;
-    markerImportance = 2.0f;
-    markerSize = 10.0f;
-    labelImportance = 1.5f;
-    useZoomLevels = false;
-    baseDrawPriority = 0;
-    drawPriorityPerLevel = 0;
-    mapScaleScale = 1.0f;
-    dashPatternScale = 1.0f;
-    useWideVectors = false;
-    oldVecWidthScale = 1.0f;
-    wideVecCuttoff = 0.0f;
-    selectable = false;
-    settingsArealShaderID = EmptyIdentity;
-    zBufferRead = false;
-    zBufferWrite = false;
 }
 
 }

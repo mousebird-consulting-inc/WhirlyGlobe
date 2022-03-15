@@ -85,6 +85,9 @@
 /// If set, we'll make all the features selectable.  If not, we won't.
 @property (nonatomic) bool selectable;
 
+/// Allow- per-object color overrides
+@property (nonatomic) bool enableOverrideColor;
+
 /// If set, icons will be loaded from this directory
 @property (nonatomic, strong) NSString * _Nullable iconDirectory;
 

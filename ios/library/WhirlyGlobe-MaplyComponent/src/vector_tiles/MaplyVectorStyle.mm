@@ -244,6 +244,15 @@ using namespace WhirlyKit;
     return impl->selectable;
 }
 
+- (bool)enableOverrideColor
+{
+    return impl->enableOverrideColor;
+}
+- (void)setEnableOverrideColor:(bool)enable
+{
+    impl->enableOverrideColor = enable;
+}
+
 - (void)setIconDirectory:(NSString *)iconDirectory
 {
     if (iconDirectory)
