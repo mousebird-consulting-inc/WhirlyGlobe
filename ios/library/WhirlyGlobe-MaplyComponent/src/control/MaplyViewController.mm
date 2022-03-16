@@ -392,7 +392,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     
     // Wire up the gesture recognizers
     tapDelegate = [MaplyTapDelegate tapDelegateForView:wrapView mapView:mapView.get()];
-    panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView useCustomPanRecognizer:nil];
+    panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView useCustomPanRecognizer:false];
     if (_pinchGesture)
     {
         pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
