@@ -58,6 +58,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     
     if (instanceStyle == LocalStyle) {
         bzero(&uniMI,sizeof(uniMI));
+        uniMI.startTime = TimeGetCurrent() - scene->getBaseTime();
 
         // In this version we just have the raw data
         if (instData && numInstances > 0) {

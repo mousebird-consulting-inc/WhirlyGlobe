@@ -41,7 +41,14 @@ struct Selectable
 
     Selectable() = default;
     Selectable(SimpleIdentity theID) : selectID(theID) { }
-    
+
+    bool isVisibleAt(double heightAboveSurface) const
+    {
+        return enable && selectID != EmptyIdentity &&
+            (minVis == DrawVisibleInvalid || heightAboveSurface >= minVis) &&
+            (maxVis == DrawVisibleInvalid || heightAboveSurface <= maxVis);
+    }
+
     bool enable = true;
     /// Used to identify this selectable
     SimpleIdentity selectID = EmptyIdentity;
