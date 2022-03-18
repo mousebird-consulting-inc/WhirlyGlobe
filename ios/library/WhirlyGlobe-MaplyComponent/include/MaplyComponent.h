@@ -22,7 +22,7 @@
 
 #import "UIKit/NSData+Zlib.h"
 #import "UIKit/NSDictionary+StyleRules.h"
-
+#import "http/MaplyURLSessionManager.h"
 #import "helpers/MaplyGeomBuilder.h"
 #import "helpers/MaplyIconManager.h"
 #import "helpers/MaplyLocationTracker.h"
