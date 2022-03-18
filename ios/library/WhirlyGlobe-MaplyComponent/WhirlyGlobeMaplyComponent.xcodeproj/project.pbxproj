@@ -3433,10 +3433,7 @@
 		2BE537191D249A1200B60FAD /* include */ = {
 			isa = PBXGroup;
 			children = (
-				2BE537971D249A1200B60FAD /* WhirlyGlobeComponent.h */,
-				2BE537281D249A1200B60FAD /* MaplyComponent.h */,
-				2BE537251D249A1200B60FAD /* MaplyBridge.h */,
-				2BE537491D249A1200B60FAD /* MaplySharedAttributes.h */,
+				9547BAED27E49488004BF3E5 /* http */,
 				2BC41C9121F1062B002926B7 /* UIKit */,
 				2BC41C9021F10179002926B7 /* helpers */,
 				2BC41C8F21F1015B002926B7 /* math */,
@@ -3891,7 +3888,6 @@
 			isa = PBXGroup;
 			children = (
 				9547BAE527E48260004BF3E5 /* private */,
-				9547BAE127E480C5004BF3E5 /* MaplyURLSessionManager.h */,
 				9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.m */,
 			);
 			path = URLSession;
@@ -3900,8 +3896,36 @@
 		9547BAE527E48260004BF3E5 /* private */ = {
 			isa = PBXGroup;
 			children = (
-				9547BAE627E48284004BF3E5 /* MaplyURLSessionManager+Private.h */,
 				9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.m */,
+			);
+			path = private;
+			sourceTree = "<group>";
+		};
+		9547BAED27E49488004BF3E5 /* http */ = {
+			isa = PBXGroup;
+			children = (
+				2BE537971D249A1200B60FAD /* WhirlyGlobeComponent.h */,
+				2BE537281D249A1200B60FAD /* MaplyComponent.h */,
+				2BE537251D249A1200B60FAD /* MaplyBridge.h */,
+				2BE537491D249A1200B60FAD /* MaplySharedAttributes.h */,
+				9547BAEE27E49497004BF3E5 /* URLSession */,
+			);
+			path = http;
+			sourceTree = "<group>";
+		};
+		9547BAEE27E49497004BF3E5 /* URLSession */ = {
+			isa = PBXGroup;
+			children = (
+				9547BAE127E480C5004BF3E5 /* MaplyURLSessionManager.h */,
+				9547BAEF27E494A0004BF3E5 /* private */,
+			);
+			path = URLSession;
+			sourceTree = "<group>";
+		};
+		9547BAEF27E494A0004BF3E5 /* private */ = {
+			isa = PBXGroup;
+			children = (
+				9547BAE627E48284004BF3E5 /* MaplyURLSessionManager+Private.h */,
 			);
 			path = private;
 			sourceTree = "<group>";
