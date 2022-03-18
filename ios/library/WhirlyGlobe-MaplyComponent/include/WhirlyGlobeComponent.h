@@ -18,6 +18,7 @@
  *
  */
 
+#import <WhirlyGlobe/MaplyURLSessionManager.h>
 #import <WhirlyGlobe/MaplyComponent.h>
 #import <WhirlyGlobe/MaplyGlobeRenderController.h>
 #import <WhirlyGlobe/WhirlyGlobeViewController.h>

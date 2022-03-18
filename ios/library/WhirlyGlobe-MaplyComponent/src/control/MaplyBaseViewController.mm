@@ -30,7 +30,7 @@
 #import "UIColor+Stuff.h"
 #import "MTLView.h"
 #import "WorkRegion_private.h"
-
+#import "MaplyURLSessionManager+Private.h"
 #import <sys/utsname.h>
 
 using namespace Eigen;
@@ -260,7 +260,7 @@ using namespace WhirlyKit;
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
     
-    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSession *session = [[MaplyURLSessionManager sharedManager] createURLSession];
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         TimeInterval now = TimeGetCurrent();
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
