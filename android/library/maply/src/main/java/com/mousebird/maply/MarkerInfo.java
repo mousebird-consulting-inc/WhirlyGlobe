@@ -1,5 +1,4 @@
-/*
- *  MarkerInfo.java
+/*  MarkerInfo.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,12 +14,18 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
 import android.graphics.Color;
+import android.os.Build;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
+import org.jetbrains.annotations.NotNull;
 
 /**
  * This class holds the visual information for a set of 2D or 3D markers.
@@ -49,18 +54,33 @@ public class MarkerInfo extends BaseInfo
 		setClusterGroup(-1);
 	}
 	
-	public void finalize()
-	{
+	public void finalize() {
 		dispose();
 	}
 
 	/**
 	 * Set the color from a standard Android Color value.
-	 * @param color Color value, including alpha.
+	 * @param argb Color value, including alpha.
 	 */
-	public void setColor(int color)
-	{
-		setColor(Color.red(color)/255.f,Color.green(color)/255.f,Color.blue(color)/255.f,Color.alpha(color)/255.f);
+	public native void setColorARGB(@ColorInt int argb);
+	public native @ColorInt int getColorARGB();
+
+	public void setColor(@ColorInt int color) {
+		setColorARGB(color);
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	public Color getColor() {
+		return Color.valueOf(getColorARGB());
+	}
+
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	public void setColor(@NotNull Color color) {
+		setColorARGB(color.toArgb());
+	}
+
+	public void setColor(float r,float g,float b,float a) {
+		setComponents((int)(r*255),(int)(g*255),(int)(b*255),(int)(a*255));
 	}
 
 	/**
@@ -73,7 +93,25 @@ public class MarkerInfo extends BaseInfo
 	 * @param b blue
 	 * @param a alpha
 	 */
-	public native void setColor(float r,float g,float b,float a);
+	private native void setComponents(int r,int g,int b,int a);
+
+	/**
+	 * Set the color expression, overriding color
+	 */
+	public native void setColorExp(@Nullable ColorExpressionInfo expr);
+	public native ColorExpressionInfo getColorExp();
+
+	/**
+	 * Set the opacity expression, overriding the alpha component of color/colorExpr
+	 */
+	public native void setOpacityExp(@Nullable FloatExpressionInfo expr);
+	public native FloatExpressionInfo getOpacityExp();
+
+	/**
+	 * Set the scale expression
+	 */
+	public native void setScaleExp(@Nullable FloatExpressionInfo expr);
+	public native FloatExpressionInfo getScaleExp();
 
 	/**
 	 * Set the default layout importance for any markers added with this info.
@@ -89,12 +127,40 @@ public class MarkerInfo extends BaseInfo
 	 * it must be set to MAXFLOAT here.
 	 */
 	public native void setLayoutImportance(float newImport);
+	public native float getLayoutImportance();
 
 	/**
 	 * If greater than -1 we'll sort these markers into cluster groups when zooming out.
 	 * The number passed in determines which group it's sorted into.
 	 */
 	public native void setClusterGroup(int clusterGroup);
+	public native int getClusterGroup();
+
+	/**
+	 * Set the zoom slot to use for expression-based properties.
+	 *
+	 * Must be set for expression properties to work correctly
+	 */
+	public native void setZoomSlot(int slot);
+	public native int getZoomSlot();
+
+	/**
+	 * Set the shader program to use
+	 */
+	public void setShader(@Nullable Shader shader) {
+		if (shader != null) {
+			setShaderProgramId(shader.getID());
+		} else {
+			setShaderProgramId(0);
+
+		}
+	}
+
+	/**
+	 * Set the shader program to use
+	 */
+	public native void setShaderProgramId(long id);
+	public native long getShaderProgramId();
 
 	static
 	{
