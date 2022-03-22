@@ -371,18 +371,19 @@
         kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 2),
     };
 
+    // Note that for GeographyClass, this loader only does zoom levels 0-6
     const int slot = [loader getZoomSlot];
 
-    UIColor *c1 = [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:0.8];
+    UIColor *c1 = [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:0.8];
     UIColor *c2 = [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8];
     NSDictionary *wideDesc = [desc dictionaryByMergingWith:@{
         kMaplyDrawPriority:       @(kMaplyVectorDrawPriorityDefault + 1),
         kMaplyWideVecEdgeFalloff: @(1),
         kMaplyZoomSlot:           @(slot),
-        kMaplyVecWidth:           @{@"stops":@[@[@0,@4],@[@10,@20]]},
-        kMaplyWideVecOffset:      @{@"stops":@[@[@0,@-50],@[@10,@50]]},
-        kMaplyOpacity:            @{@"stops":@[@[@0,@0.1],@[@10,@0.9]]},
-        kMaplyColor:              @{@"stops":@[@[@0,c1],@[@10,c2]]},
+        kMaplyVecWidth:           @{@"stops":@[@[@2,@1],@[@6,@20]]},
+        kMaplyWideVecOffset:      @{@"stops":@[@[@2,@-20],@[@6,@20]]},
+        kMaplyOpacity:            @{@"stops":@[@[@2,@0.2],@[@6,@0.9]]},
+        kMaplyColor:              @{@"stops":@[@[@2,c1],@[@6,c2]]},
         kMaplyShader:             perf ? kMaplyShaderWideVectorPerformance : kMaplyShaderWideVectorExp,
         kMaplyWideVecImpl:        perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
     }];
