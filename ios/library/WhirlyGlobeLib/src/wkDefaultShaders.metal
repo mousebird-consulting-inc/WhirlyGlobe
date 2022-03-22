@@ -1034,7 +1034,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     }
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
 
-    outVert.w2 = vertArgs.wideVec.w2;
+    outVert.w2 = w2;
     outVert.edge = vertArgs.wideVec.edge;
     outVert.texCoord = float2(interDir,0);
 
@@ -1044,7 +1044,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         } else {
             // Return a vertex offset from the base
             int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
-            float2 offset = (centers[2].norm * interDir) * screenScale * (vertArgs.wideVec.w2 + centerLine + vertArgs.wideVec.edge);
+            float2 offset = (centers[2].norm * interDir) * screenScale * (w2 + centerLine + vertArgs.wideVec.edge);
 
             outVert.position = float4(centers[basePt].screenPos + offset, 0.0, 1.0);
         }
