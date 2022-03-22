@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.mousebird.maply.GlobeController;
 import com.mousebird.maply.MBTileFetcher;
 import com.mousebird.maply.MapController;
@@ -160,8 +162,12 @@ public class GeographyClass extends MaplyTestCase {
         }
     }
 
-    private MBTileFetcher mbTileFetcher;
-    private QuadImageLoader loader;
+    public @Nullable QuadImageLoader getLoader() {
+        return loader;
+    }
+
+    private @Nullable MBTileFetcher mbTileFetcher;
+    private @Nullable QuadImageLoader loader;
 
     @Override
     public boolean setUpWithGlobe(GlobeController globeVC) throws Exception {
