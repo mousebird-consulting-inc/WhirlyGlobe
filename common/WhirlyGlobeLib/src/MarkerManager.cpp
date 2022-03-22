@@ -22,6 +22,7 @@
 #import "SharedAttributes.h"
 #import "CoordSystem.h"
 #import "WhirlyKitLog.h"
+#import "MapboxVectorStyleSetC.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -52,6 +53,56 @@ MarkerInfo::MarkerInfo(const Dictionary &dict,bool screenObject) :
     layoutRepeat = dict.getInt(MaplyTextLayoutRepeat,-1);
     layoutSpacing = (float)dict.getDouble(MaplyTextLayoutSpacing,24.0);
     layoutOffset = (float)dict.getDouble(MaplyTextLayoutOffset,0.0);
+
+    if (const auto entry = dict.getEntry(MaplyOpacity))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transDouble(entry, MaplyOpacity, 1.0))
+            {
+                opacityExp = expr->expression();
+            }
+        }
+    }
+
+    if (const auto entry = dict.getEntry(MaplyColor))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transColor(entry, MaplyColor, nullptr))
+            {
+                colorExp = expr->expression();
+            }
+        }
+    }
+
+    if (const auto entry = dict.getEntry(MaplyMarkerScale))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transDouble(entry, MaplyOpacity, 1.0))
+            {
+                scaleExp = expr->expression();
+            }
+        }
+
+        // Since we don't have a simple scale member, allow them to specify
+        // a scale by producing an expression that always produces that value.
+        if (!scaleExp)
+        {
+            const double scale = entry->getDouble();
+            if (scale != 0.0 && scale != 1.0)
+            {
+                scaleExp = std::make_shared<FloatExpressionInfo>();
+                scaleExp->base = 1.0f;
+                scaleExp->type = ExpressionInfoType::ExpressionLinear;
+                scaleExp->stopInputs = { 1.0f, 1.0f };
+                scaleExp->stopOutputs = { (float)scale };
+            }
+        }
+    }
+    
+    hasExp = scaleExp || colorExp || opacityExp;
 }
     
 MarkerSceneRep::MarkerSceneRep() :

@@ -328,7 +328,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     _drawPriorityPerLevel = 1;
     _color = [UIColor whiteColor];
     _imageFormat = MaplyImageIntRGBA;
-    
+
     // Start things out after a delay
     // This lets the caller mess with settings
     [self performSelector:@selector(delayedInit) withObject:nil afterDelay:0.0];
@@ -338,8 +338,10 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 - (bool)delayedInit
 {
-    if (!valid)
+    if (![super delayedInit])
+    {
         return false;
+    }
     
     auto const __strong vc = self.viewC;
     if (![vc getRenderControl])
@@ -429,6 +431,8 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
     const RGBAColor color = [_color asRGBAColor];
     loader->setColor(color,NULL);
+
+    [super postDelayedInit];
 
     return true;
 }
@@ -565,7 +569,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     
     if (![super delayedInit])
         return false;
-    
+
+    [super postDelayedInit];
+
     return true;
 }
 

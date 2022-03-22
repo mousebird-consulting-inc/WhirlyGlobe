@@ -166,7 +166,7 @@ MaplyVectorFunctionStop::MaplyVectorFunctionStop()
 {
 }
 
-bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *,bool isText)
+bool MaplyVectorFunctionStops::parse(const DictionaryRef &entry,bool isText)
 {
     base = entry->getDouble(strBase,1.0);
     
@@ -800,7 +800,8 @@ int MapboxVectorStyleSetImpl::enumValue(const DictionaryEntryRef &entry,const ch
     return defVal;
 }
 
-MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const DictionaryEntryRef &theEntry, double defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const DictionaryEntryRef &theEntry,
+                                                           const char *valName, double defVal)
 {
     if (!theEntry)
         return std::make_shared<MapboxTransDouble>(defVal);
@@ -808,77 +809,80 @@ MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const DictionaryEntry
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         auto stops = std::make_shared<MaplyVectorFunctionStops>();
-        stops->parse(theEntry->getDict(), this, false);
+        stops->parse(theEntry->getDict(), false);
         if (stops) {
             return MapboxTransDoubleRef(new MapboxTransDouble(stops));
         } else {
-            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s",name.c_str());
+            wkLogLevel(Warn, "Expecting key word 'stops' in '%s'", valName ? valName : "");
         }
     } else if (theEntry->getType() == DictTypeDouble || theEntry->getType() == DictTypeInt) {
         return std::make_shared<MapboxTransDouble>(theEntry->getDouble());
     } else {
-        wkLogLevel(Warn,"Unexpected type found in entry %s. Was expecting a double.",name.c_str());
+        wkLogLevel(Warn,"Unexpected type found in '%s'. Was expecting a double.", valName ? valName : "");
     }
 
     return MapboxTransDoubleRef();
 }
 
-
-MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &valName, const DictionaryRef &entry, double defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const DictionaryEntryRef &theEntry, double defVal)
 {
-    return transDouble(entry ? entry->getEntry(valName) : DictionaryEntryRef(), defVal);
+    return transDouble(theEntry, "(unnamed)", defVal);
 }
 
-MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &valName, const DictionaryRef &entry, const RGBAColor *defVal)
+MapboxTransDoubleRef MapboxVectorStyleSetImpl::transDouble(const std::string &valName, const DictionaryRef &dict, double defVal)
 {
-    const auto defValRef = defVal ? std::make_shared<RGBAColor>(*defVal) : RGBAColorRef();
+    return transDouble(dict ? dict->getEntry(valName) : DictionaryEntryRef(), valName.c_str(), defVal);
+}
 
-    if (!entry) {
-        return defVal ? std::make_shared<MapboxTransColor>(defValRef) : MapboxTransColorRef();
-    }
-
-    // They pass in the whole dictionary and let us look the field up
-    const DictionaryEntryRef theEntry = entry->getEntry(valName);
-    if (!theEntry) {
-        return defVal ? std::make_shared<MapboxTransColor>(defValRef) : MapboxTransColorRef();
-    }
-
-    // This is probably stops
-    if (theEntry->getType() == DictTypeDictionary) {
-        auto stops = std::make_shared<MaplyVectorFunctionStops>();
-        if (stops->parse(theEntry->getDict(), this, false)) {
-            return std::make_shared<MapboxTransColor>(stops);
-        } else {
-            wkLogLevel(Warn, "Expecting key word 'stops' in entry %s", valName.c_str());
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const DictionaryEntryRef &entry, const char *valName, const RGBAColorRef &defVal)
+{
+    switch (entry ? entry->getType() : DictTypeNone)
+    {
+        case DictTypeDictionary:
+        {
+            auto stops = std::make_shared<MaplyVectorFunctionStops>();
+            if (stops->parse(entry->getDict(), false))
+            {
+                return std::make_shared<MapboxTransColor>(stops);
+            }
+            wkLogLevel(Warn, "Expecting key word 'stops' in '%s'", valName ? valName : "");
+            break;
         }
-    } else if (theEntry->getType() == DictTypeString) {
-        RGBAColorRef color = colorValue(valName, theEntry, DictionaryRef(), defValRef, false);
-        if (color)
-            return std::make_shared<MapboxTransColor>(color);
-        else {
-            wkLogLevel(Warn, "Unexpected type found in entry %s. Was expecting a color.", valName.c_str());
+        case DictTypeString:
+        {
+            if (auto color = colorValue(valName, entry, DictionaryRef(), defVal, false))
+            {
+                return std::make_shared<MapboxTransColor>(color);
+            }
+            wkLogLevel(Warn, "Unexpected type found in '%s'. Expecting a color.", valName ? valName : "");
+            break;
         }
-    } else {
-        wkLogLevel(Warn, "Unexpected type found in entry %s. Was expecting a color.", valName.c_str());
+        case DictTypeNone:
+            break;
+        default:
+            wkLogLevel(Warn, "Unexpected type found in '%s'. Expecting a color.", valName ? valName : "");
     }
-
-    return MapboxTransColorRef();
+    return defVal ? std::make_shared<MapboxTransColor>(defVal) : MapboxTransColorRef();
 }
 
-MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &inName, const DictionaryRef &entry, const RGBAColor &inColor)
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &valName, const DictionaryRef &dict, const RGBAColorRef &defVal)
 {
-    const RGBAColor color = inColor;
-    return transColor(inName, entry, &color);
+    return transColor(dict ? dict->getEntry(valName) : DictionaryEntryRef(), valName.c_str(), defVal);
 }
 
-MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &inName, const DictionaryRef &entry, const std::string &str)
+MapboxTransColorRef MapboxVectorStyleSetImpl::transColor(const std::string &valName, const DictionaryRef &dict, const RGBAColor &defVal)
 {
-    if (!entry) {
+    return transColor(valName, dict, std::make_shared<RGBAColor>(defVal));
+}
+
+MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &inName, const DictionaryRef &dict, const std::string &str)
+{
+    if (!dict) {
         return str.empty() ? MapboxTransTextRef() : std::make_shared<MapboxTransText>(str);
     }
     
     // They pass in the whole dictionary and let us look the field up
-    const DictionaryEntryRef theEntry = entry->getEntry(inName);
+    const DictionaryEntryRef theEntry = dict->getEntry(inName);
     if (!theEntry) {
         return str.empty() ? MapboxTransTextRef() : std::make_shared<MapboxTransText>(str);
     }
@@ -886,7 +890,7 @@ MapboxTransTextRef MapboxVectorStyleSetImpl::transText(const std::string &inName
     // This is probably stops
     if (theEntry->getType() == DictTypeDictionary) {
         auto stops = std::make_shared<MaplyVectorFunctionStops>();
-        if (stops->parse(theEntry->getDict(), this, true)) {
+        if (stops->parse(theEntry->getDict(), true)) {
             return std::make_shared<MapboxTransText>(stops);
         } else {
             wkLogLevel(Warn, "Expecting key word 'stops' in entry %s", inName.c_str());

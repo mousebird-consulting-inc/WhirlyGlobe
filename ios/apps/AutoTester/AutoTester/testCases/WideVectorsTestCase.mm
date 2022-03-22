@@ -9,6 +9,10 @@
 #import "WideVectorsTestCase.h"
 #import "SwiftBridge.h"
 
+@interface NSDictionary(Stuff)
+- (NSDictionary *_Nonnull) dictionaryByMergingWith:(NSDictionary *_Nullable)dict;
+@end
+
 @implementation WideVectorsTestCase
 {
     GeographyClassTestCase * baseCase;
@@ -345,6 +349,55 @@
     }
 }
 
+- (void) exprs:(MaplyBaseViewController *)viewC withLoader:(MaplyQuadLoaderBase*)loader perf:(bool)perf {
+
+    const MaplyCoordinate coords[] = {
+        MaplyCoordinateMakeWithDegrees(-100, 60 + (perf?0:2)),
+        MaplyCoordinateMakeWithDegrees(-110, 61 + (perf?0:2)),
+        MaplyCoordinateMakeWithDegrees(-120, 62 + (perf?0:2)),
+    };
+
+    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:&coords[0]
+                                                                    numCoords:sizeof(coords)/sizeof(coords[0])
+                                                                   attributes:nil];
+    [vecObj subdivideToGlobe:0.0001];
+
+    NSMutableArray<MaplyVectorObject *> *objs = [NSMutableArray array];
+    [objs addObject:vecObj];
+
+    NSDictionary *desc = @{
+        kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:1.0],
+        kMaplyEnable: @YES,
+        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 2),
+    };
+
+    const int slot = [loader getZoomSlot];
+
+    UIColor *c1 = [UIColor colorWithRed:0.0 green:1.0 blue:0.0 alpha:0.8];
+    UIColor *c2 = [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8];
+    NSDictionary *wideDesc = [desc dictionaryByMergingWith:@{
+        kMaplyDrawPriority:       @(kMaplyVectorDrawPriorityDefault + 1),
+        kMaplyWideVecEdgeFalloff: @(1),
+        kMaplyZoomSlot:           @(slot),
+        kMaplyVecWidth:           @{@"stops":@[@[@0,@4],@[@10,@20]]},
+        kMaplyWideVecOffset:      @{@"stops":@[@[@0,@-50],@[@10,@50]]},
+        kMaplyOpacity:            @{@"stops":@[@[@0,@0.1],@[@10,@0.9]]},
+        kMaplyColor:              @{@"stops":@[@[@0,c1],@[@10,c2]]},
+        kMaplyShader:             perf ? kMaplyShaderWideVectorPerformance : kMaplyShaderWideVectorExp,
+        kMaplyWideVecImpl:        perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
+    }];
+
+    NSMutableArray<MaplyComponentObject*> *cos = [NSMutableArray new];
+    if (MaplyComponentObject *co = [viewC addVectors:objs desc:desc mode:MaplyThreadCurrent])
+    {
+        [cos addObject:co];
+    }
+    if (MaplyComponentObject *co = [viewC addWideVectors:objs desc:wideDesc mode:MaplyThreadCurrent])
+    {
+        [cos addObject:co];
+    }
+}
+
 - (void)wideLineTest:(MaplyBaseViewController *)viewC
 {
     [self addGeoJson:@"sawtooth.geojson" dashPattern:nil width:50.0 edge:20.0 simple:false viewC:viewC];
@@ -364,6 +417,16 @@
     [self overlap:viewC];
     
     [self vecColors:viewC];
+
+    // Dynamic properties require a zoom slot, which may not be set up yet
+    __weak MaplyQuadLoaderBase *weakLoader = [baseCase getLoader];
+    [weakLoader addPostInitBlock:^{
+        if (__strong MaplyQuadLoaderBase *loader = weakLoader)
+        {
+            [self exprs:viewC withLoader:loader perf:false];
+            [self exprs:viewC withLoader:loader perf:true];
+        }
+    }];
 }
 
 

@@ -230,7 +230,7 @@ public class MapboxKindaMap {
                                 source.tileSpec = resp
                                 cacheFile(origURL, data: data)
 
-                                DispatchQueue.main.async {
+                                DispatchQueue.main.async { [self] in
                                     outstandingFetches[fetchIdx] = nil
                                     checkFinished()
                                 }

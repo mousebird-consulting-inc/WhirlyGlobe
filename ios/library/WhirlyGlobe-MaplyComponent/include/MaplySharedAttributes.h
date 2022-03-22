@@ -44,6 +44,10 @@ extern NSString * const _Nonnull kMaplyMinVis;
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 extern NSString * const _Nonnull kMaplyMaxVis;
 #define kWGMaxVis kMaplyMaxVis
+/// Zoom related control
+extern NSString * const _Nonnull kMaplyZoomSlot;
+extern NSString * const _Nonnull kMaplyMinZoomVis;
+extern NSString * const _Nonnull kMaplyMaxZoomVis;
 /// Minimum distance from the viewer at which to display geometry.
 extern NSString * const _Nonnull kMaplyViewerMinDist;
 /// Maximum distance from the viewer at which to display geometry.
@@ -177,6 +181,10 @@ extern NSString * const _Nonnull kMaplyClusterGroup;
 extern NSString * const _Nonnull kMaplyColor;
 #define kWGColor kMaplyColor
 
+/// Specify the opacity separately from the alpha channel of "color"
+/// Not widely supported
+extern NSString * const _Nonnull kMaplyOpacity;
+
 /// Width is used by the vector layer for line widths
 extern NSString * const _Nonnull kMaplyVecWidth;
 #define kWGVecWidth kMaplyVecWidth
@@ -193,6 +201,9 @@ extern NSString * const _Nonnull kMaplyVecTextureFormat;
 extern NSString * const _Nonnull kMaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
 extern NSString * const _Nonnull kMaplyVecTexScaleY;
+
+// scale for markers
+extern NSString * const _Nonnull kMaplyMarkerScale;
 
 /// The projection to use when generating texture coordinates
 extern NSString * const _Nonnull kMaplyVecTextureProjection;

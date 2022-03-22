@@ -198,6 +198,10 @@
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor
 #define MaplyColor WKString("color")
 
+/// Specify the opacity separately from the alpha channel of "color"
+/// Not widely supported
+#define MaplyOpacity WKString("opacity")
+
 /// Width is used by the vector layer for line widths
 #define MaplyVecWidth WKString("width")
 
@@ -213,6 +217,9 @@
 #define MaplyVecTextureFormat WKString("textureFormat")
 #define MaplyVecTexScaleX WKString("texscalex")
 #define MaplyVecTexScaleY WKString("texscaley")
+
+// scale for markers
+#define MaplyMarkerScale WKString("markerScale")
 
 /// The projection to use when generating texture coordinates
 #define MaplyVecTextureProjection WKString("texprojection")

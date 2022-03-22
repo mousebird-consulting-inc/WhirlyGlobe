@@ -9,6 +9,7 @@
 import UIKit
 import WhirlyGlobe
 
+@objcMembers
 public class GeographyClassTestCase: MaplyTestCase {
 
     override init() {
@@ -21,7 +22,11 @@ public class GeographyClassTestCase: MaplyTestCase {
     typealias ImageLayer = (loader: MaplyQuadImageLoader, fetcher: MaplyMBTileFetcher)
     var layers : [ImageLayer] = []
     var varTarget : MaplyVariableTarget? = nil
-    
+
+    public func getLoader() -> MaplyQuadImageLoader? {
+        return layers.first?.loader
+    }
+
     func setupMBTiles(_ name: String, offscreen: Bool, transparent: Bool,
                       drawPriority: Int32, viewC: MaplyBaseViewController,
                       cacheSize: Int32 = -1) -> ImageLayer? {
