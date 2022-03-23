@@ -103,8 +103,7 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
     std::vector<Region> toClear;
     {
         std::lock_guard<std::mutex> guardLock(regionLock);
-        toClear = releasedRegions;
-        releasedRegions.clear();
+        toClear.swap(releasedRegions);
     }
 
     for (const auto &ii : toClear)
