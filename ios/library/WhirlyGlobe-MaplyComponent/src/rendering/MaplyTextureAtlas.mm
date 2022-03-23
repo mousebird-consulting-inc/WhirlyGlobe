@@ -1,5 +1,4 @@
-/*
- *  MaplyTextureAtlas_private.h
+/*  MaplyTextureAtlas_private.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/11/14.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyTextureAtlas_private.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 
@@ -27,8 +26,8 @@ typedef std::set<DynamicTextureAtlas *> DynamicTextureAtlasSet;
 class SubTexToAtlas
 {
 public:
-    SubTexToAtlas() : atlas(NULL) { }
-    SubTexToAtlas(SimpleIdentity subTexID) : subTex(subTexID), atlas(NULL) { }
+    SubTexToAtlas() = default;
+    SubTexToAtlas(SimpleIdentity subTexID) : subTex(subTexID) { }
     SubTexToAtlas(SimpleIdentity subTexID, DynamicTextureAtlas *atlas) : subTex(subTexID), atlas(atlas) { }
     
     // Comparison operator
@@ -40,7 +39,7 @@ public:
     // Which sub texture
     SubTexture subTex;
     // Is in which atlas
-    DynamicTextureAtlas *atlas;
+    DynamicTextureAtlas *atlas = nullptr;
 };
 
 typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
@@ -69,11 +68,12 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
 
 - (void)dealloc
 {
-    for (DynamicTextureAtlasSet::iterator it = atlases.begin();
-         it != atlases.end(); ++it)
+    @synchronized(self)
     {
-        DynamicTextureAtlas *atlas = *it;
-        delete atlas;
+        for (auto *atlas : atlases)
+        {
+            delete atlas;
+        }
     }
 }
 
@@ -82,28 +82,27 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     atlasSize = size;
 }
 
-- (bool)addTexture:(Texture *)tex subTex:(WhirlyKit::SubTexture &)outSubTex changes:(WhirlyKit::ChangeSet &)changes
+- (bool)addTexture:(Texture *)tex
+            subTex:(WhirlyKit::SubTexture &)outSubTex
+           changes:(WhirlyKit::ChangeSet &)changes
 {
-    std::vector<Texture *> texs;
-    texs.push_back(tex);
+    std::vector<Texture *> texs = { tex };
 
-    DynamicTextureAtlas *foundAtlas = NULL;
+    DynamicTextureAtlas *foundAtlas = nullptr;
     SubTexture subTex;
 
     @synchronized(self)
     {
         // Look for a match
-        for (DynamicTextureAtlasSet::iterator it = atlases.begin();
-             it != atlases.end(); ++it)
+        for (auto *atlas : atlases)
         {
-            DynamicTextureAtlas *atlas = *it;
-            if (tex->getFormat() == atlas->getFormat())
-                if (atlas->addTexture(sceneRender,texs,-1,NULL,NULL,subTex,changes,0))
-                {
-                    scene->addSubTexture(subTex);
-                    foundAtlas = atlas;
-                    break;
-                }
+            if (tex->getFormat() == atlas->getFormat() &&
+                atlas->addTexture(sceneRender,texs,-1,nullptr,nullptr,subTex,changes,0))
+            {
+                scene->addSubTexture(subTex);
+                foundAtlas = atlas;
+                break;
+            }
         }
         
         // Make up a new texture atlas
@@ -111,14 +110,14 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         {
             foundAtlas = new DynamicTextureAtlas("Maply Texture Atlas",atlasSize,16,tex->getFormat());
             atlases.insert(foundAtlas);
-            if (foundAtlas->addTexture(sceneRender,texs, -1, NULL, NULL, subTex, changes, 0))
+            if (foundAtlas->addTexture(sceneRender,texs, -1, nullptr, nullptr, subTex, changes, 0))
                 scene->addSubTexture(subTex);
         }
         
         // If we put the texture somewhere, return true
         if (subTex.texId != EmptyIdentity)
         {
-            subTexMap.insert(SubTexToAtlas(subTex.getId(), foundAtlas));
+            subTexMap.emplace(subTex.getId(), foundAtlas);
             outSubTex = subTex;
             return true;
         }
@@ -131,25 +130,26 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
 {
     @synchronized(self)
     {
-        SubTexToAtlasSet::iterator it = subTexMap.find(SubTexToAtlas(subTexID));
+        const auto it = subTexMap.find(SubTexToAtlas(subTexID));
         if (it != subTexMap.end())
         {
-            // Clear out the
+            // Clear out the texture
             const SubTexToAtlas &entry = *it;
             entry.atlas->removeTexture(entry.subTex, changes, when);
-            
-            // May need to remove the texture atlas
+
+            // May need to remove the texture atlas, if that left it empty
             entry.atlas->cleanup(changes,when);
             if (entry.atlas->empty())
             {
                 entry.atlas->teardown(changes);
-                delete entry.atlas;
                 atlases.erase(entry.atlas);
+                // Note: We assume that only one map entry can ever point to a given atlas
+                delete entry.atlas;
             }
             
             subTexMap.erase(it);
         } else {
-            NSLog(@"SubTex: Asked to remove sub texture that isn't present.");
+            wkLogLevel(Warn, "SubTex: Asked to remove sub texture that isn't present");
         }
     }
 }
@@ -158,15 +158,14 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
 {
     @synchronized(self)
     {
-        for (DynamicTextureAtlasSet::iterator it = atlases.begin();
-             it != atlases.end(); ++it)
+        for (auto *atlas : atlases)
         {
-            DynamicTextureAtlas *atlas = *it;
             atlas->cleanup(changes,0.0);
             delete atlas;
         }
         
         atlases.clear();
+        subTexMap.clear();
     }
 }
 
@@ -176,7 +175,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
     
     @synchronized(self)
     {
-        for (auto &it : atlases)
+        for (const auto *it : atlases)
         {
             int nr,ndt;
             it->getUsage(nr, ndt);
@@ -185,7 +184,7 @@ typedef std::set<SubTexToAtlas> SubTexToAtlasSet;
         }
     }
     
-    NSLog(@"Texture Atlas: %d regions, %d dynamic textures",numRegions,numDynamicTextures);
+    wkLogLevel(Info,"Texture Atlas: %d regions, %d dynamic textures",numRegions,numDynamicTextures);
 }
 
 @end
