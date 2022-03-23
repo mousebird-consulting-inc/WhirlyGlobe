@@ -974,7 +974,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 //        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
     
     // Intersect on the left or right depending
-    const float interDir = whichVert & 0x1 ? 1.0 : -1.0;
+    const float interDir = (whichVert & 0x1) ? 1.0 : -1.0;
 
     // Turn off the end caps for the moment
     switch (whichPoly) {
@@ -1030,7 +1030,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     outVert.w2 = w2;
     outVert.edge = vertArgs.wideVec.edge;
-    outVert.texCoord = float2(interDir,0);
+    outVert.texCoord = float2(interDir,0);  // todo: this is incomplete
 
     if (isValid) {
         if (iPtsValid) {
@@ -1064,9 +1064,18 @@ fragment float4 fragmentTri_wideVecPerf(
         }
     }
     
-    float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
+    const int numTextures = TexturesBase(texArgs.texPresent);
+    float patternAlpha = 1.0;
+    if (numTextures > 0) {
+        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
+        // Just pulling the alpha at the moment
+        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+        patternAlpha = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
+    }
 
-    return vert.color * float4(1,1,1,edgeAlpha);
+    const float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
+
+    return vert.color * float4(1,1,1,edgeAlpha * patternAlpha);
 }
 
 
