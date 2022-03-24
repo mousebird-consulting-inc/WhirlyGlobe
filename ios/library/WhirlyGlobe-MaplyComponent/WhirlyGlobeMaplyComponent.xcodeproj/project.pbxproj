@@ -1007,7 +1007,7 @@
 		31DDA4CE27AB477300865ECE /* DefaultShadersMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B6998872293418F00C31E3F /* DefaultShadersMTL.h */; };
 		727E05F327158118005576CB /* MaplyRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF720126FBD0099F405 /* MaplyRenderController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		727E05F4271583AC005576CB /* MaplySimpleTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7E689E22A1E34B00BBFD9E /* MaplySimpleTileFetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9547BAE327E480C5004BF3E5 /* MaplyURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9547BAE127E480C5004BF3E5 /* MaplyURLSessionManager.h */; };
+		9547BAE327E480C5004BF3E5 /* MaplyURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9547BAE127E480C5004BF3E5 /* MaplyURLSessionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9547BAE427E480C5004BF3E5 /* MaplyURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.m */; };
 		9547BAE827E48284004BF3E5 /* MaplyURLSessionManager+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 9547BAE627E48284004BF3E5 /* MaplyURLSessionManager+Private.h */; };
 		9547BAE927E48284004BF3E5 /* MaplyURLSessionManager+Private.m in Sources */ = {isa = PBXBuildFile; fileRef = 9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.m */; };
