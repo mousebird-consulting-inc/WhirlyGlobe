@@ -55,7 +55,7 @@ using namespace WhirlyKit;
 
 - (int)frame
 {
-    return loadReturn->frame->frameIndex;
+    return (loadReturn && loadReturn->frame) ? loadReturn->frame->frameIndex : -1;
 }
 
 - (void)addTileData:(id __nonnull) inTileData
