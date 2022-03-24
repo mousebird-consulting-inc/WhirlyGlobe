@@ -221,9 +221,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     uniforms.globeMode = !coordAdapter->isFlat();
     uniforms.frameCount = frameCount;
     uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
-    for (unsigned int ii=0;ii<MaplyMaxZoomSlots;ii++) {
-        frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
-    }
+    frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these

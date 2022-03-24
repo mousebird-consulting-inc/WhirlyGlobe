@@ -25,6 +25,8 @@
 #import <WhirlyGlobe/MaplyQuadSampler.h>
 #import <WhirlyGlobe/MaplyRemoteTileFetcher.h>
 
+typedef void (__strong ^InitCompletionBlock)(void);
+
 @class MaplyQuadLoaderBase;
 
 /**
@@ -232,5 +234,11 @@
  This unregisters us with the sampling layer and shuts down the various objects we created.
  */
 - (void)shutdown;
+
+/**
+    Blocks to be called after the view is set up, or immediately if it is already set up.
+    Similar to `addPostSurfaceRunnable` on Android.
+*/
+- (void)addPostInitBlock:(_Nonnull InitCompletionBlock)block;
 
 @end

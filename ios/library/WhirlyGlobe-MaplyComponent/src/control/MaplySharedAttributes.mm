@@ -44,6 +44,10 @@ NSString* const kMaplyDrawPriority = MaplyDrawPriority;
 NSString* const kMaplyMinVis = MaplyMinVis;
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 NSString* const kMaplyMaxVis = MaplyMaxVis;
+/// Zoom related control
+NSString* const kMaplyZoomSlot = MaplyZoomSlot;
+NSString* const kMaplyMinZoomVis = MaplyMinZoomVis;
+NSString* const kMaplyMaxZoomVis = MaplyMaxZoomVis;
 /// Minimum distance from the viewer at which to display geometry.
 NSString* const kMaplyViewerMinDist = MaplyMinViewerDist;
 /// Maximum distance from the viewer at which to display geometry.
@@ -151,6 +155,10 @@ NSString* const kMaplyClusterGroup = MaplyClusterGroupID;
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor
 NSString* const kMaplyColor = MaplyColor;
 
+/// Specify the opacity separately from the alpha channel of "color"
+/// Not widely supported
+NSString* const kMaplyOpacity = MaplyOpacity;
+
 /// Width is used by the vector layer for line widths
 NSString* const kMaplyVecWidth = MaplyVecWidth;
 
@@ -165,6 +173,9 @@ NSString* const kMaplyVecTextureFormat = MaplyVecTextureFormat;
 NSString* const kMaplyVecTexScaleX = MaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
 NSString* const kMaplyVecTexScaleY = MaplyVecTexScaleY;
+
+// scale for markers
+WKDefineConst(MarkerScale);
 
 /// The projection to use when generating texture coordinates
 NSString* const kMaplyVecTextureProjection = MaplyVecTextureProjection;

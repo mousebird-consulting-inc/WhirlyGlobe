@@ -5,6 +5,8 @@ import okio.buffer
 import android.app.Activity
 import com.mousebirdconsulting.autotester.Framework.MaplyTestCase
 import android.graphics.Color
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.mousebird.maply.*
 import com.mousebird.maply.RenderControllerInterface.TextureSettings
@@ -42,7 +44,7 @@ class WideVectorsTestCase(activity: Activity?) :
             it.drawPriority = drawPriority
             if (tex != null) {
                 it.setTexture(tex)
-                it.setTextureRepeatLength(8.0)
+                it.textureRepeatLength = 8.0
             }
             it.edgeFalloff = edge
         }
@@ -77,6 +79,13 @@ class WideVectorsTestCase(activity: Activity?) :
         componentObjects.addAll(addGeoJSON(baseController, "testJson.geojson",    20.0f, pri, Color.BLUE, true, 1.0))
         componentObjects.addAll(addGeoJSON(baseController, "sawtooth.geojson",    50.0f, pri, Color.RED, false, 20.0))
         componentObjects.addAll(offsetTests(baseController))
+
+        // Expressions require the loader to be set up so we can get a zoom slot... at least until
+        // we have a non-loader-dependent zoom slot (See #1523).  Lacking a way to run code after
+        // the loader setup completes, a la `addPostSurfaceRunnable`, just wait a while.
+        Handler(Looper.getMainLooper()).postDelayed({
+            componentObjects.addAll(expressionTests(baseController))
+        }, 1000)
     }
     
     private fun offsetTests(vc: BaseController): Collection<ComponentObject> {
@@ -117,9 +126,9 @@ class WideVectorsTestCase(activity: Activity?) :
                     val vecAttrs = AttrDictionary()
                     val clAttrs = AttrDictionary()
                     if (k > 0) {
-                        val cc = 50 * i;
-                        vecAttrs.setInt("color", Color.argb(129, 0,cc,255 - cc));
-                        clAttrs.setInt("color", Color.argb(192,0,255 - cc,cc));
+                        val cc = 50 * i
+                        vecAttrs.setInt("color", Color.argb(129, 0,cc,255 - cc))
+                        clAttrs.setInt("color", Color.argb(192,0,255 - cc,cc))
                     }
                     val vecObj = VectorObject.createLineString(coords, vecAttrs)?.subdivideToGlobe(0.0001)
                     val clObj = VectorObject.createLineString(coords, clAttrs)?.subdivideToGlobe(0.0001)
@@ -133,17 +142,61 @@ class WideVectorsTestCase(activity: Activity?) :
         }
     }
     
+    private fun expressionTests(vc: BaseController): Collection<ComponentObject> {
+        val coords = arrayOf(
+            Point2d.FromDegrees(-100.0, 60.0),
+            Point2d.FromDegrees(-110.0, 61.0),
+            Point2d.FromDegrees(-120.0, 62.0),
+        )
+    
+        val wideInfo = WideVectorInfo().also {
+            it.setColor(1.0f, 0.0f, 0.0f, 1.0f)
+            it.enable = true
+            it.setFade(0.0)
+            it.drawPriority = VectorInfo.VectorPriorityDefault
+            it.edgeFalloff = 1.0
+            it.offset = 2.0
+            it.lineWidth = 20.0f
+
+            it.zoomSlot = baseTestCase.loader?.zoomSlot ?: -1
+
+            val c1 = Color.argb(1.0f, 0.0f, 1.0f, 0.8f)
+            val c2 = Color.argb(0.0f, 0.0f, 1.0f, 0.8f)
+            it.colorExp = ColorExpressionInfo.createLinear(2.0f, c1, 6.0f, c2)
+            it.opacityExp = FloatExpressionInfo.createLinear(2.0f, 0.2f, 6.0f, 0.9f)
+            it.widthExp = FloatExpressionInfo.createLinear(2.0f, 1.0f, 6.0f, 20.0f)
+            it.offsetExp = FloatExpressionInfo.createLinear(2.0f, -20.0f, 6.0f, 20.0f)
+        }
+        val info = VectorInfo().also {
+            it.setColor(1.0f, 0.0f, 1.0f, 0.8f)
+            it.enable = true
+            it.drawPriority = wideInfo.drawPriority + 10
+        }
+    
+        val vecObj = VectorObject.createLineString(coords, null)?.subdivideToGlobe(0.0001)
+        val clObj = VectorObject.createLineString(coords, null)?.subdivideToGlobe(0.0001)
+    
+        return listOfNotNull(
+            vc.addVector(clObj, info, ThreadMode.ThreadCurrent),
+            vc.addWideVector(vecObj, wideInfo, ThreadMode.ThreadCurrent)
+        )
+    }
+
     override fun setUpWithMap(mapVC: MapController): Boolean {
         baseTestCase.setUpWithMap(mapVC)
-        wideVecTest(mapVC)
-        mapVC.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 1.0)
+        mapVC.addPostSurfaceRunnable {
+            wideVecTest(mapVC)
+            mapVC.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 1.0)
+        }
         return true
     }
     
     override fun setUpWithGlobe(globeVC: GlobeController): Boolean {
         baseTestCase.setUpWithGlobe(globeVC)
-        wideVecTest(globeVC)
-        globeVC.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 1.0)
+        globeVC.addPostSurfaceRunnable {
+            wideVecTest(globeVC)
+            globeVC.animatePositionGeo(Point2d.FromDegrees(-100.0, 40.0), 0.5, 0.0, 1.0)
+        }
         return true
     }
     
@@ -154,6 +207,6 @@ class WideVectorsTestCase(activity: Activity?) :
         super.shutdown()
     }
     
-    private val baseTestCase = CartoLightTestCase(getActivity())
+    private val baseTestCase = GeographyClass(getActivity())
     private val componentObjects: MutableList<ComponentObject> = ArrayList()
 }

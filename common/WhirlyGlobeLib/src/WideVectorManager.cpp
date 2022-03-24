@@ -23,6 +23,7 @@
 #import "StringIndexer.h"
 #import "SharedAttributes.h"
 #import "WideVectorDrawableBuilder.h"
+#import "MapboxVectorStyleSetC.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -58,6 +59,52 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     //_joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
     //const std::string capTypeStr = dict.getString(MaplyWideVecCapType);
     //_capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
+
+    if (const auto entry = dict.getEntry(MaplyVecWidth))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transDouble(entry, MaplyVecWidth, width))
+            {
+                widthExp = expr->expression();
+            }
+        }
+    }
+
+    if (const auto entry = dict.getEntry(MaplyWideVecOffset))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transDouble(entry, MaplyWideVecOffset, offset))
+            {
+                offsetExp = expr->expression();
+            }
+        }
+    }
+
+    if (const auto entry = dict.getEntry(MaplyOpacity))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transDouble(entry, MaplyOpacity, 1.0))
+            {
+                opacityExp = expr->expression();
+            }
+        }
+    }
+
+    if (const auto entry = dict.getEntry(MaplyColor))
+    {
+        if (entry->getType() == DictionaryType::DictTypeDictionary)
+        {
+            if (const auto expr = MapboxVectorStyleSetImpl::transColor(entry, MaplyColor, nullptr))
+            {
+                colorExp = expr->expression();
+            }
+        }
+    }
+
+    hasExp = widthExp || offsetExp || opacityExp || colorExp;
 }
 
 std::string WideVectorInfo::toString() const

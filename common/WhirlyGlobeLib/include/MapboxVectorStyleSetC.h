@@ -102,7 +102,7 @@ public:
 class MaplyVectorFunctionStops
 {
 public:
-    bool parse(const DictionaryRef &entry,MapboxVectorStyleSetImpl *styleSet,bool isText);
+    bool parse(const DictionaryRef &entry,bool isText);
 
     /// @brief Calculate a value given the zoom level
     double valueForZoom(double zoom);
@@ -255,15 +255,17 @@ public:
     static int enumValue(const DictionaryEntryRef &entry, const char * const options[],int defVal);
 
     /// Builds a transitionable double object from a style entry and returns that
-    MapboxTransDoubleRef transDouble(const DictionaryEntryRef &entry,double defVal);
-    
+    static MapboxTransDoubleRef transDouble(const DictionaryEntryRef &entry, double defVal);
+    static MapboxTransDoubleRef transDouble(const DictionaryEntryRef &entry, const char *valName, double defVal);
+
     /// Builds a transitionable double object from a style entry lookup and returns that
-    MapboxTransDoubleRef transDouble(const std::string &valName, const DictionaryRef &entry, double defVal);
+    static MapboxTransDoubleRef transDouble(const std::string &valName, const DictionaryRef &entry, double defVal);
 
     /// Builds a transitionable color object and returns that
-    MapboxTransColorRef transColor(const std::string &valName, const DictionaryRef &entry, const RGBAColor *);
-    MapboxTransColorRef transColor(const std::string &name,const DictionaryRef &entry,const RGBAColor &);
-    
+    static MapboxTransColorRef transColor(const DictionaryEntryRef &entry, const char *valName, const RGBAColorRef &);
+    static MapboxTransColorRef transColor(const std::string &name, const DictionaryRef &entry, const RGBAColorRef &);
+    static MapboxTransColorRef transColor(const std::string &name, const DictionaryRef &entry, const RGBAColor &);
+
     /// Builds a transitional text object
     MapboxTransTextRef transText(const std::string &name,const DictionaryRef &entry,const std::string &str);
 

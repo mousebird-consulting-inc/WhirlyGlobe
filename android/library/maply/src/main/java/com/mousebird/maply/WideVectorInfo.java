@@ -75,10 +75,28 @@ public class WideVectorInfo extends BaseInfo
     public native void setColorInt(int r,int g,int b,int a);
 
     /**
+     * Set the color expression, overriding color
+     */
+    public native void setColorExp(ColorExpressionInfo expr);
+    public native ColorExpressionInfo getColorExp();
+
+    /**
+     * Set the opacity expression, overriding the alpha component of color/colorExpr
+     */
+    public native void setOpacityExp(FloatExpressionInfo expr);
+    public native FloatExpressionInfo getOpacityExp();
+
+    /**
      * This is the line width for vector features.  By default this is 1.0.
      */
     public native void setLineWidth(float lineWidth);
     public native float getLineWidth();
+
+    /**
+     * Set the width expression, overriding width
+     */
+    public native void setWidthExp(FloatExpressionInfo expr);
+    public native FloatExpressionInfo getWidthExp();
 
     /**
      * This is the repeat size for a texture applied along the widened line.
@@ -138,10 +156,42 @@ public class WideVectorInfo extends BaseInfo
     public native double getOffset();
 
     /**
+     * Set the offset expression, overriding offset
+     */
+    public native void setOffsetExp(FloatExpressionInfo expr);
+    public native FloatExpressionInfo getOffsetExp();
+
+    /**
      * Close any un-closed areal features when drawing lines for them
      */
     public native void setCloseAreals(boolean close);
     public native boolean getCloseAreals();
+
+    /**
+     * Set the zoom slot to use for expression-based properties.
+     *
+     * Must be set for expression properties to work correctly
+     */
+    public native void setZoomSlot(int slot);
+    public native int getZoomSlot();
+
+    /**
+     * Set the shader program to use
+     */
+    public void setShader(@Nullable Shader shader) {
+        if (shader != null) {
+            setShaderProgramId(shader.getID());
+        } else {
+            setShaderProgramId(0);
+
+        }
+    }
+
+    /**
+     * Set the shader program to use
+     */
+    public native void setShaderProgramId(long id);
+    public native long getShaderProgramId();
 
     static {
         nativeInit();

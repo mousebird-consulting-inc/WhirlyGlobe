@@ -54,6 +54,9 @@
 // We delay setup by a tick so the user can mess with settings
 - (bool)delayedInit;
 
+// Call after subclass is successfully delayed-initialized
+- (bool)postDelayedInit;
+
 // Change the tile source to a new one (if they match)
 - (void)changeTileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> * __nullable)tileInfos;
 

@@ -891,63 +891,66 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
           constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
-    ProjVertexTriWideVecPerf outVert;
+    ProjVertexTriWideVecPerf outVert = { .position = float4(0.0,0.0,-1000.0,1.0) };
 
-    int whichVert = (vert.index >> 16) & 0xffff;
-    int whichPoly = vert.index & 0xffff;
+    const int whichVert = (vert.index >> 16) & 0xffff;
+    const int whichPoly = vert.index & 0xffff;
 
     // Find the various instances representing center points
     // We need one behind and two ahead of us
-    bool instValid[4];
-    VertexTriWideVecInstance inst[4];
-    inst[1] = wideVecInsts[instanceID];
-    instValid[1] = true;
+    bool instValid[4] = { false, true, false, false };
+    VertexTriWideVecInstance inst[4] = { {}, wideVecInsts[instanceID], {}, {} };
     outVert.maskIDs[0] = inst[1].mask0;
     outVert.maskIDs[1] = inst[1].mask1;
     if (inst[1].prev != -1) {
         inst[0] = wideVecInsts[inst[1].prev];
         instValid[0] = true;
-    } else
-        instValid[0] = false;
+    }
     if (inst[1].next != -1) {
         inst[2] = wideVecInsts[inst[1].next];
         instValid[2] = true;
-    } else
-        instValid[2] = false;
+    }
     if (instValid[2] && inst[2].next != -1) {
         inst[3] = wideVecInsts[inst[2].next];
         instValid[3] = true;
-    } else
-        instValid[3] = false;
+    }
 
-    float dotProd = 1.0;
-    
+    // Direction and normal info for three segments we may look at
+    bool isValid = instValid[2];
+
     // Figure out position on the screen for every center point
     CenterInfo centers[4];
-    for (unsigned int ii=0;ii<4;ii++)
+    for (unsigned int ii=0;ii<4;ii++) {
         if (instValid[ii]) {
-            float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst[ii].center,1.0)).xyz;
-            float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
-            screenPt /= screenPt.w;
-            centers[ii].screenPos = screenPt.xy;
+            const float3 centerPos = (vertArgs.uniDrawState.singleMat * float4(inst[ii].center,1.0)).xyz;
+            const float4 screenPt = uniforms.pMatrix * (uniforms.mvMatrix * float4(centerPos,1.0) + uniforms.mvMatrixDiff * float4(centerPos,1.0));
+            centers[ii].screenPos = screenPt.xy / screenPt.w;
             
             // Make sure the object is facing the user (only for the globe)
             if (uniforms.globeMode && ii == 1) {
                 float4 pt = uniforms.mvMatrix * float4(centerPos,1.0);
                 pt /= pt.w;
 
-                float4 testNorm = uniforms.mvNormalMatrix * float4(centerPos,0.0);
-                dotProd = dot(-pt.xyz,testNorm.xyz);
-                if (pt.z > 0.0)
-                    dotProd = -1.0;
+                if (pt.z > 0.0) {
+                    isValid = false;
+                } else {
+                    const float4 testNorm = uniforms.mvNormalMatrix * float4(centerPos,0.0);
+                    if (dot(-pt.xyz, testNorm.xyz) <= 0.0) {
+                        isValid = false;
+                    }
+                }
             }
         }
-    
-    // Size of pixels
-    float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    }
 
-    // Direction and normal info for three segments we may look at
-    bool isValid = instValid[2];
+    if (!isValid) {
+        return outVert;
+    }
+
+    // Size of pixels
+    const float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    const float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+
     for (unsigned int ii=1;ii<4;ii++) {
         if (instValid[ii-1]) {
             centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
@@ -955,8 +958,6 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             centers[ii].norm = normalize(float2(-centers[ii].dir.y,centers[ii].dir.x) * screenScale);
         }
     }
-    
-    float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
 
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
@@ -973,19 +974,13 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 //        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
     
     // Intersect on the left or right depending
-    float interDir = whichVert & 0x1 ? 1.0 : -1.0;
+    const float interDir = (whichVert & 0x1) ? 1.0 : -1.0;
 
     // Turn off the end caps for the moment
     switch (whichPoly) {
         case 0:
-            isValid &= false;
-            break;
-        case 1:
-            isValid &= true;
-            break;
         case 2:
-            isValid &= false;
-            break;
+            isValid = false;
     }
 
     // Do the offset intersection
@@ -994,12 +989,12 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     float2 iPts;
     if (isValid) {
         // We'll reject
-        float nearDist = 1.42 * w2 * max(screenScale.x,screenScale.y);
+        const float nearDist = 1.42 * w2 * max(screenScale.x,screenScale.y);
         
         // We only need one intersection depending
-        int interPt = (whichVert == 6 || whichVert == 7) ? 1 : 0;
+        const int interPt = (whichVert == 6 || whichVert == 7) ? 1 : 0;
         if (instValid[interPt] && instValid[interPt+1] && instValid[interPt+2]) {
-            float dotProd = dot(centers[interPt+1].nDir, centers[interPt+2].nDir);
+            const float dotProd = dot(centers[interPt+1].nDir, centers[interPt+2].nDir);
             if (dotProd > -0.99999998476 && dotProd < 0.99999998476) {
                 // Acute angles tend to break things
 //                angleBetween = acos(dotProd);
@@ -1007,14 +1002,15 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 ////                    iPtsValid = false;
 //                }
 
-                float2 nudge = w2 * interDir * screenScale;
-                IntersectInfo interInfo = intersectWideLines(centers[interPt].screenPos,centers[interPt+1].screenPos,centers[interPt+2].screenPos,
-                                                             nudge * centers[interPt+1].norm, nudge * centers[interPt+2].norm);
+                const float2 nudge = w2 * interDir * screenScale;
+                const IntersectInfo interInfo = intersectWideLines(centers[interPt].screenPos,
+                                                                   centers[interPt+1].screenPos,
+                                                                   centers[interPt+2].screenPos,
+                                                                   nudge * centers[interPt+1].norm,
+                                                                   nudge * centers[interPt+2].norm);
                 if (interInfo.valid) {
                     // If the intersection is too far away, we'll drop it
-                    if (distance_squared(centers[interPt+1].screenPos,interInfo.interPt) > nearDist*nearDist) {
-                        iPtsValid = false;
-                    } else {
+                    if (distance_squared(centers[interPt+1].screenPos,interInfo.interPt) <= nearDist*nearDist) {
                         iPtsValid = true;
                         iPts = interInfo.interPt;
                     }
@@ -1025,33 +1021,28 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 
     // Note: We're putting a color in the instance, but then it's hard to change
     //  So we'll pull the color out of the basic drawable
-//    float4 color = inst[1].color;
     float4 color = vert.color;
     if (vertArgs.wideVec.hasExp) {
         color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
-        color.a = /*color.a * */opacity;
+        color.a = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
     }
+
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
-
-    outVert.w2 = vertArgs.wideVec.w2;
+    outVert.w2 = w2;
     outVert.edge = vertArgs.wideVec.edge;
-    outVert.texCoord = float2(interDir,0);
+    outVert.texCoord = float2(interDir,0);  // todo: this is incomplete
 
-    if (isValid && dotProd > 0.0) {
+    if (isValid) {
         if (iPtsValid) {
             outVert.position = float4(iPts, 0.0, 1.0);
         } else {
             // Return a vertex offset from the base
-            int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
-            float2 offset = (centers[2].norm * interDir) * screenScale * (vertArgs.wideVec.w2 + centerLine + vertArgs.wideVec.edge);
-
+            const int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
+            const float2 offset = (centers[2].norm * interDir) * screenScale * (w2 + centerLine + vertArgs.wideVec.edge);
             outVert.position = float4(centers[basePt].screenPos + offset, 0.0, 1.0);
         }
-    } else {
-        outVert.position = float4(0.0,0.0,-1000.0,1.0);
     }
-    
+
     return outVert;
 }
 
@@ -1073,9 +1064,18 @@ fragment float4 fragmentTri_wideVecPerf(
         }
     }
     
-    float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
+    const int numTextures = TexturesBase(texArgs.texPresent);
+    float patternAlpha = 1.0;
+    if (numTextures > 0) {
+        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
+        // Just pulling the alpha at the moment
+        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+        patternAlpha = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
+    }
 
-    return vert.color * float4(1,1,1,edgeAlpha);
+    const float edgeAlpha = (vert.edge > 0) ? clamp((1 - abs(vert.texCoord.x)) * vert.w2 / vert.edge, 0.0, 1.0) : 1.0;
+
+    return vert.color * float4(1,1,1,edgeAlpha * patternAlpha);
 }
 
 

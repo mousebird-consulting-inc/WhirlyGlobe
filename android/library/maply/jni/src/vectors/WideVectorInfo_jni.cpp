@@ -17,6 +17,7 @@
  */
 
 #include <classInfo/Maply_jni.h>
+#import "Expressions_jni.h"
 #import "Vectors_jni.h"
 #import "com_mousebird_maply_WideVectorInfo.h"
 
@@ -97,6 +98,88 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColor
 }
 
 extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setColorExp
+        (JNIEnv *env, jobject obj, jobject exprObj)
+{
+    try
+    {
+        if (const auto &vecInfo = *WideVectorInfoClassInfo::get(env,obj))
+        {
+            vecInfo->colorExp.reset();
+            if (exprObj)
+            {
+                if (const auto wrap = ColorExpressionClassInfo::get(env, exprObj))
+                {
+                    vecInfo->colorExp = *wrap;
+                }
+            }
+            vecInfo->hasExp = vecInfo->colorExp || vecInfo->opacityExp ||
+                              vecInfo->widthExp || vecInfo->offsetExp;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_WideVectorInfo_getColorExp
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            if (const auto exp = (*vecInfo)->colorExp)
+            {
+                return MakeWrapper(env, std::move(exp));
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return 0;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setOpacityExp
+        (JNIEnv *env, jobject obj, jobject exprObj)
+{
+    try
+    {
+        if (const auto &vecInfo = *WideVectorInfoClassInfo::get(env,obj))
+        {
+            vecInfo->opacityExp.reset();
+            if (exprObj)
+            {
+                if (const auto wrap = FloatExpressionClassInfo::get(env, exprObj))
+                {
+                    vecInfo->opacityExp = *wrap;
+                }
+            }
+            vecInfo->hasExp = vecInfo->colorExp || vecInfo->opacityExp ||
+                              vecInfo->widthExp || vecInfo->offsetExp;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_WideVectorInfo_geOpacityExp
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            if (const auto exp = (*vecInfo)->opacityExp)
+            {
+                return MakeWrapper(env, std::move(exp));
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return 0;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setLineWidth
   (JNIEnv *env, jobject obj, jfloat val)
 {
@@ -123,6 +206,47 @@ JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_WideVectorInfo_getLineWidth
     }
     MAPLY_STD_JNI_CATCH()
     return 0.0f;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setWidthExp
+        (JNIEnv *env, jobject obj, jobject exprObj)
+{
+    try
+    {
+        if (const auto &vecInfo = *WideVectorInfoClassInfo::get(env,obj))
+        {
+            vecInfo->widthExp.reset();
+            if (exprObj)
+            {
+                if (const auto wrap = FloatExpressionClassInfo::get(env, exprObj))
+                {
+                    vecInfo->widthExp = *wrap;
+                }
+            }
+            vecInfo->hasExp = vecInfo->colorExp || vecInfo->opacityExp ||
+                              vecInfo->widthExp || vecInfo->offsetExp;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_WideVectorInfo_geWidthExp
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            if (const auto exp = (*vecInfo)->widthExp)
+            {
+                return MakeWrapper(env, std::move(exp));
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return 0;
 }
 
 extern "C"
@@ -314,6 +438,47 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setOffset
 }
 
 extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setOffsetExp
+        (JNIEnv *env, jobject obj, jobject exprObj)
+{
+    try
+    {
+        if (const auto &vecInfo = *WideVectorInfoClassInfo::get(env,obj))
+        {
+            vecInfo->offsetExp.reset();
+            if (exprObj)
+            {
+                if (const auto wrap = FloatExpressionClassInfo::get(env, exprObj))
+                {
+                    vecInfo->offsetExp = *wrap;
+                }
+            }
+            vecInfo->hasExp = vecInfo->colorExp || vecInfo->opacityExp ||
+                              vecInfo->widthExp || vecInfo->offsetExp;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_WideVectorInfo_geOffsetExp
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            if (const auto exp = (*vecInfo)->offsetExp)
+            {
+                return MakeWrapper(env, std::move(exp));
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return 0;
+}
+
+extern "C"
 JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_WideVectorInfo_getOffset
         (JNIEnv *env, jobject obj)
 {
@@ -351,6 +516,64 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_WideVectorInfo_getCloseAreal
         if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
         {
             return (*vecInfo)->closeAreals;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setZoomSlot
+        (JNIEnv *env, jobject obj, jint slot)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->zoomSlot = slot;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_WideVectorInfo_getZoomSlot
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->zoomSlot;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_WideVectorInfo_setShaderProgramId
+        (JNIEnv *env, jobject obj, jlong id)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            (*vecInfo)->programID = id;
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_WideVectorInfo_getShaderProgramId
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto vecInfo = WideVectorInfoClassInfo::get(env,obj))
+        {
+            return (*vecInfo)->programID;
         }
     }
     MAPLY_STD_JNI_CATCH()
