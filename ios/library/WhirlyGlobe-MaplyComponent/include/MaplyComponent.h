@@ -20,7 +20,7 @@
 
 #import <WhirlyGlobe/NSData+Zlib.h>
 #import <WhirlyGlobe/NSDictionary+StyleRules.h>
-
+#import <WhirlyGlobe/MaplyURLSessionManager.h>
 #import <WhirlyGlobe/MaplyGeomBuilder.h>
 #import <WhirlyGlobe/MaplyIconManager.h>
 #import <WhirlyGlobe/MaplyLocationTracker.h>

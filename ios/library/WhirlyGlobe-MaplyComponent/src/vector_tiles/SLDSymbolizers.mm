@@ -11,7 +11,7 @@
 #import "vector_styles/MaplyVectorTileStyle.h"
 #import "visual_objects/MaplyScreenLabel.h"
 #import "DDXML.h"
-
+#import "MaplyURLSessionManager+Private.h"
 @implementation SLDSymbolizer
 
 /** 
@@ -213,9 +213,8 @@
     
     dispatch_group_t group = dispatch_group_create();
     dispatch_group_enter(group);
-    
-    NSURLSessionConfiguration *defaultConfigObject = [NSURLSessionConfiguration defaultSessionConfiguration];
-    NSURLSession *defaultSession = [NSURLSession sessionWithConfiguration: defaultConfigObject];
+
+    NSURLSession *defaultSession = [[MaplyURLSessionManager sharedManager] createURLSession];
     NSURL * url = [NSURL URLWithString:href relativeToURL:baseURL];
     
     __block NSData *imageData;
