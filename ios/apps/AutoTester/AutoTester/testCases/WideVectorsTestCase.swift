@@ -67,6 +67,51 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         }
     }
 
+    private func texs(_ vc: MaplyBaseViewController, perf: Bool) -> [MaplyComponentObject] {
+        if dashTex == nil {
+            let b = MaplyLinearTextureBuilder()
+            b.setPattern([1, 1])
+            if let img = b.makeImage() {
+                let desc = [
+                    kMaplyTexWrapY: true,
+                    kMaplyTexFormat: MaplyQuadImageFormat.imageIntRGBA,
+                ] as [AnyHashable: Any]
+                dashTex = vc.addTexture(img, desc: desc, mode: .current)
+            }
+        }
+
+        let lat = Float(30.0) + (perf ? 2.0 : 0.0)
+        let lon = Float(-150.0)
+        var coords = [
+            MaplyCoordinateMakeWithDegrees(lon + 0.0, lat),
+            MaplyCoordinateMakeWithDegrees(lon + 1.0, lat + 1.0),
+            MaplyCoordinateMakeWithDegrees(lon + 2.0, lat),
+            MaplyCoordinateMakeWithDegrees(lon + 0.0, lat),
+        ]
+
+        let vecObj = MaplyVectorObject(lineString: &coords, numCoords: Int32(coords.count))
+
+        if vc is WhirlyGlobeViewController {
+            vecObj.subdivide(toGlobeGreatCircle: 0.0001)
+        } else {
+            vecObj.subdivide(toFlatGreatCircle: 0.0001)
+        }
+
+        let desc = [
+            kMaplyVecWidth: 20.0,
+            kMaplyColor: UIColor.red.withAlphaComponent(0.5),
+            kMaplyEnable: true,
+            kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 1,
+            kMaplyWideVecImpl: perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
+            kMaplyWideVecJoinType: kMaplyWideVecBevelJoin,
+            kMaplyVecTexture: dashTex ?? NSNull()
+        ] as [AnyHashable: Any]
+
+        let co = vc.addWideVectors([vecObj], desc: desc, mode: .current)
+
+        return [co].compactMap { $0 }
+    }
+
     private func joins(_ vc: MaplyBaseViewController, add: Bool = true) {
         let oldObjs = joinObjs
         joinObjs.removeAll()
@@ -109,6 +154,8 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
 
         overlap(vc);
         vecColors(vc);
+        objs.append(contentsOf: texs(vc, perf: false))
+        objs.append(contentsOf: texs(vc, perf: true))
 
         // Dynamic properties require a zoom slot, which may not be set up yet
         baseCase.getLoader()?.addPostInitBlock { [weak self] in
@@ -144,10 +191,13 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         joinTimer?.invalidate()
         if let vc = baseViewController {
             joins(vc, add: false);
+            vc.remove(objs, mode: .current)
+            objs.removeAll()
         }
         baseCase.stop()
     }
 
+    private var dashTex: MaplyTexture?
     private var objs = [MaplyComponentObject]()
     private var joinTimer: Timer?
     private var joinObjs = [MaplyComponentObject]()

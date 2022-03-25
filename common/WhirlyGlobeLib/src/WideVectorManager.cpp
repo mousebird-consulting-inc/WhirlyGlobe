@@ -842,38 +842,38 @@ struct WideVectorDrawableConstructor
                 //  will be handled differently by the fragment shader
                 
                 // End cap: vertices [0,3], polygon 0
-                drawable->addInstancePoint(Point3f(-1.0,-2.0,0.0),0,0);
-                drawable->addInstancePoint(Point3f(1.0,-2.0,0.0),1,0);
-                drawable->addInstancePoint(Point3f(-1.0,-1.0,0.0),2,0);
-                drawable->addInstancePoint(Point3f(1.0,-1.0,0.0),3,0);
+                drawable->addInstancePoint(Point3f(0,0,0),0,0);
+                drawable->addInstancePoint(Point3f(0,0,0),1,0);
+                drawable->addInstancePoint(Point3f(0,0,0),2,0);
+                drawable->addInstancePoint(Point3f(0,0,0),3,0);
                 drawable->addTriangle(BasicDrawable::Triangle(0,3,1));
                 drawable->addTriangle(BasicDrawable::Triangle(0,2,3));
 
                 // Middle segment: vertices [4,7], polygon 1
-                drawable->addInstancePoint(Point3f(-1.0,-1.0,0.0),4,1);
-                drawable->addInstancePoint(Point3f(1.0,-1.0,0.0),5,1);
-                drawable->addInstancePoint(Point3f(-1.0,1.0,0.0),6,1);
-                drawable->addInstancePoint(Point3f(1.0,1.0,0.0),7,1);
+                drawable->addInstancePoint(Point3f(0,0,0),4,1);
+                drawable->addInstancePoint(Point3f(0,0,0),5,1);
+                drawable->addInstancePoint(Point3f(0,0,0),6,1);
+                drawable->addInstancePoint(Point3f(0,0,0),7,1);
                 drawable->addTriangle(BasicDrawable::Triangle(4,7,5));
                 drawable->addTriangle(BasicDrawable::Triangle(4,6,7));
 
                 // End cap: vertices [8,11], polygon 2
-                drawable->addInstancePoint(Point3f(-1.0,1.0,0.0),8,2);
-                drawable->addInstancePoint(Point3f(1.0,1.0,0.0),9,2);
-                drawable->addInstancePoint(Point3f(-1.0,2.0,0.0),10,2);
-                drawable->addInstancePoint(Point3f(1.0,2.0,0.0),11,2);
+                drawable->addInstancePoint(Point3f(0,0,0),8,2);
+                drawable->addInstancePoint(Point3f(0,0,0),9,2);
+                drawable->addInstancePoint(Point3f(0,0,0),10,2);
+                drawable->addInstancePoint(Point3f(0,0,0),11,2);
                 drawable->addTriangle(BasicDrawable::Triangle(8,11,9));
                 drawable->addTriangle(BasicDrawable::Triangle(8,10,11));
             }
             
             // Run through the points, adding centerline instances
             double len = 0.0;
-            int startPt = drawable->getCenterLineCount();
+            const int startPt = drawable->getCenterLineCount();
             for (unsigned int ii=0;ii<newPts.size();ii++) {
                 const auto &pt = newPts[ii];
 
-                Point3d localPa = coordSys->geographicToLocal3d(GeoCoord(pt.x(),pt.y()));
-                Point3d dispPa = coordAdapter->localToDisplay(localPa);
+                const Point3d localPa = coordSys->geographicToLocal3d(pt);
+                const Point3d dispPa = coordAdapter->localToDisplay(localPa);
 
                 unsigned int prev = startPt + ii - 1;
                 if (ii == 0) {
