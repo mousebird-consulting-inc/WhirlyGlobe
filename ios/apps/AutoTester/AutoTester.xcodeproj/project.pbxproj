@@ -135,6 +135,7 @@
 		3183380F25A67CD8005FEF70 /* RepresentationsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */; };
 		31D3287C262FADF100456B93 /* TestTileImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */; };
 		31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */; };
+		31EFBCDC27EE036D007143F4 /* WideVectorsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31EFBCDB27EE036D007143F4 /* WideVectorsTestCase.swift */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
 		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
@@ -747,6 +748,7 @@
 		3183380E25A67CD8005FEF70 /* RepresentationsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepresentationsTestCase.h; sourceTree = "<group>"; };
 		31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTileImageFetcher.swift; sourceTree = "<group>"; };
 		31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatCircleTestCase.swift; sourceTree = "<group>"; };
+		31EFBCDB27EE036D007143F4 /* WideVectorsTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideVectorsTestCase.swift; sourceTree = "<group>"; };
 		8810B2D11BA9D45F00446CE3 /* MaplyTesterBridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaplyTesterBridge.h; sourceTree = "<group>"; };
 		8820852A1DC81051008F8E76 /* Issue721TestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Issue721TestCase.swift; sourceTree = "<group>"; };
 		886FCCC21BA73C1D00494BB0 /* StartupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StartupViewController.swift; sourceTree = "<group>"; };
@@ -1435,6 +1437,7 @@
 				D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */,
 				E5679F441CB72DE800369A15 /* WMSTestCase.h */,
 				E5679F451CB72DE800369A15 /* WMSTestCase.m */,
+				31EFBCDB27EE036D007143F4 /* WideVectorsTestCase.swift */,
 			);
 			path = testCases;
 			sourceTree = "<group>";
@@ -2647,6 +2650,7 @@
 				311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
+				31EFBCDC27EE036D007143F4 /* WideVectorsTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */,
 				2B29944B243BA08D00677DE4 /* MapboxKindaMap.swift in Sources */,
