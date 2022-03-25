@@ -1162,7 +1162,8 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
         
         if (const auto lin = dynamic_cast<const VectorLinear*>(shape.get()))
         {
-            builder.addLinear(lin->pts, centerUp, maskIDs, false);
+            const bool closed = lin->pts.size() > 2 && (lin->pts.front() == lin->pts.back());
+            builder.addLinear(lin->pts, centerUp, maskIDs, closed);
         }
         else if (const auto ar = dynamic_cast<VectorAreal*>(shape.get()))
         {
