@@ -130,6 +130,7 @@ struct BaseInfo
     bool zBufferWrite = false;
     bool hasExp = false;   // Set if we're requiring the expressions to be passed through (problem on Metal)
     SimpleIdentity renderTargetID = EmptyIdentity;
+    std::string drawableName;
 
     SingleVertexAttributeSet uniforms;
 

@@ -93,6 +93,24 @@ typedef enum {
     WKSVertexBillboardOffsetAttribute = 8
 } WKSVertexBillboardAttributes;
 
+// Line Joins
+// These are assumed to match WideVectorLineJoinType
+typedef enum {
+    WKSVertexLineJoinMiter     = 0,
+    WKSVertexLineJoinMiterClip = 1,
+    WKSVertexLineJoinRound     = 2,
+    WKSVertexLineJoinBevel     = 3,
+    WKSVertexLineJoinNone      = 4,
+} WKSVertexLineJoinType;
+
+// Line Caps
+// These are assumed to match WideVectorLineCapType
+typedef enum {
+    WKSVertexLineCapButt = 0,
+    WKSVertexLineCapRound = 1,
+    WKSVertexLineCapSquare = 2,
+} WKSVertexLineCapType;
+
 // Maximum number of textures we currently support
 #define WKSTextureMax 8
 // Textures passed into the shader start here
@@ -228,11 +246,15 @@ struct Lighting {
 
 // Instructions to the wide vector shaders, usually per-drawable
 struct UniformWideVec {
-    float w2;       // Width / 2.0 in screen space
-    float offset;   // Offset from center in screen space
-    float edge;     // Edge falloff control
-    float texRepeat;  // Texture scaling specific to wide vectors
-    bool hasExp;      // Look for a UniformWideVecExp structure for color, opacity, and width
+    float w2;                    // Width / 2.0 in screen space
+    float offset;                // Offset from center in screen space
+    float edge;                  // Edge falloff control
+    float texRepeat;             // Texture scaling specific to wide vectors
+    simd::float2 texOffset;      // Texture offset.
+    float miterLimit;            // Miter join limit, multiples of width
+    WKSVertexLineJoinType join;  // Line joins
+    WKSVertexLineCapType cap;    // Line endcaps
+    bool hasExp;                 // Look for a UniformWideVecExp structure for color, opacity, and width
 };
 
 // For variable width (and color, etc) lines we'll
@@ -412,14 +434,20 @@ struct VertexTriWideVecB
 
 // Wide vector vertex passed to fragment shader (new version)
 struct ProjVertexTriWideVecPerf {
-    float4 position [[invariant]] [[position]];
+    float4 position [[invariant]] [[position]];     // transformed to NDC
+    float2 screenPos;                               // un-transformed vertex position
+    float2 centerPos;                               // un-transformed circle center
+    float2 midDir;                                  // Turn direction
     float4 color;
     float2 texCoord;
     float w2;
     float edge;
     uint2 maskIDs;
-    float a, b, c, d;
-    float2 offset;
+    uint whichVert, whichPoly;
+    bool roundJoin;
+    
+    float dp;
+    float a,b,c,d;
 };
 
 // Input vertex data for Screen Space shaders

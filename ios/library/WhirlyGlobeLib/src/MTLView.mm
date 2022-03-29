@@ -115,6 +115,8 @@ using namespace WhirlyKit;
         renderMTL->getView()->animate();
 
         if (renderMTL->hasChanges()) {
+            renderMTL->updateZoomSlots();
+
             MTLRenderPassDescriptor *renderPassDesc = self.currentRenderPassDescriptor;
             if (!renderPassDesc)
                 return;

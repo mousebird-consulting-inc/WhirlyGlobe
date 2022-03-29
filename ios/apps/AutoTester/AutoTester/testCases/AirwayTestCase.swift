@@ -48,7 +48,7 @@ class AirwayTestCase: MaplyTestCase {
     
     let buildPointMarkers = true
     let buildPointLabels = false
-    let buildAirways = false
+    let buildAirways = true
     let buildAirspaces = true
     let buildLineLabels = false
     let buildCenterLabels = false

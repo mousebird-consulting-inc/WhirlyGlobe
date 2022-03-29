@@ -392,7 +392,7 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  |:--|:---|:----------|
  |kMaplyColor|UIColor|Color we'll use for the features.|
  |kMaplyVecWidth|NSNumber|If the geometry is not filled, this is the width of the lines.|
- |kMaplyWideVecCoordType|NSNumber|Vectors can be widened in real coordinates (kMaplyWideVecCoordTypeReal) or screen coordinates (kMaplyWideVecCoordTypeScreen).  In the latter case they stay the same size now matter how you zoom.|
+ |kMaplyWideVecCoordType|NSNumber|Vectors can be widened in real coordinates (kMaplyWideVecCoordTypeReal) or screen coordinates (kMaplyWideVecCoordTypeScreen).  In the latter case they stay the same size now matter how you zoom.
  |kMaplyWideVecJoinType|NSNumber|When lines meet in a join there are several options for representing them.  These include kMaplyWideVecMiterJoin, which is a simple miter join and kMaplyWideVecBevelJoin which is a more complicated bevel.  See http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty for how these look.|
  |kMaplyWideVecMiterLimit|NSNumber|When using miter joins you can trigger them at a certain threshold.|
  |kMaplyWideVecTexRepeatLen|NSNumber|This is the repeat size for a texture applied along the widened line.  For kMaplyWideVecCoordTypeScreen this is pixels.|
@@ -869,6 +869,15 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
           fallbackRepName:(NSString *__nullable)fallbackRepName
                   ofUUIDs:(NSArray<NSString *> *__nonnull)uuids
                      mode:(MaplyThreadMode)threadMode;
+
+/// Set up a zoom slot that doesn't depend on a loader
+- (int)retainZoomSlotMinZoom:(double)minZoom
+                   maxHeight:(double)maxHeight
+                     maxZoom:(double)maxZoom
+                   minHeight:(double)minHeight;
+
+/// Release a zoom slot previously retained
+- (void)releaseZoomSlotIndex:(int)index;
 
 /**
  Pass a uniform block through to a shader.  Only for Metal.

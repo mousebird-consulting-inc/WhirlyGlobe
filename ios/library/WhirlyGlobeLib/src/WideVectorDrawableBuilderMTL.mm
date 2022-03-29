@@ -77,17 +77,20 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecUniBlock()
     // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
-    uniWV.w2 = lineWidth/2.0f;
-    uniWV.offset = lineOffset;
-    uniWV.edge = edgeSize;
-    uniWV.texRepeat = texRepeat;
-    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp;
-    
-    BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]);
-    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
+    CopyIntoMtlFloat2(uniWV.texOffset, texOffset);
+    uniWV.w2         = lineWidth/2.0f;
+    uniWV.offset     = lineOffset;
+    uniWV.edge       = edgeSize;
+    uniWV.texRepeat  = texRepeat;
+    uniWV.hasExp     = widthExp || offsetExp || colorExp || opacityExp;
+    uniWV.join       = (WhirlyKitShader::WKSVertexLineJoinType)joinType;   // assume enums are numerically equivalent
+    uniWV.cap        = (WhirlyKitShader::WKSVertexLineCapType)capType;
+    uniWV.miterLimit = miterLimit;
 
-    return uniBlock;
+    return {
+        WhirlyKitShader::WKSUniformWideVecEntry,
+        std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]),
+    };
 }
 
 BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecExpUniBlock()
@@ -105,11 +108,10 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecExpUniBlock()
     if (colorExp)
         ColorExpressionToMtl(colorExp,wideVecExp.colorExp);
 
-    BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]);
-    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
-    
-    return uniBlock;
+    return {
+        WhirlyKitShader::WKSUniformWideVecEntryExp,
+        std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]),
+    };
 }
 
 BasicDrawableRef WideVectorDrawableBuilderMTL::getBasicDrawable()

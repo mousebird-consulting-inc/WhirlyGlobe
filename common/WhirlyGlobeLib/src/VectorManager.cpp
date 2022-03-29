@@ -156,8 +156,9 @@ public:
             // We're done with it, toss it to the scene
             if (drawable)
                 flush();
-            
-            drawable = sceneRender->makeBasicDrawableBuilder(vecBuilderName);
+
+            const auto &name = vecInfo->drawableName.empty() ? vecBuilderName : vecInfo->drawableName;
+            drawable = sceneRender->makeBasicDrawableBuilder(name);
             drawMbr.reset();
             drawable->setType(primType);
             vecInfo->setupBasicDrawable(drawable);

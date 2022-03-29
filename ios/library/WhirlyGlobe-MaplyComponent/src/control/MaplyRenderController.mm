@@ -828,6 +828,22 @@ using namespace Eigen;
     }
 }
 
+- (int)retainZoomSlotMinZoom:(double)minZoom
+                   maxHeight:(double)maxHeight
+                     maxZoom:(double)maxZoom
+                   minHeight:(double)minHeight
+{
+    return sceneRenderer ? sceneRenderer->retainZoomSlot(minZoom, maxHeight, maxZoom, minHeight) : -1;
+}
+
+- (void)releaseZoomSlotIndex:(int)index
+{
+    if (sceneRenderer)
+    {
+        sceneRenderer->releaseZoomSlot(index);
+    }
+}
+
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
 {
     if (auto wr = WorkRegion(interactLayer)) {

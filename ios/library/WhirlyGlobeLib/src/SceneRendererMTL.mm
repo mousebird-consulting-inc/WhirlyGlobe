@@ -201,7 +201,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     
     return true;
 }
-        
+
 void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;

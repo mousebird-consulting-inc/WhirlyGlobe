@@ -41,6 +41,10 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     subdivEps = (float)dict.getDouble(MaplySubdivEpsilon,subdivEps);
     texID = dict.getInt(MaplyVecTexture,EmptyIdentity);
     repeatSize = (float)dict.getDouble(MaplyWideVecTexRepeatLen,repeatSize);
+    texOffset = {
+        (float)dict.getDouble(MaplyWideVecTexOffsetX,0.0),
+        (float)dict.getDouble(MaplyWideVecTexOffsetY,0.0),
+    };
     edgeSize = (float)dict.getDouble(MaplyWideVecEdgeFalloff,edgeSize);
     miterLimit = (float)dict.getDouble(MaplyWideVecMiterLimit,miterLimit);
 
@@ -55,11 +59,23 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     else if (!coordTypeStr.compare(MaplyWideVecCoordTypeScreen))
         coordType = WideVecCoordScreen;
 
-    // Note: Not supporting this right now
-    //const std::string jointTypeStr = dict.getString(MaplyWideVecJoinType);
-    //_joinType = (WhirlyKit::WideVectorLineJoinType)[desc enumForKey:@"wideveclinejointype" values:@[@"miter",@"round",@"bevel"] default:WideVecMiterJoin];
-    //const std::string capTypeStr = dict.getString(MaplyWideVecCapType);
-    //_capType = (WhirlyKit::WideVectorLineCapType)[desc enumForKey:@"wideveclinecaptype" values:@[@"butt",@"round",@"square"] default:WideVecButtCap];
+    if (const auto entry = dict.getEntry(MaplyWideVecJoinType))
+    {
+        const auto s = entry->getString();
+        if      (s == MaplyWideVecMiterJoin)     joinType = WideVecMiterJoin;
+        else if (s == MaplyWideVecMiterClipJoin) joinType = WideVecMiterClipJoin;
+        else if (s == MaplyWideVecBevelJoin)     joinType = WideVecBevelJoin;
+        else if (s == MaplyWideVecRoundJoin)     joinType = WideVecRoundJoin;
+        else                                     joinType = WideVecNoneJoin;
+    }
+
+    if (const auto entry = dict.getEntry(MaplyWideVecLineCapType))
+    {
+        const auto s = entry->getString();
+        if      (s == MaplyWideVecButtCap)   capType = WideVecButtCap;
+        else if (s == MaplyWideVecSquareCap) capType = WideVecSquareCap;
+        else if (s == MaplyWideVecRoundCap)  capType = WideVecRoundCap;
+    }
 
     if (const auto entry = dict.getEntry(MaplyVecWidth))
     {
@@ -593,7 +609,7 @@ public:
                     }
                 }
                     break;
-                case WideVecRoundJoin:
+                default:
                     break;
             }
         }
@@ -664,6 +680,9 @@ public:
     //,centerAdj;
 };
 
+static const std::string defDrawableName = "Wide Vector";
+static const std::string defDrawableNamePerf = "Performance Wide Vector";
+
 // Used to build up drawables
 struct WideVectorDrawableConstructor
 {
@@ -699,6 +718,13 @@ struct WideVectorDrawableConstructor
         }
     }
 
+    void setDrawableName(const char *name) {
+        setDrawableName(name ? std::string(name) : std::string());
+    }
+    void setDrawableName(std::string n) {
+        drawableName = std::move(n);
+    }
+
     // Build or return a suitable drawable (depending on the mode)
     WideVectorDrawableBuilderRef getDrawable(int ptCount,int triCount,
                                              int ptCountAllocate,int triCountAllocate,
@@ -711,27 +737,31 @@ struct WideVectorDrawableConstructor
             {
                 flush();
 
-                auto wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
+                const auto &name = drawableName.empty() ? defDrawableNamePerf : drawableName;
+                auto wideDrawable = sceneRender->makeWideVectorDrawableBuilder(name);
                 wideDrawable->Init(ptCountAllocate,triCountAllocate,clineCount,
                                    vecInfo->implType,
                                    !scene->getCoordAdapter()->isFlat(),
                                    vecInfo);
                 drawable = wideDrawable;
                 wideDrawable->setTexRepeat(vecInfo->repeatSize);
+                wideDrawable->setTexOffset(vecInfo->texOffset);
                 wideDrawable->setEdgeSize(vecInfo->edgeSize);
                 wideDrawable->setLineWidth(vecInfo->width);
                 wideDrawable->setLineOffset(vecInfo->offset);
-                if (vecInfo->widthExp)
-                    wideDrawable->setWidthExpression(vecInfo->widthExp);
-                if (vecInfo->opacityExp)
-                    wideDrawable->setOpacityExpression(vecInfo->opacityExp);
-                if (vecInfo->colorExp)
-                    wideDrawable->setColorExpression(vecInfo->colorExp);
-                if (vecInfo->offsetExp)
-                    wideDrawable->setOffsetExpression(vecInfo->offsetExp);
+                wideDrawable->setLineJoin(vecInfo->joinType);
+                wideDrawable->setLineCap(vecInfo->capType);
+                wideDrawable->setMiterLimit(vecInfo->miterLimit);
+                wideDrawable->setWidthExpression(vecInfo->widthExp);
+                wideDrawable->setOpacityExpression(vecInfo->opacityExp);
+                wideDrawable->setColorExpression(vecInfo->colorExp);
+                wideDrawable->setOffsetExpression(vecInfo->offsetExp);
+
                 maskEntries.resize(numMaskIDs);
                 for (unsigned int ii=0;ii<maskEntries.size();ii++)
+                {
                     maskEntries[ii] = wideDrawable->addAttribute(BDIntType, a_maskNameIDs[ii], sceneRender->getSlotForNameID(a_maskNameIDs[ii]), ptCount);
+                }
 
                 drawable->setColor(vecInfo->color);
                 if (doColors)
@@ -741,7 +771,10 @@ struct WideVectorDrawableConstructor
 
                 int baseTexId = 0;
                 if (vecInfo->texID != EmptyIdentity)
+                {
                     drawable->setTexId(baseTexId++, vecInfo->texID);
+                }
+
                 if (centerValid)
                 {
                     Eigen::Affine3d trans(Eigen::Translation3d(dispCenter.x(),dispCenter.y(),dispCenter.z()));
@@ -751,8 +784,8 @@ struct WideVectorDrawableConstructor
             }
         } else {
             // Basic mode builds up a lot more geometry
-            int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
-            int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
+            const int ptGuess = std::min(std::max(ptCount,0),(int)MaxDrawablePoints);
+            const int triGuess = std::min(std::max(triCount,0),(int)MaxDrawableTriangles);
 
             if (!drawable ||
                 (drawable->getNumPoints()+ptGuess > MaxDrawablePoints) ||
@@ -761,9 +794,10 @@ struct WideVectorDrawableConstructor
                 flush();
                 
     //            NSLog(@"Pts = %d, tris = %d",ptGuess,triGuess);
-                int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
-                int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
-                WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder("Wide Vector");
+                const int ptAlloc = std::min(std::max(ptCountAllocate,0),(int)MaxDrawablePoints);
+                const int triAlloc = std::min(std::max(triCountAllocate,0),(int)MaxDrawableTriangles);
+                const auto &name = drawableName.empty() ? defDrawableName : drawableName;
+                WideVectorDrawableBuilderRef wideDrawable = sceneRender->makeWideVectorDrawableBuilder(name);
                 wideDrawable->Init(ptAlloc,triAlloc,0,
                                    vecInfo->implType,
                                    !scene->getCoordAdapter()->isFlat(),
@@ -841,30 +875,43 @@ struct WideVectorDrawableConstructor
                 // 8 points and 6 triangles.
                 // Many of the points can't be shared because the end caps
                 //  will be handled differently by the fragment shader
-                
-                // End cap: vertices [0,3], polygon 0
-                drawable->addInstancePoint(Point3f(0,0,0),0,0);
-                drawable->addInstancePoint(Point3f(0,0,0),1,0);
-                drawable->addInstancePoint(Point3f(0,0,0),2,0);
-                drawable->addInstancePoint(Point3f(0,0,0),3,0);
-                drawable->addTriangle(BasicDrawable::Triangle(0,3,1));
-                drawable->addTriangle(BasicDrawable::Triangle(0,2,3));
+
+                // Caps are needed for miter becasue it can turn into a bevel.
+                const bool emitCaps = (drawable->getLineJoin() != WideVectorLineJoinType::WideVecNoneJoin);
+
+                int base = 0;
+                int pt = 0;
+                if (emitCaps)
+                {
+                    base = 4;
+                    // End cap: vertices [0,3], polygon 0
+                    drawable->addInstancePoint({0,0,0},0,0);
+                    drawable->addInstancePoint({0,0,0},1,0);
+                    drawable->addInstancePoint({0,0,0},2,0);
+                    drawable->addInstancePoint({0,0,0},3,0);
+                    drawable->addTriangle(BasicDrawable::Triangle(0,3,1));
+                    drawable->addTriangle(BasicDrawable::Triangle(0,2,3));
+                }
 
                 // Middle segment: vertices [4,7], polygon 1
-                drawable->addInstancePoint(Point3f(0,0,0),4,1);
-                drawable->addInstancePoint(Point3f(0,0,0),5,1);
-                drawable->addInstancePoint(Point3f(0,0,0),6,1);
-                drawable->addInstancePoint(Point3f(0,0,0),7,1);
-                drawable->addTriangle(BasicDrawable::Triangle(4,7,5));
-                drawable->addTriangle(BasicDrawable::Triangle(4,6,7));
+                drawable->addInstancePoint({0,0,0},4,1);
+                drawable->addInstancePoint({0,0,0},5,1);
+                drawable->addInstancePoint({0,0,0},6,1);
+                drawable->addInstancePoint({0,0,0},7,1);
+                drawable->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
+                drawable->addTriangle(BasicDrawable::Triangle(base+0,base+2,base+3));
 
-                // End cap: vertices [8,11], polygon 2
-                drawable->addInstancePoint(Point3f(0,0,0),8,2);
-                drawable->addInstancePoint(Point3f(0,0,0),9,2);
-                drawable->addInstancePoint(Point3f(0,0,0),10,2);
-                drawable->addInstancePoint(Point3f(0,0,0),11,2);
-                drawable->addTriangle(BasicDrawable::Triangle(8,11,9));
-                drawable->addTriangle(BasicDrawable::Triangle(8,10,11));
+                if (emitCaps)
+                {
+                    base += 4;
+                    // End cap: vertices [8,11], polygon 2
+                    drawable->addInstancePoint({0,0,0},8,2);
+                    drawable->addInstancePoint({0,0,0},9,2);
+                    drawable->addInstancePoint({0,0,0},10,2);
+                    drawable->addInstancePoint({0,0,0},11,2);
+                    drawable->addTriangle(BasicDrawable::Triangle(base+0,base+3,base+1));
+                    drawable->addTriangle(BasicDrawable::Triangle(base+0,base+2,base+3));
+                }
             }
             
             // Run through the points, adding centerline instances
@@ -1054,6 +1101,7 @@ protected:
     const WideVectorInfo *vecInfo;
     WideVectorDrawableBuilderRef drawable = nullptr;
     std::vector<WideVectorDrawableBuilderRef> drawables;
+    std::string drawableName;
 };
     
 void WideVectorSceneRep::enableContents(bool enable,ChangeSet &changes)
@@ -1125,6 +1173,7 @@ SimpleIdentity WideVectorManager::addVectors(const std::vector<VectorShapeRef> &
     
     builder.setCenter(localCenter,centerDisp);
     builder.setColor(vecInfo.color);
+    builder.setDrawableName(vecInfo.drawableName);
 
     VectorRing tempLoop;
     for (const auto &shape : shapes)

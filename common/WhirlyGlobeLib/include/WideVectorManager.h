@@ -38,8 +38,14 @@ class VectorInfo;
 typedef enum {WideVecCoordReal,WideVecCoordScreen} WideVectorCoordsType;
 
 /// How the lines are joined.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
-typedef enum {WideVecMiterJoin,WideVecRoundJoin,WideVecBevelJoin} WideVectorLineJoinType;
-    
+typedef enum {
+    WideVecMiterJoin,
+    WideVecMiterClipJoin,
+    WideVecRoundJoin,
+    WideVecBevelJoin,
+    WideVecNoneJoin,
+} WideVectorLineJoinType;
+
 /// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
 typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
 
@@ -63,6 +69,7 @@ public:
     float width = 2.0f;
     float offset = 0.0f;
     float repeatSize = 32.0f;
+    Point2f texOffset = { 0.0f, 0.0f };
     float edgeSize = 1.0f;
     float subdivEps = 0.0f;
     float miterLimit = 2.0f;
