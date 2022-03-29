@@ -250,8 +250,10 @@ typedef struct
     simd::float3 center;
     // Upward direction (for 3D lines)
     simd::float3 up;
+    // Length of this segment
+    float segLen;
     // Length of the line up to this point
-    float len;
+    float totalLen;
     // Color for the whole line
     simd::float4 color;
     // Used to track loops and such
@@ -416,6 +418,8 @@ struct ProjVertexTriWideVecPerf {
     float w2;
     float edge;
     uint2 maskIDs;
+    float a, b, c, d;
+    float2 offset;
 };
 
 // Input vertex data for Screen Space shaders

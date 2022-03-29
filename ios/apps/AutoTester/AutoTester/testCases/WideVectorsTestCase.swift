@@ -191,8 +191,14 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         joinTimer?.invalidate()
         if let vc = baseViewController {
             joins(vc, add: false);
+
             vc.remove(objs, mode: .current)
             objs.removeAll()
+
+            if let tex = dashTex {
+                vc.remove(tex, mode: .current)
+                dashTex = nil
+            }
         }
         baseCase.stop()
     }

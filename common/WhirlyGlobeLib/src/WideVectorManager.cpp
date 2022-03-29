@@ -24,6 +24,7 @@
 #import "SharedAttributes.h"
 #import "WideVectorDrawableBuilder.h"
 #import "MapboxVectorStyleSetC.h"
+#import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -867,7 +868,6 @@ struct WideVectorDrawableConstructor
             }
             
             // Run through the points, adding centerline instances
-            double len = 0.0;
             const int startPt = drawable->getCenterLineCount();
             for (unsigned int ii=0;ii<newPts.size();ii++) {
                 const auto &pt = newPts[ii];
@@ -884,10 +884,9 @@ struct WideVectorDrawableConstructor
                     next = closed ? startPt : -1;
                 }
 
+                const auto len = (newPts[(ii+1)%newPts.size()] - pt).norm();
+
                 drawable->addCenterLine(dispPa,up,len,vecInfo->color,maskIDs,(int)prev,(int)next);
-                
-                if (ii<newPts.size()-1)
-                    len += (newPts[ii+1] - newPts[ii]).norm();
             }
         } else {
             // We'll add one on the beginning and two on the end

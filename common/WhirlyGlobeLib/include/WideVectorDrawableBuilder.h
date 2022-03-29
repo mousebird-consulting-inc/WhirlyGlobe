@@ -229,7 +229,8 @@ protected:
     typedef struct {
         Point3f center;
         Point3f up;
-        float len;
+        float segLen;
+        float totalLen;
         RGBAColor color;
         int prev,next;
         int maskIDs[2];

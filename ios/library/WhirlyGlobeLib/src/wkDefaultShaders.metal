@@ -834,30 +834,44 @@ fragment float4 fragmentTri_wideVec(
 struct IntersectInfo {
     bool valid;
     float2 interPt;
+    float c, d2;
     float ta,tb;
 };
+
+// wedge product (2D cross product)
+// if A ^ B > 0, A is to the right of B
+float wedge(float2 a, float2 b) {
+    return a.x * b.y - a.y * b.x;
+}
 
 // Intersect two offset lines
 IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
                                  float2 n0,float2 n1)
 {
-    IntersectInfo iInfo = { .valid = false };
+    const float2 lineA[] = { p0 + n0, p1 + n0 };
+    const float2 lineB[] = { p1 + n1, p2 + n1 };
+    const float2 dA = lineA[0] - lineA[1];
+    const float2 dB = lineB[0] - lineB[1];
 
-    const float2 lineA[2] = { p0 + n0, p1 + n0 };
-    const float2 lineB[2] = { p1 + n1, p2 + n1 };
-
-    const float denom = (lineA[0].x - lineA[1].x) * (lineB[0].y - lineB[1].y) -
-                        (lineA[0].y - lineA[1].y) * (lineB[0].x - lineB[1].x);
-    if (denom != 0.0) {
-        const float termA = (lineA[0].x * lineA[1].y - lineA[0].y * lineA[1].x);
-        const float termB = (lineB[0].x * lineB[1].y - lineB[0].y * lineB[1].x);
-        iInfo.interPt.x = ( termA * (lineB[0].x - lineB[1].x) - (lineA[0].x - lineA[1].x) * termB)/denom;
-        iInfo.interPt.y = ( termA * (lineB[0].y - lineB[1].y) - (lineA[0].y - lineA[1].y) * termB)/denom;
-        iInfo.ta = 0.0;
-        iInfo.tb = 0.0;
-        iInfo.valid = true;
+    // Solve the system of equations formed by equating the lines to get their common point.
+    const float denom = wedge(dA, dB);
+    if (denom == 0.0) {
+        // If the denominator comes out zero, the lines are parallel and do not intersect
+        return { .valid = false };
     }
-    return iInfo;
+
+    const float tA = (lineA[0].x * lineA[1].y - lineA[0].y * lineA[1].x);
+    const float tB = (lineB[0].x * lineB[1].y - lineB[0].y * lineB[1].x);
+    const float2 inter = float2((tA * dB.x - dA.x * tB), (tA * dB.y - dA.y * tB)) / denom;
+
+    return {
+        .valid = true,
+        .interPt = inter,
+        .d2 = distance_squared(p1, inter),
+        .c = wedge(p2 - p1, n0 - n1) / denom,
+        .ta = 0.0,
+        .tb = 0.0,
+    };
 }
 
 struct TriWideArgBufferC {
@@ -897,9 +911,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert = { .position = float4(0.0,0.0,-1000.0,1.0) };
-    float2 texOffset(0, 0);     // todo: uniforms?
 
-    // Vertex index within the polygon, 0-11
+    // Vertex index within the instance, 0-11
     // Odd indexes are on the left, evens are on the right.
     const int whichVert = (vert.index >> 16) & 0xffff;
     // Polygon index within the segment.  0=Start cap, 1=body, 2=end cap
@@ -907,9 +920,9 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 
     // Find the various instances representing center points.
     // We need one behind and one ahead of us.
-    //                     behind
-    //                     |      us
-    //                     |      |    ahead
+    //                     previous segment
+    //                     |      this segment
+    //                     |      |    next segment
     //                     |      |    |
     bool instValid[4] = { false, true, false, false };
     VertexTriWideVecInstance inst[4] = { {}, wideVecInsts[instanceID], {}, {} };
@@ -964,16 +977,35 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     }
 
     // Size of pixels
-    const float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);
+    const float2 screenScale(2.0/uniforms.frameSize.x,2.0/uniforms.frameSize.y);    // ~(0.001,0.001)
+    //const float avgScreenScale = 0.5/(uniforms.frameSize.x + uniforms.frameSize.y);
+    
+    const float pixScale = min(uniforms.screenSizeInDisplayCoords.x,uniforms.screenSizeInDisplayCoords.y) /
+                           min(uniforms.frameSize.x,uniforms.frameSize.y);
+    const float texScale = 1 / pixScale / vertArgs.wideVec.texRepeat;   // texture coords / display coords = ~1000
+
+    // (1.0/2 (uniforms.frameSize.x + uniforms.frameSize.y)
     const float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
+
+    float2 texOffset(0, 0);     // todo: uniforms?
+    //float texPos = ((vert.texInfo.z - vert.texInfo.y) * t0 + vert.texInfo.y + vert.texInfo.w * realWidth2) * texScale;
+    //outVert.texCoord = texOffset + float2((whichVert & 1) ? 1 : 0, texScale * inst[interPt].len);
+
+//    outVert.screenScale = screenScale;
+//    outVert.frameSize = uniforms.frameSize; // (1536,2048)
+//    outVert.screenSize = uniforms.screenSizeInDisplayCoords;    // ~(0.035, 0.05)
 
     for (unsigned int ii=1;ii<4;ii++) {
         if (instValid[ii-1]) {
             centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
             centers[ii].nDir = normalize(centers[ii].dir);
-            centers[ii].norm = normalize(float2(-centers[ii].dir.y,centers[ii].dir.x) * screenScale);
+            centers[ii].norm = normalize(float2(-centers[ii].dir.y,centers[ii].dir.x));
         }
     }
+
+    // Textures are based on un-projected coords, we'll need to know how that relates to projected
+    // ones in order to adjust texture coordinates based on screen-based intersections.
+    const float projScale = length(centers[1].dir) / inst[1].segLen;
 
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
@@ -983,14 +1015,16 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     if (w2 > 0.0) {
         w2 = w2 + vertArgs.wideVec.edge;
     }
+    const float realWidth2 = w2 * pixScale;
 
     // Pull out the center line offset, or calculate one
     float centerLine = 0.0; // vertArgs.wideVec.offset;
 //    if (vertArgs.wideVec.hasExp)
 //        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
-    
+    const float realCenterLine = centerLine * pixScale;
+
     // Intersect on the left or right depending
-    const float interDir = (whichVert & 0x1) ? 1.0 : -1.0;
+    const float interDir = (whichVert & 1) ? 1 : -1;
 
     // Turn off the end caps for the moment
     switch (whichPoly) {
@@ -1000,10 +1034,10 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     }
 
     // Do the offset intersection
-//    float angleBetween = 0.0;
     bool iPtsValid = false;
     const int interPt = (whichVert == 6 || whichVert == 7) ? 1 : 0;
     float2 iPts;
+    IntersectInfo interInfo;
     // If we're on the far end of the body segment, we need this and the next two segments.
     // Otherwise we need the previous, this, and the next segment.
     if (instValid[interPt] && instValid[interPt+1] && instValid[interPt+2]) {
@@ -1016,16 +1050,17 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 //                    iPtsValid = false;
 //                }
 
+            // Intersect the left or right normals
             const float2 nudge = w2 * interDir * screenScale;
-            const IntersectInfo interInfo = intersectWideLines(centers[interPt].screenPos,
-                                                               centers[interPt+1].screenPos,
-                                                               centers[interPt+2].screenPos,
-                                                               nudge * centers[interPt+1].norm,
-                                                               nudge * centers[interPt+2].norm);
+            interInfo = intersectWideLines(centers[interPt].screenPos,
+                                           centers[interPt+1].screenPos,
+                                           centers[interPt+2].screenPos,
+                                           nudge * centers[interPt+1].norm,
+                                           nudge * centers[interPt+2].norm);
+
             // If the intersection is too far away, we'll drop it
-            const float nearDist = 1.42 * w2 * max(screenScale.x,screenScale.y);
-            if (interInfo.valid &&
-                distance_squared(centers[interPt+1].screenPos,interInfo.interPt) <= nearDist*nearDist) {
+            const float nearDist = 2 * 1.42 * w2 * max(screenScale.x,screenScale.y);
+            if (interInfo.valid && interInfo.d2 <= nearDist*nearDist) {
                 iPtsValid = true;
                 iPts = interInfo.interPt;
             }
@@ -1045,16 +1080,29 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.edge = vertArgs.wideVec.edge;
 
     if (isValid) {
-        outVert.texCoord.x = texOffset.x + ((whichVert & 0x1) ? 0.0 : 1.0);
-        outVert.texCoord.y = texOffset.y + inst[interPt].len / screenScale.x;
+        // Work out the corner position by extending the normal
+        const int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
+        const float2 offset = centers[2].norm * interDir * screenScale * (w2 + centerLine + vertArgs.wideVec.edge);
+        const float2 corner = centers[basePt].screenPos + offset;
+
+        // Use the intersect point instead of the corner
+        outVert.position = float4(iPtsValid ? iPts : corner, 0, 1);
+
+        // Default texture position is based on cumulative distance along the line
+        float texY = inst[interPt+1].totalLen;
+
         if (iPtsValid) {
-            outVert.position = float4(iPts, 0.0, 1.0);
-        } else {
-            // Return a vertex offset from the base
-            const int basePt = (whichVert == 6 || whichVert == 7) ? 2 : 1;
-            const float2 offset = (centers[2].norm * interDir) * screenScale * (w2 + centerLine + vertArgs.wideVec.edge);
-            outVert.position = float4(centers[basePt].screenPos + offset, 0.0, 1.0);
+            // Apply the fraction of the offset along the current segment to the texture coordinate.
+            texY += dot(corner - iPts, centers[1].nDir) / projScale;
+
+            outVert.offset = offset;
+            outVert.a += dot(corner - iPts, centers[1].nDir);
+            outVert.b += dot(corner - iPts, centers[1].nDir) / projScale;
+            outVert.c += dot(corner - iPts, centers[1].nDir) / projScale * texScale;
         }
+
+        outVert.texCoord.x = texOffset.x + ((whichVert & 1) ? 0 : 1);
+        outVert.texCoord.y = texOffset.y + texY * texScale;
     }
     return outVert;
 }
@@ -1080,7 +1128,7 @@ fragment float4 fragmentTri_wideVecPerf(
     const int numTextures = TexturesBase(texArgs.texPresent);
     float patternAlpha = 1.0;
     if (numTextures > 0) {
-        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
+        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::bicubic);
         // Just pulling the alpha at the moment
         // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
         patternAlpha = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;

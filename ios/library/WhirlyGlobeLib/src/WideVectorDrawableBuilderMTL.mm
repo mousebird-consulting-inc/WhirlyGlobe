@@ -158,7 +158,8 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
         auto *inPtr = &centerline[ii];
         CopyIntoMtlFloat3(outPtr->center,inPtr->center);
         CopyIntoMtlFloat3(outPtr->up, inPtr->up);
-        outPtr->len = inPtr->len;
+        outPtr->segLen = inPtr->segLen;
+        outPtr->totalLen = inPtr->totalLen;
         float color[4];
         inPtr->color.asUnitFloats(color);
         CopyIntoMtlFloat4(outPtr->color,color);
