@@ -38,43 +38,61 @@ using namespace WhirlyKit;
                     settings:(MaplyVectorStyleSettings * __nonnull)settings
                        viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC
 {
-    self = [super init];
-    if (!self)
+    if (!(self = [super init]))
+    {
         return nil;
+    }
 
-    _viewC = viewC;
-    VectorStyleSettingsImplRef styleSettings;
-    if (settings)
-        styleSettings = settings->impl;
-    else
-        styleSettings = std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+    if (!(_viewC = viewC))
+    {
+        return nil;
+    }
 
-    style = std::make_shared<MapboxVectorStyleSetImpl_iOS>([viewC getRenderControl]->scene,
-                                                           [viewC getRenderControl]->visualView->coordAdapter->getCoordSystem(),
-                                                           styleSettings);
-    style->viewC = viewC;
-
-//    iosDictionaryRef dictWrap(new iosDictionary(styleDict));
+    if (const auto *renderControl = [viewC getRenderControl])
+    if (auto *scene = renderControl->scene)
+    if (const auto &view = renderControl->visualView)
+    if (const auto *coordAdapter = view->coordAdapter)
+    if (auto *coordSys = coordAdapter->getCoordSystem())
+    {
+        const auto styleSettings = (settings && settings->impl) ? settings->impl :
+            std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+        style = std::make_shared<MapboxVectorStyleSetImpl_iOS>(scene, coordSys, styleSettings);
+        style->viewC = viewC;
+    }
+    if (!style)
+    {
+        return nil;
+    }
 
     // Copy from NSDictionary to our internal version
-    MutableDictionaryCRef dictWrap = [styleDict toDictionaryC];
-    if (!style->parse(NULL,dictWrap))
-        return nil;
+    if (auto dictWrap = [styleDict toDictionaryC])
+    {
+        if (!style->parse(nullptr, dictWrap))
+        {
+            return nil;
+        }
+    }
     
     _spriteURL = styleDict[@"sprite"];
     
     // Sources tell us where to get tiles
-    NSDictionary *sourceStyles = styleDict[@"sources"];
-    NSMutableArray *sources = [NSMutableArray array];
-    for (NSString *sourceName in sourceStyles.allKeys) {
-        NSDictionary *styleEntry = sourceStyles[sourceName];
-        MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName styleEntry:styleEntry styleSet:self viewC:viewC];
-        if (source)
-            [sources addObject:source];
+    if (NSDictionary *sourceStyles = styleDict[@"sources"])
+    {
+        NSMutableArray *sources = [NSMutableArray array];
+        for (NSString *sourceName in sourceStyles.allKeys)
+        {
+            NSDictionary *styleEntry = sourceStyles[sourceName];
+            if (MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName
+                                                                                               styleEntry:styleEntry
+                                                                                                 styleSet:self
+                                                                                                    viewC:viewC])
+            {
+                [sources addObject:source];
+            }
+        }
+        _sources = sources;
     }
-    
-    _sources = sources;
-    
+
     return self;
 }
 
