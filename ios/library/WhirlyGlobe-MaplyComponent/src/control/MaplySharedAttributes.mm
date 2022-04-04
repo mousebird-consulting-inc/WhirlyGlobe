@@ -217,6 +217,13 @@ WKDefineConst(WideVecBevelJoin)
 /// No joins (fastest)
 WKDefineConst(WideVecNoneJoin)
 
+/// Determine how wide vectors behave when the ideal geometry is impossible
+WKDefineConst(WideVecFallbackMode)
+WKDefineConst(WideVecFallbackDefault)
+WKDefineConst(WideVecFallbackClip)
+WKDefineConst(WideVecFallbackNone)
+
+
 /// Number of pixels to use in blending the edges of the wide vectors
 NSString* const kMaplyWideVecEdgeFalloff = MaplyWideVecEdgeFalloff;
 

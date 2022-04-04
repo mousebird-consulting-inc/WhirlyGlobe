@@ -38,7 +38,7 @@ class VectorInfo;
 typedef enum {WideVecCoordReal,WideVecCoordScreen} WideVectorCoordsType;
 
 /// How the lines are joined.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
-typedef enum {
+typedef enum WideVectorLineJoinType_t {
     WideVecMiterJoin,
     WideVecMiterClipJoin,
     WideVecRoundJoin,
@@ -46,8 +46,17 @@ typedef enum {
     WideVecNoneJoin,
 } WideVectorLineJoinType;
 
+typedef enum WideVectorFallbackMode_t {
+    WideVecFallbackNone,    // Just give up
+    WideVecFallbackClip,    // Clip the intersection and continue
+} WideVectorFallbackMode;
+
 /// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
+typedef enum WideVectorLineCapType_t {
+    WideVecButtCap,
+    WideVecRoundCap,
+    WideVecSquareCap
+} WideVectorLineCapType;
 
 /// Performance vs basic wide vector implementation
 typedef enum {WideVecImplBasic,WideVecImplPerf} WideVecImplType;
@@ -78,6 +87,7 @@ public:
 
     WideVectorCoordsType coordType = WideVecCoordScreen;
     WideVectorLineJoinType joinType = WideVecMiterJoin;
+    WideVectorFallbackMode fallbackMode = WideVecFallbackNone;
     WideVectorLineCapType capType = WideVecButtCap;
 
     SimpleIdentity texID = EmptyIdentity;

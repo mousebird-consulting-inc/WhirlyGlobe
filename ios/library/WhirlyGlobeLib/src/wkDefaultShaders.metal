@@ -909,9 +909,9 @@ float2 screenPos(constant Uniforms &u, float3 viewPos) {
 
 constant constexpr float wideVecMinTurnThreshold = 1e-5;
 constant constexpr float wideVecMaxTurnThreshold = 0.99999998476;  // sin(89.99 deg)
-constant constexpr int polyStartCap = 0;
-constant constexpr int polyBody = 1;
-constant constexpr int polyEndCap = 2;
+constant constexpr int WideVecPolyStartGeom = 0;
+constant constexpr int WideVecPolyBodyGeom = 1;
+constant constexpr int WideVecPolyEndGeom = 2;
 constant constexpr float4 discardPt(0,0,-1e6,NAN);
 
 // Performance version of wide vector shader
@@ -934,12 +934,13 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     const int whichVert = (vert.index >> 16) & 0xffff;
     // Polygon index within the segment.  0=Start cap, 1=body, 2=end cap
     const int whichPoly = vert.index & 0xffff;
-
-    outVert.whichPoly = whichPoly;
-    outVert.whichVert = whichVert;
-
+    // Are we on the left edge, or the right?
     const bool isLeft = (whichVert & 1);
+    // Are we on the starting end of the segment or the end?
     const bool isEnd = (whichVert > 5);
+
+    // Track vertex for debugging
+    //outVert.whichVert = whichVert;
 
     const float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
 
@@ -981,6 +982,15 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         }
     } else {
         // We need at least this and next
+        return outVert;
+    }
+
+    const auto capType = vertArgs.wideVec.cap;
+    const auto isStartCap = (whichPoly == WideVecPolyStartGeom && !instValid[0]);
+    const auto isEndCap = (whichPoly == WideVecPolyEndGeom && !instValid[3]);
+
+    // Butt is the default cap style, the line ends at the point.
+    if ((isStartCap || isEndCap) && capType == WhirlyKitShader::WKSVertexLineCapButt) {
         return outVert;
     }
 
@@ -1059,6 +1069,11 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 
             theta = acos(dotProd);
 
+            // todo: miter-clip doesn't work right at small angles
+            if (joinType == WKSVertexLineJoinMiterClip && abs(dotProd - 1.0) < 0.1) {
+                joinType = WKSVertexLineJoinMiter;
+            }
+
             // "If the miter length divided by the stroke width exceeds the miterlimit then:
             //   miter: the join is converted to a bevel
             //   miter-clip: the miter is clipped at half the miter length from the intersection"
@@ -1094,7 +1109,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 const float maxDist2 = min(cur.len2, next.len2);
                 if (interInfo.dist2 <= maxDist2 / 4) {
                     intersectValid = true;
-                } else if (interInfo.dist2 <= maxDist2 * 4) {
+                } else if (vertArgs.wideVec.interClipLimit > 0 && interInfo.dist2 <= maxDist2 * vertArgs.wideVec.interClipLimit) {
                     interPt = cur.screenPos + normalize(interPt - cur.screenPos) * sqrt(maxDist2) / 2;
                     intersectValid = true;
                 }
@@ -1103,8 +1118,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     }
 
     // Endcaps not used for miter case, discard them.
-    if (joinType == WKSVertexLineJoinMiter &&
-        (whichPoly == polyStartCap || whichPoly == polyEndCap)) {
+    if (joinType == WKSVertexLineJoinMiter && whichPoly != WideVecPolyBodyGeom && !isStartCap && !isEndCap) {
         return outVert;
     }
 
@@ -1140,180 +1154,197 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     float texY = inst[1].totalLen + (isEnd ? inst[1].segLen : 0);
     float texX = isLeft ? -1 : 1;
 
-    if (joinType == WKSVertexLineJoinNone || !intersectValid) {
-        // Trivial case, just use the corner
-        outVert.position = float4(pos, 0, 1);
-        outVert.texCoord = -vertArgs.wideVec.texOffset + float2(texX, texY * texScale);
-        return outVert;
-    }
-
-    // Since there is one, use the intersect point by default
-    pos = interPt;
-
     bool discardTri = false;
 
-    // We'll need the corner on the opposite side for several things.
-    const float2 realOtherEdge = (-interSgn * w2 + centerLine) * screenScale;
-    const float2 otherCorner = center + centers[2].norm * realOtherEdge;
-
-    // For a bevel, use the intersect point for the inside of the turn, but not the outside.
-    // Round piggypacks on bevel.
-    if (joinType == WKSVertexLineJoinBevel || joinType == WKSVertexLineJoinRound) {
-        switch (whichVert) {
-            // Start cap, 0-3-1, 0-2-3
-            case 2: discardTri = true; // not using triangle #2, fall through
-            case 0: pos = turningLeft ? corner : interPt; break;
-            case 1:
-                if (turningLeft) {
-                    // Opposite corner on the previous segment
-                    const float2 prevOtherCorner = center + centers[1].norm * realOtherEdge;
-                    // Use the point halfway between the outside corner and the one on the opposite side.
-                    pos = otherCorner + (prevOtherCorner - otherCorner) / 2;
-                    // We're placing the vertex on the "wrong" side, so fix the texture X.
-                    texX = -texX;
-                } else {
-                    // Same corner on the previous segment
-                    const float2 prevCorner = center + centers[1].norm * realEdge;
-                    pos = corner + (prevCorner - corner) / 2;
-                }
-                break;
-            case 3: pos = turningLeft ? interPt : corner; break;
-            // Body segment, 4-7-5, 4-6-7
-            // Merge inside corners to avoid overlap, use default outside corner.
-            case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
-            // End cap, 8-11-9, 8-10-11
-            case 10: discardTri = true; // Not using triangle #2, fall through
-            case 8: pos = turningLeft ? corner : interPt; break;
-            case 9: pos = turningLeft ? interPt : corner; break;
-            case 11:
-                if (turningLeft) {
-                    // Opposite corner on the next segment
-                    const float2 nextOtherCorner = center + centers[3].norm * realOtherEdge;
-                    // Use the point halfway between the outside corner and the one on the opposite side.
-                    pos = otherCorner + (nextOtherCorner - otherCorner) / 2;
-                    // We're placing the vertex on the "wrong" side, so fix the texture X.
-                    texX = -texX;
-                } else {
-                    // Same corner on the next segment
-                    const float2 nextCorner = center + centers[3].norm * realEdge;
-                    pos = corner + (nextCorner - corner) / 2;
-                }
-                break;
+    if (isStartCap || isEndCap) {
+        // Square extends beyond the point by half a width.
+        // Round uses the same geometry but rounds it off with the fragment shader.
+        if (capType == WhirlyKitShader::WKSVertexLineCapSquare ||
+            capType == WhirlyKitShader::WKSVertexLineCapRound) {
+            switch (whichVert) {
+                case 0: case 1: case 8: case 9: pos = corner; break;
+                case 2: case 3: case 10: case 11:
+                    pos = corner + centers[2].nDir * w2 * screenScale * (isEnd ? 1 : -1);
+                    texY += length(w2 * screenScale) / projScale * (isEnd ? 1 : -1);
+                    break;
+            }
         }
-
-        // For the round case, extend the center of the bevel out into a "tip," which will be
-        // turned into a round extension by the fragment shader.  This isn't exactly right, but
-        // I think we need more geometry to do better.
-        // todo: fix texture Y-coords
-        if (joinType == WKSVertexLineJoinRound &&
-            (whichPoly == polyStartCap || whichPoly == polyEndCap)) {
+        if (capType == WhirlyKitShader::WKSVertexLineCapRound) {
             outVert.roundJoin = true;
             outVert.centerPos = offsetPt / screenScale;
             outVert.screenPos = pos / screenScale;
-            
-            // Direction bisecting the turn toward the outside (right for a left turn)
-            outVert.midDir = normalize(isEnd ? (centers[2].nDir - centers[3].nDir) :
-                                               (centers[1].nDir - centers[2].nDir));
+            outVert.midDir = centers[2].nDir * (isEnd ? 1 : -1);
+        }
+    } else {
+        if (joinType == WKSVertexLineJoinNone || !intersectValid) {
+            // Trivial case, just use the corner
+            outVert.position = float4(pos, 0, 1);
+            outVert.texCoord = -vertArgs.wideVec.texOffset + float2(texX, texY * texScale);
+            return outVert;
+        }
 
-            if (whichVert == 1 || whichVert == 11) {
-                // Extend the corner far enough to cover the necessary round-ness.
-                // This should probably be related to the turn angle, we're just fudging it.
-                const float extend = 2 * w2;
-                pos += outVert.midDir * extend * screenScale;
+        // Since there is one, use the intersect point by default
+        pos = interPt;
+
+        // We'll need the corner on the opposite side for several things.
+        const float2 realOtherEdge = (-interSgn * w2 + centerLine) * screenScale;
+        const float2 otherCorner = center + centers[2].norm * realOtherEdge;
+
+        // Miter is mostly handled above by using the intersect points instead of corners.
+        if (joinType == WKSVertexLineJoinMiter) {
+            // Add the difference between the intersection point and the original corner,
+            // accounting for the textures being based on un-projected coordinates.
+            texY += dot(interPt - corner, centers[2].nDir) / projScale;
+        }
+        // For a bevel, use the intersect point for the inside of the turn, but not the outside.
+        // Round piggypacks on bevel.
+        else if (joinType == WKSVertexLineJoinBevel || joinType == WKSVertexLineJoinRound) {
+            switch (whichVert) {
+                // Start cap, 0-3-1, 0-2-3
+                case 2: discardTri = true; // not using triangle #2, fall through
+                case 0: pos = turningLeft ? corner : interPt; break;
+                case 1:
+                    if (turningLeft) {
+                        // Opposite corner on the previous segment
+                        const float2 prevOtherCorner = center + centers[1].norm * realOtherEdge;
+                        // Use the point halfway between the outside corner and the one on the opposite side.
+                        pos = otherCorner + (prevOtherCorner - otherCorner) / 2;
+                        // We're placing the vertex on the "wrong" side, so fix the texture X.
+                        texX = -texX;
+                    } else {
+                        // Same corner on the previous segment
+                        const float2 prevCorner = center + centers[1].norm * realEdge;
+                        pos = corner + (prevCorner - corner) / 2;
+                    }
+                    break;
+                case 3: pos = turningLeft ? interPt : corner; break;
+                // Body segment, 4-7-5, 4-6-7
+                // Merge inside corners to avoid overlap, use default outside corner.
+                case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
+                // End cap, 8-11-9, 8-10-11
+                case 10: discardTri = true; // Not using triangle #2, fall through
+                case 8: pos = turningLeft ? corner : interPt; break;
+                case 9: pos = turningLeft ? interPt : corner; break;
+                case 11:
+                    if (turningLeft) {
+                        // Opposite corner on the next segment
+                        const float2 nextOtherCorner = center + centers[3].norm * realOtherEdge;
+                        // Use the point halfway between the outside corner and the one on the opposite side.
+                        pos = otherCorner + (nextOtherCorner - otherCorner) / 2;
+                        // We're placing the vertex on the "wrong" side, so fix the texture X.
+                        texX = -texX;
+                    } else {
+                        // Same corner on the next segment
+                        const float2 nextCorner = center + centers[3].norm * realEdge;
+                        pos = corner + (nextCorner - corner) / 2;
+                    }
+                    break;
+            }
+
+            // For the round case, extend the center of the bevel out into a "tip," which will be
+            // turned into a round extension by the fragment shader.  This isn't exactly right, but
+            // I think we need more geometry to do better.
+            // todo: fix texture Y-coords
+            if (joinType == WKSVertexLineJoinRound && whichPoly != WideVecPolyBodyGeom) {
+                outVert.roundJoin = true;
+                outVert.centerPos = offsetPt / screenScale;
                 outVert.screenPos = pos / screenScale;
+                
+                // Direction bisecting the turn toward the outside (right for a left turn)
+                outVert.midDir = normalize(isEnd ? (centers[2].nDir - centers[3].nDir) :
+                                                   (centers[1].nDir - centers[2].nDir));
+
+                if (whichVert == 1 || whichVert == 11) {
+                    // Extend the corner far enough to cover the necessary round-ness.
+                    // This should probably be related to the turn angle, we're just fudging it.
+                    const float extend = 2 * w2;
+                    pos += outVert.midDir * extend * screenScale;
+                    outVert.screenPos = pos / screenScale;
+                }
+            }
+        } else if (joinType == WKSVertexLineJoinMiterClip) {
+            // Direction of intersect point (bisecting the segment directions)
+            const float2 interDir = normalize(realInterPt / screenScale - center / screenScale) * turnSgn * interSgn;
+            const float2 interNorm = float2(-interDir.y,interDir.x);
+
+            // "the miter is clipped by a line perpendicular to the line bisecting
+            //  the angle between the two path segments at a distance of half the
+            //  value of miter length from the intersection of the two path segments."
+            const float midExt = miterLength / 2 * strokeWidth + vertArgs.wideVec.edge;
+            // todo: This isn't quite right, the edges should stay parallel up to the clip point.
+            const float miterCapExt = w2 * abs(cos(theta));
+
+            // todo: fix texture Y-coord
+            switch (whichVert) {
+                // Start cap, 0-3-1, 0-2-3
+                case 0:
+                    // Out to the miter cap, then perpendicular.
+                    pos = center + interDir * midExt * screenScale -
+                            turnSgn * interNorm * miterCapExt * screenScale;
+                    texX *= -turnSgn;
+                    break;
+                case 1:
+                    if (turningLeft) {
+                        // Extend segment endpoint outward along the intersection angle by the miter length
+                        pos = center + interDir * midExt * screenScale;
+                        texX = -texX;
+                    } else {
+                        pos = corner;
+                    }
+                    break;
+                case 2:
+                    if (turningLeft) {
+                        pos = corner;
+                    } else {
+                        // Extend segment endpoint outward along the intersection angle by the miter length
+                        pos = center + interDir * midExt * screenScale;
+                        texX = -texX;
+                    }
+                    break;
+                case 3:
+                    if (turningLeft) {
+                        pos = interPt;
+                    } else {
+                        pos = center + (center - interPt);
+                        texX = -texX;
+                    }
+                    break;
+                // Body segment, 4-7-5, 4-6-7
+                // Merge inside corners to avoid overlap, use default outside corner.
+                case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
+                // End cap, 8-11-9, 8-10-11
+                case 8:
+                    if (turningLeft) {
+                        pos = center + interDir * midExt * screenScale +
+                                -float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
+                    } else {
+                        pos = center + (interPt - center);
+                    }
+                    break;
+                case 9:
+                    pos = turningLeft ? otherCorner : corner;
+                    texX *= turnSgn;
+                    break;
+                case 10:
+                    if (turningLeft) {
+                        pos = center + interDir * midExt * screenScale;
+                    } else {
+                        // Extend segment endpoint away from the intersect point by the miter length
+                        pos = center + interDir * midExt * screenScale;
+                        texX = -texX;
+                    }
+                    break;
+                case 11:
+                    if (turningLeft) {
+                        pos = interPt;
+                    } else {
+                        pos = center + interDir * midExt * screenScale +
+                            float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
+                    }
+                    break;
             }
         }
-    } else if (joinType == WKSVertexLineJoinMiterClip) {
-        // Direction of intersect point (bisecting the segment directions)
-        const float2 interDir = normalize(realInterPt / screenScale - center / screenScale) * turnSgn * interSgn;
-        const float2 interNorm = float2(-interDir.y,interDir.x);
-
-        // "the miter is clipped by a line perpendicular to the line bisecting
-        //  the angle between the two path segments at a distance of half the
-        //  value of miter length from the intersection of the two path segments."
-        const float midExt = miterLength / 2 * strokeWidth + vertArgs.wideVec.edge;
-        // todo: This isn't quite right, the edges should stay parallel up to the clip point.
-        const float miterCapExt = w2 * abs(cos(theta));
-
-        // todo: fix texture Y-coord
-        switch (whichVert) {
-            // Start cap, 0-3-1, 0-2-3
-            case 0:
-                // Out to the miter cap, then perpendicular.
-                pos = center + interDir * midExt * screenScale -
-                        turnSgn * interNorm * miterCapExt * screenScale;
-                texX *= -turnSgn;
-                break;
-            case 1:
-                if (turningLeft) {
-                    // Extend segment endpoint outward along the intersection angle by the miter length
-                    pos = center + interDir * midExt * screenScale;
-                    texX = -texX;
-                } else {
-                    pos = corner;
-                }
-                break;
-            case 2:
-                if (turningLeft) {
-                    pos = corner;
-                } else {
-                    // Extend segment endpoint outward along the intersection angle by the miter length
-                    pos = center + interDir * midExt * screenScale;
-                    texX = -texX;
-                }
-                break;
-            case 3:
-                if (turningLeft) {
-                    pos = interPt;
-                } else {
-                    pos = center + (center - interPt);
-                    texX = -texX;
-                }
-                break;
-            // Body segment, 4-7-5, 4-6-7
-            // Merge inside corners to avoid overlap, use default outside corner.
-            case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
-            // End cap, 8-11-9, 8-10-11
-            case 8:
-                if (turningLeft) {
-                    pos = center + interDir * midExt * screenScale +
-                            -float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
-                } else {
-                    pos = center + (interPt - center);
-                    //texX = -texX;
-                }
-                break;
-            case 9:
-                if (turningLeft) {
-                    pos = otherCorner;
-                    texX = -texX;
-                } else {
-                    pos = corner;
-                }
-                break;
-            case 10:
-                if (turningLeft) {
-                    pos = center + interDir * midExt * screenScale;
-                } else {
-                    // Extend segment endpoint away from the intersect point by the miter length
-                    pos = center + interDir * midExt * screenScale;
-                    texX = -texX;
-                }
-                break;
-            case 11:
-                if (turningLeft) {
-                    pos = interPt;
-                } else {
-                    pos = center + interDir * midExt * screenScale +
-                        float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
-                }
-                break;
-        }
     }
-
-    // Add the difference betweent the intersection point and the original corner,
-    // accounting for the textures being based on un-projected coordinates.
-    texY += dot(interPt - corner, centers[2].nDir) / projScale;
 
     outVert.position = float4(pos, discardTri ? -1e6 : 0, discardTri ? NAN : 1);
     // Opposite values because we're showing back faces.

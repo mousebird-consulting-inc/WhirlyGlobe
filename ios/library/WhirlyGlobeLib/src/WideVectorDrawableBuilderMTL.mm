@@ -78,14 +78,15 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecUniBlock()
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
     CopyIntoMtlFloat2(uniWV.texOffset, texOffset);
-    uniWV.w2         = lineWidth/2.0f;
-    uniWV.offset     = lineOffset;
-    uniWV.edge       = edgeSize;
-    uniWV.texRepeat  = texRepeat;
-    uniWV.hasExp     = widthExp || offsetExp || colorExp || opacityExp;
-    uniWV.join       = (WhirlyKitShader::WKSVertexLineJoinType)joinType;   // assume enums are numerically equivalent
-    uniWV.cap        = (WhirlyKitShader::WKSVertexLineCapType)capType;
-    uniWV.miterLimit = miterLimit;
+    uniWV.w2             = lineWidth/2.0f;
+    uniWV.offset         = lineOffset;
+    uniWV.edge           = edgeSize;
+    uniWV.texRepeat      = texRepeat;
+    uniWV.hasExp         = widthExp || offsetExp || colorExp || opacityExp;
+    uniWV.join           = (WhirlyKitShader::WKSVertexLineJoinType)joinType;   // assume enums are numerically equivalent
+    uniWV.cap            = (WhirlyKitShader::WKSVertexLineCapType)capType;
+    uniWV.miterLimit     = miterLimit;
+    uniWV.interClipLimit = (fallbackMode == WideVecFallbackClip) ? 4.0f : 0.0f;
 
     return {
         WhirlyKitShader::WKSUniformWideVecEntry,

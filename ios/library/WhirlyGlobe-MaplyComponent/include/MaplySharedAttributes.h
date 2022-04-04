@@ -254,6 +254,12 @@ extern NSString * const _Nonnull kMaplyWideVecBevelJoin;
 /// None
 extern NSString * const _Nonnull kMaplyWideVecNoneJoin;
 
+/// Determine how wide vectors behave when the ideal geometry is impossible
+extern NSString * const _Nonnull kMaplyWideVecFallbackMode;
+extern NSString * const _Nonnull kMaplyWideVecFallbackDefault;
+extern NSString * const _Nonnull kMaplyWideVecFallbackClip;
+extern NSString * const _Nonnull kMaplyWideVecFallbackNone;
+
 /// Number of pixels to use in blending the edges of the wide vectors
 extern NSString * const _Nonnull kMaplyWideVecEdgeFalloff;
 

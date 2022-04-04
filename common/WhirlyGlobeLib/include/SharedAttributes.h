@@ -265,6 +265,14 @@
 /// No joins (fastest)
 #define MaplyWideVecNoneJoin WKString("none")
 
+/// Determine how wide vectors behave when the ideal geometry is impossible
+#define MaplyWideVecFallbackMode WKString("widevecfallback")
+/// When the line intersection is out of range, clip it to the range and use it.
+#define MaplyWideVecFallbackClip WKString("clip")
+/// When the line intersection is out of range, discard it and don't join the like segments.
+#define MaplyWideVecFallbackNone WKString("none")
+#define MaplyWideVecFallbackDefault MaplyWideVecFallbackNone
+
 /// Number of pixels to use in blending the edges of the wide vectors
 #define MaplyWideVecEdgeFalloff WKString("edgefalloff")
 

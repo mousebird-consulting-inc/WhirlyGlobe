@@ -486,6 +486,11 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,
         prog = scene->findProgramByName(MaplyDefaultWideVectorShader);
     if (prog)
         wideVectorProgramID = prog->getId();
+
+    if (const auto prog = scene->findProgramByName(MaplyWideVectorPerformanceShader))
+    {
+        wideVectorPerfProgramID = prog->getId();
+    }
 }
 
 bool MapboxVectorStyleSetImpl::parse(PlatformThreadInfo *inst,const DictionaryRef &styleDict)

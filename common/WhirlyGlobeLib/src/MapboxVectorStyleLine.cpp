@@ -223,7 +223,6 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     WideVectorInfo vecInfo;
     vecInfo.hasExp = true;
     vecInfo.coordType = WideVecCoordScreen;
-    vecInfo.programID = styleSet->wideVectorProgramID;
     vecInfo.fadeIn = fade;
     vecInfo.fadeOut = fade;
     vecInfo.zoomSlot = styleSet->zoomSlot;
@@ -235,6 +234,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     vecInfo.colorExp = paint.color->expression();
     vecInfo.opacityExp = paint.opacity->expression();
     vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;
+    vecInfo.implType = styleSet->tileStyleSettings->perfWideVec ? WideVecImplPerf : WideVecImplBasic;
+    vecInfo.programID = styleSet->tileStyleSettings->perfWideVec ? styleSet->wideVectorPerfProgramID : styleSet->wideVectorProgramID;
     // TODO: Switch to stencils
 //        vecInfo.drawOrder = tileInfo->tileNumber();
     

@@ -395,7 +395,8 @@ public:
     SimpleIdentity vectorArealProgramID;
     SimpleIdentity vectorLinearProgramID;
     SimpleIdentity wideVectorProgramID;
-    
+    SimpleIdentity wideVectorPerfProgramID;
+
     int zoomSlot;
     long long currentID;
 };

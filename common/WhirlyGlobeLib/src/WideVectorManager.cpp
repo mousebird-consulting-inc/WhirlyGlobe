@@ -69,6 +69,13 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
         else                                     joinType = WideVecNoneJoin;
     }
 
+    if (const auto entry = dict.getEntry(MaplyWideVecFallbackMode))
+    {
+        const auto s = entry->getString();
+        if (s == MaplyWideVecFallbackClip) fallbackMode = WideVecFallbackClip;
+        else                               fallbackMode = WideVecFallbackNone;
+    }
+
     if (const auto entry = dict.getEntry(MaplyWideVecLineCapType))
     {
         const auto s = entry->getString();
@@ -752,6 +759,7 @@ struct WideVectorDrawableConstructor
                 wideDrawable->setLineJoin(vecInfo->joinType);
                 wideDrawable->setLineCap(vecInfo->capType);
                 wideDrawable->setMiterLimit(vecInfo->miterLimit);
+                wideDrawable->setFallbackMode(vecInfo->fallbackMode);
                 wideDrawable->setWidthExpression(vecInfo->widthExp);
                 wideDrawable->setOpacityExpression(vecInfo->opacityExp);
                 wideDrawable->setColorExpression(vecInfo->colorExp);
@@ -880,7 +888,6 @@ struct WideVectorDrawableConstructor
                 const bool emitCaps = (drawable->getLineJoin() != WideVectorLineJoinType::WideVecNoneJoin);
 
                 int base = 0;
-                int pt = 0;
                 if (emitCaps)
                 {
                     base = 4;

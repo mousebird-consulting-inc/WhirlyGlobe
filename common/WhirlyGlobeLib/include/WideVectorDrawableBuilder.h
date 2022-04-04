@@ -134,6 +134,9 @@ public:
     /// Miter join limit as a multiple of width
     void setMiterLimit(float limit) { miterLimit = limit; }
 
+    /// Set geometry fallback mode
+    void setFallbackMode(WideVectorFallbackMode mode) { fallbackMode = mode; }
+
     /// Line cap type
     void setLineCap(WideVectorLineCapType type) { capType = type; }
  
@@ -221,6 +224,7 @@ protected:
     int inst_index = -1;
     WideVectorLineJoinType joinType = WideVecBevelJoin;
     WideVectorLineCapType capType = WideVecSquareCap;
+    WideVectorFallbackMode fallbackMode = WideVecFallbackNone;
     float miterLimit = 2.0;
     std::string name;
     Scene *scene;

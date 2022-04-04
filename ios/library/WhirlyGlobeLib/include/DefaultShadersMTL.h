@@ -255,6 +255,8 @@ struct UniformWideVec {
     WKSVertexLineJoinType join;  // Line joins
     WKSVertexLineCapType cap;    // Line endcaps
     bool hasExp;                 // Look for a UniformWideVecExp structure for color, opacity, and width
+    float interClipLimit;        // Allow clipping of out-of-bounds intersection points
+                                 // Value is the multiple of distance-squared that is allowed.
 };
 
 // For variable width (and color, etc) lines we'll
@@ -443,11 +445,9 @@ struct ProjVertexTriWideVecPerf {
     float w2;
     float edge;
     uint2 maskIDs;
-    uint whichVert, whichPoly;
     bool roundJoin;
-    
-    float dp;
-    float a,b,c,d;
+
+    //uint whichVert;       // helpful for debugging
 };
 
 // Input vertex data for Screen Space shaders

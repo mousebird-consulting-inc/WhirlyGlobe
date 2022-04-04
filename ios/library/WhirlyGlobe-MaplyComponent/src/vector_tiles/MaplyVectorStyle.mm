@@ -199,6 +199,16 @@ using namespace WhirlyKit;
     return impl->useWideVectors;
 }
 
+- (void)setUsePerfWideVectors:(bool)use
+{
+    impl->perfWideVec = use;
+}
+
+- (bool)usePerfWideVectors
+{
+    return impl->perfWideVec;
+}
+
 - (void)setOldVecWidthScale:(float)oldVecWidthScale
 {
     impl->oldVecWidthScale = oldVecWidthScale;

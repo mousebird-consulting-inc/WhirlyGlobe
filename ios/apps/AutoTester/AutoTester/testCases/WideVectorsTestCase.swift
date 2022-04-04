@@ -14,8 +14,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         super.init(name: "Wide Vectors", supporting: [.map, .globe])
     }
 
-    private func joins(_ vc: MaplyBaseViewController,
-                       bound: MaplyBoundingBox,
+    private func joins(_ vc: MaplyBaseViewController, bound: MaplyBoundingBox, slot: Int,
                        join: Int, perf: Bool, close: Bool, subdiv: Bool) -> [MaplyComponentObject?] {
 
         let vsep = 2.5;
@@ -40,11 +39,13 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         }
 
         let desc = [
-            kMaplyVecWidth: 40.0,
+            kMaplyZoomSlot: slot,
+            kMaplyVecWidth: perf ? ["stops":[[2,5],[12,80]]] : 40,
             kMaplyColor: perf ? UIColor.red.withAlphaComponent(0.35) : UIColor.blue.withAlphaComponent(0.35),
             kMaplyEnable: false,
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 1,
             kMaplyWideVecImpl: perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
+            kMaplyWideVecFallbackMode: kMaplyWideVecFallbackClip,
             kMaplyWideVecJoinType: joinAttr(join) ?? NSNull(),
             kMaplyDrawableName: String(format: "WideVec-%@%@%@%@",
                                        joinAttr(join) ?? "", perf ? "-perf" : "",
@@ -69,18 +70,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         ]
     }
 
-    private func joinAttr(_ n: Int) -> String? {
-        switch (n) {
-        case 0: return kMaplyWideVecMiterJoin;
-        case 1: return kMaplyWideVecMiterClipJoin;
-        case 2: return kMaplyWideVecRoundJoin;
-        case 3: return kMaplyWideVecBevelJoin;
-        case 4: return kMaplyWideVecNoneJoin;
-        default: return nil
-        }
-    }
-
-    private func joins(_ vc: MaplyBaseViewController,
+    private func joins(_ vc: MaplyBaseViewController, slot: Int,
                        bound: MaplyBoundingBox) -> [MaplyComponentObject?] {
 
         let yn = [ true, false ]
@@ -88,7 +78,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             yn.flatMap { perf in
                 yn.flatMap { close in
                     yn.flatMap { subdiv in
-                        joins(vc, bound: bound, join: join, perf: perf, close: close, subdiv: subdiv)
+                        joins(vc, bound: bound, slot: slot, join: join, perf: perf, close: close, subdiv: subdiv)
                     }
                 }
             }
@@ -101,6 +91,110 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         }
         
         return objs
+    }
+
+    private func caps(_ vc: MaplyBaseViewController, bound: MaplyBoundingBox, slot: Int,
+                       cap: Int, perf: Bool, close: Bool) -> [MaplyComponentObject?] {
+
+        let vsep = 2.5;
+        let lat = Float(15.0 + (perf ? 2*vsep : 0.0) + (close ? vsep : 0.0))
+        let lon = Float(-140.0) + Float(cap) * 3.5
+        var coords = [
+            MaplyCoordinateMakeWithDegrees(lon + 0.0, lat),
+            MaplyCoordinateMakeWithDegrees(lon + 1.0, lat + 1.5 * Float(joinN) / Float(joinSteps)),
+            MaplyCoordinateMakeWithDegrees(lon + 1.0, lat + -0.5 * Float(joinN) / Float(joinSteps)),
+            MaplyCoordinateMakeWithDegrees(lon + 2.0, lat),
+            MaplyCoordinateMakeWithDegrees(lon + (close ? 0.0 : 2.0), lat),
+        ]
+
+        let vecObj = MaplyVectorObject(lineString: &coords, numCoords: Int32(coords.count))
+
+        if !isVisible(vecObj.boundingBox(), ext: bound) {
+            return []
+        }
+
+        let desc = [
+            kMaplyZoomSlot: slot,
+            kMaplyVecWidth: perf ? ["stops":[[2,5],[12,80]]] : 40,
+            kMaplyColor: perf ? UIColor.red.withAlphaComponent(0.35) : UIColor.blue.withAlphaComponent(0.35),
+            kMaplyEnable: false,
+            kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 1,
+            kMaplyWideVecImpl: perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
+            kMaplyWideVecJoinType: kMaplyWideVecBevelJoin,
+            kMaplyWideVecLineCapType: capAttr(cap) ?? NSNull(),
+            kMaplyVecTexture: dashTex ?? NSNull(),
+            kMaplyWideVecTexRepeatLen: 64,
+            kMaplyDrawableName: String(format: "WideVec-%@%@%@",
+                                       capAttr(cap) ?? "", perf ? "-perf" : "",
+                                       close ? "-closed" : "")
+        ] as [AnyHashable: Any]
+
+        let lblDesc = [
+            kMaplyTextColor: UIColor.magenta,
+            kMaplyEnable: false,
+            kMaplyFont: UIFont.systemFont(ofSize: 10.0),
+            kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault,
+        ] as [AnyHashable: Any]
+        let lbl = MaplyScreenLabel()
+        lbl.loc = MaplyCoordinateMakeWithDegrees(lon - 0.2, lat - 0.2)
+        lbl.text = String(format: "%@%@%@",
+                          capAttr(cap) ?? "", perf ? "\nperf" : "",
+                          close ? "\nclosed" : "")
+        
+        return [
+            vc.addWideVectors([vecObj], desc: desc, mode: .current),
+            vc.addScreenLabels([lbl], desc: lblDesc, mode: .current)
+        ]
+    }
+
+    private func caps(_ vc: MaplyBaseViewController, slot: Int,
+                      bound: MaplyBoundingBox) -> [MaplyComponentObject?] {
+
+        let yn = [ true, false ]
+        let objs = (0..<3).flatMap { cap in
+            yn.flatMap { perf in
+                yn.flatMap { close in
+                    yn.flatMap { subdiv in
+                        caps(vc, bound: bound, slot: slot, cap: cap, perf: perf, close: close)
+                    }
+                }
+            }
+        }
+
+        joinN += joinD
+        if (joinN > joinSteps || joinN < -joinSteps) {
+            joinD = -joinD
+            joinN += joinD
+        }
+        
+        return objs
+    }
+
+    private func joinAttr(_ n: Int) -> String? {
+        switch (n) {
+        case 0: return kMaplyWideVecMiterJoin;
+        case 1: return kMaplyWideVecMiterClipJoin;
+        case 2: return kMaplyWideVecRoundJoin;
+        case 3: return kMaplyWideVecBevelJoin;
+        case 4: return kMaplyWideVecNoneJoin;
+        default: return nil
+        }
+    }
+
+    private func capAttr(_ n: Int) -> String? {
+        switch (n) {
+        case 0: return kMaplyWideVecButtCap;
+        case 1: return kMaplyWideVecRoundCap;
+        case 2: return kMaplyWideVecSquareCap;
+        default: return nil
+        }
+    }
+
+    private func initSlot() {
+        if zoomSlot == nil,
+           let slot = baseViewController?.retainZoomSlotMinZoom(0, maxHeight: 2, maxZoom: 20, minHeight: 0.001) {
+            zoomSlot = Int(exactly: slot)
+        }
     }
 
     private func initTex(_ vc: MaplyBaseViewController) {
@@ -119,7 +213,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
 
     private func texs(_ vc: MaplyBaseViewController,
                       bound: MaplyBoundingBox,
-                      slot: Int32, perf: Bool) -> [MaplyComponentObject?] {
+                      slot: Int, perf: Bool) -> [MaplyComponentObject?] {
         initTex(vc);
 
         // Note vary in lon rather than lat so that they are projected identically.
@@ -154,6 +248,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             kMaplyWideVecOffset: 0,
             kMaplyWideVecTexOffsetX: 0.0,
             kMaplyWideVecTexOffsetY: 0.1 * Double(texY),
+            kMaplyDrawableName: "WideVec-Tex",
             kMaplyTexWrapX: true,
             kMaplyTexWrapY: true,
         ] as [AnyHashable: Any]
@@ -176,7 +271,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         ]
     }
 
-    private func offset(_ vc: MaplyBaseViewController, slot: Int32, perf: Bool) -> [MaplyComponentObject?] {
+    private func offset(_ vc: MaplyBaseViewController, slot: Int, perf: Bool) -> [MaplyComponentObject?] {
         initTex(vc);
 
         // Note vary in lon rather than lat so that they are projected identically.
@@ -202,10 +297,13 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             kMaplyEnable: true,
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 1,
             kMaplyWideVecImpl: perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
-            kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
             kMaplyVecTexture: dashTex ?? NSNull(),
             kMaplyWideVecTexRepeatLen: 64,
             kMaplyWideVecOffset: 0,
+            kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
+            kMaplyWideVecMiterLimit: 4,
+            kMaplyWideVecFallbackMode: kMaplyWideVecFallbackClip,
+            kMaplyDrawableName: "WideVec-Offset",
         ] as [AnyHashable: Any]
 
         // Offset line
@@ -241,7 +339,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         ]
     }
 
-    private func exprs(_ vc: MaplyBaseViewController, slot: Int32, perf: Bool) -> [MaplyComponentObject?] {
+    private func exprs(_ vc: MaplyBaseViewController, slot: Int, perf: Bool) -> [MaplyComponentObject?] {
         var coords = [
             MaplyCoordinateMakeWithDegrees(-130 + (perf ? 0 : 30), 60),
             MaplyCoordinateMakeWithDegrees(-140 + (perf ? 0 : 30), 61),
@@ -327,8 +425,10 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         timerObjs.removeAll()
         
         let curBound = curBound(vc)
+        let slot = zoomSlot ?? -1
 
-        timerObjs.append(contentsOf: joins(vc, bound: curBound).compactMap { $0 })
+        timerObjs.append(contentsOf: joins(vc, slot: slot, bound: curBound).compactMap { $0 })
+        timerObjs.append(contentsOf: caps(vc, slot: slot, bound: curBound).compactMap { $0 })
 
         if let slot = zoomSlot {
             timerObjs.append(contentsOf: [true, false].flatMap {
@@ -340,23 +440,21 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
     }
 
     private func wideLineTest(_ vc: MaplyBaseViewController) {
-        if zoomSlot == nil {
-            zoomSlot = baseViewController?.retainZoomSlotMinZoom(0, maxHeight: 2, maxZoom: 20, minHeight: 0.001);
-        }
+        initSlot()
 
-//        addGeoJson("sawtooth.geojson", dashPattern: nil, width: 50.0, edge: 20.0, simple: false, viewC: vc);
-//        addGeoJson("moving-lawn.geojson", viewC: vc);
-//        addGeoJson("spiral.geojson", viewC: vc);
-//        addGeoJson("square.geojson", dashPattern: [2, 2], width: 10.0, viewC: vc);
-//        addGeoJson("track.geojson", viewC: vc);
-//        //addGeoJson("uturn2.geojson", dashPattern:[16, 16], width:40, viewC:vc);
-//        addGeoJson("USA.geojson", viewC:vc);
-//        //addGeoJson("testJson.json", viewC:vc);
-//        //addGeoJson("straight.geojson", viewC:vc);
-//        //addGeoJson("uturn.geojson", viewC:vc);
-//
-//        overlap(vc);
-//        vecColors(vc);
+        addGeoJson("sawtooth.geojson", dashPattern: nil, width: 50.0, edge: 20.0, simple: false, viewC: vc);
+        addGeoJson("moving-lawn.geojson", viewC: vc);
+        addGeoJson("spiral.geojson", viewC: vc);
+        addGeoJson("square.geojson", dashPattern: [2, 2], width: 10.0, viewC: vc);
+        addGeoJson("track.geojson", viewC: vc);
+        //addGeoJson("uturn2.geojson", dashPattern:[16, 16], width:40, viewC:vc);
+        addGeoJson("USA.geojson", viewC:vc);
+        //addGeoJson("testJson.json", viewC:vc);
+        //addGeoJson("straight.geojson", viewC:vc);
+        //addGeoJson("uturn.geojson", viewC:vc);
+
+        overlap(vc);
+        vecColors(vc);
 
         if let slot = zoomSlot {
             self.objs.append(contentsOf: [true, false].flatMap {
@@ -376,19 +474,15 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         baseCase.setUpWithGlobe(vc)
         wideLineTest(vc)
         //loadShapeFile(vc)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-100.0, 40.0), height: 1.0, heading: 0.0, time: 0.1)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-148.0, 32.0), height: 0.03, heading: 0.0, time: 0.1)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-133.0, 39.0), height: 0.25, heading: 0.0, time: 0.1)
-        //vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
+        //vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-133.0, 39.0), height: 0.25, heading: 0.0, time: 0.1)
+        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
     }
     
     override func setUpWithMap(_ vc: MaplyViewController) {
         baseCase.setUpWithMap(vc)
         wideLineTest(vc)
         //loadShapeFile(vc)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-100.0, 40.0), height: 1.0, heading: 0.0, time: 0.1)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-148.0, 32.0), height: 0.03, heading: 0.0, time: 0.1)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-133.0, 39.0), height: 0.25, heading: 0.0, time: 0.1)
+        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-133.0, 20.0), height: 0.25, heading: 0.0, time: 0.1)
         //vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
     }
 
@@ -405,14 +499,14 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             }
             
             if let slot = zoomSlot {
-                vc.releaseZoomSlotIndex(slot)
+                vc.releaseZoomSlotIndex(Int32(slot))
                 zoomSlot = nil
             }
         }
         baseCase.stop()
     }
 
-    private var zoomSlot: Int32?
+    private var zoomSlot: Int?
     private var dashTex: MaplyTexture?
     private var objs = [MaplyComponentObject]()
     private var joinTimer: Timer?
