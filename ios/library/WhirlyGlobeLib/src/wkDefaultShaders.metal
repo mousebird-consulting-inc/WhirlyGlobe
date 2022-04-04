@@ -1128,7 +1128,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     const float2 offsetPt = center + centerLine * screenScale;
     const float2 realEdge = (interSgn * w2 + centerLine) * screenScale;
     const float2 corner = center + centers[2].norm * realEdge;
-    const bool insideEdge = (isLeft == turningLeft);
+    const float turnSgn = turningLeft ? -1 : 1;
+    const bool isInsideEdge = (isLeft == turningLeft);
 
     // Current corner is the default result for all points.
     float2 pos = corner;
@@ -1179,7 +1180,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             case 3: pos = turningLeft ? interPt : corner; break;
             // Body segment, 4-7-5, 4-6-7
             // Merge inside corners to avoid overlap, use default outside corner.
-            case 4: case 5: case 6: case 7: pos = insideEdge ? interPt : corner; break;
+            case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
             // End cap, 8-11-9, 8-10-11
             case 10: discardTri = true; // Not using triangle #2, fall through
             case 8: pos = turningLeft ? corner : interPt; break;
@@ -1202,7 +1203,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 
         // For the round case, extend the center of the bevel out into a "tip," which will be
         // turned into a round extension by the fragment shader.  This isn't exactly right, but
-        // I think we'd need more geometry to do better.
+        // I think we need more geometry to do better.
+        // todo: fix texture Y-coords
         if (joinType == WKSVertexLineJoinRound &&
             (whichPoly == polyStartCap || whichPoly == polyEndCap)) {
             outVert.roundJoin = true;
@@ -1223,31 +1225,44 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         }
     } else if (joinType == WKSVertexLineJoinMiterClip) {
         // Direction of intersect point (bisecting the segment directions)
-        const float2 interDir = normalize(realInterPt / screenScale - center / screenScale) * (turningLeft ? -1 : 1) * interSgn;
+        const float2 interDir = normalize(realInterPt / screenScale - center / screenScale) * turnSgn * interSgn;
+        const float2 interNorm = float2(-interDir.y,interDir.x);
 
-        // Length of center extenstion from segment endpoint to miter cap.
+        // "the miter is clipped by a line perpendicular to the line bisecting
+        //  the angle between the two path segments at a distance of half the
+        //  value of miter length from the intersection of the two path segments."
         const float midExt = miterLength / 2 * strokeWidth + vertArgs.wideVec.edge;
-        // Distance from segment endpoint to intersect point (what would be the miter extension)
-        const float interDist = length(realInterPt / screenScale - center / screenScale);
-        // Distance between corners
-        const float cornerDist = length(corner / screenScale - otherCorner / screenScale);
-        // Scale the miter edge from the corner distance down to zero at the intersect point
-        // todo: This isn't right, the edges should stay parallel up to the clip point.
-        const float miterCapExt = cornerDist / 2 * abs(cos(theta)) * clamp(midExt / interDist, 0.0, 1.0);
+        // todo: This isn't quite right, the edges should stay parallel up to the clip point.
+        const float miterCapExt = w2 * abs(cos(theta));
 
+        // todo: fix texture Y-coord
         switch (whichVert) {
             // Start cap, 0-3-1, 0-2-3
             case 0:
+                // Out to the miter cap, then perpendicular.
+                pos = center + interDir * midExt * screenScale -
+                        turnSgn * interNorm * miterCapExt * screenScale;
+                texX *= -turnSgn;
+                break;
+            case 1:
                 if (turningLeft) {
                     // Extend segment endpoint outward along the intersection angle by the miter length
                     pos = center + interDir * midExt * screenScale;
-                    texX = texX * 0.9;  // todo: how to handle tex on miter extensions?
+                    texX = -texX;
                 } else {
-                    pos = otherCorner;
-                    texX = -texX * 0.9;  // todo: how to handle tex on miter extensions?
+                    pos = corner;
                 }
                 break;
-            case 1:
+            case 2:
+                if (turningLeft) {
+                    pos = corner;
+                } else {
+                    // Extend segment endpoint outward along the intersection angle by the miter length
+                    pos = center + interDir * midExt * screenScale;
+                    texX = -texX;
+                }
+                break;
+            case 3:
                 if (turningLeft) {
                     pos = interPt;
                 } else {
@@ -1255,48 +1270,11 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                     texX = -texX;
                 }
                 break;
-            case 2:
-                if (turningLeft) {
-                    pos = center + interDir * midExt * screenScale +
-                            float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
-                } else {
-                    pos = center + interDir * midExt * screenScale +
-                            -float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
-                    texX = -texX;
-                }
-                break;
-            case 3:
-                if (turningLeft) {
-                    pos = otherCorner;
-                    texX = -texX * 0.9;  // todo: how to handle tex on miter extensions?
-                } else {
-                    // Extend segment endpoint away from the intersect point by the miter length
-                    pos = center + interDir * midExt * screenScale;
-                    texX = texX * 0.9; // todo: how to handle tex on miter extensions?
-                }
-                break;
             // Body segment, 4-7-5, 4-6-7
             // Merge inside corners to avoid overlap, use default outside corner.
-            case 4: case 5: case 6: case 7: pos = insideEdge ? interPt : corner; break;
+            case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
             // End cap, 8-11-9, 8-10-11
             case 8:
-                if (turningLeft) {
-                    pos = corner;
-                    texX = texX * 0.9;  // todo: how to handle tex on miter extensions?
-                } else {
-                    pos = otherCorner;
-                    texX = -texX * 0.9;  // todo: how to handle tex on miter extensions?
-                }
-                break;
-            case 9:
-                if (turningLeft) {
-                    pos = interPt;
-                } else {
-                    pos = center + interDir * midExt * screenScale +
-                        float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
-                }
-                break;
-            case 10:
                 if (turningLeft) {
                     pos = center + interDir * midExt * screenScale +
                             -float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
@@ -1305,14 +1283,29 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                     //texX = -texX;
                 }
                 break;
-            case 11:
+            case 9:
+                if (turningLeft) {
+                    pos = otherCorner;
+                    texX = -texX;
+                } else {
+                    pos = corner;
+                }
+                break;
+            case 10:
                 if (turningLeft) {
                     pos = center + interDir * midExt * screenScale;
-                    texX = -texX * 0.9;  // todo: how to handle tex on miter extensions?
                 } else {
                     // Extend segment endpoint away from the intersect point by the miter length
                     pos = center + interDir * midExt * screenScale;
-                    texX = texX * 0.9;  // todo: how to handle tex on miter extensions?
+                    texX = -texX;
+                }
+                break;
+            case 11:
+                if (turningLeft) {
+                    pos = interPt;
+                } else {
+                    pos = center + interDir * midExt * screenScale +
+                        float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
                 }
                 break;
         }
