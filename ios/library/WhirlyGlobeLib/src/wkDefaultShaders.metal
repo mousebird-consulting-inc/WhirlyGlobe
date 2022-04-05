@@ -844,14 +844,11 @@ float wedge(float2 a, float2 b) {
     return a.x * b.y - a.y * b.x;
 }
 
-// Intersect two offset lines
-IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
-                                 float2 n0,float2 n1)
+// Intersect two lines
+IntersectInfo intersectLines(float2 a0, float2 a1, float2 b0, float2 b1)
 {
-    const float2 lineA[] = { p0 + n0, p1 + n0 };
-    const float2 lineB[] = { p1 + n1, p2 + n1 };
-    const float2 dA = lineA[0] - lineA[1];
-    const float2 dB = lineB[0] - lineB[1];
+    const float2 dA = a0 - a1;
+    const float2 dB = b0 - b1;
 
     // Solve the system of equations formed by equating the lines to get their common point.
     const float denom = wedge(dA, dB);
@@ -860,17 +857,23 @@ IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
         return { .valid = false };
     }
 
-    const float tA = (lineA[0].x * lineA[1].y - lineA[0].y * lineA[1].x);
-    const float tB = (lineB[0].x * lineB[1].y - lineB[0].y * lineB[1].x);
+    const float tA = (a0.x * a1.y - a0.y * a1.x);
+    const float tB = (b0.x * b1.y - b0.y * b1.x);
     const float2 inter = float2((tA * dB.x - dA.x * tB), (tA * dB.y - dA.y * tB)) / denom;
 
     return {
         .valid = true,
         .interPt = inter,
-        .c = wedge(p2 - p1, p1 - p0),
         .ta = 0.0,
         .tb = 0.0,
     };
+}
+
+// Intersect two offset lines
+IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
+                                 float2 n0,float2 n1)
+{
+    return intersectLines(p0 + n0, p1 + n0, p1 + n1, p2 + n1);
 }
 
 struct TriWideArgBufferC {
@@ -1052,6 +1055,9 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     bool intersectValid = false;
     bool turningLeft = false;
     const int interIdx = isEnd ? 1 : 0;
+    float2 center = centers[interIdx + 1].screenPos;    // Current centerline endpoint (may move with offsets)
+    //const float2 realCenter = center;
+    float2 offsetPt = center + centerLine * screenScale;
     float2 interPt, realInterPt;
     float dotProd, theta, miterLength;
     // If we're on the far end of the body segment, we need this and the next two segments.
@@ -1090,14 +1096,30 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             thread const CenterInfo &cur  = centers[interIdx+1];
             thread const CenterInfo &next = centers[interIdx+2];
             const float2 edgeDist = screenScale * (interSgn * w2 + centerLine);
-            const IntersectInfo interInfo = intersectWideLines(prev.screenPos, cur.screenPos, next.screenPos,
-                                                               edgeDist * cur.norm, edgeDist * next.norm);
-
+            const float2 n0 = edgeDist * cur.norm;
+            const float2 n1 = edgeDist * next.norm;
+            const IntersectInfo interInfo = intersectLines(prev.screenPos + n0, cur.screenPos + n0,
+                                                           cur.screenPos + n1, next.screenPos + n1);
             if (interInfo.valid) {
-                turningLeft = (interInfo.c < 0);
+                const float c = wedge(next.screenPos - cur.screenPos, cur.screenPos - prev.screenPos);
+                turningLeft = (c < 0);
                 realInterPt = interPt = interInfo.interPt;
 
-                const float2 interVec = (interPt - cur.screenPos) / screenScale;
+                // If we're using offsets, we also need to know the point where the offset lines
+                // intersect, as the distance to the original intersection point isn't helpful.
+                // todo: this doesn't make sense for small angles, but what's the actual threshold?
+                if (abs(dotProd - 1) > 0.1) {
+                    const float2 cn0 = cur.norm * centerLine * screenScale;
+                    const float2 cn1 = next.norm * centerLine * screenScale;
+                    const IntersectInfo i2 = intersectLines(prev.screenPos + cn0, cur.screenPos + cn0,
+                                                            cur.screenPos + cn1, next.screenPos + cn1);
+                    if (i2.valid) {
+                        center = i2.interPt;
+                        offsetPt = center;
+                    }
+                }
+                
+                const float2 interVec = (interPt - center) / screenScale;
                 const float interDist = length(interVec);
 
                 // Limit the distance to the smaller of half way back along the previous segment
@@ -1110,7 +1132,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 if (interDist <= maxDist) {
                     intersectValid = true;
                 } else if (vertArgs.wideVec.interClipLimit > 0 && interDist <= maxDist * vertArgs.wideVec.interClipLimit) {
-                    interPt = cur.screenPos + normalize(interVec) * maxDist * screenScale;
+                    interPt = center + normalize(interVec) * maxDist * screenScale;
                     intersectValid = true;
                 }
             }
@@ -1137,9 +1159,6 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.maskIDs[1] = inst[1].mask1;
 
     // Work out the corner positions by extending the normals
-    const int centerIdx = isEnd ? 2 : 1;
-    const float2 center = centers[centerIdx].screenPos;
-    const float2 offsetPt = center + centerLine * screenScale;
     const float2 realEdge = (interSgn * w2 + centerLine) * screenScale;
     const float2 corner = center + centers[2].norm * realEdge;
     const float turnSgn = turningLeft ? -1 : 1;

@@ -271,11 +271,15 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         ]
     }
 
-    private func offset(_ vc: MaplyBaseViewController, slot: Int, perf: Bool) -> [MaplyComponentObject?] {
+    private func offset(_ vc: MaplyBaseViewController, slot: Int, perf: Bool, fudge: Bool) -> [MaplyComponentObject?] {
         initTex(vc);
 
+        if (fudge && !perf) {
+            return []
+        }
+
         // Note vary in lon rather than lat so that they are projected identically.
-        let lat = Float(32.0)
+        let lat = Float(32.0) + (fudge ? 2.0 : 0.0)
         let lon = Float(-150.0) + (perf ? 3.0 : 0.0)
         var coords = [
             MaplyCoordinateMakeWithDegrees(lon + 0.0, lat),
@@ -302,7 +306,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             kMaplyWideVecOffset: 0,
             kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
             kMaplyWideVecMiterLimit: 4,
-            kMaplyWideVecFallbackMode: kMaplyWideVecFallbackClip,
+            kMaplyWideVecFallbackMode: fudge ? kMaplyWideVecFallbackClip : kMaplyWideVecFallbackNone,
             kMaplyDrawableName: "WideVec-Offset",
         ] as [AnyHashable: Any]
 
@@ -310,7 +314,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         let wideDescOffs = wideDesc.merging([
             kMaplyColor: UIColor.blue.withAlphaComponent(0.6),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 2,
-            kMaplyWideVecOffset: perf ? ["stops":[[8,0],[10,-70],[12,70]]] : 5,
+            kMaplyWideVecOffset: perf ? ["stops":[[8,0],[10,-70],[12,70]]] : 20,
         ], uniquingKeysWith: { (a,b) in b })
 
         // Centerline
@@ -458,7 +462,8 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
 
         if let slot = zoomSlot {
             self.objs.append(contentsOf: [true, false].flatMap {
-                offset(vc, slot: slot, perf: $0) +
+                offset(vc, slot: slot, perf: $0, fudge: false) +
+                offset(vc, slot: slot, perf: $0, fudge: true) +
                 exprs(vc, slot: slot, perf: $0)
             }.compactMap { $0 })
         }
