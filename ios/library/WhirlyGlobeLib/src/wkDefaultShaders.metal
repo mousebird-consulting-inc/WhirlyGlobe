@@ -1213,7 +1213,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         if (joinType == WKSVertexLineJoinMiter) {
             // Add the difference between the intersection point and the original corner,
             // accounting for the textures being based on un-projected coordinates.
-            texY += dot(interPt / screenScale - corner / screenScale, centers[2].nDir) / projScale;
+            texY += dot((interPt - corner) / screenScale, centers[2].nDir) / projScale;
         }
         // For a bevel, use the intersect point for the inside of the turn, but not the outside.
         // Round piggypacks on bevel.
@@ -1270,8 +1270,9 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 outVert.screenPos = pos / screenScale;
                 
                 // Direction bisecting the turn toward the outside (right for a left turn)
-                outVert.midDir = normalize(isEnd ? (centers[2].nDir - centers[3].nDir) :
-                                                   (centers[1].nDir - centers[2].nDir));
+                const float2 mid = isEnd ? (centers[2].nDir - centers[3].nDir) :
+                                           (centers[1].nDir - centers[2].nDir);
+                outVert.midDir = normalize(mid / screenScale);
 
                 if (whichVert == 1 || whichVert == 11) {
                     // Extend the corner far enough to cover the necessary round-ness.
@@ -1290,18 +1291,20 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             //  the angle between the two path segments at a distance of half the
             //  value of miter length from the intersection of the two path segments."
             const float midExt = miterLength / 2 * strokeWidth + vertArgs.wideVec.edge;
-            // todo: This isn't quite right, the edges should stay parallel up to the clip point.
-            const float miterCapExt = w2 * abs(cos(theta));
 
             // todo: fix texture Y-coord
             switch (whichVert) {
                 // Start cap, 0-3-1, 0-2-3
-                case 0:
-                    // Out to the miter cap, then perpendicular.
-                    pos = center + interDir * midExt * screenScale -
-                            turnSgn * interNorm * miterCapExt * screenScale;
+                case 0: {
+                    // Intersect the perpendicular to the angle bisector (the miter clip edge) with the line edge
+                    pos = center + interDir * midExt * screenScale;
+                    const float2 c = turningLeft ? corner : otherCorner;
+                    const auto inter = intersectLines(pos, pos + interNorm * screenScale, c, c + centers[2].nDir * screenScale);
+                    pos = inter.interPt;
+                    discardTri |= !inter.valid;
                     texX *= -turnSgn;
                     break;
+                }
                 case 1:
                     if (turningLeft) {
                         // Extend segment endpoint outward along the intersection angle by the miter length
@@ -1324,6 +1327,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                     if (turningLeft) {
                         pos = interPt;
                     } else {
+                        // The other intersect point
                         pos = center + (center - interPt);
                         texX = -texX;
                     }
@@ -1332,24 +1336,31 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 // Merge inside corners to avoid overlap, use default outside corner.
                 case 4: case 5: case 6: case 7: pos = isInsideEdge ? interPt : corner; break;
                 // End cap, 8-11-9, 8-10-11
-                case 8:
-                    if (turningLeft) {
-                        pos = center + interDir * midExt * screenScale +
-                                -float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
-                    } else {
-                        pos = center + (interPt - center);
-                    }
+                case 8: {
+                    // Intersect the perpendicular to the angle bisector (the miter clip edge) with the line edge
+                    pos = center + interDir * midExt * screenScale;
+                    const float2 c = turningLeft ? corner : otherCorner;
+                    const auto inter = intersectLines(pos, pos+interNorm*screenScale, c, c+centers[2].nDir*screenScale);
+                    pos = inter.interPt;
+                    discardTri |= !inter.valid;
+                    texX = -turnSgn;
                     break;
+                }
                 case 9:
-                    pos = turningLeft ? otherCorner : corner;
-                    texX *= turnSgn;
+                    if (turningLeft) {
+                        pos = otherCorner;
+                        texX = -texX;
+                    } else {
+                        // Extend the turn bisector to the miter clip edge
+                        pos = center + interDir * midExt * screenScale;
+                    }
                     break;
                 case 10:
                     if (turningLeft) {
+                        // Extend the turn bisector to the miter clip edge
                         pos = center + interDir * midExt * screenScale;
                     } else {
-                        // Extend segment endpoint away from the intersect point by the miter length
-                        pos = center + interDir * midExt * screenScale;
+                        pos = otherCorner;
                         texX = -texX;
                     }
                     break;
@@ -1357,8 +1368,9 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                     if (turningLeft) {
                         pos = interPt;
                     } else {
-                        pos = center + interDir * midExt * screenScale +
-                            float2(-interDir.y,interDir.x) * miterCapExt * screenScale;
+                        // The other intersect point
+                        pos = center + (center - interPt);
+                        texX = -texX;
                     }
                     break;
             }
