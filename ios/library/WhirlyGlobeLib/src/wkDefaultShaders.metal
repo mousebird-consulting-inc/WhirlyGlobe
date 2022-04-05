@@ -834,7 +834,6 @@ fragment float4 fragmentTri_wideVec(
 struct IntersectInfo {
     bool valid;
     float2 interPt;
-    float dist2;
     float c;
     float ta,tb;
 };
@@ -868,7 +867,6 @@ IntersectInfo intersectWideLines(float2 p0,float2 p1,float2 p2,
     return {
         .valid = true,
         .interPt = inter,
-        .dist2 = distance_squared(p1, inter),
         .c = wedge(p2 - p1, p1 - p0),
         .ta = 0.0,
         .tb = 0.0,
@@ -886,10 +884,8 @@ struct TriWideArgBufferC {
 struct CenterInfo {
     /// Screen coordinates of the line segment endpoint
     float2 screenPos;
-    /// Vector of the line segment (un-normalized)
-    float2 dir;
-    /// Length of the segment squared
-    float len2;
+    /// Length of the segment (in screen coordinates)
+    float len;
     /// Normalized direction of the segment
     float2 nDir;
     /// Normalized plane normal, perpendicular to the segment
@@ -1028,19 +1024,20 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     const float texRepeatY = vertArgs.wideVec.texRepeat;
     const float texScale = 1 / pixScale / texRepeatY;   // texture coords / display coords = ~1000
 
-    // Calculate directions and normals
+    // Calculate directions and normals.  Done in isotropic coords to
+    // avoid skewing everything when later multiplying by `screenScale`.
     for (unsigned int ii=1;ii<4;ii++) {
         if (instValid[ii-1]) {
-            centers[ii].dir = centers[ii].screenPos - centers[ii-1].screenPos;
-            centers[ii].len2 = length_squared(centers[ii].dir);
-            centers[ii].nDir = normalize(centers[ii].dir);
-            centers[ii].norm = float2(-centers[ii].nDir.y,centers[ii].nDir.x);
+            const float2 scaledDir = (centers[ii].screenPos - centers[ii-1].screenPos) / screenScale;
+            centers[ii].len = length(scaledDir);
+            centers[ii].nDir = normalize(scaledDir);
+            centers[ii].norm = float2(-centers[ii].nDir.y, centers[ii].nDir.x);
         }
     }
 
     // Textures are based on un-projected coords, we'll need to know how that relates to projected
     // ones in order to adjust texture coordinates based on screen-based intersections.
-    const float projScale = length(centers[2].dir) / inst[1].segLen;
+    const float projScale = centers[2].len / inst[1].segLen;
 
     // Pull out the center line offset, or calculate one
     float centerLine = vertArgs.wideVec.offset;
@@ -1100,17 +1097,20 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 turningLeft = (interInfo.c < 0);
                 realInterPt = interPt = interInfo.interPt;
 
+                const float2 interVec = (interPt - cur.screenPos) / screenScale;
+                const float interDist = length(interVec);
+
                 // Limit the distance to the smaller of half way back along the previous segment
                 // or half way forward along the next one to keep consecutive segments from colliding.
                 //
                 // For up to four times that distance, adjust the intersection point back along its
                 // length to that limit, effectively narrowing the line instead of just breaking down.
                 // todo: too clever by half... maybe make this opt-in?
-                const float maxDist2 = min(cur.len2, next.len2);
-                if (interInfo.dist2 <= maxDist2 / 4) {
+                const float maxDist = min(cur.len, next.len) / 2;
+                if (interDist <= maxDist) {
                     intersectValid = true;
-                } else if (vertArgs.wideVec.interClipLimit > 0 && interInfo.dist2 <= maxDist2 * vertArgs.wideVec.interClipLimit) {
-                    interPt = cur.screenPos + normalize(interPt - cur.screenPos) * sqrt(maxDist2) / 2;
+                } else if (vertArgs.wideVec.interClipLimit > 0 && interDist <= maxDist * vertArgs.wideVec.interClipLimit) {
+                    interPt = cur.screenPos + normalize(interVec) * maxDist * screenScale;
                     intersectValid = true;
                 }
             }
@@ -1165,7 +1165,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 case 2: case 3: case 8: case 9: pos = corner; break;
                 case 0: case 1: case 10: case 11:
                     pos = corner + centers[2].nDir * w2 * screenScale * (isEnd ? 1 : -1);
-                    texY += length(w2 * screenScale) / projScale * (isEnd ? 1 : -1);
+                    texY += w2 / projScale * (isEnd ? 1 : -1);
                     break;
             }
         }
@@ -1194,7 +1194,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         if (joinType == WKSVertexLineJoinMiter) {
             // Add the difference between the intersection point and the original corner,
             // accounting for the textures being based on un-projected coordinates.
-            texY += dot(interPt - corner, centers[2].nDir) / projScale;
+            texY += dot(interPt / screenScale - corner / screenScale, centers[2].nDir) / projScale;
         }
         // For a bevel, use the intersect point for the inside of the turn, but not the outside.
         // Round piggypacks on bevel.
