@@ -1162,8 +1162,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         if (capType == WhirlyKitShader::WKSVertexLineCapSquare ||
             capType == WhirlyKitShader::WKSVertexLineCapRound) {
             switch (whichVert) {
-                case 0: case 1: case 8: case 9: pos = corner; break;
-                case 2: case 3: case 10: case 11:
+                case 2: case 3: case 8: case 9: pos = corner; break;
+                case 0: case 1: case 10: case 11:
                     pos = corner + centers[2].nDir * w2 * screenScale * (isEnd ? 1 : -1);
                     texY += length(w2 * screenScale) / projScale * (isEnd ? 1 : -1);
                     break;
