@@ -132,6 +132,7 @@ class MapTilerTestCase: MaplyTestCase {
     
     func setup(_ map: MapboxKindaMap) {
         map.styleSettings.textScale = 1.1
+        map.styleSettings.useWideVectors = true;
         map.styleSettings.usePerfWideVectors = true
     }
 

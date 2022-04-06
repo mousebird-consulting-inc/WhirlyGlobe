@@ -1037,7 +1037,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             centers[ii].norm = float2(-centers[ii].nDir.y, centers[ii].nDir.x);
         }
     }
-
+    
     // Textures are based on un-projected coords, we'll need to know how that relates to projected
     // ones in order to adjust texture coordinates based on screen-based intersections.
     const float projScale = centers[2].len / inst[1].segLen;
@@ -1056,10 +1056,10 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     bool turningLeft = false;
     const int interIdx = isEnd ? 1 : 0;
     float2 center = centers[interIdx + 1].screenPos;    // Current centerline endpoint (may move with offsets)
-    //const float2 realCenter = center;
     float2 offsetPt = center + centerLine * screenScale;
-    float2 interPt, realInterPt;
-    float dotProd, theta, miterLength;
+    float2 interPt(0, 0), realInterPt(0, 0);
+    float dotProd = 0, theta = 0, miterLength = 0;
+
     // If we're on the far end of the body segment, we need this and the next two segments.
     // Otherwise we need the previous, this, and the next segment.
     if (instValid[interIdx] && instValid[interIdx+1] && instValid[interIdx+2]) {
@@ -1068,12 +1068,13 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         dotProd = dot(centers[interIdx+1].nDir, centers[interIdx+2].nDir);
         if (-wideVecMaxTurnThreshold < dotProd &&
             dotProd < wideVecMaxTurnThreshold &&
-            abs(dotProd - 1.0) >= wideVecMinTurnThreshold) {
+            abs(abs(dotProd) - 1) >= wideVecMinTurnThreshold) {
 
+            // Turn angle, both vectors are normalized
             theta = acos(dotProd);
 
             // todo: miter-clip doesn't work right at small angles
-            if (joinType == WKSVertexLineJoinMiterClip && abs(dotProd - 1.0) < 0.1) {
+            if (joinType == WKSVertexLineJoinMiterClip && abs(abs(dotProd) - 1) < 0.01) {
                 joinType = WKSVertexLineJoinMiter;
             }
 
@@ -1105,34 +1106,38 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 turningLeft = (c < 0);
                 realInterPt = interPt = interInfo.interPt;
 
+                // Limit the distance to the smaller of half way back along the previous segment
+                // or half way forward along the next one to keep consecutive segments from colliding.
+                const float maxAdjDist = min(cur.len, next.len) / 2;
+
                 // If we're using offsets, we also need to know the point where the offset lines
                 // intersect, as the distance to the original intersection point isn't helpful.
                 // todo: this doesn't make sense for small angles, but what's the actual threshold?
-                if (abs(dotProd - 1) > 0.1) {
+                if (centerLine != 0 &&  abs(abs(dotProd) - 1) > 0.05) {
                     const float2 cn0 = cur.norm * centerLine * screenScale;
                     const float2 cn1 = next.norm * centerLine * screenScale;
                     const IntersectInfo i2 = intersectLines(prev.screenPos + cn0, cur.screenPos + cn0,
                                                             cur.screenPos + cn1, next.screenPos + cn1);
-                    if (i2.valid) {
+                    if (i2.valid && length_squared((i2.interPt - offsetPt)/screenScale) < maxAdjDist*maxAdjDist) {
+                        // todo: center and offset normally aren't the same, this will cause trouble
+                        // later on but seting `center=offsetPt-centerLine` doesn't work either...
                         center = i2.interPt;
-                        offsetPt = center;
+                        offsetPt = i2.interPt;
                     }
                 }
                 
                 const float2 interVec = (interPt - center) / screenScale;
-                const float interDist = length(interVec);
+                const float interDist2 = length_squared(interVec);
+                const float maxClipDist2 = (maxAdjDist * vertArgs.wideVec.interClipLimit) *
+                                           (maxAdjDist * vertArgs.wideVec.interClipLimit);
 
-                // Limit the distance to the smaller of half way back along the previous segment
-                // or half way forward along the next one to keep consecutive segments from colliding.
-                //
-                // For up to four times that distance, adjust the intersection point back along its
-                // length to that limit, effectively narrowing the line instead of just breaking down.
-                // todo: too clever by half... maybe make this opt-in?
-                const float maxDist = min(cur.len, next.len) / 2;
-                if (interDist <= maxDist) {
+                // Limit intersection distance.
+                // For up to a multiple of that, adjust the intersection point back along its
+                // length to that limit, effectively narrowing the line instead of just giving up.
+                if (interDist2 <= maxAdjDist*maxAdjDist) {
                     intersectValid = true;
-                } else if (vertArgs.wideVec.interClipLimit > 0 && interDist <= maxDist * vertArgs.wideVec.interClipLimit) {
-                    interPt = center + normalize(interVec) * maxDist * screenScale;
+                } else if (vertArgs.wideVec.interClipLimit > 0 && interDist2 <= maxClipDist2) {
+                    interPt = center + normalize(interVec) * sqrt(interDist2) * screenScale;
                     intersectValid = true;
                 }
             }
@@ -1166,7 +1171,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
 
     // Current corner is the default result for all points.
     float2 pos = corner;
-    
+
     // Texture position is based on cumulative distance along the line.
     // Note that `inst[2].totalLen` wraps to zero at the end, and we don't want that.
     // Texture coords are used for edge blending, so we need to set them up even if there are no textures.
@@ -1181,9 +1186,6 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         if (capType == WhirlyKitShader::WKSVertexLineCapSquare ||
             capType == WhirlyKitShader::WKSVertexLineCapRound) {
             switch (whichVert) {
-                case 2: case 3: case 8: case 9:
-                    pos = corner;
-                    break;
                 case 0: case 1: case 10: case 11:
                     pos = corner + centers[2].nDir * w2 * screenScale * (isEnd ? 1 : -1);
                     texY += w2 / projScale * (isEnd ? 1 : -1);
@@ -1246,7 +1248,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             // turned into a round extension by the fragment shader.  This isn't exactly right, but
             // I think we need more geometry to do better.
             // todo: fix texture Y-coords
-            if (joinType == WKSVertexLineJoinRound && whichPoly != WideVecPolyBodyGeom) {
+            if (joinType == WKSVertexLineJoinRound && whichPoly != WideVecPolyBodyGeom && !discardTri) {
                 outVert.roundJoin = true;
                 outVert.centerPos = offsetPt / screenScale;
                 outVert.screenPos = pos / screenScale;
@@ -1279,20 +1281,23 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             switch (whichVert) {
                 // Start cap, 0-3-1, 0-2-3
                 case 0: case 8: {
-                    // half width of the clipped miter cap
-                    const float miterEdgeW2 = (interDist - midExt) * tan(M_PI_2_F - theta / 2);
                     // Out to the miter cap, then perpendicular to the line edge.
+                    // The half-width of the clipped miter cap is the tangent of half the interior
+                    // turn angle times the amount the original intersection extends beyond the cap.
+                    const float miterEdgeW2 = (interDist - midExt) * tan(M_PI_2_F - theta / 2);
                     pos = center + screenScale * (interDir * midExt -
                            interNorm * miterEdgeW2 * turnSgn * (whichVert ? -1 : 1));
                     break;
                 }
                 case 1: case 10:
                     // Extend the turn bisector to the miter clip edge
-                    pos = turningLeft ? (center + interDir * midExt * screenScale) : ((whichVert == 1) ? corner : otherCorner);
+                    pos = turningLeft ? (center + interDir * midExt * screenScale) :
+                                        ((whichVert == 1) ? corner : otherCorner);
                     break;
                 case 2: case 9:
                     // Extend segment endpoint outward along the intersection angle by the miter length
-                    pos = turningLeft ? ((whichVert == 2) ? corner : otherCorner) : (center + interDir * midExt * screenScale);
+                    pos = turningLeft ? ((whichVert == 2) ? corner : otherCorner) :
+                                        (center + interDir * midExt * screenScale);
                     break;
                 case 3: case 11:
                     // The edge intersect, or the one on the other side
@@ -1306,7 +1311,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             }
 
             // Fix texture X-coords for vertices that were placed opposite the usual even/odd side.
-            // todo: fix texture Y-coord
+            // todo: fix texture Y-coords around the join.  Might have to pre-compute for that.
             switch (whichVert) {
                 case 1: case 9: texX = -texX;   // fall through
                 case 0: case 2: case 3: case 8: case 10: case 11: texX *= -turnSgn;
@@ -1314,9 +1319,11 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         }
     }
 
-    outVert.position = float4(pos, discardTri ? -1e6 : 0, discardTri ? NAN : 1);
-    // Opposite values because we're showing back faces.
-    outVert.texCoord = -vertArgs.wideVec.texOffset + float2(texX, texY * texScale);
+    if (!discardTri) {
+        outVert.position = float4(pos, 0, 1);
+        // Opposite values because we're showing back faces.
+        outVert.texCoord = -vertArgs.wideVec.texOffset + float2(texX, texY * texScale);
+    }
 
     return outVert;
 }

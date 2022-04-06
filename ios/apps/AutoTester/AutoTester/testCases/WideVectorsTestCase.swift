@@ -362,7 +362,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             kMaplyWideVecJoinType: kMaplyWideVecMiterJoin,
             kMaplyWideVecMiterLimit: 4,
             kMaplyWideVecFallbackMode: fudge ? kMaplyWideVecFallbackClip : kMaplyWideVecFallbackNone,
-            kMaplyDrawableName: "WideVec-Offset",
+            kMaplyDrawableName: "WideVec-Offset-Baseline",
         ] as [AnyHashable: Any]
 
         // Offset line
@@ -370,6 +370,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             kMaplyColor: UIColor.blue.withAlphaComponent(0.6),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 2,
             kMaplyWideVecOffset: perf ? ["stops":[[8,0],[10,-70],[12,70]]] : 20,
+            kMaplyDrawableName: String(format: "WideVec-Offset-%@%@", perf ? "-perf" : "", fudge ? "-clip" : ""),
         ], uniquingKeysWith: { (a,b) in b })
 
         // Centerline
@@ -387,7 +388,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         ] as [AnyHashable: Any]
         let lbl = MaplyScreenLabel()
         lbl.loc = MaplyCoordinateMakeWithDegrees(lon - 0.2, lat - 0.2)
-        lbl.text = String(format: "offset perf=%d", perf)
+        lbl.text = String(format: "offset%@%@", perf ? "-perf" : "", fudge ? "-clip" : "")
         lbl.layoutImportance = MAXFLOAT
 
         return [
@@ -501,23 +502,8 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
     private func wideLineTest(_ vc: MaplyBaseViewController) {
         initSlot()
 
-        addGeoJson("sawtooth.geojson", dashPattern: nil, width: 50.0, edge: 20.0, simple: false, viewC: vc);
-        addGeoJson("moving-lawn.geojson", viewC: vc);
-        addGeoJson("spiral.geojson", viewC: vc);
-        addGeoJson("square.geojson", dashPattern: [2, 2], width: 10.0, viewC: vc);
-        addGeoJson("track.geojson", viewC: vc);
-        //addGeoJson("uturn2.geojson", dashPattern:[16, 16], width:40, viewC:vc);
-        addGeoJson("USA.geojson", viewC:vc);
-        //addGeoJson("testJson.json", viewC:vc);
-        //addGeoJson("straight.geojson", viewC:vc);
-        //addGeoJson("uturn.geojson", viewC:vc);
-
         overlap(vc);
         vecColors(vc);
-
-        add(to: &objs, [true, false].flatMap {
-            widths(vc, perf: $0)
-        })
 
         if let slot = zoomSlot {
             add(to: &self.objs, [true, false].flatMap {
@@ -534,27 +520,39 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
                 }
             }
         }
+
+        addGeoJson("sawtooth.geojson", dashPattern: nil, width: 50.0, edge: 20.0, simple: false, viewC: vc);
+        addGeoJson("moving-lawn.geojson", viewC: vc);
+        addGeoJson("spiral.geojson", viewC: vc);
+        addGeoJson("square.geojson", dashPattern: [2, 2], width: 10.0, viewC: vc);
+        addGeoJson("track.geojson", viewC: vc);
+        //addGeoJson("uturn2.geojson", dashPattern:[16, 16], width:40, viewC:vc);
+        addGeoJson("USA.geojson", viewC:vc);
+        //addGeoJson("testJson.json", viewC:vc);
+        //addGeoJson("straight.geojson", viewC:vc);
+        //addGeoJson("uturn.geojson", viewC:vc);
+
+        add(to: &objs, [true, false].flatMap {
+            widths(vc, perf: $0)
+        })
+        
+        loadShapeFile(vc)
     }
 
     override func setUpWithGlobe(_ vc: WhirlyGlobeViewController) {
         baseCase.setUpWithGlobe(vc)
         DispatchQueue.global(qos: .background).async {
             self.wideLineTest(vc)
-            self.loadShapeFile(vc)
         }
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-135.0, 42.0), height: 0.05, heading: 0.0, time: 0.1)
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-170.0, 70.0), height: 0.25, heading: 0.0, time: 0.1)
-        //vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
+        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
     }
     
     override func setUpWithMap(_ vc: MaplyViewController) {
         baseCase.setUpWithMap(vc)
         DispatchQueue.global(qos: .background).async {
             self.wideLineTest(vc)
-            self.loadShapeFile(vc)
         }
-        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-133.0, 20.0), height: 0.25, heading: 0.0, time: 0.1)
-        //vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
+        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
     }
 
     override func stop() {
