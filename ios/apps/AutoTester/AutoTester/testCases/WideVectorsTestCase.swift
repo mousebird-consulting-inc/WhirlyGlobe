@@ -18,7 +18,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         initTex(vc)
 
         return (0..<6).flatMap { j -> [MaplyComponentObject] in
-            (0..<50).flatMap { i -> [MaplyComponentObject] in
+            (0..<20).flatMap { i -> [MaplyComponentObject] in
                 let vsep = Float(0.1)
                 let hsep = Float(3.0)
                 let lat = Float(60.0) + vsep * Float(i)
@@ -31,7 +31,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
                 let vecObj = MaplyVectorObject(lineString: &coords, numCoords: Int32(coords.count))
                 subdiv(vc, vecObj, 0.0001)
 
-                let w = Float(i) / 3
+                let w = Float(i) / 4
                 let e = Float(j) / 2
                 
                 let desc = [
@@ -64,6 +64,11 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
     
     private func joins(_ vc: MaplyBaseViewController, bound: MaplyBoundingBox, slot: Int,
                        join: Int, perf: Bool, close: Bool, subdiv: Bool) -> [MaplyComponentObject?] {
+
+        // Legacy doesn't support these, don't bother with them
+        if (!perf && [1,2,4].contains(join)) {
+            return []
+        }
 
         let vsep = 2.5;
         let lat = Float(30.0 + (perf ? 4*vsep : 0.0) + (subdiv ? 2*vsep : 0.0) + (close ? vsep : 0.0))
@@ -150,6 +155,11 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
 
     private func caps(_ vc: MaplyBaseViewController, bound: MaplyBoundingBox, slot: Int,
                        cap: Int, perf: Bool, close: Bool) -> [MaplyComponentObject?] {
+
+        // Legacy doesn't support these, don't bother with them
+        if (!perf) {
+            return []
+        }
 
         let vsep = 2.5;
         let lat = Float(15.0 + (perf ? 2*vsep : 0.0) + (close ? vsep : 0.0))

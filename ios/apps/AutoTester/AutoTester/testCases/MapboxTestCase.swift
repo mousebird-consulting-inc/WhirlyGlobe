@@ -14,7 +14,7 @@ class MapboxTestCase: MaplyTestCase {
     override init() {
         super.init()
 
-        self.name = "Mapbox Variations"
+        self.name = "Mapbox Hybrid Map"
         self.implementations = [.map,.globe]
     }
     
