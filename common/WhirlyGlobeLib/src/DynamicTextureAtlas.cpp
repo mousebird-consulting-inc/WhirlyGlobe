@@ -441,16 +441,17 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
     }
     
     // We'll stop keeping track of the region
-    const TextureRegion &theRegion = *it;
+    const auto dynTexId = it->dynTexId;
+
     // Tell the dynamic texture to clear it out, but we'll send that request over to
     //  the renderer so we can be sure we're not still using it
-    changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region,when));
+    changes.push_back(new DynamicTextureClearRegion(dynTexId,it->region,when));
     regions.erase(it);
     
     // See if that texture is now empty
     for (const auto *texVec : textures)
     {
-        if (theRegion.dynTexId == texVec->at(0)->getId())
+        if (dynTexId == texVec->at(0)->getId())
         {
             const DynamicTextureRef &tex = texVec->at(0);
             tex->getNumRegions()--;
