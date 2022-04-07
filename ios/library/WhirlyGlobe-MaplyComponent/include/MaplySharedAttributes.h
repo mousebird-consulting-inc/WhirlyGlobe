@@ -243,21 +243,23 @@ extern NSString * const _Nonnull kMaplyWideVecImplPerf;
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
 extern NSString * const _Nonnull kMaplyWideVecJoinType;
 
-/// Widened vectors are joined with miters (fall back on bevel)
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are converted into bevels.
 extern NSString * const _Nonnull kMaplyWideVecMiterJoin;
-/// Widened vectors are joined with miters (clip on exceeding miter-limit)
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are clipped.
 extern NSString * const _Nonnull kMaplyWideVecMiterClipJoin;
-/// Widened vectors are joined with a curve
+/// Widened vectors are joined with a circular arc
 extern NSString * const _Nonnull kMaplyWideVecRoundJoin;
 /// Widened vectors are joined with a bevel
 extern NSString * const _Nonnull kMaplyWideVecBevelJoin;
-/// None
+/// No joins.  Also disables endcaps.
 extern NSString * const _Nonnull kMaplyWideVecNoneJoin;
 
 /// Determine how wide vectors behave when the ideal geometry is impossible
 extern NSString * const _Nonnull kMaplyWideVecFallbackMode;
 extern NSString * const _Nonnull kMaplyWideVecFallbackDefault;
+/// When the line intersection is out of range, clip it to the range and use it.
 extern NSString * const _Nonnull kMaplyWideVecFallbackClip;
+/// When the line intersection is out of range, discard it and don't join the like segments.
 extern NSString * const _Nonnull kMaplyWideVecFallbackNone;
 
 /// Number of pixels to use in blending the edges of the wide vectors

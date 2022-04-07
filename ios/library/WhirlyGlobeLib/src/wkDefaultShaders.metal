@@ -1055,8 +1055,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     bool intersectValid = false;
     bool turningLeft = false;
     const int interIdx = isEnd ? 1 : 0;
-    float2 center = centers[interIdx + 1].screenPos;    // Current centerline endpoint (may move with offsets)
-    float2 offsetPt = center + centerLine * screenScale;
+    float2 offsetCenter = centers[interIdx + 1].screenPos + centers[2].norm * centerLine * screenScale;
     float2 interPt(0, 0), realInterPt(0, 0);
     float dotProd = 0, theta = 0, miterLength = 0;
 
@@ -1070,8 +1069,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             dotProd < wideVecMaxTurnThreshold &&
             abs(abs(dotProd) - 1) >= wideVecMinTurnThreshold) {
 
-            // Turn angle, both vectors are normalized
-            theta = acos(dotProd);
+            // Interior turn angle, both vectors are normalized.
+            theta = M_PI_F - acos(dotProd);
 
             // todo: miter-clip doesn't work right at small angles
             if (joinType == WKSVertexLineJoinMiterClip && abs(abs(dotProd) - 1) < 0.01) {
@@ -1113,20 +1112,17 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 // If we're using offsets, we also need to know the point where the offset lines
                 // intersect, as the distance to the original intersection point isn't helpful.
                 // todo: this doesn't make sense for small angles, but what's the actual threshold?
-                if (centerLine != 0 &&  abs(abs(dotProd) - 1) > 0.05) {
+                if (centerLine != 0) {
                     const float2 cn0 = cur.norm * centerLine * screenScale;
                     const float2 cn1 = next.norm * centerLine * screenScale;
                     const IntersectInfo i2 = intersectLines(prev.screenPos + cn0, cur.screenPos + cn0,
                                                             cur.screenPos + cn1, next.screenPos + cn1);
-                    if (i2.valid && length_squared((i2.interPt - offsetPt)/screenScale) < maxAdjDist*maxAdjDist) {
-                        // todo: center and offset normally aren't the same, this will cause trouble
-                        // later on but seting `center=offsetPt-centerLine` doesn't work either...
-                        center = i2.interPt;
-                        offsetPt = i2.interPt;
+                    if (i2.valid && length_squared((i2.interPt - offsetCenter)/screenScale) < maxAdjDist*maxAdjDist) {
+                        offsetCenter = i2.interPt;
                     }
                 }
                 
-                const float2 interVec = (interPt - center) / screenScale;
+                const float2 interVec = (interPt - offsetCenter) / screenScale;
                 const float interDist2 = length_squared(interVec);
                 const float maxClipDist2 = (maxAdjDist * vertArgs.wideVec.interClipLimit) *
                                            (maxAdjDist * vertArgs.wideVec.interClipLimit);
@@ -1137,7 +1133,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                 if (interDist2 <= maxAdjDist*maxAdjDist) {
                     intersectValid = true;
                 } else if (vertArgs.wideVec.interClipLimit > 0 && interDist2 <= maxClipDist2) {
-                    interPt = center + normalize(interVec) * sqrt(interDist2) * screenScale;
+                    interPt = offsetCenter + normalize(interVec) * sqrt(interDist2) * screenScale;
                     intersectValid = true;
                 }
             }
@@ -1164,8 +1160,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     outVert.maskIDs[1] = inst[1].mask1;
 
     // Work out the corner positions by extending the normals
-    const float2 realEdge = (interSgn * w2 + centerLine) * screenScale;
-    const float2 corner = center + centers[2].norm * realEdge;
+    const float2 realEdge = interSgn * w2 * screenScale;
+    const float2 corner = offsetCenter + centers[2].norm * realEdge;
     const float turnSgn = turningLeft ? -1 : 1;
     const bool isInsideEdge = (isLeft == turningLeft);
 
@@ -1194,7 +1190,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         }
         if (capType == WhirlyKitShader::WKSVertexLineCapRound) {
             outVert.roundJoin = true;
-            outVert.centerPos = offsetPt / screenScale;
+            outVert.centerPos = offsetCenter / screenScale;
             outVert.screenPos = pos / screenScale;
             outVert.midDir = centers[2].nDir * (isEnd ? 1 : -1);
         }
@@ -1210,8 +1206,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         pos = interPt;
 
         // We'll need the corner on the opposite side for several things.
-        const float2 realOtherEdge = (-interSgn * w2 + centerLine) * screenScale;
-        const float2 otherCorner = center + centers[2].norm * realOtherEdge;
+        const float2 realOtherEdge = -interSgn * w2 * screenScale;
+        const float2 otherCorner = offsetCenter + centers[2].norm * realOtherEdge;
 
         // Miter is mostly handled above by using the intersect points instead of corners.
         if (joinType == WKSVertexLineJoinMiter) {
@@ -1234,10 +1230,10 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                     break;
                 case 1: case 11: {
                     // Use the point halfway between the outside corner and the one on the opposite side.
-                    const float2 n = centers[(whichVert == 1) ? 1 : 3].norm;
-                    const float2 c = turningLeft ? otherCorner : corner;
-                    const float2 e = turningLeft ? realOtherEdge : realEdge;
-                    pos = (center + c + n * e) / 2;
+                    const float2 norm = centers[(whichVert == 1) ? 1 : 3].norm;
+                    const float2 c = offsetCenter + centers[2].norm * realEdge * turnSgn;
+                    const float2 e = turnSgn * interSgn * w2 * screenScale;
+                    pos = (offsetCenter + c + norm * e) / 2;
                     // We're placing the vertex on the "wrong" side, so fix the texture X.
                     texX *= turnSgn;
                     break;
@@ -1250,7 +1246,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             // todo: fix texture Y-coords
             if (joinType == WKSVertexLineJoinRound && whichPoly != WideVecPolyBodyGeom && !discardTri) {
                 outVert.roundJoin = true;
-                outVert.centerPos = offsetPt / screenScale;
+                outVert.centerPos = offsetCenter / screenScale;
                 outVert.screenPos = pos / screenScale;
 
                 // Direction bisecting the turn toward the outside (right for a left turn)
@@ -1268,11 +1264,12 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             }
         } else if (joinType == WKSVertexLineJoinMiterClip) {
             // Direction of intersect point (bisecting the segment directions)
-            const float2 interDir = normalize((realInterPt - center) / screenScale) * turnSgn * interSgn;
+            const float2 interVec = (realInterPt - offsetCenter) / screenScale;
+            const float2 interDir = normalize(interVec) * turnSgn * interSgn;
             // And the perpendicular
             const float2 interNorm = float2(-interDir.y, interDir.x);
             // Distance from centerline intersect and edge intersect
-            const float interDist = length((realInterPt - center) / screenScale);
+            const float interDist = length(interVec);
             // "the miter is clipped by a line perpendicular to the line bisecting
             //  the angle between the two path segments at a distance of half the
             //  value of miter length from the intersection of the two path segments."
@@ -1284,24 +1281,24 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
                     // Out to the miter cap, then perpendicular to the line edge.
                     // The half-width of the clipped miter cap is the tangent of half the interior
                     // turn angle times the amount the original intersection extends beyond the cap.
-                    const float miterEdgeW2 = (interDist - midExt) * tan(M_PI_2_F - theta / 2);
-                    pos = center + screenScale * (interDir * midExt -
+                    const float miterEdgeW2 = (interDist - midExt) * tan(theta / 2);
+                    pos = offsetCenter + screenScale * (interDir * midExt -
                            interNorm * miterEdgeW2 * turnSgn * (whichVert ? -1 : 1));
                     break;
                 }
                 case 1: case 10:
                     // Extend the turn bisector to the miter clip edge
-                    pos = turningLeft ? (center + interDir * midExt * screenScale) :
+                    pos = turningLeft ? (offsetCenter + interDir * midExt * screenScale) :
                                         ((whichVert == 1) ? corner : otherCorner);
                     break;
                 case 2: case 9:
                     // Extend segment endpoint outward along the intersection angle by the miter length
                     pos = turningLeft ? ((whichVert == 2) ? corner : otherCorner) :
-                                        (center + interDir * midExt * screenScale);
+                                        (offsetCenter + interDir * midExt * screenScale);
                     break;
                 case 3: case 11:
                     // The edge intersect, or the one on the other side
-                    pos = turningLeft ? interPt : (center + (center - interPt));
+                    pos = turningLeft ? interPt : (offsetCenter + (offsetCenter - interPt));
                     break;
                 // Body segment, 4-7-5, 4-6-7
                 // Merge inside corners to avoid overlap, use default outside corner.

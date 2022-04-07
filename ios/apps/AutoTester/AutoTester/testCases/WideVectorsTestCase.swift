@@ -91,6 +91,14 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             self.subdiv(vc, vecObj, 0.0001)
         }
 
+        let props = [
+            joinAttr(join) ?? "",
+            perf ? "perf" : "",
+            subdiv ? "subdiv" : "",
+            close ? "closed" : "",
+            joinClip ? "clip" : "",
+        ]
+        
         let desc = [
             kMaplyEnable: false,
             kMaplyColor: UIColor.green.withAlphaComponent(0.5),
@@ -99,29 +107,25 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         let wideDesc = [
             kMaplyEnable: false,
             kMaplyZoomSlot: slot,
-            kMaplyVecWidth: perf ? ["stops":[[2,5],[12,80]]] : 40,
+            kMaplyVecWidth: perf ? ["stops":[[2,5],[12,80]]] : 20,
             kMaplyColor: perf ? UIColor.red.withAlphaComponent(0.35) : UIColor.blue.withAlphaComponent(0.35),
-            kMaplyWideVecOffset: 0,
+            kMaplyWideVecOffset: perf ? ["stops":[[12,0],[13,-50],[14,50],[15,0]]] : 0,
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 1,
             kMaplyWideVecImpl: perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
-            kMaplyWideVecFallbackMode: kMaplyWideVecFallbackClip,
+            kMaplyWideVecFallbackMode: joinClip ? kMaplyWideVecFallbackClip : kMaplyWideVecFallbackNone,
             kMaplyWideVecJoinType: joinAttr(join) ?? NSNull(),
-            kMaplyDrawableName: String(format: "WideVec-%@%@%@%@",
-                                       joinAttr(join) ?? "", perf ? "-perf" : "",
-                                       subdiv ? "-subdiv" : "", close ? "-closed" : "")
+            kMaplyDrawableName: "WideVec-" + props.joined(separator: "-"),
         ] as [AnyHashable: Any]
 
         let lblDesc = [
             kMaplyTextColor: UIColor.magenta,
             kMaplyEnable: false,
-            kMaplyFont: UIFont.systemFont(ofSize: 10.0),
+            kMaplyFont: UIFont.systemFont(ofSize: 8.0),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault,
         ] as [AnyHashable: Any]
         let lbl = MaplyScreenLabel()
         lbl.loc = MaplyCoordinateMakeWithDegrees(lon - 0.2, lat - 0.2)
-        lbl.text = String(format: "%@%@%@%@",
-                          joinAttr(join) ?? "", perf ? "\nperf" : "",
-                          subdiv ? "\nsubdiv" : "", close ? "\nclosed" : "")
+        lbl.text = props.joined(separator: "\n")
         
         return [
             vc.addVectors([vecObj], desc: desc, mode: .current),
@@ -143,20 +147,24 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
                 }
             }
         }
+        return objs
+    }
 
+    private func step() {
         joinN += joinD
+        if (joinN < -joinSteps) {
+            joinClip = !joinClip
+        }
         if (joinN > joinSteps || joinN < -joinSteps) {
             joinD = -joinD
             joinN += joinD
         }
-        
-        return objs
     }
 
     private func caps(_ vc: MaplyBaseViewController, bound: MaplyBoundingBox, slot: Int,
                        cap: Int, perf: Bool, close: Bool) -> [MaplyComponentObject?] {
 
-        // Legacy doesn't support these, don't bother with them
+        // Legacy doesn't support these, don't bother showing them
         if (!perf) {
             return []
         }
@@ -186,9 +194,11 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 1,
             kMaplyWideVecImpl: perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
             kMaplyWideVecJoinType: kMaplyWideVecBevelJoin,
+            kMaplyWideVecFallbackMode: kMaplyWideVecFallbackClip,
             kMaplyWideVecLineCapType: capAttr(cap) ?? NSNull(),
+            kMaplyWideVecOffset: perf ? ["stops":[[12,0],[13,-50],[14,50],[15,0]]] : 0,
             kMaplyVecTexture: dashTex ?? NSNull(),
-            kMaplyWideVecTexRepeatLen: 64,
+            kMaplyWideVecTexRepeatLen: close ? 50 : length(coords, close: false) / 15000,
             kMaplyDrawableName: String(format: "WideVec-%@%@%@",
                                        capAttr(cap) ?? "", perf ? "-perf" : "",
                                        close ? "-closed" : "")
@@ -197,7 +207,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         let lblDesc = [
             kMaplyTextColor: UIColor.magenta,
             kMaplyEnable: false,
-            kMaplyFont: UIFont.systemFont(ofSize: 10.0),
+            kMaplyFont: UIFont.systemFont(ofSize: 8.0),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault,
         ] as [AnyHashable: Any]
         let lbl = MaplyScreenLabel()
@@ -226,15 +236,14 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             }
         }
 
-        joinN += joinD
-        if (joinN > joinSteps || joinN < -joinSteps) {
-            joinD = -joinD
-            joinN += joinD
-        }
-        
         return objs
     }
 
+    private func length(_ pts: [MaplyCoordinate], close: Bool) -> Double {
+        zip(close ? pts : pts.dropLast(), pts.dropFirst() + (close ? [pts.first!] : []))
+        .reduce(0.0) { (dist: Double, p) in dist + GeoLibDistanceF(p.0, p.1) }
+    }
+    
     private func joinAttr(_ n: Int) -> String? {
         switch (n) {
         case 0: return kMaplyWideVecMiterJoin;
@@ -321,7 +330,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         let lblDesc = [
             kMaplyTextColor: UIColor.magenta,
             kMaplyEnable: false,
-            kMaplyFont: UIFont.systemFont(ofSize: 10.0),
+            kMaplyFont: UIFont.systemFont(ofSize: 8.0),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault,
         ] as [AnyHashable: Any]
         let lbl = MaplyScreenLabel()
@@ -379,8 +388,8 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         let wideDescOffs = wideDesc.merging([
             kMaplyColor: UIColor.blue.withAlphaComponent(0.6),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault + 2,
-            kMaplyWideVecOffset: perf ? ["stops":[[8,0],[10,-70],[12,70]]] : 20,
-            kMaplyDrawableName: String(format: "WideVec-Offset-%@%@", perf ? "-perf" : "", fudge ? "-clip" : ""),
+            kMaplyWideVecOffset: perf ? ["stops":[[8,0],[10,-70],[12,70]]] : 40,
+            kMaplyDrawableName: String(format: "WideVec-Offset%@%@", perf ? "-perf" : "", fudge ? "-clip" : ""),
         ], uniquingKeysWith: { (a,b) in b })
 
         // Centerline
@@ -393,7 +402,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         let lblDesc = [
             kMaplyTextColor: UIColor.magenta,
             kMaplyEnable: true,
-            kMaplyFont: UIFont.systemFont(ofSize: 10.0),
+            kMaplyFont: UIFont.systemFont(ofSize: 8.0),
             kMaplyDrawPriority: kMaplyVectorDrawPriorityDefault,
         ] as [AnyHashable: Any]
         let lbl = MaplyScreenLabel()
@@ -507,6 +516,8 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         }
         vc.enable(timerObjs, mode: .current)
         vc.remove(oldObjs, mode: .current)
+        
+        step()
     }
 
     private func wideLineTest(_ vc: MaplyBaseViewController) {
@@ -545,7 +556,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
         add(to: &objs, [true, false].flatMap {
             widths(vc, perf: $0)
         })
-        
+
         loadShapeFile(vc)
     }
 
@@ -555,6 +566,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
             self.wideLineTest(vc)
         }
         vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793), height: 0.01, heading: 0.0, time: 0.1)
+        vc.animate(toPosition: MaplyCoordinateMakeWithDegrees(-150.0, 32.0), height: 0.1, heading: 0.0, time: 0.1)
     }
     
     override func setUpWithMap(_ vc: MaplyViewController) {
@@ -600,6 +612,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
     private var texY = 0
     private var joinN = 15
     private var joinD = 1
+    private var joinClip = true
     private let joinSteps = 30
     private let baseCase = GeographyClassTestCase()
 }

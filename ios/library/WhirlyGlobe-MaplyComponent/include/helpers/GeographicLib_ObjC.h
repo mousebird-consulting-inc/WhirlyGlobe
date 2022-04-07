@@ -53,6 +53,7 @@ bool MaplyCoordinateDInPolygon(MaplyCoordinateD p, const MaplyCoordinate polygon
 bool MaplyCoordinateInPolygonD(MaplyCoordinate p, const MaplyCoordinateD polygon[], unsigned count);
 bool MaplyCoordinateDInPolygonD(MaplyCoordinateD p, const MaplyCoordinateD polygon[], unsigned count);
 
+double GeoLibDistanceF(MaplyCoordinate startPt, MaplyCoordinate endPt);
 double GeoLibDistanceD(MaplyCoordinateD startPt, MaplyCoordinateD endPt);
 
 // Test for a segment intersecting a polygon.

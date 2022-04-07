@@ -255,14 +255,15 @@
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
 #define MaplyWideVecJoinType WKString("wideveclinejointype")
 
-/// Widened vectors are joined with miters
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are converted into bevels.
 #define MaplyWideVecMiterJoin WKString("miter")
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are clipped.
 #define MaplyWideVecMiterClipJoin WKString("miter-clip")
-/// Widened vectors are joined with a curve
+/// Widened vectors are joined with a circular arc
 #define MaplyWideVecRoundJoin WKString("round")
 /// Widened vectors are joined with a bevel
 #define MaplyWideVecBevelJoin WKString("bevel")
-/// No joins (fastest)
+/// No joins.  Also disables endcaps.
 #define MaplyWideVecNoneJoin WKString("none")
 
 /// Determine how wide vectors behave when the ideal geometry is impossible
