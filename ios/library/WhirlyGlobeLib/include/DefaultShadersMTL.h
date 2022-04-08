@@ -96,11 +96,12 @@ typedef enum {
 // Line Joins
 // These are assumed to match WideVectorLineJoinType
 typedef enum {
-    WKSVertexLineJoinMiter     = 0,
-    WKSVertexLineJoinMiterClip = 1,
-    WKSVertexLineJoinRound     = 2,
-    WKSVertexLineJoinBevel     = 3,
-    WKSVertexLineJoinNone      = 4,
+    WKSVertexLineJoinMiter       = 0,
+    WKSVertexLineJoinMiterClip   = 1,
+    WKSVertexLineJoinMiterSimple = 2,
+    WKSVertexLineJoinRound       = 3,
+    WKSVertexLineJoinBevel       = 4,
+    WKSVertexLineJoinNone        = 5,
 } WKSVertexLineJoinType;
 
 // Line Caps

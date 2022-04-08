@@ -89,7 +89,7 @@ struct VectorStyleSettingsImpl
     /// Use widened vectors (which do anti-aliasing and such)
     bool useWideVectors = false;
 
-    // Use GPU-based wide vector implementation
+    /// Use GPU-based wide vector implementation (iOS/Metal only)
     bool perfWideVec = false;
 
     /// If set, we'll make all the features selectable.  If not, we won't.

@@ -209,6 +209,7 @@ WKDefineConst(WideVecJoinType)
 /// Widened vectors are joined with miters
 WKDefineConst(WideVecMiterJoin)
 WKDefineConst(WideVecMiterClipJoin)
+WKDefineConst(WideVecMiterSimpleJoin)
 // Note: Not yet implemented
 /// Widened vectors are joined with a curve
 WKDefineConst(WideVecRoundJoin)

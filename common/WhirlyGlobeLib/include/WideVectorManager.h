@@ -1,5 +1,4 @@
-/*
- *  WideVectorManager.h
+/*  WideVectorManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -41,6 +39,7 @@ typedef enum {WideVecCoordReal,WideVecCoordScreen} WideVectorCoordsType;
 typedef enum WideVectorLineJoinType_t {
     WideVecMiterJoin,
     WideVecMiterClipJoin,
+    WideVecMiterSimpleJoin,
     WideVecRoundJoin,
     WideVecBevelJoin,
     WideVecNoneJoin,

@@ -259,6 +259,8 @@
 #define MaplyWideVecMiterJoin WKString("miter")
 /// Widened vectors are joined with miters.  Miters exceeding the miter limit are clipped.
 #define MaplyWideVecMiterClipJoin WKString("miter-clip")
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are ignored.
+#define MaplyWideVecMiterSimpleJoin WKString("miter-simple")
 /// Widened vectors are joined with a circular arc
 #define MaplyWideVecRoundJoin WKString("round")
 /// Widened vectors are joined with a bevel

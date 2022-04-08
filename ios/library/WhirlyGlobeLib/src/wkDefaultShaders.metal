@@ -1072,11 +1072,6 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
             // Interior turn angle, both vectors are normalized.
             theta = M_PI_F - acos(dotProd);
 
-            // todo: miter-clip doesn't work right at small angles
-            if (joinType == WKSVertexLineJoinMiterClip && abs(abs(dotProd) - 1) < 0.01) {
-                joinType = WKSVertexLineJoinMiter;
-            }
-
             // "If the miter length divided by the stroke width exceeds the miterlimit then:
             //   miter: the join is converted to a bevel
             //   miter-clip: the miter is clipped at half the miter length from the intersection"
@@ -1141,7 +1136,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     }
 
     // Endcaps not used for miter case, discard them.
-    if (joinType == WKSVertexLineJoinMiter && whichPoly != WideVecPolyBodyGeom && !isStartCap && !isEndCap) {
+    if ((joinType == WKSVertexLineJoinMiter || joinType == WKSVertexLineJoinMiterSimple) &&
+        whichPoly != WideVecPolyBodyGeom && !isStartCap && !isEndCap) {
         return outVert;
     }
 
@@ -1210,7 +1206,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         const float2 otherCorner = offsetCenter + centers[2].norm * realOtherEdge;
 
         // Miter is mostly handled above by using the intersect points instead of corners.
-        if (joinType == WKSVertexLineJoinMiter) {
+        if (joinType == WKSVertexLineJoinMiter ||
+            joinType == WKSVertexLineJoinMiterSimple) {
             // Add the difference between the intersection point and the original corner,
             // accounting for the textures being based on un-projected coordinates.
             texY += dot((interPt - corner) / screenScale, centers[2].nDir) / projScale;

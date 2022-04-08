@@ -62,11 +62,12 @@ WideVectorInfo::WideVectorInfo(const Dictionary &dict)
     if (const auto entry = dict.getEntry(MaplyWideVecJoinType))
     {
         const auto s = entry->getString();
-        if      (s == MaplyWideVecMiterJoin)     joinType = WideVecMiterJoin;
-        else if (s == MaplyWideVecMiterClipJoin) joinType = WideVecMiterClipJoin;
-        else if (s == MaplyWideVecBevelJoin)     joinType = WideVecBevelJoin;
-        else if (s == MaplyWideVecRoundJoin)     joinType = WideVecRoundJoin;
-        else                                     joinType = WideVecNoneJoin;
+        if      (s == MaplyWideVecMiterJoin)       joinType = WideVecMiterJoin;
+        else if (s == MaplyWideVecMiterClipJoin)   joinType = WideVecMiterClipJoin;
+        else if (s == MaplyWideVecMiterSimpleJoin) joinType = WideVecMiterSimpleJoin;
+        else if (s == MaplyWideVecBevelJoin)       joinType = WideVecBevelJoin;
+        else if (s == MaplyWideVecRoundJoin)       joinType = WideVecRoundJoin;
+        else                                       joinType = WideVecNoneJoin;
     }
 
     if (const auto entry = dict.getEntry(MaplyWideVecFallbackMode))
@@ -158,9 +159,8 @@ std::string WideVectorInfo::toString() const
 // Turn this on for smaller texture lengths
 //#define TEXTURE_RESET 1
 
-class WideVectorBuilder
+struct WideVectorBuilder
 {
-public:
     WideVectorBuilder(const WideVectorInfo *vecInfo,
                       Point3d localCenter,
                       Point3d dispCenter,
@@ -169,119 +169,100 @@ public:
                       bool makeTurns,
                       CoordSystemDisplayAdapter *coordAdapter) :
           vecInfo(vecInfo),
-          angleCutoff(DegToRad(30.0)),
-          texOffset(0.0),
-          edgePointsValid(false),
           coordAdapter(coordAdapter),
           localCenter(std::move(localCenter)),
           dispCenter(std::move(dispCenter)),
           makeDistinctTurn(makeTurns),
           maskIDs(std::move(maskIDs)),
-          color(RGBAColor::white())
+          color(inColor)
     {
-        color = inColor;
+        texOffset = -vecInfo->texOffset.y() / vecInfo->repeatSize;
     }
 
     // Two widened lines that intersect in a point.
     // Width/2 is the input
-    class InterPoint
+    struct InterPoint
     {
-    public:
-        InterPoint() :
-            c(0.0),
-            texX(0.0),
-            texYmin(0.0),
-            texYmax(0.0),
-            texOffset(0.0),
-            offset(0.0,0.0),
-            centerlineDir(1.0)
-        { }
+        InterPoint() = default;
 
         // Construct with a single line
-        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,double inTexX,double inTexYmin,double inTexYmax,double inTexOffset)
+        InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,
+                   double inTexX,double inTexYmin,double inTexYmax,double inTexOffset) :
+            n(n0),
+            dir(p1 - p0),
+            org(p0),
+            dest(p1),
+            texX(inTexX),
+            texYmin(inTexYmin),
+            texYmax(inTexYmax),
+            texOffset(inTexOffset)
         {
-            c = 0;
-            dir = p1 - p0;
-            n = n0;
-            org = p0;
-            dest = p1;
-            centerlineDir = 1.0;
-            offset = Point2d(0.0,0.0);
-            texX = inTexX;
-            texYmin = inTexYmin;
-            texYmax = inTexYmax;
-            texOffset = inTexOffset;
         }
-                
+
         // Pass in the half width to calculate the intersection point
-        Point3d calcInterPt(double centerOffset,double w2)
+        Point3d calcInterPt(double centerOffset,double w2) const
         {
-            double t0 = c * (centerOffset + w2);
-            Point3d iPt = dir * t0 +
-                          dir * w2 * offset.y() +
-                          n * (centerOffset + w2) +
-                          n * offset.x() +
-                          org;
-            
-            return iPt;
+            const double t0 = c * (centerOffset + w2);
+            return dir * t0 +
+                   dir * w2 * offset.y() +
+                   n * (centerOffset + w2) +
+                   n * offset.x() +
+                   org;
         }
         
-        InterPoint flipped() {
+        InterPoint flipped() const  {
             InterPoint newPt = *this;
             newPt.n *= -1;
-            
             return newPt;
         }
 
         // Same point, but offset along the centerline
-        InterPoint nudgeAlongCenter(double nudge) {
+        InterPoint nudgeAlongCenter(double nudge) const  {
             InterPoint newPt = *this;
             newPt.offset.y() += nudge;
-            
             return newPt;
         }
         
         // Same point, but offset along the normal
-        InterPoint nudgeAlongNormal(double nudge) {
+        InterPoint nudgeAlongNormal(double nudge) const  {
             InterPoint newPt = *this;
             newPt.offset.x() += nudge;
-
             return newPt;
         }
         
         // Set the texture X coordinate, but otherwise just copy
-        InterPoint withTexX(double newTexX) {
+        InterPoint withTexX(double newTexX) const  {
             InterPoint newPt = *this;
             newPt.texX = newTexX;
-            
             return newPt;
         }
         
         // Set the tex min/max accordingly, but otherwise just copy
-        InterPoint withTexY(double newMinTexY,double newMaxTexY) {
+        InterPoint withTexY(double newMinTexY,double newMaxTexY) const {
             InterPoint newPt = *this;
             newPt.texYmin = newMinTexY;
             newPt.texYmax = newMaxTexY;
-            
             return newPt;
         }
         
         // Set the tex offset, but otherwise just copy
-        InterPoint withTexOffset(double newTexOffset) {
+        InterPoint withTexOffset(double newTexOffset) const  {
             InterPoint newPt = *this;
             newPt.texOffset = newTexOffset;
-            
             return newPt;
         }
         
-        double c;
-        Point3d dir;
-        Point3d n;
-        Point3d org,dest;
-        Point2d offset;
-        double centerlineDir;
-        double texX;
-        double texYmin,texYmax,texOffset;
+        double c = 0.0;
+        Point3d dir = { 0.0, 0.0, 0.0 };
+        Point3d n = { 0.0, 0.0, 0.0 };
+        Point3d org = { 0.0, 0.0, 0.0 };
+        Point3d dest = { 0.0, 0.0, 0.0 };
+        Point2d offset = { 0.0, 0.0 };
+        double centerlineDir = 1.0;
+        double texX = 0.0;
+        double texYmin = 0.0;
+        double texYmax = 0.0;
+        double texOffset = 0.0;
     };
     
     // Intersect the wide lines, but return an equation to calculate the point
@@ -640,7 +621,8 @@ public:
     
     
     // Add a point to the widened linear we're building
-    void addPoint(const Point3d &inPt,const Point3d &up,const WideVectorDrawableBuilderRef &drawable,bool closed,bool buildSegment,bool buildJunction)
+    void addPoint(const Point3d &inPt,const Point3d &up,const WideVectorDrawableBuilderRef &drawable,
+                  bool closed,bool buildSegment,bool buildJunction)
     {
         // Compare with the last point, if it's the same, toss it
         if (!pts.empty() && pts.back() == inPt && !closed)
@@ -669,22 +651,20 @@ public:
     }
 
     const WideVectorInfo *vecInfo;
-    CoordSystemDisplayAdapter *coordAdapter;
-    RGBAColor color;
+    const CoordSystemDisplayAdapter *coordAdapter = nullptr;
+    const RGBAColor color = RGBAColor::white();
     std::vector<SimpleIdentity> maskEntries;
     std::vector<SimpleIdentity> maskIDs;
-    Point3d localCenter,dispCenter;
-    double angleCutoff;
-    bool makeDistinctTurn;
-    
-    double texOffset;
-
+    const double angleCutoff = DegToRad(30.0);
+    bool makeDistinctTurn = false;
+    bool edgePointsValid = false;
+    double texOffset = 0.0;
+    Point3d localCenter;
+    Point3d dispCenter;
     Point3dVector pts;
     Point3d lastUp;
-    
-    bool edgePointsValid;
-    InterPoint e0,e1;
-    //,centerAdj;
+    InterPoint e0;
+    InterPoint e1;
 };
 
 static const std::string defDrawableName = "Wide Vector";
@@ -885,7 +865,8 @@ struct WideVectorDrawableConstructor
                 //  will be handled differently by the fragment shader
 
                 // Caps are needed for miter becasue it can turn into a bevel.
-                const bool emitCaps = (drawable->getLineJoin() != WideVectorLineJoinType::WideVecNoneJoin);
+                const bool emitCaps = (drawable->getLineJoin() != WideVectorLineJoinType::WideVecNoneJoin &&
+                                       drawable->getLineJoin() != WideVectorLineJoinType::WideVecMiterSimpleJoin);
 
                 int base = 0;
                 if (emitCaps)

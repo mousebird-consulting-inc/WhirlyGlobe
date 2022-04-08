@@ -247,6 +247,8 @@ extern NSString * const _Nonnull kMaplyWideVecJoinType;
 extern NSString * const _Nonnull kMaplyWideVecMiterJoin;
 /// Widened vectors are joined with miters.  Miters exceeding the miter limit are clipped.
 extern NSString * const _Nonnull kMaplyWideVecMiterClipJoin;
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are ignored.
+extern NSString * const _Nonnull kMaplyWideVecMiterSimpleJoin;
 /// Widened vectors are joined with a circular arc
 extern NSString * const _Nonnull kMaplyWideVecRoundJoin;
 /// Widened vectors are joined with a bevel
