@@ -19,7 +19,7 @@
  */
 
 #import "MaplyTileSource.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyCoordinateSystem_private.h"
 
 @implementation MaplyFrameStatus

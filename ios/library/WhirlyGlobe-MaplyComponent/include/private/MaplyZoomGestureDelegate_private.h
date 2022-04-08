@@ -1,6 +1,4 @@
-/*
- *  MaplyZoomGestureDelegate_private.h
- *
+/*  MaplyZoomGestureDelegate_private.h
  *
  *  Created by Jesse Crocker on 2/4/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -15,17 +13,28 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
 #import "SceneRenderer.h"
+#import <WhirlyGlobe/MapView_iOS.h>
 
-using namespace WhirlyKit;
+#define kZoomGestureDelegateDidStart @"WKZoomDelegateStarted"
+// Sent out when the pan delegate finished (but hands off to momentum)
+#define kZoomGestureDelegateDidEnd @"WKZoomDelegateEnded"
 
-@interface MaplyZoomGestureDelegate (_private)
+@interface MaplyZoomGestureDelegate ()
+{
+/// Boundary quad that we're to stay within
+  WhirlyKit::Point2dVector bounds;
+}
 
-- (bool)withinBounds:(Point3d &)loc view:(UIView *)view renderer:(SceneRenderer *)sceneRender mapView:(Maply::MapView *)testMapView newCenter:(Point3d *)newCenter;
+@property (nonatomic) Maply::MapView_iOSRef mapView;
 
+- (const WhirlyKit::Point2dVector &)getBounds;
+
+- (void)setBounds:(const WhirlyKit::Point2d *)bounds;
+
+- (instancetype)initWithMapView:(Maply::MapView_iOSRef)inView;
 @end

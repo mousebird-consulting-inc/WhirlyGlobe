@@ -7,11 +7,7 @@
 //
 
 #import "LabelAnimationTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyViewController.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyScreenLabel.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation LabelAnimationTestCase {
     NSTimer *_labelAnimationTimer;

@@ -36,9 +36,10 @@ struct MapboxVectorLineLayout
     bool parse(PlatformThreadInfo *inst,MapboxVectorStyleSetImpl *styleSet,const DictionaryRef &styleEntry);
 
     MapboxVectorLineCap cap = MBLineCapButt;
-    MapboxVectorLineJoin join = MBLineJoinBevel;
+    MapboxVectorLineJoin join = MBLineJoinMiter;
     double miterLimit = 0.0;
     double roundLimit = 0.0;
+    bool joinSet = false;
 };
 
 /**

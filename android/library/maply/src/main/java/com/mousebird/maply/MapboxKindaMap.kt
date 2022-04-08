@@ -73,7 +73,7 @@ open class MapboxKindaMap(
     var markerScale = 0.0
     var maxConcurrentLoad: Int? = null
     var debugMode = false
-    var running: Boolean = false; private set
+    var running: Boolean = false; private set       // true after resource fetch and stylesheet setup
 
     /* If set, we build an image/vector hybrid where the polygons go into
      *  the image layer and the linears and points are represented as vectors
@@ -199,12 +199,11 @@ open class MapboxKindaMap(
     protected fun checkFinished() {
         // Start the map if no outstanding fetches are running
         control.get()?.activity?.runOnUiThread {
-            if (!finished && outstandingFetches.all { it == null }) {
+            if (!stopping && !finished && outstandingFetches.all { it == null }) {
                 finished = true
                 startLoader()
             }
-        }
-    }
+        }     }
 
     // If we're using a cache dir, look for the file there
     protected fun cacheResolve(url: Uri) : File? {

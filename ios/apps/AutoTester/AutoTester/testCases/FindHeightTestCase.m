@@ -7,10 +7,7 @@
 //
 
 #import "FindHeightTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyViewController.h"
-#import "WhirlyGlobeViewController.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation FindHeightTestCase {
     MaplyBaseViewController *_baseVC;

@@ -16,7 +16,7 @@
  *  limitations under the License.
  */
 
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 #import "ComponentManager_Android.h"
 #import "Dictionary_Android.h"

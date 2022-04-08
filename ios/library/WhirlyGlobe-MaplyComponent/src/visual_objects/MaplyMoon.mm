@@ -24,40 +24,79 @@ using namespace WhirlyKit;
 
 @implementation MaplyMoon
 {
-    WhirlyKit::Moon *moon;
-    double moonLon,moonLat;
+    std::unique_ptr<Moon> moon;
+    Point2d moonPos;
 }
 
 // Math borrowed from: http://www.lunar-occultations.com/rlo/ephemeris.htm
-- (instancetype)initWithDate:(NSDate *)date
+- (instancetype _Nullable)initWithDate:(NSDate *)date
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
 
     // Start with the Julian Date
     NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
     calendar.timeZone = [NSTimeZone timeZoneForSecondsFromGMT:0];
-    NSDateComponents *components = [calendar components:(NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond) fromDate:date];
     
-    moon = new Moon(components.year,components.month,components.day,components.hour,components.minute,components.second);
+    const NSCalendarUnit units = NSCalendarUnitYear |
+                                 NSCalendarUnitMonth |
+                                 NSCalendarUnitDay |
+                                 NSCalendarUnitHour |
+                                 NSCalendarUnitMinute |
+                                 NSCalendarUnitSecond;
+    NSDateComponents *components = [calendar components:units fromDate:date];
+    if (!components)
+    {
+        return nil;
+    }
+    
+    moon = std::make_unique<Moon>(components.year,components.month,components.day,
+                                  components.hour,components.minute,components.second);
 
     return self;
 }
 
 - (void)dealloc
 {
-    delete moon;
-    moon = nullptr;
+    moon.reset();
 }
 
-- (MaplyCoordinate)asCoordinate
+- (MaplyCoordinate)coordinate
 {
-    return MaplyCoordinateMake(moon->moonLon,moon->moonLat);
+    if (moon)
+    {
+        return MaplyCoordinateMake(moon->moonLon,moon->moonLat);
+    }
+    return kMaplyNullCoordinate;
 }
 
-- (MaplyCoordinate3d)asPosition
+- (MaplyCoordinate3d)position
 {
-    const auto height = 385000000 / EarthRadius;
-    return MaplyCoordinate3dMake(moon->moonLon,moon->moonLat, height);
+    if (moon)
+    {
+        const auto height = 385000000 / EarthRadius;
+        return MaplyCoordinate3dMake(moon->moonLon,moon->moonLat, height);
+    }
+    return kMaplyNullCoordinate3d;
+}
+
+- (MaplyLight * _Nullable )makeLight
+{
+    return [self makeLightWithAmbient:0.0f diffuse:0.1f];
+}
+
+- (MaplyLight * _Nullable)makeLightWithAmbient:(float)ambient diffuse:(float)diffuse
+{
+    MaplyLight *light = [[MaplyLight alloc] init];
+    const MaplyCoordinate3d dir = self.position;
+    light.pos = MaplyCoordinate3dMake(dir.x, dir.z, dir.y);
+    light.ambient = [UIColor colorWithRed:ambient green:ambient blue:ambient alpha:1.0];
+    light.diffuse = [UIColor colorWithRed:diffuse green:diffuse blue:diffuse alpha:1.0];
+    light.viewDependent = true;
+    
+    return light;
 }
 
 - (double)illuminatedFraction

@@ -27,8 +27,15 @@ static const char * const joinVals[] = {"bevel","round","miter",nullptr};
 
 bool MapboxVectorLineLayout::parse(PlatformThreadInfo *,MapboxVectorStyleSetImpl *, const DictionaryRef &styleEntry)
 {
+    if (const auto entry = styleEntry ? styleEntry->getEntry("line-join") : nullptr)
+    {
+        const auto joinVal = MapboxVectorStyleSetImpl::enumValue(entry,joinVals, -1);
+        if (joinVal >= 0) {
+            join = (MapboxVectorLineJoin)joinVal;
+            joinSet = true;
+        }
+    }
     cap = styleEntry ? (MapboxVectorLineCap)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("line-cap"),lineCapVals,(int)MBLineCapButt) : MBLineCapButt;
-    join = styleEntry ? (MapboxVectorLineJoin)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("line-join"),joinVals,(int)MBLineJoinMiter) : MBLineJoinMiter;
     miterLimit = MapboxVectorStyleSetImpl::doubleValue("line-miter-limit", styleEntry, 2.0);
     roundLimit = MapboxVectorStyleSetImpl::doubleValue("line-round-limit", styleEntry, 1.0);
 
@@ -133,6 +140,30 @@ MapboxVectorStyleLayer& MapboxVectorLayerLine::copy(const MapboxVectorStyleLayer
     return *this;
 }
 
+static const std::string colorStr = "color"; // NOLINT(cert-err58-cpp)   constructor can throw
+
+static WideVectorLineJoinType convertJoin(MapboxVectorLineJoin join)
+{
+    switch (join)
+    {
+        default:
+        case MBLineJoinMiter: return WideVecMiterJoin;
+        case MBLineJoinBevel: return WideVecBevelJoin;
+        case MBLineJoinRound: return WideVecRoundJoin;
+    }
+}
+
+static WideVectorLineCapType convertCap(MapboxVectorLineCap cap)
+{
+    switch (cap)
+    {
+        default:
+        case MBLineCapButt: return WideVecButtCap;
+        case MBLineCapRound: return WideVecRoundCap;
+        case MBLineCapSquare: return WideVecSquareCap;
+    }
+}
+
 void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
                                          const std::vector<VectorObjectRef> &inVecObjs,
                                          const VectorTileDataRef &tileInfo,
@@ -219,22 +250,40 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     }
 
     WideVectorInfo vecInfo;
-    vecInfo.hasExp = true;
     vecInfo.coordType = WideVecCoordScreen;
-    vecInfo.programID = styleSet->wideVectorProgramID;
-    vecInfo.fade = fade;
+    vecInfo.fadeIn = fade;
+    vecInfo.fadeOut = fade;
     vecInfo.zoomSlot = styleSet->zoomSlot;
     vecInfo.color = *color;
     vecInfo.width = (float)width;
     vecInfo.offset = (float)-offset;
+    vecInfo.joinType = layout.joinSet ? convertJoin(layout.join) : WideVecMiterSimpleJoin;
+    vecInfo.capType = convertCap(layout.cap);
     vecInfo.widthExp = paint.width->expression();
     vecInfo.offsetExp = paint.offset->expression();
     vecInfo.colorExp = paint.color->expression();
     vecInfo.opacityExp = paint.opacity->expression();
+    vecInfo.hasExp = vecInfo.widthExp || vecInfo.offsetExp || vecInfo.colorExp || vecInfo.opacityExp;
     vecInfo.drawPriority = drawPriority + tileInfo->ident.level * std::max(0, styleSet->tileStyleSettings->drawPriorityPerLevel)+2;
+    vecInfo.implType = styleSet->tileStyleSettings->perfWideVec ? WideVecImplPerf : WideVecImplBasic;
+    vecInfo.programID = styleSet->tileStyleSettings->perfWideVec ? styleSet->wideVectorPerfProgramID : styleSet->wideVectorProgramID;
     // TODO: Switch to stencils
 //        vecInfo.drawOrder = tileInfo->tileNumber();
-    
+
+    // Legacy wide vectors have limited join support
+    if (!styleSet->tileStyleSettings->perfWideVec)
+    {
+        switch (vecInfo.joinType)
+        {
+            case WideVecMiterClipJoin:
+            case WideVecMiterSimpleJoin:
+            case WideVecRoundJoin:
+            case WideVecNoneJoin:
+                vecInfo.joinType = WideVecMiterJoin;
+            default: break;
+        }
+    }
+
     if (minzoom != 0 || maxzoom < 1000)
     {
         vecInfo.minZoomVis = minzoom;
@@ -258,6 +307,8 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
     auto const capacity = inVecObjs.size() * 5;  // ?
     std::unordered_map<std::string,ShapeRefVec> shapesByUUID(capacity);
 
+    const bool colorOverride = styleSet->tileStyleSettings->enableOverrideColor;
+
     // Gather all the linear features
     for (const auto &vecObj : vecObjs)
     {
@@ -280,6 +331,12 @@ void MapboxVectorLayerLine::buildObjects(PlatformThreadInfo *inst,
         if (shapes.empty())
             shapes.reserve(shapes.size() + vecObj->shapes.size());
         std::copy(vecObj->shapes.begin(),vecObj->shapes.end(),std::back_inserter(shapes));
+
+        // If individual vector objects aren't allowed to override colors, drop the color attribute.
+        if (!colorOverride)
+        {
+            attrs->removeField(colorStr);
+        }
     }
 
     for (const auto &kvp : shapesByUUID)

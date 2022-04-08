@@ -1,5 +1,4 @@
-/*
- *  TapDelegate.mm
+/*  GlobeTapDelegate.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/3/11.
@@ -15,10 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/GlobeTapDelegate.h"
+#import "private/GlobeTapDelegate_private.h"
+#import "private/GlobeTapMessage_private.h"
 #import "SceneRenderer.h"
 #import "GlobeMath.h"
 #import "ViewWrapper.h"

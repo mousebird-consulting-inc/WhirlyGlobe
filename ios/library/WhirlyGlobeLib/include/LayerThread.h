@@ -79,7 +79,7 @@
 
 /// Layers should send their change requests through here
 /// You can call this from any thread.
-- (void)addChangeRequests:(std::vector<WhirlyKit::ChangeRequest *> &)changeRequests;
+- (void)addChangeRequests:(WhirlyKit::ChangeSet &)changeRequests;
 
 /// Called by a layer to request a flush at the next opportunity.
 /// Presumably the layer did something worth flushing

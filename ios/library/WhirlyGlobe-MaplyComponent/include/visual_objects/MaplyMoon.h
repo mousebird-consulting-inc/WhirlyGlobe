@@ -17,9 +17,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "visual_objects/MaplyComponentObject.h"
-#import "control/WhirlyGlobeViewController.h"
-#import "rendering/MaplyLight.h"
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/MaplyLight.h>
 
 /** 
     Utility for calculating moon position.
@@ -31,20 +31,26 @@
 /** 
     Initialize with a date.
     
-    Initialize with the given date.  The moon position will correspond to that.  Must be after 2000.
+    Initialize with the given date/time (UTC).  The moon position will correspond to that.  Must be after 2000.
   */
-- (nonnull instancetype)initWithDate:(NSDate *__nonnull)date;
+- (instancetype _Nullable)initWithDate:(NSDate *__nonnull)date;
 
 /// Location on the globe where the moon would land if it fell straight down.  Ouch.
-- (MaplyCoordinate)asCoordinate;
+@property (nonatomic, readonly) MaplyCoordinate coordinate;
 
 /// Return the location above the globe in lon/lat/distance.  Yay geocentric!
-- (MaplyCoordinate3d)asPosition;
+@property (nonatomic, readonly)  MaplyCoordinate3d position;
 
 /// Illuminated fraction of the moon
-@property (readonly) double illuminatedFraction;
+@property (nonatomic, readonly) double illuminatedFraction;
 
 /// Phase of the moon.
-@property (readonly) double phase;
+@property (nonatomic, readonly) double phase;
+
+/// Makes up a light that corresponds to the location at a given time
+- (MaplyLight * _Nullable )makeLight;
+
+/// Makes up a light that corresponds to the location at a given time
+- (MaplyLight * _Nullable)makeLightWithAmbient:(float)ambient diffuse:(float)diffuse;
 
 @end

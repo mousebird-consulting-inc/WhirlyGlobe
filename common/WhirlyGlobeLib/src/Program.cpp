@@ -74,22 +74,23 @@ ShaderRemTextureReq::ShaderRemTextureReq(SimpleIdentity shaderID,SimpleIdentity 
 
 void ShaderRemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
-    Program *prog = scene->getProgram(shaderID);
-    if (prog)
+    if (Program *prog = scene->getProgram(shaderID))
+    {
         prog->clearTexture(texID);
+    }
 }
 
-ProgramUniformBlockSetRequest::ProgramUniformBlockSetRequest(SimpleIdentity inProgID,const RawDataRef &uniData,int bufferID)
+ProgramUniformBlockSetRequest::ProgramUniformBlockSetRequest(SimpleIdentity inProgID, RawDataRef uniData,int bufferID)
 {
     progID = inProgID;
-    uniBlock.blockData = uniData;
+    uniBlock.blockData = std::move(uniData);
     uniBlock.bufferID = bufferID;
 }
 
 void ProgramUniformBlockSetRequest::execute(Scene *scene,SceneRenderer *renderer,View *view)
 {
-    Program *prog = scene->getProgram(progID);
-    if (prog) {
+    if (Program *prog = scene->getProgram(progID))
+    {
         prog->setUniBlock(uniBlock);
     }
 }

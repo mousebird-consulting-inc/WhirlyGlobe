@@ -107,7 +107,7 @@ SceneGraphManager::~SceneGraphManager()
     drawables.clear();
 }
     
-void SceneGraphManager::removeDrawable(SimpleIdentity drawID,std::vector<ChangeRequest *> &changes)
+void SceneGraphManager::removeDrawable(SimpleIdentity drawID,ChangeSet &changes)
 {
     auto it = drawables.find(drawID);
     if (it == drawables.end())

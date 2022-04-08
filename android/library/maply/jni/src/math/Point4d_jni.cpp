@@ -18,7 +18,7 @@
 
 #import <jni.h>
 #import "Geometry_jni.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 template<> Point4dClassInfo *Point4dClassInfo::classInfoObj = nullptr;
 

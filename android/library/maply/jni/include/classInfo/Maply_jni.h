@@ -23,7 +23,7 @@
 #import <vector>
 #import <android/log.h>
 #import <jni.h>
-#import <WhirlyGlobe.h>
+#import <WhirlyGlobeLib.h>
 #import <WhirlyKitLog.h>
 #import <Exceptions_jni.h>
 

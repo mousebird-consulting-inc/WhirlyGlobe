@@ -1,5 +1,4 @@
-/*
- *  PinchDelegateFixed.mm
+/*  GlobePinchDelegate.mm
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/22/12.
@@ -15,13 +14,15 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/GlobePinchDelegate.h"
+#import "private/GlobePinchDelegate_private.h"
 #import "gestures/GlobeRotateDelegate.h"
+#import "private/GlobeRotateDelegate_private.h"
 #import "gestures/GlobeTiltDelegate.h"
 #import "ViewWrapper.h"
+#import "IntersectionManager.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -128,7 +129,7 @@ using namespace WhirlyGlobe;
         return;
     }
 
-    IntersectionManagerRef intManager = std::dynamic_pointer_cast<IntersectionManager>(sceneRender->getScene()->getManager(kWKIntersectionManager));
+    const auto intManager = sceneRender->getScene()->getManager<IntersectionManager>(kWKIntersectionManager);
     if (!intManager)
         return;
     

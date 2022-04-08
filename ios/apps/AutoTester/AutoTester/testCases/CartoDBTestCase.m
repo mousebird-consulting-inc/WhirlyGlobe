@@ -7,10 +7,8 @@
 //
 
 #import "CartoDBTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "WhirlyGlobeViewController.h"
 #import "CartoDBInterpreter.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation CartoDBTestCase
 {

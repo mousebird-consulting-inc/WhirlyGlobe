@@ -76,8 +76,8 @@ public:
     BufferEntryMTL &getBuffer() { return buff; }
 
     // False if this failed to set up correctly
-    bool isValid();
-    
+    bool isValid() const { return valid; }
+
 protected:
     bool valid;
     bool isSetup;

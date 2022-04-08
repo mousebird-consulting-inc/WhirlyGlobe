@@ -19,9 +19,9 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
-#import "rendering/MaplyShader.h"
-#import "rendering/MaplyRenderTarget.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
+#import <WhirlyGlobe/MaplyShader.h>
+#import <WhirlyGlobe/MaplyRenderTarget.h>
 
 typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
 	MaplyParticleSystemTypePoint,
@@ -115,7 +115,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     
     The particle system needs the name for performance and debugging.  The rest of the values can left to their defaults.
   */
-- (nonnull instancetype)initWithName:(NSString *__nonnull)name viewC:(NSObject <MaplyRenderControllerProtocol> * __nonnull)viewC;
+- (nullable instancetype)initWithName:(NSString *__nonnull)name viewC:(NSObject <MaplyRenderControllerProtocol> * __nonnull)viewC;
 
 /** 
     Add an attribute we'll be expecting in each batch.

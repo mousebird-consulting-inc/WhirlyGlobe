@@ -7,10 +7,7 @@
 //
 
 #import "MegaMarkersTestCase.h"
-#import "MaplyBaseViewController.h"
 #import "VectorsTestCase.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyViewController.h"
 
 @implementation MegaMarkersTestCase
 

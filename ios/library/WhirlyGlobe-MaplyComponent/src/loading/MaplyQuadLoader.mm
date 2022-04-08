@@ -55,7 +55,7 @@ using namespace WhirlyKit;
 
 - (int)frame
 {
-    return loadReturn->frame->frameIndex;
+    return (loadReturn && loadReturn->frame) ? loadReturn->frame->frameIndex : -1;
 }
 
 - (void)addTileData:(id __nonnull) inTileData
@@ -102,6 +102,7 @@ using namespace WhirlyKit;
 {
     NSMutableSet<MaplyLoaderReturn*> *pendingReturns;
     std::mutex pendingReturnsLock;
+    NSMutableArray<InitCompletionBlock> *_postInitCalls;
 }
 
 - (instancetype)initWithViewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
@@ -114,7 +115,8 @@ using namespace WhirlyKit;
     _flipY = true;
     _viewC = inViewC;
     _numSimultaneousTiles = 8;
-    
+    _postInitCalls = [NSMutableArray new];
+
     pendingReturns = [NSMutableSet new];
 
     return self;
@@ -123,6 +125,39 @@ using namespace WhirlyKit;
 - (bool)delayedInit
 {
     return valid;
+}
+
+- (bool)postDelayedInit
+{
+    if (valid)
+    {
+        for (InitCompletionBlock block in _postInitCalls)
+        {
+            block();
+        }
+        _postInitCalls = nil;
+    }
+
+    return valid;
+}
+
+/**
+    Blocks to be called after the view is set up, or immediately if it is already set up.
+    Similar to `addPostSurfaceRunnable` on Android.
+*/
+- (void)addPostInitBlock:(_Nonnull InitCompletionBlock)block
+{
+    if (block)
+    {
+        if (_postInitCalls)
+        {
+            [_postInitCalls addObject:block];
+        }
+        else
+        {
+            block();
+        }
+    }
 }
 
 - (void)dealloc

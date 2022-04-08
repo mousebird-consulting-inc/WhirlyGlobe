@@ -1,5 +1,5 @@
 //
-//  geowrap.c
+//  GeographicLib.mm
 //  WhirlyGlobeLib
 //
 //  Created by Tim Sylvester on 12/14/20.
@@ -9,8 +9,8 @@
 #import "GeographicLib/Geodesic.hpp"
 #import "GeographicLib/Geocentric.hpp"
 
-#import "../../../../common/WhirlyGlobeLib/include/GeographicLib.h"
-#import "../include/GeographicLib.h"
+#import "GeographicLib.h"
+#import "GeographicLib_ObjC.h"
 #import "CoordSystem.h"
 #import "WhirlyGeometry.h"
 #import "WhirlyKitLog.h"
@@ -147,6 +147,14 @@ bool GeoLibLineDIntersectsPolygonD(MaplyCoordinateD startPt, MaplyCoordinateD en
         }
     }
     return false;
+}
+
+double GeoLibDistanceF(MaplyCoordinate startPt, MaplyCoordinate endPt)
+{
+    double s12 = 0.0;
+    wgs84Geodesic().Inverse(WhirlyKit::RadToDeg(startPt.y), WhirlyKit::RadToDeg(startPt.x),
+                            WhirlyKit::RadToDeg(endPt.y), WhirlyKit::RadToDeg(endPt.x), s12);
+    return s12;
 }
 
 double GeoLibDistanceD(MaplyCoordinateD startPt, MaplyCoordinateD endPt)

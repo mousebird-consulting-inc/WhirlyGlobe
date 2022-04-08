@@ -18,7 +18,17 @@
 
 #import <WhirlyGlobe_iOS.h>
 #import "control/WhirlyGlobeViewController.h"
-#import "WhirlyGlobeViewController_private.h"
+#import "private/WhirlyGlobeViewController_private.h"
+#import "private/GlobeDoubleTapDelegate_private.h"
+#import "private/GlobeDoubleTapDragDelegate_private.h"
+#import "private/GlobePanDelegate_private.h"
+#import "private/GlobePinchDelegate_private.h"
+#import "private/GlobeRotateDelegate_private.h"
+#import "private/GlobeTapDelegate_private.h"
+#import "private/GlobeTiltDelegate_private.h"
+#import "private/GlobeTwoFingerTapDelegate_private.h"
+#import "gestures/GlobeTapMessage.h"
+#import "private/GlobeTapMessage_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -578,6 +588,11 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 - (void)setFarClipPlane:(double)farClipPlane
 {
     globeView->setFarClippingPlane(farClipPlane);
+}
+
+- (double)getMaxHeightAboveGlobe
+{
+    return globeView->maxHeightAboveGlobe();
 }
 
 - (void)setTiltMinHeight:(float)minHeight maxHeight:(float)maxHeight minTilt:(float)minTilt maxTilt:(float)maxTilt
@@ -1940,29 +1955,43 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (bool) getCurrentExtents:(MaplyBoundingBox *)bbox
 {
-    CGRect frame = self.view.frame;
-    
-    CGPoint pt = CGPointMake(0,frame.size.height);
-    
-    bool resp = [self geoPointFromScreen:pt geoCoord:&(bbox->ll)];
-    
-    if (!resp)
+    if (!bbox)
     {
-        // Left lower point is outside the globe
         return false;
     }
-    
-    pt = CGPointMake(frame.size.width,0);
-    
-    resp = [self geoPointFromScreen:pt geoCoord:&(bbox->ur)];
-    if (!resp)
+
+    const auto &frame = self.view.frame.size;
+
+    // Try the corner points.  Note that this doesn't account for rotation.
+    if ([self geoPointFromScreen:CGPointMake(0,frame.height) geoCoord:&(bbox->ll)] &&
+        [self geoPointFromScreen:CGPointMake(frame.width,0) geoCoord:&(bbox->ur)])
     {
-        // Right upper point is outside the globe
-        return false;
+        return true;
     }
-    
+
+    // One or both are off the globe, try the center
+    MaplyCoordinate center;
+    if ([self geoPointFromScreen:CGPointMake(frame.width/2,frame.height/2) geoCoord:&center])
+    {
+        // Assume we can see 90 degrees in every direction.
+        bbox->ll.y = std::max(-M_PI_2, center.y - M_PI_2);
+        bbox->ur.y = std::min(M_PI_2, center.y + M_PI_2);
+
+        // If we're anywhere but right at the equator, we can see the whole span of longitudes.
+        if (std::fabs(center.y) < M_PI / 180)
+        {
+            bbox->ll.x = fmod(center.x - M_PI_2 + M_2_PI, M_2_PI);
+            bbox->ur.x = fmod(center.x + M_PI_2, M_2_PI);
+        }
+        else
+        {
+            bbox->ll.x = -M_PI;
+            bbox->ur.x =  M_PI;
+        }
+        return true;
+    }
+
     return true;
-    
 }
 
 static const float LonAng = 2*M_PI/5.0;

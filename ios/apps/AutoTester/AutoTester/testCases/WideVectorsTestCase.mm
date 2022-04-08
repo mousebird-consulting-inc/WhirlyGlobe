@@ -7,25 +7,20 @@
 //
 
 #import "WideVectorsTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyTextureBuilder.h"
-#import "MaplyScreenLabel.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyViewController.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
-@implementation WideVectorsTestCase
+@interface NSDictionary(Stuff)
+- (NSDictionary *_Nonnull) dictionaryByMergingWith:(NSDictionary *_Nullable)dict;
+@end
+
+@implementation WideVectorsTestCaseBase
 {
     GeographyClassTestCase * baseCase;
 }
 
-- (instancetype)init
+- (instancetype)initWithName:(NSString*)name supporting:(MaplyTestCaseImplementations)impl
 {
-	if (self = [super init]) {
-		self.name = @"Wide Vectors";
-		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
-	}
-	return self;
+    return (self = [super initWithName:name supporting:impl]);
 }
 
 
@@ -141,7 +136,6 @@
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
     return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
-//    return [self addGeoJson:name dashPattern:@[@8, @8] width:100 viewC:viewC];
 }
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
@@ -217,20 +211,6 @@
 				  kMaplyFont: [UIFont systemFontOfSize:18.0],
 				  kMaplyDrawPriority: @(200)
 				  }];
-	
-	if ([baseViewC isKindOfClass:[WhirlyGlobeViewController class]]) {
-		[(WhirlyGlobeViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.3 heading:0.8 time:0.1];
-		[(WhirlyGlobeViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.1 heading:0.8 time:0.1];
-		[(WhirlyGlobeViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.005 heading:0.8 time:0.1];
-	}
-	else {
-		if ([baseViewC isKindOfClass:[MaplyViewController class]]) {
-			[(MaplyViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.3 time:0.1];
-			[(MaplyViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.1 time:0.1];
-			[(MaplyViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.005 time:0.1];
-			
-		}
-	}
 	
 	return @[lines,screenLines,realLines,labelObj];
 }
@@ -348,45 +328,6 @@
             [viewC addVectors:@[vecObj] desc:desc mode:MaplyThreadCurrent];
         }
     }
-}
-
-- (void)wideLineTest:(MaplyBaseViewController *)viewC
-{
-    [self addGeoJson:@"sawtooth.geojson" dashPattern:nil width:50.0 edge:20.0 simple:false viewC:viewC];
-    [self addGeoJson:@"moving-lawn.geojson" viewC:viewC];
-    [self addGeoJson:@"spiral.geojson" viewC:viewC];
-    [self addGeoJson:@"square.geojson" dashPattern:@[@2, @2] width:10.0 viewC:viewC];
-    [self addGeoJson:@"track.geojson" viewC:viewC];
-//    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
-
-    [self addGeoJson:@"USA.geojson" viewC:viewC];
-
-//    [self addGeoJson:@"testJson.json" viewC:viewC];
-    
-    //    [self addGeoJson:@"straight.geojson"];
-    //    [self addGeoJson:@"uturn.geojson"];
-    
-    [self overlap:viewC];
-    
-    [self vecColors:viewC];
-}
-
-
-- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
-	
-	baseCase = [[GeographyClassTestCase alloc]init];
-	[baseCase setUpWithGlobe:globeVC];
-	[self wideLineTest:globeVC];
-    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
-
-}
-
-- (void)setUpWithMap:(MaplyViewController *)mapVC{
-	baseCase = [[GeographyClassTestCase alloc]init];
-	[baseCase setUpWithMap:mapVC];
-	[self wideLineTest:mapVC];
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
-    [self loadShapeFile:mapVC];
 }
 
 @end

@@ -203,7 +203,9 @@ public:
     RenderSetupInfoMTL setupInfo;
     std::vector<NSObject<WhirlyKitSnapshot> *> snapshotDelegates;
     dispatch_queue_t releaseQueue;
-    
+
+    id<MTLCommandQueue> cmdQueue;
+
     // This keeps us from stomping on the previous frame's uniforms
     int lastRenderNo;
     id<MTLEvent> renderEvent;

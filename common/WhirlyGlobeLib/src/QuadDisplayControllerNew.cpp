@@ -35,7 +35,10 @@ QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStruct
     maxZoom = dataStructure->getMaxZoom();
     reportedMaxZoom = dataStructure->getReportedMaxZoom();
     scene = renderer->getScene();
-    zoomSlot = scene->retainZoomSlot();
+    if (scene)
+    {
+        zoomSlot = scene->retainZoomSlot();
+    }
 }
 
 Scene *QuadDisplayControllerNew::getScene() const

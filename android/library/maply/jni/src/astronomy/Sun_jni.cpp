@@ -1,5 +1,4 @@
-/*
- *  Sun_jni.cpp
+/*  Sun_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/16.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <AA+.h>
@@ -26,110 +24,83 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
-template<> SunClassInfo *SunClassInfo::classInfoObj = NULL;
+template<> SunClassInfo *SunClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
     SunClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_initialise
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
-    try {
-        Sun *sun = new Sun();
-        SunClassInfo::getClassInfo()->setHandle(env,obj,sun);
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::initialise()");
+    try
+    {
+        SunClassInfo::getClassInfo()->setHandle(env,obj,new Sun());
     }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
         SunClassInfo *classInfo = SunClassInfo::getClassInfo();
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env,obj);
+        classInfo->clearHandle(env,obj);
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Sun_getPosition
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (Sun *inst = SunClassInfo::get(env,obj))
         {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Sun *inst = classInfo->getObject(env,obj);
-            if (!inst)
-                return;
-            delete inst;
-            
-            classInfo->clearHandle(env,obj);
+            return MakePoint2d(env, Point2d(inst->sunLon, inst->sunLat));
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Sun_getDirection
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
-        SunClassInfo *classInfo = SunClassInfo::getClassInfo();
-        Sun *inst = classInfo->getObject(env,obj);
-        if (!inst)
-            return NULL;
-        
-        Point3d pt = inst->getDirection();
-                
-        return MakePoint3d(env, pt);
+        if (Sun *inst = SunClassInfo::get(env,obj))
+        {
+            return MakePoint3d(env, inst->getDirection());
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::dispose()");
-    }
-    
-    return NULL;
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Sun_setTime
-(JNIEnv *env, jobject obj, jdouble theTime, jdouble year, jdouble month, jdouble day, jdouble hour, jdouble minute, jdouble second)
+  (JNIEnv *env, jobject obj, jdouble theTime, jdouble year, jdouble month, jdouble day, jdouble hour, jdouble minute, jdouble second)
 {
     try
     {
-        SunClassInfo *classInfo = SunClassInfo::getClassInfo();
-        Sun *inst = classInfo->getObject(env,obj);
-        if (!inst)
-            return;
-        inst->time = theTime;
-
-        inst->setTime(year,month,day,hour,minute,second);
+        if (Sun *inst = SunClassInfo::get(env,obj))
+        {
+            inst->time = theTime;
+            inst->setTime(year, month, day, hour, minute, second);
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::dispose()");
-    }
-}
-
-JNIEXPORT jfloatArray JNICALL Java_com_mousebird_maply_Sun_asPosition
-(JNIEnv *env, jobject obj)
-{
-    try
-    {
-        SunClassInfo *classInfo = SunClassInfo::getClassInfo();
-        Sun *inst = classInfo->getObject(env,obj);
-        if (!inst)
-            return NULL;
-
-        float position[2] = {(float) inst->sunLon, (float) inst->sunLat};
-        jfloatArray result;
-        result = env->NewFloatArray(2);
-        env->SetFloatArrayRegion(result, 0, 2, position);
-        return result;
-    }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Sun::asPosition()");
-    }
-    
-    return NULL;
+    MAPLY_STD_JNI_CATCH()
 }

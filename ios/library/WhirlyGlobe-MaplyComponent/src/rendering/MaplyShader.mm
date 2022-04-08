@@ -40,7 +40,10 @@ using namespace WhirlyKit;
     std::vector<MaplyTexture *> textures;  // Used to sit on the textures so they aren't deleted
 }
 
-- (instancetype)initMetalWithName:(NSString *)inName vertex:(id<MTLFunction>)vertexFunc fragment:(id<MTLFunction>)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
+- (instancetype _Nullable)initMetalWithName:(NSString *)inName
+                                     vertex:(id<MTLFunction>)vertexFunc
+                                   fragment:(id<MTLFunction>)fragFunc
+                                      viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
 {
     if (!vertexFunc) {
         NSLog(@"Passed in nil function to MaplyShader::initMetalWithName");
@@ -53,7 +56,11 @@ using namespace WhirlyKit;
         return nil;
     }
     
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
     viewC = baseViewC;
     
     std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding];
@@ -83,15 +90,21 @@ using namespace WhirlyKit;
 }
 
 
-- (instancetype)initWithProgram:(ProgramRef)program viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
+- (instancetype _Nullable)initWithProgram:(ProgramRef)program
+                                    viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC
 {
     if (!program)
         return nil;
+
     MaplyRenderController *renderControl = [baseViewC getRenderControl];
     if (!renderControl)
         return nil;
 
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
     _program = program;
     viewC = baseViewC;
     scene = renderControl->scene;
@@ -105,13 +118,11 @@ using namespace WhirlyKit;
 
 - (SimpleIdentity)getShaderID
 {
-    if (!_program)
-        return EmptyIdentity;
-    
-    return _program->getId();
+    return _program ? _program->getId() : EmptyIdentity;
 }
 
-- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)view
+- (void)setTexture:(MaplyTexture * __nonnull)tex forIndex:(int)idx
+             viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)view
 {
     if (!_program || !scene || !renderer)
         return;
@@ -127,7 +138,8 @@ using namespace WhirlyKit;
     scene->addChangeRequest(new ShaderAddTextureReq(programMTL->getId(),-1,tex.texID,idx));
 }
 
-- (void)removeTexture:(MaplyTexture *)tex viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (void)removeTexture:(MaplyTexture *)tex
+                viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (!_program || !scene || !renderer || tex.texID == EmptyIdentity)
         return;
@@ -156,8 +168,11 @@ using namespace WhirlyKit;
 
 - (bool)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID
 {
-    if (!_program || !scene || !renderer)
+    const auto programMTL = dynamic_cast<ProgramMTL *>(_program.get());
+    if (!programMTL || !scene || !renderer)
+    {
         return false;
+    }
     
     if (renderer->getType() != SceneRenderer::RenderMetal)
     {
@@ -165,47 +180,41 @@ using namespace WhirlyKit;
         return false;
     }
     
-    ProgramMTL *programMTL = (ProgramMTL *)_program.get();
-    
-    RawNSDataReaderRef dataWrap = RawNSDataReaderRef(new RawNSDataReader(uniBlock));
-    scene->addChangeRequest(new ProgramUniformBlockSetRequest(programMTL->getId(),dataWrap,bufferID));
-    
+    auto dataWrap = std::make_shared<RawNSDataReader>(uniBlock);
+    auto req = new ProgramUniformBlockSetRequest(programMTL->getId(),std::move(dataWrap),bufferID);
+    scene->addChangeRequest(req);
+
     return true;
 }
 
 - (void)setReduceMode:(bool)reduceMode
 {
-    if (!_program)
-        return;
-    
-    if (reduceMode)
-        _program->setReduceMode(Program::TextureReduce);
-    else
-        _program->setReduceMode(Program::None);
+    if (_program)
+    {
+        _program->setReduceMode(reduceMode ? Program::TextureReduce : Program::None);
+    }
 }
 
 // We're assuming the view controller has set the proper context
 - (void)teardown
 {
-    if (_program)
-    {
-//        _program->cleanUp();
-//        delete _program;
-        _program = NULL;
-    }
+    _program.reset();
 
     if (scene)
     {
         ChangeSet changes;
+        changes.reserve(texIDs.size());
         for (SimpleIDSet::iterator it = texIDs.begin();it != texIDs.end(); ++it)
+        {
             changes.push_back(new RemTextureReq(*it));
+        }
         scene->addChangeRequests(changes);
     }
 }
 
 - (bool)valid
 {
-    return _program != NULL;
+    return _program.operator bool();
 }
 
 - (NSString *)getError

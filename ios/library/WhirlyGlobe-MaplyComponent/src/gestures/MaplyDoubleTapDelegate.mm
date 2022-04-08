@@ -1,6 +1,4 @@
-/*
- *  MaplyDoubleTapDelegate.mm
- *
+/*  MaplyDoubleTapDelegate.mm
  *
  *  Created by Jesse Crocker on 2/3/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -15,10 +13,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/MaplyDoubleTapDelegate.h"
+#import "private/MaplyDoubleTapDelegate_private.h"
 #import "MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
 #import "ViewWrapper.h"
@@ -68,7 +66,7 @@ using namespace Maply;
             Point3d newCenter;
             MapView testMapView(*(self.mapView));
             // Check if we're still within bounds
-            if (MaplyGestureWithinBounds(bounds, newLoc, sceneRenderer, &testMapView, &newCenter))
+            if (MaplyGestureWithinBounds([self getBounds], newLoc, sceneRenderer, &testMapView, &newCenter))
             {
                 self.mapView->setDelegate(std::make_shared<AnimateViewTranslation>(
                     self.mapView,sceneRenderer,newCenter,_animTime));

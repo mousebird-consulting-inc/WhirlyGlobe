@@ -16,11 +16,13 @@
  *  limitations under the License.
  */
 
-#import "SceneRenderer.h"
+#import <UIKit/UIGestureRecognizerSubclass.h>
+
 #import "gestures/MaplyPanDelegate.h"
+#import "private/MaplyPanDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
 #import "MaplyAnimateTranslateMomentum.h"
-#import <UIKit/UIGestureRecognizerSubclass.h>
+#import "SceneRenderer.h"
 #import "ViewWrapper.h"
 #import "WhirlyKitLog.h"
 
@@ -98,16 +100,19 @@ using namespace Maply;
 }
 
 // We'll let other gestures run
-- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
-{
-    return TRUE;
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
+        shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
+    return true;
 }
 
-- (void)setBounds:(WhirlyKit::Point2d *)inBounds
+- (const Point2dVector &)getBounds {
+    return bounds;
+}
+
+- (void)setBounds:(const WhirlyKit::Point2d *)inBounds
 {
     bounds.clear();
-    for (unsigned int ii=0;ii<4;ii++)
-        bounds.push_back(Point2d(inBounds[ii].x(),inBounds[ii].y()));
+    bounds.insert(bounds.end(), &inBounds[0], &inBounds[4]);
 }
 
 // How long we'll animate the gesture ending

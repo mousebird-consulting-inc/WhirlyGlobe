@@ -1,5 +1,4 @@
-/*
- *  WGScreenMarker.h
+/*  MaplyScreenMarker.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -15,11 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
 
 @class MaplyVectorObject;
 

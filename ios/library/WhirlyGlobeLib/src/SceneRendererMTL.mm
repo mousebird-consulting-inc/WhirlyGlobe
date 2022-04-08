@@ -67,9 +67,12 @@ RenderTargetContainerRef WorkGroupMTL::makeRenderTargetContainer(RenderTargetRef
     return std::make_shared<RenderTargetContainerMTL>(std::move(renderTarget));
 }
 
-SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale)
-    : setupInfo(mtlDevice,mtlLibrary),
-    _isShuttingDown(std::make_shared<bool>(false)), lastRenderNo(0), renderEvent(nil)
+SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary, float inScale) :
+    setupInfo(mtlDevice,mtlLibrary),
+    cmdQueue([mtlDevice newCommandQueue]),
+    _isShuttingDown(std::make_shared<bool>(false)),
+    lastRenderNo(0),
+    renderEvent(nil)
 {
     offscreenBlendEnable = false;
     indirectRender = false;
@@ -198,7 +201,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     
     return true;
 }
-        
+
 void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
@@ -218,9 +221,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     uniforms.globeMode = !coordAdapter->isFlat();
     uniforms.frameCount = frameCount;
     uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
-    for (unsigned int ii=0;ii<MaplyMaxZoomSlots;ii++) {
-        frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
-    }
+    frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
     
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
@@ -521,8 +522,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     frameCount++;
     
     const TimeInterval now = scene->getCurrentTime();
-    
-    teardownInfo = NULL;
+
+    teardownInfo.reset();
 
     const Point2f frameSize = getFramebufferSize();
     if (frameSize.x() <= 0 || frameSize.y() <= 0)
@@ -579,7 +580,6 @@ void SceneRendererMTL::render(TimeInterval duration,
 
     // Send the command buffer and encoders
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
-    id<MTLCommandQueue> cmdQueue = [mtlDevice newCommandQueue];
 
     const auto frameInfoRef = makeFrameInfo();
     auto &baseFrameInfo = *frameInfoRef;
@@ -1041,7 +1041,8 @@ void SceneRendererMTL::render(TimeInterval duration,
     scene->markProgramsUnchanged();
     
     // No teardown info available between frames
-    if (teardownInfo) {
+    if (teardownInfo)
+    {
         teardownInfo.reset();
     }
     
@@ -1052,15 +1053,17 @@ void SceneRendererMTL::shutdown()
 {
     *_isShuttingDown = true;
     
-    if (lastCmdBuff)
-        [lastCmdBuff waitUntilCompleted];
+    [lastCmdBuff waitUntilCompleted];
     lastCmdBuff = nil;
     
     snapshotDelegates.clear();
     
-    auto drawables = scene->getDrawables();
-    for (auto draw: drawables)
-        draw->teardownForRenderer(nil, NULL, NULL);
+    for (auto &draw: scene->getDrawables())
+    {
+        draw->teardownForRenderer(nullptr, nullptr, nullptr);
+    }
+
+    cmdQueue = nil;
 
     SceneRenderer::shutdown();
 }

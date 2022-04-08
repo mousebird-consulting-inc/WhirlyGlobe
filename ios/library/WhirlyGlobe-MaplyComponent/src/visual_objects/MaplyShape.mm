@@ -19,7 +19,7 @@
  */
 
 #import "visual_objects/MaplyShape.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplySharedAttributes.h"
 #import "MaplyMatrix_private.h"
 #import "UIColor+Stuff.h"

@@ -1,5 +1,4 @@
-/*
- *  MaplyAtmosphere.h
+/*  MaplyAtmosphere.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/30/15.
@@ -15,19 +14,19 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
-#import "visual_objects/MaplyComponentObject.h"
-#import "control/WhirlyGlobeViewController.h"
-#import "rendering/MaplyLight.h"
+#import <WhirlyGlobe/MaplyComponentObject.h>
+#import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#import <WhirlyGlobe/MaplyLight.h>
 
 /** 
     Sets up the objects and shaders to implement an atmosphere.
     
-    This object sets up a shader implementation of the simple atmosphere from GPU Gems 2  http://http.developer.nvidia.com/GPUGems2/gpugems2_chapter16.html
-  */
+    This object sets up a shader implementation of the simple atmosphere from GPU Gems 2
+    https://developer.nvidia.com/gpugems/gpugems2/part-ii-shading-lighting-and-shadows/chapter-16-accurate-atmospheric-scattering
+*/
 @interface MaplyAtmosphere : NSObject
 
 /// Initialize the view controller.  Will place objects in that view controller.

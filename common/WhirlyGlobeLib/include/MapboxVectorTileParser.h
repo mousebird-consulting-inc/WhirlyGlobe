@@ -51,7 +51,7 @@ class PlatformThreadInfo;
 class VectorTileData
 {
 public:
-    VectorTileData();
+    VectorTileData() = default;
     // Construct by just taking the outline information.  No data.
     VectorTileData(const VectorTileData &);
     virtual ~VectorTileData();
@@ -102,7 +102,7 @@ class MapboxVectorTileParser
 {
 public:
     MapboxVectorTileParser(PlatformThreadInfo *inst,VectorStyleDelegateImplRef styleDelegate);
-    virtual ~MapboxVectorTileParser();
+    virtual ~MapboxVectorTileParser() = default;
 
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
     void setLocalCoords(bool b = true) { localCoords = b; }
@@ -113,7 +113,7 @@ public:
     /// Parse everything, even if there's no style for it
     void setParseAll(bool b = true) { parseAll = b; }
 
-    /// Add a category for a particulary style ID
+    /// Add a category for a particular style ID
     /// These are used for sorting later on
     void addCategory(const std::string &category,long long styleID);
 
@@ -155,19 +155,19 @@ public:
     const VectorStyleDelegateImplRef &getStyleDelegate() const { return styleDelegate; }
 protected:
     /// If set, we'll parse into local coordinates as specified by the bounding box, rather than geo coords
-    bool localCoords;
+    bool localCoords = false;
 
     /// Keep the vector objects around as we parse them
-    bool keepVectors;
+    bool keepVectors = false;
 
     /// Parse everything, even if there's no style for it
-    bool parseAll;
+    bool parseAll = false;
 
     /// If set, we'll tack a debug label in the middle of the tile
-    bool debugLabel;
+    bool debugLabel = false;
 
     /// If set, we'll put an outline around the tile
-    bool debugOutline;
+    bool debugOutline = false;
 
     std::string uuidName;
 

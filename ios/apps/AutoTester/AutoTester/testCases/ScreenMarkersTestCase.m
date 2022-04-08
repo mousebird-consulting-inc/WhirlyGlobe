@@ -7,11 +7,7 @@
 //
 
 #import "ScreenMarkersTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyMarker.h"
 #import "VectorsTestCase.h"
-#import "WhirlyGlobeViewController.h"
-#import "MaplyViewController.h"
 
 @implementation ScreenMarkersTestCase
 {

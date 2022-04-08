@@ -22,7 +22,7 @@
 #import "View_jni.h"
 #import "Renderer_jni.h"
 #import "com_mousebird_maply_LayoutManager.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import <Exceptions_jni.h>
 
 using namespace WhirlyKit;

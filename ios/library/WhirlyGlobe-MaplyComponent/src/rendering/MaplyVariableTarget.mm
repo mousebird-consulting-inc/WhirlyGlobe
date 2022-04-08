@@ -85,11 +85,7 @@
         else
             NSLog(@"Failed to add auxiliary render target in setupRectangle for MaplyVariableTarget.");
     }
-    NSString *shaderName = nil;
-    if (_shader)
-        shaderName = [_shader name];
-    else
-        shaderName = kMaplyShaderDefaultTriNoLighting;
+    const NSString * const shaderName = _shader ? [_shader name] : kMaplyShaderDefaultTriNoLighting;
     _rectObj = [theViewC addShapes:@[rect]
                           desc:@{kMaplyColor: _color,
                                  kMaplyDrawPriority: @(_drawPriority),

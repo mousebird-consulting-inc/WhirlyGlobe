@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WhirlyGlobe
 
 /**
     Convenience class for loading a Mapbox-style vector tiles-probably kinda map.
@@ -229,7 +230,7 @@ public class MapboxKindaMap {
                                 source.tileSpec = resp
                                 cacheFile(origURL, data: data)
 
-                                DispatchQueue.main.async {
+                                DispatchQueue.main.async { [self] in
                                     outstandingFetches[fetchIdx] = nil
                                     checkFinished()
                                 }

@@ -18,7 +18,7 @@
  *
  */
 
-#import "GlobeView.h"
+#import <GlobeView.h>
 
 // Sent when a WhirlyKitView animation starts
 #define kWKViewAnimationStarted @"WKViewAnimationStarted"

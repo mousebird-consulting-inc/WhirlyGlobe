@@ -42,11 +42,9 @@ public:
     virtual ~DynamicTexture();
     
     /// Represents a region in the texture
-    class Region
+    struct Region
     {
-    public:
-        Region();
-        int sx,sy,ex,ey;
+        int sx = 0,sy = 0,ex = 0,ey = 0;
     };
     
     /// Create an appropriately empty texture in OpenGL ES
@@ -77,8 +75,9 @@ public:
     bool findRegion(int cellsX,int cellsY,Region &region);
     
     /// Return a list of released regions
-    void getReleasedRegions(std::vector<DynamicTexture::Region> &toClear);
-    
+    void getReleasedRegions(std::vector<DynamicTexture::Region> &toClear) const;
+    std::vector<DynamicTexture::Region> getReleasedRegions() const;
+
     /// Add a region to the list of ones to be cleared.
     /// This is called by the renderer
     void addRegionToClear(const Region &region);
@@ -110,7 +109,7 @@ protected:
     // Use to track where sub textures are
     bool *layoutGrid;
     
-    std::mutex regionLock;
+    mutable std::mutex regionLock;
     /// These regions have been released by the renderer
     std::vector<Region> releasedRegions;
     
@@ -192,10 +191,10 @@ public:
     
     /// Set the interpolation type used for min and mag
     void setInterpType(TextureInterpType inType);
-    TextureInterpType getInterpType();
+    TextureInterpType getInterpType() const;
     
     /// Return the dynamic texture's format
-    TextureType getFormat();
+    TextureType getFormat() const;
     
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
     ///  and subtract this/pixelSize from the upper right for each texture application.
@@ -220,7 +219,7 @@ public:
     
     /// Check if the dynamic texture atlas is empty.
     /// Call cleanup() first
-    bool empty();
+    bool empty() const;
     
     /// Look for any textures that should be cleaned up
     void cleanup(ChangeSet &changes,TimeInterval when);
@@ -230,10 +229,10 @@ public:
     void teardown(ChangeSet &changes);
     
     /// Get some basic info out
-    void getUsage(int &numRegions,int &dynamicTextures);
+    void getUsage(int &numRegions,int &dynamicTextures) const;
     
     /// Print out some utilization info
-    void log();
+    void log() const;
 
 protected:
     std::string name;

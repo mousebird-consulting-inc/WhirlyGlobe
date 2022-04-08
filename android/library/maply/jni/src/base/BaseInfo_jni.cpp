@@ -317,7 +317,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_BaseInfo_setFade
         BaseInfoRef *info = classInfo->getObject(env,obj);
         if (!info)
             return;
-        (*info)->fade = fade;
+        (*info)->fadeIn = fade;
+        (*info)->fadeOut = fade;
     }
     catch (...)
     {

@@ -224,13 +224,12 @@ protected:
 };
 
 /// Passed around to various init and teardown routines
-class RenderSetupInfoMTL : public RenderSetupInfo
+struct RenderSetupInfoMTL : public RenderSetupInfo
 {
-public:
     RenderSetupInfoMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary);
     
     id<MTLDevice> mtlDevice;
-    
+
     HeapManagerMTL heapManage;
     
     // Keep Metal allocations aligned to this

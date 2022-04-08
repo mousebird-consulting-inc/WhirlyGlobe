@@ -17,9 +17,10 @@
  */
 
 #import "gestures/MaplyPinchDelegate.h"
-#import "SceneRenderer.h"
-#import "MaplyZoomGestureDelegate_private.h"
+#import "private/MaplyPinchDelegate_private.h"
+#import "private/MaplyZoomGestureDelegate_private.h"
 #import "MaplyAnimateTranslation.h"
+#import "SceneRenderer.h"
 #import "ViewWrapper.h"
 
 using namespace WhirlyKit;
@@ -45,8 +46,12 @@ using namespace Maply;
 // Called for pinch actions
 - (void)pinchGesture:(id)sender
 {
-	UIPinchGestureRecognizer *pinch = sender;
-	UIGestureRecognizerState theState = pinch.state;
+    UIPinchGestureRecognizer *pinch = sender;
+    if ([pinch numberOfTouches] < 2)
+    {
+        return;
+    }
+    UIGestureRecognizerState theState = pinch.state;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pinch.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;
 
@@ -99,7 +104,7 @@ using namespace Maply;
 
                 testMapView.setLoc(newLoc, false);
                 Point3d newCenter;
-                if (MaplyGestureWithinBounds(bounds,newLoc,sceneRenderer,&testMapView,&newCenter))
+                if (MaplyGestureWithinBounds([self getBounds],newLoc,sceneRenderer,&testMapView,&newCenter))
                 {
                     self.mapView->setLoc(newCenter, true);
                 }

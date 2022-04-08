@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "gestures/Maply3DTouchPreviewDatasource.h"
+#import <WhirlyGlobe/Maply3DTouchPreviewDatasource.h>
 
 @class MaplyBaseInteractionLayer;
 @class MaplyBaseViewController;

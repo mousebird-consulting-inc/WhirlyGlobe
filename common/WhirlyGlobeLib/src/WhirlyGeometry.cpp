@@ -87,8 +87,11 @@ bool IntersectSphereRadius(Point3d org,Vector3d dir,double radius,Point3d &hit,d
     return true;
 }
 
-// Point in poly routine
-// Courtesy: http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+// Planar point in poly routine based on Jordan curve theorem
+// Courtesy: https://wrf.ecse.rpi.edu//Research/Short_Notes/pnpoly.html
+// Vertices may be listed either clockwise or counter-clockwise.
+// If there is only one connected component, then it is optional to repeat the first vertex at the end.
+// If there are multiple (including "holes"), they must be closed and separated by zeros
 
 bool PointInPolygon(const Point2f &pt,const Point2fVector &ring)
 {

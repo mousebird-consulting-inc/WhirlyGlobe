@@ -83,18 +83,30 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_initialise__IIILc
         tileData->geoBBox.ur() = *geoUR;
 
         // Make sure the get/set are atomic.
-        std::lock_guard<std::mutex> lock(disposeMutex);
-
-        if (auto existingPtr = tileDataClassInfo->getObject(env, obj))
         {
-            // Swap the new data into the existing shared_ptr.  The old value (if any)
-            // controlled by the shared_ptr will be released outside of the mutex region.
-            existingPtr->swap(tileData);
+            std::lock_guard<std::mutex> lock(disposeMutex);
+            if (auto existingPtr = tileDataClassInfo->getObject(env, obj))
+            {
+                // Swap the new data into the existing shared_ptr.  The old value (if any)
+                // controlled by the shared_ptr will be released outside of the mutex region.
+                existingPtr->swap(tileData);
+            }
+            else
+            {
+                // Called from a constructor or after a dispose, we need a new shared_ptr
+                tileDataClassInfo->setHandle(env, obj, new VectorTileDataRef(tileData));
+                tileData.reset();
+            }
         }
-        else
+
+        if (tileData)
         {
-            // Called from a constructor or after a dispose, we need a new shared_ptr
-            tileDataClassInfo->setHandle(env, obj, new VectorTileDataRef(tileData));
+            // Discard any changes in the item being replaced
+            for (auto change : tileData->changes)
+            {
+                delete change;
+            }
+            tileData->changes.clear();
         }
     }
     MAPLY_STD_JNI_CATCH()
@@ -106,13 +118,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorTileData_dispose(JNIEnv *e
     try
     {
         const auto classInfo = VectorTileDataClassInfo::getClassInfo();
-        VectorTileDataRef *inst;
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            inst = classInfo->getObject(env,obj);
-            classInfo->clearHandle(env,obj);
-        }
-        delete inst;
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env,obj);
+        classInfo->clearHandle(env,obj);
     }
     MAPLY_STD_JNI_CATCH()
 }

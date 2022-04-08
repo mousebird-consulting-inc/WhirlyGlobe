@@ -58,6 +58,7 @@ void BasicDrawableInstanceMTL::setupForRenderer(const RenderSetupInfo *inSetupIn
     
     if (instanceStyle == LocalStyle) {
         bzero(&uniMI,sizeof(uniMI));
+        uniMI.startTime = TimeGetCurrent() - scene->getBaseTime();
 
         // In this version we just have the raw data
         if (instData && numInstances > 0) {
@@ -533,8 +534,8 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
     
     // Wire up the various inputs that we know about
-    for (auto vertAttr : basicDrawMTL->vertexAttributes) {
-        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+    for (const auto &vertAttr : basicDrawMTL->vertexAttributes) {
+        auto vertAttrMTL = (const VertexAttributeMTL *)vertAttr;
         if (vertAttrMTL->buffer.buffer && (vertAttrMTL->slot >= 0)) {
             [cmdEncode setVertexBuffer:vertAttrMTL->buffer.buffer offset:vertAttrMTL->buffer.offset atIndex:vertAttrMTL->slot];
         }
@@ -746,16 +747,16 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
 
     // Wire up the various inputs that we know about
-    for (auto vertAttr : basicDrawMTL->vertexAttributes) {
-        VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
+    for (const auto &vertAttr : basicDrawMTL->vertexAttributes) {
+        auto vertAttrMTL = (const VertexAttributeMTL *)vertAttr;
         if (vertAttrMTL->buffer.buffer && (vertAttrMTL->slot >= 0))
             [cmdEncode setVertexBuffer:vertAttrMTL->buffer.buffer offset:vertAttrMTL->buffer.offset atIndex:vertAttrMTL->slot];
     }
     
     // And provide defaults for the ones we don't.  Both in the basic drawable and our instance
-    for (auto defAttr : basicDrawMTL->defaultAttrs)
+    for (const auto &defAttr : basicDrawMTL->defaultAttrs)
         [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
-    for (auto defAttr : defaultAttrs)
+    for (const auto &defAttr : defaultAttrs)
         [cmdEncode setVertexBuffer:defAttr.buffer.buffer offset:defAttr.buffer.offset atIndex:defAttr.bufferIndex];
     
     [cmdEncode setRenderPipelineState:renderState];

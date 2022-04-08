@@ -44,10 +44,14 @@ NSString* const kMaplyDrawPriority = MaplyDrawPriority;
 NSString* const kMaplyMinVis = MaplyMinVis;
 /// Maximum point at which a feature is visible.  Takes an NSNumber float.  The radius of the globe is 1.0
 NSString* const kMaplyMaxVis = MaplyMaxVis;
+/// Zoom related control
+NSString* const kMaplyZoomSlot = MaplyZoomSlot;
+NSString* const kMaplyMinZoomVis = MaplyMinZoomVis;
+NSString* const kMaplyMaxZoomVis = MaplyMaxZoomVis;
 /// Minimum distance from the viewer at which to display geometry.
-NSString* const kMaplyViewerMinDist = MaplyMinVisBand;
+NSString* const kMaplyViewerMinDist = MaplyMinViewerDist;
 /// Maximum distance from the viewer at which to display geometry.
-NSString* const kMaplyViewerMaxDist = MaplyMaxVisBand;
+NSString* const kMaplyViewerMaxDist = MaplyMaxViewerDist;
 /// Center to use when evaluating distance to viewable geometry (X)
 NSString* const kMaplyViewableCenterX = MaplyViewableCenterX;
 /// Center to use when evaluating distance to viewable geometry (Y)
@@ -133,8 +137,8 @@ NSString* const kMaplyTextOutlineSize = MaplyTextOutlineSize;
 NSString* const kMaplyTextLineSpacing = MaplyTextLineHeight;
 /// If outline is being used, we can control the stroke size
 NSString* const kMaplyTextOutlineColor = MaplyTextOutlineColor;
-NSString* const kMaplyTexSizeX = @"texsizex";
-NSString* const kMaplyTexSizeY = @"texsizey";
+WKDefineConst(TexSizeX)
+WKDefineConst(TexSizeY)
 NSString* const kMaplyTextJustify = MaplyTextJustify;
 NSString* const kMaplyTextJustifyRight = MaplyTextJustifyRight;
 NSString* const kMaplyTextJustifyLeft = MaplyTextJustifyLeft;
@@ -151,6 +155,10 @@ NSString* const kMaplyClusterGroup = MaplyClusterGroupID;
 ///  if there is one or it will be visible if there is no texture.  Takes a UIColor
 NSString* const kMaplyColor = MaplyColor;
 
+/// Specify the opacity separately from the alpha channel of "color"
+/// Not widely supported
+NSString* const kMaplyOpacity = MaplyOpacity;
+
 /// Width is used by the vector layer for line widths
 NSString* const kMaplyVecWidth = MaplyVecWidth;
 
@@ -165,6 +173,9 @@ NSString* const kMaplyVecTextureFormat = MaplyVecTextureFormat;
 NSString* const kMaplyVecTexScaleX = MaplyVecTexScaleX;
 /// Y scale for textures applied to vectors
 NSString* const kMaplyVecTexScaleY = MaplyVecTexScaleY;
+
+// scale for markers
+WKDefineConst(MarkerScale);
 
 /// The projection to use when generating texture coordinates
 NSString* const kMaplyVecTextureProjection = MaplyVecTextureProjection;
@@ -193,31 +204,40 @@ NSString* const kMaplyWideVecCoordTypeScreen = MaplyWideVecCoordTypeScreen;
 
 /// For wide vectors we can control the line joins
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
-NSString* const kMaplyWideVecJoinType = MaplyWideVecJoinType;
+WKDefineConst(WideVecJoinType)
 
 /// Widened vectors are joined with miters
-NSString* const kMaplyWideVecMiterJoin = MaplyWideVecMiterJoin;
+WKDefineConst(WideVecMiterJoin)
+WKDefineConst(WideVecMiterClipJoin)
+WKDefineConst(WideVecMiterSimpleJoin)
 // Note: Not yet implemented
 /// Widened vectors are joined with a curve
-//NSString* const kMaplyWideVecRoundJoin @"round"
+WKDefineConst(WideVecRoundJoin)
 /// Widened vectors are joined with a bevel
-NSString* const kMaplyWideVecBevelJoin = MaplyWideVecBevelJoin;
+WKDefineConst(WideVecBevelJoin)
+/// No joins (fastest)
+WKDefineConst(WideVecNoneJoin)
+
+/// Determine how wide vectors behave when the ideal geometry is impossible
+WKDefineConst(WideVecFallbackMode)
+WKDefineConst(WideVecFallbackDefault)
+WKDefineConst(WideVecFallbackClip)
+WKDefineConst(WideVecFallbackNone)
+
 
 /// Number of pixels to use in blending the edges of the wide vectors
 NSString* const kMaplyWideVecEdgeFalloff = MaplyWideVecEdgeFalloff;
 
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-//NSString* const kMaplyWideVecLineCapType @"wideveclinecaptype"
-
-// Note: These are not currently implemented
+WKDefineConst(WideVecLineCapType)
 
 /// Widened vector ends are flush
-//NSString* const kMaplyWideVecButtCap @"butt"
+WKDefineConst(WideVecButtCap)
 /// Widened vector ends are round (e.g. hot dog roads)
-//NSString* const kMaplyWideVecRoundCap @"round"
+WKDefineConst(WideVecRoundCap)
 /// Widened vector ends are extended a bit and then flush
-//NSString* const kMaplyWideVecSquareCap @"square"
+WKDefineConst(WideVecSquareCap)
 
 /// Miter joins will turn to bevel joins past this number of degrees
 NSString* const kMaplyWideVecMiterLimit = MaplyWideVecMiterLimit;
@@ -225,6 +245,10 @@ NSString* const kMaplyWideVecMiterLimit = MaplyWideVecMiterLimit;
 /// This is the length you'd like the texture to start repeating after.
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 NSString* const kMaplyWideVecTexRepeatLen = MaplyWideVecTexRepeatLen;
+
+/// Initial texture coordinates
+WKDefineConst(WideVecTexOffsetX)
+WKDefineConst(WideVecTexOffsetY)
 
 /// Controls the wide vector implementation.  Basic implementation by default.
 WKDefineConst(WideVecImpl)
@@ -246,13 +270,16 @@ NSString* const kMaplySubdivGreatCircle = MaplySubdivGreatCircle;
 /// Subdivide the vector edges along a great circle with ellipsoidal math
 NSString* const kMaplySubdivGreatCirclePrecise = MaplySubdivGreatCirclePrecise;
 /// Subdivide into a fixed number of segmenets
-NSString* const kMaplySubdivStatic = @"static";
+WKDefineConst(SubdivStatic)
 /// Subdivide the vectors edges along lat/lon
 NSString* const kMaplySubdivSimple = MaplySubdivSimple;
 /// Clip features along a grid of the given size
 NSString* const kMaplySubdivGrid = MaplySubdivGrid;
 /// Used to turn off selection in vectors
-NSString* const kMaplySelectable = @"selectable";
+WKDefineConst(Selectable)
+
+/// Attach a name to the generated drawable(s) for debugging purposes
+WKDefineConst(DrawableName);
 
 /// These are used for stickers
 
@@ -302,9 +329,9 @@ NSString* const kMaplyLoftedPolyOutlineSide = MaplyLoftedPolyOutlineSide;
 /// These are used for shapes
 
 /// Samples (x) to use when converting shape to polygons
-NSString* const kMaplyShapeSampleX = @"shapesamplex";
+WKDefineConst(ShapeSampleX)
 /// Samples (y) to use when converting shape to polygons
-NSString* const kMaplyShapeSampleY = @"shapesampley";
+WKDefineConst(ShapeSampleY)
 /// If set to true, we'll tessellate a shape using the opposite vertex ordering
 NSString* const kMaplyShapeInsideOut = MaplyShapeInsideOut;
 /// Center for the shape geometry
@@ -321,15 +348,16 @@ NSString* const kMaplyPointSize = MaplyGeomPointSize;
 const float kMaplyPointSizeDefault = 4.0;
 
 /// These are used by the texture
-NSString* const kMaplyTexFormat = @"texformat";
-NSString* const kMaplyTexMinFilter = @"texminfilter";
-NSString* const kMaplyTexMagFilter = @"texmagfilter";
-NSString* const kMaplyMinFilterNearest = @"texfilternearest";
-NSString* const kMaplyMinFilterLinear = @"texfilterlinear";
-NSString* const kMaplyTexAtlas = @"texatlas";
-NSString* const kMaplyTexWrapX = @"texwrapx";
-NSString* const kMaplyTexWrapY = @"texwrapy";
-NSString* const kMaplyTexMipmap = @"texmipmap";
+WKDefineConst(TexFormat)
+WKDefineConst(TexMinFilter)
+WKDefineConst(TexMagFilter)
+WKDefineConst(MinFilterNearest)
+WKDefineConst(MinFilterLinear)
+WKDefineConst(TexAtlas)
+WKDefineConst(TexWrapX)
+WKDefineConst(TexWrapY)
+WKDefineConst(TexMipmap)
+
 
 /// These are the various shader programs we set up by default
 NSString* const kMaplyShaderDefaultTri = @"Default Triangle;lighting=yes";
@@ -368,4 +396,7 @@ NSString* const kMaplyScreenSpaceDefaultProgram = @"Default Screenspace";
 NSString* const kMaplyScreenSpaceMaskProgram = @"Screenspace mask";
 NSString* const kMaplyScreenSpaceExpProgram = @"Screenspace with expressions";
 
-NSString* const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";
+NSString * const kMaplyAtmosphereProgram = @"Default Atmosphere";
+NSString * const kMaplyAtmosphereGroundProgram = @"Default Atmosphere Ground";
+
+NSString * const kMaplyShaderParticleSystemPointDefault = @"Default Part Sys (Point)";

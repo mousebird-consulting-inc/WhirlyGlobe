@@ -56,7 +56,7 @@ typedef std::shared_ptr<RenderTeardownInfo> RenderTeardownInfoRef;
 class Scene;
 class SceneRenderer;
     
-/** This is the base clase for a change request.  Change requests
+/** This is the base class for a change request.  Change requests
  are how we modify things in the scene.  The renderer is running
  on the main thread and we want to keep our interaction with it
  very simple.  So instead of deleting things or modifying them
@@ -87,6 +87,8 @@ public:
 /// Representation of a list of changes.  Might get more complex in the future.
 typedef std::vector<ChangeRequest *> ChangeSet;
 typedef std::shared_ptr<ChangeSet> ChangeSetRef;
+
+void discardChanges(ChangeSet &changes);
 
 typedef struct ChangeSorter
 {

@@ -17,8 +17,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "loading/MaplyTileSourceNew.h"
-#import "control/MaplyBaseViewController.h"
+#import <WhirlyGlobe/MaplyTileSourceNew.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
 
 @class MaplyVectorTileData;
 
@@ -73,6 +73,9 @@
 /// Use widened vectors (which do anti-aliasing and such)
 @property (nonatomic) bool useWideVectors;
 
+/// Use GPU-based wide vector implementation
+@property (nonatomic) bool usePerfWideVectors;
+
 /// Where we're using old vectors (e.g. not wide) scale them by this amount
 @property (nonatomic) float oldVecWidthScale;
 
@@ -84,6 +87,9 @@
 
 /// If set, we'll make all the features selectable.  If not, we won't.
 @property (nonatomic) bool selectable;
+
+/// Allow- per-object color overrides
+@property (nonatomic) bool enableOverrideColor;
 
 /// If set, icons will be loaded from this directory
 @property (nonatomic, strong) NSString * _Nullable iconDirectory;

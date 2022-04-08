@@ -6,6 +6,7 @@
 //  Copyright 2016-2022 mousebird consulting.
 //
 import UIKit
+import WhirlyGlobe
 
 class ParticleTestCase: MaplyTestCase {
 	

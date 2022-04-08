@@ -17,7 +17,7 @@
  */
 
 #import <jni.h>
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "LabelInfo_Android.h"
 
 namespace WhirlyKit

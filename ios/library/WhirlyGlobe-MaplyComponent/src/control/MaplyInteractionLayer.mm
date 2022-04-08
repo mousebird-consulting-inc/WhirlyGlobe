@@ -1,5 +1,4 @@
-/*
- *  MaplyInteractionLayer_private.h
+/*  MaplyInteractionLayer_private.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyInteractionLayer_private.h"
@@ -26,6 +24,7 @@
 #import "MaplyVectorObject_private.h"
 #import "math/MaplyCoordinate.h"
 #import "ImageTexture_private.h"
+#import "private/MaplyTapMessage_private.h"
 #import <vector>
 
 using namespace Eigen;

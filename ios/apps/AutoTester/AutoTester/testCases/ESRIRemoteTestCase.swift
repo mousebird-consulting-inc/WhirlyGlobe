@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WhirlyGlobe
 
 /**
     This ESRI Bathymetry tile suite consists of two layers, a base layer and a labels layer. We create an

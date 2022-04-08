@@ -44,7 +44,7 @@ TRet CalcLoopArea(const std::vector<T,Eigen::aligned_allocator<T>> &loop, size_t
         const auto &p1 = loop[ii];
         const auto &p2 = loop[(ii+1)%loopSize];
 
-        // Inputs may be floats or doubles.  Watch out for truncation on itermediate values.
+        // Inputs may be floats or doubles.  Watch out for truncation on intermediate values.
         area += (TInt)p1.x() * (TInt)p2.y();
         area -= (TInt)p1.y() * (TInt)p2.x();
     }
@@ -304,10 +304,10 @@ void SubdivideEdgesToSurfaceGC(const VectorRing &inPts,Point3dVector &outPts,boo
         const Point2f &p0 = inPts[ii];
         const Point2f &p1 = inPts[(ii+1)%inPts.size()];
         Point3d dp0 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p0.x(),p0.y())));
-        if (adapter && !adapter->isFlat())
+        if (!adapter->isFlat())
            dp0 = dp0.normalized() * (1.0 + surfOffset);
         Point3d dp1 = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(p1.x(),p1.y())));
-        if (adapter && !adapter->isFlat())
+        if (!adapter->isFlat())
            dp1 = dp1.normalized() * (1.0 + surfOffset);
         outPts.push_back(dp0);
         subdivideToSurfaceRecurseGC(dp0,dp1,outPts,adapter,eps2,surfOffset,minPts);
@@ -856,8 +856,8 @@ bool VectorParseCoordinates(JSONNode node,VectorRing &pts, bool subCall=false)
             if (node.size() < 2)
                 return false;
             
-            float lon = it->as_float();  ++it;
-            float lat = it->as_float();
+            const auto lon = (float)it->as_float();  ++it;
+            const auto lat = (float)it->as_float();
             pts.push_back(GeoCoord::CoordFromDegrees(lon,lat));
             
             // There might be a Z value or even other junk.  We just want the first two coordinates

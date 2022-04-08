@@ -60,15 +60,13 @@ typedef std::shared_ptr<LoftedPolyInfo> LoftedPolyInfoRef;
 /** Representation of one or more lofted polygons.
  Used to keep track of the assets we create.
  */
-class LoftedPolySceneRep : public WhirlyKit::Identifiable
+struct LoftedPolySceneRep : public WhirlyKit::Identifiable
 {
-public:
-    LoftedPolySceneRep() { }
+    LoftedPolySceneRep() = default;
     LoftedPolySceneRep(SimpleIdentity theId) : Identifiable(theId) { }
-    ~LoftedPolySceneRep() { }
     
     WhirlyKit::SimpleIDSet drawIDs;  // Drawables created for this
-    float fade;            // Fade out, used for delete
+    float fadeOut = 0.0;            // Fade out, used for delete
 };
 typedef std::set<LoftedPolySceneRep *,IdentifiableSorter> LoftedPolySceneRepSet;
 

@@ -26,11 +26,6 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-DynamicTexture::Region::Region()
-  : sx(0), sy(0), ex(0), ey(0)
-{
-}
-
 DynamicTexture::DynamicTexture(const std::string &name)
 : TextureBase(name), layoutGrid(NULL)
 {
@@ -70,8 +65,8 @@ void DynamicTexture::addTexture(Texture *tex,const Region &region)
 
 void DynamicTexture::setRegion(const Region &region, bool enable)
 {
-    int sx = std::max(region.sx,0), sy = std::max(region.sy,0);
-    int ex = std::min(region.ex,numCell-1), ey = std::min(region.ey,numCell-1);
+    const int sx = std::max(region.sx,0), sy = std::max(region.sy,0);
+    const int ex = std::min(region.ex,numCell-1), ey = std::min(region.ey,numCell-1);
     
     for (unsigned int ix=sx;ix<=ex;ix++)
         for (unsigned int iy=sy;iy<=ey;iy++)
@@ -89,12 +84,18 @@ void DynamicTexture::clearRegion(const Region &clearRegion,ChangeSet &changes,bo
     clearTextureData(startX,startY,width,height,changes,mainThreadMerge,emptyData);
 }
     
-void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear)
+void DynamicTexture::getReleasedRegions(std::vector<DynamicTexture::Region> &toClear) const
 {
     std::lock_guard<std::mutex> guardLock(regionLock);
     toClear = releasedRegions;
 }
-    
+
+std::vector<DynamicTexture::Region> DynamicTexture::getReleasedRegions() const
+{
+    std::lock_guard<std::mutex> guardLock(regionLock);
+    return releasedRegions;
+}
+
 bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
 {
     // First thing we need to do is clear any outstanding regions
@@ -102,11 +103,10 @@ bool DynamicTexture::findRegion(int sizeX,int sizeY,Region &region)
     std::vector<Region> toClear;
     {
         std::lock_guard<std::mutex> guardLock(regionLock);
-        toClear = releasedRegions;
-        releasedRegions.clear();
+        toClear.swap(releasedRegions);
     }
 
-    for (auto &ii : toClear)
+    for (const auto &ii : toClear)
     {
         setRegion(ii, false);
     }
@@ -223,9 +223,10 @@ DynamicTextureAtlas::DynamicTextureAtlas(const std::string &name,int texSize,int
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
     // Clean up anything we might have left over
-    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); ++it)
-        delete *it;
-
+    for (auto *it : textures)
+    {
+        delete it;
+    }
     textures.clear();
 }
     
@@ -235,12 +236,12 @@ void DynamicTextureAtlas::setInterpType(TextureInterpType inType)
     interpType = inType;
 }
 
-TextureInterpType DynamicTextureAtlas::getInterpType()
+TextureInterpType DynamicTextureAtlas::getInterpType() const
 {
     return interpType;
 }
 
-TextureType DynamicTextureAtlas::getFormat()
+TextureType DynamicTextureAtlas::getFormat() const
 {
     return format;
 }
@@ -249,7 +250,7 @@ void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
 {
     pixelFudge = pixFudge;
 }
-        
+
 bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &newTextures,int frame,const Point2f *realSize,const Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
 {
     if (newTextures.size() != imageDepth && frame < 0)
@@ -261,21 +262,21 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
         return false;
     
     TextureRegion texRegion;
-    
+    const bool doMainThreadMerge = MainThreadMerge || mainThreadMerge;
+
     // Clear out any released regions
-    for (auto it = textures.begin();it != textures.end(); ++it)
+    for (const auto *dynTexVec : textures)
     {
-        DynamicTextureVec *dynTexVec = *it;
-        DynamicTextureRef firstDynTex = dynTexVec->at(0);
-        std::vector<DynamicTexture::Region> toClear;
-        firstDynTex->getReleasedRegions(toClear);
+        const DynamicTextureRef &firstDynTex = dynTexVec->at(0);
+        std::vector<DynamicTexture::Region> toClear = firstDynTex->getReleasedRegions();
         for (const DynamicTexture::Region &clearRegion : toClear)
+        {
             for (unsigned int ii=0;ii<dynTexVec->size();ii++)
             {
-                DynamicTextureRef dynTex = dynTexVec->at(ii);
-                bool doMainThreadMerge = MainThreadMerge || mainThreadMerge;
-                dynTex->clearRegion(clearRegion,changes,doMainThreadMerge,doMainThreadMerge ? &emptyPixelBuffer[0] : NULL);
+                const DynamicTextureRef &dynTex = dynTexVec->at(ii);
+                dynTex->clearRegion(clearRegion,changes,doMainThreadMerge,doMainThreadMerge ? &emptyPixelBuffer[0] : nullptr);
             }
+        }
     }
     
     // Now look for space
@@ -283,10 +284,9 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     bool found = false;
     const int numCellX = ceil((float)(firstTex->getWidth()+bufferPixels) / (float)cellSize);
     const int numCellY = ceil((float)(firstTex->getHeight()+bufferPixels) / (float)cellSize);
-    for (auto it = textures.begin(); it != textures.end(); ++it)
+    for (auto *dynTex : textures)
     {
-        DynamicTextureVec *dynTex = *it;
-        DynamicTextureRef firstDynTex = dynTex->at(0);
+        const DynamicTextureRef &firstDynTex = dynTex->at(0);
         DynamicTexture::Region thisRegion;
         if (firstDynTex->findRegion(numCellX, numCellY, thisRegion))
         {
@@ -303,13 +303,14 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     if (!found)
     {
         dynTexVec = new std::vector<DynamicTextureRef>();
+        dynTexVec->reserve(imageDepth);
         for (unsigned int ii=0;ii<imageDepth;ii++)
         {
-            DynamicTextureRef dynTex = sceneRender->makeDynamicTexture(name);
+            auto dynTex = sceneRender->makeDynamicTexture(name);
             dynTex->setup(texSize,cellSize,format,clearTextures);
             dynTex->setInterpType(interpType);
-            dynTexVec->push_back(dynTex);
             dynTex->createInRenderer(sceneRender->getRenderSetupInfo());
+            dynTexVec->push_back(std::move(dynTex));
         }
 
 //        NSLog(@"Added dynamic texture %ld (%ld)",dynTex->getId(),textures.size());
@@ -387,25 +388,33 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
     
 bool DynamicTextureAtlas::updateTexture(Texture *tex,int frame,const TextureRegion &texRegion,ChangeSet &changes)
 {
-    DynamicTextureVec *dynTexVec = NULL;
+    const DynamicTextureVec *dynTexVec = nullptr;
     
     // Look for the right dynamic texture (list)
-    for (DynamicTextureSet::iterator it = textures.begin();
-         it != textures.end(); ++it)
+    for (const auto *texVec : textures)
     {
-        dynTexVec = *it;
-        DynamicTextureRef firstDynTex = dynTexVec->at(0);
+        const DynamicTextureRef &firstDynTex = dynTexVec->at(0);
         if (firstDynTex->getId() == texRegion.dynTexId)
+        {
+            dynTexVec = texVec;
             break;
+        }
     }
     
     if (!dynTexVec)
-        return false;
-    
+    {
+        if (textures.empty())
+        {
+            return false;
+        }
+        // Just use the last one
+        // todo: the one with the most space would be best
+        dynTexVec = *textures.end();
+    }
     
     // Look for the matching dynamic texture
-    int which = frame == -1 ? 0 : frame;
-    DynamicTextureRef dynTex = dynTexVec->at(which);
+    const int which = (frame == -1) ? 0 : frame;
+    const DynamicTextureRef &dynTex = dynTexVec->at(which);
     
     // Merge in the data
     //        NSLog(@"Region: (%d,%d)->(%d,%d)  texture: %ld",texRegion.region.sx,texRegion.region.sy,texRegion.region.ex,texRegion.region.ey,dynTex->getId());
@@ -424,30 +433,34 @@ void DynamicTextureAtlas::removeTexture(const SubTexture &subTex,ChangeSet &chan
 {
     TextureRegion texRegion;
     texRegion.subTex.setId(subTex.getId());
-    TextureRegionSet::iterator it = regions.find(texRegion);
-    if (it != regions.end())
+    const auto it = regions.find(texRegion);
+    if (it == regions.end())
     {
-        // We'll stop keeping track of the region
-        TextureRegion theRegion = *it;
-        // Tell the dynamic texture to clear it out, but we'll send that request over to
-        //  the renderer so we can be sure we're not still using it
-        changes.push_back(new DynamicTextureClearRegion(theRegion.dynTexId,theRegion.region,when));
-        regions.erase(it);
-        
-        // See if that texture is now empty
-        for (auto it : textures) {
-            if (theRegion.dynTexId == it->at(0)->getId()) {
-                DynamicTextureVec *texVec = it;
-                DynamicTextureRef tex = texVec->at(0);
-                tex->getNumRegions()--;
-                break;
-            }
-        }
-    } else
         wkLogLevel(Warn,"DynamicTextureAtlas: Request to remove non-existent texture.");
-}
+        return;
+    }
     
-bool DynamicTextureAtlas::empty()
+    // We'll stop keeping track of the region
+    const auto dynTexId = it->dynTexId;
+
+    // Tell the dynamic texture to clear it out, but we'll send that request over to
+    //  the renderer so we can be sure we're not still using it
+    changes.push_back(new DynamicTextureClearRegion(dynTexId,it->region,when));
+    regions.erase(it);
+    
+    // See if that texture is now empty
+    for (const auto *texVec : textures)
+    {
+        if (dynTexId == texVec->at(0)->getId())
+        {
+            const DynamicTextureRef &tex = texVec->at(0);
+            tex->getNumRegions()--;
+            break;
+        }
+    }
+}
+
+bool DynamicTextureAtlas::empty() const
 {
     return textures.empty();
 }
@@ -455,16 +468,17 @@ bool DynamicTextureAtlas::empty()
 void DynamicTextureAtlas::cleanup(ChangeSet &changes,TimeInterval when)
 {
     DynamicTextureSet::iterator itNext;
-    for (DynamicTextureSet::iterator it = textures.begin();it != textures.end(); it = itNext)
+    for (auto it = textures.begin();it != textures.end(); it = itNext)
     {
-        itNext = it;
-        ++itNext;
+        itNext = std::next(it);
         DynamicTextureVec *texVec = *it;
-        DynamicTextureRef tex = texVec->at(0);
+        const DynamicTextureRef &tex = texVec->at(0);
         if (tex->getNumRegions() == 0)
         {
-            for (unsigned int ii=0;ii<texVec->size();ii++)
-                changes.push_back(new RemTextureReq(texVec->at(ii)->getId(),when));
+            for (const auto &ti : *texVec)
+            {
+                changes.push_back(new RemTextureReq(ti->getId(),when));
+            }
             delete texVec;
             textures.erase(it);
         }
@@ -473,10 +487,8 @@ void DynamicTextureAtlas::cleanup(ChangeSet &changes,TimeInterval when)
     
 void DynamicTextureAtlas::getTextureIDs(std::vector<SimpleIdentity> &texIDs,int which)
 {
-    for (DynamicTextureSet::iterator it = textures.begin();
-         it != textures.end(); ++it)
+    for (const auto *dynTexVec : textures)
     {
-        DynamicTextureVec *dynTexVec = *it;
         if (which < dynTexVec->size())
             texIDs.push_back(dynTexVec->at(which)->getId());
     }
@@ -484,10 +496,8 @@ void DynamicTextureAtlas::getTextureIDs(std::vector<SimpleIdentity> &texIDs,int 
     
 SimpleIdentity DynamicTextureAtlas::getTextureIDForFrame(SimpleIdentity baseTexID,int which)
 {
-    for (DynamicTextureSet::iterator it = textures.begin();
-         it != textures.end(); ++it)
+    for (const auto *dynTexVec : textures)
     {
-        DynamicTextureVec *dynTexVec = *it;
         if (((*dynTexVec)[0])->getId() == baseTexID && which < dynTexVec->size())
             return ((*dynTexVec)[which])->getId();
     }
@@ -497,9 +507,8 @@ SimpleIdentity DynamicTextureAtlas::getTextureIDForFrame(SimpleIdentity baseTexI
     
 void DynamicTextureAtlas::teardown(ChangeSet &changes)
 {
-    for (DynamicTextureSet::iterator it = textures.begin(); it != textures.end(); ++it)
+    for (auto *texVec : textures)
     {
-        DynamicTextureVec *texVec = *it;
         for (unsigned int ii=0;ii<texVec->size();ii++)
             changes.push_back(new RemTextureReq(texVec->at(ii)->getId()));
         delete texVec;
@@ -508,19 +517,17 @@ void DynamicTextureAtlas::teardown(ChangeSet &changes)
     regions.clear();
 }
     
-void DynamicTextureAtlas::getUsage(int &numRegions,int &dynamicTextures)
+void DynamicTextureAtlas::getUsage(int &numRegions,int &dynamicTextures) const
 {
     numRegions = regions.size();
     dynamicTextures = textures.size();
 }
 
-void DynamicTextureAtlas::log()
+void DynamicTextureAtlas::log() const
 {
     int numCells=0,usedCells=0;
-    for (DynamicTextureSet::iterator it = textures.begin();
-         it != textures.end(); ++it)
+    for (const auto *texVec : textures)
     {
-        DynamicTextureVec *texVec = *it;
         int thisNumCells,thisUsedCells;
         texVec->at(0)->getUtilization(thisNumCells,thisUsedCells);
         numCells += thisNumCells;

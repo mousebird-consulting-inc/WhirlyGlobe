@@ -132,6 +132,8 @@ using namespace WhirlyKit;
 
     [loadInterp setLoader:self];
 
+    [super postDelayedInit];
+
     return true;
 }
 

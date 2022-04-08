@@ -7,7 +7,7 @@
 //
 
 import UIKit
-
+import WhirlyGlobe
 
 class BNGCustomMapTestCase: MaplyTestCase {
 	

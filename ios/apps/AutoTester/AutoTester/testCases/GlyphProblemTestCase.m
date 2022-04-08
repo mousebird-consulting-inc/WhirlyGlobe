@@ -10,7 +10,7 @@
 #define MAX_HEIGHT 2.0
 
 #import "GlyphProblemTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @interface GlyphProblemTestCase()
 

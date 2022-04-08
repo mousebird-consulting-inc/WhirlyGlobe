@@ -57,18 +57,6 @@ Billboard::Billboard() :
 {
 }
     
-BillboardSceneRep::BillboardSceneRep() :
-    Identifiable(),
-    fade(0.0f)
-{
-}
-
-BillboardSceneRep::BillboardSceneRep(SimpleIdentity inId) :
-    Identifiable(inId),
-    fade(0.0f)
-{
-}
-
 void BillboardSceneRep::clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when)
 {
     for (const auto it: drawIDs){
@@ -197,7 +185,7 @@ SimpleIdentity BillboardManager::addBillboards(const std::vector<Billboard*> &bi
     const auto selectManager = scene->getManager<SelectionManager>(kWKSelectionManager);
 
     auto sceneRep = new BillboardSceneRep();
-    sceneRep->fade = (float)billboardInfo.fade;
+    sceneRep->fadeOut = billboardInfo.fadeOut;
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
 
@@ -289,7 +277,7 @@ void BillboardManager::removeBillboards(const SimpleIDSet &billIDs,ChangeSet &ch
     std::lock_guard<std::mutex> guardLock(lock);
 
     const TimeInterval curTime = scene->getCurrentTime();
-    for (auto billID : billIDs)
+    for (const auto billID : billIDs)
     {
         BillboardSceneRep dummyRep(billID);
         auto it = sceneReps.find(&dummyRep);
@@ -298,16 +286,16 @@ void BillboardManager::removeBillboards(const SimpleIDSet &billIDs,ChangeSet &ch
             auto *sceneRep = *it;
 
             TimeInterval removeTime = 0.0;
-            if (sceneRep->fade > 0.0)
+            if (sceneRep->fadeOut > 0.0)
             {
-                for (auto id : sceneRep->drawIDs)
+                for (const auto id : sceneRep->drawIDs)
                 {
-                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fade));
+                    changes.push_back(new FadeChangeRequest(id, curTime, curTime+sceneRep->fadeOut));
                 }
                 
-                removeTime = curTime + sceneRep->fade;
+                removeTime = curTime + sceneRep->fadeOut;
             }
-            
+
             sceneRep->clearContents(selectManager,changes,removeTime);
             sceneReps.erase(it);
             delete sceneRep;

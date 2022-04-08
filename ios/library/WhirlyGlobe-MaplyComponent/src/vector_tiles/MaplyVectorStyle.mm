@@ -21,7 +21,7 @@
 #import "private/MapboxVectorTiles_private.h"
 #import "private/MaplyVectorObject_private.h"
 #import "helpers/MaplyTextureBuilder.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "MaplyTexture_private.h"
 #import "Dictionary_NSDictionary.h"
 
@@ -199,6 +199,16 @@ using namespace WhirlyKit;
     return impl->useWideVectors;
 }
 
+- (void)setUsePerfWideVectors:(bool)use
+{
+    impl->perfWideVec = use;
+}
+
+- (bool)usePerfWideVectors
+{
+    return impl->perfWideVec;
+}
+
 - (void)setOldVecWidthScale:(float)oldVecWidthScale
 {
     impl->oldVecWidthScale = oldVecWidthScale;
@@ -242,6 +252,15 @@ using namespace WhirlyKit;
 - (bool)selectable
 {
     return impl->selectable;
+}
+
+- (bool)enableOverrideColor
+{
+    return impl->enableOverrideColor;
+}
+- (void)setEnableOverrideColor:(bool)enable
+{
+    impl->enableOverrideColor = enable;
 }
 
 - (void)setIconDirectory:(NSString *)iconDirectory

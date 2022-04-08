@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2BE536FE1D2499E500B60FAD"
-               BuildableName = "WhirlyGlobeMaplyComponent.framework"
-               BlueprintName = "WhirlyGlobeMaplyComponent"
+               BuildableName = "WhirlyGlobe.framework"
+               BlueprintName = "WhirlyGlobe"
                ReferencedContainer = "container:WhirlyGlobeMaplyComponent.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -31,8 +31,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2BE536FE1D2499E500B60FAD"
-            BuildableName = "WhirlyGlobeMaplyComponent.framework"
-            BlueprintName = "WhirlyGlobeMaplyComponent"
+            BuildableName = "WhirlyGlobe.framework"
+            BlueprintName = "WhirlyGlobe"
             ReferencedContainer = "container:WhirlyGlobeMaplyComponent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -63,8 +63,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2BE536FE1D2499E500B60FAD"
-            BuildableName = "WhirlyGlobeMaplyComponent.framework"
-            BlueprintName = "WhirlyGlobeMaplyComponent"
+            BuildableName = "WhirlyGlobe.framework"
+            BlueprintName = "WhirlyGlobe"
             ReferencedContainer = "container:WhirlyGlobeMaplyComponent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -79,8 +79,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2BE536FE1D2499E500B60FAD"
-            BuildableName = "WhirlyGlobeMaplyComponent.framework"
-            BlueprintName = "WhirlyGlobeMaplyComponent"
+            BuildableName = "WhirlyGlobe.framework"
+            BlueprintName = "WhirlyGlobe"
             ReferencedContainer = "container:WhirlyGlobeMaplyComponent.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

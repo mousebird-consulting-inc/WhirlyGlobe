@@ -1,5 +1,4 @@
-/*
- *  MaplyLight.h
+/*  MaplyLight.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/30/13.
@@ -19,7 +18,7 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "math/MaplyCoordinate.h"
+#import <WhirlyGlobe/MaplyCoordinate.h>
 
 /** 
     The Light provides a simple interface to basic lighting within the toolkit.

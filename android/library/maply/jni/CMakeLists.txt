@@ -23,6 +23,7 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Billboard_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Components_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/CoordSystem_jni.h"
+        "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Expressions_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Formats_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/Geometry_jni.h"
         "${CMAKE_CURRENT_LIST_DIR}/include/classInfo/GeometryManager_jni.h"
@@ -57,6 +58,9 @@ target_sources(
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/PlateCarreeCoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/Proj4CoordSystem_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/coordSystem/SphericalMercatorCoordSystem_jni.cpp"
+
+        "${CMAKE_CURRENT_LIST_DIR}/src/expressions/ColorExpressionInfo_jni.cpp"
+        "${CMAKE_CURRENT_LIST_DIR}/src/expressions/FloatExpressionInfo_jni.cpp"
 
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/ChangeSet_jni.cpp"
         "${CMAKE_CURRENT_LIST_DIR}/src/scene/DirectionalLight_jni.cpp"

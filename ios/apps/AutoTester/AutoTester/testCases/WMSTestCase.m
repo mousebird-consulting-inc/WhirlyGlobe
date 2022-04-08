@@ -7,13 +7,8 @@
 //
 
 #import "WMSTestCase.h"
-#import "MaplyBaseViewController.h"
-#import "MaplyViewController.h"
-#import "WhirlyGlobeViewController.h"
-
-#import "MaplyWMSTileSource.h"
 #import "DDXML.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation WMSTestCase {
     MaplyBaseViewController *_baseVC;

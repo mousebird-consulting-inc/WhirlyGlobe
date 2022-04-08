@@ -6,7 +6,7 @@
 //  Copyright © 2016-2019 mousebird consulting.
 //
 
-#import "vector_styles/SLDStyleSet.h"
+#import <WhirlyGlobe/SLDStyleSet.h>
 #import "vector_styles/SLDExpressions.h"
 #import "vector_styles/SLDOperators.h"
 #import "vector_styles/SLDSymbolizers.h"

@@ -45,7 +45,7 @@ namespace WhirlyKit
 class VectorSceneRep : public Identifiable
 {
 public:
-    VectorSceneRep() : fade(0.0) { }
+    VectorSceneRep() = default;
     VectorSceneRep(SimpleIdentity theId) : Identifiable(theId) { }
     
     // Clean out the representation
@@ -53,7 +53,7 @@ public:
     
     SimpleIDSet drawIDs;    // The drawables we created
     SimpleIDSet instIDs;    // Instances if we're doing that
-    float fade;       // If set, the amount of time to fade out before deletion
+    float fadeOut = 0.0;       // If set, the amount of time to fade out before deletion
 };
 typedef std::set<VectorSceneRep *,IdentifiableSorter> VectorSceneRepSet;
 

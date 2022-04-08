@@ -100,12 +100,6 @@ void WideVectorDrawableBuilder::setLineOffset(float inOffset)
     lineOffsetSet = true;
 }
  
-void WideVectorDrawableBuilder::setTexRepeat(float inTexRepeat)
-    { texRepeat = inTexRepeat; }
-
-void WideVectorDrawableBuilder::setEdgeSize(float inEdgeSize)
-    { edgeSize = inEdgeSize; }
-
 unsigned int WideVectorDrawableBuilder::addPoint(const Point3f &pt)
 {
 #ifdef WIDEVECDEBUG
@@ -230,12 +224,13 @@ void WideVectorDrawableBuilder::addCenterLine(const Point3d &centerPt,
                                               int prev,int next)
 {
     CenterPoint pt;
-    pt.center = Point3f(centerPt.x(),centerPt.y(),centerPt.z());
-    pt.up = Point3f(up.x(),up.y(),up.z());
-    pt.len = (float)len;
+    pt.center = centerPt.cast<float>();
+    pt.up = up.cast<float>();
+    pt.segLen = (float)len;
+    pt.totalLen = centerline.empty() ? 0.0f : (centerline.back().totalLen + centerline.back().segLen);
     pt.color = inColor;
     pt.maskIDs[0] = maskIDs.empty() ? 0 : (int)maskIDs[0];
-    pt.maskIDs[1] = maskIDs.size() > 1 ? (int)maskIDs[1] : 0;
+    pt.maskIDs[1] = (maskIDs.size() > 1) ? (int)maskIDs[1] : 0;
     pt.prev = prev;
     pt.next = next;
     centerline.push_back(pt);

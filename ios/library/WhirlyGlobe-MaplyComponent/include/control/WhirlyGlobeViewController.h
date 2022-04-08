@@ -1,5 +1,5 @@
 /*
- *  GlobeViewController.h
+ *  WhirlyGlobeViewController.h
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
@@ -19,8 +19,8 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "control/MaplyGlobeRenderController.h"
-#import "control/MaplyBaseViewController.h"
+#import <WhirlyGlobe/MaplyGlobeRenderController.h>
+#import <WhirlyGlobe/MaplyBaseViewController.h>
 
 @class WGViewControllerLayer;
 @class WhirlyGlobeViewController;
@@ -420,6 +420,11 @@
     The far clipping plane is usually set to something like 4.0.
   */
 - (void)setFarClipPlane:(double)farClipPlane;
+
+/**
+    Get the maximum height (in radii) that will be visible, based on the current far-plane setting.
+ */
+- (double)getMaxHeightAboveGlobe;
 
 /** 
     Set the simplified tilt mode.  We'll tilt toward the horizon as the user gets closer to the ground.

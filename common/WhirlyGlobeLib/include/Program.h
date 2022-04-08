@@ -115,7 +115,7 @@ protected:
 class ProgramUniformBlockSetRequest : public ChangeRequest
 {
 public:
-    ProgramUniformBlockSetRequest(SimpleIdentity progID,const RawDataRef &uniBlock,int bufferID);
+    ProgramUniformBlockSetRequest(SimpleIdentity progID,RawDataRef uniBlock,int bufferID);
     ~ProgramUniformBlockSetRequest() { }
 
     /// Remove from the renderer.  Never call this.

@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WhirlyGlobe
 
 class SimpleStyleTestCase: MaplyTestCase {
 
@@ -181,7 +182,7 @@ class SimpleStyleTestCase: MaplyTestCase {
     {
         let styleMan = MaplySimpleStyleManager(viewC: vc)
         if let data = geoJSON.data(using: .utf8),
-            let vecObj = MaplyVectorObject(fromGeoJSON: data) {
+            let vecObj = MaplyVectorObject(geoJSON: data) {
             vecObj.selectable = true
             styleMan.addFeatures([vecObj], mode: .current)
         }

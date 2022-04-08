@@ -70,7 +70,10 @@ public class Sun
      */
     public native Point3d getDirection();
 
-    public native float[] asPosition();
+    /**
+     * Return the geo location (radians)
+     */
+    public native Point2d getPosition();
 
     static
     {

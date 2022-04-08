@@ -222,7 +222,10 @@ void LabelRenderer::render(PlatformThreadInfo *threadInfo,
             if (labelInfo->fadeIn > 0.0)
                 screenShape->setFade(curTime+labelInfo->fadeIn, curTime);
             else if (labelInfo->fadeOutTime != 0.0)
-                screenShape->setFade(labelInfo->fadeOutTime, labelInfo->fadeOutTime+labelInfo->fadeOut);
+            {
+                // up<down=fade out
+                screenShape->setFade(/*up=*/labelInfo->fadeOutTime, /*down=*/labelInfo->fadeOutTime+labelInfo->fadeOut);
+            }
             if (label->isSelectable && label->selectID != EmptyIdentity)
                 screenShape->setId(label->selectID);
             screenShape->setWorldLoc(coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(label->loc)));

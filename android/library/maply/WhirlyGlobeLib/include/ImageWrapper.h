@@ -23,7 +23,7 @@
 #import <android/bitmap.h>
 #import "Maply_jni.h"
 #endif
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 namespace WhirlyKit
 {

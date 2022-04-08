@@ -17,7 +17,7 @@
  */
 
 #import "Maply_jni.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 namespace WhirlyKit
 {
@@ -36,7 +36,6 @@ public:
     // Wrapper for FontManager.
     struct FontManager_Android : public FontManager
     {
-        FontManager_Android() = default;
         FontManager_Android(PlatformThreadInfo *inst,jobject typefaceObj);
         virtual ~FontManager_Android();
 

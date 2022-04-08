@@ -118,21 +118,37 @@ public:
     /// Adds a point for instanced geometry and an ID for tracking it in the shader
     virtual void addInstancePoint(const Point3f &pt,int vertIndex,int polyIndex);
     
-    // We set color globally
+    /// We set color globally
     void setColor(RGBAColor inColor);
     
-    // Line width for vectors is a bit different
+    /// Line width for vectors is a bit different
     virtual void setLineWidth(float inWidth);
     
-    // Line offset for vectors
+    /// Line offset for vectors
     void setLineOffset(float inOffset);
-    
+
+    /// Line join type
+    WideVectorLineJoinType getLineJoin() const { return joinType; }
+    void setLineJoin(WideVectorLineJoinType type) { joinType = type; }
+
+    /// Miter join limit as a multiple of width
+    void setMiterLimit(float limit) { miterLimit = limit; }
+
+    /// Set geometry fallback mode
+    void setFallbackMode(WideVectorFallbackMode mode) { fallbackMode = mode; }
+
+    /// Line cap type
+    void setLineCap(WideVectorLineCapType type) { capType = type; }
+ 
     /// How often the texture repeats
-    void setTexRepeat(float inTexRepeat);
-    
+    void setTexRepeat(float inTexRepeat) { texRepeat = inTexRepeat; }
+
+    /// Starting point for texture coords
+    void setTexOffset(const Point2f &offset) { texOffset = offset; }
+
     /// Number of pixels to interpolate at the edges
-    void setEdgeSize(float inEdgeSize);
-    
+    void setEdgeSize(float inEdgeSize) { edgeSize = inEdgeSize; }
+
     // Apply a dynamic color expression
     void setColorExpression(ColorExpressionInfoRef colorExp);
     
@@ -198,6 +214,7 @@ protected:
     bool lineOffsetSet = false;
     bool globeMode = true;
     float texRepeat = 1.0f;
+    Point2f texOffset = { 0.0f, 0.0f };
     float edgeSize = 1.0f;
     int p1_index = -1;
     int n0_index = -1;
@@ -205,6 +222,10 @@ protected:
     int c0_index = -1;
     int tex_index = -1;
     int inst_index = -1;
+    WideVectorLineJoinType joinType = WideVecBevelJoin;
+    WideVectorLineCapType capType = WideVecSquareCap;
+    WideVectorFallbackMode fallbackMode = WideVecFallbackNone;
+    float miterLimit = 2.0;
     std::string name;
     Scene *scene;
     const SceneRenderer *renderer;
@@ -229,7 +250,8 @@ protected:
     typedef struct {
         Point3f center;
         Point3f up;
-        float len;
+        float segLen;
+        float totalLen;
         RGBAColor color;
         int prev,next;
         int maskIDs[2];

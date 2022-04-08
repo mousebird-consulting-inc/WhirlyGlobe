@@ -1,5 +1,4 @@
-/*
- *  GlobeTwoFingerTapDelegate.mm
+/*  GlobeTwoFingerTapDelegate.mm
  *
  *  Created by Steve Gifford on 2/7/14.
  *  Copyright 2011-2022 mousebird consulting
@@ -14,10 +13,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "gestures/GlobeTwoFingerTapDelegate.h"
+#import "private/GlobeTwoFingerTapDelegate_private.h"
 #import "GlobeAnimateHeight.h"
 #import "ViewWrapper.h"
 #import "SceneRenderer.h"

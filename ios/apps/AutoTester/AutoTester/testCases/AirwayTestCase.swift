@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import WhirlyGlobe
 
 // A very dumb graph builder
 class GraphBuilder {
@@ -47,14 +48,14 @@ class AirwayTestCase: MaplyTestCase {
     
     let buildPointMarkers = true
     let buildPointLabels = false
-    let buildAirways = false
+    let buildAirways = true
     let buildAirspaces = true
     let buildLineLabels = false
     let buildCenterLabels = false
     
     func setupAirways(_ viewC: MaplyBaseViewController) {
         DispatchQueue.global(qos: .default).async {
-            guard let vecObj = MaplyVectorObject(fromShapeFile: "ATS_Route") else {
+            guard let vecObj = MaplyVectorObject(shapeFile: "ATS_Route") else {
                 print("Failed to load ATS_Route shapefile")
                 return
             }
@@ -174,7 +175,7 @@ class AirwayTestCase: MaplyTestCase {
     }
     
     func setupAirspaces(_ viewC: MaplyBaseViewController) {
-        guard let vecObj = MaplyVectorObject(fromShapeFile: "Airspace_Boundary") else {
+        guard let vecObj = MaplyVectorObject(shapeFile: "Airspace_Boundary") else {
             print("Failed to load Airspace_Boundary shapefile")
             return
         }

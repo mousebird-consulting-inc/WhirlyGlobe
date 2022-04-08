@@ -143,11 +143,18 @@ void ShapeDrawableBuilder::flush()
         {
             drawable->setLocalMbr(drawMbr);
 
-            if (shapeInfo.fade > 0.0)
+            if (shapeInfo.fadeIn > 0.0)
             {
-                TimeInterval curTime = time_t();
-                drawable->setFade(curTime,curTime+shapeInfo.fade);
+                // fadeDown < fadeUp : fading in
+                const TimeInterval curTime = sceneRender->getScene()->getCurrentTime();
+                drawable->setFade(curTime,curTime+shapeInfo.fadeIn);
             }
+            else if (shapeInfo.fadeOut > 0.0 && shapeInfo.fadeOutTime > 0.0)
+            {
+                // fadeUp < fadeDown : fading out
+                drawable->setFade(/*down=*/shapeInfo.fadeOutTime+shapeInfo.fadeOut, /*up=*/shapeInfo.fadeOutTime);
+            }
+
             drawables.push_back(drawable);
         }
         drawable = nullptr;
@@ -407,11 +414,18 @@ void ShapeDrawableBuilderTri::flush()
         {
             drawable->setLocalMbr(drawMbr);
 
-            if (shapeInfo.fade > 0.0)
+            if (shapeInfo.fadeIn > 0.0)
             {
-                TimeInterval curTime = time_t(NULL);
-                drawable->setFade(curTime,curTime+shapeInfo.fade);
+                // fadeDown < fadeUp : fading in
+                const TimeInterval curTime = sceneRender->getScene()->getCurrentTime();
+                drawable->setFade(curTime,curTime+shapeInfo.fadeIn);
             }
+            else if (shapeInfo.fadeOut > 0.0 && shapeInfo.fadeOutTime > 0.0)
+            {
+                // fadeUp < fadeDown : fading out
+                drawable->setFade(/*down=*/shapeInfo.fadeOutTime+shapeInfo.fadeOut, /*up=*/shapeInfo.fadeOutTime);
+            }
+
             drawables.push_back(drawable);
         }
         drawable = NULL;

@@ -196,7 +196,6 @@ public:
     LoftManagerRef loftManager;
     BillboardManagerRef billManager;
     GeometryManagerRef geomManager;
-    FontTextureManagerRef fontTexManager;
     ParticleSystemManagerRef partSysManager;
 
 protected:

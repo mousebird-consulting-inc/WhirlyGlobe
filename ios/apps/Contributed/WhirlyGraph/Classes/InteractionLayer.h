@@ -20,7 +20,7 @@
 
 #import <list>
 #import <Foundation/Foundation.h>
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 typedef enum {FeatRepCountry,FeatRepOcean} FeatureRepType;
 

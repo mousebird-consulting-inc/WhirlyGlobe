@@ -7,7 +7,7 @@
 //
 
 #import "PagingLayerTestCase.h"
-#import "AutoTester-Swift.h"
+#import "SwiftBridge.h"
 
 @implementation PagingLayerTestCase
 {

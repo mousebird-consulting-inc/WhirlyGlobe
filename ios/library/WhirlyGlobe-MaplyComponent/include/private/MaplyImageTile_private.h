@@ -19,7 +19,7 @@
  */
 
 #import "loading/MaplyImageTile.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 #import "ImageTile_iOS.h"
 
 @interface MaplyImageTile()

@@ -19,7 +19,7 @@
  */
 
 #import "MaplyAnnotation_private.h"
-#import "WhirlyGlobe.h"
+#import "WhirlyGlobeLib.h"
 
 @implementation MaplyAnnotation
 
