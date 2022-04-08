@@ -73,6 +73,9 @@
 /// Use widened vectors (which do anti-aliasing and such)
 @property (nonatomic) bool useWideVectors;
 
+/// Use GPU-based wide vector implementation
+@property (nonatomic) bool usePerfWideVectors;
+
 /// Where we're using old vectors (e.g. not wide) scale them by this amount
 @property (nonatomic) float oldVecWidthScale;
 

@@ -13,18 +13,14 @@
 - (NSDictionary *_Nonnull) dictionaryByMergingWith:(NSDictionary *_Nullable)dict;
 @end
 
-@implementation WideVectorsTestCase
+@implementation WideVectorsTestCaseBase
 {
     GeographyClassTestCase * baseCase;
 }
 
-- (instancetype)init
+- (instancetype)initWithName:(NSString*)name supporting:(MaplyTestCaseImplementations)impl
 {
-	if (self = [super init]) {
-		self.name = @"Wide Vectors";
-		self.implementations = MaplyTestCaseImplementationMap | MaplyTestCaseImplementationGlobe;
-	}
-	return self;
+    return (self = [super initWithName:name supporting:impl]);
 }
 
 
@@ -140,7 +136,6 @@
 - (NSArray *)addGeoJson:(NSString*)name viewC:(MaplyBaseViewController *)viewC
 {
     return [self addGeoJson:name dashPattern:@[@8, @8] width:4 viewC:viewC];
-//    return [self addGeoJson:name dashPattern:@[@8, @8] width:100 viewC:viewC];
 }
 
 - (NSArray *)addWideVectors:(MaplyVectorObject *)vecObj
@@ -216,20 +211,6 @@
 				  kMaplyFont: [UIFont systemFontOfSize:18.0],
 				  kMaplyDrawPriority: @(200)
 				  }];
-	
-	if ([baseViewC isKindOfClass:[WhirlyGlobeViewController class]]) {
-		[(WhirlyGlobeViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.3 heading:0.8 time:0.1];
-		[(WhirlyGlobeViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.1 heading:0.8 time:0.1];
-		[(WhirlyGlobeViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.005 heading:0.8 time:0.1];
-	}
-	else {
-		if ([baseViewC isKindOfClass:[MaplyViewController class]]) {
-			[(MaplyViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.3 time:0.1];
-			[(MaplyViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.1 time:0.1];
-			[(MaplyViewController*)baseViewC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) height:0.005 time:0.1];
-			
-		}
-	}
 	
 	return @[lines,screenLines,realLines,labelObj];
 }
@@ -347,105 +328,6 @@
             [viewC addVectors:@[vecObj] desc:desc mode:MaplyThreadCurrent];
         }
     }
-}
-
-- (void) exprs:(MaplyBaseViewController *)viewC withLoader:(MaplyQuadLoaderBase*)loader perf:(bool)perf {
-
-    const MaplyCoordinate coords[] = {
-        MaplyCoordinateMakeWithDegrees(-100, 60 + (perf?0:2)),
-        MaplyCoordinateMakeWithDegrees(-110, 61 + (perf?0:2)),
-        MaplyCoordinateMakeWithDegrees(-120, 62 + (perf?0:2)),
-    };
-
-    MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:&coords[0]
-                                                                    numCoords:sizeof(coords)/sizeof(coords[0])
-                                                                   attributes:nil];
-    [vecObj subdivideToGlobe:0.0001];
-
-    NSMutableArray<MaplyVectorObject *> *objs = [NSMutableArray array];
-    [objs addObject:vecObj];
-
-    NSDictionary *desc = @{
-        kMaplyColor: [UIColor colorWithRed:1.0 green:0.0 blue:0.0 alpha:1.0],
-        kMaplyEnable: @YES,
-        kMaplyDrawPriority: @(kMaplyVectorDrawPriorityDefault + 2),
-    };
-
-    // Note that for GeographyClass, this loader only does zoom levels 0-6
-    const int slot = [loader getZoomSlot];
-
-    UIColor *c1 = [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:0.8];
-    UIColor *c2 = [UIColor colorWithRed:0.0 green:0.0 blue:1.0 alpha:0.8];
-    NSDictionary *wideDesc = [desc dictionaryByMergingWith:@{
-        kMaplyDrawPriority:       @(kMaplyVectorDrawPriorityDefault + 1),
-        kMaplyWideVecEdgeFalloff: @(1),
-        kMaplyZoomSlot:           @(slot),
-        kMaplyVecWidth:           @{@"stops":@[@[@2,@1],@[@6,@20]]},
-        kMaplyWideVecOffset:      @{@"stops":@[@[@2,@-20],@[@6,@20]]},
-        kMaplyOpacity:            @{@"stops":@[@[@2,@0.2],@[@6,@0.9]]},
-        kMaplyColor:              @{@"stops":@[@[@2,c1],@[@6,c2]]},
-        kMaplyShader:             perf ? kMaplyShaderWideVectorPerformance : kMaplyShaderWideVectorExp,
-        kMaplyWideVecImpl:        perf ? kMaplyWideVecImplPerf : kMaplyWideVecImplDefault,
-    }];
-
-    NSMutableArray<MaplyComponentObject*> *cos = [NSMutableArray new];
-    if (MaplyComponentObject *co = [viewC addVectors:objs desc:desc mode:MaplyThreadCurrent])
-    {
-        [cos addObject:co];
-    }
-    if (MaplyComponentObject *co = [viewC addWideVectors:objs desc:wideDesc mode:MaplyThreadCurrent])
-    {
-        [cos addObject:co];
-    }
-}
-
-- (void)wideLineTest:(MaplyBaseViewController *)viewC
-{
-    [self addGeoJson:@"sawtooth.geojson" dashPattern:nil width:50.0 edge:20.0 simple:false viewC:viewC];
-    [self addGeoJson:@"moving-lawn.geojson" viewC:viewC];
-    [self addGeoJson:@"spiral.geojson" viewC:viewC];
-    [self addGeoJson:@"square.geojson" dashPattern:@[@2, @2] width:10.0 viewC:viewC];
-    [self addGeoJson:@"track.geojson" viewC:viewC];
-//    [self addGeoJson:@"uturn2.geojson" dashPattern:@[@16, @16] width:40 viewC:viewC];
-
-    [self addGeoJson:@"USA.geojson" viewC:viewC];
-
-//    [self addGeoJson:@"testJson.json" viewC:viewC];
-    
-    //    [self addGeoJson:@"straight.geojson"];
-    //    [self addGeoJson:@"uturn.geojson"];
-    
-    [self overlap:viewC];
-    
-    [self vecColors:viewC];
-
-    // Dynamic properties require a zoom slot, which may not be set up yet
-    __weak MaplyQuadLoaderBase *weakLoader = [baseCase getLoader];
-    [weakLoader addPostInitBlock:^{
-        if (__strong MaplyQuadLoaderBase *loader = weakLoader)
-        {
-            [self exprs:viewC withLoader:loader perf:false];
-            [self exprs:viewC withLoader:loader perf:true];
-        }
-    }];
-}
-
-
-- (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC{
-	
-	baseCase = [[GeographyClassTestCase alloc]init];
-	[baseCase setUpWithGlobe:globeVC];
-	[self wideLineTest:globeVC];
-    [globeVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
-
-}
-
-- (void)setUpWithMap:(MaplyViewController *)mapVC{
-	baseCase = [[GeographyClassTestCase alloc]init];
-	[baseCase setUpWithMap:mapVC];
-	[self wideLineTest:mapVC];
-    [mapVC animateToPosition:MaplyCoordinateMakeWithDegrees(-122.4192, 37.7793) time:0.1];
-    [self loadShapeFile:mapVC];
 }
 
 @end

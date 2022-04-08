@@ -238,7 +238,8 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
     {
         std::vector<SimpleIdentity> drawIDs;
         drawIDs.reserve(loadedTile->drawInfo.size());
-        for (const auto &di : loadedTile->drawInfo) {
+        for (const auto &di : loadedTile->drawInfo)
+        {
             int newDrawPriority = defaultDrawPriority;
             bool zBufferRead = false;
             bool zBufferWrite = true;
@@ -257,9 +258,14 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
                     zBufferRead = false;
                     break;
             }
-            
+
+            std::vector<char> buf(256);
+            snprintf(&buf[0], buf.size() - 1, "MaplyQuadImageFrameLoader[%d:(%d,%d)-%d-%d]",
+                     loadedTile->ident.level, loadedTile->ident.x, loadedTile->ident.y,
+                     focusID, di.kind);
+
             // Make a drawable instance to shadow the geometry
-            auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder("MaplyQuadImageFrameLoader");
+            auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder(&buf[0]);
             drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
             drawInst->setTexId(0, EmptyIdentity);
             if (loader->getNumFrames() > 1)

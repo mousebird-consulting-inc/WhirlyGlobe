@@ -1579,4 +1579,13 @@ typedef void (__strong ^InitCompletionBlock)(void);
 */
 - (void)addPostInitBlock:(_Nonnull InitCompletionBlock)block;
 
+/// Set up a zoom slot that doesn't depend on a loader
+- (int)retainZoomSlotMinZoom:(double)minZoom
+                   maxHeight:(double)maxHeight
+                     maxZoom:(double)maxZoom
+                   minHeight:(double)minHeight;
+
+/// Release a zoom slot previously retained
+- (void)releaseZoomSlotIndex:(int)index;
+
 @end

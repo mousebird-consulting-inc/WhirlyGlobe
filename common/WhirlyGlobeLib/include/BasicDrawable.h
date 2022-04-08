@@ -190,9 +190,8 @@ public:
 
     // Block of data to be passed into a given buffer ID
     // We do this in Metal rather than setting individual uniforms (like OpenGL)
-    class UniformBlock
+    struct UniformBlock
     {
-    public:
         int bufferID;  // Actually an index into a shared shader structure, not a buffer
         RawDataRef blockData;
     };

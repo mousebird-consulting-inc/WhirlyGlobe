@@ -255,29 +255,40 @@
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
 #define MaplyWideVecJoinType WKString("wideveclinejointype")
 
-/// Widened vectors are joined with miters
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are converted into bevels.
 #define MaplyWideVecMiterJoin WKString("miter")
-// Note: Not yet implemented
-/// Widened vectors are joined with a curve
-//#define kMaplyWideVecRoundJoin @"round"
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are clipped.
+#define MaplyWideVecMiterClipJoin WKString("miter-clip")
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are ignored.
+#define MaplyWideVecMiterSimpleJoin WKString("miter-simple")
+/// Widened vectors are joined with a circular arc
+#define MaplyWideVecRoundJoin WKString("round")
 /// Widened vectors are joined with a bevel
 #define MaplyWideVecBevelJoin WKString("bevel")
+/// No joins.  Also disables endcaps.
+#define MaplyWideVecNoneJoin WKString("none")
+
+/// Determine how wide vectors behave when the ideal geometry is impossible
+#define MaplyWideVecFallbackMode WKString("widevecfallback")
+/// When the line intersection is out of range, clip it to the range and use it.
+#define MaplyWideVecFallbackClip WKString("clip")
+/// When the line intersection is out of range, discard it and don't join the like segments.
+#define MaplyWideVecFallbackNone WKString("none")
+#define MaplyWideVecFallbackDefault MaplyWideVecFallbackNone
 
 /// Number of pixels to use in blending the edges of the wide vectors
 #define MaplyWideVecEdgeFalloff WKString("edgefalloff")
 
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-//#define kMaplyWideVecLineCapType @"wideveclinecaptype"
-
-// Note: These are not currently implemented
+#define MaplyWideVecLineCapType WKString("wideveclinecaptype")
 
 /// Widened vector ends are flush
-//#define kMaplyWideVecButtCap @"butt"
+#define MaplyWideVecButtCap WKString("butt")
 /// Widened vector ends are round (e.g. hot dog roads)
-//#define kMaplyWideVecRoundCap @"round"
+#define MaplyWideVecRoundCap WKString("round")
 /// Widened vector ends are extended a bit and then flush
-//#define kMaplyWideVecSquareCap @"square"
+#define MaplyWideVecSquareCap WKString("square")
 
 /// Miter joins will turn to bevel joins past this number of degrees
 #define MaplyWideVecMiterLimit WKString("miterLimit")
@@ -285,6 +296,10 @@
 /// This is the length you'd like the texture to start repeating after.
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 #define MaplyWideVecTexRepeatLen WKString("repeatSize")
+
+/// Initial texture coords
+#define MaplyWideVecTexOffsetX WKString("texOffsetX")
+#define MaplyWideVecTexOffsetY WKString("texOffsetY")
 
 /// Offset to left (negative) or right (positive) of the centerline
 #define MaplyWideVecOffset WKString("vecOffset")
@@ -371,3 +386,22 @@
 #define MaplyUUIDDesc WKString("uuid")
 /// Used to distinguish the particular representation of a unique ID
 #define MaplyRepresentationDesc WKString("representation")
+
+/// Attach a name to the drawable(s) generated for debugging purposes
+#define MaplyDrawableName WKString("drawablename")
+
+#define MaplyTexSizeX WKString("texsizex");
+#define MaplyTexSizeY WKString("texsizey");
+#define MaplySubdivStatic WKString("static");
+#define MaplySelectable WKString("selectable");
+#define MaplyShapeSampleX WKString("shapesamplex");
+#define MaplyShapeSampleY WKString("shapesampley");
+#define MaplyTexFormat WKString("texformat");
+#define MaplyTexMinFilter WKString("texminfilter");
+#define MaplyTexMagFilter WKString("texmagfilter");
+#define MaplyMinFilterNearest WKString("texfilternearest");
+#define MaplyMinFilterLinear WKString("texfilterlinear");
+#define MaplyTexAtlas WKString("texatlas");
+#define MaplyTexWrapX WKString("texwrapx");
+#define MaplyTexWrapY WKString("texwrapy");
+#define MaplyTexMipmap WKString("texmipmap");

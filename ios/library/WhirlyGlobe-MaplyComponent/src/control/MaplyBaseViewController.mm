@@ -1705,4 +1705,24 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
+- (int)retainZoomSlotMinZoom:(double)minZoom
+                   maxHeight:(double)maxHeight
+                     maxZoom:(double)maxZoom
+                   minHeight:(double)minHeight
+{
+    if (const auto render = renderControl ? renderControl->sceneRenderer : nullptr)
+    {
+        return render->retainZoomSlot(minZoom, maxHeight, maxZoom, minHeight);
+    }
+    return -1;
+}
+
+- (void)releaseZoomSlotIndex:(int)index
+{
+    if (const auto render = renderControl ? renderControl->sceneRenderer : nullptr)
+    {
+        render->releaseZoomSlot(index);
+    }
+}
+
 @end

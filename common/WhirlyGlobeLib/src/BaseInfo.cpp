@@ -176,6 +176,7 @@ BaseInfo::BaseInfo(const Dictionary &dict)
     zBufferRead = dict.getBool(MaplyZBufferRead,false);
     zBufferWrite = dict.getBool(MaplyZBufferWrite, false);
     renderTargetID = dict.getInt(MaplyRenderTargetDesc,EmptyIdentity);
+    drawableName = dict.getString(MaplyDrawableName);
 
     // Note: Porting
     // Uniforms to be passed to shader

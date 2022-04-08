@@ -243,29 +243,40 @@ extern NSString * const _Nonnull kMaplyWideVecImplPerf;
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
 extern NSString * const _Nonnull kMaplyWideVecJoinType;
 
-/// Widened vectors are joined with miters
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are converted into bevels.
 extern NSString * const _Nonnull kMaplyWideVecMiterJoin;
-// Note: Not yet implemented
-/// Widened vectors are joined with a curve
-//extern NSString * const _Nonnull kMaplyWideVecRoundJoin @"round"
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are clipped.
+extern NSString * const _Nonnull kMaplyWideVecMiterClipJoin;
+/// Widened vectors are joined with miters.  Miters exceeding the miter limit are ignored.
+extern NSString * const _Nonnull kMaplyWideVecMiterSimpleJoin;
+/// Widened vectors are joined with a circular arc
+extern NSString * const _Nonnull kMaplyWideVecRoundJoin;
 /// Widened vectors are joined with a bevel
 extern NSString * const _Nonnull kMaplyWideVecBevelJoin;
+/// No joins.  Also disables endcaps.
+extern NSString * const _Nonnull kMaplyWideVecNoneJoin;
+
+/// Determine how wide vectors behave when the ideal geometry is impossible
+extern NSString * const _Nonnull kMaplyWideVecFallbackMode;
+extern NSString * const _Nonnull kMaplyWideVecFallbackDefault;
+/// When the line intersection is out of range, clip it to the range and use it.
+extern NSString * const _Nonnull kMaplyWideVecFallbackClip;
+/// When the line intersection is out of range, discard it and don't join the like segments.
+extern NSString * const _Nonnull kMaplyWideVecFallbackNone;
 
 /// Number of pixels to use in blending the edges of the wide vectors
 extern NSString * const _Nonnull kMaplyWideVecEdgeFalloff;
 
 /// For wide vectors we can control the ends
 /// See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-//extern NSString * const _Nonnull kMaplyWideVecLineCapType @"wideveclinecaptype"
-
-// Note: These are not currently implemented
+extern NSString * const _Nonnull kMaplyWideVecLineCapType;
 
 /// Widened vector ends are flush
-//extern NSString * const _Nonnull kMaplyWideVecButtCap;
+extern NSString * const _Nonnull kMaplyWideVecButtCap;
 /// Widened vector ends are round (e.g. hot dog roads)
-//extern NSString * const _Nonnull kMaplyWideVecRoundCap;
+extern NSString * const _Nonnull kMaplyWideVecRoundCap;
 /// Widened vector ends are extended a bit and then flush
-//extern NSString * const _Nonnull kMaplyWideVecSquareCap;
+extern NSString * const _Nonnull kMaplyWideVecSquareCap;
 
 /// Miter joins will turn to bevel joins past this number of degrees
 extern NSString * const _Nonnull kMaplyWideVecMiterLimit;
@@ -273,6 +284,10 @@ extern NSString * const _Nonnull kMaplyWideVecMiterLimit;
 /// This is the length you'd like the texture to start repeating after.
 /// It's real world coordinates for kMaplyWideVecCoordTypeReal and pixel size for kMaplyWideVecCoordTypeScreen
 extern NSString * const _Nonnull kMaplyWideVecTexRepeatLen;
+
+/// Initial texture coordinates
+extern NSString * const _Nonnull kMaplyWideVecTexOffsetX;
+extern NSString * const _Nonnull kMaplyWideVecTexOffsetY;
 
 /// Offset to left (negative) or right (positive) of the centerline
 extern NSString * const _Nonnull kMaplyWideVecOffset;
@@ -296,6 +311,9 @@ extern NSString * const _Nonnull kMaplySubdivSimple;
 extern NSString * const _Nonnull kMaplySubdivGrid;
 /// Used to turn off selection in vectors
 extern NSString * const _Nonnull kMaplySelectable;
+
+/// Attach a name to the generated drawable(s) for debugging purposes
+extern NSString * const _Nonnull kMaplyDrawableName;
 
 /// These are used for stickers
 

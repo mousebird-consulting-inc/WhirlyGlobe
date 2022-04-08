@@ -33,9 +33,13 @@ using namespace WhirlyKit;
     if (!self)
         return nil;
     
+    _interactLayer = nil;
+    _image = nil;
     _isSubTex = false;
+    _isBeingRemoved = false;
     _texID = EmptyIdentity;
-    
+    _width = _height = -1;
+
     return self;
 }
 

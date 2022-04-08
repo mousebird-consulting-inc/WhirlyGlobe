@@ -149,6 +149,14 @@ bool GeoLibLineDIntersectsPolygonD(MaplyCoordinateD startPt, MaplyCoordinateD en
     return false;
 }
 
+double GeoLibDistanceF(MaplyCoordinate startPt, MaplyCoordinate endPt)
+{
+    double s12 = 0.0;
+    wgs84Geodesic().Inverse(WhirlyKit::RadToDeg(startPt.y), WhirlyKit::RadToDeg(startPt.x),
+                            WhirlyKit::RadToDeg(endPt.y), WhirlyKit::RadToDeg(endPt.x), s12);
+    return s12;
+}
+
 double GeoLibDistanceD(MaplyCoordinateD startPt, MaplyCoordinateD endPt)
 {
     double s12 = 0.0;

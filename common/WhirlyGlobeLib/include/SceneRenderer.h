@@ -347,6 +347,11 @@ public:
 
     const RenderTeardownInfoRef &getTeardownInfo() const { return teardownInfo; }
 
+    int retainZoomSlot(double minZoom, double maxHeight, double maxZoom, double minHeight);
+    void releaseZoomSlot(int slot);
+
+    void updateZoomSlots();
+
 protected:
     /// Set the framebuffer size
     /// You probably want resize() instead.
@@ -416,6 +421,16 @@ protected:
     
     // Map Name IDs to slots (when using Metal)
     std::map<SimpleIdentity,int> slotMap;
+
+    struct ZoomSlotInfo
+    {
+        double minZoom;
+        double maxZoom;
+        double minHeight;
+        double maxHeight;
+        double zoom(double height) const;
+    };
+    std::unordered_map<int, ZoomSlotInfo> zoomSlotMap;
 
 protected:
     /// The pixel width of the CAEAGLLayer.

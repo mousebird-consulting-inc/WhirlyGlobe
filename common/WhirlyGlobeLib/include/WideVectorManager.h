@@ -1,5 +1,4 @@
-/*
- *  WideVectorManager.h
+/*  WideVectorManager.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <math.h>
@@ -38,10 +36,26 @@ class VectorInfo;
 typedef enum {WideVecCoordReal,WideVecCoordScreen} WideVectorCoordsType;
 
 /// How the lines are joined.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinejoinProperty
-typedef enum {WideVecMiterJoin,WideVecRoundJoin,WideVecBevelJoin} WideVectorLineJoinType;
-    
+typedef enum WideVectorLineJoinType_t {
+    WideVecMiterJoin,
+    WideVecMiterClipJoin,
+    WideVecMiterSimpleJoin,
+    WideVecRoundJoin,
+    WideVecBevelJoin,
+    WideVecNoneJoin,
+} WideVectorLineJoinType;
+
+typedef enum WideVectorFallbackMode_t {
+    WideVecFallbackNone,    // Just give up
+    WideVecFallbackClip,    // Clip the intersection and continue
+} WideVectorFallbackMode;
+
 /// How the lines begin and end.  See: http://www.w3.org/TR/SVG/painting.html#StrokeLinecapProperty
-typedef enum {WideVecButtCap,WideVecRoundCap,WideVecSquareCap} WideVectorLineCapType;
+typedef enum WideVectorLineCapType_t {
+    WideVecButtCap,
+    WideVecRoundCap,
+    WideVecSquareCap
+} WideVectorLineCapType;
 
 /// Performance vs basic wide vector implementation
 typedef enum {WideVecImplBasic,WideVecImplPerf} WideVecImplType;
@@ -63,6 +77,7 @@ public:
     float width = 2.0f;
     float offset = 0.0f;
     float repeatSize = 32.0f;
+    Point2f texOffset = { 0.0f, 0.0f };
     float edgeSize = 1.0f;
     float subdivEps = 0.0f;
     float miterLimit = 2.0f;
@@ -71,6 +86,7 @@ public:
 
     WideVectorCoordsType coordType = WideVecCoordScreen;
     WideVectorLineJoinType joinType = WideVecMiterJoin;
+    WideVectorFallbackMode fallbackMode = WideVecFallbackNone;
     WideVectorLineCapType capType = WideVecButtCap;
 
     SimpleIdentity texID = EmptyIdentity;

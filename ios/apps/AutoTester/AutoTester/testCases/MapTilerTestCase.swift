@@ -38,6 +38,7 @@ class MapTilerTestCase: MaplyTestCase {
     var styles = [(name: String, sheet: String, bg: Bool)]()
     var mapTilerStyle = 2
     var light = true
+    var perf = true
     var mapboxMap : MapboxKindaMap? = nil
 
     func startMap(_ style: (name: String, sheet: String, bg: Bool), viewC: MaplyBaseViewController) {
@@ -59,7 +60,18 @@ class MapTilerTestCase: MaplyTestCase {
                 return
             }
         }
+        
         print("Starting map with \(style.name) - w/\(light ?"":"o") light")
+        let msg = "Map: \(style.name)\n\(perf ? "Performance" : "Legacy") wide vectors\nWith\(light ? "" : "out") lighting"
+        let alert = UIAlertController(title: "Loading", message: msg, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: { _ in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+        baseViewController?.present(alert, animated: true, completion: nil)
+        Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+            alert.dismiss(animated: true)
+        }
+
         startMap(url!, bg: style.bg, viewC: viewC)
     }
 
@@ -132,6 +144,8 @@ class MapTilerTestCase: MaplyTestCase {
     
     func setup(_ map: MapboxKindaMap) {
         map.styleSettings.textScale = 1.1
+        map.styleSettings.useWideVectors = true;
+        map.styleSettings.usePerfWideVectors = perf
     }
 
     var legendVisibile = false
@@ -217,9 +231,16 @@ class MapTilerTestCase: MaplyTestCase {
         mapboxMap?.stop()
         mapboxMap = nil
 
-        mapTilerStyle = (mapTilerStyle + 1) % styles.count
-        if (mapTilerStyle == 0) {
-            light = !light
+        // Cycle performance vectors, lighting, then map type
+        if (perf) {
+            perf = false
+        } else if (light) {
+            light = false;
+            perf = true
+        } else {
+            mapTilerStyle = (mapTilerStyle + 1) % styles.count
+            perf = true
+            light = true
         }
         if let vc = baseViewController {
             startMap(styles[mapTilerStyle], viewC: vc)

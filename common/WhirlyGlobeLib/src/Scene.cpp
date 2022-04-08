@@ -680,9 +680,11 @@ int Scene::retainZoomSlot()
 
 void Scene::releaseZoomSlot(int zoomSlot)
 {
-    std::lock_guard<std::mutex> guardLock(zoomSlotLock);
-
-    zoomSlots[zoomSlot] = MAXFLOAT;
+    if (0 <= zoomSlot && zoomSlot < MaplyMaxZoomSlots)
+    {
+        std::lock_guard<std::mutex> guardLock(zoomSlotLock);
+        zoomSlots[zoomSlot] = MAXFLOAT;
+    }
 }
 
 void Scene::setZoomSlotValue(int zoomSlot,float zoom)

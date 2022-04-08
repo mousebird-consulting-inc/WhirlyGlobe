@@ -77,17 +77,21 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecUniBlock()
     // Uniforms for regular wide vectors
     WhirlyKitShader::UniformWideVec uniWV;
     memset(&uniWV,0,sizeof(uniWV));
-    uniWV.w2 = lineWidth/2.0f;
-    uniWV.offset = lineOffset;
-    uniWV.edge = edgeSize;
-    uniWV.texRepeat = texRepeat;
-    uniWV.hasExp = widthExp || offsetExp || colorExp || opacityExp;
-    
-    BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]);
-    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntry;
+    CopyIntoMtlFloat2(uniWV.texOffset, texOffset);
+    uniWV.w2             = lineWidth/2.0f;
+    uniWV.offset         = lineOffset;
+    uniWV.edge           = edgeSize;
+    uniWV.texRepeat      = texRepeat;
+    uniWV.hasExp         = widthExp || offsetExp || colorExp || opacityExp;
+    uniWV.join           = (WhirlyKitShader::WKSVertexLineJoinType)joinType;   // assume enums are numerically equivalent
+    uniWV.cap            = (WhirlyKitShader::WKSVertexLineCapType)capType;
+    uniWV.miterLimit     = miterLimit;
+    uniWV.interClipLimit = (fallbackMode == WideVecFallbackClip) ? 4.0f : 0.0f;
 
-    return uniBlock;
+    return {
+        WhirlyKitShader::WKSUniformWideVecEntry,
+        std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&uniWV length:sizeof(uniWV)]),
+    };
 }
 
 BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecExpUniBlock()
@@ -105,11 +109,10 @@ BasicDrawable::UniformBlock WideVectorDrawableBuilderMTL::wideVecExpUniBlock()
     if (colorExp)
         ColorExpressionToMtl(colorExp,wideVecExp.colorExp);
 
-    BasicDrawable::UniformBlock uniBlock;
-    uniBlock.blockData = std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]);
-    uniBlock.bufferID = WhirlyKitShader::WKSUniformWideVecEntryExp;
-    
-    return uniBlock;
+    return {
+        WhirlyKitShader::WKSUniformWideVecEntryExp,
+        std::make_shared<RawNSDataReader>([[NSData alloc] initWithBytes:&wideVecExp length:sizeof(wideVecExp)]),
+    };
 }
 
 BasicDrawableRef WideVectorDrawableBuilderMTL::getBasicDrawable()
@@ -158,7 +161,8 @@ BasicDrawableInstanceRef WideVectorDrawableBuilderMTL::getInstanceDrawable()
         auto *inPtr = &centerline[ii];
         CopyIntoMtlFloat3(outPtr->center,inPtr->center);
         CopyIntoMtlFloat3(outPtr->up, inPtr->up);
-        outPtr->len = inPtr->len;
+        outPtr->segLen = inPtr->segLen;
+        outPtr->totalLen = inPtr->totalLen;
         float color[4];
         inPtr->color.asUnitFloats(color);
         CopyIntoMtlFloat4(outPtr->color,color);
