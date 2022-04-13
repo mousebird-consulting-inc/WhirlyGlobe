@@ -16,18 +16,22 @@
  *  limitations under the License.
  */
 
-#import <string.h>
 #import "WrapperGLES.h"
 
-#ifdef __ANDROID__
-
-bool hasVertexArraySupport = false;
-bool hasMapBufferSupport = false;
-
+#if defined(HAS_GL_VERT_ARRAY) && \
+    defined(HAS_GL_MAP_BUFFER) && \
+    defined(INVALIDATE_GL_DEPTH)
+    const bool hasVertexArraySupport = HAS_GL_VERT_ARRAY;
+    const bool hasMapBufferSupport = HAS_GL_MAP_BUFFER;
+    const bool invalidateGLDepth = INVALIDATE_GL_DEPTH;
+#elif __ANDROID__
+    const bool hasVertexArraySupport = false;
+    const bool hasMapBufferSupport = false;
+    const bool invalidateGLDepth = false;
+#elif defined(iOS)
+    const bool hasVertexArraySupport = true;
+    const bool hasMapBufferSupport = true;
+    const bool invalidateGLDepth = true;
 #else
-
-// On ios we have both
-bool hasVertexArraySupport = true;
-bool hasMapBufferSupport = true;
-
+# error Unsupported Platform
 #endif

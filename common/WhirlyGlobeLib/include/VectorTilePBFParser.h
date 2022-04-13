@@ -32,7 +32,7 @@ namespace WhirlyKit
 {
 
 class MutableDictionaryC;
-class PlatformThreadInfo;
+struct PlatformThreadInfo;
 class VectorTileData;
 class VectorStyleDelegateImpl;
 class VectorObject;

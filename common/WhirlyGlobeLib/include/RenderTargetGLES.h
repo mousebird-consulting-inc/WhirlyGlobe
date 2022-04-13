@@ -34,7 +34,7 @@ class RenderTargetGLES : public RenderTarget
 public:
     RenderTargetGLES();
     RenderTargetGLES(SimpleIdentity newID);
-    virtual ~RenderTargetGLES();
+    virtual ~RenderTargetGLES() = default;
     
     // Set up the render target
     bool init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID);

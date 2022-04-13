@@ -1,5 +1,4 @@
-/*
- *  glwrapper.h
+/*  WrapperGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/18/13.
@@ -15,33 +14,29 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #ifdef __ANDROID__ 
-
-#import <jni.h>
-#import <android/log.h>
-
-#if __ANDROID_API__ >= 24
-#include <GLES3/gl32.h>
-#elif __ANDROID_API__ >= 21
-#include <GLES3/gl31.h>
+# import <jni.h>
+# import <android/log.h>
+# if __ANDROID_API__ >= 24
+#  import <GLES3/gl32.h>
+# elif __ANDROID_API__ >= 21
+#  import <GLES3/gl31.h>
+# else
+#  import <GLES3/gl3.h>
+# endif
+# import <EGL/egl.h>
+#elif defined(CUSTOM_GL_WRAPPER)
+# if !defined(STRINGIFY) && !defined(_STRINGIFY)
+#  define STRINGIFY_(x) #x
+#  define STRINGIFY(x) STRINGIFY_(x)
+# endif
+# import STRINGIFY(CUSTOM_GL_WRAPPER)
 #else
-#include <GLES3/gl3.h>
-#endif
-#include <EGL/egl.h>
-#else
-
-// iOS
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
-#import <OpenGLES/ES2/gl.h>
-#import <OpenGLES/ES2/glext.h>
-#import <OpenGLES/ES3/gl.h>
-#import <OpenGLES/ES3/glext.h>
-
+# error "Unsupported environment"
 #endif
 
-extern bool hasVertexArraySupport;
-extern bool hasMapBufferSupport;
+extern const bool hasVertexArraySupport;
+extern const bool hasMapBufferSupport;
+extern const bool invalidateGLDepth;

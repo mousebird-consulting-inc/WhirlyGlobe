@@ -26,17 +26,40 @@ static bool ErrorsOn = true;
 #else
 static bool ErrorsOn = false;
 #endif
-bool CheckGLError(const char *msg)
+
+# if !defined(STRINGIFY) && !defined(_STRINGIFY)
+#  define STRINGIFY_(x) #x
+#  define STRINGIFY(x) STRINGIFY_(x)
+# endif
+#define MapCode(X) case X: return STRINGIFY(X);
+static const char *ErrorCodeStr(GLenum code)
+{
+
+    switch (code)
+    {
+        MapCode(GL_INVALID_ENUM)
+        MapCode(GL_INVALID_VALUE)
+        MapCode(GL_INVALID_OPERATION)
+        //MapCode(GL_STACK_OVERFLOW)
+        //MapCode(GL_STACK_UNDERFLOW)
+        MapCode(GL_OUT_OF_MEMORY)
+        MapCode(GL_INVALID_FRAMEBUFFER_OPERATION)
+        default: return "Unknown";
+    }
+}
+
+bool CheckGLError(const char *src)
 {
     if (ErrorsOn)
     {
         const GLenum theError = glGetError();
         if (theError != GL_NO_ERROR)
         {
+            const char *err = ErrorCodeStr(theError);
 #if defined(EGL_VERSION_1_4)
-            wkLogLevel(Error, "GL Error: 0x%x - %s (ctx: %x)", theError, msg, eglGetCurrentContext());
+            wkLogLevel(Error, "%s GL Error: 0x%x - %s (ctx: %x)", src, theError, err, eglGetCurrentContext());
 #else
-            wkLogLevel(Error, "GL Error: 0x%x - %s", theError, msg);
+            wkLogLevel(Error, "%s GL Error: 0x%x - %s", src, theError, err);
 #endif
             return false;
         }

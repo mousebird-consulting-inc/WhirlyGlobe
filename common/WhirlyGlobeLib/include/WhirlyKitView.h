@@ -18,6 +18,7 @@
 
 #import <set>
 #import <mutex>
+#import "Platform.h"
 #import "WhirlyTypes.h"
 #import "WhirlyVector.h"
 #import "CoordSystem.h"

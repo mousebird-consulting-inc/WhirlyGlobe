@@ -19,6 +19,8 @@
 #ifndef WhirlyKitLog_h
 #define WhirlyKitLog_h
 
+#import <Platform.h>
+
 typedef enum {Verbose=0,Debug,Info,Warn,Error} WKLogLevel;
 
 // Wrapper around NSLog on iOS.  Other things on other platforms

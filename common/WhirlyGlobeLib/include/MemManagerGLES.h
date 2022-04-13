@@ -85,19 +85,17 @@ protected:
  drawable.  Sometimes this will be render thread side, sometimes
  layer thread side.  The defaults should be valid.
  */
-class RenderSetupInfoGLES : public RenderSetupInfo
+struct RenderSetupInfoGLES : public RenderSetupInfo
 {
-public:
-    RenderSetupInfoGLES();
-    RenderSetupInfoGLES(Scene *scene);
+    RenderSetupInfoGLES(Scene *scene = nullptr);
     
     /// If we're using drawOffset, this is the units
-    float minZres;
+    float minZres = 0.0f;
     /// Version of OpenGL ES we're using
-    int glesVersion;
-    
+    int glesVersion = 3;
+
     /// GL memory manager
-    OpenGLMemManager *memManager;
+    OpenGLMemManager *memManager = nullptr;
 };
 
 }

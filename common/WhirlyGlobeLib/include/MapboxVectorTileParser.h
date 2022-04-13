@@ -40,7 +40,7 @@ typedef enum {
     SEG_CLOSE_MASKED = SEG_CLOSE & 0x07,
 } MapnikCommandType;
 
-class PlatformThreadInfo;
+struct PlatformThreadInfo;
 
 /**
  Information about a single vector tile being parsed.  This is passed into the buildObjects:

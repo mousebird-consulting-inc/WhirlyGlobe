@@ -1,2 +1,5 @@
 /build
 /.gradle
+/CMakeFiles
+**/CMakeCache.txt
+*.cmake

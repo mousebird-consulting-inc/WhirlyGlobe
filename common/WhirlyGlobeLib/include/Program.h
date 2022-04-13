@@ -27,8 +27,8 @@
 namespace WhirlyKit
 {
     
-class DirectionalLight;
-class Material;
+struct DirectionalLight;
+struct Material;
 
 /** Representation of an OpenGL ES 2.0 program.  It's an identifiable so we can
     point to it generically.  Otherwise, pretty basic.

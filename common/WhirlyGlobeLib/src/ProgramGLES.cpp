@@ -519,15 +519,15 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
     for (unsigned int ii=0;ii<numLights;ii++)
     {
         const DirectionalLight &light = lights[ii];
-        const Eigen::Vector3f dir = light.pos.normalized();
+        const Eigen::Vector3f dir = light.getPos().normalized();
         const Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
 
-        setUniform(lightViewDependNameIDs[ii], (light.viewDependent ? 0.0f : 1.0f));
+        setUniform(lightViewDependNameIDs[ii], (light.getViewDependent() ? 0.0f : 1.0f));
         setUniform(lightDirectionNameIDs[ii], dir);
         setUniform(lightHalfplaneNameIDs[ii], halfPlane);
-        setUniform(lightAmbientNameIDs[ii], light.ambient);
-        setUniform(lightDiffuseNameIDs[ii], light.diffuse);
-        setUniform(lightSpecularNameIDs[ii], light.specular);
+        setUniform(lightAmbientNameIDs[ii], light.getAmbient());
+        setUniform(lightDiffuseNameIDs[ii], light.getDiffuse());
+        setUniform(lightSpecularNameIDs[ii], light.getSpecular());
     }
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     if (lightAttr)
@@ -538,10 +538,10 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
     // Bind the material
     if (mat)
     {
-        setUniform(materialAmbientNameID, mat->ambient);
-        setUniform(materialDiffuseNameID, mat->diffuse);
-        setUniform(materialSpecularNameID, mat->specular);
-        setUniform(materialSpecularExponentNameID, mat->specularExponent);
+        setUniform(materialAmbientNameID, mat->getAmbient());
+        setUniform(materialDiffuseNameID, mat->getDiffuse());
+        setUniform(materialSpecularNameID, mat->getSpecular());
+        setUniform(materialSpecularExponentNameID, mat->getSpecularExponent());
     }
 
     return lightsSet;

@@ -339,14 +339,16 @@ using namespace Eigen;
 - (void)updateLights
 {
     std::vector<DirectionalLight> newLights;
+    newLights.reserve(lights.count);
+
     for (MaplyLight *light in lights)
     {
-        DirectionalLight theLight;
-        theLight.pos = Vector3f(light.pos.x,light.pos.y,light.pos.z);
-        theLight.ambient = [light.ambient asVec4];
-        theLight.diffuse = [light.diffuse asVec4];
-        theLight.viewDependent = light.viewDependent;
-        newLights.push_back(theLight);
+        newLights.emplace_back();
+        DirectionalLight &theLight = newLights.back();
+        theLight.setPos({light.pos.x,light.pos.y,light.pos.z});
+        theLight.setAmbient([light.ambient asVec4]);
+        theLight.setDiffuse([light.diffuse asVec4]);
+        theLight.setViewDependent(light.viewDependent);
     }
     sceneRenderer->replaceLights(newLights);
 }

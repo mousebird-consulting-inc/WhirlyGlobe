@@ -235,11 +235,12 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
 
     WhirlyKitShader::Lighting lighting;
     lighting.numLights = lights.size();
-    for (unsigned int ii=0;ii<lighting.numLights;ii++) {
+    for (unsigned int ii=0;ii<lighting.numLights;ii++)
+    {
         DirectionalLight &dirLight = lights[ii];
         
-        Eigen::Vector3f dir = dirLight.pos.normalized();
-        Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
+        const Eigen::Vector3f dir = dirLight.getPos().normalized();
+        const Eigen::Vector3f halfPlane = (dir + Eigen::Vector3f(0,0,1)).normalized();
         
         WhirlyKitShader::Light &light = lighting.lights[ii];
         CopyIntoMtlFloat3(light.direction,dir);
@@ -247,7 +248,7 @@ void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *fr
         CopyIntoMtlFloat4(light.ambient,dirLight.getAmbient());
         CopyIntoMtlFloat4(light.diffuse,dirLight.getDiffuse());
         CopyIntoMtlFloat4(light.specular,dirLight.getSpecular());
-        light.viewDepend = dirLight.viewDependent ? 0.0f : 1.0f;
+        light.viewDepend = dirLight.getViewDependent() ? 0.0f : 1.0f;
     }
     CopyIntoMtlFloat4(lighting.mat.ambient,defaultMat.getAmbient());
     CopyIntoMtlFloat4(lighting.mat.diffuse,defaultMat.getDiffuse());

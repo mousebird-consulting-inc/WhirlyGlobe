@@ -29,9 +29,8 @@ namespace WhirlyKit
 /** Base class for render related setup information.
     This might include version for OpenGL ES.
   */
-class RenderSetupInfo
+struct RenderSetupInfo
 {
-public:
 };
 
 class TextureBase;
@@ -42,10 +41,9 @@ typedef std::shared_ptr<Drawable> DrawableRef;
 /**
  Base class for anything we want to pass out of the teardown calls for drawables
  */
-class RenderTeardownInfo
+struct RenderTeardownInfo
 {
-public:
-    virtual ~RenderTeardownInfo() { }
+    virtual ~RenderTeardownInfo() = default;
     
     // Normally we'll call the regular destroy calls, but various renderers might do something else
     virtual void destroyTexture(SceneRenderer *renderer,const TextureBaseRef &tex);
@@ -69,16 +67,16 @@ public:
     virtual ~ChangeRequest() = default;
     
     /// Return true if this change requires a GL Flush in the thread it was executed in
-    virtual bool needsFlush();
+    virtual bool needsFlush() const { return false; }
     
     /// Fill this in to set up whatever resources we need on the GL side
-    virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
+    virtual void setupForRenderer(const RenderSetupInfo *, Scene *) { }
     
     /// Make a change to the scene.  For the renderer.  Never call this.
-    virtual void execute(Scene *scene,SceneRenderer *renderer,View *view) = 0;
+    virtual void execute(Scene *, SceneRenderer *, View *) = 0;
     
     /// Set this if you need to be run before the active models are run
-    virtual bool needPreExecute();
+    virtual bool needPreExecute() { return false; }
 
     /// If non-zero we'll execute this request after the given absolute time
     TimeInterval when = 0.0;
@@ -99,6 +97,7 @@ typedef struct ChangeSorter
         return a->when < b->when;
     }
 } ChangeSorter;
+
 /// This version is sorted by when to run it
 typedef std::set<ChangeRequest *,ChangeSorter> SortedChangeSet;
     

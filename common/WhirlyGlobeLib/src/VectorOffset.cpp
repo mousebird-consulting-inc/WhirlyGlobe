@@ -1,5 +1,4 @@
-/*
- *  VectorOffset.cpp
+/*  VectorOffset.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/4/21.
@@ -15,11 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "VectorOffset.h"
 #import "clipper.hpp"
+#import "Platform.h"
 
 using namespace ClipperLib;
 
