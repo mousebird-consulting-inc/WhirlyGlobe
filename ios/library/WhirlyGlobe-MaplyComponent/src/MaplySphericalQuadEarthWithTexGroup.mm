@@ -52,7 +52,7 @@ using namespace WhirlyGlobe;
     
     earthLayer = [[WhirlyKitSphericalEarthQuadLayer alloc] initWithInfo:texGroupName renderer:renderer];
     if (!earthLayer)
-        return nil;
+        return false;
     [layerThread addLayer:earthLayer];
     
     return true;
