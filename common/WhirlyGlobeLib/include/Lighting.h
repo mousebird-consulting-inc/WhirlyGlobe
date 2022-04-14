@@ -1,5 +1,4 @@
-/*
- *  Lighting.h
+/*  Lighting.h
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
@@ -15,8 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
+
 #import "Platform.h"
 #import "WhirlyVector.h"
 
@@ -24,78 +23,74 @@
 
 namespace WhirlyKit {
 
-class Program;
-    
 /** This implements a simple directional light source
 */
-class DirectionalLight
+struct DirectionalLight
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
-    DirectionalLight();
-    virtual ~DirectionalLight();
+
+    DirectionalLight() = default;
+    virtual ~DirectionalLight() = default;
 
     /// If set, we won't process the light position through the model matrix
-    bool getViewDependent() { return viewDependent; }
+    bool getViewDependent() const { return viewDependent; }
     void setViewDependent(bool value) { viewDependent = value; }
 
     /// Light position
-    const Eigen::Vector3f& getPos(){ return pos; }
+    const Eigen::Vector3f& getPos() const { return pos; }
     void setPos(const Eigen::Vector3f& value){ pos = value; }
 
     /// Ambient light color
-    const Eigen::Vector4f& getAmbient() { return ambient; }
+    const Eigen::Vector4f& getAmbient() const { return ambient; }
     void setAmbient(const Eigen::Vector4f& value){ ambient = value; }
 
     /// Diffuse light color
-    const Eigen::Vector4f& getDiffuse() { return diffuse; }
+    const Eigen::Vector4f& getDiffuse() const { return diffuse; }
     void setDiffuse(const Eigen::Vector4f& value){ diffuse = value; }
 
     /// Specular light color
-    const Eigen::Vector4f getSpecular() { return specular; }
+    const Eigen::Vector4f getSpecular() const { return specular; }
     void setSpecular(const Eigen::Vector4f& value){ specular = value; }
 
-public:
-    Eigen::Vector4f ambient;
-    Eigen::Vector4f diffuse;
-    Eigen::Vector4f specular;
-    Eigen::Vector3f pos;
-    bool viewDependent;
+protected:
+    Eigen::Vector4f ambient = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Eigen::Vector4f diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Eigen::Vector4f specular = { 0.0f, 0.0f, 0.0f, 0.0f };
+    Eigen::Vector3f pos = { 0.0f, 0.0f, 0.0f };
+    bool viewDependent = true;
 };
 
 
 /** This is a simple material definition.
  */
-class Material
+struct Material
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    Material();
-    virtual ~Material();
+    Material() = default;
+    virtual ~Material() = default;
 
     /// Ambient material color
-    void setAmbient(const Eigen::Vector4f& value){ ambient = value; }
-    const Eigen::Vector4f& getAmbient() { return ambient; }
+    void setAmbient(const Eigen::Vector4f& value) { ambient = value; }
+    const Eigen::Vector4f& getAmbient() const { return ambient; }
 
     /// Diffuse material color
     void setDiffuse(const Eigen::Vector4f& value) { diffuse = value; }
-    const Eigen::Vector4f& getDiffuse() { return diffuse; }
+    const Eigen::Vector4f& getDiffuse() const { return diffuse; }
 
     /// Specular component of material color
     void setSpecular(const Eigen::Vector4f& value) { specular = value; }
-    const Eigen::Vector4f& getSpecular() { return specular; }
+    const Eigen::Vector4f& getSpecular() const { return specular; }
 
     /// Specular exponent used in lighting
     void setSpecularExponent(float value){ specularExponent = value; }
-    float getSpecularExponent() { return specularExponent; }
+    float getSpecularExponent() const { return specularExponent; }
 
-public:
-    Eigen::Vector4f ambient;
-    Eigen::Vector4f diffuse;
-    Eigen::Vector4f specular;
-    float specularExponent;
+protected:
+    Eigen::Vector4f ambient = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Eigen::Vector4f diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };
+    Eigen::Vector4f specular = { 1.0f, 1.0f, 1.0f, 1.0f };
+    float specularExponent = 1.0f;
 };
 
 }

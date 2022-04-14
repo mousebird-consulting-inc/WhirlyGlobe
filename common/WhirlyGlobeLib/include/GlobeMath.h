@@ -66,7 +66,7 @@ public:
     a scene that's nominally in lat/lon + elevation but displayed in a fake
     geocentric.  Fake geocentric is just a projection onto a sphere of radius 1.0.
     This is the one used by WhirlyGlobe, unless you're doing something tricky.
-    Maply uses flat coordinte systems.
+    Maply uses flat coordinate systems.
  */
 class FakeGeocentricDisplayAdapter : public CoordSystemDisplayAdapter
 {

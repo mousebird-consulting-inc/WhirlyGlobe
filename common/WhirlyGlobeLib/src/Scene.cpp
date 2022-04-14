@@ -733,16 +733,6 @@ void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *sce
         texRef->createInRenderer(setupInfo);
 }
     
-TextureBase *AddTextureReq::getTex() const
-{
-    return texRef.get();
-}
-    
-AddTextureReq::~AddTextureReq()
-{
-    texRef = nullptr;
-}
-    
 void AddTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
 {
     texRef->createInRenderer(renderer->getRenderSetupInfo());
@@ -760,7 +750,8 @@ void RemTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View
             info->destroyTexture(renderer,tex);
         }
         scene->removeTexture(texture);
-    } else
+    }
+    else
     {
         wkLogLevel(Warn,"RemTextureReq: No such texture.");
     }
@@ -774,11 +765,6 @@ void AddDrawableReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *sc
         // Add it to the scene, even if we're on another thread
         scene->addDrawable(drawRef);
     }
-}
-
-AddDrawableReq::~AddDrawableReq()
-{
-    drawRef = nullptr;
 }
 
 void AddDrawableReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)

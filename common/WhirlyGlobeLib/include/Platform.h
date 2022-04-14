@@ -18,14 +18,29 @@
  *
  */
 
-#include <stdlib.h>
+#import <stdlib.h>
 #import <ctime>
+#import <cmath>
 #import <vector>
+
 #ifdef __ANDROID__
-#import <jni.h>
-#include <android/log.h>
+# import <jni.h>
+# import <android/log.h>
 #endif
+
 #import "WhirlyTypes.h"
+
+# if !defined(MAXFLOAT)
+#  if defined(__cplusplus)
+#   define MAXFLOAT (std::numeric_limits<float>::max())
+# else
+#   define MAXFLOAT ((float)3.40282346638528860e+38)
+#endif
+#endif
+
+#if !defined(__unused)
+# define __unused
+#endif
 
 namespace WhirlyKit
 {
@@ -37,9 +52,8 @@ extern TimeInterval TimeGetCurrent();
  * On Android we have to pass around per-thread information.
  * So this is a base class passed in to the parse and build methods.  Platforms put whatever per-thread info they need into it.
 */
-class PlatformThreadInfo
+struct PlatformThreadInfo
 {
-public:
 };
 
 }

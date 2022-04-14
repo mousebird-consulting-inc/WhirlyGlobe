@@ -98,14 +98,6 @@ void WorkGroup::addRenderTarget(RenderTargetRef renderTarget)
     renderTargetContainers.push_back(renderTargetContainer);
 }
     
-SceneRenderer::SceneRenderer()
-{
-}
-    
-SceneRenderer::~SceneRenderer()
-{
-}
-    
 void SceneRenderer::init()
 {
     scene = nullptr;
@@ -394,13 +386,13 @@ void SceneRenderer::removeExtraFrameRenderRequest(SimpleIdentity drawID)
 void SceneRenderer::updateExtraFrames()
 {
     extraFrames = 0;
-    for (auto it : extraFramesPerID)
+    for (const auto &it : extraFramesPerID)
         extraFrames = std::max(extraFrames,it.second);
 }
 
 void SceneRenderer::removeContinuousRenderRequest(SimpleIdentity drawID)
 {
-    SimpleIDSet::iterator it = contRenderRequests.find(drawID);
+    const auto it = contRenderRequests.find(drawID);
     if (it != contRenderRequests.end())
         contRenderRequests.erase(it);
 }

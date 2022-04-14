@@ -16,12 +16,20 @@
  *  limitations under the License.
  */
 
-// Note: This works around a problem in compilation for the iphone
-#define EIGEN_DONT_VECTORIZE 1
-//#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
+// Avoid alignment errors on Eigen stuff passed by value.
+// Though we shouldn't do that, at least it won't crash.
+// See:
+//  http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html
+//  http://eigen.tuxfamily.org/dox-devel/group__TopicPassingByValue.html
+//  http://eigen.tuxfamily.org/dox-devel/TopicPreprocessorDirectives.html#TopicPreprocessorDirectivesPerformance
+#define EIGEN_UNALIGNED_VECTORIZE 0
+
+#define EIGEN_NO_IO         // Exclude I/O stuff for Eigen types, we don't need it
+#define EIGEN_MPL2_ONLY     // Exclude LGPL features
 
 #import <Eigen/Eigen>
 #import <vector>
+#import "Platform.h"
 
 namespace WhirlyKit
 {

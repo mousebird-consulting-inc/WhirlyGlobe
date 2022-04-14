@@ -25,20 +25,13 @@
 namespace WhirlyKit
 {
 
-RenderSetupInfoGLES::RenderSetupInfoGLES() :
-    memManager(nullptr),
-    minZres(0.0),
-    glesVersion(3)
+RenderSetupInfoGLES::RenderSetupInfoGLES(Scene *inScene)
 {
+    if (const auto scene = (SceneGLES *)inScene)
+    {
+        memManager = scene->getMemManager();
+    }
 }
-    
-RenderSetupInfoGLES::RenderSetupInfoGLES(Scene *inScene) :
-    RenderSetupInfoGLES()
-{
-    const auto scene = (SceneGLES *)inScene;
-    memManager = scene->getMemManager();
-}
-
 
 int OpenGLMemManager::maxCachedBuffers = WhirlyKitOpenGLMemCacheMax;
 int OpenGLMemManager::maxCachedTextures = WhirlyKitOpenGLMemCacheMax;

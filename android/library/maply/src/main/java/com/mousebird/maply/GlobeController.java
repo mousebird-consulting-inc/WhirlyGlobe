@@ -435,7 +435,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	}
 
 	/**
-	 * This encapulates the entire view state.  You can replicate all visual parameters with
+	 * This encapsulates the entire view state.  You can replicate all visual parameters with
 	 * set set of values.
 	 */
 	public static class ViewState

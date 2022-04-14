@@ -44,10 +44,4 @@ void RenderTeardownInfo::destroyDrawable(SceneRenderer *renderer,const DrawableR
     draw->teardownForRenderer(renderer->getRenderSetupInfo(), renderer->getScene(), renderer->getTeardownInfo());
 }
 
-bool ChangeRequest::needsFlush() { return false; }
-
-void ChangeRequest::setupForRenderer(const RenderSetupInfo *,Scene *scene) { }
-
-bool ChangeRequest::needPreExecute() { return false; }
-
 }

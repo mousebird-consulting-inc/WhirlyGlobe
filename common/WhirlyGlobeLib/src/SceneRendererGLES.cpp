@@ -288,7 +288,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_BLEND);
     }
-    
+
     // See if we're dealing with a globe or map view
     float overlapMarginX = 0.0;
     if (__unused const auto mapView = dynamic_cast<Maply::MapView *>(theView))
@@ -301,7 +301,7 @@ void SceneRendererGLES::render(TimeInterval duration)
     const Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);
     const Eigen::Matrix4d viewTrans4d = theView->calcViewMatrix();
     const Eigen::Matrix4f viewTrans = Matrix4dToMatrix4f(viewTrans4d);
-    
+
     // Set up a projection matrix
     const Point2f frameSize(framebufferWidth,framebufferHeight);
     const Eigen::Matrix4d projMat4d = theView->calcProjectionMatrix(frameSize,0.0);
@@ -314,7 +314,7 @@ void SceneRendererGLES::render(TimeInterval duration)
     Eigen::Matrix4f mvpNormalMat4f = mvpMat.inverse().transpose();
     Eigen::Matrix4d modelAndViewNormalMat4d = modelAndViewMat4d.inverse().transpose();
     Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
-    
+
     switch (zBufferMode)
     {
         case zBufferOn:
@@ -356,7 +356,7 @@ void SceneRendererGLES::render(TimeInterval duration)
         baseFrameInfo.modelTrans = modelTrans;
         baseFrameInfo.modelTrans4d = modelTrans4d;
         baseFrameInfo.scene = scene;
-        baseFrameInfo.frameLen = duration;
+        baseFrameInfo.frameLen = (float)duration;
         baseFrameInfo.currentTime = scene->getCurrentTime();
         baseFrameInfo.projMat = projMat;
         baseFrameInfo.projMat4d = projMat4d;
@@ -570,7 +570,7 @@ void SceneRendererGLES::render(TimeInterval duration)
             {
                 renderTarget->clearOnce = false;
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                CheckGLError("SceneRendererES2: glClear");
+                CheckGLError("SceneRendererGLES: glClear");
             }
             
             //bool depthMaskOn = (zBufferMode == zBufferOn);
@@ -689,12 +689,14 @@ void SceneRendererGLES::render(TimeInterval duration)
     if (UNLIKELY(reportStats))
         perfTimer.startTiming("Present Renderbuffer");
 
-#ifndef __ANDROID__
-    // Explicitly discard the depth buffer
-    const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
-    glInvalidateFramebuffer(GL_FRAMEBUFFER,1,discards);
-    CheckGLError("SceneRendererES2: glInvalidateFramebuffer");
-#endif
+    if (invalidateGLDepth)
+    {
+        // Explicitly discard the depth buffer
+        const GLenum discards[] = {GL_DEPTH_ATTACHMENT};
+        glInvalidateFramebuffer(GL_FRAMEBUFFER, 1, discards);
+        CheckGLError("SceneRendererGLES: glInvalidateFramebuffer");
+    }
+
     
     // Subclass with do the presentation
     presentRender();

@@ -1,5 +1,5 @@
 /*
- *  LineAndPointShaders.h
+ *  LineAndPointShadersGLES.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 8/21/18.

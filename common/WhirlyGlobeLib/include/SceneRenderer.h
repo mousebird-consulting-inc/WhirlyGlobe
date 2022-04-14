@@ -184,8 +184,8 @@ class SceneRenderer : public DelayedDeletable
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    SceneRenderer();
-    virtual ~SceneRenderer();
+    SceneRenderer() = default;
+    virtual ~SceneRenderer() = default;
     
     /// Renderer type.  Back down to one on iOS.
     typedef enum {RenderGLES,RenderMetal} Type;
@@ -363,48 +363,51 @@ protected:
 
 public:
     /// Scene we're drawing.  This is set from outside
-    Scene *scene;
+    Scene *scene = nullptr;
 
 protected:
     /// The view controls how we're looking at the scene
-    View *theView;
+    View *theView = nullptr;
+
     /// Set this mode to modify how Z buffering is used (if at all)
     WhirlyKitSceneRendererZBufferMode zBufferMode;
     
     /// Statistic: Frames per second
-    float framesPerSec;
+    float framesPerSec = 0.0f;
+
     /// Statistic: Number of drawables drawn in last frame
-    unsigned int numDrawables;
+    unsigned int numDrawables = 0;
+
     /// Period over which we measure performance
-    int perfInterval;
+    int perfInterval = 0;
     
     /// Set if we're using the view based change mechanism to tell when to draw.
     /// This works well for figuring out when the model matrix changes, but
     ///  not so well with animation such as fades, particles systems and such.
-    bool useViewChanged;
+    bool useViewChanged = false;
     
     /// Force a draw at the next opportunity
-    bool triggerDraw;
+    bool triggerDraw = false;
     
-    unsigned int frameCount;
-    unsigned int frameCountLastChanged;
-    TimeInterval frameCountStart;
+    unsigned int frameCount = 0;
+    unsigned int frameCountLastChanged = 0;
+    TimeInterval frameCountStart = 0.0;
     PerformanceTimer perfTimer;
     
     /// Last time we rendered
-    TimeInterval lastDraw;
+    TimeInterval lastDraw = 0.0;
     
     /// Something wants to make sure we render until at least this point.
-    TimeInterval renderUntil;
+    TimeInterval renderUntil = 0.0;
     
     /// Extra frames to render after we'd normally stop
-    int extraFrames;
+    int extraFrames = 0;
     std::map<SimpleIdentity,int> extraFramesPerID;
     
     // The drawables that want continuous rendering on
     SimpleIDSet contRenderRequests;
     
-    RGBAColor clearColor;
+    RGBAColor clearColor = RGBAColor::black();
     
     // View state from the last render, for comparison
     Eigen::Matrix4d modelMat,viewMat,projMat;
@@ -412,7 +415,7 @@ protected:
     // If we're an offline renderer, the texture we're rendering into
     TextureRef framebufferTex;
 
-    TimeInterval lightsLastUpdated;
+    TimeInterval lightsLastUpdated = 0.0;
     Material defaultMat;
     std::vector<DirectionalLight> lights;
 
@@ -434,12 +437,12 @@ protected:
 
 protected:
     /// The pixel width of the CAEAGLLayer.
-    int framebufferWidth;
+    int framebufferWidth = 0;
     /// The pixel height of the CAEAGLLayer.
-    int framebufferHeight;
+    int framebufferHeight = 0;
     
     /// Scale, to reflect the device's screen
-    float scale;
+    float scale = 0.0f;
 
     std::vector<RenderTargetRef> renderTargets;
     std::vector<WorkGroupRef> workGroups;

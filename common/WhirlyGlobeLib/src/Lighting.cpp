@@ -24,31 +24,6 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-DirectionalLight::DirectionalLight()
-{
-    viewDependent = true;
-    pos = Eigen::Vector3f(0,0,0);
-    ambient = Eigen::Vector4f(1,1,1,1);
-    diffuse = Eigen::Vector4f(1,1,1,1);
-    specular = Eigen::Vector4f(0,0,0,0);
-}
-
-DirectionalLight::~DirectionalLight()
-{
-}
-
-Material::Material() :
-    ambient(Eigen::Vector4f(1,1,1,1)),
-    diffuse(Eigen::Vector4f(1,1,1,1)),
-    specular(Eigen::Vector4f(1,1,1,1)),
-    specularExponent(1)
-{
-}
-
-Material::~Material()
-{
-}
 
 }
 

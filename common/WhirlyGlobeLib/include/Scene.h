@@ -1,5 +1,4 @@
-/*
- *  Scene.h
+/*  Scene.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -38,7 +36,7 @@ class Scene;
 class SubTexture;
 class FontTextureManager;
 typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
-class RenderSetupInfo;
+struct RenderSetupInfo;
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use, referenced by ID.
@@ -48,12 +46,12 @@ public:
     /// Construct with a texture.
     /// You are not responsible for deleting the texture after this.
     AddTextureReq(TextureBase *tex) { texRef = TextureBaseRef(tex); }
-    AddTextureReq(const TextureBaseRef &texRef) : texRef(texRef) { }
+    AddTextureReq(TextureBaseRef texRef) : texRef(std::move(texRef)) { }
     /// If the texture hasn't been added to the renderer, clean it up.
-    virtual ~AddTextureReq();
+    virtual ~AddTextureReq() = default;
 
     /// Texture creation generally wants a flush
-    virtual bool needsFlush() { return true; }
+    virtual bool needsFlush() const { return true; }
     
     /// Create the texture on its native thread
     virtual void setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene);
@@ -62,7 +60,7 @@ public:
 	void execute(Scene *scene,SceneRenderer *renderer,View *view);
 	
     /// Only use this if you've thought it out
-    TextureBase *getTex() const;
+    TextureBase *getTex() const { return texRef.get(); }
 
 protected:
     TextureBaseRef texRef;
@@ -91,12 +89,12 @@ public:
     /// Construct with a drawable.  You're not responsible for deletion
 	AddDrawableReq(Drawable *drawable) : drawRef(drawable) { }
     /// Passing by ref means don't worry about it
-    AddDrawableReq(const DrawableRef &drawRef) : drawRef(drawRef) { }
+    AddDrawableReq(DrawableRef drawRef) : drawRef(std::move(drawRef)) { }
     /// If the drawable wasn't used, delete it
-    virtual ~AddDrawableReq();
+    virtual ~AddDrawableReq() = default;
     
     /// Drawable creation generally wants a flush
-    virtual bool needsFlush() { return true; }
+    virtual bool needsFlush() const { return true; }
     
     /// Create the drawable on its native thread
     virtual void setupForRenderer(const RenderSetupInfo *,Scene *scene);
