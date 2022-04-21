@@ -43,10 +43,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_initialise
 		WhirlyGlobe::GlobeView *inst = new WhirlyGlobe::GlobeView(coordAdapter);
 		GlobeViewClassInfo::getClassInfo()->setHandle(env,obj,inst);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::initialise()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -62,11 +59,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_dispose
         WhirlyGlobe::GlobeView *inst = classInfo->getObject(env,obj);
         delete inst;
         classInfo->clearHandle(env,obj);
-	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::dispose()");
-	}
+    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -84,10 +78,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_nativeClone
             classInfo->setHandle(env, destObj, clone);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::dispose()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -101,10 +92,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_getRotQuat
 		    return MakeQuaternion(env,view->getRotQuat());
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::getRotQuat()");
-	}
+    MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -122,10 +110,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setRotQuatNative
             }
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::setRotQuat()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -138,16 +123,13 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_getLoc
         {
             const Point3d localPt = view->currentUp();
             const double height = view->heightAboveSurface();
-            const GeoCoord geoCoord = view->coordAdapter->getCoordSystem()->localToGeographic(
-                    view->coordAdapter->displayToLocal(localPt));
+            const auto adapter = view->getCoordAdapter();
+            const GeoCoord geoCoord = adapter->getCoordSystem()->localToGeographic(
+                                        adapter->displayToLocal(localPt));
             return MakePoint3d(env, Point3d(geoCoord.lon(), geoCoord.lat(), height));
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::getLoc()");
-	}
-
+    MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -162,10 +144,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_minHeightAboveSurfa
 		    return view->minHeightAboveGlobe();
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::minHeightAboveSurface()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -180,10 +159,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getTilt
             return view->getTilt();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::getTilt()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -199,10 +175,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setTilt
             view->setTilt(newTilt);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::setTilt()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 
@@ -217,10 +190,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_maxHeightAboveSurfa
             return view->maxHeightAboveGlobe();
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::maxHeightAboveSurface()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -244,10 +214,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnSphereFromSc
             }
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -268,10 +235,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointOnScreenFromSp
             return MakePoint2d(env, Point2d(retPt.x(), retPt.y()));
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in MapView::pointOnPlaneFromScreen()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -286,10 +250,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_GlobeView_getHeight
             return view->heightAboveSurface();
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::getHeight()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return 0.0;
 }
 
@@ -305,10 +266,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setHeight
             view->setHeightAboveGlobe(newHeight);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::setHeight()");
-	}
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -319,13 +277,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_GlobeView_setContinuousZoom
     {
         if (const auto view = GlobeViewClassInfo::get(env,obj))
         {
-            view->continuousZoom = newVal;
+            view->setContinuousZoom(newVal);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::setHeight()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -339,10 +294,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_makeRotationToGeoCo
             return MakeQuaternion(env, view->makeRotationToGeoCoord(GeoCoord(x, y),(bool) northUp));
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::makeRotationToGeoCoord()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -360,10 +312,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_prospectiveUp
             }
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::prospectiveUp()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -387,9 +336,6 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_GlobeView_pointUnproject
             return MakePoint3d(env, modelPt);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in GlobeView::pointUnproject()");
-	}
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }

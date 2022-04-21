@@ -24,12 +24,11 @@ using namespace WhirlyKit;
 namespace Maply
 {
     
-FlatView::FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
-: MapView(coordAdapter)
+FlatView::FlatView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter) :
+    MapView(coordAdapter)
 {
     loc = Point3d(0,0,0);
-    nearPlane = 1;
-    farPlane = -1;
+    setPlanes(1, -1);
     extents = MbrD(Point2d(-M_PI,-M_PI/2.0),Point2d(M_PI,M_PI/2.0));
     windowSize = Point2d(1.0,1.0);
     contentOffset = Point2d(0,0);
@@ -58,8 +57,8 @@ Eigen::Matrix4d FlatView::calcProjectionMatrix(Point2f frameBufferSize,float mar
     right = 2.0 * (contentOffset.x() + frameBufferSize.x()) / windowSize.x() - 1.0;
     top = 2.0 * (contentOffsetY + frameBufferSize.y()) / windowSize.y() - 1.0;
     bot = 2.0 * contentOffsetY / windowSize.y() - 1.0;
-    near = nearPlane;
-    far = farPlane;
+    near = getNearPlane();
+    far = getFarPlane();
     
     // Borrowed from the "OpenGL ES 2.0 Programming" book
     // Orthogonal matrix
