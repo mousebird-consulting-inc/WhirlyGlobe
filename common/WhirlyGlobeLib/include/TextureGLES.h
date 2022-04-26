@@ -33,8 +33,9 @@ namespace WhirlyKit
  */
 struct TextureBaseGLES : virtual public TextureBase
 {
-    TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId), glId(0) { }
-    TextureBaseGLES(const std::string &name) : TextureBase(name), glId(0) { }
+    TextureBaseGLES() = default;
+    TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId) { }
+    TextureBaseGLES(std::string name) : TextureBase(std::move(name)) { }
     
     /// Return the unique GL ID.
     GLuint getGLId() const { return glId; }
@@ -42,7 +43,7 @@ struct TextureBaseGLES : virtual public TextureBase
 protected:
     /// OpenGL ES ID
     /// Set to 0 if we haven't loaded yet
-    GLuint glId;
+    GLuint glId = 0;
 };
     
 typedef std::shared_ptr<TextureBaseGLES> TextureBaseGLESRef;
@@ -53,11 +54,16 @@ typedef std::shared_ptr<TextureBaseGLES> TextureBaseGLESRef;
  */
 struct TextureGLES : virtual public Texture, virtual public TextureBaseGLES
 {
+    TextureGLES();
     TextureGLES(std::string name);
 
     /// Construct with raw texture data.  PVRTC is preferred.
-    TextureGLES(const std::string &name,RawDataRef texData,bool isPVRTC);
-    
+    TextureGLES(std::string name, RawDataRef texData, bool isPVRTC);
+
+    TextureGLES(RawDataRef texData, TextureType fmt, int width, int height, bool isPVRTC);
+    TextureGLES(std::string name, RawDataRef texData,
+                TextureType fmt, int width, int height, bool isPVRTC);
+
     /// Render side only.  Don't call this.  Create the openGL version
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);
     

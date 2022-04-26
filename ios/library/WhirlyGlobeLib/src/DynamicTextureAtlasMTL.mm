@@ -1,5 +1,4 @@
-/*
- *  DynamicTextureAtlasMTL.mm
+/*  DynamicTextureAtlasMTL.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
@@ -15,16 +14,17 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "DynamicTextureAtlasMTL.h"
 
 namespace WhirlyKit
 {
-    
-DynamicTextureMTL::DynamicTextureMTL(const std::string &name)
-: DynamicTexture(name), TextureBase(name), TextureBaseMTL(name), valid(false), bytesPerRow(0), bytesPerPixel(0)
+
+DynamicTextureMTL::DynamicTextureMTL(std::string name) :
+    TextureBase(name),
+    DynamicTexture(name),
+    TextureBaseMTL()
 {
 }
 

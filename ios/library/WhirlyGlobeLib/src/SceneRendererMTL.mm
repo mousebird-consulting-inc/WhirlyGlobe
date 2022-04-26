@@ -1141,5 +1141,5 @@ DynamicTextureRef SceneRendererMTL::makeDynamicTexture(const std::string &name) 
     return std::make_shared<DynamicTextureMTL>(name);
 }
 
-    
+
 }

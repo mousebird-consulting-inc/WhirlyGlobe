@@ -1,5 +1,4 @@
-/*
- *  TextureMTL.h
+/*  TextureMTL.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Platform.h"
@@ -28,18 +26,18 @@
 
 namespace WhirlyKit
 {
-    
+
 /// Multiple texture variants derive from the base
-class TextureBaseMTL : virtual public TextureBase
+struct TextureBaseMTL : virtual public TextureBase
 {
-public:
+    TextureBaseMTL() : TextureBase() { }
     TextureBaseMTL(SimpleIdentity thisId) : TextureBase(thisId) { }
-    TextureBaseMTL(const std::string &name) : TextureBase(name) { }
-    ~TextureBaseMTL();
-    
-    /// Return the unique GL ID.
+    virtual ~TextureBaseMTL() = default;
+
+    /// Return the unique ID
     id<MTLTexture> getMTLID() const { return texBuf.tex; }
     TextureEntryMTL getMTLTex() const { return texBuf; }
+
 protected:
     /// Set to 0 if we haven't loaded yet
     TextureEntryMTL texBuf;
@@ -48,16 +46,16 @@ protected:
 typedef std::shared_ptr<TextureBaseMTL> TextureBaseMTLRef;
 
 /// This is your basic texture created from data
-class TextureMTL : virtual public Texture, virtual public TextureBaseMTL
+struct TextureMTL : virtual public Texture, virtual public TextureBaseMTL
 {
-public:
-    TextureMTL(const std::string &name);
+    TextureMTL();
+    TextureMTL(std::string name);
     /// Construct with raw texture data.
-    TextureMTL(const std::string &name,RawDataRef texData,bool isPVRTC);
+    TextureMTL(std::string name,RawDataRef texData,bool isPVRTC);
     /// Construct by scaling the image to the given size
-    TextureMTL(const std::string &name,UIImage *inImage,int width,int height);
+    TextureMTL(std::string name,UIImage *inImage,int width,int height);
     /// Construct with just the image
-    TextureMTL(const std::string &name,UIImage *inImage);
+    TextureMTL(std::string name,UIImage *inImage);
 
     /// Creates the MTL resources
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo);

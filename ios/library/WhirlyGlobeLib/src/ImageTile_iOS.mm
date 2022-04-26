@@ -1,5 +1,4 @@
-/*
- *  ImageTile_iOS.h
+/*  ImageTile_iOS.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/14/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ImageTile_iOS.h"
@@ -26,8 +24,10 @@
 namespace WhirlyKit
 {
     
-ImageTile_iOS::ImageTile_iOS(SceneRenderer::Type renderType)
-: renderType(renderType), imageStuff(nil), tex(NULL)
+ImageTile_iOS::ImageTile_iOS(SceneRenderer::Type renderType) :
+    renderType(renderType),
+    imageStuff(nil),
+    tex(nullptr)
 {
 }
 
@@ -38,7 +38,7 @@ ImageTile_iOS::~ImageTile_iOS()
     
 void ImageTile_iOS::clearTexture()
 {
-    tex = NULL;
+    tex = nullptr;
 }
 
 Texture *ImageTile_iOS::buildTexture()
@@ -65,7 +65,8 @@ Texture *ImageTile_iOS::buildTexture()
         int size = std::max(destWidth,destHeight);
         destWidth = destHeight = size;
     }
-    switch (type) {
+    switch (type)
+    {
         case MaplyImgTypeImage:
         {
             UIImage *image = (UIImage *)imageStuff;

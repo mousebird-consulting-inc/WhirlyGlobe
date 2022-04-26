@@ -1,5 +1,4 @@
-/*
- *  Texture.mm
+/*  TextureGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "TextureGLES.h"
@@ -27,19 +25,36 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-TextureGLES::TextureGLES(std::string name) :
-    Texture(name),
-    TextureBaseGLES(std::move(name))
+
+TextureGLES::TextureGLES() :
+    TextureBase(),      // virtual inheritance, we need to call the base constructors
+    Texture(),
+    TextureBaseGLES()
 {
 }
 
-TextureGLES::TextureGLES(const std::string &name,RawDataRef texData,bool isPVRTC) :
-    Texture(name,std::move(texData),isPVRTC),
-    TextureBaseGLES(name)
+TextureGLES::TextureGLES(std::string name) :
+    TextureBase(std::move(name)),
+    Texture(),
+    TextureBaseGLES()
 {
 }
-    
+
+TextureGLES::TextureGLES(std::string name, RawDataRef texData, bool isPVRTC) :
+    TextureBase(std::move(name)),
+    Texture(std::move(texData), isPVRTC),
+    TextureBaseGLES()
+{
+}
+
+TextureGLES::TextureGLES(std::string name, RawDataRef texData,
+        TextureType fmt, int width, int height, bool isPVRTC) :
+    TextureBase(std::move(name)),
+    Texture(std::move(texData), fmt, width, height, isPVRTC),
+    TextureBaseGLES()
+{
+}
+
 // Figure out the PKM data
 unsigned char *TextureGLES::ResolvePKM(const RawDataRef &texData,int &pkmType,int &size,int &width,int &height)
 {

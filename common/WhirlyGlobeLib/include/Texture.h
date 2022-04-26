@@ -30,10 +30,10 @@ namespace WhirlyKit
 struct TextureBase : virtual public Identifiable
 {
     /// Construct for comparison
-    TextureBase() = default;
-    TextureBase(SimpleIdentity thisId);
-    TextureBase(std::string name);
-    
+    TextureBase() : Identifiable() { }
+    TextureBase(SimpleIdentity thisId) : Identifiable(thisId) { }
+    TextureBase(std::string name) : Identifiable(), name(std::move(name)) { }
+
     virtual ~TextureBase() = default;
     
     /// Render side only.  Don't call this.  Create the openGL version
@@ -41,6 +41,8 @@ struct TextureBase : virtual public Identifiable
 
     /// Render side only.  Don't call this.  Destroy the openGL version
     virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
+
+    const std::string& getName() const { return name; }
 
 protected:
     /// Used for debugging
@@ -86,18 +88,12 @@ typedef enum TextureInterpType_t {
 } TextureInterpType;
 
 /** Your basic Texture representation.
-    This is how you get an image sent over to the
-    rendering engine.  Set up one of these and add it.
-    If you want to remove it, you need to use its
-    Identifiable ID.
+    This is how you get an image sent over to the rendering engine.
+    Set up one of these and add it.
+    If you want to remove it, you need to use its Identifiable ID.
  */
 struct Texture : virtual public TextureBase
 {
-    /// Construct with name
-    Texture(std::string name);
-    /// Construct with raw texture data.  PVRTC is preferred.
-    Texture(std::string name, RawDataRef texData, bool isPVRTC);
-
     virtual ~Texture() = default;
 
     /// Set the format (before createInGL() is called)
@@ -111,7 +107,10 @@ struct Texture : virtual public TextureBase
 
     /// Set the raw data directly
     /// Texture takes possession of the bytes.  It will free them.
-    void setRawData(RawData *rawData,int width,int height);
+    void setRawData(RawData *rawData, int width, int height);
+
+    /// Set the raw data directly
+    void setRawData(RawDataRef rawData, int width, int height);
 
     /// Process the data for display based on the format.
     RawDataRef processData();
@@ -137,12 +136,13 @@ struct Texture : virtual public TextureBase
     /// If set, this is a texture we're creating for output purposes
     void setIsEmptyTexture(bool inIsEmptyTexture) { isEmptyTexture = inIsEmptyTexture; }
 
+protected:
+    Texture() = default;
+    Texture(RawDataRef texData, bool isPVRTC);
+    Texture(RawDataRef texData, TextureType fmt, int width, int height, bool isPVRTC);
+
     /// Raw texture data
     RawDataRef texData;
-
-protected:
-    /// Used by subclass
-    Texture() = default;
 
     /// Need to know how we're going to load it
     bool isPVRTC = false;
@@ -160,8 +160,8 @@ protected:
     TextureType format = TexTypeUnsignedByte;
     TextureInterpType interpType = TexInterpLinear;
 
-    unsigned int width;
-    unsigned int height;
+    unsigned int width = 0;
+    unsigned int height = 0;
 };
     
 typedef std::shared_ptr<Texture> TextureRef;
