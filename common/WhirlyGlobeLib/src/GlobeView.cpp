@@ -43,14 +43,20 @@ GlobeView::GlobeView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     absoluteMinHeight = 0.000002;
     heightInflection = 0.011;
     heightAboveGlobe = 1.1;
-    tilt = 0.0;
-    roll = 0.0;
 }
 
-GlobeView::GlobeView(const GlobeView &that)
-: View(that), absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection), defaultNearPlane(that.defaultNearPlane),
-    absoluteMinNearPlane(that.absoluteMinNearPlane), defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane),
-    heightAboveGlobe(that.heightAboveGlobe), rotQuat(that.rotQuat), tilt(that.tilt), roll(that.roll)
+GlobeView::GlobeView(const GlobeView &that) :
+    View(that),
+    absoluteMinHeight(that.absoluteMinHeight),
+    heightInflection(that.heightInflection),
+    defaultNearPlane(that.defaultNearPlane),
+    defaultFarPlane(that.defaultFarPlane),
+    absoluteMinNearPlane(that.absoluteMinNearPlane),
+    absoluteMinFarPlane(that.absoluteMinFarPlane),
+    heightAboveGlobe(that.heightAboveGlobe),
+    rotQuat(that.rotQuat),
+    tilt(that.tilt),
+    roll(that.roll)
 {
 }
     

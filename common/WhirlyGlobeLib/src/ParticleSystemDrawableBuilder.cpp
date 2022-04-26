@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawableBuilder.cpp
+/*  ParticleSystemDrawableBuilder.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawableBuilder.h"
@@ -23,15 +21,12 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawableBuilder::ParticleSystemDrawableBuilder(const std::string &name,Scene *scene)
-: name(name), scene(scene)
+ParticleSystemDrawableBuilder::ParticleSystemDrawableBuilder(std::string name, Scene *scene) :
+    scene(scene),
+    name(std::move(name))
 {    
 }
-    
-ParticleSystemDrawableBuilder::~ParticleSystemDrawableBuilder()
-{    
-}
-    
+
 void ParticleSystemDrawableBuilder::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                                            const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
                                            const std::vector<SimpleIdentity > &inVaryNames,

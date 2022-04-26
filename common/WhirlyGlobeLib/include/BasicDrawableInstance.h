@@ -158,19 +158,20 @@ public:
     SimpleIdentity getRenderTarget() const;
     
     /// Texture ID and relative override info
-    class TexInfo
+    struct TexInfo
     {
-    public:
-        TexInfo() : texId(EmptyIdentity), relLevel(0), relX(0), relY(0), size(0), borderTexel(0) { }
-        
+        TexInfo() = default;
         // Initialize from a basic drawable's version of the tex info
-        TexInfo(BasicDrawable::TexInfo &basicTexInfo);
+        TexInfo(const BasicDrawable::TexInfo &basicTexInfo);
 
         /// Texture ID within the scene
-        SimpleIdentity texId;
+        SimpleIdentity texId = EmptyIdentity;
         /// Our use of this texture relative to its native resolution
-        int size,borderTexel;
-        int relLevel,relX,relY;
+        int size = 0;
+        int borderTexel = 0;
+        int relLevel = 0;
+        int relX = 0;
+        int relY = 0;
     };
 
     /// Set the texture ID for a specific slot.  You get this from the Texture object.

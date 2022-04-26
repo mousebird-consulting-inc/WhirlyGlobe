@@ -37,14 +37,17 @@ class DynamicTexture : virtual public TextureBase
 public:
     /// Constructor for sorting
     DynamicTexture(const std::string &name);
-    DynamicTexture(SimpleIdentity myId) : TextureBase(myId), layoutGrid(NULL) { }
+    DynamicTexture(SimpleIdentity myId) : TextureBase(myId) { }
     virtual void setup(int texSize,int cellSize,TextureType type,bool clearTextures);
     virtual ~DynamicTexture();
     
     /// Represents a region in the texture
     struct Region
     {
-        int sx = 0,sy = 0,ex = 0,ey = 0;
+        int sx = 0;
+        int sy = 0;
+        int ex = 0;
+        int ey = 0;
     };
     
     /// Create an appropriately empty texture in OpenGL ES
@@ -55,7 +58,7 @@ public:
     
     /// Set the interpolation type used for min and mag
     void setInterpType(TextureInterpType inType) { interpType = inType; }
-    TextureInterpType getInterpType() { return interpType; }
+    TextureInterpType getInterpType() const { return interpType; }
     
     /// Add the given texture at the given location.
     /// This is probably called on the layer thread
@@ -83,11 +86,12 @@ public:
     void addRegionToClear(const Region &region);
     
     /// Return true if this isn't representing any regions
-    bool empty();
+    bool empty() const { return numRegions == 0; }
     
     /// Number of sub textures we're currently representing
     int &getNumRegions() { return numRegions; }
-    
+    int getNumRegions() const { return numRegions; }
+
     /// Return texture cell utilization
     void getUtilization(int &numCell,int &usedCell);
     
@@ -96,28 +100,28 @@ protected:
     std::string name;
     
     /// Number of texels on a side
-    int texSize;
+    int texSize = 0;
     /// Number of texels in a cell
-    int cellSize;
+    int cellSize = 0;
     /// Number of cells on a side
-    int numCell;
+    int numCell = 0;
     /// Interpolation type
-    TextureInterpType interpType;
+    TextureInterpType interpType = TextureInterpType::TexInterpLinear;
     /// Texture memory format
-    TextureType type;
+    TextureType type = TextureType::TexTypeUnsignedByte;
 
     // Use to track where sub textures are
-    bool *layoutGrid;
+    bool *layoutGrid = nullptr;
     
     mutable std::mutex regionLock;
     /// These regions have been released by the renderer
     std::vector<Region> releasedRegions;
     
     /// Number of active regions (as far as the texture is concerned)
-    int numRegions;
+    int numRegions = 0;
 
     /// If set, overwrite texture data with empty pixels
-    bool clearTextures;
+    bool clearTextures = false;
 };
     
 typedef std::shared_ptr<DynamicTexture> DynamicTextureRef;
@@ -176,31 +180,30 @@ class DynamicTextureAtlas
 {
 public:
     /// This maps a given texture to its location in a dynamic texture
-    class TextureRegion
+    struct TextureRegion
     {
-    public:
-        TextureRegion();
         bool operator < (const TextureRegion &that) const { return subTex.getId() < that.subTex.getId(); }
         
         SubTexture subTex;
-        SimpleIdentity dynTexId;
+        SimpleIdentity dynTexId = EmptyIdentity;
         DynamicTexture::Region region;
     };
 
     /// Construct with the square size of the textures, the cell size (in pixels) and the pixel format
-    DynamicTextureAtlas(const std::string &name,int texSize,int cellSize,TextureType format,int imageDepth=1,bool mainThreadMerge=false);
+    DynamicTextureAtlas(std::string name, int texSize, int cellSize,
+                        TextureType format, int imageDepth = 1, bool mainThreadMerge = false);
     virtual ~DynamicTextureAtlas();
-    
+
     /// Set the interpolation type used for min and mag
-    void setInterpType(TextureInterpType inType);
-    TextureInterpType getInterpType() const;
+    void setInterpType(TextureInterpType inType) { interpType = inType; }
+    TextureInterpType getInterpType() const { return interpType; }
     
     /// Return the dynamic texture's format
-    TextureType getFormat() const;
+    TextureType getFormat() const { return format; }
     
     /// Fudge factor for border pixels.  We'll add this/pixelSize to the lower left
     ///  and subtract this/pixelSize from the upper right for each texture application.
-    void setPixelFudgeFactor(float pixFudge);
+    void setPixelFudgeFactor(float pixFudge) { pixelFudge = pixFudge; }
     
     /// Try to add the texture to one of our dynamic textures, or create one.
     bool addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &textures,int frame,
@@ -242,17 +245,17 @@ protected:
     /// Texture memory format
     TextureType format;
     /// Interpolation type
-    TextureInterpType interpType;
+    TextureInterpType interpType = TexInterpLinear;
 
     int imageDepth;
     int texSize;
     int cellSize;
     /// Interpolation type
-    float pixelFudge;
+    float pixelFudge = 0.0f;
     bool mainThreadMerge;
 
     /// If set, overwrite texture data with empty pixels
-    bool clearTextures;
+    bool clearTextures = false;
     
     // On some devices we can't clear with a NULL, we have to use an actual buffer
     std::vector<unsigned char> emptyPixelBuffer;

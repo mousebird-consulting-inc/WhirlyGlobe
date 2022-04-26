@@ -30,9 +30,9 @@ AnimateTranslateMomentum::AnimateTranslateMomentum(
         const WhirlyKit::Point3f &inDir,
         const Point2dVector &inBounds,
         SceneRenderer *inSceneRenderer) :
+    renderer(inSceneRenderer),
     velocity(inVel),
-    acceleration(inAcc),
-    renderer(inSceneRenderer)
+    acceleration(inAcc)
 {
     dir = Vector3fToVector3d(inDir.normalized());
     startDate = TimeGetCurrent();

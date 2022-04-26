@@ -23,9 +23,8 @@
 namespace WhirlyKit
 {
 
-QuadTileBuilder::QuadTileBuilder(CoordSystemRef coordSys,QuadTileBuilderDelegate *delegate) :
-    delegate(delegate),
-    debugMode(false)
+QuadTileBuilder::QuadTileBuilder(CoordSystemRef coordSys, QuadTileBuilderDelegate *delegate) :
+    delegate(delegate)
 {
     geomSettings.sampleX = 20;
     geomSettings.sampleY = 20;

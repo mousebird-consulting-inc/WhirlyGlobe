@@ -362,15 +362,15 @@ protected:
     void addLayer(PlatformThreadInfo *, MapboxVectorStyleLayerRef);
 
 public:
-    Scene *scene;
-    CoordSystem *coordSys;
+    Scene *scene = nullptr;
+    CoordSystem *coordSys = nullptr;
     MapboxVectorStyleSpritesRef sprites;
 
     /// @brief Style name
     std::string name;
 
     /// @brief Version number from the style
-    int version;
+    int version = -1;
 
     /// @brief Layers parsed from the style sheet
     std::vector<MapboxVectorStyleLayerRef> layers;
@@ -397,8 +397,8 @@ public:
     SimpleIdentity wideVectorProgramID;
     SimpleIdentity wideVectorPerfProgramID;
 
-    int zoomSlot;
-    long long currentID;
+    int zoomSlot = -1;
+    long long currentID = EmptyIdentity;
 };
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 

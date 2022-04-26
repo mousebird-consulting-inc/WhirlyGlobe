@@ -356,7 +356,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     }
     
     mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
-    mapView->continuousZoom = true;
+    mapView->setContinuousZoom(true);
     mapView->setWrap(_viewWrap);
     mapView->addWatcher(&animWrapper);
 
@@ -758,16 +758,17 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 /// Set the view extents.  This is the box the view point is allowed to be within.
 - (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur
 {
-    CoordSystemDisplayAdapter *adapter = mapView->coordAdapter;
+    const auto adapter = mapView->getCoordAdapter();
     CoordSystem *coordSys = adapter->getCoordSystem();
     boundLL = ll;    boundUR = ur;
     
     // Convert the bounds to a rectangle in local coordinates
-    Point3f bounds3d[4];
-    bounds3d[0] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ll.y)));
-    bounds3d[1] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ll.y)));
-    bounds3d[2] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ur.y)));
-    bounds3d[3] = adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ur.y)));
+    const Point3f bounds3d[4] = {
+        adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ll.y))),
+        adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ll.y))),
+        adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ur.x,ur.y))),
+        adapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(ll.x,ur.y))),
+    };
     bounds.clear();
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -810,7 +811,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
-    Point3d loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+    const auto adapter = mapView->getCoordAdapter();
+    Point3d loc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = mapView->getLoc().z();
     [self animateToPoint:loc time:howLong];
 }
@@ -830,7 +832,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     {
         Point3d oldLoc = mapView->getLoc();
         Point3f diffLoc(whereLoc.x()-oldLoc.x(),whereLoc.y()-oldLoc.y(),0.0);
-        Point3d loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+        const auto adapter = mapView->getCoordAdapter();
+        Point3d loc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
         loc.x() -= diffLoc.x();
         loc.y() -= diffLoc.y();
         loc.z() = oldLoc.z();
@@ -860,7 +863,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
-    Point3d loc = mapView->coordAdapter->localToDisplay(mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+    const auto adapter = mapView->getCoordAdapter();
+    Point3d loc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = newHeight;
     
     [self animateToPoint:loc time:howLong];
@@ -1007,7 +1011,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (newPos.x < boundLL.x)  newPos.x = boundLL.x;
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
-    Point3d loc = mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
+    const auto adapter = mapView->getCoordAdapter();
+    Point3d loc = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
     loc.z() = height;
 
     // Do a validity check and possibly adjust the center
@@ -1023,8 +1028,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 
 - (MaplyCoordinate)getPosition
 {
-    GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(mapView->coordAdapter->displayToLocal(mapView->getLoc()));
-
+    const auto adapter = mapView->getCoordAdapter();
+    const GeoCoord geoCoord = adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(mapView->getLoc()));
     return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
 
@@ -1036,7 +1041,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
 {
     Point3d loc = mapView->getLoc();
-    GeoCoord geoCoord = mapView->coordAdapter->getCoordSystem()->localToGeographic(loc);
+    GeoCoord geoCoord = mapView->getCoordAdapter()->getCoordSystem()->localToGeographic(loc);
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
 }
@@ -1062,12 +1067,14 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (!renderControl)
         return;
     
-    Point3d localLoc = mapView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x, animState.pos.y));
+    const auto adapter = mapView->getCoordAdapter();
+    Point3d localLoc = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x, animState.pos.y));
     localLoc.z() = animState.height;
 
     if (animState.screenPos.x >= 0.0 && animState.screenPos.y >= 0.0)
     {
-        Point3d displayLoc = mapView->coordAdapter->localToDisplay(localLoc);
+        const auto adapter = mapView->getCoordAdapter();
+        Point3d displayLoc = adapter->localToDisplay(localLoc);
         displayLoc.z() = animState.height;
 
         Eigen::Matrix4d modelTrans = mapView->calcFullMatrix();
@@ -1082,7 +1089,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
             displayLoc.y() -= diffLoc.y();
 
         }
-        localLoc = mapView->coordAdapter->displayToLocal(displayLoc);
+        localLoc = adapter->displayToLocal(displayLoc);
     }
     mapView->setLoc(localLoc, false);
     mapView->setRotAngle(-animState.heading, runViewUpdates);
@@ -1263,7 +1270,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         return CGPointZero;
     }
 
-    const auto adapter = theView->coordAdapter;
+    const auto adapter = theView->getCoordAdapter();
     const Point3d localPt = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
     const Point3d displayPt = adapter->localToDisplay(localPt);
     const Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
@@ -1290,7 +1297,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         *newLoc = loc;
     }
 
-    const auto &coordAdapter = mapView->coordAdapter;
+    const auto &coordAdapter = mapView->getCoordAdapter();
     const auto *coordSys = coordAdapter->getCoordSystem();
 
     // Center the given location

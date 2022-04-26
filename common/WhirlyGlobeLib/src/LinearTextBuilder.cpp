@@ -1,5 +1,4 @@
-/*
- *  LinearTextBuilder.cpp
+/*  LinearTextBuilder.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/3/21.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LinearTextBuilder.h"
@@ -65,17 +63,13 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
     return pts;
 }
 
-LinearWalker::LinearWalker(const VectorRing &pts)
-: pts(pts), ptSoFar(0), offsetDist(0.0), totalLength(0.0)
+LinearWalker::LinearWalker(const VectorRing &pts) :
+    pts(pts)
 {
-    for (unsigned int ii=0;ii<pts.size()-1;ii++) {
+    for (unsigned int ii=0;ii<pts.size()-1;ii++)
+    {
         totalLength += (pts[ii+1] - pts[ii]).norm();
     }
-}
-
-float LinearWalker::getTotalLength()
-{
-    return totalLength;
 }
 
 bool LinearWalker::nextPoint(double dist,Point2f *retPt,Point2f *norm,bool savePos)
@@ -109,13 +103,16 @@ bool LinearWalker::nextPoint(double dist,Point2f *retPt,Point2f *norm,bool saveP
     return false;
 }
 
-LinearTextBuilder::LinearTextBuilder(ViewStateRef viewState,
+LinearTextBuilder::LinearTextBuilder(ViewStateRef inViewState,
                                     unsigned int offi,
                                     const Point2f &frameBufferSize,
                                     float generalEps,
-                                    LayoutObject *layoutObj)
-: viewState(viewState), offi(offi), frameBufferSize(frameBufferSize), generalEps(generalEps),
-layoutObj(layoutObj)
+                                    LayoutObject *layoutObj) :
+    viewState(std::move(inViewState)),
+    generalEps(generalEps),
+    offi(offi),
+    frameBufferSize(frameBufferSize),
+    layoutObj(layoutObj)
 {
     screenMbr.addPoint(Point2f(0.0,0.0));
     screenMbr.addPoint(Point2f(frameBufferSize.x(),frameBufferSize.y()));

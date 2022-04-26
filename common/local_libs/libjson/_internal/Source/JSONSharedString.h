@@ -38,7 +38,7 @@ public:
 
 	struct iterator;
 	  struct const_iterator {
-		const_iterator(const json_char * p, const json_shared_string * pa) : parent(pa), it(p){}
+		const_iterator(const json_char * p, const json_shared_string * pa) : /*parent(pa),*/ it(p){}
 	  
 		 inline const_iterator& operator ++(void) json_nothrow { ++it; return *this; }
 		 inline const_iterator& operator --(void) json_nothrow { --it; return *this; }
@@ -84,7 +84,7 @@ public:
 		 inline const_iterator & operator =(const const_iterator & orig) json_nothrow { it = orig.it; return *this; }
 		 const_iterator (const const_iterator & orig) json_nothrow : it(orig.it) {}
 	  private:
-		 const json_shared_string * parent;
+		 //const json_shared_string * parent;
 		 const json_char * it;
 		 friend class json_shared_string;
 		 friend struct iterator;
@@ -177,9 +177,9 @@ public:
 		return std_begin() + len;
 	}
 	
-	inline json_shared_string(void) : offset(0), len(0), _str(new(json_malloc<json_shared_string_internal>(1)) json_shared_string_internal(json_global(EMPTY_JSON_STRING))) {}
+	inline json_shared_string(void) : _str(new(json_malloc<json_shared_string_internal>(1)) json_shared_string_internal(json_global(EMPTY_JSON_STRING))), offset(0), len(0) {}
 	
-	inline json_shared_string(const json_string & str) : offset(0), len(str.length()), _str(new(json_malloc<json_shared_string_internal>(1)) json_shared_string_internal(str)) {}
+	inline json_shared_string(const json_string & str) : _str(new(json_malloc<json_shared_string_internal>(1)) json_shared_string_internal(str)), offset(0), len(str.length()) {}
 	
 	inline json_shared_string(const json_shared_string & str, size_t _offset, size_t _len) : _str(str._str), offset(str.offset + _offset), len(_len) {
 		++_str -> refCount;

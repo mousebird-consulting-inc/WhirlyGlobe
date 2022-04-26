@@ -208,7 +208,8 @@ using namespace Eigen;
 
 - (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer
 {
-    scene = new SceneMTL(visualView->coordAdapter);
+    auto adapter = const_cast<CoordSystemDisplayAdapter*>(visualView->getCoordAdapter());
+    scene = new SceneMTL(adapter);
     sceneRenderer->setScene(scene);
 
     // Set up a Font Texture Manager

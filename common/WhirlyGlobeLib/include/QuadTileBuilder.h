@@ -173,7 +173,7 @@ protected:
     /// Called when a layer is shutting down (on the layer thread)
     virtual void quadLoaderShutdown(PlatformThreadInfo *threadInfo,ChangeSet &changes);
     
-    bool debugMode;
+    bool debugMode = false;
     
     TileGeomManager geomManage;
     TileGeomSettings geomSettings;

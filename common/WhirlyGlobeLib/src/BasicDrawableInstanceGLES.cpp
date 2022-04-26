@@ -24,8 +24,9 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-BasicDrawableInstanceGLES::BasicDrawableInstanceGLES(const std::string &name)
-    : BasicDrawableInstance(name), Drawable(name)
+BasicDrawableInstanceGLES::BasicDrawableInstanceGLES(const std::string &name) :
+    BasicDrawableInstance(name),
+    DrawableGLES(name)
 {
 }
     
@@ -151,7 +152,7 @@ void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupI
         for (unsigned int ii = 0; ii < instances.size(); ii++, basePtr += instSize)
         {
             const SingleInstance &inst = instances[ii];
-            const Point3f center3f(inst.center.x(), inst.center.y(), inst.center.z());
+            const Point3f center3f = inst.center.cast<float>();;
             const Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
             const float colorInst = inst.colorOverride ? 1.0 : 0.0;
             const RGBAColor locColor = inst.colorOverride ? inst.color : color;
@@ -162,7 +163,7 @@ void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupI
             if (moving)
             {
                 const Point3d modelDir = (inst.endCenter - inst.center) / inst.duration;
-                const Point3f modelDir3f(modelDir.x(), modelDir.y(), modelDir.z());
+                const Point3f modelDir3f = modelDir.cast<float>();
                 memcpy(basePtr + centerSize + matSize + colorInstSize + colorSize, (void *) modelDir3f.data(), modelDirSize);
             }
         }

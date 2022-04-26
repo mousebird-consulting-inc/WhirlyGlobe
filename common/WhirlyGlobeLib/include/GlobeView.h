@@ -177,9 +177,9 @@ protected:
     /// Quaternion used for rotation from origin state
     Eigen::Quaterniond rotQuat;
     /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
-    double tilt;
+    double tilt = 0.0;
     /// Roll around an axis pointed straight out of the front
-    double roll;
+    double roll = 0.0;
     WhirlyKit::FakeGeocentricDisplayAdapter fakeGeoC;
     /// Animation delegate
     GlobeViewAnimationDelegateRef delegate;

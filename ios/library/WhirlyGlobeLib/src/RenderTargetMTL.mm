@@ -67,7 +67,7 @@ void RenderTargetMTL::clear()
     renderPassDescSetFromOutside = false;
 }
 
-int RenderTargetMTL::numLevels()
+int RenderTargetMTL::numLevels() const
 {
     return renderPassDesc.size();
 }

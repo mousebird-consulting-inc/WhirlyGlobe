@@ -27,13 +27,10 @@ namespace WhirlyKit
 {
 
 // Base class for the FrameInfo, which we don't make strong use of in the base
-class QuadFrameInfo : public WhirlyKit::Identifiable
+struct QuadFrameInfo : public WhirlyKit::Identifiable
 {
-public:
-    QuadFrameInfo();
-    
     // Either the position in the frame list or -1 if there's just one frame
-    int frameIndex;
+    int frameIndex = -1;
 };
 typedef std::shared_ptr<QuadFrameInfo> QuadFrameInfoRef;
 
@@ -68,10 +65,10 @@ public:
     int generation;
     
     // Set if something went wrong with loading
-    bool hasError;
+    bool hasError = false;
     
     // Set by the loader if we've canceled a tile we're currently building objects for
-    bool cancel;
+    bool cancel = false;
     
     // Clean out references to everything
     virtual void clear();

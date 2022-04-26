@@ -34,7 +34,7 @@ class BillboardDrawableBuilder;
 typedef std::shared_ptr<BillboardDrawableBuilder> BillboardDrawableBuilderRef;
 class ParticleSystemDrawableBuilder;
 typedef std::shared_ptr<ParticleSystemDrawableBuilder> ParticleSystemDrawableBuilderRef;
-class ScreenSpaceDrawableBuilder;
+struct ScreenSpaceDrawableBuilder;
 typedef std::shared_ptr<ScreenSpaceDrawableBuilder> ScreenSpaceDrawableBuilderRef;
 class WideVectorDrawableBuilder;
 typedef std::shared_ptr<WideVectorDrawableBuilder> WideVectorDrawableBuilderRef;

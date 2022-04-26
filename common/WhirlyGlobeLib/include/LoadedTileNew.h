@@ -30,42 +30,42 @@ namespace WhirlyKit
 
 /* Geometry settings passed to the tile generation method.
   */
-class TileGeomSettings
+struct TileGeomSettings
 {
-public:
-    TileGeomSettings();
-    
     // Set if we actually build geometry, rather than just track space
-    bool buildGeom;
+    bool buildGeom = true;
     
     // Whether the geometry is centered in its middle with an offset
-    bool useTileCenters;
+    bool useTileCenters = true;
     // Base color for the tiles
-    RGBAColor color;
+    RGBAColor color = RGBAColor::white();
     // Shader to to use in rendering
-    SimpleIdentity programID;
+    SimpleIdentity programID = EmptyIdentity;
     // Samples to generate in X and Y
-    int sampleX,sampleY;
+    int sampleX = 10;
+    int sampleY = 10;
     // Samples for the top level node
-    int topSampleX,topSampleY;
+    int topSampleX = 10;
+    int topSampleY = 10;
     // If set, viewable range
-    double minVis,maxVis;
+    double minVis = DrawVisibleInvalid;
+    double maxVis = DrawVisibleInvalid;
     // The priority for the drawables
-    int baseDrawPriority;
+    int baseDrawPriority = 0;
     // Multiply the level by this and add it to the baseDrawPriority
-    int drawPriorityPerLevel;
+    int drawPriorityPerLevel = 1;
     // If set, we'll just build lines for debugging
-    bool lineMode;
+    bool lineMode = false;
     // If set, we'll include the elevation data
-    bool includeElev;
+    bool includeElev = false;
     // If set, we'll enable/disable geometry associated with tiles.
     // Otherwise we'll just always leave it off, assuming someone else is instancing it
-    bool enableGeom;
+    bool enableGeom = true;
     // If set, we're building single level geometry, so no parent logic
-    bool singleLevel;
+    bool singleLevel = false;
 };
 
-class TileGeomManager;
+struct TileGeomManager;
 
 /* Wraps a single tile that we've loaded into memory.
   */
@@ -75,16 +75,16 @@ public:
     LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr);
     
     // Make sure the tile exists in space
-    bool isValidSpatial(TileGeomManager *geomManage);
+    bool isValidSpatial(TileGeomManager *geomManage) const;
     
     // Build the drawable(s) to represent this one tile
     void makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,
                        const TileGeomSettings &geomSettings,ChangeSet &changes);
 
     // Utility routine to build skirts around the edges
-    void buildSkirt(const BasicDrawableBuilderRef &draw,const Point3dVector &pts,
-                    const std::vector<TexCoord> &texCoords,double skirtFactor,
-                    bool haveElev,const Point3d &theCenter);
+    static void buildSkirt(const BasicDrawableBuilderRef &draw,const Point3dVector &pts,
+                           const std::vector<TexCoord> &texCoords,double skirtFactor,
+                           bool haveElev,const Point3d &theCenter);
 
     // Enable associated drawables
     void enable(const TileGeomSettings &geomSettings,ChangeSet &changes);
@@ -97,8 +97,8 @@ public:
     
     // Information about a particular drawable that's useful for instancing it.
     typedef enum { DrawableGeom, DrawableSkirt, DrawablePole } DrawableKind;
-    class DrawableInfo {
-    public:
+    struct DrawableInfo
+    {
         DrawableInfo(DrawableKind kind,SimpleIdentity drawID,int drawPriority, int64_t drawOrder)
             : kind(kind), drawID(drawID), drawPriority(drawPriority), drawOrder(drawOrder)
         { }
@@ -107,13 +107,13 @@ public:
         int drawPriority;       // Draw priority we gave it
         int64_t drawOrder;
     };
-    bool enabled;
+    bool enabled = false;
     QuadTreeNew::ImportantNode ident;
     MbrD mbr;
     std::vector<DrawableInfo> drawInfo;
     int64_t tileNumber;
     // The Draw Priority as set when created
-    int drawPriority;
+    int drawPriority = 0;
 };
 typedef std::shared_ptr<LoadedTileNew> LoadedTileNewRef;
 typedef std::vector<LoadedTileNewRef> LoadedTileVec;
@@ -121,19 +121,21 @@ typedef std::vector<LoadedTileNewRef> LoadedTileVec;
 /** Tile Builder builds individual tile geometry for use elsewhere.
     This is just the geometry.  If you want textures on it, you need to do those elsewhere.
   */
-class TileGeomManager
+struct TileGeomManager
 {
-public:
-    TileGeomManager();
+    TileGeomManager() = default;
     
     // Construct with the quad tree we're building off of, the coordinate system we're building from and the (valid) bounding box
-    void setup(SceneRenderer *sceneRender,TileGeomSettings &geomSettings,QuadTreeNew *quadTree,
-               CoordSystemDisplayAdapter *coordAdapter,CoordSystemRef coordSys,MbrD inMbr);
+    void setup(SceneRenderer *sceneRender,
+               TileGeomSettings &geomSettings,
+               QuadTreeNew *quadTree,
+               CoordSystemDisplayAdapter *coordAdapter,
+               CoordSystemRef coordSys,
+               const MbrD &inMbr);
     
     // Keep track of nodes added, enabled and disabled
-    class NodeChanges
+    struct NodeChanges
     {
-    public:
         LoadedTileVec addedTiles;
         LoadedTileVec enabledTiles;
         LoadedTileVec disabledTiles;
@@ -152,7 +154,7 @@ public:
     LoadedTileVec getAllTiles();
     
     // Remove the tiles given, if they're being represented
-    NodeChanges removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
+    //NodeChanges removeTiles(const QuadTreeNew::NodeSet &tiles,ChangeSet &changes);
     
     // Turn tiles on/off based on their children
     void updateParents(ChangeSet &changes,LoadedTileVec &enabledNodes,LoadedTileVec &disabledNodes);
@@ -162,25 +164,27 @@ public:
 
 protected:
     TileGeomSettings settings;
-    
-    SceneRenderer *sceneRender;
-    
+
+    SceneRenderer *sceneRender = nullptr;
+
 public:
-    QuadTreeNew *quadTree;
-    CoordSystemDisplayAdapter *coordAdapter;
+    QuadTreeNew *quadTree = nullptr;
+    CoordSystemDisplayAdapter *coordAdapter = nullptr;
 
     // Coordinate system of the tiles (different from the scene)
     CoordSystemRef coordSys;
     
     // Build geometry to the poles
-    bool coverPoles;
+    bool coverPoles = false;
     
     // Color overrides for poles, if present
-    bool useNorthPoleColor,useSouthPoleColor;
-    RGBAColor northPoleColor,southPoleColor;
+    bool useNorthPoleColor = false;
+    bool useSouthPoleColor = false;
+    RGBAColor northPoleColor = RGBAColor::white();
+    RGBAColor southPoleColor = RGBAColor::white();
 
     // Build the skirts for edge matching
-    bool buildSkirts;
+    bool buildSkirts = false;
 
     // Bounding box of the whole area
     MbrD mbr;

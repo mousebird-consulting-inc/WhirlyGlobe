@@ -33,7 +33,7 @@ struct RenderSetupInfo
 {
 };
 
-class TextureBase;
+struct TextureBase;
 typedef std::shared_ptr<TextureBase> TextureBaseRef;
 class Drawable;
 typedef std::shared_ptr<Drawable> DrawableRef;

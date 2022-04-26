@@ -24,31 +24,30 @@ namespace WhirlyKit
 
 /** The proj4 coord system object wraps a proj.4 implemented coordinate system.
   */
-class Proj4CoordSystem : public CoordSystem
+struct Proj4CoordSystem : public CoordSystem
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     /// Construct with a proj4 string to be passsed to proj.4 (duh)
-    Proj4CoordSystem(const std::string &proj4Str);
+    Proj4CoordSystem(std::string proj4Str);
     virtual ~Proj4CoordSystem();
     
     /// Convert from the local coordinate system to lat/lon
-    virtual GeoCoord localToGeographic(Point3f) const override;
-    virtual GeoCoord localToGeographic(Point3d) const override;
-    virtual Point2d localToGeographicD(Point3d) const override;
+    virtual GeoCoord localToGeographic(const Point3f&) const override;
+    virtual GeoCoord localToGeographic(const Point3d&) const override;
+    virtual Point2d localToGeographicD(const Point3d&) const override;
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord) const override;
-    virtual Point3d geographicToLocal3d(GeoCoord) const override;
-    virtual Point3d geographicToLocal(Point2d) const override;
+    virtual Point3f geographicToLocal(const GeoCoord&) const override;
+    virtual Point3d geographicToLocal3d(const GeoCoord&) const override;
+    virtual Point3d geographicToLocal(const Point2d&) const override;
     virtual Point2d geographicToLocal2(const Point2d&) const override;
 
     /// Convert from the local coordinate system to geocentric
-    virtual Point3f localToGeocentric(Point3f) const override;
-    virtual Point3d localToGeocentric(Point3d) const override;
+    virtual Point3f localToGeocentric(const Point3f&) const override;
+    virtual Point3d localToGeocentric(const Point3d&) const override;
     /// Convert from display coordinates to geocentric
-    virtual Point3f geocentricToLocal(Point3f) const override;
-    virtual Point3d geocentricToLocal(Point3d) const override;
+    virtual Point3f geocentricToLocal(const Point3f&) const override;
+    virtual Point3d geocentricToLocal(const Point3d&) const override;
     
     /// True if the other system is Spherical Mercator with the same origin
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
@@ -58,7 +57,8 @@ public:
     
 protected:
     void *pj;
-    void *pj_latlon,*pj_geocentric;
+    void *pj_latlon;
+    void *pj_geocentric;
     std::string proj4Str;
 };
     

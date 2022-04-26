@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawable.h
+/*  ParticleSystemDrawable.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/28/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawable.h"
@@ -26,74 +24,73 @@ namespace WhirlyKit
 {
 
 // Low level drawable used to manage particle systems
-class ParticleSystemDrawable : virtual public Drawable
+struct ParticleSystemDrawable : virtual public Drawable
 {
-friend class ParticleSystemDrawableBuilder;
-public:    
+    friend class ParticleSystemDrawableBuilder;
+
     // A group of attribute data passed in at once
-    class AttributeData
+    struct AttributeData
     {
-    public:
         std::string name;
-        const void *data;
+        const void *data = nullptr;
     };
     
     ParticleSystemDrawable(const std::string &name);
-    virtual ~ParticleSystemDrawable();
-    
+    virtual ~ParticleSystemDrawable() = default;
+
     /// Whether it's currently displaying
-    bool isOn(RendererFrameInfo *frameInfo) const;
-    void setOnOff(bool onOff);
+    bool isOn(RendererFrameInfo *frameInfo) const { return enable; }
+    void setOnOff(bool onOff) { enable = onOff; }
 
     /// No bounding box, since these change constantly
-    Mbr getLocalMbr() const;
+    Mbr getLocalMbr() const { return {}; }
 
     /// No offset matrix (at the moment)
-    const Eigen::Matrix4d *getMatrix() const;
+    const Eigen::Matrix4d *getMatrix() const { return nullptr; }
 
     /// Draw order
-    int64_t getDrawOrder() const;
-    void setDrawOrder(int64_t newOrder);
+    int64_t getDrawOrder() const { return drawOrder; }
+    void setDrawOrder(int64_t newOrder) { drawOrder = newOrder; }
     
     /// Draw priority for ordering
-    unsigned int getDrawPriority() const;
-    void setDrawPriority(int newPriority);
+    unsigned int getDrawPriority() const { return drawPriority; }
+    void setDrawPriority(int newPriority) { drawPriority = newPriority; }
 
     /// If set, we want to use the z buffer
-    bool getRequestZBuffer() const;
-    void setRequestZBuffer(bool enable);
+    bool getRequestZBuffer() const { return requestZBuffer; }
+    void setRequestZBuffer(bool in) { requestZBuffer = in; }
     
     /// If set, we want to write to the z buffer
-    bool getWriteZbuffer() const;
-    void setWriteZbuffer(bool enable);
+    bool getWriteZbuffer() const { return writeZBuffer; }
+    void setWriteZbuffer(bool in) { writeZBuffer = in; }
 
     // If set, we'll render this data where directed
-    void setRenderTarget(SimpleIdentity newRenderTarget);
-    SimpleIdentity getRenderTarget() const;
+    void setRenderTarget(SimpleIdentity newRenderTarget) { renderTargetID = newRenderTarget; }
+    SimpleIdentity getRenderTarget() const { return renderTargetID; }
     
     /// Set all the textures at once
-    virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs);
+    virtual void setTexIDs(const std::vector<SimpleIdentity> &inTexIDs) { texIDs = inTexIDs; }
 
     /// Program to use for pre-render calculations
-    virtual SimpleIdentity getCalculationProgram() const;
-    virtual void setCalculationProgram(SimpleIdentity newProgId);
+    virtual SimpleIdentity getCalculationProgram() const { return calculateProgramId; }
+    virtual void setCalculationProgram(SimpleIdentity newProgId) { calculateProgramId = newProgId; }
 
     /// Program to use for rendering
-    virtual SimpleIdentity getProgram() const;
-    virtual void setProgram(SimpleIdentity newProgId);
+    virtual SimpleIdentity getProgram() const { return renderProgramId; }
+    virtual void setProgram(SimpleIdentity newProgId) { renderProgramId = newProgId; }
     
     /// Set the base time
-    void setBaseTime(TimeInterval inBaseTime);
+    void setBaseTime(TimeInterval inBaseTime) { baseTime = inBaseTime; }
     
     /// Set the point size
-    void setPointSize(float inPointSize);
+    void setPointSize(float inPointSize) { pointSize = inPointSize; }
     
     /// Set the lifetime
-    void setLifetime(TimeInterval inLifetime);
-    TimeInterval getLifetime();
+    void setLifetime(TimeInterval inLifetime) { lifetime = inLifetime; }
+    TimeInterval getLifetime() const { return lifetime; }
     
     /// Set whether we're doing continuous renders (the default)
-    void setContinuousUpdate(bool newVal);
+    void setContinuousUpdate(bool newVal) { usingContinuousRender = newVal; }
         
     /// Set a block of uniforms (Metal only, at the moment)
     virtual void setUniBlock(const BasicDrawable::UniformBlock &uniBlock);
@@ -102,13 +99,13 @@ public:
     void updateRenderer(SceneRenderer *renderer);
     
     // Represents a single batch of data
-    class Batch
+    struct Batch
     {
-    public:
-        unsigned int batchID;
-        unsigned int offset,len;
-        bool active;
         TimeInterval startTime;
+        unsigned int batchID;
+        unsigned int offset;
+        unsigned int len;
+        bool active;
     };
     
     /// Add a batch for rendering later
@@ -126,23 +123,29 @@ public:
     void updateBatches(TimeInterval now);
 
 protected:
-    bool enable;
-    int numTotalPoints,batchSize;
-    int vertexSize;
-    SimpleIdentity calculateProgramId;
-    SimpleIdentity renderProgramId;
-    int64_t drawOrder;
-    int drawPriority;
-    float pointSize;
-    TimeInterval lifetime;
-    bool requestZBuffer,writeZBuffer;
-    float minVis,maxVis,minVisibleFadeBand,maxVisibleFadeBand;
-    int activeVaryBuffer;  // 0 or 1
+    bool enable = true;
+    int numTotalPoints = 0;
+    int batchSize = 0;
+    int vertexSize = 0;
+    SimpleIdentity calculateProgramId = EmptyIdentity;
+    SimpleIdentity renderProgramId = EmptyIdentity;
+    int64_t drawOrder = BaseInfo::DrawOrderTiles;
+    int drawPriority = 0;
+    float pointSize = 0.0f;
+    TimeInterval lifetime = 0.0;
+    bool requestZBuffer = false;
+    bool writeZBuffer = false;
+    float minVis = DrawVisibleInvalid;
+    float maxVis = DrawVisibleInvalid;
+    //float minVisibleFadeBand = DrawVisibleInvalid;
+    //float maxVisibleFadeBand = DrawVisibleInvalid;
+    int activeVaryBuffer = 0;  // 0 or 1
     std::vector<SimpleIdentity> texIDs;
-    bool useRectangles,useInstancing;
-    TimeInterval baseTime;
-    bool usingContinuousRender;
-    SimpleIdentity renderTargetID;
+    bool useRectangles = true;
+    bool useInstancing = true;
+    TimeInterval baseTime = 0.0;
+    bool usingContinuousRender = true;
+    SimpleIdentity renderTargetID = EmptyIdentity;
 
     // Uniforms to be passed into a shader (just Metal for now)
     std::vector<BasicDrawable::UniformBlock> uniBlocks;
@@ -155,14 +158,15 @@ protected:
         int numVertices;
     } BufferChunk;
     
-    TimeInterval lastUpdateTime;
+    TimeInterval lastUpdateTime = 0.0;
     void updateChunks();
     
     // Chunks we use for rendering
     std::mutex batchLock;
-    int startb,endb;
+    int startb = 0;
+    int endb = 0;
     std::vector<Batch> batches;
-    bool chunksDirty;
+    bool chunksDirty = true;
     std::vector<BufferChunk> chunks;
 };
 

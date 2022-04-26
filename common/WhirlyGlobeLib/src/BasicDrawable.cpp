@@ -645,10 +645,7 @@ void FadeChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableRe
 DrawTexChangeRequest::DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId) :
     DrawableChangeRequest(drawId),
     which(which),
-    newTexId(newTexId),
-    relSet(false), relLevel(0),
-    relX(0), relY(0),
-    borderTexel(0), size(0)
+    newTexId(newTexId)
 {
 }
 

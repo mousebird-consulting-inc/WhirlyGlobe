@@ -28,14 +28,10 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-ProgramGLES::ProgramGLES()
-    : lightsLastUpdated(0.0)
-    , program(0)
-    , vertShader(0)
-    , fragShader(0)
-    , attrs(10)
-    , uniforms(10)
+
+ProgramGLES::ProgramGLES() :
+    uniforms(10),
+    attrs(10)
 {
 }
 
@@ -123,7 +119,7 @@ bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex,int textur
     
     uni->isTexture = true;
     uni->isSet = true;
-    uni->val.iVals[0] = val;
+    uni->val.iVals[0] = (int)val;
     
     return true;
 }

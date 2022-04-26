@@ -63,6 +63,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     /// Construct empty
+    Drawable() = default;
     Drawable(std::string name);
     virtual ~Drawable() = default;
 

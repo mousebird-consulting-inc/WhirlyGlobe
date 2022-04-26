@@ -22,12 +22,12 @@ namespace WhirlyKit
 {
     
 QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer) :
-    dataStructure(dataStructure),
-    loader(loader),
-    renderer(renderer),
     QuadTreeNew(MbrD(dataStructure->getTotalExtents()),
                 dataStructure->getMinZoom(),
-                dataStructure->getMaxZoom())
+                dataStructure->getMaxZoom()),
+    dataStructure(dataStructure),
+    loader(loader),
+    renderer(renderer)
 {
     mbr = dataStructure->getValidExtents();
     coordSys = dataStructure->getCoordSystem();

@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawableBuilderGLES.cpp
+/*  ParticleSystemDrawableBuilderGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawableBuilderGLES.h"
@@ -23,10 +21,10 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawableBuilderGLES::ParticleSystemDrawableBuilderGLES(const std::string &name,Scene *scene)
-    : ParticleSystemDrawableBuilder(name,scene), drawableGotten(false)
+ParticleSystemDrawableBuilderGLES::ParticleSystemDrawableBuilderGLES(std::string name,Scene *scene)
+    : ParticleSystemDrawableBuilder(name,scene)
 {
-    draw = new ParticleSystemDrawableGLES(name);
+    draw = new ParticleSystemDrawableGLES(std::move(name));
 }
     
 void ParticleSystemDrawableBuilderGLES::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
@@ -34,20 +32,21 @@ void ParticleSystemDrawableBuilderGLES::setup(const std::vector<SingleVertexAttr
                    const std::vector<SimpleIdentity> &inVaryNames,
                    int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing)
 {
-    ParticleSystemDrawableGLES *drawGL = dynamic_cast<ParticleSystemDrawableGLES *>(draw);
-
-    for (auto attr : inVertAttrs)
+    if (auto *drawGL = dynamic_cast<ParticleSystemDrawableGLES *>(draw))
     {
-        drawGL->vertexSize += attr.size();
-        drawGL->vertAttrs.push_back(SingleVertexAttributeInfoGLES(attr));
+        for (auto attr : inVertAttrs)
+        {
+            drawGL->vertexSize += attr.size();
+            drawGL->vertAttrs.emplace_back(attr);
+        }
+        for (auto varyAttr : inVaryAttrs)
+        {
+            drawGL->varyAttrs.emplace_back(varyAttr);
+        }
+        drawGL->varyNames = inVaryNames;
+        ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,inVaryNames,numTotalPoints,
+                                             batchSize,drawGL->vertexSize,useRectangles,useInstancing);
     }
-    for (auto varyAttr : inVaryAttrs)
-    {
-        drawGL->varyAttrs.push_back(SingleVertexAttributeInfoGLES(varyAttr));
-    }
-    drawGL->varyNames = inVaryNames;
-
-    ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,inVaryNames,numTotalPoints,batchSize,drawGL->vertexSize,useRectangles,useInstancing);
 }
     
 ParticleSystemDrawableBuilderGLES::~ParticleSystemDrawableBuilderGLES()
@@ -59,7 +58,7 @@ ParticleSystemDrawableBuilderGLES::~ParticleSystemDrawableBuilderGLES()
 ParticleSystemDrawable *ParticleSystemDrawableBuilderGLES::getDrawable()
 {
     if (!draw)
-        return NULL;
+        return nullptr;
     
     if (!drawableGotten) {
         drawableGotten = true;

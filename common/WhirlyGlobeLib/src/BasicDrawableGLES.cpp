@@ -24,8 +24,9 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-BasicDrawableGLES::BasicDrawableGLES(const std::string &name) :
-    BasicDrawable(name), Drawable(name)
+BasicDrawableGLES::BasicDrawableGLES(std::string name) :
+    BasicDrawable(name),
+    DrawableGLES(std::move(name))
 {
 }
 

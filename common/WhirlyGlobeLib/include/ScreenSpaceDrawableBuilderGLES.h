@@ -45,9 +45,8 @@ typedef std::shared_ptr<ScreenSpaceTweakerGLES> ScreenSpaceTweakerGLESRef;
     
 /** OpenGL version of ScreenSpaceDrawable Builder
  */
-class ScreenSpaceDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public ScreenSpaceDrawableBuilder
+struct ScreenSpaceDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public ScreenSpaceDrawableBuilder
 {
-public:
     ScreenSpaceDrawableBuilderGLES(const std::string &name,Scene *scene);
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1) override;

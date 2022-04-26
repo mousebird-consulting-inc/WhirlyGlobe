@@ -31,14 +31,14 @@ namespace WhirlyKit
 /** Base class for textures.  This is enough information to
  track it in the Scene, but little else.
  */
-class TextureBaseGLES : virtual public TextureBase
+struct TextureBaseGLES : virtual public TextureBase
 {
-public:
     TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId), glId(0) { }
     TextureBaseGLES(const std::string &name) : TextureBase(name), glId(0) { }
     
     /// Return the unique GL ID.
     GLuint getGLId() const { return glId; }
+
 protected:
     /// OpenGL ES ID
     /// Set to 0 if we haven't loaded yet
@@ -48,15 +48,13 @@ protected:
 typedef std::shared_ptr<TextureBaseGLES> TextureBaseGLESRef;
 
 /** Your basic Texture representation.
- This is how you get an image sent over to the
- rendering engine.  Set up one of these and add it.
- If you want to remove it, you need to use its
- Identifiable ID.
+ This is how you get an image sent over to the rendering engine.  Set up one of these and add it.
+ If you want to remove it, you need to use its Identifiable ID.
  */
-class TextureGLES : virtual public Texture, virtual public TextureBaseGLES
+struct TextureGLES : virtual public Texture, virtual public TextureBaseGLES
 {
-public:
-    TextureGLES(const std::string &name);
+    TextureGLES(std::string name);
+
     /// Construct with raw texture data.  PVRTC is preferred.
     TextureGLES(const std::string &name,RawDataRef texData,bool isPVRTC);
     
@@ -68,9 +66,7 @@ public:
 
     /// Sort the PKM data out from the NSData
     /// This is static so the dynamic (haha) textures can use it
-    static unsigned char *ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height);
-
-protected:
+    static unsigned char *ResolvePKM(const RawDataRef &texData,int &pkmType,int &size,int &width,int &height);
 };
     
 typedef std::shared_ptr<TextureGLES> TextureGLESRef;

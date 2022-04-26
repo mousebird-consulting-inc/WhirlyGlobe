@@ -233,7 +233,7 @@ public:
 public:
     void subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool geolib,bool edgeMode);
 
-    bool selectable;
+    bool selectable = true;
     ShapeSet shapes;
 };
 

@@ -176,7 +176,7 @@ protected:
                        const SingleVertexAttributeSet *vertAttrs);
         void addTri(int v0,int v1,int v2);
         
-        Point3d center;
+        Point3d center = { 0, 0, 0 };
         DrawableState state;
         
         const ScreenSpaceDrawableBuilderRef &getDrawableBuilder() const { return locDraw; }
@@ -190,7 +190,7 @@ protected:
     
     float centerDist;
     float scale;
-    int drawPriorityOffset;
+    int drawPriorityOffset = 0;
     SceneRenderer *sceneRender;
     CoordSystemDisplayAdapter *coordAdapter;
     DrawableState curState;

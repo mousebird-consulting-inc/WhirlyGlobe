@@ -30,8 +30,8 @@ SingleBillboardPoly::SingleBillboardPoly() :
 }
 
 BillboardInfo::BillboardInfo() :
-    color(RGBAColor::white()),
-    orient(Eye)
+    orient(Eye),
+    color(RGBAColor::white())
 {
 }
 
@@ -71,9 +71,9 @@ BillboardBuilder::BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,Chang
     scene(scene),
     sceneRender(sceneRender),
     changes(changes),
-    sceneRep(sceneRep),
-    billInfo(billInfo),
     drawable(nullptr),
+    billInfo(billInfo),
+    sceneRep(sceneRep),
     billboardProgram(billboardProgram),
     texId(texId)
 {

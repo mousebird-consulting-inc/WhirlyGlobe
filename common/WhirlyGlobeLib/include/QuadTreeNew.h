@@ -30,7 +30,7 @@ class QuadTreeIdentifier
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    QuadTreeIdentifier() { }
+    QuadTreeIdentifier() = default;
     /// Construct with the cell coordinates and level.
     QuadTreeIdentifier(int x,int y,int level) : x(x), y(y), level(level) { }
 

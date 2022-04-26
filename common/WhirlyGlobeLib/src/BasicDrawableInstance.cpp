@@ -37,9 +37,13 @@ BasicDrawableInstance::~BasicDrawableInstance()
 {
 }
 
-BasicDrawableInstance::TexInfo::TexInfo(BasicDrawable::TexInfo &basicTexInfo)
-: texId(basicTexInfo.texId), size(basicTexInfo.size), borderTexel(basicTexInfo.borderTexel),
-relLevel(basicTexInfo.relLevel), relX(basicTexInfo.relX), relY(basicTexInfo.relY)
+BasicDrawableInstance::TexInfo::TexInfo(const BasicDrawable::TexInfo &basicTexInfo) :
+    texId(basicTexInfo.texId),
+    size(basicTexInfo.size),
+    borderTexel(basicTexInfo.borderTexel),
+    relLevel(basicTexInfo.relLevel),
+    relX(basicTexInfo.relX),
+    relY(basicTexInfo.relY)
 {
 }
 

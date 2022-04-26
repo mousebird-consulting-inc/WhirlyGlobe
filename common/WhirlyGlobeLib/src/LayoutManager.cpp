@@ -47,9 +47,9 @@ LayoutObject::LayoutObject(LayoutObject &&other) noexcept :
         layoutWidth        (other.layoutWidth),
         layoutDebug        (other.layoutDebug),
         layoutShape        (std::move(other.layoutShape)),
+        mergeID            (std::move(other.mergeID)),
         layoutPlaces       (std::move(other.layoutPlaces)),
         layoutModelPlaces  (std::move(other.layoutModelPlaces)),
-        mergeID            (std::move(other.mergeID)),
         acceptablePlacement(other.acceptablePlacement),
         hint               (std::move(other.hint))
 {
@@ -1286,12 +1286,12 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
                     }
 
                     // And let's nudge it over a bit if we're looming in on the previous glyph
-                    bool nudged = false;
+                    //bool nudged = false;
                     if (normAng != 0.0) {
                         if (normAng < M_PI / 180.0) {
                             const float height = span.y();
                             const auto offset = std::abs(std::sin(normAng)) * height;
-                            nudged = true;
+                            //nudged = true;
                             if (!walk.nextPoint(resScale * offset,&centerPt,&norm,true)) {
                                 failed = true;
                                 break;
@@ -1319,8 +1319,8 @@ void LayoutManager::layoutAlongShape(const LayoutObjectEntryRef &layoutObj,
                     const double ang = -(std::atan2(norm.y(),norm.x()) - M_PI_2 + (flipped ? M_PI : 0.0));
                     const Matrix2d screenRot = Eigen::Rotation2Dd(ang).matrix();
                     Matrix3d screenRotMat = Matrix3d::Identity();
-                    for (unsigned ix=0;ix<2;ix++)
-                        for (unsigned iy=0;iy<2;iy++)
+                    for (int ix=0;ix<2;ix++)
+                        for (int iy=0;iy<2;iy++)
                             screenRotMat(ix, iy) = screenRot(ix, iy);
                     const Matrix3d overlapMat = transPlace.matrix() * screenRotMat * transOrigin.matrix();
                     const Matrix3d scaleMat = Eigen::AlignedScaling3d(resScale,resScale,1.0);

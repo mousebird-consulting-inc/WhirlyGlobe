@@ -86,11 +86,11 @@ using namespace WhirlyGlobe;
     TimeInterval now = scene->getCurrentTime();
     
     if (autoSpinner && globeView->getDelegate() != autoSpinner)
-        autoSpinner = NULL;
+        autoSpinner = nullptr;
     
     if (autoRotateInterval > 0.0 && !autoSpinner)
     {
-        if (now - globeView->lastChangedTime > autoRotateInterval &&
+        if (now - globeView->getLastChangedTime() > autoRotateInterval &&
             now - lastTouched > autoRotateInterval)
         {
             float anglePerSec = autoRotateDegrees / 180.0 * M_PI;

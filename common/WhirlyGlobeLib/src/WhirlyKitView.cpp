@@ -35,14 +35,14 @@ View::View()
 }
 
 View::View(const View &that) :
-    nearPlane(that.nearPlane),
-    farPlane(that.farPlane),
     fieldOfView(that.fieldOfView),
     imagePlaneSize(that.imagePlaneSize),
+    nearPlane(that.nearPlane),
+    farPlane(that.farPlane),
+    centerOffset(that.centerOffset),
     lastChangedTime(that.lastChangedTime),
-    continuousZoom(that.continuousZoom),
     coordAdapter(that.coordAdapter),
-    centerOffset(that.centerOffset)
+    continuousZoom(that.continuousZoom)
 {
 }
 

@@ -44,10 +44,9 @@ VectorObject::VectorObject(SimpleIdentity theId)
 {
 }
 
-VectorObject::VectorObject(SimpleIdentity theId, int capacity)
-    : Identifiable(theId)
-    , shapes(capacity)
-    , selectable(true)
+VectorObject::VectorObject(SimpleIdentity theId, int capacity) :
+    Identifiable(theId),
+    shapes(capacity)
 {
 }
 

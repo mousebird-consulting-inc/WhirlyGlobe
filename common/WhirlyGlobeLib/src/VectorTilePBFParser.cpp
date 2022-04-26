@@ -41,10 +41,10 @@ namespace {
 }
 
 const vector_tile_Tile_Layer VectorTilePBFParser::_defaultLayer = {
-    /* name       */ { &VectorTilePBFParser::stringDecode,    nullptr },
-    /* features   */ { &VectorTilePBFParser::featureDecode,   nullptr },
-    /* keys       */ { &VectorTilePBFParser::stringVecDecode, nullptr },
-    /* values     */ { &VectorTilePBFParser::valueVecDecode,  nullptr },
+    /* name       */ { { &VectorTilePBFParser::stringDecode },    nullptr },
+    /* features   */ { { &VectorTilePBFParser::featureDecode },   nullptr },
+    /* keys       */ { { &VectorTilePBFParser::stringVecDecode }, nullptr },
+    /* values     */ { { &VectorTilePBFParser::valueVecDecode },  nullptr },
     /* has_extent */ false,
     /* extent     */ 0,
     /* version    */ 0,
@@ -54,14 +54,14 @@ const vector_tile_Tile_Layer VectorTilePBFParser::_defaultLayer = {
 const vector_tile_Tile_Feature VectorTilePBFParser::_defaultFeature = {
     /* has_id   */ false,
     /* id       */ 0LL,
-    /* tags     */ { &VectorTilePBFParser::intVecDecode, nullptr },
+    /* tags     */ { { &VectorTilePBFParser::intVecDecode }, nullptr },
     /* has_type */ false,
     /* type     */ vector_tile_Tile_GeomType_UNKNOWN,
-    /* geometry */ { &VectorTilePBFParser::intVecDecode, nullptr },
+    /* geometry */ { { &VectorTilePBFParser::intVecDecode }, nullptr },
 };
 
 const vector_tile_Tile_Value VectorTilePBFParser::_defaultValue = {
-    /* pb_callback_t string_value */ { &VectorTilePBFParser::stringDecode, nullptr },
+    /* pb_callback_t string_value */ { { &VectorTilePBFParser::stringDecode }, nullptr },
     /* bool has_float_value       */ false,
     /* float float_value          */ 0.0f,
     /* bool has_double_value      */ false,
@@ -92,9 +92,9 @@ VectorTilePBFParser::VectorTilePBFParser(
     : _tileData      (tileData)
     , _styleDelegate (styleData)
     , _styleInst     (styleInst)
+    , _vecObjByStyle (vecObjByStyle)
     , _uuidName      (uuidName)
     , _uuidValues    (uuidValues)
-    , _vecObjByStyle (vecObjByStyle)
     , _localCoords   (localCoords)
     , _parseAll      (parseAll)
     , _keepVectors   (keepVectors)
@@ -112,7 +112,7 @@ VectorTilePBFParser::VectorTilePBFParser(
 bool VectorTilePBFParser::parse(const uint8_t* data, size_t length)
 {
     _vector_tile_Tile tile = {
-        /* layer     */ { layerDecode, this },
+        /* layer     */ { { layerDecode }, this },
         /*extensions */ nullptr,
     };
 

@@ -217,10 +217,6 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
     }
 }
 
-GeometryRawPoints::GeometryRawPoints()
-{
-}
-
 GeometryRawPoints::~GeometryRawPoints()
 {
     for (GeomPointAttrData *attrs : attrData)

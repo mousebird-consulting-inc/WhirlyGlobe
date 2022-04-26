@@ -68,7 +68,7 @@ class VectorMBTilesTestCase(activity: Activity) : MaplyTestCase(activity, "Vecto
         this.loader = loader
     }
 
-    fun setupContriesVector(control: BaseController) {
+    fun setupCountriesVector(control: BaseController) {
         val mbTiles: File
 
         // We need to copy the file from the asset so that it can be used as a file
@@ -174,7 +174,7 @@ class VectorMBTilesTestCase(activity: Activity) : MaplyTestCase(activity, "Vecto
         mapVC.setPositionGeo(coord.x, coord.y, 0.07)
 
 //        setupCountriesRaster(mapVC as BaseController)
-//        setupContriesVector(mapVC as BaseController)
+//        setupCountriesVector(mapVC as BaseController)
         setupFranceVector(mapVC as BaseController)
 //        setupShapefile(mapVC as BaseController)
 
@@ -188,7 +188,7 @@ class VectorMBTilesTestCase(activity: Activity) : MaplyTestCase(activity, "Vecto
         globeVC.setPositionGeo(coord.x, coord.y, 0.07)
 
 //        setupCountriesRaster(globeVC as BaseController)
-//        setupContriesVector(globeVC as BaseController)
+//        setupCountriesVector(globeVC as BaseController)
         setupFranceVector(globeVC as BaseController)
 //        setupShapefile(globeVC as BaseController)
 

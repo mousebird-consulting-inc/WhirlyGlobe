@@ -5,11 +5,11 @@
 #include "JSONValidator.h"
 
 
-JSONStream::JSONStream(json_stream_callback_t call_p, json_stream_e_callback_t call_e, void * callbackIdentifier) json_nothrow : state(true), call(call_p), err_call(call_e), buffer(), callback_identifier(callbackIdentifier) {
+JSONStream::JSONStream(json_stream_callback_t call_p, json_stream_e_callback_t call_e, void * callbackIdentifier) json_nothrow : buffer(), call(call_p), err_call(call_e), callback_identifier(callbackIdentifier), state(true) {
 	LIBJSON_CTOR;
 }
 
-JSONStream::JSONStream(const JSONStream & orig) json_nothrow : state(orig.state), call(orig.call), err_call(orig.err_call), buffer(orig.buffer), callback_identifier(orig.callback_identifier){
+JSONStream::JSONStream(const JSONStream & orig) json_nothrow : buffer(orig.buffer), call(orig.call), err_call(orig.err_call), callback_identifier(orig.callback_identifier), state(orig.state) {
 	LIBJSON_COPY_CTOR;
 }
 

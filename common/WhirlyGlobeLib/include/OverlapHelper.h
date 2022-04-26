@@ -141,9 +141,9 @@ public:
     // Simple object we're trying to cluster
     struct SimpleObject : public ObjectWithBounds
     {
-        SimpleObject();
+        SimpleObject() = default;
         std::shared_ptr<LayoutObjectEntry> objEntry;
-        int parentObject;
+        int parentObject = -1;
     };
     
     // Object we create when there are overlaps

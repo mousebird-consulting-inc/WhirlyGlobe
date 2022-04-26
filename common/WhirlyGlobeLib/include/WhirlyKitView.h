@@ -152,6 +152,8 @@ public:
     void setContinuousZoom(bool cz) { continuousZoom = cz; }
     bool getContinuousZoom() const { return continuousZoom; }
 
+    TimeInterval getLastChangedTime() const { return lastChangedTime; }
+
 protected:
     friend class ViewState;
     void updateParams();

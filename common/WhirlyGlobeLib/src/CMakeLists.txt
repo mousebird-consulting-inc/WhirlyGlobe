@@ -5,7 +5,8 @@ target_include_directories(
 
         PUBLIC
 
-        "${CMAKE_CURRENT_LIST_DIR}/../include/"
+        "${CMAKE_CURRENT_LIST_DIR}/../include"
+        "${CMAKE_CURRENT_LIST_DIR}../../local_libs/libjson"
 )
 
 target_sources(

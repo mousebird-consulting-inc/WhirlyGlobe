@@ -30,9 +30,7 @@ static constexpr size_t TypicalUUIDComps = 1000;
 
 ComponentObject::ComponentObject(bool enable, bool selectable) :
     enable(enable),
-    isSelectable(selectable),
-    underConstruction(false),
-    vectorOffset(0.0,0.0)
+    isSelectable(selectable)
 {
 }
 
@@ -61,11 +59,6 @@ void ComponentObject::clear()
     partSysIDs.clear();
     selectIDs.clear();
     drawStringIDs.clear();
-}
-
-ComponentManager::ComponentManager() :
-    lastMaskID(0)
-{
 }
 
 void ComponentManager::setScene(Scene *scene)
@@ -529,7 +522,7 @@ void ComponentManager::setRepresentation(const std::string &repName,
                 {
                     // Move the item from the disable to enable list
                     enableObjs.push_back(obj);
-                    disableObjs.erase(std::next(disableObjs.begin(), i));
+                    disableObjs.erase(std::next(disableObjs.begin(), (int)i));
                 }
             }
         }

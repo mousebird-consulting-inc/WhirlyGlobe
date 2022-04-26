@@ -232,43 +232,31 @@ RawDataRef ConvertRGBATo8(const RawDataRef &inData,WKSingleByteSource source)
     return std::make_shared<RawDataWrapper>(temp,pixelCount,true);
 }
 
-TextureBase::TextureBase(SimpleIdentity thisId)
-: Identifiable(thisId)
+TextureBase::TextureBase(SimpleIdentity thisId) :
+    Identifiable(thisId)
 {
 }
 
-TextureBase::TextureBase()
+TextureBase::TextureBase(std::string name) : name(std::move(name))
 {
 }
 
-TextureBase::TextureBase(const std::string &name) : name(name)
-{
-}
-    
-TextureBase::~TextureBase()
-{
-}
 
-Texture::Texture()
-: TextureBase(), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
-{    
-}
+// : TextureBase(), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
 
-Texture::Texture(const std::string &name)
-	: TextureBase(name), isPVRTC(false), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
+Texture::Texture(std::string name) :
+    TextureBase(std::move(name))
 {
 }
 
 // Construct with raw texture data
-Texture::Texture(const std::string &name,RawDataRef texData,bool isPVRTC)
-	: TextureBase(name), texData(texData), isPVRTC(isPVRTC), isPKM(false), usesMipmaps(false), wrapU(false), wrapV(false), format(TexTypeUnsignedByte), byteSource(WKSingleRGB), interpType(TexInterpLinear), isEmptyTexture(false)
+Texture::Texture(std::string name, RawDataRef texData, bool isPVRTC) :
+    TextureBase(std::move(name)),
+    texData(std::move(texData)),
+    isPVRTC(isPVRTC)
 { 
 }
 
-Texture::~Texture()
-{
-}
-    
 void Texture::setRawData(RawData *rawData,int inWidth,int inHeight)
 {
     texData = RawDataRef(rawData);
@@ -279,12 +267,14 @@ void Texture::setRawData(RawData *rawData,int inWidth,int inHeight)
 RawDataRef Texture::processData()
 {
     if (!texData)
-        return NULL;
-    
-	if (isPVRTC || isPKM)
-	{
+        return nullptr;
+
+    if (isPVRTC || isPKM)
+    {
         return texData;
-	} else {
+    }
+    else
+    {
         // Depending on the format, we may need to mess around with the bytes
         switch (format)
         {

@@ -109,18 +109,14 @@ class VectorDrawableBuilder
 {
 public:
     VectorDrawableBuilder(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                          const VectorInfo *vecInfo,bool linesOrPoints,bool doColor)
-        : changeRequests(changeRequests)
-        , scene(scene)
-        , sceneRender(sceneRender)
-        , sceneRep(sceneRep)
-        , vecInfo(vecInfo)
-        , drawable(nullptr)
-        , centerValid(false)
-        , center(0,0,0)
-        , geoCenter(0,0)
-        , doColor(doColor)
-        , primType(linesOrPoints ? Lines : Points)
+                          const VectorInfo *vecInfo,bool linesOrPoints,bool doColor) :
+        doColor(doColor),
+        scene(scene),
+        sceneRender(sceneRender),
+        changeRequests(changeRequests),
+        sceneRep(sceneRep),
+        vecInfo(vecInfo),
+        primType(linesOrPoints ? Lines : Points)
     {
     }
     
@@ -258,19 +254,19 @@ public:
             drawable = nullptr;
         }
     }
-    
+
 protected:
     bool doColor;
-    Scene *scene;
-    SceneRenderer *sceneRender;
+    Scene *scene = nullptr;
+    SceneRenderer *sceneRender = nullptr;
     ChangeSet &changeRequests;
-    VectorSceneRep *sceneRep;
+    VectorSceneRep *sceneRep = nullptr;
     Mbr drawMbr;
     BasicDrawableBuilderRef drawable;
     const VectorInfo *vecInfo;
-    Point3d center;
-    Point2d geoCenter;
-    bool centerValid;
+    Point3d center = { 0, 0, 0 };
+    Point2d geoCenter = { 0, 0 };
+    bool centerValid = false;
     const GeometryType primType;
 };
 
@@ -282,17 +278,17 @@ class VectorDrawableBuilderTri
 {
 public:
     VectorDrawableBuilderTri(Scene *scene,SceneRenderer *sceneRender,ChangeSet &changeRequests,VectorSceneRep *sceneRep,
-                             const VectorInfo *vecInfo,bool doColor)
-        : changeRequests(changeRequests)
-        , scene(scene)
-        , sceneRender(sceneRender)
-        , sceneRep(sceneRep)
-        , vecInfo(vecInfo)
-        , drawable(nullptr)
-        , centerValid(false)
-        , center(0,0,0)
-        , doColor(doColor)
-        , geoCenter(0,0)
+                             const VectorInfo *vecInfo,bool doColor) :
+        doColor(doColor),
+        scene(scene),
+        sceneRender(sceneRender),
+        changeRequests(changeRequests),
+        sceneRep(sceneRep),
+        center(0,0,0),
+        geoCenter(0,0),
+        centerValid(false),
+        drawable(nullptr),
+        vecInfo(vecInfo)
     {
     }
     

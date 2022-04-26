@@ -1,5 +1,4 @@
-/*
- *  RenderTarget.cpp
+/*  RenderTarget.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "RenderTarget.h"
@@ -28,17 +26,13 @@ RenderTarget::RenderTarget()
 {
     init();
 }
-    
+
 RenderTarget::RenderTarget(SimpleIdentity newID)
 : Identifiable(newID)
 {
     init();
 }
-    
-RenderTarget::~RenderTarget()
-{
-}
-    
+
 void RenderTarget::init()
 {
     width = 0;
@@ -53,13 +47,13 @@ void RenderTarget::init()
     mipmapType = RenderTargetMipmapNone;
 }
 
-int RenderTarget::numLevels()
-{
-    return 0;
-}
-
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID,int width,int height,SimpleIdentity texID,bool clearEveryFrame,bool blend,const RGBAColor &clearColor, float clearVal, RenderTargetMipmapType mipmapType, bool calcMinMax)
-: renderTargetID(renderTargetID), width(width), height(height), texID(texID), clearEveryFrame(clearEveryFrame), blend(blend), clearColor(clearColor), clearVal(clearVal), mipmapType(mipmapType), calcMinMax(calcMinMax)
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID, int width,int height,
+                                       SimpleIdentity texID, bool clearEveryFrame,bool blend,
+                                       const RGBAColor &clearColor, float clearVal,
+                                       RenderTargetMipmapType mipmapType, bool calcMinMax) :
+    width(width), height(height), renderTargetID(renderTargetID),
+    texID(texID), clearEveryFrame(clearEveryFrame), clearColor(clearColor),
+    clearVal(clearVal), blend(blend), mipmapType(mipmapType), calcMinMax(calcMinMax)
 {
 }
 

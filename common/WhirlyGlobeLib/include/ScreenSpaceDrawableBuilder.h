@@ -37,23 +37,22 @@ public:
 };
 
 /// Wrapper for building screen space drawables
-class ScreenSpaceDrawableBuilder : virtual public BasicDrawableBuilder
+struct ScreenSpaceDrawableBuilder : virtual public BasicDrawableBuilder
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     // Construct with or without motion support
-    ScreenSpaceDrawableBuilder();
-    virtual void ScreenSpaceInit(bool hasMotion,bool hasRotation,bool buildAnyway = false);
+    ScreenSpaceDrawableBuilder() = default;
+    virtual void ScreenSpaceInit(bool hasMotion,bool hasRotation,bool buildAnyway/* = false*/);
 
     // If we've got a rotation, we set this to keep the image facing upright
     //  probably because it's text.
-    void setKeepUpright(bool keepUpright);
+    void setKeepUpright(bool in) { keepUpright = in; }
     // Time we start counting from for motion
-    void setStartTime(TimeInterval inStartTime);
+    void setStartTime(TimeInterval inStartTime) { startTime = inStartTime; }
     // Time we start counting from for motion
-    TimeInterval getStartTime();
-    
+    TimeInterval getStartTime() const { return startTime; }
+
     // Each vertex has an offset on the screen
     void addOffset(const Point2f &offset);
     void addOffset(const Point2d &offset);
@@ -64,10 +63,10 @@ public:
     
     // Add a rotation vector to the attribute list
     void addRot(const Point3f &dir);
-    void addRot(const Point3d &dir);
+    void addRot(const Point3d &dir) { addRot(Point3f(dir.cast<float>())); }
     
     // Apply a scale expression
-    void setScaleExpression(FloatExpressionInfoRef scale);
+    void setScaleExpression(FloatExpressionInfoRef exp) { scaleExp = std::move(exp); }
 
     virtual void setupTweaker(const DrawableTweakerRef &inTweaker) const override;
 
@@ -75,12 +74,13 @@ protected:
     // Call ScreenSpaceInit instead
     virtual void Init() override { BasicDrawableBuilder::Init(); }
 
-    bool motion,rotation;
-    bool keepUpright;
-    int offsetIndex;
-    int dirIndex;
-    int rotIndex;
-    TimeInterval startTime;
+    bool motion = false;
+    bool rotation = false;
+    bool keepUpright = false;
+    int offsetIndex = -1;
+    int dirIndex = -1;
+    int rotIndex = -1;
+    TimeInterval startTime = 0.0;
     FloatExpressionInfoRef scaleExp;
     FloatExpressionInfoRef opacityExp;
     ColorExpressionInfoRef colorExp;

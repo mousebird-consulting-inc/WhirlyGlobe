@@ -71,8 +71,8 @@ using namespace Maply;
             
             self.mapView->cancelAnimation();
             [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView->tag];
+            break;
         }
-			break;
 		case UIGestureRecognizerStateChanged:
         {
             Point3d curLoc = self.mapView->getLoc();
@@ -97,7 +97,7 @@ using namespace Maply;
                     (wrapView.frame.size.height/2.0) - screenOffset.y());
                 Point3d newCenterGeoPoint;
                 testMapView.pointOnPlaneFromScreen(newMapCenterPoint, &modelTrans, frameSizeScaled, &newLoc, true);
-                newLoc = self.mapView->coordAdapter->displayToLocal(newLoc);
+                newLoc = self.mapView->getCoordAdapter()->displayToLocal(newLoc);
                 newLoc.z() = newZ;
 
                 testMapView.setLoc(newLoc, false);
@@ -107,8 +107,8 @@ using namespace Maply;
                     self.mapView->setLoc(newCenter, true);
                 }
             }
+            break;
         }
-			break;
         case UIGestureRecognizerStateEnded:
             [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidEnd object:self.mapView->tag];
             break;

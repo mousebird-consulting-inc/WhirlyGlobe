@@ -30,17 +30,16 @@ class MapboxVectorStyleSetImpl;
 typedef std::shared_ptr<MapboxVectorStyleSetImpl> MapboxVectorStyleSetImplRef;
 
 // Entry for a single sprite in the larger whole
-class MapboxSpriteEntry {
-public:
-    MapboxSpriteEntry();
-    
+struct MapboxSpriteEntry {
     std::string name;
     // Size, obviously
-    int width,height;
+    int width = 0;
+    int height = 0;
     // Not totally sure
-    int pixelRatio;
+    int pixelRatio = 0;
     // Offset within the larger image
-    int x,y;
+    int x = 0;
+    int y = 0;
     // Defines the sub-texture within the larger sprite sheet
     SubTexture subTex;
 };
@@ -48,14 +47,13 @@ public:
 /**
   Holds the sprite sheet information for use in the symbol creation.
  */
-class MapboxVectorStyleSprites
+struct MapboxVectorStyleSprites
 {
-public:
     // Set up the sprints (including creating the texture)
     MapboxVectorStyleSprites(SimpleIdentity wholeTexID,int texWidth,int texHeight);
     
     // Parse the sprite.  Return false on failure.
-    bool parse(MapboxVectorStyleSetImplRef styleSet,DictionaryRef spriteDict);
+    bool parse(const MapboxVectorStyleSetImplRef &styleSet, const DictionaryRef &spriteDict);
     
     // Return the sub-texture for a given sprite and the total size (in pixels)
     SubTexture getTexture(const std::string &spriteName,Point2d &size);
@@ -67,7 +65,8 @@ public:
     void shutdown(MapboxVectorStyleSetImpl *styleSet,ChangeSet &changes);
     
 public:
-    int texWidth,texHeight;
+    int texWidth;
+    int texHeight;
     SimpleIdentity wholeTexID;
     std::map<std::string,MapboxSpriteEntry> sprites;
 };

@@ -75,7 +75,7 @@ internalJSONNode::internalJSONNode(const json_string & unparsed) json_nothrow : 
 	   case JSON_TEXT(x)
 #endif
 
-internalJSONNode::internalJSONNode(const json_string & name_t, const json_string & value_t) json_nothrow : _type(), _name_encoded(), _name(JSONWorker::FixString(name_t, NAME_ENCODED)), _string(), _string_encoded(), _value()
+internalJSONNode::internalJSONNode(const json_string & name_t, const json_string & value_t) json_nothrow : _type(), _name(JSONWorker::FixString(name_t, NAME_ENCODED)), _name_encoded(), _string(), _string_encoded(), _value()
     initializeMutex(0)
     initializeRefCount(1)
     initializeFetch(false)

@@ -2057,7 +2057,7 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     if (isShuttingDown || (!layerThread && !offlineMode))
         return;
 
-    CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
+    const auto coordAdapter = scene->getCoordAdapter();
     NSArray *shapes = [argArray objectAtIndex:0];
     MaplyComponentObject *compObj = [argArray objectAtIndex:1];
     NSDictionary *inDesc = [argArray objectAtIndex:2];
@@ -2122,9 +2122,13 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             
             const bool isStatic = [inDesc[kMaplySubdivType] isEqualToString:kMaplySubdivStatic];
             if (isStatic)
-                SampleGreatCircleStatic(Point2d(gc.startPt.x,gc.startPt.y),Point2d(gc.endPt.x,gc.endPt.y),gc.height,lin->pts,visualView->coordAdapter,eps);
+                SampleGreatCircleStatic(Point2d(gc.startPt.x,gc.startPt.y),
+                                        Point2d(gc.endPt.x,gc.endPt.y),
+                                        gc.height,lin->pts,coordAdapter,eps);
             else
-                SampleGreatCircle(Point2d(gc.startPt.x,gc.startPt.y),Point2d(gc.endPt.x,gc.endPt.y),gc.height,lin->pts,visualView->coordAdapter,eps);
+                SampleGreatCircle(Point2d(gc.startPt.x,gc.startPt.y),
+                                  Point2d(gc.endPt.x,gc.endPt.y),
+                                  gc.height,lin->pts,coordAdapter,eps);
 
             lin->lineWidth = gc.lineWidth;
             if (gc.color)
@@ -2824,7 +2828,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     NSDictionary *inDesc = argArray[2];
     const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
-    CoordSystemDisplayAdapter *coordAdapter = visualView->coordAdapter;
+    const auto coordAdapter = visualView->getCoordAdapter();
     CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
     iosDictionary dictWrap(inDesc);

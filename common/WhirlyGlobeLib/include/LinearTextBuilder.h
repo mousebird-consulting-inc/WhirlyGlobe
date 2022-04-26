@@ -31,30 +31,30 @@ Point2fVector LineGeneralization(const Point2fVector &screenPts,
                                  unsigned int start,unsigned int end);
 
 /// Used to 'walk' along a linear feature by distance
-class LinearWalker {
-public:
+struct LinearWalker
+{
     LinearWalker(const VectorRing &pts);
     
     /// Return the total length
-    float getTotalLength();
-    
+    float getTotalLength() const { return totalLength; }
+
     /// Calculate the next point along the line given the distance
     /// Or return false if there wasn't anything left
     bool nextPoint(double distance,Point2f *retPt=nullptr,Point2f *norm=nullptr,bool savePos=true);
     
 protected:
     VectorRing pts;
-    float totalLength;
-    int ptSoFar;
-    float offsetDist;
+    float totalLength = 0.0f;
+    int ptSoFar = 0;
+    float offsetDist = 0.0f;
 };
 
 /**
  Used to lay text out along a line (with or without offset).
  A very specific implementation of a wacky algorithm.
  */
-class LinearTextBuilder {
-public:
+struct LinearTextBuilder
+{
     LinearTextBuilder(ViewStateRef viewState,
                       unsigned int offi,
                       const Point2f &frameBufferSize,
@@ -86,11 +86,11 @@ public:
     double getViewStateRotation();
 
 protected:
-    CoordSystemDisplayAdapter *coordAdapt;
-    CoordSystem *coordSys;
+    CoordSystemDisplayAdapter *coordAdapt = nullptr;
+    CoordSystem *coordSys = nullptr;
     ViewStateRef viewState;
-    WhirlyGlobe::GlobeViewState *globeViewState;
-    Maply::MapViewState *mapViewState;
+    WhirlyGlobe::GlobeViewState *globeViewState = nullptr;
+    Maply::MapViewState *mapViewState = nullptr;
 
     float generalEps;
     unsigned int offi;

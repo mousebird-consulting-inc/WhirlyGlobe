@@ -23,13 +23,12 @@ namespace WhirlyKit
 {
 
 QIFFrameAsset::QIFFrameAsset(QuadFrameInfoRef frameInfo) :
-    frameInfo(std::move(frameInfo)),
     state(Empty),
     priority(0),
     importance(0.0),
+    frameInfo(std::move(frameInfo)),
     loadReturnSet(false)
 {
-
 }
 
 void QIFFrameAsset::setupFetch(QuadImageFrameLoader *loader)
@@ -122,10 +121,11 @@ bool QIFFrameAsset::hasLoadReturn()
     return loadReturnSet;
 }
 
-QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident) : state(Waiting), shouldEnable(false), ident(ident), drawPriority(0)
+QIFTileAsset::QIFTileAsset(const QuadTreeNew::ImportantNode &ident) :
+    ident(ident)
 {
 }
-    
+
 void QIFTileAsset::setupFrames(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int numFrames)
 {
     frames.reserve(numFrames);
@@ -546,21 +546,13 @@ QIFTileState::QIFTileState(int numFrames,const QuadTreeNew::Node &node) :
 }
 
 QIFTileState::FrameInfo::FrameInfo() :
-    texNode(0,0,-1),
-    enabled(false)
-{ }
+    texNode(0,0,-1)
+{
+}
 
-QIFRenderState::QIFRenderState()
-: lastUpdate(0.0), lastRenderTime(0.0), lastMasterEnable(false), texSize(0), borderSize(0)
-{ }
-
-QIFRenderState::QIFRenderState(int numFocus,int numFrames) :
-    texSize(0),
-    borderSize(0),
-    lastRenderTime(0)
+QIFRenderState::QIFRenderState(int numFocus,int numFrames)
 {
     lastCurFrames.resize(numFocus,-1.0);
-    lastUpdate = 0.0;
     tilesLoaded.resize(numFrames,0);
     topTilesLoaded.resize(numFrames,false);
 }
@@ -715,25 +707,10 @@ void QIFRenderState::updateScene(Scene *,
 }
     
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode) :
-    mode(mode), loadMode(Narrow), debugMode(false), masterEnable(true), params(params),
-    requiringTopTilesLoaded(true),
-    texType(TexTypeUnsignedByte), texSize(0), borderSize(0), flipY(true),
-    baseDrawPriority(100), drawPriorityPerLevel(1),
-    colorChanged(false),
-    color(RGBAColor::white()),
-    control(nullptr),
-    builder(nullptr),
-    changesSinceLastFlush(true),
-    compManager(nullptr),
-    generation(0), numFocus(1),
-    targetLevel(-1), curOvlLevel(-1), loadingStatus(true),
-    topPriority(-1), nearFramePriority(-1), restPriority(-1)
+    mode(mode),
+    params(params),
+    lastRunReqFlag(std::make_shared<bool>(true))
 {
-    lastRunReqFlag = std::make_shared<bool>(true);
-    renderTargetIDs.push_back(EmptyIdentity);
-    shaderIDs.push_back(EmptyIdentity);
-    curFrames.push_back(0.0);
-    
     updatePriorityDefaults();
     
     minZoom = params.minZoom;

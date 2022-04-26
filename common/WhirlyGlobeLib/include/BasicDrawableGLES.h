@@ -38,7 +38,7 @@ namespace WhirlyKit
 class BasicDrawableGLES : virtual public BasicDrawable, virtual public DrawableGLES
 {
 public:
-    BasicDrawableGLES(const std::string &name);
+    BasicDrawableGLES(std::string name);
     virtual ~BasicDrawableGLES() = default;
 
     /// Set up local rendering structures (e.g. VBOs)

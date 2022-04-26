@@ -24,11 +24,6 @@ using namespace WhirlyKit;
 namespace WhirlyGlobe
 {
     
-TiltCalculator::TiltCalculator()
-    : minTilt(0.0), maxTilt(0.0), minHeight(0.0), maxHeight(0.0)
-{
-}
-    
 void TiltCalculator::setContraints(double inMinTilt,double inMaxTilt,double inMinHeight,double inMaxHeight)
 {
     active = true;
@@ -66,20 +61,27 @@ double StandardTiltDelegate::tiltFromHeight(double height)
     // Now the tilt, if we're in that mode
     double newHeight = height;
     if (newHeight <= minHeight)
+    {
         newTilt = minTilt;
-        else if (newHeight >= maxHeight)
-            newTilt = maxTilt;
-            else {
-                float t = (newHeight-minHeight)/(maxHeight - minHeight);
-                if (t != 0.0)
-                    newTilt = t * (maxTilt - minTilt) + minTilt;
-                    }
+    }
+    else if (newHeight >= maxHeight)
+    {
+        newTilt = maxTilt;
+    }
+    else
+    {
+        const auto t = (newHeight - minHeight) / (maxHeight - minHeight);
+        if (t != 0.0)
+        {
+            newTilt = t * (maxTilt - minTilt) + minTilt;
+        }
+    }
     
     return std::min(newTilt,maxValidTilt);
 }
 
 /// Return the maximum allowable tilt
-double StandardTiltDelegate::getMaxTilt()
+double StandardTiltDelegate::getMaxTilt() const
 {
     return asin(1.0/(1.0+globeView->getHeightAboveGlobe()));
 }
@@ -102,7 +104,7 @@ AnimateViewHeight::AnimateViewHeight(GlobeView *inGlobeView,double toHeight,Time
     
 void AnimateViewHeight::setTiltDelegate(TiltCalculatorRef newDelegate)
 {
-    tiltDelegate = newDelegate;
+    tiltDelegate = std::move(newDelegate);
 }
 
 // Called by the view when it's time to update
@@ -110,23 +112,25 @@ void AnimateViewHeight::updateView(WhirlyKit::View *view)
 {
     auto globeView = (GlobeView *)view;
     if (startDate == 0.0)
+    {
         return;
-	
-	const TimeInterval now = TimeGetCurrent();
+    }
+
+    const TimeInterval now = TimeGetCurrent();
     const double span = endDate-startDate;
     const double remain = endDate - now;
     
-	// All done.  Snap to the end
-	if (remain <= 0)
-	{
+    // All done.  Snap to the end
+    if (remain <= 0)
+    {
         globeView->setHeightAboveGlobe(endHeight,false);
         startDate = 0;
         endDate = 0;
         globeView->cancelAnimation();
-	}
+    }
     else
     {
-		// Interpolate somewhere along the path
+        // Interpolate somewhere along the path
         const double t = (span-remain)/span;
         globeView->setHeightAboveGlobe(startHeight + (endHeight-startHeight)*t,true);
 
