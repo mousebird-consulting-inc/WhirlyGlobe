@@ -38,5 +38,6 @@
 #endif
 
 extern const bool hasVertexArraySupport;
+extern const bool hasSharedBufferSupport;
 extern const bool hasMapBufferSupport;
 extern const bool invalidateGLDepth;

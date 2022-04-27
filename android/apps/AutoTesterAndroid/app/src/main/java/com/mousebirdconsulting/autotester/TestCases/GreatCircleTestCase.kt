@@ -32,7 +32,7 @@ class GreatCircleTestCase(activity: Activity) :
 
         val vecInfo = WideVectorInfo().apply {
             setColor(color)
-            setLineWidth(width)
+            lineWidth = width
             drawPriority = priority
         }
         return control.addWideVector(vecObj,vecInfo,ThreadMode.ThreadAny)

@@ -56,9 +56,8 @@ friend class BasicDrawableBuilderMTL;
     
 public:
     /// Simple triangle.  Can obviously only have 2^16 vertices
-    class Triangle
+    struct Triangle
     {
-    public:
         Triangle() = default;
         /// Construct with vertex IDs
         Triangle(unsigned short v0,unsigned short v1,unsigned short v2);

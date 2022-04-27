@@ -113,15 +113,18 @@ GLuint OpenGLMemManager::getBufferID(unsigned int size,GLenum drawType)
 void OpenGLMemManager::removeBufferID(GLuint bufID)
 {
     //    wkLogLevel(Debug,"Releasing buffer %d",bufID);
-    if (bufID != 0)
+    // If we can't share buffers between array and elements, don't reuse them.
+    // We could keep them separate or keep track of what they're used for, but
+    // caching them isn't really important any more.
+    if (bufID != 0 && hasSharedBufferSupport)
     {
-        std::lock_guard<std::mutex> guardLock(idLock);
-        
         // Clear out the data to save memory
         glBindBuffer(GL_ARRAY_BUFFER, bufID);
         glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+        std::lock_guard<std::mutex> guardLock(idLock);
+        
         // Add this one back to the cache set if we should keep it.
         if (!shutdown && buffIDs.size() < maxCachedBuffers)
         {

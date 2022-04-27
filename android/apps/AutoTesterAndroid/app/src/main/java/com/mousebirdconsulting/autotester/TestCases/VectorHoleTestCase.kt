@@ -48,11 +48,11 @@ class VectorHoleTestCase(activity: Activity) :
         return VectorObject.createFromGeoJSON(geoJSON)?.let { vecObj ->
             // N.B.: Using 10 degrees here causes a problem with the line along -20 longitude
             val clippedVecObj = vecObj.clipToGrid(Point2d.FromDegrees(5.0, 5.0))
-            val tessVecObj = clippedVecObj.tesselate()
+            val tessVecObj = clippedVecObj.tessellate()
             val vecInfo = VectorInfo().apply {
-                setColor(Color.RED)
-                setFilled(true)
-                setLineWidth(4.0f)
+                color = Color.RED
+                filled = true
+                lineWidth = 4.0f
             }
             control.addVector(tessVecObj, vecInfo, ThreadMode.ThreadAny)
         }
@@ -60,9 +60,9 @@ class VectorHoleTestCase(activity: Activity) :
     
     private fun addAreal(baseVC: BaseController): ComponentObject? {
         val vectorInfo = VectorInfo().apply {
-            setColor(Color.BLUE)
-            setLineWidth(4f)
-            setFilled(true)
+            color = Color.BLUE
+            lineWidth = 4f
+            filled = true
         }
         
         val outer = arrayOf(
