@@ -376,10 +376,10 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     }
     
     // Now link it
-    GLint status;
     glLinkProgram(program);
     CheckGLError("ProgramGLES: glLinkProgram");
 
+    GLint status = 0;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
     {
