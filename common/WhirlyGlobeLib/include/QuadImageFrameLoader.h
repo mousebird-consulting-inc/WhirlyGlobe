@@ -482,7 +482,7 @@ public:
     
     /// Process the update
     virtual void updateForFrame(RendererFrameInfo *frameInfo) override;
-    
+
     /** ----- **/
     
     /**

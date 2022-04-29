@@ -115,25 +115,6 @@ bool RawDataReader::getString(std::string &str)
     return true;
 }
 
-
-MutableRawData::MutableRawData(void *inData,unsigned int size)
-{
-    data.resize(size);
-    
-    memcpy(&data[0], inData, size);
-}
-    
-MutableRawData::MutableRawData(unsigned int size)
-{
-    data.resize(size);
-    memset(&data[0], 0, size);
-}
-
-const unsigned char *MutableRawData::getRawData() const
-{
-    return data.empty() ? nullptr : &data[0];
-}
-
 void MutableRawData::addInt(int iVal)
 {
     const size_t len = sizeof(int);

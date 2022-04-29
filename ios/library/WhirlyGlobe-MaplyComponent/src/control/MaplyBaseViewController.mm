@@ -1421,7 +1421,7 @@ static const float PerfOutputDelay = 15.0;
     
     sceneRenderMTL->addSnapshotDelegate(target);
     sceneRenderMTL->forceDrawNextFrame();
-    sceneRenderMTL->render(0.0, nil, nil);
+    sceneRenderMTL->render(0.0, nil);
     sceneRenderMTL->removeSnapshotDelegate(target);
     
     return target.data;

@@ -29,6 +29,11 @@ namespace WhirlyKit
 // Base class for the FrameInfo, which we don't make strong use of in the base
 struct QuadFrameInfo : public WhirlyKit::Identifiable
 {
+    QuadFrameInfo() = default;
+    QuadFrameInfo(int index) : frameIndex(index) { }
+
+    int getFrameIndex() const { return frameIndex; }
+
     // Either the position in the frame list or -1 if there's just one frame
     int frameIndex = -1;
 };
@@ -41,7 +46,21 @@ class QuadLoaderReturn
 public:
     QuadLoaderReturn(int generation);
     virtual ~QuadLoaderReturn();
-    
+
+    QuadTreeIdentifier getTileID() const { return ident; }
+    void setTileID(const QuadTreeIdentifier &newId) { ident = newId; }
+
+    void setFrame(QuadFrameInfoRef newFrame) { frame = std::move(newFrame); }
+    const QuadFrameInfoRef &getFrame() const { return frame; }
+
+    int getFrameIndex() const { return frame ? frame->frameIndex : -1; }
+
+    virtual RawDataRefVec getTileData() const { return {}; }
+    virtual RawDataRef getFirstData() const { return nullptr; }
+    virtual void replaceData(RawDataRefVec) { }
+
+    bool isCancelled() const { return cancel; }
+
     // Which node this is in the quad tree
     QuadTreeIdentifier ident;
     

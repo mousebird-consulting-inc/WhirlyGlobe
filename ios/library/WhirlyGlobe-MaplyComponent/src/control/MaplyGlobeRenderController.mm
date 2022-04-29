@@ -345,7 +345,7 @@ using namespace WhirlyGlobe;
             sceneRenderMTL->addSnapshotDelegate(target);
             
             sceneRenderMTL->forceDrawNextFrame();
-            sceneRenderMTL->render(1/60.0,nil,nil);  // TODO: Set this value for reals
+            sceneRenderMTL->render(1/60.0,nil);  // TODO: Set this value for reals
             
             sceneRenderMTL->removeSnapshotDelegate(target);
         }

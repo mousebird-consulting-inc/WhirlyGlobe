@@ -27,6 +27,14 @@ SphericalMercatorCoordSystem::SphericalMercatorCoordSystem(float originLon)
 {
 }
 
+SphericalMercatorCoordSystemRef SphericalMercatorCoordSystem::makeWebStandard()
+{
+    auto sys = std::make_shared<SphericalMercatorCoordSystem>(0.0);
+    sys->bounds.reset(Slice(sys->geographicToLocal(GeoCoord::CoordFromDegrees(-180., -85.05113))),
+                      Slice(sys->geographicToLocal(GeoCoord::CoordFromDegrees( 180.,  85.05113))));
+    return sys;
+}
+
 // Keep things right below/above the poles
 static constexpr double PoleLimit = DegToRad(85.05113);
     

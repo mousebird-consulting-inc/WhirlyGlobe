@@ -22,18 +22,21 @@
 namespace WhirlyKit 
 {
 
+struct SphericalMercatorCoordSystem;
+using SphericalMercatorCoordSystemRef = std::shared_ptr<SphericalMercatorCoordSystem>;
+
 /** The Mercator Projection, bane of cartographers everywhere.
  It stretches out the world in a familiar way, making the US
  look almost as big as our collective ego.  And Greenland.  For some reason.
  */
 struct SphericalMercatorCoordSystem : public CoordSystem
 {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
     /// Construct with an optional origin for the projection in radians
     /// The equator is default
     SphericalMercatorCoordSystem(float originLon=0.0);
-    
+
+    static SphericalMercatorCoordSystemRef makeWebStandard();
+
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f&) const override;
     virtual GeoCoord localToGeographic(const Point3d&) const override;

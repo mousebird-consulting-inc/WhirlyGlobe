@@ -26,8 +26,10 @@
 {
 @public
     WhirlyKit::CoordSystemRef coordSystem;
-    MaplyCoordinateD ll,ur;
 }
+
+@property(nonatomic,readonly) MaplyCoordinate ll;
+@property(nonatomic,readonly) MaplyCoordinate ur;
 
 - (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystemRef)newCoordSystem;
 

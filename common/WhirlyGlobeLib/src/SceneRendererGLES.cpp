@@ -260,7 +260,7 @@ bool SceneRendererGLES::hasChanges()
     return SceneRenderer::hasChanges();
 }
 
-void SceneRendererGLES::render(TimeInterval duration)
+void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
 {
     if (!scene)
         return;

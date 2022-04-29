@@ -18,6 +18,7 @@
 
 #import <memory>
 #import "WhirlyGeometry.h"
+#import "WhirlyVector.h"
 
 namespace WhirlyKit
 {
@@ -49,7 +50,10 @@ struct CoordSystem : public DelayedDeletable
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystem() = default;
+    CoordSystem() : bounds({-M_PI,-M_PI_2}, {M_PI,M_PI_2})
+    {
+    }
+
     virtual ~CoordSystem() = default;
     
     /// Convert from the local coordinate system to lat/lon
@@ -72,6 +76,13 @@ struct CoordSystem : public DelayedDeletable
     
     /// Return true if the given coordinate system is the same as the one passed in
     virtual bool isSameAs(const CoordSystem *coordSys) const { return false; }
+
+    const GeoMbr &getBounds() const { return bounds; }
+    template <typename T> void setBounds(T mbr) { bounds = mbr; }
+    template <typename T> void setBounds(T ll, T ur) { bounds.reset(ll, ur); }
+
+protected:
+    GeoMbr bounds;
 };
     
 typedef std::shared_ptr<CoordSystem> CoordSystemRef;

@@ -119,10 +119,16 @@ public:
     bool setup(int sizeX,int sizeY,bool offscreen);
     
     /// Resize framebuffer because something changed
-    virtual bool resize(int sizeX,int sizeY);
-    
+    virtual bool resize(int sizeX,int sizeY) override;
+
+    struct RenderInfoMTL : public RenderInfo
+    {
+        MTLRenderPassDescriptor *renderPassDesc;
+        id<SceneRendererMTLDrawableGetter> drawGetter;
+    };
+
     /// Draw stuff (the whole point!)
-    void render(TimeInterval period,MTLRenderPassDescriptor *renderPassDesc,id<SceneRendererMTLDrawableGetter> drawGetter);
+    virtual void render(TimeInterval period, RenderInfo *) override;
     
     /// Set the clear color we're using
     virtual void setClearColor(const RGBAColor &color) override;

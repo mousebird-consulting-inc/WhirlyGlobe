@@ -84,6 +84,7 @@ public:
 };
 
 typedef std::shared_ptr<ComponentObject> ComponentObjectRef;
+using ComponentObjectRefVec = std::vector<ComponentObjectRef>;
     
 typedef std::map<SimpleIdentity,ComponentObjectRef> ComponentObjectMap;
     

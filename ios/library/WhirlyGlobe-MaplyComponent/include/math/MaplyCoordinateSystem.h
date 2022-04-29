@@ -49,7 +49,7 @@
     
     This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
   */
-- (void)setBoundsLL:(MaplyCoordinate * __nonnull)ll ur:(MaplyCoordinate * __nonnull)ll;
+- (void)setBoundsLL:(const MaplyCoordinate * __nonnull)ll ur:(const MaplyCoordinate * __nonnull)ll;
 
 /** 
     Return the bounding box in local coordinates.

@@ -27,20 +27,20 @@ namespace WhirlyKit
 
 // Base class for NSData replacement (sort of).
 // In this state it's read only
-class RawData
+struct RawData
 {
-public:
     RawData() = default;
     virtual ~RawData() = default;
+
     // Return a pointer to the raw data we're keeping
     virtual const unsigned char *getRawData() const = 0;
+
     // Length of the buffer
     virtual unsigned long getLen() const = 0;
-    
-protected:
 };
-    
-typedef std::shared_ptr<RawData> RawDataRef;
+
+using RawDataRef = std::shared_ptr<RawData>;
+using RawDataRefVec = std::vector<RawDataRef>;
 
 // Read only version that wraps a random collection of bytes
 class RawDataWrapper : public RawData
@@ -67,9 +67,8 @@ protected:
 typedef std::shared_ptr<RawDataWrapper> RawDataWrapperRef;
     
 // Wrapper on top of a raw data object for reading more structured data
-class RawDataReader
+struct RawDataReader
 {
-public:
     RawDataReader(const RawData *);
     virtual ~RawDataReader() = default;
     
@@ -94,20 +93,44 @@ protected:
 // Caller responsible for deletion
 RawDataWrapper *RawDataFromFile(FILE *fp,unsigned int dataLen);
 
-// You can add data to this one as needed
-class MutableRawData : public RawData
+struct ImmutableRawData : public RawData
 {
-public:
+    // Empty
+    ImmutableRawData() = default;
+    // Make a copy of the data and store it
+    ImmutableRawData(const void *data, unsigned int size) :
+        data((const uint8_t*)data, (const uint8_t*)data + size) { }
+    // Allocate the given space, filled with the given value
+    ImmutableRawData(uint8_t value, unsigned int size) : data(value, size) { }
+    ImmutableRawData(const std::vector<uint8_t> &v) : data(v) { }
+    ImmutableRawData(std::vector<uint8_t> &&v) : data(std::move(v)) { }
+    ImmutableRawData(const ImmutableRawData &) = default;
+    ImmutableRawData(ImmutableRawData &&other) : data(std::move(other.data)) { }
+    virtual ~ImmutableRawData() = default;
+
+    // Return a pointer to the raw data we're keeping
+    virtual const unsigned char *getRawData() const override { return data.empty() ? nullptr : &data[0]; }
+
+    // Length of the raw data
+    virtual unsigned long getLen() const override { return data.size(); }
+
+protected:
+    std::vector<unsigned char> data;
+};
+
+// You can add data to this one as needed
+struct MutableRawData : public ImmutableRawData
+{
     MutableRawData() = default;
     // Make a copy of the data and store it
-    MutableRawData(void *data,unsigned int size);
+    MutableRawData(const void *data,unsigned int size) : ImmutableRawData(data, size) { }
     // Allocate the given space
-    MutableRawData(unsigned int size);
+    MutableRawData(unsigned int size) : ImmutableRawData((uint8_t)0, size) { }
+    MutableRawData(const std::vector<uint8_t> &v) : ImmutableRawData(v) { }
+    MutableRawData(std::vector<uint8_t> &&v) : ImmutableRawData(std::move(v)) { }
+    MutableRawData(const MutableRawData &) = default;
+    MutableRawData(MutableRawData &&other) : ImmutableRawData(std::move(other)) { }
     virtual ~MutableRawData() = default;
-    // Return a pointer to the raw data we're keeping
-    virtual const unsigned char *getRawData() const override;
-    // Length of the raw data collected thus far
-    virtual unsigned long getLen() const override { return data.size(); }
 
     // Add an integer
     virtual void addInt(int iVal);
@@ -117,11 +140,7 @@ public:
     virtual void addDouble(double dVal);
     // Add a string
     virtual void addString(const std::string &str);
-    
-protected:
-    std::vector<unsigned char> data;
 };
-    
 typedef std::shared_ptr<MutableRawData> MutableRawDataRef;
 
 }

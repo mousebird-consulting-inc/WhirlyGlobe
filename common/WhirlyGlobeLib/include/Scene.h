@@ -503,5 +503,6 @@ protected:
 
     SceneRenderer* renderer = nullptr;
 };
+using SceneRef = std::shared_ptr<Scene>;
 
 }
