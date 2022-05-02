@@ -47,10 +47,6 @@ using namespace Maply;
 - (void)pinchGesture:(id)sender
 {
     UIPinchGestureRecognizer *pinch = sender;
-    if ([pinch numberOfTouches] < 2)
-    {
-        return;
-    }
     UIGestureRecognizerState theState = pinch.state;
     UIView<WhirlyKitViewWrapper> *wrapView = (UIView<WhirlyKitViewWrapper> *)pinch.view;
     SceneRenderer *sceneRenderer = wrapView.renderer;
@@ -63,14 +59,16 @@ using namespace Maply;
             startZ = self.mapView->getLoc().z();
             
             //calculate center between touches, in screen and map coords
-            CGPoint t0 = [pinch locationOfTouch:0 inView:pinch.view];
-            CGPoint t1 = [pinch locationOfTouch:1 inView:pinch.view];
-            startingMidPoint.x() = (t0.x + t1.x) / 2.0;
-            startingMidPoint.y() = (t0.y + t1.y) / 2.0;
-            Eigen::Matrix4d modelTrans = self.mapView->calcFullMatrix();
-            Point2f frameSize = sceneRenderer->getFramebufferSizeScaled();
-            self.mapView->pointOnPlaneFromScreen(startingMidPoint, &modelTrans, frameSize, &startingGeoPoint, true);
-
+            if ([pinch numberOfTouches] >= 2) {
+                CGPoint t0 = [pinch locationOfTouch:0 inView:pinch.view];
+                CGPoint t1 = [pinch locationOfTouch:1 inView:pinch.view];
+                startingMidPoint.x() = (t0.x + t1.x) / 2.0;
+                startingMidPoint.y() = (t0.y + t1.y) / 2.0;
+                Eigen::Matrix4d modelTrans = self.mapView->calcFullMatrix();
+                Point2f frameSize = sceneRenderer->getFramebufferSizeScaled();
+                self.mapView->pointOnPlaneFromScreen(startingMidPoint, &modelTrans, frameSize, &startingGeoPoint, true);
+            }
+            
             self.mapView->cancelAnimation();
             [[NSNotificationCenter defaultCenter] postNotificationName:kZoomGestureDelegateDidStart object:self.mapView->tag];
         }
