@@ -18,15 +18,20 @@
 
 package com.mousebird.maply;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
+import com.mousebirdconsulting.whirlyglobemaply.BuildConfig;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Locale;
 
 /**
  * Base class for the quad loaders.
@@ -213,13 +218,13 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
      * Required for cancellation to be notated on the loader return.
      */
     @SuppressWarnings("unused") // Used by JNI
-    public native void setLoadReturn(LoaderReturn loadReturn);
+    protected native void setLoadReturn(LoaderReturn loadReturn);
 
     /**
-     * Detach a LoaderReturn from the frame assets
+     * Detach a LoaderReturn from the frame assets (from the layer thread)
      */
     @SuppressWarnings("unused") // Used by JNI
-    public native void clearLoadReturn(LoaderReturn loadReturn);
+    protected native void clearLoadReturn(LoaderReturn loadReturn);
 
     /**
      * Check if the shutdown process has started
@@ -362,11 +367,22 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
                 public void success(TileFetchRequest fetchRequest, byte[] data) {
-                    fetchSuccess(fetchRequest, tileID, fFrame, frameID, data);
+                    runOnLayerThread(() -> fetchSuccess(fetchRequest, tileID, fFrame, frameID, data));
                 }
                 @Override
                 public void failure(TileFetchRequest fetchRequest, String errorStr) {
-                    fetchFailed(fetchRequest, errorStr);
+                    runOnLayerThread(() -> fetchFailed(fetchRequest, errorStr));
+                }
+                // Callbacks need to happen on the layer thread, or we would have to
+                // synchronize all the stuff in the QuadLoader mergeLoadedFrame tree.
+                private void runOnLayerThread(Runnable callback) {
+                    final QuadSamplingLayer layer = samplingLayer.get();
+                    final LayerThread thread = (layer != null) ? layer.layerThread : null;
+                    if (thread != null) {
+                        final boolean wait = false;       // run directly if we're already on the thread
+                        final boolean unitOfWork = true;  // block shutdown until complete
+                        thread.addTask(callback, wait, unitOfWork);
+                    }
                 }
             };
 
@@ -397,13 +413,29 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
     }
 
+    @Nullable
+    private LayerThread getSamplingLayerThread() {
+        final QuadSamplingLayer layer = isShuttingDown ? null : getSamplingLayer();
+        return (layer != null && !layer.isShuttingDown) ? layer.layerThread : null;
+    }
+
+    @Nullable
+    private LayerThread getWorkingThread() {
+        final BaseController theControl = control.get();
+        return (theControl != null) ? theControl.getWorkingThread() : null;
+    }
+
     private void fetchSuccess(@SuppressWarnings("unused") TileFetchRequest fetchRequest,
                               TileID tileID, int frame, long frameID, byte[] data) {
         final LoaderInterpreter theLoadInterp = loadInterp;
-        final QuadSamplingLayer layer = getSamplingLayer();
-
-        if (theLoadInterp == null || layer == null || isShuttingDown || layer.isShuttingDown) {
+        final LayerThread samplingLayerThread = getSamplingLayerThread();
+        if (theLoadInterp == null || samplingLayerThread == null) {
             return;
+        }
+
+        // We need to be on the sampling layer thread
+        if (BuildConfig.DEBUG && samplingLayerThread.getLooper().getThread() != Thread.currentThread()) {
+            Log.w("Maply", "QuadLoader fetch callback on the wrong thread");
         }
 
         if (!isFrameLoading(tileID,frameID)) {
@@ -414,7 +446,7 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         }
 
         ArrayList<byte[]> allData = null;
-        final boolean merge = getModeNative() == Mode.SingleFrame.ordinal() && getNumFrames() > 1;
+        final boolean merge = (getModeNative() == Mode.SingleFrame.ordinal() && getNumFrames() > 1);
         if (merge) {
             allData = new ArrayList<>();
             if (!mergeLoadedFrame(tileID, frameID, data, allData)) {
@@ -431,7 +463,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
         // Attach the loader return to the frame, enabling cancellation, etc.
         setLoadReturn(loadReturn);
 
-        // In this mode we need to adjust the loader return to contain everything at once
         if (merge) {
             // Our data has been subsumed into allData
             loadReturn.addTileData(allData);
@@ -439,59 +470,66 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             loadReturn.addTileData(data);
         }
 
-        // We're on an AsyncTask in the background here, so do the loading
-        if (loadInterp != null) {
-            try (LayerThread.WorkWrapper wr = layer.layerThread.startOfWorkWrapper()) {
-                if (wr != null) {
-                    theLoadInterp.dataForTile(loadReturn, this);
-                }
-            }
-        }
+        // This will happen at the end, on the sampling layer thread
+        final Runnable mergeWork = () -> {
+            try (LayerThread.WorkWrapper wr = samplingLayerThread.startOfWorkWrapper()) {
+                if (wr != null && loadInterp != null && !isShuttingDown) {
+                    final ChangeSet changes = new ChangeSet();
+                    mergeLoaderReturn(loadReturn, changes);
+                    samplingLayerThread.addChanges(changes);
 
-        // Merge the data back in on the sampling layer's thread.
-        // Note that we need to do this even if the loaderReturn is in the canceled state,
-        // in order to correctly update the state of the associated tile and frames.
-        if (!isShuttingDown && !layer.isShuttingDown) {
-            layer.layerThread.addTask(() -> {
-                final BaseController control = getController();
-                if (control != null) {
-                    try (LayerThread.WorkWrapper wr = layer.layerThread.startOfWorkWrapper()) {
-                        if (wr != null) {
-                            if (loadInterp != null && !isShuttingDown) {
-                                ChangeSet changes = new ChangeSet();
-                                mergeLoaderReturn(loadReturn, changes);
-                                layer.layerThread.addChanges(changes);
-                            } else {
-                                cleanupLoadedData(control, loadReturn);
-                            }
-                        }
-                    }
-                }
-                loadReturn.dispose();
-            });
-        } else {
-            try (LayerThread.WorkWrapper wr = layer.layerThread.startOfWorkWrapper()) {
-                if (wr != null) {
+                    clearLoadReturn(loadReturn);
+                    loadReturn.dispose();
+                } else {
                     cleanupLoadedData(control, loadReturn);
                 }
             }
-            loadReturn.dispose();
+        };
+
+        // The interpreter work will be run on a background worker
+        final Runnable interpWork = () -> {
+            try (LayerThread.WorkWrapper wr = samplingLayerThread.startOfWorkWrapper()) {
+                if (wr != null) {
+                    try {
+                        theLoadInterp.dataForTile(loadReturn, this);
+                    } catch (Exception ex) {
+                        final String msg = String.format(Locale.getDefault(),
+                            "%s.dataForTile failed for %d:(%d,%d)",
+                            theLoadInterp.getClass().getSimpleName(),
+                            tileID.level, tileID.x, tileID.y);
+                        Log.e("Maply", msg, ex);
+                    }
+                }
+            }
+
+            // Merge the data back in on the sampling layer's thread.
+            // Note that we need to do this even if the loaderReturn is in the canceled state,
+            // in order to correctly update the state of the associated tile and frames.
+            if (samplingLayerThread.addTask(mergeWork, false, true) == null) {
+                // work won't be run, clean up
+                cleanupLoadedData(control, loadReturn);
+            }
+        };
+
+        // Farm the interpreter call (e.g., parsing) out to a background thread.
+        final LayerThread workThread = getWorkingThread();
+        if (workThread == null || workThread.addTask(interpWork, false, true) == null) {
+            // work won't be run, clean up
+            cleanupLoadedData(control, loadReturn);
         }
     }
 
     private void fetchFailed(@SuppressWarnings("unused") TileFetchRequest fetchRequest,
                              @SuppressWarnings("unused") String errorMessage) {
-        final QuadSamplingLayer layer = getSamplingLayer();
-        if (layer != null && !layer.isShuttingDown) {
-            layer.layerThread.addTask(() -> {
-                final QuadSamplingLayer layerInner = getSamplingLayer();
-                if (layerInner != null && !layerInner.isShuttingDown) {
-                    // Give the C++ code a chance to add changes in this case
-                    ChangeSet changes = new ChangeSet();
-                    mergeLoaderReturn(null, changes);
-                    layerInner.layerThread.addChanges(changes);
-                }
-            });
+        final LayerThread thread = getSamplingLayerThread();
+        if (thread != null) {
+            if (BuildConfig.DEBUG && thread.getLooper().getThread() != Thread.currentThread()) {
+                Log.w("Maply", "QuadLoader fetch callback on the wrong thread");
+            }
+            // Give the C++ code a chance to add changes
+            ChangeSet changes = new ChangeSet();
+            mergeLoaderReturn(null, changes);
+            thread.addChanges(changes);
         }
     }
 
@@ -510,22 +548,27 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     // Clean up data that's been processed but we shut down the loader before it got back
     private void cleanupLoadedData(WeakReference<BaseController> inControl,LoaderReturn loadReturn)
     {
-        if (inControl != null) {
-            cleanupLoadedData(inControl.get(), loadReturn);
-        }
+        cleanupLoadedData((inControl != null) ? inControl.get() : null, loadReturn);
     }
 
     // Clean up data that's been processed but we shut down the loader before it got back
     private void cleanupLoadedData(BaseController inControl,LoaderReturn loadReturn)
     {
-        if (inControl == null)
-            return;
-
-        ChangeSet changes = new ChangeSet();
-        loadReturn.deleteComponentObjects(inControl.renderControl,inControl.renderControl.componentManager,changes);
-
-        if (inControl.running)
-            changes.process(inControl.renderControl,inControl.scene);
+        if (inControl != null && inControl.running) {
+            final Scene scene = inControl.scene;
+            final RenderController render = inControl.renderControl;
+            if (scene != null && render != null) {
+                final ChangeSet changes = new ChangeSet();
+                loadReturn.deleteComponentObjects(render, render.componentManager, changes);
+                changes.process(render, scene);
+                clearLoadReturn(loadReturn);
+                loadReturn.dispose();
+                return;
+            }
+        }
+        // The controller is shut down or shutting down, the changes are irrelevant.
+        loadReturn.discardChanges();
+        loadReturn.dispose();
     }
 
     /**
