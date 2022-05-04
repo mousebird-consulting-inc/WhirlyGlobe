@@ -48,7 +48,8 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
         (JNIEnv *env, jobject obj, jobject sampleObj, jint numFrames, jint mode)
 {
-    try {
+    try
+    {
         auto info = QuadImageFrameLoaderClassInfo::getClassInfo();
         auto params = SamplingParamsClassInfo::getClassInfo()->getObject(env,sampleObj);
         PlatformInfo_Android platformInfo(env);
@@ -57,9 +58,8 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_initialise
         (*loader)->setFrameLoaderObj(env->NewGlobalRef(obj));
         (*loader)->setFlipY(true);
         info->setHandle(env, obj, loader);
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::initialise()");
     }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -75,10 +75,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_dispose(JNIEnv *e
         delete loader;
         info->clearHandle(env, obj);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -91,10 +88,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setFlipY(JNIEnv *
             (*loader)->setFlipY(flipY);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::setFlipY()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -106,11 +100,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFlipY(JNIE
             return false;
         return (*loader)->getFlipY();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getFlipY()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -272,10 +262,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_cleanupNative
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::cleanupNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static void setLoadReturnRef(JNIEnv *env, jobject obj, jobject loadReturnObj,bool clear)
@@ -304,10 +291,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_setLoadReturn
     {
         setLoadReturnRef(env,obj,loadReturnObj,false);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::setLoadReturn()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -318,10 +302,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_clearLoadReturn
     {
         setLoadReturnRef(env,obj,loadReturnObj,true);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::clearLoadReturn()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -360,10 +341,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoaderReturn
         LoaderReturnClassInfo::getClassInfo()->clearHandle(env,loadRetObj);
         delete loadReturnPtr;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::mergeLoaderReturn()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -384,10 +362,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerConn
                                            *(changes->get()));
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::samplingLayerConnectNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -404,10 +379,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_samplingLayerDisc
         PlatformInfo_Android platformInfo(env);
         control->removeBuilderDelegate(&platformInfo,*loader);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::samplingLayerDisconnectNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -422,11 +394,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_QuadLoaderBase_getFrameID
 
         return (*loader)->getFrameInfo(frameIndex)->getId();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getFrameID()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }
 
@@ -440,11 +408,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getGeneration(JNI
 
         return (*loader)->getGeneration();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getGeneration()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }
 
@@ -462,11 +426,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getZoomSlot(JNIEn
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getZoomSlot()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return -1;
 }
 
@@ -481,11 +441,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getNumFrames(JNIE
             return inst->getNumFrames();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getNumFrames()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }
 
@@ -533,10 +489,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadLoaderBase_reloadAreaNative
         PlatformInfo_Android platformInfo(env);
         (*loader)->reload(&platformInfo,-1,mbrs.empty() ? nullptr : &mbrs[0],(int)mbrs.size(), **changeSet);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::reloadAreaNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -550,10 +503,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadLoaderBase_getModeNative(JNI
             return loader->getMode();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::getModeNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return -1;
 }
 
@@ -570,10 +520,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_isFrameLoadin
             return loader->isFrameLoading(tileID,frameID);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::isFrameLoading()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -647,9 +594,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadLoaderBase_mergeLoadedFr
             throw;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in QuadLoaderBase::mergeLoadedFrame()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }

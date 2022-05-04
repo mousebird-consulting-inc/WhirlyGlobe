@@ -792,7 +792,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         {
             continue;
         }
-        if (cancelFn(inst))
+        if (cancelFn(inst) || styleSet->markerManage->isShuttingDown())
         {
             break;
         }

@@ -112,6 +112,8 @@ void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)
 {
 	const auto env = ((PlatformInfo_Android*)threadInfo)->env;
 
+	std::lock_guard<std::mutex> guardLock(lock);
+
 	for (const auto &kv : fontManagers)
 	{
 		if (const auto afm = dynamic_cast<FontManager_Android*>(kv.second.get()))
@@ -127,18 +129,18 @@ void FontTextureManager_Android::teardown(PlatformThreadInfo* threadInfo)
 	if (charRenderObj)
 	{
 		env->DeleteGlobalRef(charRenderObj);
+		charRenderObj = nullptr;
 	}
 	if (glyphClassRef)
 	{
 		env->DeleteGlobalRef(glyphClassRef);
+		renderMethodID = nullptr;
 	}
 
-	charRenderObj = nullptr;
-	renderMethodID = nullptr;
 	glyphClassRef = nullptr;
 
 	ChangeSet changes;
-	clear(changes);
+	clearNoLock(changes);
 	discardChanges(changes);
 }
 
