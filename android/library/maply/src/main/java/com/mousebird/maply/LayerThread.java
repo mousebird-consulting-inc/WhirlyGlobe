@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -157,7 +158,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 							renderer.dumpFailureInfo("LayerThread Setup");
 						}
 				} catch (Exception e) {
-					Log.i("Maply", "Failed to make current context in layer thread.");
+					Log.e("Maply", "Failed to make current context in layer thread.", e);
 				}
 			});
 		} else {
@@ -325,15 +326,50 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		private static final double stackWorkTimeLimit = 1.0;
 	}
 
+	private String getStackSummary() {
+		try {
+			final StackTraceElement[] trace = getStackTrace();
+			final StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < Math.min(trace.length, 3); ++i) {
+				final StackTraceElement e = trace[i];
+				sb.append((i > 0) ? " / " : "")
+						.append(e.getClassName())
+						.append(".")
+						.append(e.getMethodName())
+						.append(" (")
+						.append(e.getFileName())
+						.append(":")
+						.append(e.getLineNumber());
+			}
+			return (sb.length() > 0) ? sb.toString() : "(no trace)";
+		} catch (Exception ignored) {
+			return "(no trace)";
+		}
+	}
+
 	// Called on the main thread *after* the thread has quit safely
 	void shutdown()
 	{
 //		Log.d("Maply", "LayerThread.shutdown()");
 
+		synchronized (this) {
+			if (!isShuttingDown) {
+				isShuttingDown = true;
+			} else {
+				return;
+			}
+		}
+
+		// We can't run from the thread itself.
+		// (maybe we could allow this if `numActiveWorkers` is already zero...)
+		final Handler handler = new Handler(getLooper());
+		if (handler.getLooper().getThread() == Thread.currentThread()) {
+			return;
+		}
+
 		// Create with zero permits, must be released before the first acquire can occur
 		final Semaphore endLock = new Semaphore(0, true);
 		final Semaphore beginLock = new Semaphore(0);
-		isShuttingDown = true;
 
 		// If we're shut down before a renderer is set, the the lambda in
 		// the constructor will never be unblocked, so wake it up now.
@@ -345,6 +381,9 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			return;
 		}
 
+		// stop accepting new work
+		valid = false;
+
 		// Signal the layers, giving them a chance to stop ongoing operations
 		synchronized (layers) {
 			for (final Layer layer : layers) {
@@ -355,20 +394,30 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		// Wait for anything outstanding to finish before we shut down
 		try {
 			final long t0 = System.nanoTime();
+			int delay = 1;
 			while (true) {
-				final long t1 = System.nanoTime();
 				final int count = numActiveWorkers.get();
 				if (count <= 0) {
 					break;
 				}
-				if (t1 - t0 > 2L * 1000L * 1000L * 1000L) {
-					Log.w("Maply",
-							String.format("LayerThread timed out waiting for %d workers after %f s",
-										  count, (t1 - t0) / 1.0e9));
+				if (!isAlive()) {
+					Log.w("Maply", "Layer thread with outstanding work was killed");
 					break;
 				}
+				final double elapsed = (System.nanoTime() - t0) / 1.0e9;
+				if (elapsed > 2) {
+					// If you see this, it means a thread didn't respond to cancellation quickly.
+					Log.w("Maply", String.format(Locale.getDefault(),
+							"LayerThread timed out waiting for '%s' (%d/%d) after %f s (%s)",
+							getName(), getThreadId(), getId(), elapsed, getStackSummary()));
+					break;
+				}
+				// Use exponential backoff to wait for work to end
 				//noinspection BusyWait
-				sleep(25);
+				sleep(delay);
+				if (delay < 64) {
+					delay *= 4;
+				}
 			}
 		} catch (InterruptedException ignored) {
 			// we took too long
@@ -379,27 +428,11 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 		}
 
 		// Run the shutdowns on the thread itself
-		addTask(() -> {
+		final Runnable threadWork = () -> {
 			try {
 				beginLock.release();
 
-				final EGL10 egl = (EGL10) EGLContext.getEGL();
-
-				final ArrayList<Layer> layersToRemove;
-				synchronized (layers) {
-					layersToRemove = new ArrayList<>(layers);
-					layers.clear();
-				}
-				for (final Layer layer : layersToRemove) {
-					// Don't let an error in one layer's shutdown prevent the others from being called
-					try {
-						layer.shutdown();
-					} catch (Exception ex) {
-						Log.w("Maply", "Layer shutdown error", ex);
-					}
-				}
-
-				valid = false;
+				shutdownLayers();
 
 				// Stop any pending updates
 				final Handler trailHandle = trailingHandle;
@@ -411,6 +444,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				}
 
 				if (renderer != null) {
+					final EGL10 egl = (EGL10) EGLContext.getEGL();
 					egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 				}
 			} catch (Exception ex) {
@@ -421,9 +455,21 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 			try {
 				quit();
-			} catch (Exception ignored) {
+			} catch (Exception ex) {
+				Log.e("Maply", "Exception from HandlerThread.quit", ex);
 			}
-		}, true, false);	// don't wrap with startOfWork/endOfWork
+		};
+
+		if (!handler.post(threadWork)) {
+			// The shutdown work didn't run, so pretend it ran.
+			if (renderer != null) {
+				if (!layers.isEmpty()) {
+					shutdownLayers();
+				}
+				beginLock.release();
+				endLock.release();
+			}
+		}
 
 		// Block until the queue drains
 		if (renderer != null) {
@@ -494,8 +540,26 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 		});
 	}
-	
-	protected ChangeSet changes = new ChangeSet();
+
+	private void shutdownLayers()
+	{
+		final ArrayList<Layer> layersToRemove;
+		synchronized (layers) {
+			layersToRemove = new ArrayList<>(layers);
+			layers.clear();
+		}
+		for (final Layer layer : layersToRemove) {
+			// Don't let an error in one layer's shutdown prevent the others from being called
+			try {
+				layer.shutdown();
+			} catch (Exception ex) {
+				Log.w("Maply", "Layer shutdown error", ex);
+			}
+		}
+	}
+
+	private ChangeSet changes = new ChangeSet();
+	private Object changeLock = new Object();
 	private Handler changeHandler = null;
 
 	/**
@@ -513,7 +577,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 
 		final LayerThread layerThread = this;
 
-		synchronized(this)
+		synchronized (changeLock)
 		{
 			changes.merge(newChanges);
 			newChanges.dispose();
@@ -536,14 +600,17 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 				}
 
 				// Now merge in the changes
-				synchronized (this) {
+				final ChangeSet localChanges;
+				synchronized (changeLock) {
 					changeHandler = null;
+					localChanges = changes;
+					changes = new ChangeSet();
+				}
+				if (localChanges != null) {
 					if (scene != null) {
-						changes.process(renderer, scene);
-						changes.dispose();
-
-						changes = new ChangeSet();
+						localChanges.process(renderer, scene);
 					}
+					localChanges.dispose();
 				}
 			},true);
 		}
@@ -610,16 +677,17 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 *             if we're already on the layer thread and just execute the runnable instead.
 	 * @param unitOfWork If true, the runnable will be bracketed with
 	 *                   <c>startOfWork</c> and <c>endOfWork</c> calls
-	 * @return Returns a Handler if you want to cancel the task later.  Returns null if
-	 * we were on the layer thread and no Handler was needed.
+	 * @return Returns a Handler if the work was scheduled or completed,
+	 *         null if it could not be scheduled or threw an exception.
 	 */
 	public Handler addTask(Runnable run,boolean wait,boolean unitOfWork) {
 		if (valid && run != null) {
-			if (!wait && Looper.myLooper() == getLooper()) {
-				runWorkRunnable(run, false);
-			} else {
-				Handler handler = new Handler(getLooper());
-				handler.post(unitOfWork ? () -> runWorkRunnable(run, true) : run);
+			Handler handler = new Handler(getLooper());
+			if (!wait && Looper.myLooper() == handler.getLooper()) {
+				if (runWorkRunnable(run, false)) {
+					return handler;
+				}
+			} else if (handler.post(unitOfWork ? () -> runWorkRunnable(run, true) : run)) {
 				return handler;
 			}
 		}
@@ -632,16 +700,17 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	 * @param work The work to do
 	 * @param trap Trap any exceptions
 	 */
-	private void runWorkRunnable(Runnable work, boolean trap) {
+	private boolean runWorkRunnable(Runnable work, boolean trap) {
 		if (!startOfWork()) {
-			return;
+			return false;
 		}
 		try {
 			work.run();
+			return true;
 		} catch (Exception ex) {
 			if (trap) {
 				Log.e("Maply", "Exception in LayerThread task", ex);
-				return;
+				return false;
 			}
 			throw ex;
 		} finally {
@@ -713,7 +782,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	void updateWatchers(final ViewState viewState,long now) {
 		// Kick off a view update to the watchers on the layer thread
 		final LayerThread theLayerThread = this;
-		synchronized(this) {
+		synchronized (this) {
 			if (now > viewUpdateLastCalled) {
 				viewUpdateLastCalled = now;
 			}
@@ -723,7 +792,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					if (!valid) {
 						return;
 					}
-					synchronized(theLayerThread) {
+					synchronized (theLayerThread) {
 						viewUpdateScheduled = false;
 						currentViewState = viewState;
 					}
@@ -741,7 +810,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 	// Schedule a lagging update (e.g. not too often, but no less than 100ms)
 	void scheduleLateUpdate(long delay)
 	{
-		synchronized(this)
+		synchronized (this)
 		{
 			if (!valid)
 				return;

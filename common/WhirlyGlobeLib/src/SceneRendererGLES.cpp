@@ -610,7 +610,8 @@ void SceneRendererGLES::render(TimeInterval duration)
                 // Figure out the program to use for drawing
                 const SimpleIdentity drawProgramId = drawContain.drawable->getProgram();
                 if (drawProgramId == EmptyIdentity) {
-                    wkLogLevel(Error, "Drawable missing program ID.  Skipping.");
+                    wkLogLevel(Warn, "Drawable %lld (%s) missing program ID.  Skipping.",
+                               drawContain.drawable->getId(), drawContain.drawable->getName().c_str());
                     continue;
                 }
                 if (drawProgramId != curProgramId)

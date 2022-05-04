@@ -93,7 +93,8 @@ void QIFFrameAsset_Android::cancelFetch(PlatformThreadInfo *threadInfo,QuadImage
 
     QIFFrameAsset::cancelFetch(threadInfo,loader,batchOps);
 
-    if (loadReturnRef) {
+    if (loadReturnRef)
+    {
         loadReturnRef->cancel = true;
     }
 

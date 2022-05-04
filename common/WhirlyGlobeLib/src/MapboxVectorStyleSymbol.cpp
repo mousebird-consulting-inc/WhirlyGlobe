@@ -41,24 +41,36 @@ bool MapboxVectorSymbolLayout::parse(PlatformThreadInfo *,
     globalTextScale = styleSet->tileStyleSettings->textScale;
     placement = styleEntry ? (MapboxSymbolPlacement)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("symbol-placement"), placementVals, (int)MBPlacePoint) : MBPlacePoint;
     textTransform = styleEntry ? (MapboxTextTransform)MapboxVectorStyleSetImpl::enumValue(styleEntry->getEntry("text-transform"), transformVals, (int)MBTextTransNone) : MBTextTransNone;
-    
     textField = styleSet->transText("text-field", styleEntry, std::string());
 
     std::vector<DictionaryEntryRef> textFontArray;
-    if (styleEntry)
-        textFontArray = styleEntry->getArray("text-font");
-    if (!textFontArray.empty()) {
-        for (auto & ii : textFontArray) {
-            const std::string &fieldI = ii->getString();
-            if (!fieldI.empty()) {
-                textFontNames.push_back(fieldI);
+    if (auto entry = styleEntry ? styleEntry->getEntry("text-font") : nullptr)
+    {
+        // text-font can also be a dictionary for interpolation, which we don't yet support.
+        if (entry->getType() == DictionaryType::DictTypeArray)
+        {
+            textFontArray = entry->getArray();
+        }
+    }
+    if (!textFontArray.empty())
+    {
+        textFontNames.reserve(textFontArray.size());
+        for (const auto &ii : textFontArray)
+        {
+            std::string fieldI = ii->getString();
+            if (!fieldI.empty())
+            {
+                textFontNames.emplace_back(std::move(fieldI));
             }
         }
-    } else {
+    }
+    else
+    {
         // These are the default fonts
         textFontNames.emplace_back("Open Sans Regular");
         textFontNames.emplace_back("Arial Unicode MS Regular");
     }
+
     textMaxWidth = styleSet->transDouble("text-max-width", styleEntry, 10.0);
     textSize = styleSet->transDouble("text-size", styleEntry, 24.0);
 
@@ -601,9 +613,15 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                             }
                             else
                             {
+                                static std::mutex mutex;
+                                static std::set<std::string> warnedFields;
+                                std::lock_guard<std::mutex> lock(mutex);
                                 const std::string fieldDesc = textField.buildDesc(attrs);
-                                wkLogLevel(Warn, "Failed to find text for label (%s / %s)",
-                                           this->ident.c_str(), fieldDesc.c_str());
+                                if (warnedFields.insert(this->ident+fieldDesc).second)
+                                {
+                                    wkLogLevel(Warn, "Failed to find text for %s / %s",
+                                               this->ident.c_str(), fieldDesc.c_str());
+                                }
 #endif
                             }
                         }
@@ -792,7 +810,7 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
         {
             continue;
         }
-        if (cancelFn(inst))
+        if (cancelFn(inst) || styleSet->markerManage->isShuttingDown())
         {
             break;
         }

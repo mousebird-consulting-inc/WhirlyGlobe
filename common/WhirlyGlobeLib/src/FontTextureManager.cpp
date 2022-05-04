@@ -129,7 +129,11 @@ void FontTextureManager::init()
 void FontTextureManager::clear(ChangeSet &changes)
 {
     std::lock_guard<std::mutex> guardLock(lock);
-    
+    clearNoLock(changes);
+}
+
+void FontTextureManager::clearNoLock(ChangeSet &changes)
+{
     if (texAtlas)
     {
         texAtlas->teardown(changes);

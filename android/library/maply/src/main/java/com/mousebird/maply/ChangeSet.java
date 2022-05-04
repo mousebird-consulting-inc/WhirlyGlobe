@@ -47,6 +47,9 @@ public class ChangeSet
 	// We're assuming a valid EGL context is in place
 	public native void process(RenderController renderControl,Scene scene);
 
+	// Throw away the changes.
+	public native void discard();
+
 	public native int count();
 	public boolean any() { return count() > 0; }
 

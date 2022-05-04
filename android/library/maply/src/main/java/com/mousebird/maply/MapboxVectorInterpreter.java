@@ -248,7 +248,7 @@ public class MapboxVectorInterpreter implements LoaderInterpreter
                 continue;
             }
 
-            if (loadReturn.isCanceled()) {
+            if (loadReturn.isCanceled() || Thread.interrupted()) {
                 // Parsing failed because it was canceled, stop now
                 break;
             }

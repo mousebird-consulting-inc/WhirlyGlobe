@@ -134,13 +134,15 @@ typedef struct DynamicTextureVecSorter
 class DynamicTextureAddRegion : public ChangeRequest
 {
 public:
-    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data)
-    : texId(texId), startX(startX), startY(startY), width(width), height(height), data(data) { }
-    ~DynamicTextureAddRegion();
+    DynamicTextureAddRegion(SimpleIdentity texId,int startX,int startY,int width,int height,RawDataRef data) :
+        texId(texId), startX(startX), startY(startY), width(width), height(height), data(std::move(data)) { }
+    virtual ~DynamicTextureAddRegion();
 
     /// Add the region.  Never call this.
-    void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view);
-    
+    virtual void execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view) override;
+
+    virtual void cancel() override { data.reset(); }
+
 protected:
     bool wasRun = false;
     SimpleIdentity texId;

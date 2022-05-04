@@ -176,6 +176,7 @@ public:
 
 protected:    
     void init();
+    void clearNoLock(ChangeSet &changes);
 
     FontManagerMap fontManagers;
 

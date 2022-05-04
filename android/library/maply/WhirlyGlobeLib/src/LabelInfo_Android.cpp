@@ -60,8 +60,14 @@ void LabelInfoAndroid::clearRefs(PlatformInfo_Android *threadInfo)
 bool LabelInfoAndroid::typefaceIsSame(PlatformInfo_Android *threadInfo,const jobject inTypeface) const
 {
 	// Obviously true here
-	if (inTypeface == typefaceObj)
+	if (threadInfo->env->IsSameObject(inTypeface, typefaceObj))
+	{
 		return true;
+	}
+	if (!inTypeface || !typefaceObj)
+	{
+		return false;
+	}
 
 	// Now for a deeper comparison
 	jclass typefaceClass = threadInfo->env->GetObjectClass(inTypeface);

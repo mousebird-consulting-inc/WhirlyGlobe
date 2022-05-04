@@ -43,10 +43,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_initialise(JNIEnv *
 		(*load)->frame->frameIndex = 0;
 		LoaderReturnClassInfo::getClassInfo()->setHandle(env,obj,load);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -57,15 +54,21 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_dispose(JNIEnv *env
 	try
 	{
 		LoaderReturnClassInfo *classInfo = LoaderReturnClassInfo::getClassInfo();
-		std::lock_guard<std::mutex> lock(disposeMutex);
-		auto loader = classInfo->getObject(env,obj);
-		delete loader;
-		classInfo->clearHandle(env, obj);
+		std::unique_lock<std::mutex> lock(disposeMutex);
+		auto loadRet = classInfo->getObject(env,obj);
+		if (loadRet)
+		{
+			classInfo->clearHandle(env, obj);
+		}
+		lock.unlock();
+
+		if (loadRet)
+		{
+			(*loadRet)->cancel = true;
+			delete loadRet;
+		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -80,10 +83,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setTileID
 			(*loadReturn)->ident.level = tileLevel;
 		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::setTileID()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -97,10 +97,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setFrame(JNIEnv *en
 			(*loadReturn)->frame->frameIndex = frameIndex;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::setTileID()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -117,10 +114,7 @@ JNIEXPORT jintArray JNICALL Java_com_mousebird_maply_LoaderReturn_getTileIDNativ
 			return BuildIntArray(env, rets);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::getTileIDNative()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -133,10 +127,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getFrame(JNIEnv *en
 			return (*loadReturn)->frame->frameIndex;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::getFrame()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return -1;
 }
 
@@ -154,10 +145,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_mergeChanges(JNIEnv
 			}
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::mergeChanges()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -169,10 +157,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_setGeneration(JNIEn
 			(*loadReturn)->generation = generation;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::setGeneration()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -184,10 +169,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_LoaderReturn_getGeneration(JNIEn
 			return (*loadReturn)->generation;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::getGeneration()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -214,10 +196,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_addComponentObjects
 			}
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::addComponentObjects()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -233,10 +212,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_clearComponentObjec
 				(*loadReturn)->compObjs.clear();
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::clearCompObjs()");
-	}
+	MAPLY_STD_JNI_CATCH()
 
 }
 
@@ -271,10 +247,38 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_deleteComponentObje
 		PlatformInfo_Android platformInfo(env);
 		(*compManager)->removeComponentObjects(&platformInfo, idSet, **changeSet, true);
 	}
-	catch (...)
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_discardChanges
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (auto loadReturn = LoaderReturnClassInfo::get(env,obj))
+        {
+            ChangeSet changes = std::move((*loadReturn)->changes);
+            for (auto *change : changes)
+            {
+                delete change;
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_LoaderReturn_cancel(JNIEnv *env, jobject obj)
+{
+	try
 	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::deleteComponentObjects()");
+		if (auto loadReturn = LoaderReturnClassInfo::get(env,obj))
+		{
+			(*loadReturn)->cancel = true;
+		}
 	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -285,9 +289,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_LoaderReturn_isCanceled(JNIE
 		auto loadReturn = LoaderReturnClassInfo::get(env,obj);
 		return loadReturn && *loadReturn && (*loadReturn)->cancel;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in LoaderReturn::setGeneration()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }

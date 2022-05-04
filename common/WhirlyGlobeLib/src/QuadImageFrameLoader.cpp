@@ -1538,7 +1538,8 @@ void QuadImageFrameLoader::cleanup(PlatformThreadInfo *threadInfo,ChangeSet &cha
 {
     QIFBatchOps *batchOps = makeBatchOps(threadInfo);
     
-    for (const auto& tile : tiles) {
+    for (const auto& tile : tiles)
+    {
         tile.second->clear(threadInfo,this, batchOps, changes);
     }
     tiles.clear();
