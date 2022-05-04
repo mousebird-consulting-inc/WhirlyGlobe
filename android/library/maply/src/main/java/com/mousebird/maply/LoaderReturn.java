@@ -26,10 +26,10 @@ import java.util.Collection;
 /**
  *  Passed in to and returned by the Loader Interpreter.
  *
- *  We pass this into the interpreter with the unparsed data.  It parses it and passes that
+ *  We pass this into the interpreter with the un-parsed data.  It parses it and passes that
  *  data back, possibly with an error.
  */
-public class LoaderReturn
+public class LoaderReturn implements Comparable<LoaderReturn>
 {
     protected LoaderReturn() {}
 
@@ -122,6 +122,11 @@ public class LoaderReturn
     public native int getGeneration();
 
     /**
+     * Stop whatever work is being done to load this result
+     */
+    public native void cancel();
+
+    /**
      * Return true if the load has been canceled
      */
     public native boolean isCanceled();
@@ -174,10 +179,16 @@ public class LoaderReturn
     private native void clearComponentObjectsNative(boolean isOverlay);
     public native void deleteComponentObjects(RenderController control,ComponentManager compManage,ChangeSet changes);
 
+    public native void discardChanges();
+
+    @Override public int compareTo(LoaderReturn o) { return (int)(id - o.id); }
+
     /**
      * If set, some part of the parser is letting us know about an error.
      */
     public String errorString = null;
+
+    private long id = Identifiable.genID();
 
     public void finalize()
     {
