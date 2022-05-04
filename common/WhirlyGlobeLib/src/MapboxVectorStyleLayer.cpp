@@ -58,7 +58,14 @@ MapboxVectorStyleLayerRef MapboxVectorStyleLayer::VectorStyleLayer(PlatformThrea
     if (type == "fill") {
         layer = std::make_shared<MapboxVectorLayerFill>(styleSet);
     } else if (type == "fill-extrusion") {
-        wkLogLevel(Warn, "Treating fill-extrusion layer as fill");
+#if defined(DEBUG)
+        static bool warned = false;
+        if (!warned)
+        {
+            warned = true;
+            wkLogLevel(Warn, "Treating fill-extrusion layer as fill");
+        }
+#endif
         layer = std::make_shared<MapboxVectorLayerFill>(styleSet);
     } else if (type == "line") {
         layer = std::make_shared<MapboxVectorLayerLine>(styleSet);

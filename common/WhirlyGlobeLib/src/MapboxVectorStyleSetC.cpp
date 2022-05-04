@@ -636,8 +636,15 @@ std::vector<DictionaryEntryRef> MapboxVectorStyleSetImpl::arrayValue(const std::
     
     if (thing->getType() == DictTypeArray)
         return thing->getArray();
-    
-    wkLogLevel(Warn, "Expected array for %s but got something else",inName.c_str());
+
+#if defined(DEBUG)
+    static bool warned = false;
+    if (!warned)
+    {
+        warned = true;
+        wkLogLevel(Warn, "Expected array for %s but got something else", inName.c_str());
+    }
+#endif
     return ret;
 }
 
@@ -914,7 +921,13 @@ void MapboxVectorStyleSetImpl::unsupportedCheck(const char *field,const char *wh
     if (styleEntry && styleEntry->hasField(field))
     {
 #if DEBUG
-        wkLogLevel(Warn,"Found unsupported field (%s) for (%s)",field,what);
+        static std::mutex mutex;
+        static std::set<std::string> warnedFields;
+        std::lock_guard<std::mutex> lock(mutex);
+        if (warnedFields.insert(std::string(field)+what).second)
+        {
+            wkLogLevel(Warn, "Found unsupported field (%s) for (%s)", field, what);
+        }
 #endif
     }
 }

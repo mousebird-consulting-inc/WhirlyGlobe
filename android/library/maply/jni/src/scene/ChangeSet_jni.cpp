@@ -142,7 +142,24 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_process
 	    scene->addChangeRequests(changesToAdd);
 	}
 	MAPLY_STD_JNI_CATCH()
+}
 
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_discard
+	(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (auto *changesRef = ChangeSetClassInfo::get(env,obj))
+		{
+			ChangeSet changes = std::move(**changesRef);
+			for (auto *change : changes)
+			{
+				delete change;
+			}
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"

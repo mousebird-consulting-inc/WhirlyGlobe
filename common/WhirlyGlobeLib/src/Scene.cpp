@@ -176,6 +176,10 @@ Scene::~Scene()
     auto theChangeRequests = std::move(changeRequests);
     for (auto *theChangeRequest : theChangeRequests)
     {
+        if (theChangeRequest)
+        {
+            theChangeRequest->cancel();
+        }
         delete theChangeRequest;
     }
     theChangeRequests.clear();
