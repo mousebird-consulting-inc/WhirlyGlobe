@@ -25,48 +25,45 @@ using namespace Eigen;
 template<> VectorStyleSettingsClassInfo *VectorStyleSettingsClassInfo::classInfoObj = nullptr;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_nativeInit(JNIEnv *env, jclass cls)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_nativeInit
+    (JNIEnv *env, jclass cls)
 {
     VectorStyleSettingsClassInfo::getClassInfo(env,cls);
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_initialise
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
-        auto inst = new VectorStyleSettingsImplRef(new VectorStyleSettingsImpl(scale));
-        VectorStyleSettingsClassInfo::getClassInfo()->setHandle(env,obj,inst);
+        auto inst = new VectorStyleSettingsImplRef(std::make_shared<VectorStyleSettingsImpl>(scale));
+        // Performance wide vectors aren't yet supported on OpenGL
+        (*inst)->perfWideVec = false;
+        VectorStyleSettingsClassInfo::set(env,obj,inst);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_dispose(JNIEnv *env, jobject obj)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_dispose
+    (JNIEnv *env, jobject obj)
 {
     try
     {
         const auto classInfo = VectorStyleSettingsClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            auto inst = classInfo->getObject(env,obj);
-            delete inst;
-        }
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        delete classInfo->getObject(env,obj);
         classInfo->clearHandle(env,obj);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::dispose()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLineScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLineScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -75,32 +72,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLineSc
             return (*inst)->lineScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getLineScale()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLineScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLineScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->lineScale = scale;
+            (*inst)->lineScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setLineScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getTextScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getTextScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -109,31 +101,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getTextSc
             return (*inst)->textScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getTextScale()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setTextScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setTextScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
-        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj)) {
-            (*inst)->textScale = scale;
+        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
+        {
+            (*inst)->textScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setTextScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -142,32 +130,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarker
             return (*inst)->markerScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getMarkerScale()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->markerScale = scale;
+            (*inst)->markerScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setMarkerScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSymbolScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSymbolScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -176,32 +159,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSymbol
             return (*inst)->symbolScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getSymbolScale()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSymbolScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSymbolScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->symbolScale = scale;
+            (*inst)->symbolScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setSymbolScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getCircleScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getCircleScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -210,33 +188,28 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getCircle
             return (*inst)->circleScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getCircleScale()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setCircleScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setCircleScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->circleScale = scale;
+            (*inst)->circleScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setCircleScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerImportance(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerImportance
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -245,32 +218,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarker
             return (*inst)->markerImportance;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getMarkerImportance()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerImportance(JNIEnv *env, jobject obj, jdouble import)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerImportance
+    (JNIEnv *env, jobject obj, jdouble import)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->markerImportance = import;
+            (*inst)->markerImportance = (float)import;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setMarkerImportance()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerSize(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarkerSize
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -279,31 +247,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMarker
             return (*inst)->markerScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getMarkerSize()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSize(JNIEnv *env, jobject obj, jdouble size)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMarkerSize
+    (JNIEnv *env, jobject obj, jdouble size)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->markerSize = size;
+            (*inst)->markerSize = (float)size;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setMarkerSize()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLabelImportance(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLabelImportance
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -312,31 +276,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getLabelI
             return (*inst)->labelImportance;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getLabelImportance()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLabelImportance(JNIEnv *env, jobject obj, jdouble import)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setLabelImportance
+    (JNIEnv *env, jobject obj, jdouble import)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->labelImportance = import;
+            (*inst)->labelImportance = (float)import;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setMarkerSize()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseZoomLevels(JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseZoomLevels
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -345,15 +305,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseZo
             return (*inst)->useZoomLevels;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getUseZoomLevels()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseZoomLevels(JNIEnv *env, jobject obj, jboolean zoomLevels)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseZoomLevels
+    (JNIEnv *env, jobject obj, jboolean zoomLevels)
 {
     try
     {
@@ -362,29 +320,25 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseZoomLe
             (*inst)->useZoomLevels = zoomLevels;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setUseZoomLevels()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUuidField(JNIEnv *env, jobject obj)
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUuidField
+    (JNIEnv *env, jobject obj)
 {
     try
     {
         auto inst = VectorStyleSettingsClassInfo::get(env,obj);
         return inst ? env->NewStringUTF((*inst)->uuidField.c_str()) : nullptr;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getUuidField()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUuidField(JNIEnv *env, jobject obj, jstring fieldStr)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUuidField
+    (JNIEnv *env, jobject obj, jstring fieldStr)
 {
     try
     {
@@ -400,14 +354,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUuidField
             }
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setUuidField()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getBaseDrawPriority(JNIEnv *env, jobject obj)
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getBaseDrawPriority
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -416,15 +368,13 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getBaseDrawP
             return (*inst)->baseDrawPriority;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getBaseDrawPriority()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setBaseDrawPriority(JNIEnv *env, jobject obj, jint drawPriority)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setBaseDrawPriority
+    (JNIEnv *env, jobject obj, jint drawPriority)
 {
     try
     {
@@ -433,14 +383,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setBaseDrawP
             (*inst)->baseDrawPriority = drawPriority;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setBaseDrawPriority()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDrawPriorityPerLevel(JNIEnv *env, jobject obj)
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDrawPriorityPerLevel
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -449,16 +397,13 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDrawPrior
             return (*inst)->drawPriorityPerLevel;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getDrawPriorityPerLevel()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDrawPriorityPerLevel(JNIEnv *env, jobject obj, jint drawPriority)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDrawPriorityPerLevel
+    (JNIEnv *env, jobject obj, jint drawPriority)
 {
     try
     {
@@ -467,14 +412,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDrawPrior
             (*inst)->drawPriorityPerLevel = drawPriority;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setDrawPriorityPerLevel()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMapScaleScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMapScaleScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -483,30 +426,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getMapSca
             return (*inst)->mapScaleScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getMapScaleScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMapScaleScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setMapScaleScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
-        auto inst = VectorStyleSettingsClassInfo::get(env,obj);
-        if (inst)
-            (*inst)->mapScaleScale = scale;
+        if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
+        {
+            (*inst)->mapScaleScale = (float)scale;
+        }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setMapScaleScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDashPatternScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDashPatternScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -515,31 +455,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getDashPa
             return (*inst)->dashPatternScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getDashPatternScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDashPatternScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setDashPatternScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->dashPatternScale = scale;
+            (*inst)->dashPatternScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setDashPatternScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseWideVectors(JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseWideVectors
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -548,15 +484,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getUseWi
             return (*inst)->useWideVectors;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getUseWideVectors()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return false;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseWideVectors(JNIEnv *env, jobject obj, jboolean useWideVectors)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseWideVectors
+    (JNIEnv *env, jobject obj, jboolean useWideVectors)
 {
     try
     {
@@ -565,14 +499,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setUseWideVe
             (*inst)->useWideVectors = useWideVectors;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setUseWideVectors()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getOldVecWidthScale(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getOldVecWidthScale
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -581,31 +513,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getOldVec
             return (*inst)->oldVecWidthScale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getOldVecWidthScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setOldVecWidthScale(JNIEnv *env, jobject obj, jdouble scale)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setOldVecWidthScale
+    (JNIEnv *env, jobject obj, jdouble scale)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->oldVecWidthScale = scale;
+            (*inst)->oldVecWidthScale = (float)scale;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setOldVecWidthScale()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getWideVecCutoff(JNIEnv *env, jobject obj)
+JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getWideVecCutoff
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -614,31 +542,27 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_VectorStyleSettings_getWideVe
             return (*inst)->wideVecCuttoff;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getWideVecCutoff()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setWideVecCutoff(JNIEnv *env, jobject obj, jdouble cutoff)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setWideVecCutoff
+    (JNIEnv *env, jobject obj, jdouble cutoff)
 {
     try
     {
         if (auto inst = VectorStyleSettingsClassInfo::get(env,obj))
         {
-            (*inst)->wideVecCuttoff = cutoff;
+            (*inst)->wideVecCuttoff = (float)cutoff;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setWideVecCutoff()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSelectable(JNIEnv *env, jobject obj)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSelectable
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -647,15 +571,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_VectorStyleSettings_getSelec
             return (*inst)->selectable;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getSelectable()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return 1.0;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSelectable(JNIEnv *env, jobject obj, jboolean selectable)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSelectable
+    (JNIEnv *env, jobject obj, jboolean selectable)
 {
     try
     {
@@ -664,14 +586,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setSelectabl
             (*inst)->selectable = selectable;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setSelectable()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getIconDirectory(JNIEnv *env, jobject obj)
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getIconDirectory
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -680,15 +600,13 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getIconDi
             return env->NewStringUTF((*inst)->iconDirectory.c_str());
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getIconDirectory()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setIconDirectory(JNIEnv *env, jobject obj, jstring iconDirStr)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setIconDirectory
+    (JNIEnv *env, jobject obj, jstring iconDirStr)
 {
     try
     {
@@ -698,14 +616,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setIconDirec
             (*inst)->iconDirectory = jStr.getCString();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setIconDirectory()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getFontName(JNIEnv *env, jobject obj)
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getFontName
+    (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -714,15 +630,13 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_VectorStyleSettings_getFontNa
             return env->NewStringUTF((*inst)->fontName.c_str());
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::getFontName()");
-    }
+    MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName(JNIEnv *env, jobject obj, jstring fontNameStr)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName
+    (JNIEnv *env, jobject obj, jstring fontNameStr)
 {
     try
     {
@@ -732,14 +646,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setFontName(
             (*inst)->fontName = jStr.getCString();
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setFontName()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRead(JNIEnv *env, jobject obj, jboolean val)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRead
+    (JNIEnv *env, jobject obj, jboolean val)
 {
     try
     {
@@ -748,14 +660,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferRe
             (*inst)->zBufferRead = val;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setZBufferRead()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWrite(JNIEnv *env, jobject obj, jboolean val)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWrite
+    (JNIEnv *env, jobject obj, jboolean val)
 {
     try
     {
@@ -764,8 +674,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_VectorStyleSettings_setZBufferWr
             (*inst)->zBufferWrite = val;
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in VectorStyleSettings::setZBufferWrite()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

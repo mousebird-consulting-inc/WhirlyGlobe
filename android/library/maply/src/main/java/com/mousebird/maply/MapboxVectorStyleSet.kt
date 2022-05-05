@@ -619,7 +619,7 @@ class MapboxVectorStyleSet : VectorStyleInterface {
             coordSystem: CoordSystem?,
             settings: VectorStyleSettings?,
             styleDict: AttrDictionary?
-    )
+    ): Boolean
 
     external fun dispose()
 
