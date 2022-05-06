@@ -342,7 +342,21 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 	/**
 	 * Load in the shared C++ library if needed.
 	 */
-	String loadLibraryName = "whirlyglobemaply";
+	private static final String defaultLibName = "whirlyglobemaply";
+	String loadLibraryName = defaultLibName;
+
+	/**
+	 * Call this to enable use of JNI-based classes before creating a controller.
+	 */
+	public static void initLibrary() {
+		initLibrary((String)null);
+	}
+	public static void initLibrary(@Nullable Settings settings) {
+		initLibrary((settings != null) ? settings.loadLibraryName : null);
+	}
+	public static void initLibrary(@Nullable String libraryName) {
+		System.loadLibrary((libraryName != null && !libraryName.isEmpty()) ? libraryName : defaultLibName);
+	}
 
 	/**
 	 * Construct the maply controller with an Activity.  We need access to a few
@@ -366,7 +380,7 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 //		System.loadLibrary("gnustl_shared");
 		if (settings != null && settings.loadLibraryName != null)
 			loadLibraryName = settings.loadLibraryName;
-		System.loadLibrary(loadLibraryName);
+		initLibrary(loadLibraryName);
 		libraryLoaded = true;
 
 		// These are objects that can potentially be created on the C++ side before we create
