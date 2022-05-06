@@ -186,6 +186,12 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			return;
 		}
 
+		if (inRenderer.display == null) {
+			// This happens if you set up a loader before a surface has been created.
+			Log.e("Maply", "Renderer not configured");
+			return;
+		}
+
 		renderer = inRenderer;
 		
 		final EGL10 egl = (EGL10) EGLContext.getEGL();
@@ -196,13 +202,22 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 			}
 			surface = egl.eglCreatePbufferSurface(renderer.display, renderer.config, glSurfaceAttrs);
 			if (checkGLError(egl, "eglCreatePbufferSurface") || surface == null) {
-				egl.eglDestroyContext(renderer.display, context);
+				final EGLContext c = context;
 				context = null;
+				egl.eglDestroyContext(renderer.display, c);
 				return;
 			}
 		} catch (Exception e) {
 			Log.e("Maply", "Failed to create EGL context for layer thread: " +
 					Integer.toHexString(egl.eglGetError()), e);
+			if (context != null) {
+				try {
+					egl.eglDestroyContext(renderer.display, context);
+				} catch (Exception ignored) {
+				}
+				context = null;
+			}
+			return;
 		}
 
 		if (viewUpdates) {
@@ -443,7 +458,7 @@ public class LayerThread extends HandlerThread implements View.ViewWatcher
 					trailingRun = null;
 				}
 
-				if (renderer != null) {
+				if (renderer != null && renderer.display != null) {
 					final EGL10 egl = (EGL10) EGLContext.getEGL();
 					egl.eglMakeCurrent(renderer.display, egl.EGL_NO_SURFACE, egl.EGL_NO_SURFACE, egl.EGL_NO_CONTEXT);
 				}
