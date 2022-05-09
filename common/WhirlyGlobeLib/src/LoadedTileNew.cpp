@@ -44,8 +44,15 @@ bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
 {
     const MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
 
+//    wkLogLevel(Warn, "Tile %.2f,%.2f/%.2f,%.2f vs. %.2f,%.2f/%.2f,%.2f = %s",
+//               RadToDeg(theMbr.ll().x()), RadToDeg(theMbr.ur().x()), RadToDeg(theMbr.ll().y()), RadToDeg(theMbr.ur().y()),
+//               RadToDeg(geomManage->mbr.ll().x()), RadToDeg(geomManage->mbr.ur().x()), RadToDeg(geomManage->mbr.ll().y()), RadToDeg(geomManage->mbr.ur().y()),
+//               //geomManage->mbr.inside(theMbr.mid()) ? "in" : "out");
+//               geomManage->mbr.overlaps(theMbr) ? "in" : "out");
+
     // Make sure this overlaps the area we care about
-    return geomManage->mbr.inside(theMbr.mid());
+    //return geomManage->mbr.inside(theMbr.mid());
+    return geomManage->mbr.overlaps(theMbr);
 }
 
 void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,const TileGeomSettings &geomSettings,ChangeSet &changes)

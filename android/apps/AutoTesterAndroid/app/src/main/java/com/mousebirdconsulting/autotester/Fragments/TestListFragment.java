@@ -107,6 +107,7 @@ public class TestListFragment extends Fragment {
 				new ImageReloadTestCase(a),
 				new LayerShutdownTestCase(a),
 				new LightingTestCase(a),
+				new LoaderMosaic(a),
 				new LocationTrackingRealTestCase(a),
 				new LocationTrackingSimTestCase(a),
 				new LoftedPolyTestCase(a),
