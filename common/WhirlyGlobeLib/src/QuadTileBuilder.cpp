@@ -124,7 +124,25 @@ SimpleIdentity QuadTileBuilder::getProgramID() const
 {
     return geomSettings.programID;
 }
-    
+
+bool QuadTileBuilder::getClipTileCenters() const
+{
+    return geomSettings.clipTileCenters;
+}
+void QuadTileBuilder::setClipTileCenters(bool clip)
+{
+    geomSettings.clipTileCenters = clip;
+}
+
+bool QuadTileBuilder::getClampTilesToClipBounds() const
+{
+    return geomSettings.clampTilesToClipBounds;
+}
+void QuadTileBuilder::setClampTilesToClipBounds(bool clamp)
+{
+    geomSettings.clampTilesToClipBounds = clamp;
+}
+
 void QuadTileBuilder::setDebugMode(bool newMode)
 {
     debugMode = newMode;

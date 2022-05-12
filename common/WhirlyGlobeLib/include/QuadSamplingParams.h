@@ -85,7 +85,13 @@ public:
     
     /// If set, the tiles are clipped to this boundary
     MbrD clipBounds;
-    
+
+    /// Test clip bounds with tile centers or edges
+    bool clipTileCenters = true;
+
+    /// Clamp tile edges to clip bounds
+    bool clampTilesToClipBounds = true;
+
     /// Do we need globe geometry for this sampling set or nah?
     bool generateGeom;
     

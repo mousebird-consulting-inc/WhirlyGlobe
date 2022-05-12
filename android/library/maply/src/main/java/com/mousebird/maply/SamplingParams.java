@@ -208,8 +208,19 @@ public class SamplingParams
     {
         setClipBounds(bounds.ll.getX(),bounds.ll.getY(),bounds.ur.getX(),bounds.ur.getY());
     }
-
     private native void setClipBounds(double llx,double lly,double urx,double ury);
+
+    /**
+     * If set, tiles centers are tested against the clip bounds, otherwise they are tested for overlap
+     */
+    public native void setClipTileCenters(boolean clip);
+    public native boolean getClipTileCenters();
+
+    /**
+     * If set, tile edges are clamped to the clip bounds.
+     */
+    public native void setClampTilesToClipBounds(boolean clamp);
+    public native boolean getClampTilesToClipBounds();
 
     @Override
     public boolean equals(Object obj) {
@@ -222,7 +233,7 @@ public class SamplingParams
 
     private native boolean equalsNative(Object obj);
 
-    public void finalize()
+    protected void finalize()
     {
         dispose();
     }
@@ -233,5 +244,6 @@ public class SamplingParams
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+    @SuppressWarnings("unused") // used by JNI
     private long nativeHandle;
 }

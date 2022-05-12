@@ -25,34 +25,25 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-TileGeomSettings::TileGeomSettings()
-    : buildGeom(true), useTileCenters(true), color(RGBAColor::white()),
-      programID(0), sampleX(10), sampleY(10), topSampleX(10), topSampleY(10),
-      minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-      baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false),
-      includeElev(false), enableGeom(true), singleLevel(false)
-{
-}
-    
 LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr)
     : ident(ident), mbr(mbr), enabled(false),
       tileNumber(ident.NodeNumber())
 {
 }
     
-bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
+bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage,
+                                   const QuadTreeNew::ImportantNode &ident,
+                                   const MbrD &mbr)
 {
-    const MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
-
-//    wkLogLevel(Warn, "Tile %.2f,%.2f/%.2f,%.2f vs. %.2f,%.2f/%.2f,%.2f = %s",
-//               RadToDeg(theMbr.ll().x()), RadToDeg(theMbr.ur().x()), RadToDeg(theMbr.ll().y()), RadToDeg(theMbr.ur().y()),
-//               RadToDeg(geomManage->mbr.ll().x()), RadToDeg(geomManage->mbr.ur().x()), RadToDeg(geomManage->mbr.ll().y()), RadToDeg(geomManage->mbr.ur().y()),
-//               //geomManage->mbr.inside(theMbr.mid()) ? "in" : "out");
-//               geomManage->mbr.overlaps(theMbr) ? "in" : "out");
-
     // Make sure this overlaps the area we care about
-    //return geomManage->mbr.inside(theMbr.mid());
-    return geomManage->mbr.overlaps(theMbr);
+    if (geomManage->getSettings().clipTileCenters)
+    {
+        return geomManage->mbr.inside(mbr.mid());
+    }
+    else
+    {
+        return geomManage->mbr.overlaps(mbr);
+    }
 }
 
 void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,const TileGeomSettings &geomSettings,ChangeSet &changes)
@@ -63,26 +54,33 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     if (!geomSettings.buildGeom)
         return;
 
-    MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
+    MbrD theMbr = mbr;
 
     // Scale texture coordinates if we're clipping this tile
     Point2d texScale(1.0,1.0);
     const Point2d texOffset(0.0,0.0);   // Note: Not using this
     
     // Snap to the designated area
-    if (theMbr.ll().x() < geomManage->mbr.ll().x()) {
-        theMbr.ll().x() = geomManage->mbr.ll().x();
-    }
-    if (theMbr.ur().x() > geomManage->mbr.ur().x()) {
-        texScale.x() = (geomManage->mbr.ur().x()-theMbr.ll().x())/(theMbr.ur().x()-theMbr.ll().x());
-        theMbr.ur().x() = geomManage->mbr.ur().x();
-    }
-    if (theMbr.ll().y() < geomManage->mbr.ll().y()) {
-        theMbr.ll().y() = geomManage->mbr.ll().y();
-    }
-    if (theMbr.ur().y() > geomManage->mbr.ur().y()) {
-        texScale.y() = (geomManage->mbr.ur().y()-theMbr.ll().y())/(theMbr.ur().y()-theMbr.ll().y());
-        theMbr.ur().y() = geomManage->mbr.ur().y();
+    if (geomSettings.clampTilesToClipBounds)
+    {
+        if (theMbr.ll().x() < geomManage->mbr.ll().x())
+        {
+            theMbr.ll().x() = geomManage->mbr.ll().x();
+        }
+        if (theMbr.ur().x() > geomManage->mbr.ur().x())
+        {
+            texScale.x() = (geomManage->mbr.ur().x() - theMbr.ll().x()) / (theMbr.ur().x() - theMbr.ll().x());
+            theMbr.ur().x() = geomManage->mbr.ur().x();
+        }
+        if (theMbr.ll().y() < geomManage->mbr.ll().y())
+        {
+            theMbr.ll().y() = geomManage->mbr.ll().y();
+        }
+        if (theMbr.ur().y() > geomManage->mbr.ur().y())
+        {
+            texScale.y() = (geomManage->mbr.ur().y() - theMbr.ll().y()) / (theMbr.ur().y() - theMbr.ll().y());
+            theMbr.ur().y() = geomManage->mbr.ur().y();
+        }
     }
 
     // Calculate a center for the tile
@@ -554,9 +552,9 @@ TileGeomManager::NodeChanges TileGeomManager::addRemoveTiles(
         if (it == tileMap.end()) {
             // Add a new one
             const MbrD nodeMbr = quadTree->generateMbrForNode(ident);
-            const auto tile = std::make_shared<LoadedTileNew>(ident, nodeMbr);
-            if (tile->isValidSpatial(this))
+            if (LoadedTileNew::isValidSpatial(this, ident, nodeMbr))
             {
+                const auto tile = std::make_shared<LoadedTileNew>(ident, nodeMbr);
                 tile->makeDrawables(sceneRender,this,settings,changes);
                 tileMap[ident] = tile;
                 nodeChanges.addedTiles.push_back(tile);

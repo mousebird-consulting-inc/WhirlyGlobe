@@ -30,39 +30,46 @@ namespace WhirlyKit
 
 /* Geometry settings passed to the tile generation method.
   */
-class TileGeomSettings
+struct TileGeomSettings
 {
-public:
-    TileGeomSettings();
-    
-    // Set if we actually build geometry, rather than just track space
-    bool buildGeom;
-    
-    // Whether the geometry is centered in its middle with an offset
-    bool useTileCenters;
-    // Base color for the tiles
-    RGBAColor color;
-    // Shader to to use in rendering
-    SimpleIdentity programID;
-    // Samples to generate in X and Y
-    int sampleX,sampleY;
-    // Samples for the top level node
-    int topSampleX,topSampleY;
-    // If set, viewable range
-    double minVis,maxVis;
-    // The priority for the drawables
-    int baseDrawPriority;
-    // Multiply the level by this and add it to the baseDrawPriority
-    int drawPriorityPerLevel;
-    // If set, we'll just build lines for debugging
-    bool lineMode;
-    // If set, we'll include the elevation data
-    bool includeElev;
-    // If set, we'll enable/disable geometry associated with tiles.
-    // Otherwise we'll just always leave it off, assuming someone else is instancing it
-    bool enableGeom;
-    // If set, we're building single level geometry, so no parent logic
-    bool singleLevel;
+    /// Set if we actually build geometry, rather than just track space
+    bool buildGeom = true;
+
+    /// Whether the geometry is centered in its middle with an offset
+    bool useTileCenters = true;
+    /// Base color for the tiles
+    RGBAColor color = RGBAColor::white();
+    /// Shader to to use in rendering
+    SimpleIdentity programID = EmptyIdentity;
+    /// Samples to generate in X and Y
+    int sampleX = 10;
+    int sampleY = 10;
+    /// Samples for the top level node
+    int topSampleX = 10;
+    int topSampleY = 10;
+    /// If set, viewable range
+    double minVis = DrawVisibleInvalid;
+    double maxVis = DrawVisibleInvalid;
+    /// The priority for the drawables
+    int baseDrawPriority = 0;
+    /// Multiply the level by this and add it to the baseDrawPriority
+    int drawPriorityPerLevel = 1;
+    /// If set, we'll just build lines for debugging
+    bool lineMode = false;
+    /// If set, we'll include the elevation data
+    bool includeElev = false;
+    /// If set, we'll enable/disable geometry associated with tiles.
+    /// Otherwise we'll just always leave it off, assuming someone else is instancing it
+    bool enableGeom = true;
+    /// If set, we're building single level geometry, so no parent logic
+    bool singleLevel = false;
+
+    /// If set, tiles are tested for inclusion by their center point.
+    /// Otherwise, tiles are tested for any overlap with the clip bounds.
+    bool clipTileCenters = true;
+
+    /// If set, tile bounds are clamped to the clip bounds.  This can lead to irregular tiles.
+    bool clampTilesToClipBounds = true;
 };
 
 class TileGeomManager;
@@ -75,7 +82,9 @@ public:
     LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr);
     
     // Make sure the tile exists in space
-    bool isValidSpatial(TileGeomManager *geomManage);
+    static bool isValidSpatial(TileGeomManager *geomManage,
+                               const QuadTreeNew::ImportantNode &ident,
+                               const MbrD &mbr);
     
     // Build the drawable(s) to represent this one tile
     void makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,
@@ -159,6 +168,8 @@ public:
     
     // Remove all the various geometry
     void cleanup(ChangeSet &changes);
+
+    const TileGeomSettings& getSettings() const { return settings; }
 
 protected:
     TileGeomSettings settings;

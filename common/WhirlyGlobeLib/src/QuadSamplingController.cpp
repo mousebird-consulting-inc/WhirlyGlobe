@@ -33,7 +33,9 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     builder->setCoverPoles(params.coverPoles);
     builder->setEdgeMatching(params.edgeMatching);
     builder->setSingleLevel(params.singleLevel);
-    
+    builder->setClipTileCenters(params.clipTileCenters);
+    builder->setClampTilesToClipBounds(params.clampTilesToClipBounds);
+
     displayControl = std::make_shared<QuadDisplayControllerNew>(this,builder.get(),renderer);
     displayControl->setSingleLevel(params.singleLevel);
     displayControl->setKeepMinLevel(params.forceMinLevel,params.forceMinLevelHeight);

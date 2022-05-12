@@ -149,7 +149,13 @@ public:
     // Shader ID used to render the geometry
     void setShaderID(SimpleIdentity programID);
     SimpleIdentity getProgramID() const;
-    
+
+    bool getClipTileCenters() const;
+    void setClipTileCenters(bool clip);
+
+    bool getClampTilesToClipBounds() const;
+    void setClampTilesToClipBounds(bool clamp);
+
     // If set, we'll print too much information
     void setDebugMode(bool);
     bool getDebugMode() const;

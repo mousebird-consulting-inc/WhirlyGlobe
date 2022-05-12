@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.widget.Toast;
+import android.util.Log;
 
 import com.mousebird.maply.CoordSystem;
 import com.mousebird.maply.GlobeController;
@@ -81,6 +82,9 @@ public class LoaderMosaic extends MaplyTestCase {
         params.setMinZoom(0);
         params.setMaxZoom(fetcher.maxZoom);
         params.setClipBounds(clipBounds);
+        params.setClipTileCenters(false);
+        params.setClampTilesToClipBounds(false);
+        params.setMinImportance(256.0 * 256.0);
 
         QuadImageLoader loader = new QuadImageLoader(params,fetcher.getTileInfo(),baseController);
         loader.setTileFetcher(fetcher);
@@ -105,12 +109,13 @@ public class LoaderMosaic extends MaplyTestCase {
             for (int j = 0; j < n; ++j) {
                 final Point2d llGeo = Point2d.FromDegrees(-180. + (i+0) * 360./n, -90. + (j+0) * 180./n);
                 final Point2d urGeo = Point2d.FromDegrees(-180. + (i+1) * 360./n, -90. + (j+1) * 180./n);
-                final Point2d llLoc = coordSys.geographicToLocal(new Point3d(llGeo, 0)).toPoint2d();
-                final Point2d urLoc = coordSys.geographicToLocal(new Point3d(urGeo, 0)).toPoint2d();
+                //final Point2d llLoc = coordSys.geographicToLocal(new Point3d(llGeo, 0)).toPoint2d();
+                //final Point2d urLoc = coordSys.geographicToLocal(new Point3d(urGeo, 0)).toPoint2d();
 
-                //android.util.Log.w("Maply", String.format("G:%.2f,%.2f/%.2f,%.2f L:%.2f,%.2f/%.2f,%.2f",
-                //        R2D(llGeo.getX()), R2D(urGeo.getX()), R2D(llGeo.getY()), R2D(urGeo.getY()),
-                //        R2D(llLoc.getX()), R2D(urLoc.getX()), R2D(llLoc.getY()), R2D(urLoc.getY())));
+                Log.d("Maply",
+                    String.format("Setting up loader for %.2f,%.2f/%.2f,%.2f",
+                        R2D(llGeo.getX()), R2D(urGeo.getX()),
+                        R2D(llGeo.getY()), R2D(urGeo.getY())));
 
                 final Mbr bounds = new Mbr(llGeo, urGeo);
                 //final Mbr bounds = new Mbr(llLoc, urLoc);
