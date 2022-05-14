@@ -603,7 +603,7 @@ using namespace WhirlyKit;
         auto it = tilesByFetchRequest.find(request);
         if (it == tilesByFetchRequest.end()) {
             // Wasn't there.  Ignore.
-            return;
+            continue;
         }
         TileInfoRef tile = it->second;
         switch (tile->state) {

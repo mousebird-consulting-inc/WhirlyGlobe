@@ -18,6 +18,8 @@
  *
  */
 
+#import "WhirlyEigen.h"
+
 namespace WhirlyKit
 {
 
