@@ -1,9 +1,8 @@
-/*
- *  MaplyQuadSamplingLayer.mm
+/*  MaplyQuadSamplingLayer.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/27/18.
- *  Copyright 2011-2019 Saildrone Inc
+ *  Copyright 2011-2022 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyQuadSampler_private.h"
@@ -38,13 +36,7 @@ using namespace WhirlyKit;
 
 - (void)setCoordSys:(MaplyCoordinateSystem *)coordSys
 {
-    params.coordSys = [coordSys getCoordSystem];
-    
-    // Bounds are in projected coordinates
-    const auto bbox = [coordSys getBounds];
-    params.coordBounds.reset();
-    params.coordBounds.addPoint(Point2d(bbox.ll.x, bbox.ll.y));
-    params.coordBounds.addPoint(Point2d(bbox.ur.x, bbox.ur.y));
+    params.setCoordSys([coordSys getCoordSystem]);
 }
 
 - (int)minZoom

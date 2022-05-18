@@ -21,6 +21,21 @@
 namespace WhirlyKit
 {
 
+void SamplingParams::setCoordSys(CoordSystemRef newSys)
+{
+    coordSys = std::move(newSys);
+
+    if (coordSys)
+    {
+        // Bounds are in projected coordinates
+        coordBounds = MbrD(coordSys->getBounds());
+    }
+    else
+    {
+        coordBounds.reset();
+    }
+}
+
 bool SamplingParams::operator == (const SamplingParams &that) const
 {
     if (!coordSys && !that.coordSys)

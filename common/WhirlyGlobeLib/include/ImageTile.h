@@ -34,7 +34,7 @@ class ImageTile
 {
 public:
     ImageTile() = default;
-    ImageTile(const std::string &name) : name(name) { }
+    ImageTile(std::string name) : name(std::move(name)) { }
     virtual ~ImageTile() = default;
     
     /// Construct and return a texture, if possible.

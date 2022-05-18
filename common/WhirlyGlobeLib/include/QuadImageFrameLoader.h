@@ -346,7 +346,7 @@ public:
     Mode getMode() const { return mode; }
     
     /// If set, we'll see way too much output
-    void setDebugMode(bool newMode) { debugMode = newMode; }
+    void setDebugMode(bool newMode);
     bool getDebugMode() const { return debugMode; }
     
     /// Turn the display on or off.  Loading continues normally

@@ -730,7 +730,17 @@ void QuadImageFrameLoader::setZoomLimits(int inMinZoom,int inMaxZoom)
     minZoom = inMinZoom;
     maxZoom = inMaxZoom;
 }
-    
+
+void QuadImageFrameLoader::setDebugMode(bool newMode)
+{
+    debugMode = newMode;
+
+    if (builder)
+    {
+        builder->setDebugMode(newMode);
+    }
+}
+
 void QuadImageFrameLoader::setLoadMode(LoadMode newMode)
 {
     loadMode = newMode;
@@ -1263,6 +1273,11 @@ void QuadImageFrameLoader::setBuilder(QuadTileBuilder *inBuilder,QuadDisplayCont
     builder = inBuilder;
     control = inControl;
     compManager = control->getScene()->getManager<ComponentManager>(kWKComponentManager);
+
+    if (builder)
+    {
+        builder->setDebugMode(debugMode);
+    }
 }
 
 /// Before we tell the delegate to unload tiles, see if they want to keep them around

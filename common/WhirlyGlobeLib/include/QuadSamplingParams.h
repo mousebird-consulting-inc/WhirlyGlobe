@@ -35,9 +35,13 @@ public:
     virtual ~SamplingParams() = default;
     
     bool operator == (const SamplingParams &) const;
-    
+
+    /// Set coordinate system and use its bounds
+    void setCoordSys(CoordSystemRef);
+
     /// The coordinate system we'll be sampling from.
     CoordSystemRef coordSys;
+
     /// Bounding box for the coordinate system
     MbrD coordBounds;
 
