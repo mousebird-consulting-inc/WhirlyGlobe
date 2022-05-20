@@ -620,8 +620,8 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
                     auto program = (ProgramGLES *)scene->getProgram(drawProgramId);
                     if (program)
                     {
-                        //                    [renderStateOptimizer setUseProgram:program->getProgram()];
                         glUseProgram(program->getProgram());
+
                         // Assign the lights if we need to
                         if (program->hasLights() && !lights.empty())
                             program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
