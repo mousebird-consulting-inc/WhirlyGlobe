@@ -49,9 +49,17 @@ using namespace WhirlyKit;
 - (void)startWithThread:(WhirlyKitLayerThread *)inLayerThread scene:(Scene *)inScene
 {
     _layerThread = inLayerThread;
-    
+
+    // Update on any view movement, but not on re-applying the same position.
+    // Note that this parameter is a double, but the value is later stored as a float.
+    constexpr double minDist = std::numeric_limits<float>::min();
+
     // We want view updates, but only every so often
-    [inLayerThread.viewWatcher addWatcherTarget:self selector:@selector(viewUpdate:) minTime:controller->getViewUpdatePeriod() minDist:0.0 maxLagTime:10.0];
+    [inLayerThread.viewWatcher addWatcherTarget:self
+                                       selector:@selector(viewUpdate:)
+                                        minTime:controller->getViewUpdatePeriod()
+                                        minDist:minDist
+                                     maxLagTime:10.0];
 
     controller->start();
 }

@@ -257,7 +257,7 @@ bool QuadDisplayControllerNew::viewUpdate(PlatformThreadInfo *threadInfo,const V
         {
             toAdd.insert(node);
         }
-        else
+        else    // todo: test whether the importance value actually changed?
         {
             toUpdate.insert(node);
         }
