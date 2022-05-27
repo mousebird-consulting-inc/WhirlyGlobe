@@ -39,9 +39,6 @@ RenderTargetGLES::RenderTargetGLES(SimpleIdentity newID) : RenderTarget(newID)
 void RenderTargetGLES::init()
 {
     RenderTarget::init();
-    framebuffer = 0;
-    colorbuffer = 0;
-    depthbuffer = 0;
 }
     
 bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentity targetTexID)
