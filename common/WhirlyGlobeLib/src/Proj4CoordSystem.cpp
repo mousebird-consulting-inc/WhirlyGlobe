@@ -26,8 +26,8 @@
 namespace WhirlyKit
 {
 
-Proj4CoordSystem::Proj4CoordSystem(const std::string &proj4Str)
-: proj4Str(proj4Str)
+Proj4CoordSystem::Proj4CoordSystem(std::string inProj4Str) :
+    proj4Str(std::move(inProj4Str))
 {
     pj = pj_init_plus(proj4Str.c_str());
     pj_latlon = pj_init_plus("+proj=latlong +datum=WGS84");
@@ -42,7 +42,7 @@ Proj4CoordSystem::~Proj4CoordSystem()
 }
 
 /// Convert from the local coordinate system to lat/lon
-GeoCoord Proj4CoordSystem::localToGeographic(Point3f pt) const
+GeoCoord Proj4CoordSystem::localToGeographic(const Point3f &pt) const
 {
     double x = pt.x(),y = pt.y(),z = pt.z();
     const auto result = pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
@@ -53,10 +53,10 @@ GeoCoord Proj4CoordSystem::localToGeographic(Point3f pt) const
         }
         return {0,0};
     }
-    return GeoCoord(x,y);
+    return { (float)x, (float)y };
 }
 
-GeoCoord Proj4CoordSystem::localToGeographic(Point3d pt) const
+GeoCoord Proj4CoordSystem::localToGeographic(const Point3d &pt) const
 {
     double x = pt.x(),y = pt.y(),z = pt.z();
     const auto result = pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
@@ -67,10 +67,10 @@ GeoCoord Proj4CoordSystem::localToGeographic(Point3d pt) const
         }
         return {0,0};
     }
-    return GeoCoord(x,y);
+    return { (float)x, (float)y };
 }
 
-Point2d Proj4CoordSystem::localToGeographicD(Point3d pt) const
+Point2d Proj4CoordSystem::localToGeographicD(const Point3d &pt) const
 {
     double x = pt.x(),y = pt.y(),z = pt.z();
     const auto result = pj_transform(pj, pj_latlon, 1, 1, &x, &y, &z);
@@ -85,7 +85,7 @@ Point2d Proj4CoordSystem::localToGeographicD(Point3d pt) const
 }
 
 /// Convert from lat/lon t the local coordinate system
-Point3f Proj4CoordSystem::geographicToLocal(GeoCoord geo) const
+Point3f Proj4CoordSystem::geographicToLocal(const GeoCoord &geo) const
 {
     double x = geo.x(),y = geo.y(),z = 0.0;
     const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
@@ -96,10 +96,10 @@ Point3f Proj4CoordSystem::geographicToLocal(GeoCoord geo) const
         }
         return {0,0,0};
     }
-    return {x,y,z};
+    return { (float)x, (float)y, (float)z };
 }
 
-Point3d Proj4CoordSystem::geographicToLocal3d(GeoCoord geo) const
+Point3d Proj4CoordSystem::geographicToLocal3d(const GeoCoord &geo) const
 {
     double x = geo.x(),y = geo.y(),z = 0.0;
     const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
@@ -113,7 +113,7 @@ Point3d Proj4CoordSystem::geographicToLocal3d(GeoCoord geo) const
     return {x,y,z};
 }
 
-Point3d Proj4CoordSystem::geographicToLocal(Point2d geo) const
+Point3d Proj4CoordSystem::geographicToLocal(const Point2d &geo) const
 {
     double x = geo.x(),y = geo.y(),z = 0.0;
     const auto result = pj_transform(pj_latlon, pj, 1, 1, &x, &y, &z);
@@ -142,7 +142,7 @@ Point2d Proj4CoordSystem::geographicToLocal2(const Point2d &geo) const
 }
 
 /// Convert from the local coordinate system to geocentric
-Point3f Proj4CoordSystem::localToGeocentric(Point3f localPt) const
+Point3f Proj4CoordSystem::localToGeocentric(const Point3f &localPt) const
 {
     double x = localPt.x(),y = localPt.y(),z = localPt.z();
     const auto result = pj_transform(pj, pj_geocentric, 1, 1, &x, &y, &z);
@@ -153,10 +153,10 @@ Point3f Proj4CoordSystem::localToGeocentric(Point3f localPt) const
         }
         return {0,0,0};
     }
-    return {x,y,z};
+    return { (float)x, (float)y, (float)z };
 }
 
-Point3d Proj4CoordSystem::localToGeocentric(Point3d localPt) const
+Point3d Proj4CoordSystem::localToGeocentric(const Point3d &localPt) const
 {
     double x = localPt.x(),y = localPt.y(),z = localPt.z();
     const auto result = pj_transform(pj, pj_geocentric, 1, 1, &x, &y, &z);
@@ -171,7 +171,7 @@ Point3d Proj4CoordSystem::localToGeocentric(Point3d localPt) const
 }
 
 /// Convert from display coordinates to geocentric
-Point3f Proj4CoordSystem::geocentricToLocal(Point3f geocPt) const
+Point3f Proj4CoordSystem::geocentricToLocal(const Point3f &geocPt) const
 {
     double x = geocPt.x(),y = geocPt.y(),z = geocPt.z();
     const auto result = pj_transform(pj_geocentric, pj, 1, 1, &x, &y, &z);
@@ -182,10 +182,10 @@ Point3f Proj4CoordSystem::geocentricToLocal(Point3f geocPt) const
         }
         return {0,0,0};
     }
-    return {x,y,z};
+    return { (float)x, (float)y, (float)z };
 }
 
-Point3d Proj4CoordSystem::geocentricToLocal(Point3d geocPt) const
+Point3d Proj4CoordSystem::geocentricToLocal(const Point3d &geocPt) const
 {
     double x = geocPt.x(),y = geocPt.y(),z = geocPt.z();
     const auto result = pj_transform(pj_geocentric, pj, 1, 1, &x, &y, &z);

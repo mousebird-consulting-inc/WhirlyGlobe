@@ -1,5 +1,4 @@
-/*
- *  MaplyCoordinateSystem.h
+/*  MaplyCoordinateSystem.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyCoordinateSystem_private.h"
@@ -39,7 +37,27 @@ using namespace WhirlyKit;
 
 - (void)dealloc
 {
-    coordSystem = NULL;
+    coordSystem = nullptr;
+}
+
+- (MaplyCoordinate)ll
+{
+    if (coordSystem)
+    {
+        const auto &ll = coordSystem->getBounds().ll();
+        return MaplyCoordinate { ll.x(), ll.y() };
+    }
+    return MaplyCoordinate();
+}
+
+- (MaplyCoordinate)ur
+{
+    if (coordSystem)
+    {
+        const auto &ur = coordSystem->getBounds().ur();
+        return MaplyCoordinate { ur.x(), ur.y() };
+    }
+    return MaplyCoordinate();
 }
 
 - (WhirlyKit::CoordSystemRef)getCoordSystem
@@ -73,28 +91,30 @@ using namespace WhirlyKit;
     [self setBounds:box];
 }
 
-- (void)setBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
+- (void)setBoundsLL:(const MaplyCoordinate *)inLL ur:(const MaplyCoordinate *)inUR
 {
-    ll.x = inLL->x;    ll.y = inLL->y;
-    ur.x = inUR->x;    ur.y = inUR->y;
+    if (coordSystem)
+    {
+        coordSystem->setBounds(Point2f(inLL->x,inLL->y), Point2f(inUR->x,inUR->y));
+    }
 }
 
 - (MaplyBoundingBox)getBounds
 {
-    const Point3d llLoc = coordSystem->geographicToLocal(Point2d(ll.x, ll.y));
-    const Point3d urLoc = coordSystem->geographicToLocal(Point2d(ur.x, ur.y));
+    const Point3d llLoc = coordSystem->geographicToLocal(coordSystem->getBounds().ll().cast<double>());
+    const Point3d urLoc = coordSystem->geographicToLocal(coordSystem->getBounds().ur().cast<double>());
     return {{(float)llLoc.x(),(float)llLoc.y()},{(float)urLoc.x(),(float)urLoc.y()}};
 }
 
-- (void)getBoundsLL:(MaplyCoordinate *)ret_ll ur:(MaplyCoordinate *)ret_ur
+- (void)getBoundsLL:(MaplyCoordinate *)inLL ur:(MaplyCoordinate *)inUR
 {
-    if (ret_ll)
+    if (inLL)
     {
-        ret_ll->x = ll.x; ret_ll->y = ll.y;
+        *inLL = self.ll;
     }
-    if (ret_ur)
+    if (inUR)
     {
-        ret_ur->x = ur.x; ret_ur->y = ur.y;
+        *inUR = self.ur;
     }
 }
 
@@ -149,37 +169,25 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithBoundingBox:(MaplyBoundingBox)bbox
 {
-    PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
-    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
-    ll.x = bbox.ll.x;
-    ll.y = bbox.ll.y;
-    ur.x = bbox.ur.x;
-    ur.y = bbox.ur.y;
-    
+    if ((self = [super initWithCoordSystem:std::make_shared<PlateCarreeCoordSystem>()]))
+    {
+        [self setBounds:bbox];
+    }
     return self;
 }
 
 - (nullable instancetype)initWithBoundingBoxD:(MaplyBoundingBoxD)bbox
 {
-    PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
-    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
-    ll.x = bbox.ll.x;
-    ll.y = bbox.ll.y;
-    ur.x = bbox.ur.x;
-    ur.y = bbox.ur.y;
-    
+    if ((self = [super initWithCoordSystem:std::make_shared<PlateCarreeCoordSystem>()]))
+    {
+        [self setBoundsD:bbox];
+    }
     return self;
 }
 
 - (instancetype)initFullCoverage
 {
-    PlateCarreeCoordSystem *coordSys = new PlateCarreeCoordSystem();
-    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
-    Point3f pt0 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees(-180, -90));
-    Point3f pt1 = coordSys->geographicToLocal(GeoCoord::CoordFromDegrees(180, 90));
-    ll.x = pt0.x();  ll.y = pt0.y();
-    ur.x = pt1.x();  ur.y = pt1.y();
-    
+    self = [super initWithCoordSystem:std::make_shared<PlateCarreeCoordSystem>()];
     return self;
 }
 
@@ -204,13 +212,7 @@ using namespace WhirlyKit;
 
 - (instancetype)initWebStandard
 {
-    SphericalMercatorCoordSystem *coordSys = new SphericalMercatorCoordSystem();
-    self = [super initWithCoordSystem:CoordSystemRef(coordSys)];
-    Point3d pt0 = coordSys->geographicToLocal(Point2d(-180/180.0 * M_PI,-85.05113/180.0 * M_PI));
-    Point3d pt1 = coordSys->geographicToLocal(Point2d( 180/180.0 * M_PI, 85.05113/180.0 * M_PI));
-    ll.x = pt0.x();  ll.y = pt0.y();
-    ur.x = pt1.x();  ur.y = pt1.y();
-    
+    self = [super initWithCoordSystem:SphericalMercatorCoordSystem::makeWebStandard()];
     return self;
 }
 

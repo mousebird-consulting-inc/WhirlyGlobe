@@ -199,6 +199,14 @@ Point3dVector MarkerManager::convertGeoPtsToModelSpace(const VectorRing &inPts)
     return outPts;
 }
 
+SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
+{
+    std::vector<Marker*> pointers;
+    std::transform(markers.begin(), markers.end(), std::back_inserter(pointers),
+                   [](auto &m){ return const_cast<Marker*>(&m); });
+    return addMarkers(pointers, markerInfo, changes);
+}
+
 SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes)
 {
     if (shutdown || !scene)

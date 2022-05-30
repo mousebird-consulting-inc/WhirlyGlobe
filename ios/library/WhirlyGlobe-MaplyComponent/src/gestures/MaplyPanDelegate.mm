@@ -174,7 +174,8 @@ static const float AnimLen = 1.0;
         return;
     }
     
-    auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
+    const auto frameSizeScaled = sceneRender->getFramebufferSizeScaled();
+    const auto adapter = mapView->getCoordAdapter();
     switch (pan.state)
     {
         case UIGestureRecognizerStateBegan:
@@ -186,7 +187,7 @@ static const float AnimLen = 1.0;
             CGPoint panPt = [pan locationInView:pan.view];
             Point2f panPt2f(panPt.x,panPt.y);
             mapView->pointOnPlaneFromScreen(panPt2f, &startTransform, frameSizeScaled, &startOnPlane, false);
-            startLoc = mapView->coordAdapter->localToDisplay(mapView->getLoc());
+            startLoc = adapter->localToDisplay(mapView->getLoc());
             panning = YES;
             [[NSNotificationCenter defaultCenter] postNotificationName:kPanDelegateDidStart object:mapView->tag];
         }
@@ -206,9 +207,9 @@ static const float AnimLen = 1.0;
                 
                 // Note: Just doing a translation for now.  Won't take angle into account
                 MapView testMapView(*mapView);
-                Point3d oldLoc = mapView->coordAdapter->localToDisplay(mapView->getLoc());
+                Point3d oldLoc = adapter->localToDisplay(mapView->getLoc());
                 Point3d newLocDisp = startOnPlane - hit + startLoc;
-                Point3d newLoc = mapView->coordAdapter->displayToLocal(newLocDisp);
+                Point3d newLoc = adapter->displayToLocal(newLocDisp);
                 testMapView.setLoc(newLoc);
 
                 Point3d newCenter;

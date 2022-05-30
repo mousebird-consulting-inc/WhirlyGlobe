@@ -28,9 +28,6 @@ namespace Maply
 MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
 {
     coordAdapter = inCoordAdapter;
-    fieldOfView = 60.0 / 360.0 * 2 * (float)M_PI;  // 60 degree field of view
-    imagePlaneSize = nearPlane * tanf(fieldOfView / 2.0);
-    lastChangedTime = TimeGetCurrent();
     continuousZoom = true;
     absoluteMinNearPlane = 0.000001;
     absoluteMinFarPlane = 0.001;
@@ -40,26 +37,22 @@ MapView::MapView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     rotAngle = 0.0;
     wrap = true;
 
-    defaultNearPlane = nearPlane;
-    defaultFarPlane = farPlane;
+    defaultNearPlane = getNearPlane();
+    defaultFarPlane = getFarPlane();
 }
     
-MapView::MapView(const MapView &that)
-: View(that), loc(that.loc), rotAngle(that.rotAngle), wrap(that.wrap),
-absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection),
-defaultNearPlane(that.defaultNearPlane), absoluteMinNearPlane(that.absoluteMinNearPlane),
-defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane)
+MapView::MapView(const MapView &that) :
+    View(that), loc(that.loc), rotAngle(that.rotAngle), wrap(that.wrap),
+    absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection),
+    defaultNearPlane(that.defaultNearPlane), absoluteMinNearPlane(that.absoluteMinNearPlane),
+    defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane)
 {
 }
     
-MapView::~MapView()
-{    
-}
-
 float MapView::calcZbufferRes()
 {
     // Note: Not right
-    double delta = 0.0001;
+    constexpr double delta = 0.0001;
     
     return delta;
 }
@@ -91,12 +84,9 @@ void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,con
         GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
         float spanX = geoUR.x()-geoLL.x();
         float offX = loc.x()*scale.x()-geoLL.x();
-        int num = floorf(offX/spanX);
-        std::vector<int> nums;
-        nums.push_back(num);
-        nums.push_back(num-1);
-        nums.push_back(num+1);
-        
+        const auto num = (int)floor(offX/spanX);
+        std::vector<int> nums = { num, num - 1, num + 1 };
+
         float localSpanX = ur.x()-ll.x();
         
         // See if the framebuffer lands in any of the potential matrices
@@ -167,7 +157,7 @@ double MapView::minHeightAboveSurface() const
     if (continuousZoom)
         return absoluteMinHeight;
     else
-        return 1.01*nearPlane;
+        return 1.01 * getNearPlane();
 }
 
 double MapView::maxHeightAboveSurface() const
@@ -191,14 +181,13 @@ void MapView::setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates)
         if (loc.z() < heightInflection)
         {
             const double t = 1.0 - (heightInflection - loc.z()) / (heightInflection - absoluteMinHeight);
-            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
-            farPlane = loc.z()+nearPlane;
+            setPlanes(t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane,
+                      loc.z() + getNearPlane());
         } else {
-            nearPlane = defaultNearPlane;
-            farPlane = defaultFarPlane;
+            setPlanes(defaultNearPlane, defaultFarPlane);
         }
+        updateParams();
     }
-    imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
 
     if (runUpdates)
         runViewUpdates();
@@ -255,7 +244,7 @@ Point2f MapView::pointOnScreenFromPlane(const Point3d &inWorldLoc,const Eigen::M
 
     // Intersection with near gives us the same plane as the screen 
     Point3d ray = Point3d(screenPt.x(), screenPt.y(), screenPt.z()) / screenPt.w();
-    ray *= -nearPlane/ray.z();
+    ray *= -getNearPlane()/ray.z();
 
     // Now we need to scale that to the frame
     Point2d ll,ur;

@@ -512,14 +512,15 @@ RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
     return frameInfo;
 }
 
-void SceneRendererMTL::render(TimeInterval duration,
-                              MTLRenderPassDescriptor *renderPassDesc,
-                              id<SceneRendererMTLDrawableGetter> drawGetter)
+void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
 {
     if (!scene)
         return;
     SceneMTL *sceneMTL = (SceneMTL *)scene;
-    
+ 
+    auto renderPassDesc = renderInfo ? ((RenderInfoMTL*)renderInfo)->renderPassDesc : nil;
+    const id<SceneRendererMTLDrawableGetter> drawGetter = renderInfo ? ((RenderInfoMTL*)renderInfo)->drawGetter : nil;
+
     frameCount++;
     
     const TimeInterval now = scene->getCurrentTime();
@@ -1141,5 +1142,5 @@ DynamicTextureRef SceneRendererMTL::makeDynamicTexture(const std::string &name) 
     return std::make_shared<DynamicTextureMTL>(name);
 }
 
-    
+
 }

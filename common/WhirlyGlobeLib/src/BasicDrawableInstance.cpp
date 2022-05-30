@@ -1,5 +1,4 @@
-/*
- *  BasicDrawableInstance.mm
+/*  BasicDrawableInstance.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Program.h"
@@ -37,9 +35,13 @@ BasicDrawableInstance::~BasicDrawableInstance()
 {
 }
 
-BasicDrawableInstance::TexInfo::TexInfo(BasicDrawable::TexInfo &basicTexInfo)
-: texId(basicTexInfo.texId), size(basicTexInfo.size), borderTexel(basicTexInfo.borderTexel),
-relLevel(basicTexInfo.relLevel), relX(basicTexInfo.relX), relY(basicTexInfo.relY)
+BasicDrawableInstance::TexInfo::TexInfo(const BasicDrawable::TexInfo &basicTexInfo) :
+    texId(basicTexInfo.texId),
+    size(basicTexInfo.size),
+    borderTexel(basicTexInfo.borderTexel),
+    relLevel(basicTexInfo.relLevel),
+    relX(basicTexInfo.relX),
+    relY(basicTexInfo.relY)
 {
 }
 
@@ -324,19 +326,19 @@ void BasicDrawableInstance::setRenderTarget(SimpleIdentity newRenderTarget)
 
 void BasicDrawableInstance::setTexId(unsigned int which,SimpleIdentity inId)
 {
-    bool changes = false;
-    
-    if (which < texInfo.size()) {
-        if (texInfo[which].texId == inId)
-            return;
-        texInfo[which].texId = inId;
-        changes = true;
-    } else {
-        wkLogLevel(Error, "BasicDrawableInstance:setTexId() Tried to set texInfo entry that doesn't exist.");
+    if (which < texInfo.size())
+    {
+        if (texInfo[which].texId != inId)
+        {
+            texInfo[which].texId = inId;
+            setTexturesChanged();
+        }
     }
-    
-    if (changes)
-        setTexturesChanged();
+    else
+    {
+        wkLogLevel(Error, "BasicDrawableInstance:setTexId(%d,%lld) - texInfo entry doesn't exist (%d)",
+                   which, inId, (int)texInfo.size());
+    }
 }
 
 void BasicDrawableInstance::setTexIDs(const std::vector<SimpleIdentity> &texIDs)

@@ -21,8 +21,65 @@
 #import "WhirlyKitLog.h"
 #import "DictionaryC.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wall"
+#import <libjson.h>
+#pragma clang diagnostic pop
+
+
 namespace WhirlyKit
 {
+
+// Helper that hides libjson details from public interface
+struct MutableDictionary_Android_Json : public MutableDictionary_Android
+{
+    static ValueRef parseJSONValue(MutableDictionary_Android &ths, JSONNode::iterator &nodeIt)
+    {
+        switch (nodeIt->type())
+        {
+            case JSON_NULL:     return ValueRef();
+            case JSON_STRING:   return std::make_shared<StringValue>(nodeIt->as_string());
+            case JSON_NUMBER:   return std::make_shared<DoubleValue>(nodeIt->as_float());
+            case JSON_BOOL:     return std::make_shared<IntValue>(nodeIt->as_bool());
+            case JSON_ARRAY:
+            {
+                auto nodes = nodeIt->as_array();
+                std::vector<ValueRef> values;
+                values.reserve(nodes.size());
+                for (auto arrNodeIt = nodes.begin(); arrNodeIt != nodes.end(); ++arrNodeIt)
+                {
+                    values.push_back(parseJSONValue(ths, arrNodeIt));
+                }
+                return std::make_shared<ArrayValue>(values);
+            }
+            case JSON_NODE:
+            {
+                auto dict = std::make_shared<MutableDictionary_Android>();
+                auto node = nodeIt->as_node();
+                parseJSONNode(*dict, node);
+                return std::make_shared<DictionaryValue>(std::move(dict));
+            }
+            default:
+                wkLogLevel(Warn, "Unsupported type conversion from type %d to JSON", nodeIt->type());
+        }
+
+        return ValueRef();
+    }
+
+    static bool parseJSONNode(MutableDictionary_Android &ths, JSONNode &node)
+    {
+        for (auto nodeIt = node.begin(); nodeIt != node.end(); ++nodeIt) {
+            const auto name = nodeIt->name();
+            const auto val = parseJSONValue(ths, nodeIt);
+            if (name.empty() || !val)
+            {
+                return false;
+            }
+            ths.fields[name] = val;
+        }
+        return true;
+    }
+};
 
 // from DictionaryC
 extern RGBAColor ARGBtoRGBAColor(uint32_t v);
@@ -120,9 +177,7 @@ bool MutableDictionary_Android::StringValue::isEqual(const DictionaryEntry& othe
         case DictTypeInt:
         case DictTypeInt64:
         case DictTypeIdentity:
-            return val == other.getString();
-        case DictTypeDouble:
-            // todo: should really parse to double and compare with epsilon
+        case DictTypeDouble:    // todo: should really parse to double and compare with epsilon
             return val == other.getString();
         case DictTypeObject:
         case DictTypeDictionary:
@@ -143,9 +198,7 @@ bool MutableDictionary_Android::StringValue::isEqual(const DictionaryEntry_Andro
         case DictTypeInt:
         case DictTypeInt64:
         case DictTypeIdentity:
-            return val == other.getString();
-        case DictTypeDouble:
-            // todo: should really parse to double and compare with epsilon
+        case DictTypeDouble:    // todo: should really parse to double and compare with epsilon
             return val == other.getString();
         case DictTypeObject:
         case DictTypeDictionary:
@@ -184,54 +237,7 @@ MutableDictionary_Android::MutableDictionary_Android(const Dictionary &that)
 bool MutableDictionary_Android::parseJSON(const std::string &jsonString)
 {
     JSONNode topNode = libjson::parse(jsonString);
-    return parseJSONNode(topNode);
-}
-
-MutableDictionary_Android::ValueRef MutableDictionary_Android::parseJSONValue(JSONNode::iterator &nodeIt)
-{
-    switch (nodeIt->type())
-    {
-        case JSON_NULL:     return ValueRef();
-        case JSON_STRING:   return std::make_shared<StringValue>(nodeIt->as_string());
-        case JSON_NUMBER:   return std::make_shared<DoubleValue>(nodeIt->as_float());
-        case JSON_BOOL:     return std::make_shared<IntValue>(nodeIt->as_bool());
-        case JSON_ARRAY:
-        {
-            auto nodes = nodeIt->as_array();
-            std::vector<ValueRef> values;
-            values.reserve(nodes.size());
-            for (auto arrNodeIt = nodes.begin(); arrNodeIt != nodes.end(); ++arrNodeIt)
-            {
-                values.push_back(parseJSONValue(arrNodeIt));
-            }
-            return std::make_shared<ArrayValue>(values);
-        }
-        case JSON_NODE:
-        {
-            auto dict = std::make_shared<MutableDictionary_Android>();
-            auto node = nodeIt->as_node();
-            dict->parseJSONNode(node);
-            return std::make_shared<DictionaryValue>(dict);
-        }
-        default:
-            wkLogLevel(Warn, "Unsupported type conversion from type %d to JSON", nodeIt->type());
-    }
-
-    return ValueRef();
-}
-
-bool MutableDictionary_Android::parseJSONNode(JSONNode &node)
-{
-    for (auto nodeIt = node.begin(); nodeIt != node.end(); ++nodeIt) {
-        const auto name = nodeIt->name();
-        const auto val = parseJSONValue(nodeIt);
-        if (name.empty() || !val)
-        {
-            return false;
-        }
-        fields[name] = val;
-    }
-    return true;
+    return MutableDictionary_Android_Json::parseJSONNode(*this, topNode);
 }
 
 void MutableDictionary_Android::clear()
@@ -732,9 +738,9 @@ std::vector<DictionaryEntryRef> DictionaryEntry_Android::getArray() const
 
 bool DictionaryEntry_Android::isEqual(const DictionaryEntryRef &inOther) const
 {
-    if (const auto other = dynamic_cast<DictionaryEntry_Android*>(inOther.get()))
+    if (const auto andr = dynamic_cast<DictionaryEntry_Android*>(inOther.get()))
     {
-        return val->isEqual(other->val);
+        return val->isEqual(andr->val);
     }
     else if (const auto other = dynamic_cast<DictionaryEntry*>(inOther.get()))
     {

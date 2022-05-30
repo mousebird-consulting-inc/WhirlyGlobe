@@ -121,7 +121,10 @@ using namespace WhirlyKit;
             if (!renderPassDesc)
                 return;
 
-            renderMTL->render(1.0/self.preferredFramesPerSecond,renderPassDesc,self);
+            SceneRendererMTL::RenderInfoMTL info;
+            info.renderPassDesc = renderPassDesc;
+            info.drawGetter = self;
+            renderMTL->render(1.0/self.preferredFramesPerSecond, &info);
         }
     } else {
         TimeInterval now = TimeGetCurrent();

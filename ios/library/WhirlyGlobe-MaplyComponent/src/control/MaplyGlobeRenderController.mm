@@ -178,9 +178,9 @@ using namespace WhirlyGlobe;
 - (instancetype) initWithSize:(CGSize)screenSize mode:(MaplyRenderType)renderType
 {
     globeView = GlobeView_iOSRef(new GlobeView_iOS());
-    globeView->continuousZoom = true;
+    globeView->setContinuousZoom(true);
     visualView = globeView;
-    coordAdapter = globeView->coordAdapter;
+    coordAdapter = const_cast<CoordSystemDisplayAdapter*>(globeView->getCoordAdapter());
     
     self = [super initWithSize:screenSize mode:renderType];
     [self resetLights];
@@ -230,7 +230,8 @@ using namespace WhirlyGlobe;
     }
     
     // Start with a rotation from the clean start state to the location
-    Point3d worldLoc = globeView->coordAdapter->localToDisplay(globeView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    const auto adapter = globeView->getCoordAdapter();
+    Point3d worldLoc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
     Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, startLoc);
     
     // Orient with north up.  Either because we want that or we're about do do a heading
@@ -287,7 +288,8 @@ using namespace WhirlyGlobe;
 
 - (MaplyCoordinate)getPosition
 {
-    GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
+    const auto adapter = globeView->getCoordAdapter();
+    const GeoCoord geoCoord = adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(globeView->currentUp()));
 
     return {.x = geoCoord.lon(), .y = geoCoord.lat()};
 }
@@ -303,8 +305,9 @@ using namespace WhirlyGlobe;
 - (void)getPositionD:(MaplyCoordinateD *)pos height:(double *)height
 {
     *height = globeView->getHeightAboveGlobe();
-    Point3d localPt = globeView->currentUp();
-    Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(localPt));
+    const Point3d localPt = globeView->currentUp();
+    const auto adapter = globeView->getCoordAdapter();
+    const Point2d geoCoord = adapter->getCoordSystem()->localToGeographicD(adapter->displayToLocal(localPt));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
 }
 
@@ -342,7 +345,7 @@ using namespace WhirlyGlobe;
             sceneRenderMTL->addSnapshotDelegate(target);
             
             sceneRenderMTL->forceDrawNextFrame();
-            sceneRenderMTL->render(1/60.0,nil,nil);  // TODO: Set this value for reals
+            sceneRenderMTL->render(1/60.0,nil);  // TODO: Set this value for reals
             
             sceneRenderMTL->removeSnapshotDelegate(target);
         }

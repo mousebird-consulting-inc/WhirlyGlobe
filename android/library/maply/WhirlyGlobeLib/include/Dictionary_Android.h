@@ -22,7 +22,6 @@
 #import "CoordSystem.h"
 #import "RawData.h"
 #import "Dictionary.h"
-#import "libjson.h"
 
 namespace WhirlyKit
 {
@@ -36,7 +35,7 @@ typedef std::shared_ptr<DictionaryEntry_Android> DictionaryEntry_AndroidRef;
 class MutableDictionary_Android : public MutableDictionary
 {
 public:
-    MutableDictionary_Android() {}
+    MutableDictionary_Android() = default;
     // Construct from a raw data buffer
     MutableDictionary_Android(RawData *rawData);
     // Copy constructor
@@ -54,8 +53,6 @@ public:
 
     // Parse from a JSON string
     bool parseJSON(const std::string &jsonString);
-    bool parseJSONNode(JSONNode &node);
-    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
 
     virtual int count() const override { return fields.size(); }
 
@@ -272,6 +269,7 @@ public:
     struct DictionaryValue : public Value
     {
         DictionaryValue(const MutableDictionary_AndroidRef &inVal) : val(inVal) { }
+        DictionaryValue(MutableDictionary_AndroidRef &&inVal) : val(std::move(inVal)) { }
 
         virtual DictionaryType type() const override { return DictTypeDictionary; }
         virtual ValueRef copy() const override { return std::make_shared<DictionaryValue>(val); }
@@ -315,6 +313,7 @@ public:
     typedef std::shared_ptr<ArrayValue> ArrayValueRef;
 
 protected:
+    friend struct MutableDictionary_Android_Json;
     typedef std::map<std::string,ValueRef> FieldMap;
     FieldMap fields;
 };

@@ -29,7 +29,6 @@ namespace WhirlyKit
 class SceneGLES : public Scene
 {
 public:
-    
     SceneGLES(CoordSystemDisplayAdapter *adapter);
     
     /// Look for a valid texture
@@ -48,5 +47,6 @@ protected:
     /// Memory manager, really buffer and texture ID manager
     OpenGLMemManager memManager;
 };
+using SceneGLESRef = std::shared_ptr<SceneGLES>;
 
 }

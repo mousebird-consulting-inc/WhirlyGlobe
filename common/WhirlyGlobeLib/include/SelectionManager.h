@@ -83,8 +83,8 @@ struct PolytopeSelectable : public Selectable
     PolytopeSelectable(const PolytopeSelectable&) = default;
     PolytopeSelectable(PolytopeSelectable&& other) noexcept :
             Selectable(other.selectID),
-            centerPt(other.centerPt),
-            polys(std::move(other.polys))
+            polys(std::move(other.polys)),
+            centerPt(other.centerPt)
     {
     }
 
@@ -229,7 +229,7 @@ public:
 
         std::vector<SimpleIdentity> selectIDs;    // What we selected.  If it was a cluster, could be more than one
         VectorObjectRef vecObj;     // On the Android side, we use this as a container for selected vectors
-        GeoCoord center;            // geo location
+        GeoCoord center = { 0, 0 }; // geo location
         double distIn3D;            // 3D distance from eye
         double screenDist;          // 2D distance in screen space
         bool isCluster = false;     // Set if this is a cluster

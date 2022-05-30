@@ -261,7 +261,7 @@ bool DisplaySolid::isOnScreenForViewState(ViewState *viewState,const Point2f &fr
 {
     if (!viewState->coordAdapter->isFlat())
     {
-        // If the viewer is inside the bounds, the node is maximimally important (duh)
+        // If the viewer is inside the bounds, the node is maximally important (duh)
         if (isInside(viewState->eyePos))
             return MAXFLOAT;
     }

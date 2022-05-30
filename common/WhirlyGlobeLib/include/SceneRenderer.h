@@ -34,7 +34,7 @@ class BillboardDrawableBuilder;
 typedef std::shared_ptr<BillboardDrawableBuilder> BillboardDrawableBuilderRef;
 class ParticleSystemDrawableBuilder;
 typedef std::shared_ptr<ParticleSystemDrawableBuilder> ParticleSystemDrawableBuilderRef;
-class ScreenSpaceDrawableBuilder;
+struct ScreenSpaceDrawableBuilder;
 typedef std::shared_ptr<ScreenSpaceDrawableBuilder> ScreenSpaceDrawableBuilderRef;
 class WideVectorDrawableBuilder;
 typedef std::shared_ptr<WideVectorDrawableBuilder> WideVectorDrawableBuilderRef;
@@ -190,7 +190,7 @@ public:
     /// Renderer type.  Back down to one on iOS.
     typedef enum {RenderGLES,RenderMetal} Type;
     virtual Type getType() = 0;
-    
+
     /// Set the render until time.  This is used by things like fade to keep
     ///  the rendering optimization from cutting off animation.
     virtual void setRenderUntil(TimeInterval newTime);
@@ -338,7 +338,17 @@ public:
     
     // Possible post-target creation init
     virtual void defaultTargetInit(RenderTarget *);
-    
+
+    /// Resize framebuffer
+    virtual bool resize(int sizeX,int sizeY) = 0;
+
+    struct RenderInfo
+    {
+    };
+
+    /// Draw stuff (the whole point!)
+    virtual void render(TimeInterval period, RenderInfo *) = 0;
+
     // Presentation, if required
     virtual void presentRender();
     

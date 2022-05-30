@@ -1,3 +1,5 @@
+#include <utility>
+
 /*  DynamicTextureAtlas.cpp
  *  WhirlyGlobeLib
  *
@@ -26,8 +28,8 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-DynamicTexture::DynamicTexture(const std::string &name)
-: TextureBase(name), layoutGrid(NULL)
+DynamicTexture::DynamicTexture(const std::string &name) :
+    TextureBase(name)
 {
 }
 
@@ -45,11 +47,8 @@ void DynamicTexture::setup(int inTexSize,int inCellSize,TextureType inType,bool 
 
 DynamicTexture::~DynamicTexture()
 {
-    if (!layoutGrid)
-        return;
-    
     delete [] layoutGrid;
-    layoutGrid = NULL;
+    layoutGrid = nullptr;
 }
     
 void DynamicTexture::addTexture(Texture *tex,const Region &region)
@@ -149,11 +148,6 @@ void DynamicTexture::addRegionToClear(const Region &region)
     releasedRegions.push_back(region);
 }
 
-bool DynamicTexture::empty()
-{
-    return numRegions == 0;
-}
-
 void DynamicTexture::getUtilization(int &outNumCell,int &usedCell)
 {
     outNumCell = numCell*numCell;
@@ -195,11 +189,6 @@ void DynamicTextureAddRegion::execute(Scene *scene,SceneRenderer *renderer,View 
     wasRun = true;
 }
    
-DynamicTextureAtlas::TextureRegion::TextureRegion()
-  : dynTexId(EmptyIdentity)
-{
-}
-
 // If set, we ask the main thread to do the sub texture loads
 #if TARGET_IPHONE_SIMULATOR
     static const bool MainThreadMerge = true;
@@ -212,9 +201,14 @@ DynamicTextureAtlas::TextureRegion::TextureRegion()
 #endif
 #endif
 
-    
-DynamicTextureAtlas::DynamicTextureAtlas(const std::string &name,int texSize,int cellSize,TextureType format,int imageDepth,bool mainThreadMerge)
-    : name(name), texSize(texSize), cellSize(cellSize), format(format), imageDepth(imageDepth),  pixelFudge(0.0), mainThreadMerge(mainThreadMerge), clearTextures(false), interpType(TexInterpLinear)
+DynamicTextureAtlas::DynamicTextureAtlas(std::string name,int texSize,int cellSize,
+                                         TextureType format,int imageDepth,bool mainThreadMerge) :
+    name(std::move(name)),
+    format(format),
+    imageDepth(imageDepth),
+    texSize(texSize),
+    cellSize(cellSize),
+    mainThreadMerge(mainThreadMerge)
 {
     if (mainThreadMerge || MainThreadMerge)
     {
@@ -231,29 +225,13 @@ DynamicTextureAtlas::~DynamicTextureAtlas()
     }
     textures.clear();
 }
-    
-/// Set the interpolation type used for min and mag
-void DynamicTextureAtlas::setInterpType(TextureInterpType inType)
-{
-    interpType = inType;
-}
 
-TextureInterpType DynamicTextureAtlas::getInterpType() const
-{
-    return interpType;
-}
-
-TextureType DynamicTextureAtlas::getFormat() const
-{
-    return format;
-}
-
-void DynamicTextureAtlas::setPixelFudgeFactor(float pixFudge)
-{
-    pixelFudge = pixFudge;
-}
-
-bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vector<Texture *> &newTextures,int frame,const Point2f *realSize,const Point2f *realOffset,SubTexture &subTex,ChangeSet &changes,int borderPixels,int bufferPixels,TextureRegion *outTexRegion)
+bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,
+                                     const std::vector<Texture *> &newTextures,
+                                     int frame, const Point2f *realSize,
+                                     const Point2f *realOffset, SubTexture &subTex,
+                                     ChangeSet &changes, int borderPixels, int bufferPixels,
+                                     TextureRegion *outTexRegion)
 {
     if (newTextures.size() != imageDepth && frame < 0)
         return false;
@@ -273,10 +251,10 @@ bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,const std::vecto
         std::vector<DynamicTexture::Region> toClear = firstDynTex->getReleasedRegions();
         for (const DynamicTexture::Region &clearRegion : toClear)
         {
-            for (unsigned int ii=0;ii<dynTexVec->size();ii++)
+            for (const auto &dynTex : *dynTexVec)
             {
-                const DynamicTextureRef &dynTex = dynTexVec->at(ii);
-                dynTex->clearRegion(clearRegion,changes,doMainThreadMerge,doMainThreadMerge ? &emptyPixelBuffer[0] : nullptr);
+                dynTex->clearRegion(clearRegion,changes,doMainThreadMerge,
+                                    doMainThreadMerge ? &emptyPixelBuffer[0] : nullptr);
             }
         }
     }

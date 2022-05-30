@@ -28,25 +28,23 @@ namespace WhirlyKit
     
 WideVectorDrawableBuilder::WideVectorDrawableBuilder(std::string name,
                                                      const SceneRenderer *sceneRenderer,
-                                                     Scene *scene)
-    : name(std::move(name)), renderer(sceneRenderer), scene(scene),
-      implType(WideVecImplBasic), basicDrawable(nullptr), instDrawable(nullptr),
-      lineWidth(1.0), lineOffset(0.0), globeMode(false),
-      texRepeat(1.0), edgeSize(1.0),
-      p1_index(-1), n0_index(-1), offset_index(-1), c0_index(-1), tex_index(-1)
+                                                     Scene *scene) :
+    name(std::move(name)),
+    scene(scene),
+    renderer(sceneRenderer)
 {
 }
 
 void WideVectorDrawableBuilder::Init(unsigned int numVert,
                                      unsigned int numTri,
                                      unsigned int numCenterline,
-                                     WideVecImplType implType,
+                                     WideVecImplType inImplType,
                                      bool inGlobeMode,
                                      const WideVectorInfo *vecInfo)
 {
     globeMode = inGlobeMode;
-    this->implType = implType;
-    
+    implType = inImplType;
+
     basicDrawable = renderer->makeBasicDrawableBuilder(name);
     basicDrawable->Init();
     basicDrawable->setupStandardAttributes();
@@ -134,9 +132,9 @@ void WideVectorDrawableBuilder::add_p1(const Point3f &pt)
 #endif
 }
 
-void WideVectorDrawableBuilder::add_texInfo(float texX,float texYmin,float texYmax,float texOffset)
+void WideVectorDrawableBuilder::add_texInfo(float texX,float texYmin,float texYmax,float inTexOffset)
 {
-    addAttributeValue(tex_index, Vector4f(texX,texYmin,texYmax,texOffset));
+    addAttributeValue(tex_index, Vector4f(texX,texYmin,texYmax,inTexOffset));
 #ifdef WIDEVECDEBUG
 #endif
 }
@@ -162,21 +160,21 @@ void WideVectorDrawableBuilder::add_c0(float val)
 #endif
 }
 
-void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef colorExp)
+void WideVectorDrawableBuilder::setColorExpression(ColorExpressionInfoRef inColorExp)
 {
-    this->colorExp = std::move(colorExp);
+    colorExp = std::move(inColorExp);
     if (basicDrawable)
     {
-        basicDrawable->setColorExpression(this->colorExp);
+        basicDrawable->setColorExpression(colorExp);
     }
 }
 
-void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef opacityExp)
+void WideVectorDrawableBuilder::setOpacityExpression(FloatExpressionInfoRef inOpacityExp)
 {
-    this->opacityExp = std::move(opacityExp);
+    opacityExp = std::move(inOpacityExp);
     if (basicDrawable)
     {
-        basicDrawable->setOpacityExpression(this->opacityExp);
+        basicDrawable->setOpacityExpression(opacityExp);
     }
 }
 
@@ -250,7 +248,7 @@ unsigned int WideVectorDrawableBuilder::getNumTris()
 
 int WideVectorDrawableBuilder::getCenterLineCount()
 {
-    return centerline.size();
+    return (int)centerline.size();
 }
 
 SimpleIdentity WideVectorDrawableBuilder::getBasicDrawableID()

@@ -29,17 +29,17 @@ ScreenSpaceBuilder::DrawableState::DrawableState(DrawableState&& other) noexcept
         progID        (other.progID),
         fadeUp        (other.fadeUp),
         fadeDown      (other.fadeDown),
-        enable        (other.enable),
         startEnable   (other.startEnable),
         endEnable     (other.endEnable),
         drawOrder     (other.drawOrder),
-        drawPriority  (other.drawPriority),
         renderTargetID(other.renderTargetID),
+        minZoomVis    (other.minZoomVis),
+        maxZoomVis    (other.maxZoomVis),
         minVis        (other.minVis),
         maxVis        (other.maxVis),
         zoomSlot      (other.zoomSlot),
-        minZoomVis    (other.minZoomVis),
-        maxZoomVis    (other.maxZoomVis),
+        drawPriority  (other.drawPriority),
+        enable        (other.enable),
         motion        (other.motion),
         rotation      (other.rotation),
         keepUpright   (other.keepUpright),
@@ -141,8 +141,8 @@ bool ScreenSpaceBuilder::DrawableState::operator <(const DrawableState &that) co
     return false;
 }
     
-ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const DrawableState &state)
-    : state(state), center(0,0,0)
+ScreenSpaceBuilder::DrawableWrap::DrawableWrap(SceneRenderer *render,const DrawableState &state) :
+    state(state)
 {
     if (!render)
     {
@@ -241,8 +241,10 @@ void ScreenSpaceBuilder::DrawableWrap::addTri(int v0, int v1, int v2)
 ScreenSpaceBuilder::ScreenSpaceBuilder(SceneRenderer *sceneRender,
                                        CoordSystemDisplayAdapter *coordAdapter,
                                        float scale,float centerDist) :
-    sceneRender(sceneRender), coordAdapter(coordAdapter),
-    scale(scale), drawPriorityOffset(0), centerDist(centerDist)
+    centerDist(centerDist),
+    scale(scale),
+    sceneRender(sceneRender),
+    coordAdapter(coordAdapter)
 {
 }
 

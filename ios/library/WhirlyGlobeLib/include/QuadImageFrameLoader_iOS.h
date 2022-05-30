@@ -123,7 +123,7 @@ public:
     /// Number of frames we're representing
     virtual int getNumFrames() const override;
     
-    // Contruct a platform specific BatchOps for passing to tile fetcher
+    // Construct a platform specific BatchOps for passing to tile fetcher
     // (we don't know about tile fetchers down here)
     virtual QIFBatchOps *makeBatchOps(PlatformThreadInfo *threadInfo) override;
     

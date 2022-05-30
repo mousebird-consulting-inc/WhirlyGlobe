@@ -35,41 +35,43 @@ GlobeView::GlobeView(WhirlyKit::CoordSystemDisplayAdapter *inCoordAdapter)
     //rotQuat = Eigen::AngleAxisd(-M_PI_4,Vector3d(1,0,0));     // North pole at heading=0
     rotQuat = Eigen::Quaterniond(-0.5, 0.5, 0.5, 0.5);  // lat=0 / lon=0 / heading=0
     coordAdapter = &fakeGeoC;
-    defaultNearPlane = nearPlane;
-    defaultFarPlane = farPlane;
+    defaultNearPlane = getNearPlane();
+    defaultFarPlane = getFarPlane();
     // This will get you down to r17 in the usual tile sets
     absoluteMinNearPlane = 0.000001;
     absoluteMinFarPlane = 0.001;
     absoluteMinHeight = 0.000002;
     heightInflection = 0.011;
     heightAboveGlobe = 1.1;
-    tilt = 0.0;
-    roll = 0.0;
 }
 
-GlobeView::GlobeView(const GlobeView &that)
-: View(that), absoluteMinHeight(that.absoluteMinHeight), heightInflection(that.heightInflection), defaultNearPlane(that.defaultNearPlane),
-    absoluteMinNearPlane(that.absoluteMinNearPlane), defaultFarPlane(that.defaultFarPlane), absoluteMinFarPlane(that.absoluteMinFarPlane),
-    heightAboveGlobe(that.heightAboveGlobe), rotQuat(that.rotQuat), tilt(that.tilt), roll(that.roll)
-{
-}
-    
-GlobeView::~GlobeView()
+GlobeView::GlobeView(const GlobeView &that) :
+    View(that),
+    absoluteMinHeight(that.absoluteMinHeight),
+    heightInflection(that.heightInflection),
+    defaultNearPlane(that.defaultNearPlane),
+    defaultFarPlane(that.defaultFarPlane),
+    absoluteMinNearPlane(that.absoluteMinNearPlane),
+    absoluteMinFarPlane(that.absoluteMinFarPlane),
+    heightAboveGlobe(that.heightAboveGlobe),
+    rotQuat(that.rotQuat),
+    tilt(that.tilt),
+    roll(that.roll)
 {
 }
     
 void GlobeView::setFarClippingPlane(double newFarPlane)
 {
-    farPlane = newFarPlane;
+    setFarPlane((float)newFarPlane);
 }
 
-void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat)
+void GlobeView::setRotQuat(const Eigen::Quaterniond &newRotQuat)
 {
     setRotQuat(newRotQuat,true);
 }
 
 // Set the new rotation, but also keep track of when we did it
-void GlobeView::setRotQuat(Eigen::Quaterniond newRotQuat,bool updateWatchers)
+void GlobeView::setRotQuat(const Eigen::Quaterniond &newRotQuat,bool updateWatchers)
 {
     double w, x, y, z;
     w = newRotQuat.coeffs().w();
@@ -111,26 +113,21 @@ double GlobeView::minHeightAboveGlobe() const
     if (continuousZoom)
         return absoluteMinHeight;
     else
-        return 1.01*nearPlane;
+        return 1.01 * getNearPlane();
 }
 
-double GlobeView::heightAboveSurface() const
-{
-    return heightAboveGlobe;
-}
-	
 double GlobeView::maxHeightAboveGlobe() const
 {
-    return (farPlane - 1.0);
+    return (getFarPlane() - 1.0);
 }
-	
+
 double GlobeView::calcEarthZOffset() const
 {
-	float minH = minHeightAboveGlobe();
+	const auto minH = minHeightAboveGlobe();
 	if (heightAboveGlobe < minH)
 		return 1.0+minH;
 	
-	float maxH = maxHeightAboveGlobe();
+	const auto maxH = maxHeightAboveGlobe();
 	if (heightAboveGlobe > maxH)
 		return 1.0+maxH;
 	
@@ -161,13 +158,11 @@ void GlobeView::setHeightAboveGlobeNoLimits(double newH,bool updateWatchers)
         if (heightAboveGlobe < heightInflection)
         {
             double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
-            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
-            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
+            setPlanes(t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane,
+                      t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane);
         } else {
-            nearPlane = defaultNearPlane;
-            farPlane = defaultFarPlane;
+            setPlanes(defaultNearPlane, defaultFarPlane);
         }
-		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
     }
     
     lastChangedTime = TimeGetCurrent();
@@ -196,13 +191,12 @@ void GlobeView::privateSetHeightAboveGlobe(double newH,bool updateWatchers)
         if (heightAboveGlobe < heightInflection)
         {
             double t = 1.0 - (heightInflection - heightAboveGlobe) / (heightInflection - absoluteMinHeight);
-            nearPlane = t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane;
+            setNearPlane(t * (defaultNearPlane-absoluteMinNearPlane) + absoluteMinNearPlane);
 //            farPlane = t * (defaultFarPlane-absoluteMinFarPlane) + absoluteMinFarPlane;
         } else {
-            nearPlane = defaultNearPlane;
+            setNearPlane(defaultNearPlane);
 //            farPlane = defaultFarPlane;
         }
-		imagePlaneSize = nearPlane * tan(fieldOfView / 2.0);
     }
     
     lastChangedTime = TimeGetCurrent();
@@ -225,7 +219,7 @@ Eigen::Matrix4d GlobeView::calcModelMatrix() const
     Point2d modelOff(0.0,0.0);
     if (centerOffset.x() != 0.0 || centerOffset.y() != 0.0) {
         // imagePlaneSize is actually half the image plane size in the horizontal
-        modelOff = (centerOffset * imagePlaneSize) * (heightAboveGlobe+1.0)/nearPlane;
+        modelOff = (centerOffset * getImagePlaneSize()) * (heightAboveGlobe+1.0)/getNearPlane();
     }
     
     const Eigen::Affine3d trans(Eigen::Translation3d(modelOff.x(),modelOff.y(),-calcEarthZOffset()));
@@ -248,7 +242,7 @@ Vector3d GlobeView::currentUp() const
 	Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
 	
 	Vector4d newUp = modelMat * Vector4d(0,0,1,0);
-	return Vector3d(newUp.x(),newUp.y(),newUp.z());
+	return {newUp.x(),newUp.y(),newUp.z()};
 }
 
 Vector3d GlobeView::prospectiveUp(Eigen::Quaterniond &prospectiveRot)
@@ -256,7 +250,7 @@ Vector3d GlobeView::prospectiveUp(Eigen::Quaterniond &prospectiveRot)
     Eigen::Affine3d rot(prospectiveRot);
     Eigen::Matrix4d modelMat = rot.inverse().matrix();
     Vector4d newUp = modelMat *Vector4d(0,0,1,0);
-    return Vector3d(newUp.x(),newUp.y(),newUp.z());
+    return {newUp.x(),newUp.y(),newUp.z()};
 }
     
 bool GlobeView::pointOnSphereFromScreen(const Point2f &pt,const Eigen::Matrix4d &modelTrans,const Point2f &frameSize,Point3d &hit,bool normalized,double radius)
@@ -345,7 +339,7 @@ Point2f GlobeView::pointOnScreenFromSphere(const Point3d &worldLoc,const Eigen::
     }
 
     // Intersection with near gives us the same plane as the screen 
-    const Vector4d ray = screenPt * -nearPlane/screenPt.z();
+    const Vector4d ray = screenPt * -getNearPlane()/screenPt.z();
 
     // Now we need to scale that to the frame
     Point2d ll,ur;
@@ -394,7 +388,7 @@ Eigen::Quaterniond GlobeView::makeRotationToGeoCoord(const WhirlyKit::Point2d &w
             // Then rotate it back on to the YZ axis, this will keep it upward.
             // However, the pole might be down now.  If so, rotate it back up.
             // todo: would `atan2` be simpler?
-            const float ang = atan(northPole.x()/northPole.y()) + ((northPole.y() < 0.0) ? M_PI : 0.0);
+            const auto ang = atan(northPole.x()/northPole.y()) + ((northPole.y() < 0.0) ? M_PI : 0.0);
             return newRotQuat * Eigen::AngleAxisd(ang,worldLoc);
         }
     }
@@ -412,13 +406,13 @@ Eigen::Vector3d GlobeView::eyePos() const
 {
 	const Eigen::Matrix4d modelMat = calcModelMatrix().inverse();
 	const Vector4d newUp = modelMat * Vector4d(0,0,1,1);
-	return Vector3d(newUp.x(),newUp.y(),newUp.z());
+	return {newUp.x(),newUp.y(),newUp.z()};
 }
 
 /// Set the change delegate
 void GlobeView::setDelegate(GlobeViewAnimationDelegateRef inDelegate)
 {
-    delegate = inDelegate;
+    delegate = std::move(inDelegate);
 }
 
 /// Called to cancel a running animation
@@ -449,16 +443,12 @@ GlobeViewState::GlobeViewState(WhirlyGlobe::GlobeView *globeView,WhirlyKit::Scen
     rotQuat = globeView->getRotQuat();
 }
 
-GlobeViewState::~GlobeViewState()
-{
-}
-
 Eigen::Vector3d GlobeViewState::currentUp()
 {
     Eigen::Matrix4d modelMat = invModelMatrix;
     
     Vector4d newUp = modelMat * Vector4d(0,0,1,0);
-    return Vector3d(newUp.x(),newUp.y(),newUp.z());
+    return {newUp.x(),newUp.y(),newUp.z()};
 }
 
 

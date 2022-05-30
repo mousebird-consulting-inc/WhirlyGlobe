@@ -52,6 +52,15 @@ struct DirectionalLight
     const Eigen::Vector4f getSpecular() const { return specular; }
     void setSpecular(const Eigen::Vector4f& value){ specular = value; }
 
+    bool operator==(const DirectionalLight &that) const
+    {
+        return viewDependent == that.viewDependent &&
+            pos == that.pos &&
+            ambient == that.ambient &&
+            diffuse == that.diffuse &&
+            specular == that.specular;
+    }
+
 protected:
     Eigen::Vector4f ambient = { 1.0f, 1.0f, 1.0f, 1.0f };
     Eigen::Vector4f diffuse = { 1.0f, 1.0f, 1.0f, 1.0f };

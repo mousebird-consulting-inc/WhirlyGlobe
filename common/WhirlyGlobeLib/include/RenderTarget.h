@@ -34,12 +34,13 @@ typedef enum {RenderTargetMipmapNone,RenderTargetMimpapAverage,RenderTargetMipma
 /** What and where we're rendering.  This can be a regular framebuffer
  to the screen or to a texture.
  */
-class RenderTarget : public Identifiable
+struct RenderTarget : public Identifiable
 {
-public:
     RenderTarget();
     RenderTarget(SimpleIdentity newID);
-    virtual ~RenderTarget();
+    virtual ~RenderTarget() = default;
+
+    virtual void init();
 
     // Initialize in the renderer
     virtual bool init(SceneRenderer *renderer,Scene *scene,SimpleIdentity targetTexID) = 0;
@@ -60,8 +61,8 @@ public:
     virtual void clear() = 0;
     
     /// If we're tied to a texture, the number of levels in that texture
-    virtual int numLevels();
-    
+    virtual int numLevels() const { return 0; }
+
     /// Copy the data out of the destination texture and return it
     virtual RawDataRef snapshot() { return RawDataRef(); };
 
@@ -72,24 +73,23 @@ public:
     virtual RawDataRef snapshotMinMax() { return RawDataRef(); }
     
     /// Output framebuffer size
-    int width,height;
+    int width = 0;
+    int height = 0;
     /// Set if we've set up background and such
-    bool isSetup;
+    bool isSetup = false;
 
     // Clear color, if we're clearing
-    float clearColor[4];
+    float clearColor[4] = { 0, 0, 0, 0 };
     // Used for non-4 channel RGBA targets
-    float clearVal;
-    bool clearEveryFrame;
+    float clearVal = 0.0f;
+    bool clearEveryFrame = false;
     // Clear on the next frame, then reset this
-    bool clearOnce;
+    bool clearOnce = false;
     // Control how the blending into a destination works
-    bool blendEnable;
+    bool blendEnable = false;
     
-public:
-    RenderTargetMipmapType mipmapType;
-    bool calcMinMax;
-    virtual void init();
+    RenderTargetMipmapType mipmapType = RenderTargetMipmapNone;
+    bool calcMinMax = false;
 };
 typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 

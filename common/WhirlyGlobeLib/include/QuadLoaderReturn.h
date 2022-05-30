@@ -27,13 +27,15 @@ namespace WhirlyKit
 {
 
 // Base class for the FrameInfo, which we don't make strong use of in the base
-class QuadFrameInfo : public WhirlyKit::Identifiable
+struct QuadFrameInfo : public WhirlyKit::Identifiable
 {
-public:
-    QuadFrameInfo();
-    
+    QuadFrameInfo() = default;
+    QuadFrameInfo(int index) : frameIndex(index) { }
+
+    int getFrameIndex() const { return frameIndex; }
+
     // Either the position in the frame list or -1 if there's just one frame
-    int frameIndex;
+    int frameIndex = -1;
 };
 typedef std::shared_ptr<QuadFrameInfo> QuadFrameInfoRef;
 
@@ -44,7 +46,21 @@ class QuadLoaderReturn
 public:
     QuadLoaderReturn(int generation);
     virtual ~QuadLoaderReturn();
-    
+
+    QuadTreeIdentifier getTileID() const { return ident; }
+    void setTileID(const QuadTreeIdentifier &newId) { ident = newId; }
+
+    void setFrame(QuadFrameInfoRef newFrame) { frame = std::move(newFrame); }
+    const QuadFrameInfoRef &getFrame() const { return frame; }
+
+    int getFrameIndex() const { return frame ? frame->frameIndex : -1; }
+
+    virtual RawDataRefVec getTileData() const { return {}; }
+    virtual RawDataRef getFirstData() const { return nullptr; }
+    virtual void replaceData(RawDataRefVec) { }
+
+    bool isCancelled() const { return cancel; }
+
     // Which node this is in the quad tree
     QuadTreeIdentifier ident;
     
@@ -68,10 +84,10 @@ public:
     int generation;
     
     // Set if something went wrong with loading
-    bool hasError;
+    bool hasError = false;
     
     // Set by the loader if we've canceled a tile we're currently building objects for
-    bool cancel;
+    bool cancel = false;
     
     // Clean out references to everything
     virtual void clear();

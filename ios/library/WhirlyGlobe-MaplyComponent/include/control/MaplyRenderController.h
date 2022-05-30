@@ -961,7 +961,7 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 /**
     Add a MaplyControllerLayer to the globe or map.
     
-    At present, layers are for paged geometry such as image tiles or vector tiles.  You can create someting like a MaplyQuadImageTilesLayer, set it up and then hand it to addLayer: to add to the scene.
+    At present, layers are for paged geometry such as image tiles or vector tiles.  You can create something like a MaplyQuadImageTilesLayer, set it up and then hand it to addLayer: to add to the scene.
   */
 - (bool)addLayer:(MaplyControllerLayer *__nonnull)layer;
 

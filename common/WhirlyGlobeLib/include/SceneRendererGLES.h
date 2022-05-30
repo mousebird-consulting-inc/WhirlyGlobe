@@ -77,7 +77,7 @@ public:
     virtual bool setup(int apiVersion,int sizeX,int sizeY,float scale);
     
     /// Resize framebuffer because something changed
-    virtual bool resize(int sizeX,int sizeY);
+    virtual bool resize(int sizeX,int sizeY) override;
 
     /// Return true if we have changes to process or display
     virtual bool hasChanges() override;
@@ -86,7 +86,7 @@ public:
     virtual void setExtraFrameMode(bool newMode);
     
     /// Draw stuff (the whole point!)
-    void render(TimeInterval period);
+    virtual void render(TimeInterval period, RenderInfo *) override;
     
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const override;

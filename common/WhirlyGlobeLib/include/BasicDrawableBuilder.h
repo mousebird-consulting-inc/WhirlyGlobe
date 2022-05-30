@@ -270,7 +270,7 @@ public:
     virtual void setupTweaker(const DrawableTweakerRef &tweaker) const;
 
     // Unprocessed data arrays
-    std::vector<Eigen::Vector3f> points;
+    Point3fVector points;
     std::vector<BasicDrawable::Triangle> tris;
 
     // The basic drawable we're building up

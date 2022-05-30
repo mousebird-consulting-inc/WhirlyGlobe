@@ -162,19 +162,19 @@ std::string WideVectorInfo::toString() const
 struct WideVectorBuilder
 {
     WideVectorBuilder(const WideVectorInfo *vecInfo,
-                      Point3d localCenter,
-                      Point3d dispCenter,
+                      const Point3d &localCenter,
+                      const Point3d &dispCenter,
                       const RGBAColor inColor,
                       std::vector<SimpleIdentity> maskIDs,
                       bool makeTurns,
                       CoordSystemDisplayAdapter *coordAdapter) :
           vecInfo(vecInfo),
           coordAdapter(coordAdapter),
-          localCenter(std::move(localCenter)),
-          dispCenter(std::move(dispCenter)),
-          makeDistinctTurn(makeTurns),
+          color(inColor),
           maskIDs(std::move(maskIDs)),
-          color(inColor)
+          makeDistinctTurn(makeTurns),
+          localCenter(localCenter),
+          dispCenter(dispCenter)
     {
         texOffset = -vecInfo->texOffset.y() / vecInfo->repeatSize;
     }
@@ -188,8 +188,8 @@ struct WideVectorBuilder
         // Construct with a single line
         InterPoint(const Point3d &p0,const Point3d &p1,const Point3d &n0,
                    double inTexX,double inTexYmin,double inTexYmax,double inTexOffset) :
-            n(n0),
             dir(p1 - p0),
+            n(n0),
             org(p0),
             dest(p1),
             texX(inTexX),
@@ -480,7 +480,7 @@ struct WideVectorBuilder
         
         // TODO: Revisit the texture adjustment around corners
         //       The problem is the corners can be much large depending on offset and width
-        double texAdjust = 0.0;
+        //double texAdjust = 0.0;
         // Do the join polygons if we can
         if (iPtsValid && buildJunction)
         {
@@ -494,7 +494,7 @@ struct WideVectorBuilder
                 joinType = WideVecMiterJoin;
 
             // An offset that makes the texture coordinates work around corners
-            texAdjust = cos(angleBetween/2.0);
+            //texAdjust = cos(angleBetween/2.0);
 
             switch (joinType)
             {
@@ -678,13 +678,13 @@ struct WideVectorDrawableConstructor
                                   const WideVectorInfo *vecInfo,
                                   int numMaskIDs,
                                   bool doColors) :
+        numMaskIDs(numMaskIDs),
         sceneRender(sceneRender),
         scene(scene),
-        vecInfo(vecInfo),
-        numMaskIDs(numMaskIDs),
-        doColors(doColors),
         coordAdapter(scene->getCoordAdapter()),
-        coordSys(scene->getCoordAdapter()->getCoordSystem())
+        coordSys(scene->getCoordAdapter()->getCoordSystem()),
+        doColors(doColors),
+        vecInfo(vecInfo)
     {
     }
     

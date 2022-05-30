@@ -48,12 +48,13 @@ protected:
                       MapView * testMapView,
                       WhirlyKit::Point3d *newCenter);
 
-    WhirlyKit::SceneRenderer *renderer;
+    WhirlyKit::SceneRenderer *renderer = nullptr;
     
-    float velocity,acceleration;
-    Eigen::Vector3d dir;
+    float velocity = 0.0f;
+    float acceleration = 0.0f;
+    Eigen::Vector3d dir = { 0, 0, 0 };
     float maxTime = MAXFLOAT;
-    WhirlyKit::TimeInterval startDate;
+    WhirlyKit::TimeInterval startDate = 0.0;
     WhirlyKit::Point3d org;
     WhirlyKit::Point2dVector bounds;
 

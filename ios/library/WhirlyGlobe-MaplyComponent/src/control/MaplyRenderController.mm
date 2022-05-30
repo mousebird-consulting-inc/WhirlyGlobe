@@ -208,7 +208,8 @@ using namespace Eigen;
 
 - (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer
 {
-    scene = new SceneMTL(visualView->coordAdapter);
+    auto adapter = const_cast<CoordSystemDisplayAdapter*>(visualView->getCoordAdapter());
+    scene = new SceneMTL(adapter);
     sceneRenderer->setScene(scene);
 
     // Set up a Font Texture Manager
@@ -280,7 +281,7 @@ using namespace Eigen;
     SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
     
     sceneRendererMTL->forceDrawNextFrame();
-    sceneRendererMTL->render(1.0/60.0,nil,nil);
+    sceneRendererMTL->render(1.0/60.0,nil);
     RawDataRef dataRef = sceneRendererMTL->getSnapshot(EmptyIdentity);
     RawNSDataReaderRef rawData = std::dynamic_pointer_cast<RawNSDataReader>(dataRef);
     if (rawData)
@@ -1212,7 +1213,7 @@ using namespace Eigen;
 {
     if ([NSThread currentThread] != mainThread)
     {
-        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
+        NSLog(@"Caller called findSamplingLayer:forUser: off of main thread.");
         return nil;
     }
 
@@ -1237,7 +1238,7 @@ using namespace Eigen;
 {
     if ([NSThread currentThread] != mainThread)
     {
-        NSLog(@"Caller called findSamplerLayer:forUser: off of main thread.");
+        NSLog(@"Caller called releaseSamplingLayer:forUser: off of main thread.");
         return;
     }
 

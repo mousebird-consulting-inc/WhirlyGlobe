@@ -1,5 +1,4 @@
-/*
- *  Dictionary.h
+/*  DictionaryC.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/16/13.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <map>
@@ -25,7 +23,6 @@
 #import "CoordSystem.h"
 #import "RawData.h"
 #import "Dictionary.h"
-#import "libjson.h"
 
 namespace WhirlyKit
 {
@@ -55,11 +52,6 @@ public:
     virtual ~MutableDictionaryC() = default;
 
     virtual MutableDictionaryRef copy() const override { return std::make_shared<MutableDictionaryC>(*this); }
-
-    // Parse from a JSON string
-//    bool parseJSON(const std::string jsonString);
-//    bool parseJSONNode(JSONNode &node);
-//    ValueRef parseJSONValue(JSONNode::iterator &nodeIt);
 
     virtual int count() const override { return numFields(); }
     virtual bool empty() const override { return numFields() == 0; }

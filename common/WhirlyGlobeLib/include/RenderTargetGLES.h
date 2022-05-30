@@ -63,11 +63,11 @@ public:
     void setTargetTexture(TextureBase *tex);
         
     /// OpenGL ES Name for the frame buffer
-    GLuint framebuffer;
+    GLuint framebuffer = 0;
     /// OpenGL ES Name for the color buffer
-    GLuint colorbuffer;
+    GLuint colorbuffer = 0;
     /// OpenGL ES Name for the depth buffer
-    GLuint depthbuffer;
+    GLuint depthbuffer = 0;
     
 protected:
     void init();

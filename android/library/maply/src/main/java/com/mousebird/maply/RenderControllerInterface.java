@@ -81,7 +81,7 @@ public interface RenderControllerInterface
          */
         public FilterType filterType = FilterType.FilterLinear;
         /**
-         * Horizonal texture wrap.
+         * Horizontal texture wrap.
          */
         public boolean wrapU = false;
         /**

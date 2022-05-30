@@ -31,6 +31,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     DrawableGLES();
+    DrawableGLES(std::string name);
     virtual ~DrawableGLES() = default;
     
     /// Some drawables have a pre-render phase that uses the GPU for calculation

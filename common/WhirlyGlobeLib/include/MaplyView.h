@@ -53,7 +53,7 @@ public:
     MapView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     /// Copy constructor
     MapView(const MapView &that);
-    virtual ~MapView();
+    virtual ~MapView() = default;
 
     /// Calculate the Z buffer resolution
     virtual float calcZbufferRes() override;

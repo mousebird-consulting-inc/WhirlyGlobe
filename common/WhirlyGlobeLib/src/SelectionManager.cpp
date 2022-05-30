@@ -76,11 +76,9 @@ SelectionManager::SelectedObject::SelectedObject(SimpleIdentity selectID,double 
 
 SelectionManager::SelectedObject::SelectedObject(std::vector<SimpleIdentity> selectIDs,
                                                  double distIn3D, double screenDist) :
+    selectIDs(std::move(selectIDs)),
     distIn3D(distIn3D),
-    screenDist(screenDist),
-    isCluster(false),
-    center(0.0f, 0.0f),
-    selectIDs(std::move(selectIDs))
+    screenDist(screenDist)
 {
 }
 

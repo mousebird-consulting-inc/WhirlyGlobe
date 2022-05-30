@@ -134,15 +134,16 @@ Vector4f ColorExpressionInfo::evaluateF(float zoom, RGBAColor def)
     return evalExpr<RGBAColor,Vector4f>(zoom,base,def,stopInputs,stopOutputs,toVec,lerpVec);
 }
 
-BaseInfo::BaseInfo(const BaseInfo &that)
-: minVis(that.minVis), maxVis(that.minVis), minVisBand(that.minVisBand), maxVisBand(that.maxVisBand),
-  minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist), zoomSlot(that.zoomSlot),
-  minZoomVis(that.minZoomVis),maxZoomVis(that.maxZoomVis), viewerCenter(that.viewerCenter),
-  drawOffset(that.drawOffset), drawPriority(that.drawPriority), drawOrder(that.drawOrder),
-  enable(that.enable), fadeIn(that.fadeIn), fadeOut(that.fadeOut),
-  fadeOutTime(that.fadeOutTime), startEnable(that.startEnable), endEnable(that.endEnable),
-  programID(that.programID), extraFrames(that.extraFrames), zBufferRead(that.zBufferRead),
-  zBufferWrite(that.zBufferWrite), renderTargetID(that.renderTargetID), hasExp(that.hasExp)
+BaseInfo::BaseInfo(const BaseInfo &that) :
+    minVis(that.minVis), maxVis(that.minVis), minVisBand(that.minVisBand), maxVisBand(that.maxVisBand),
+    minViewerDist(that.minViewerDist), maxViewerDist(that.maxViewerDist),
+    minZoomVis(that.minZoomVis),maxZoomVis(that.maxZoomVis), viewerCenter(that.viewerCenter),
+    drawOffset(that.drawOffset), drawOrder(that.drawOrder),
+    fadeIn(that.fadeIn), fadeOut(that.fadeOut),
+    fadeOutTime(that.fadeOutTime), startEnable(that.startEnable), endEnable(that.endEnable),
+    programID(that.programID), zoomSlot(that.zoomSlot), drawPriority(that.drawPriority),
+    extraFrames(that.extraFrames), enable(that.enable), zBufferRead(that.zBufferRead),
+    zBufferWrite(that.zBufferWrite), hasExp(that.hasExp), renderTargetID(that.renderTargetID)
 {
 }
     

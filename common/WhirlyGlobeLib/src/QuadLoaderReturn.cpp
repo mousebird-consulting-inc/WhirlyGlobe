@@ -22,16 +22,11 @@
 namespace WhirlyKit
 {
 
-QuadFrameInfo::QuadFrameInfo()
-: frameIndex(-1)
-{
-}
-    
 QuadLoaderReturn::QuadLoaderReturn(int generation) :
-    ident(0,0,0), cancel(false), hasError(false),
-    generation(generation), frame(std::make_shared<QuadFrameInfo>())
+    ident(0,0,0),
+    frame(std::make_shared<QuadFrameInfo>()),
+    generation(generation)
 {
-    frame->frameIndex = -1;
 }
 
 QuadLoaderReturn::~QuadLoaderReturn()

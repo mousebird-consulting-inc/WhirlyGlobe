@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawableGLES.cpp
+/*  ParticleSystemDrawableGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/28/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawableGLES.h"
@@ -25,12 +23,9 @@
 namespace WhirlyKit
 {
 
-ParticleSystemDrawableGLES::~ParticleSystemDrawableGLES()
-{
-}
-    
-ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(const std::string &name)
-: ParticleSystemDrawable(name), Drawable(name), pointBuffer(0), rectBuffer(0)
+ParticleSystemDrawableGLES::ParticleSystemDrawableGLES(std::string name) :
+    ParticleSystemDrawable(name),
+    DrawableGLES(std::move(name))
 {
 }
 

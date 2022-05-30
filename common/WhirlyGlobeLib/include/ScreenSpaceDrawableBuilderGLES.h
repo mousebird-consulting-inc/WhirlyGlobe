@@ -21,19 +21,11 @@
 
 namespace WhirlyKit
 {
-    
-// Shader name
-//#define kScreenSpaceShaderName "Screen Space Shader"
-//#define kScreenSpaceShader2DName "Screen Space Shader 2D"
-//#define kScreenSpaceShaderMotionName "Screen Space Shader Motion"
-//#define kScreenSpaceShader2DMotionName "Screen Space Shader 2D Motion"
 
 /// Construct and return the Screen Space shader program
 ProgramGLES *BuildScreenSpaceProgramGLES(const std::string &name,SceneRenderer *render);
 ProgramGLES *BuildScreenSpaceMotionProgramGLES(const std::string &name,SceneRenderer *render);
-ProgramGLES *BuildScreenSpace2DProgramGLES(const std::string &name,SceneRenderer *render);
-ProgramGLES *BuildScreenSpaceMotion2DProgramGLES(const std::string &name,SceneRenderer *render);
-    
+
 /// The OpenGL version sets uniforms
 struct ScreenSpaceTweakerGLES : public ScreenSpaceTweaker
 {
@@ -45,9 +37,8 @@ typedef std::shared_ptr<ScreenSpaceTweakerGLES> ScreenSpaceTweakerGLESRef;
     
 /** OpenGL version of ScreenSpaceDrawable Builder
  */
-class ScreenSpaceDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public ScreenSpaceDrawableBuilder
+struct ScreenSpaceDrawableBuilderGLES : virtual public BasicDrawableBuilderGLES, virtual public ScreenSpaceDrawableBuilder
 {
-public:
     ScreenSpaceDrawableBuilderGLES(const std::string &name,Scene *scene);
     
     virtual int addAttribute(BDAttributeDataType dataType,StringIdentity nameID,int slot = -1,int numThings = -1) override;

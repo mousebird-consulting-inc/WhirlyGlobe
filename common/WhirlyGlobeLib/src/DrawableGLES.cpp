@@ -21,7 +21,13 @@
 namespace WhirlyKit
 {
 
-DrawableGLES::DrawableGLES()
+DrawableGLES::DrawableGLES() : Drawable(std::string())
+{
+    // Assume pre-multiplied alpha components by default on OpenGL
+    setBlendPremultipliedAlpha(true);
+}
+
+DrawableGLES::DrawableGLES(std::string name) : Drawable(std::move(name))
 {
     // Assume pre-multiplied alpha components by default on OpenGL
     setBlendPremultipliedAlpha(true);

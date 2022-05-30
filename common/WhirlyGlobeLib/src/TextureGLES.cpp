@@ -1,5 +1,4 @@
-/*
- *  Texture.mm
+/*  TextureGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/7/11.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "TextureGLES.h"
@@ -27,29 +25,48 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-TextureGLES::TextureGLES(const std::string &name)
-    : Texture(name), TextureBaseGLES(name), TextureBase(name)
+
+TextureGLES::TextureGLES() :
+    TextureBase(),      // virtual inheritance, we need to call the base constructors
+    Texture(),
+    TextureBaseGLES()
 {
 }
-    
-TextureGLES::TextureGLES(const std::string &name,RawDataRef texData,bool isPVRTC)
-    : Texture(name,texData,isPVRTC), TextureBaseGLES(name), TextureBase(name)
+
+TextureGLES::TextureGLES(std::string name) :
+    TextureBase(std::move(name)),
+    Texture(),
+    TextureBaseGLES()
 {
 }
-    
+
+TextureGLES::TextureGLES(std::string name, RawDataRef texData, bool isPVRTC) :
+    TextureBase(std::move(name)),
+    Texture(std::move(texData), isPVRTC),
+    TextureBaseGLES()
+{
+}
+
+TextureGLES::TextureGLES(std::string name, RawDataRef texData,
+        TextureType fmt, int width, int height, bool isPVRTC) :
+    TextureBase(std::move(name)),
+    Texture(std::move(texData), fmt, width, height, isPVRTC),
+    TextureBaseGLES()
+{
+}
+
 // Figure out the PKM data
-unsigned char *TextureGLES::ResolvePKM(RawDataRef texData,int &pkmType,int &size,int &width,int &height)
+unsigned char *TextureGLES::ResolvePKM(const RawDataRef &texData,int &pkmType,int &size,int &width,int &height)
 {
     if (texData->getLen() < 16)
-        return NULL;
-    const unsigned char *header = (const unsigned char *)texData->getRawData();
+        return nullptr;
+    const auto *header = (const unsigned char *)texData->getRawData();
     //    unsigned short *version = (unsigned short *)&header[4];
     const unsigned char *type = &header[7];
     
     // Verify the magic number
-    if (strncmp((char *)header, "PKM ", 4))
-        return NULL;
+    if (strncmp((char *)header, "PKM ", 4) != 0)
+        return nullptr;
     
     width = (header[8] << 8) | header[9];
     height = (header[10] << 8) | header[11];;
@@ -94,7 +111,7 @@ unsigned char *TextureGLES::ResolvePKM(RawDataRef texData,int &pkmType,int &size
             break;
     }
     if (glType == -1)
-        return NULL;
+        return nullptr;
     pkmType = glType;
     
     return (unsigned char*)&header[16];
@@ -103,7 +120,7 @@ unsigned char *TextureGLES::ResolvePKM(RawDataRef texData,int &pkmType,int &size
 // Define the texture in OpenGL
 bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
     if (!texData && !isEmptyTexture)
         return false;
@@ -212,7 +229,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 // Release the OpenGL texture
 void TextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
 
     if (glId)
         setupInfo->memManager->removeTexID(glId);

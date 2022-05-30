@@ -85,11 +85,11 @@ LabelRenderer::LabelRenderer(Scene *scene,
                              FontTextureManagerRef fontTexManager,
                              const LabelInfo *labelInfo,
                              SimpleIdentity maskProgID) :
+    labelInfo(labelInfo),
+    coordAdapter(scene->getCoordAdapter()),
     scene(scene),
     renderer(renderer),
-    coordAdapter(scene->getCoordAdapter()),
     fontTexManager(std::move(fontTexManager)),
-    labelInfo(labelInfo),
     maskProgID(maskProgID)
 {
 }

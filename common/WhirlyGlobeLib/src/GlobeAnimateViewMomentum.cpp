@@ -31,8 +31,8 @@ AnimateViewMomentum::AnimateViewMomentum(const GlobeViewRef &globeView,double in
     velocity(inVel),
     acceleration(inAcc),
     northUp(inNorthUp),
-    axis(inAxis.cast<double>()),
     startQuat(globeView->getRotQuat()),
+    axis(inAxis.cast<double>()),
     startDate(TimeGetCurrent())
 {
 
@@ -47,11 +47,11 @@ AnimateViewMomentum::AnimateViewMomentum(const GlobeViewRef &globeView,double in
     }
 }
 
-Quaterniond AnimateViewMomentum::rotForTime(GlobeView *globeView,TimeInterval sinceStart)
+Quaterniond AnimateViewMomentum::rotForTime(GlobeView *,TimeInterval sinceStart)
 {
     // Calculate the offset based on angle
-    const float totalAng = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
-    Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
+    const auto totalAng = (velocity + 0.5 * acceleration * sinceStart) * sinceStart;
+    const Eigen::Quaterniond diffRot(Eigen::AngleAxisd(totalAng,axis));
     Eigen::Quaterniond newQuat;
     newQuat = startQuat * diffRot;
 
@@ -64,17 +64,18 @@ Quaterniond AnimateViewMomentum::rotForTime(GlobeView *globeView,TimeInterval si
         {
             // We need to know where up (facing the user) will be
             //  so we can rotate around that
-            Vector3d newUp = globeView->prospectiveUp(newQuat);
+            Vector3d newUp = WhirlyGlobe::GlobeView::prospectiveUp(newQuat);
             
             // Then rotate it back on to the YZ axis
             // This will keep it upward
-            float ang = atan(northPole.x()/northPole.y());
+            auto ang = std::atan(northPole.x()/northPole.y());
             
             // However, the pole might be down now
             // If so, rotate it back up
             if (northPole.y() < 0.0)
                 ang += M_PI;
-            Eigen::AngleAxisd upRot(ang,newUp);
+
+            const Eigen::AngleAxisd upRot(ang,newUp);
             
             newQuat = (newQuat * upRot).normalized();
         }
@@ -90,7 +91,7 @@ void AnimateViewMomentum::updateView(WhirlyKit::View *view)
     if (startDate == 0.0)
         return;
     
-	float sinceStart = TimeGetCurrent()-startDate;
+    double sinceStart = TimeGetCurrent() - startDate;
     if (sinceStart > maxTime)
     {
         // This will snap us to the end and then we stop
@@ -98,7 +99,7 @@ void AnimateViewMomentum::updateView(WhirlyKit::View *view)
         startDate = 0;
     }
     
-    Quaterniond newQuat = rotForTime(globeView,sinceStart);
+    const Quaterniond newQuat = rotForTime(globeView,sinceStart);
     globeView->setRotQuat(newQuat);
     
     // Make sure to cancel the animation *after* we set the new rotation (duh)

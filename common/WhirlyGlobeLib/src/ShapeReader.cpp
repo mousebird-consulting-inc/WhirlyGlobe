@@ -1,5 +1,4 @@
-/*
- *  ShapeReader.mm
+/*  ShapeReader.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ShapeReader.h"
@@ -26,35 +24,24 @@ namespace WhirlyKit
 {
 
 ShapeReader::ShapeReader(const std::string &fileName)
-    : shp(NULL), dbf(NULL)
 {
-	const char *cFile =  fileName.c_str();
-	shp = SHPOpen(cFile, "rb");
-	if (!shp)
-		return;
-	dbf = DBFOpen(cFile, "rb");
+    const char *cFile =  fileName.c_str();
+    shp = SHPOpen(cFile, "rb");
+    if (!shp)
+        return;
+    dbf = DBFOpen(cFile, "rb");
     if (!dbf)
         return;
-	where = 0;	
-	SHPGetInfo((SHPInfo *)shp, &numEntity, &shapeType, minBound, maxBound);
+    where = 0;
+    SHPGetInfo((SHPInfo *)shp, &numEntity, &shapeType, minBound, maxBound);
 }
-	
+
 ShapeReader::~ShapeReader()
 {
-	if (shp)
-		SHPClose((SHPHandle)shp);
-	if (dbf)
-		DBFClose((DBFHandle)dbf);
-}
-	
-bool ShapeReader::isValid()
-{
-	return shp != NULL;
-}
-    
-unsigned int ShapeReader::getNumObjects()
-{
-    return numEntity;
+    if (shp)
+        SHPClose((SHPHandle)shp);
+    if (dbf)
+        DBFClose((DBFHandle)dbf);
 }
 
 /* Shapefiles support a lot of types.  Here are the ones we recognize:
@@ -76,10 +63,9 @@ unsigned int ShapeReader::getNumObjects()
 VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringSet *filterAttrs)
 {
     // Read from disk
-	SHPObject *thisShape = SHPReadObject((SHPInfo *)shp, vecIndex);
+    SHPObject *thisShape = SHPReadObject((SHPInfo *)shp, vecIndex);
     
     VectorShapeRef theShape;
-	
     switch (shapeType)
     {
         case SHPT_POINT:
@@ -87,10 +73,10 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
         {
             VectorPointsRef points = VectorPoints::createPoints();
             theShape = points;
-            Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[0]),WhirlyKit::DegToRad<float>(thisShape->padfY[0]));
-            points->pts.push_back(pt);
-        }
+            points->pts.emplace_back((float)WhirlyKit::DegToRad(thisShape->padfX[0]),
+                                     (float)WhirlyKit::DegToRad(thisShape->padfY[0]));
             break;
+        }
         case SHPT_MULTIPOINT:
         case SHPT_MULTIPOINTZ:
         {
@@ -99,11 +85,11 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             theShape = points;
             for (unsigned int ii=0;ii<thisShape->nParts;ii++)
             {
-                Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[ii]),WhirlyKit::DegToRad<float>(thisShape->padfY[ii]));
-                points->pts.push_back(pt);
+                points->pts.emplace_back((float)WhirlyKit::DegToRad(thisShape->padfX[ii]),
+                                         (float)WhirlyKit::DegToRad(thisShape->padfY[ii]));
             }
-        }
             break;
+        }
         case SHPT_ARC:
         case SHPT_ARCZ:
         {
@@ -112,11 +98,11 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             theShape = linear;
             for (unsigned int ii=0;ii<thisShape->nVertices;ii++)
             {
-                Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[ii]),WhirlyKit::DegToRad<float>(thisShape->padfY[ii]));
-                linear->pts.push_back(pt);
-            }            
-        }
+                linear->pts.emplace_back((float)WhirlyKit::DegToRad(thisShape->padfX[ii]),
+                                         (float)WhirlyKit::DegToRad(thisShape->padfY[ii]));
+            }
             break;
+        }
         case SHPT_POLYGON:
         case SHPT_POLYGONZ:
         {
@@ -124,7 +110,7 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
             bool startOne = true;
             VectorArealRef areal = VectorAreal::createAreal();
             theShape = areal;
-            VectorRing *ring = NULL;
+            VectorRing *ring = nullptr;
             for (unsigned int jj = 0, iPart = 1; jj < thisShape->nVertices; jj++)
             {
                 // Add rings to the given areal until we're done
@@ -141,76 +127,72 @@ VectorShapeRef ShapeReader::getObjectByIndex(unsigned int vecIndex,const StringS
                     startOne = false;
                 }
                 
-                Point2f pt(WhirlyKit::DegToRad<float>(thisShape->padfX[jj]),WhirlyKit::DegToRad<float>(thisShape->padfY[jj]));
-                ring->push_back(pt);
+                ring->emplace_back((float)WhirlyKit::DegToRad(thisShape->padfX[jj]),
+                                   (float)WhirlyKit::DegToRad(thisShape->padfY[jj]));
             }
             areal->initGeoMbr();
-        }
             break;
+        }
+        default:
+            return VectorShapeRef();
     }
-	
-	SHPDestroyObject(thisShape);
-	
-	// Attributes
-	char attrTitle[12];
-	int attrWidth, numDecimals;
+
+    SHPDestroyObject(thisShape);
+
+    // Attributes
+    char attrTitle[12];
+    int attrWidth, numDecimals;
     MutableDictionaryRef attrDict = theShape->getAttrDict();
-	DBFHandle dbfHandle = (DBFHandle)dbf;
-	int numDbfRecord = DBFGetRecordCount(dbfHandle);
-	if (vecIndex < numDbfRecord)
-	{
-		for (unsigned int ii = 0; ii < DBFGetFieldCount(dbfHandle); ii++)
-		{
-			DBFFieldType attrType = DBFGetFieldInfo(dbfHandle, ii, attrTitle, &attrWidth, &numDecimals);
+    const auto dbfHandle = (DBFHandle)dbf;
+    const int numDbfRecord = DBFGetRecordCount(dbfHandle);
+    if (vecIndex < numDbfRecord)
+    {
+        for (int ii = 0; ii < DBFGetFieldCount(dbfHandle); ii++)
+        {
+            DBFFieldType attrType = DBFGetFieldInfo(dbfHandle, ii, attrTitle, &attrWidth, &numDecimals);
             // If we have a set of filter attrs, skip this one if it's not there
             if (filterAttrs && (filterAttrs->find(attrTitle) == filterAttrs->end()))
                 continue;
-			
-			if (!DBFIsAttributeNULL(dbfHandle, vecIndex, ii))
-			{
-				switch (attrType)
-				{
-					case FTString:
-					{
-						const char *str = DBFReadStringAttribute(dbfHandle, vecIndex, ii);
-                        if (str)
+
+            if (!DBFIsAttributeNULL(dbfHandle, (int)vecIndex, ii))
+            {
+                switch (attrType)
+                {
+                    case FTString:
+                        if (const char *str = DBFReadStringAttribute(dbfHandle, (int)vecIndex, ii))
+                        {
                             attrDict->setString(attrTitle, str);
-					}
-						break;
-					case FTInteger:
-					{
-                        attrDict->setInt(attrTitle, DBFReadIntegerAttribute(dbfHandle, vecIndex, ii));
-					}
-						break;
-					case FTDouble:
-					{
-                        attrDict->setDouble(attrTitle, DBFReadDoubleAttribute(dbfHandle, vecIndex, ii));
-					}
-						break;
+                        }
+                        break;
+                    case FTInteger:
+                        attrDict->setInt(attrTitle, DBFReadIntegerAttribute(dbfHandle, (int)vecIndex, ii));
+                        break;
+                    case FTDouble:
+                        attrDict->setDouble(attrTitle, DBFReadDoubleAttribute(dbfHandle, (int)vecIndex, ii));
+                        break;
                     default:
                         break;
-				}
-			}
-		}
-	}
-    
+                }
+            }
+        }
+    }
+
     // Let the user know what index this is
-    attrDict->setInt("wgshapefileidx", vecIndex);
-	
-	return theShape;    
+    attrDict->setInt("wgshapefileidx", (int)vecIndex);
+    return theShape;
 }
 
 // Return the next shape
 VectorShapeRef ShapeReader::getNextObject(const StringSet *filterAttrs)
 {
-	// Reached the end
-	if (where >= numEntity)
-		return VectorShapeRef();
+    // Reached the end
+    if (where >= numEntity)
+        return VectorShapeRef();
     
     VectorShapeRef retShape = getObjectByIndex(where, filterAttrs);
     where++;
     
     return retShape;
 }
-	
+
 }

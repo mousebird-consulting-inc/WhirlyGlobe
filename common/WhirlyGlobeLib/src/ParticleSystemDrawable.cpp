@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawable.mm
+/*  ParticleSystemDrawable.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/28/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawable.h"
@@ -27,102 +25,15 @@ namespace WhirlyKit
 {
 
 ParticleSystemDrawable::ParticleSystemDrawable(const std::string &name)
-    : Drawable(name), enable(true), numTotalPoints(0), batchSize(0), vertexSize(0),
-    calculateProgramId(EmptyIdentity), renderProgramId(EmptyIdentity), drawPriority(0),
-    drawOrder(BaseInfo::DrawOrderTiles), requestZBuffer(false), writeZBuffer(false),
-    maxVis(DrawVisibleInvalid), useRectangles(true), useInstancing(true), baseTime(0.0),
-    startb(0.0), endb(0.0), chunks(true), usingContinuousRender(true), renderTargetID(EmptyIdentity),
-    lastUpdateTime(0.0), activeVaryBuffer(0)
+    : Drawable(name)
 {
 }
-    
-ParticleSystemDrawable::~ParticleSystemDrawable()
-{
-}
-    
-bool ParticleSystemDrawable::isOn(RendererFrameInfo *frameInfo) const
-{
-    if (!enable)
-        return false;
-    
-    return true;
-}
-    
-void ParticleSystemDrawable::setOnOff(bool onOff)
-    { enable = onOff; }
-    
-Mbr ParticleSystemDrawable::getLocalMbr() const
-    { return Mbr(); }
-
-const Eigen::Matrix4d *ParticleSystemDrawable::getMatrix() const
-    { return NULL; }
-
-int64_t ParticleSystemDrawable::getDrawOrder() const
-    { return drawOrder; }
-
-void ParticleSystemDrawable::setDrawOrder(int64_t newOrder)
-    { drawOrder = newOrder; }
-
-unsigned int ParticleSystemDrawable::getDrawPriority() const
-    { return drawPriority; }
-    
-void ParticleSystemDrawable::setDrawPriority(int newPriority)
-    { drawPriority = newPriority; }
-
-bool ParticleSystemDrawable::getRequestZBuffer() const
-    { return requestZBuffer; }
-    
-void ParticleSystemDrawable::setRequestZBuffer(bool enable)
-    { requestZBuffer = enable; }
-    
-bool ParticleSystemDrawable::getWriteZbuffer() const
-    { return writeZBuffer; }
-    
-void ParticleSystemDrawable::setWriteZbuffer(bool enable)
-    { writeZBuffer = enable; }
-
-void ParticleSystemDrawable::setRenderTarget(SimpleIdentity newRenderTarget)
-    { renderTargetID = newRenderTarget; }
-    
-SimpleIdentity ParticleSystemDrawable::getRenderTarget() const
-    { return renderTargetID; }
-    
-void ParticleSystemDrawable::setTexIDs(const std::vector<SimpleIdentity> &inTexIDs)
-    { texIDs = inTexIDs; }
-
-SimpleIdentity ParticleSystemDrawable::getCalculationProgram() const
-    { return calculateProgramId; }
-    
-void ParticleSystemDrawable::setCalculationProgram(SimpleIdentity newProgId)
-    { calculateProgramId = newProgId; }
-
-SimpleIdentity ParticleSystemDrawable::getProgram() const
-    { return renderProgramId; }
-    
-void ParticleSystemDrawable::setProgram(SimpleIdentity newProgId)
-    { renderProgramId = newProgId; }
-
-void ParticleSystemDrawable::setBaseTime(TimeInterval inBaseTime)
-    { baseTime = inBaseTime; }
-
-void ParticleSystemDrawable::setPointSize(float inPointSize)
-    
-    { pointSize = inPointSize; }
-
-void ParticleSystemDrawable::setLifetime(TimeInterval inLifetime)
-    { lifetime = inLifetime; }
-    
-TimeInterval ParticleSystemDrawable::getLifetime()
-    { return lifetime; }
-
-void ParticleSystemDrawable::setContinuousUpdate(bool newVal)
-    { usingContinuousRender = newVal; }
 
 void ParticleSystemDrawable::setUniBlock(const BasicDrawable::UniformBlock &uniBlock)
 {
-    for (int ii=0;ii<uniBlocks.size();ii++)
-        if (uniBlocks[ii].bufferID == uniBlock.bufferID) {
-            uniBlocks[ii] = uniBlock;
+    for (auto & ii : uniBlocks)
+        if (ii.bufferID == uniBlock.bufferID) {
+            ii = uniBlock;
             return;
         }
     
@@ -178,8 +89,8 @@ void ParticleSystemDrawable::updateChunks()
                 if (start != end)
                 {
                     BufferChunk chunk;
-                    chunk.bufferStart = (start % batches.size()) * batchSize * vertexSize;
-                    chunk.vertexStart = (start % batches.size()) * batchSize;
+                    chunk.bufferStart = (start % (int)batches.size()) * batchSize * vertexSize;
+                    chunk.vertexStart = (start % (int)batches.size()) * batchSize;
                     chunk.numVertices = (end-start) * batchSize;
                     chunks.push_back(chunk);
                 }

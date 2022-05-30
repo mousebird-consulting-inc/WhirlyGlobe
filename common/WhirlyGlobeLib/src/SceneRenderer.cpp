@@ -404,6 +404,10 @@ void SceneRenderer::setScene(WhirlyKit::Scene *newScene)
     if (scene)
     {
         scene->setRenderer(this);
+
+        // Consider the lights to have changed so that they get updated,
+        // even if we're still using the defaults set up in init().
+        lightsLastUpdated = scene->getCurrentTime();
     }
 }
 

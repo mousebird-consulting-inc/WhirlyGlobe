@@ -215,8 +215,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 // Create the globe view
 - (ViewRef) loadSetup_view
 {
-    globeView = GlobeView_iOSRef(new GlobeView_iOS());
-    globeView->continuousZoom = true;
+    globeView = std::make_shared<GlobeView_iOS>();
+    globeView->setContinuousZoom(true);
     globeView->addWatcher(&viewWrapper);
     
     return globeView;
@@ -795,7 +795,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     auto frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
     if (globeView->pointOnSphereFromScreen(loc2f, modelTrans, frameSizeScaled, whereLoc, true))
     {
-        CoordSystemDisplayAdapter *coordAdapter = globeView->coordAdapter;
+        const auto coordAdapter = globeView->getCoordAdapter();
         Vector3d destPt = coordAdapter->localToDisplay(coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
         Eigen::Quaterniond endRot;
         endRot = QuatFromTwoVectors(destPt, whereLoc);
@@ -1037,7 +1037,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     if (!renderControl)
         return {0.0, 0.0};
 
-    GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
+    const auto adapter = globeView->getCoordAdapter();
+    const GeoCoord geoCoord = adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(globeView->currentUp()));
 
 	return {.x = geoCoord.lon(), .y = geoCoord.lat()};
 }
@@ -1047,7 +1048,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     if (!renderControl)
         return {0.0, 0.0};
 
-    Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(globeView->currentUp()));
+    const auto adapter = globeView->getCoordAdapter();
+    const Point2d geoCoord = adapter->getCoordSystem()->localToGeographicD(adapter->displayToLocal(globeView->currentUp()));
 
 	return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
@@ -1069,7 +1071,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     
     *height = globeView->getHeightAboveGlobe();
     Point3d localPt = globeView->currentUp();
-    GeoCoord geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(localPt));
+    const auto adapter = globeView->getCoordAdapter();
+    GeoCoord geoCoord = adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(localPt));
     pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
 }
 
@@ -1082,7 +1085,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
     *height = globeView->getHeightAboveGlobe();
     Point3d localPt = globeView->currentUp();
-    Point2d geoCoord = globeView->coordAdapter->getCoordSystem()->localToGeographicD(globeView->coordAdapter->displayToLocal(localPt));
+    const auto adapter = globeView->getCoordAdapter();
+    Point2d geoCoord = adapter->getCoordSystem()->localToGeographicD(adapter->displayToLocal(localPt));
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
 }
 
@@ -1553,10 +1557,11 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         return CGPointZero;
     }
 
-    Point3d pt = theView->coordAdapter->localToDisplay(theView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
-    
-    Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
-    
+    const auto adapter = theView->getCoordAdapter();
+    const Point3d pt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d({geoCoord.x,geoCoord.y}));
+
+    const Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
+
     auto screenPt = theView->pointOnScreenFromSphere(pt, &modelTrans, frameSizeScaled);
     return CGPointMake(screenPt.x(),screenPt.y());
 }
@@ -1574,7 +1579,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         return false;
     }
 
-    const auto adapter = renderControl->visualView->coordAdapter;
+    const auto adapter = renderControl->visualView->getCoordAdapter();
     const Point3d localPt = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
     const Point3d displayPt = adapter->localToDisplay(localPt);
     const Point3f displayPtf = displayPt.cast<float>();
@@ -1614,7 +1619,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         return false;
     }
 
-    const auto *coordAdapter = theView->coordAdapter;
+    const auto *coordAdapter = theView->getCoordAdapter();
     const auto *coordSys = coordAdapter->getCoordSystem();
     const auto frameSize = renderControl->sceneRenderer->getFramebufferSizeScaled();
 
@@ -1663,7 +1668,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 	Eigen::Matrix4d theTransform = globeView->calcFullMatrix();
     if (globeView->pointOnSphereFromScreen(Point2f(screenPt.x,screenPt.y), theTransform, renderControl->sceneRenderer->getFramebufferSizeScaled(), hit, true))
     {
-        Point3d geoC = renderControl->visualView->coordAdapter->getCoordSystem()->localToGeocentric(renderControl->visualView->coordAdapter->displayToLocal(hit));
+        const auto adapter = renderControl->visualView->getCoordAdapter();
+        Point3d geoC = adapter->getCoordSystem()->localToGeocentric(adapter->displayToLocal(hit));
         retCoords[0] = geoC.x();  retCoords[1] = geoC.y();  retCoords[2] = geoC.z();
         
         // Note: Obviously doing something stupid here
@@ -1816,7 +1822,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     }
     
     // Start with a rotation from the clean start state to the location
-    Point3d worldLoc = globeView->coordAdapter->localToDisplay(globeView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
+    const auto adapter = globeView->getCoordAdapter();
+    const Point3d worldLoc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y)));
     Eigen::Quaterniond posRot = QuatFromTwoVectors(worldLoc, startLoc);
     
     // Orient with north up.  Either because we want that or we're about do do a heading
@@ -1892,7 +1899,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 - (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range
 {
     Vector3f north(0,0,1);
-    WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView->coordAdapter;
+    const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView->getCoordAdapter();
     WhirlyKit::CoordSystem *coordSys = coordAdapter->getCoordSystem();
     Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(WhirlyKit::GeoCoord(coord.x,coord.y)));
     // Position we're looking at in display coords
@@ -2036,8 +2043,9 @@ static const float FullExtentEps = 1e-5;
     }
     
     // Current location the user is over
-    Point3d localPt = globeView->currentUp();
-    GeoCoord currentLoc = globeView->coordAdapter->getCoordSystem()->localToGeographic(globeView->coordAdapter->displayToLocal(localPt));
+    const Point3d localPt = globeView->currentUp();
+    const auto adapter = globeView->getCoordAdapter();
+    const GeoCoord currentLoc = adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(localPt));
 
     // Toss in the current location
     std::vector<Mbr> mbrs(1);

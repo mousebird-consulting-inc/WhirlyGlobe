@@ -1,5 +1,4 @@
-/*
- *  BasicDrawableInstanceGLES.h
+/*  BasicDrawableInstanceGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/10/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "BasicDrawableInstance.h"
@@ -26,10 +24,10 @@ namespace WhirlyKit
 {
 
 /// OpenGL variant of BasicDrawableInstance
-class BasicDrawableInstanceGLES : virtual public BasicDrawableInstance, virtual public DrawableGLES
+struct BasicDrawableInstanceGLES : virtual public BasicDrawableInstance, virtual public DrawableGLES
 {
-friend class BasicDrawableInstanceBuilderGLES;
-public:
+    friend class BasicDrawableInstanceBuilderGLES;
+
     BasicDrawableInstanceGLES(const std::string &name);
     
     /// Set up local rendering structures (e.g. VBOs)

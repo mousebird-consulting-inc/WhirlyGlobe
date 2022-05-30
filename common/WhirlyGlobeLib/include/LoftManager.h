@@ -18,9 +18,6 @@
  *
  */
 
-#import <math.h>
-#import <set>
-#import <map>
 #import "Identifiable.h"
 #import "BaseInfo.h"
 #import "Dictionary.h"
@@ -28,32 +25,40 @@
 #import "BasicDrawable.h"
 #import "SelectionManager.h"
 #import "VectorData.h"
+#import "SharedAttributes.h"
+
+#import <math.h>
+#import <set>
+#import <map>
 
 namespace WhirlyKit
 {
     
 // Used to describe the drawables we want to construct for a given vector
-class LoftedPolyInfo : public BaseInfo
+struct LoftedPolyInfo : public BaseInfo
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     LoftedPolyInfo();
     LoftedPolyInfo(const Dictionary &dict);
     virtual ~LoftedPolyInfo() = default;
 
-    float       height;
-    float       base;
-    bool        top,side;
-    bool        layered;
-    bool        outline,outlineSide,outlineBottom;
-    int         outlineDrawPriority;
-    RGBAColor   color,outlineColor;
-    float       outlineWidth;
-    bool        centered;
-    bool        hasCenter;
-    Point2d     center;
-    double      gridSize;
+    float       height = 0.01f;
+    float       base = 0.0;
+    bool        top = true;
+    bool        side = true;
+    bool        layered = false;
+    bool        outline = true;
+    bool        outlineSide = false;
+    bool        outlineBottom = false;
+    int         outlineDrawPriority = MaplyLoftedPolysDrawPriorityDefault+1;
+    RGBAColor   color = RGBAColor::white();
+    RGBAColor   outlineColor = RGBAColor::white();
+    float       outlineWidth = 1.0f;
+    bool        centered = false;
+    bool        hasCenter = false;
+    Point2d     center = { 0, 0 };
+    double      gridSize = 10.0 / 180.0 * M_PI;
 };
 typedef std::shared_ptr<LoftedPolyInfo> LoftedPolyInfoRef;
 
@@ -75,10 +80,9 @@ typedef std::set<LoftedPolySceneRep *,IdentifiableSorter> LoftedPolySceneRepSet;
 /** The Loft Manager handles the geometr associated with lofted polygons.
     It's entirely thread safe (except for destruction).
   */
-class LoftManager : public SceneManager
+struct LoftManager : public SceneManager
 {
-public:
-    LoftManager();
+    LoftManager() = default;
     virtual ~LoftManager();
 
     /// Add lofted polygons

@@ -31,21 +31,50 @@ namespace WhirlyKit
 
 View::View()
 {
-    fieldOfView = 60.0 / 360.0 * 2 * M_PI;  // 60 degree field of view
-    imagePlaneSize = nearPlane * std::tan(fieldOfView / 2.0f);
-    lastChangedTime = TimeGetCurrent();
+    updateParams();
 }
-    
+
 View::View(const View &that) :
-    nearPlane(that.nearPlane),
-    farPlane(that.farPlane),
     fieldOfView(that.fieldOfView),
     imagePlaneSize(that.imagePlaneSize),
+    nearPlane(that.nearPlane),
+    farPlane(that.farPlane),
+    centerOffset(that.centerOffset),
     lastChangedTime(that.lastChangedTime),
-    continuousZoom(that.continuousZoom),
     coordAdapter(that.coordAdapter),
-    centerOffset(that.centerOffset)
+    continuousZoom(that.continuousZoom)
 {
+}
+
+void View::setFieldOfView(float fov)
+{
+    fieldOfView = fov;
+    updateParams();
+}
+
+void View::setNearPlane(float near)
+{
+    nearPlane = near;
+    updateParams();
+}
+
+void View::setFarPlane(float far)
+{
+    farPlane = far;
+    updateParams();
+}
+
+void View::setPlanes(float near, float far)
+{
+    nearPlane = near;
+    farPlane = far;
+    updateParams();
+}
+
+void View::updateParams()
+{
+    imagePlaneSize = nearPlane * std::tan(fieldOfView / 2.0);
+    lastChangedTime = TimeGetCurrent();
 }
 
 void View::calcFrustumWidth(unsigned int frameWidth,unsigned int frameHeight,Point2d &ll,Point2d &ur,double & near,double &far)
@@ -94,32 +123,26 @@ Eigen::Matrix4d View::calcFullMatrix() const
 
 Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin) const
 {
-	Point2d frustLL,frustUR;
-	frustLL.x() = -imagePlaneSize * (1.0 + margin);
-	frustUR.x() = imagePlaneSize * (1.0 + margin);
-	const double ratio =  ((double)frameBufferSize.y() / (double)frameBufferSize.x());
-	frustLL.y() = -imagePlaneSize * ratio * (1.0 + margin);
-	frustUR.y() = imagePlaneSize * ratio * (1.0 + margin);
-	const auto near = (float)nearPlane;
-	const auto far = (float)farPlane;
-    
-    
+    const double ratio = (double)frameBufferSize.y() / (double)frameBufferSize.x();
+    const double size = imagePlaneSize * (1.0 + margin);
+    const Point2d frustLL = Point2d(-1, -ratio) * size;
+    const Point2d frustUR = Point2d(1, ratio) * size;
+    const Point3d delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),farPlane-nearPlane);
+
     // Borrowed from the "OpenGL ES 2.0 Programming" book
-    Eigen::Matrix4d projMat;
-    const Point3d delta(frustUR.x()-frustLL.x(),frustUR.y()-frustLL.y(),far-near);
-    projMat.setIdentity();
-    projMat(0,0) = 2.0f * near / delta.x();
+    Eigen::Matrix4d projMat = Eigen::Matrix4d::Identity();
+    projMat(0,0) = 2.0f * nearPlane / delta.x();
     projMat(1,0) = projMat(2,0) = projMat(3,0) = 0.0f;
     
-    projMat(1,1) = 2.0f * near / delta.y();
+    projMat(1,1) = 2.0f * nearPlane / delta.y();
     projMat(0,1) = projMat(2,1) = projMat(3,1) = 0.0f;
     
     projMat(0,2) = (frustUR.x()+frustLL.x()) / delta.x();
     projMat(1,2) = (frustUR.y()+frustLL.y()) / delta.y();
-    projMat(2,2) = -(near + far ) / delta.z();
+    projMat(2,2) = -(nearPlane + farPlane) / delta.z();
     projMat(3,2) = -1.0f;
-    
-    projMat(2,3) = -2.0f * near * far / delta.z();
+
+    projMat(2,3) = -2.0f * nearPlane * farPlane / delta.z();
     projMat(0,3) = projMat(1,3) = projMat(3,3) = 0.0f;
     
     return projMat;
@@ -184,49 +207,23 @@ Point3d View::pointUnproject(Point2f screenPt,unsigned int frameWidth,unsigned i
 //}
 
 
-double View::currentMapScale(const WhirlyKit::Point2f &frameSize)
+double View::currentMapScale(const WhirlyKit::Point2f &frameSize) const
 {
-    //    *height = globeView.heightAboveGlobe;
-    //    Point3d localPt = [globeView currentUp];
-    //    GeoCoord geoCoord = globeView.coordAdapter->getCoordSystem()->localToGeographic(globeView.coordAdapter->displayToLocal(localPt));
-    //    pos->x = geoCoord.lon();  pos->y = geoCoord.lat();
-    
-//    Point2f frameSize(sceneRenderer.framebufferWidth,sceneRenderer.framebufferHeight);
-//    Eigen::Matrix4d modelTrans = [visualView calcFullMatrix];
-//    Point3d sp0,sp1;
-//    bool sp0Valid = [globeView pointOnSphereFromScreen:CGPointMake(0.0, frameSize.y()/2.0) transform:&modelTrans frameSize:frameSize hit:&sp0 normalized:true];
-//    bool sp1Valid = [globeView pointOnSphereFromScreen:CGPointMake(frameSize.x(), frameSize.y()/2.0) transform:&modelTrans frameSize:frameSize hit:&sp1 normalized:true];
-//    // Bogus scale at this point
-//    if (!sp0Valid || !sp1Valid)
-//        return 0.0;
-//    sp0 *= EarthRadius;
-//    sp1 *= EarthRadius;
-//    // Assume the local coordinate are in meters.  WHAT COULD POSSIBLY GO WRONG!
-//    double dist = (sp1-sp0).norm();
-    
-    // This is Mapnik scale:
-    // scale_denominator = map_width_in_metres/ (map_width_in_pixels * standardized_pixel_size/*0.28mm*/)
     double scale = (2 * heightAboveSurface() *  tan(fieldOfView/2.0) * EarthRadius) / (frameSize.x() * 0.00096) ;
     return scale;
 }
 
-double View::heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize)
+double View::heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize) const
 {
     const double height = (scale * frameSize.x() * 0.00096) / (2 * tan(fieldOfView/2.0) * EarthRadius);
     return height;
 }
 
-/*
- S = C*cos(y)/2^(z+8)
- z = log2(C * cos(y) / S) - 8
-*/
-double View::currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude)
+double View::currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude) const
 {
   const double mapWidthInMeters = (2 * heightAboveSurface() *  tan(fieldOfView/2.0) * EarthRadius);
   const double metersPerPixel = mapWidthInMeters/frameSize.x();
-  const double zoom = log(EarthRadius * RadToDeg(cos(latitude))/ metersPerPixel)/log(2.0) - 8;
-  
-  return zoom;
+  return log(EarthRadius * RadToDeg(cos(latitude))/ metersPerPixel)/log(2.0) - 8;
 }
 
 Point2d View::screenSizeInDisplayCoords(const Point2f &frameSize)
@@ -392,11 +389,11 @@ void ViewState::log()
 {
     wkLogLevel(Verbose,"--- ViewState ---");
     wkLogLevel(Verbose,"eyeVec = (%f,%f,%f), eyeVecModel = (%f,%f,%f)",eyeVec.x(),eyeVec.y(),eyeVec.z(),eyeVecModel.x(),eyeVecModel.y(),eyeVecModel.z());
-    for (unsigned int mm=0;mm<fullMatrices.size();mm++)
+    for (auto &fullMatrice : fullMatrices)
     {
         std::stringstream strStrm;
         for (unsigned int ii=0;ii<16;ii++)
-            strStrm << fullMatrices[mm].data()[ii];
+            strStrm << fullMatrice.data()[ii];
         wkLogLevel(Verbose,"fullMatrix = %@",strStrm.str().c_str());
     }
     wkLogLevel(Verbose,"---     ---   ---");

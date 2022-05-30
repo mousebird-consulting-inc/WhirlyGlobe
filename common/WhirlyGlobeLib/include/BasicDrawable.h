@@ -47,8 +47,8 @@ friend class BasicDrawableBuilder;
 friend class WideVectorDrawableBuilder;
 friend class WideVectorDrawableBuilderMTL;
 friend class ShapeManager;
-friend class ScreenSpaceDrawableBuilderMTL;
-friend class BasicDrawableInstanceGLES;
+friend struct ScreenSpaceDrawableBuilderMTL;
+friend struct BasicDrawableInstanceGLES;
 friend class BasicDrawableInstanceMTL;
 friend class BillboardDrawableBuilderMTL;
 friend class BasicDrawableBuilderGLES;
@@ -56,9 +56,8 @@ friend class BasicDrawableBuilderMTL;
     
 public:
     /// Simple triangle.  Can obviously only have 2^16 vertices
-    class Triangle
+    struct Triangle
     {
-    public:
         Triangle() = default;
         /// Construct with vertex IDs
         Triangle(unsigned short v0,unsigned short v1,unsigned short v2);
@@ -386,20 +385,22 @@ protected:
 };
 
 /// Change the texture used by a drawable
-class DrawTexChangeRequest : public DrawableChangeRequest
+struct DrawTexChangeRequest : public DrawableChangeRequest
 {
-public:
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId);
     DrawTexChangeRequest(SimpleIdentity drawId,unsigned int which,SimpleIdentity newTexId,int size,int borderTexel,int relLevel,int relX,int relY);
     
     void execute2(Scene *scene,SceneRenderer *renderer,DrawableRef draw);
     
 protected:
-    unsigned int which;
-    SimpleIdentity newTexId;
-    bool relSet;
-    int size,borderTexel;
-    int relLevel,relX,relY;
+    unsigned int which = 0;
+    SimpleIdentity newTexId = EmptyIdentity;
+    bool relSet = false;
+    int size = 0;
+    int borderTexel = 0;
+    int relLevel = 0;
+    int relX = 0;
+    int relY = 0;
 };
 
 /// Change the textures used by a drawable

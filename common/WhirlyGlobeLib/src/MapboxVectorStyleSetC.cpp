@@ -443,12 +443,9 @@ static constexpr size_t TypicalLayerCount = 500;
 MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,
                                                    CoordSystem *coordSys,
                                                    VectorStyleSettingsImplRef settings) :
-    scene(inScene),
-    version(-1),
-    currentID(0),
     tileStyleSettings(std::move(settings)),
+    scene(inScene),
     coordSys(coordSys),
-    zoomSlot(-1),
     layersByName(TypicalLayerCount),
     layersByUUID(TypicalLayerCount),
     layersBySource(TypicalLayerCount)
@@ -487,9 +484,9 @@ MapboxVectorStyleSetImpl::MapboxVectorStyleSetImpl(Scene *inScene,
     if (prog)
         wideVectorProgramID = prog->getId();
 
-    if (const auto prog = scene->findProgramByName(MaplyWideVectorPerformanceShader))
+    if (const auto p = scene->findProgramByName(MaplyWideVectorPerformanceShader))
     {
-        wideVectorPerfProgramID = prog->getId();
+        wideVectorPerfProgramID = p->getId();
     }
 }
 

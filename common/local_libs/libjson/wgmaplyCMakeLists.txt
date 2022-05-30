@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.4.1)
 
+# todo: why doesn't this work?
+#add_compile_options(-Wno-all)
+#target_compile_options(${WGTARGET} PRIVATE -Wno-all)
+
 target_include_directories(
         ${WGTARGET}
 

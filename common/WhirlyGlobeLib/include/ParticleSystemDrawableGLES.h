@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawableGLES.h
+/*  ParticleSystemDrawableGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/28/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawable.h"
@@ -37,12 +35,12 @@ ProgramGLES *BuildParticleSystemProgramGLES(const std::string &name,SceneRendere
 #define kMaxParticleMemory (8*1024*1024)
 
 /// OpenGL ES version of the particle system drawable
-class ParticleSystemDrawableGLES : virtual public ParticleSystemDrawable, virtual public DrawableGLES
+struct ParticleSystemDrawableGLES : virtual public ParticleSystemDrawable, virtual public DrawableGLES
 {
-friend class ParticleSystemDrawableBuilderGLES;
-public:
-    ParticleSystemDrawableGLES(const std::string &name);
-    virtual ~ParticleSystemDrawableGLES();
+    friend struct ParticleSystemDrawableBuilderGLES;
+
+    ParticleSystemDrawableGLES(std::string name);
+    virtual ~ParticleSystemDrawableGLES() = default;
     
     /// Add the vertex data (all of it) at once
     void addAttributeData(const RenderSetupInfo *setupInfo,const std::vector<AttributeData> &attrData,const Batch &batch) override;
@@ -63,14 +61,14 @@ protected:
     std::vector<SingleVertexAttributeInfoGLES> vertAttrs;
     std::vector<SingleVertexAttributeInfoGLES> varyAttrs;
     
-    class VaryBufferPair {
-    public:
+    struct VaryBufferPair {
         GLuint buffers[2];
     };
     std::vector<VaryBufferPair> varyBuffers;
     std::vector<SimpleIdentity> varyNames;
 
-    GLuint pointBuffer,rectBuffer;
+    GLuint pointBuffer = 0;
+    GLuint rectBuffer = 0;
 
     void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int &progTexBound);
     void drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int progTexBound);

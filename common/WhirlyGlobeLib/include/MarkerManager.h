@@ -165,6 +165,8 @@ public:
     /// Add a texture ID to be displayed
     void addTexID(SimpleIdentity texID);
 };
+using MarkerVec = std::vector<Marker>;
+using MarkerPtrVec = std::vector<Marker *>;
 
 #define kWKMarkerManager "WKMarkerManager"
 
@@ -178,8 +180,10 @@ public:
     virtual ~MarkerManager();
     
     /// Add an array of markers, returning the identity that corresponds
-    SimpleIdentity addMarkers(const std::vector<Marker *> &markers,const MarkerInfo &markerInfo,ChangeSet &changes);
-    
+    // If the markers are selectable, the select ID will be added to each.
+    SimpleIdentity addMarkers(const std::vector<Marker> & ,const MarkerInfo &, ChangeSet &);
+    SimpleIdentity addMarkers(const std::vector<Marker *> &, const MarkerInfo &, ChangeSet &);
+
     /// Remove the given set of markers
     void removeMarkers(SimpleIDSet &markerIDs,ChangeSet &changes);
     

@@ -26,52 +26,73 @@
 namespace WhirlyKit
 {
 
-TextureMTL::TextureMTL(const std::string &name)
-    : Texture(name), TextureBaseMTL(name), TextureBase(name)
+TextureMTL::TextureMTL() : TextureMTL(std::string())
 {
 }
 
-TextureMTL::TextureMTL(const std::string &name,RawDataRef texData,bool isPVRTC)
-    : Texture(name,texData,isPVRTC), TextureBaseMTL(name), TextureBase(name)
+TextureMTL::TextureMTL(std::string name) :
+    TextureBase(std::move(name)),
+    Texture(),
+    TextureBaseMTL()
 {
-    if (!texData) {
+}
+
+TextureMTL::TextureMTL(std::string name, RawDataRef inTexData, bool isPVRTC) :
+    TextureBase(std::move(name)),
+    Texture(std::move(inTexData), isPVRTC),
+    TextureBaseMTL()
+{
+    if (!texData)
+    {
         NSLog(@"TextureMTL: Got texture with empty data");
-    }
-    RawNSDataReaderRef texDataRef = std::dynamic_pointer_cast<RawNSDataReader>(texData);
-    if (texDataRef && texDataRef->getData() == nil) {
-        NSLog(@"TextureMTL: Got texture with empty data");
-    }
-}
-    
-TextureMTL::TextureMTL(const std::string &name,UIImage *inImage,int inWidth,int inHeight)
-    : Texture(name), TextureBase(name), TextureBaseMTL(name)
-{
-    NSData *data = [inImage rawDataScaleWidth:inWidth height:inHeight border:0];
-    if (!data)
         return;
-    width = inWidth;  height = inHeight;
-    
-    if ((width == 0 || height == 0) && data)
-        NSLog(@"TextureMTL: Got textures with 0 width or height");
-    
-    texData = RawDataRef(new RawNSDataReader(data));
+    }
+    if (auto texDataRef = std::dynamic_pointer_cast<RawNSDataReader>(texData))
+    {
+        if (texDataRef->getData() == nil)
+        {
+            NSLog(@"TextureMTL: Got texture ref with empty data");
+        }
+    }
+    else
+    {
+        NSLog(@"TextureMTL: Got unrecognized texture data");
+    }
 }
 
-TextureMTL::TextureMTL(const std::string &name,UIImage *inImage)
-: Texture(name), TextureBase(name), TextureBaseMTL(name)
+TextureMTL::TextureMTL(std::string name, UIImage *inImage, int inWidth, int inHeight) :
+    TextureBase(std::move(name)),
+    Texture(),
+    TextureBaseMTL()
 {
-    NSData *data = [inImage rawDataRetWidth:&width height:&height roundUp:true];
-    if (!data)
-        return;
-    
-    if ((width == 0 || height == 0) && data)
-        NSLog(@"TextureMTL: Got textures with 0 width or height");
-    
-    texData = RawDataRef(new RawNSDataReader(data));
+    if (NSData *data = [inImage rawDataScaleWidth:inWidth height:inHeight border:0])
+    {
+        width = inWidth;
+        height = inHeight;
+
+        if ((width == 0 || height == 0) && data)
+        {
+            wkLogLevel(Error, "TextureMTL: Got textures with 0 width or height");
+        }
+
+        texData = std::make_shared<RawNSDataReader>(data);
+    }
 }
 
-TextureBaseMTL::~TextureBaseMTL()
+TextureMTL::TextureMTL(std::string name, UIImage *inImage) :
+    TextureBase(std::move(name)),
+    Texture(),
+    TextureBaseMTL()
 {
+    if (NSData *data = [inImage rawDataRetWidth:&width height:&height roundUp:true])
+    {
+        if ((width == 0 || height == 0) && data)
+        {
+            wkLogLevel(Error, "TextureMTL: Got textures with 0 width or height");
+        }
+
+        texData = std::make_shared<RawNSDataReader>(data);
+    }
 }
 
 #if !TARGET_OS_MACCATALYST

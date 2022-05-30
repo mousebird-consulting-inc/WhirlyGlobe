@@ -311,7 +311,7 @@ public:
     virtual ~VectorReader() { }
     
     /// Return false if we failed to load
-    virtual bool isValid() = 0;
+    virtual bool isValid() const = 0;
     
     /// Returns one of the vector types.
     /// Keep enough state to figure out what the next one is.
@@ -319,10 +319,10 @@ public:
     virtual VectorShapeRef getNextObject(const StringSet *filter) = 0;
     
     /// Return true if this vector reader can seek and read
-    virtual bool canReadByIndex() { return false; }
+    virtual bool canReadByIndex() const { return false; }
     
     /// Return the total number of vectors objects
-    virtual unsigned int getNumObjects() { return 0; }
+    virtual unsigned int getNumObjects() const { return 0; }
     
     /// Return an object that corresponds to the given index.
     /// You need to be able to seek in your file format for this.

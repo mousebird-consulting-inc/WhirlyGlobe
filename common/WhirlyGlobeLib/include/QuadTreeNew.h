@@ -19,48 +19,11 @@
  */
 
 #import "WhirlyVector.h"
+#import "QuadTreeIdentifier.h"
 #import <set>
 
 namespace WhirlyKit
 {
-    
-/// Represents a single quad tree node in simplified form
-class QuadTreeIdentifier
-{
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-
-    QuadTreeIdentifier() { }
-    /// Construct with the cell coordinates and level.
-    QuadTreeIdentifier(int x,int y,int level) : x(x), y(y), level(level) { }
-
-    static int64_t NodeNumber(int x, int y, int level)
-    {
-        const int64_t twoToZ = 1 << level;
-        
-        // total count of all levels below
-        const int64_t baseCount = (twoToZ * twoToZ - 1) / 3;   // (4 ^ z - 1) / 3
-        
-        // number within this level
-        const int64_t tileNumber = y * twoToZ + x;
-        
-        return baseCount + tileNumber;
-    }
-    int64_t NodeNumber() const { return NodeNumber(x,y,level); }
-
-    /// Comparison based on x,y,level.  Used for sorting
-    bool operator < (const QuadTreeIdentifier &that) const;
-    
-    /// Quality operator
-    bool operator == (const QuadTreeIdentifier &that) const;
-    
-    /// Spatial subdivision along the X axis relative to the space
-    int x;
-    /// Spatial subdivision along tye Y axis relative to the space
-    int y;
-    /// Level of detail, starting with 0 at the top (low)
-    int level;
-};
 
 /** New implementation of the spatial quad tree.
     Used to identify tiles to load and unload.
@@ -75,9 +38,9 @@ public:
     virtual ~QuadTreeNew() = default;
     
     // Single node in the Quad Tree
-    class Node
+    // todo: why isn't this derived from QuadTreeIdentifier?
+    struct Node
     {
-    public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
         Node() = default;
@@ -96,6 +59,8 @@ public:
         bool operator != (const Node &that) const;
         
         int64_t NodeNumber() const { return QuadTreeIdentifier::NodeNumber(x,y,level); }
+
+        QuadTreeIdentifier ident() const { return {x,y,level}; }
         
         /// Spatial subdivision along the X axis relative to the space
         int x;
@@ -107,9 +72,8 @@ public:
     typedef std::set<Node> NodeSet;
 
     // Node with an importance
-    class ImportantNode : public Node
+    struct ImportantNode : public Node
     {
-    public:
         ImportantNode() : importance(0.0) { }
         ImportantNode(const ImportantNode &that) : Node((Node)that), importance(that.importance) { }
         ImportantNode(const Node &that,double import) : Node((Node)that), importance(import) { }

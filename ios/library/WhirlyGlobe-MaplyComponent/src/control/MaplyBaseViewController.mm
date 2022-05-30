@@ -1257,38 +1257,35 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyCoordinate3d)displayPointFromGeo:(MaplyCoordinate)geoCoord
 {
-    MaplyCoordinate3d displayCoord = {0,0,0};
     if (!renderControl)
-        return displayCoord;
+        return { 0, 0, 0 };
     
-    Point3f pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
-    
-    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
-    return displayCoord;
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3f pt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(GeoCoord(geoCoord.x,geoCoord.y)));
+
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (MaplyCoordinate3dD)displayPointFromGeoD:(MaplyCoordinate)geoCoord
 {
-    MaplyCoordinate3dD displayCoord = {0,0,0};
     if (!renderControl)
-        return displayCoord;
+        return { 0, 0, 0 };
     
-    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3d pt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y)));
     
-    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
-    return displayCoord;
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (MaplyCoordinate3dD)displayPointFromGeoDD:(MaplyCoordinateD)geoCoord
 {
-    MaplyCoordinate3dD displayCoord = {0,0,0};
     if (!renderControl)
-        return displayCoord;
+        return { 0, 0, 0 };
     
-    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(renderControl->visualView->coordAdapter->getCoordSystem()->geographicToLocal(Point2d(geoCoord.x,geoCoord.y)));
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3d pt = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal(Point2d(geoCoord.x,geoCoord.y)));
     
-    displayCoord.x = pt.x();    displayCoord.y = pt.y();    displayCoord.z = pt.z();
-    return displayCoord;
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (float)currentMapScale
@@ -1424,7 +1421,7 @@ static const float PerfOutputDelay = 15.0;
     
     sceneRenderMTL->addSnapshotDelegate(target);
     sceneRenderMTL->forceDrawNextFrame();
-    sceneRenderMTL->render(0.0, nil, nil);
+    sceneRenderMTL->render(0.0, nil);
     sceneRenderMTL->removeSnapshotDelegate(target);
     
     return target.data;
@@ -1473,40 +1470,32 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyCoordinate3d)displayCoordFromLocal:(MaplyCoordinate3d)localCoord
 {
-    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
-    
-    MaplyCoordinate3d ret;
-    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
-    return ret;
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3f pt = adapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z)).cast<float>();
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (MaplyCoordinate3d)displayCoord:(MaplyCoordinate3d)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
 {
-    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), renderControl->visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
-    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(loc3d);
-    
-    MaplyCoordinate3d ret;
-    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
-    return ret;
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), adapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    const Point3f pt = adapter->localToDisplay(loc3d).cast<float>();
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (MaplyCoordinate3dD)displayCoordD:(MaplyCoordinate3dD)localCoord fromSystem:(MaplyCoordinateSystem *)coordSys
 {
-    Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), renderControl->visualView->coordAdapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
-    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(loc3d);
-    
-    MaplyCoordinate3dD ret;
-    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
-    return ret;
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3d loc3d = CoordSystemConvert3d(coordSys->coordSystem.get(), adapter->getCoordSystem(), Point3d(localCoord.x,localCoord.y,localCoord.z));
+    const Point3d pt = adapter->localToDisplay(loc3d);
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (MaplyCoordinate3dD)displayCoordFromLocalD:(MaplyCoordinate3dD)localCoord
 {
-    Point3d pt = renderControl->visualView->coordAdapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
-    
-    MaplyCoordinate3dD ret;
-    ret.x = pt.x();  ret.y = pt.y();  ret.z = pt.z();
-    return ret;
+    const auto adapter = renderControl->visualView->getCoordAdapter();
+    const Point3d pt = adapter->localToDisplay(Point3d(localCoord.x,localCoord.y,localCoord.z));
+    return { pt.x(), pt.y(), pt.z() };
 }
 
 - (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource

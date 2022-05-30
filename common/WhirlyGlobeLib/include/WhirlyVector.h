@@ -16,35 +16,13 @@
  *  limitations under the License.
  */
 
-// Avoid alignment errors on Eigen stuff passed by value.
-// Though we shouldn't do that, at least it won't crash.
-// See:
-//  http://eigen.tuxfamily.org/dox-devel/group__TopicUnalignedArrayAssert.html
-//  http://eigen.tuxfamily.org/dox-devel/group__TopicPassingByValue.html
-//  http://eigen.tuxfamily.org/dox-devel/TopicPreprocessorDirectives.html#TopicPreprocessorDirectivesPerformance
-#define EIGEN_UNALIGNED_VECTORIZE 0
+#import "WhirlyEigen.h"
 
-#define EIGEN_NO_IO         // Exclude I/O stuff for Eigen types, we don't need it
-#define EIGEN_MPL2_ONLY     // Exclude LGPL features
-
-#import <Eigen/Eigen>
 #import <vector>
 #import "Platform.h"
 
 namespace WhirlyKit
 {
-
-typedef Eigen::Vector3f Point3f;
-typedef Eigen::Vector3d Point3d;
-typedef Eigen::Vector2d Point2d;
-typedef Eigen::Vector2f Point2f;
-    
-typedef std::vector<Point2f,Eigen::aligned_allocator<Point2f> > Point2fVector;
-typedef std::vector<Point2d,Eigen::aligned_allocator<Point2d> > Point2dVector;
-typedef std::vector<Point3f,Eigen::aligned_allocator<Point3f> > Point3fVector;
-typedef std::vector<Point3d,Eigen::aligned_allocator<Point3d> > Point3dVector;
-typedef std::vector<Eigen::Vector4f,Eigen::aligned_allocator<Eigen::Vector4f> > Vector4fVector;
-typedef std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d> > Vector4dVector;
 
 /// Convenience wrapper for texture coordinate
 struct TexCoord : public Eigen::Vector2f
@@ -348,7 +326,12 @@ public:
     MbrD(const Mbr &inMbr) : pt_ll(Point2d(inMbr.ll().x(),inMbr.ll().y())), pt_ur(Point2d(inMbr.ur().x(),inMbr.ur().y())) { }
     /// Construct from the MBR of a vector of points
     MbrD(const Point2dVector &pts);
-    
+
+    template<std::size_t N>
+    MbrD(const Point2f (&pts)[N]) : pt_ll(0,0), pt_ur(-1,-1) { addPoints(pts); }
+    template<std::size_t N>
+    MbrD(const Point2d (&pts)[N]) : pt_ll(0,0), pt_ur(-1,-1) { addPoints(pts); }
+
     bool operator == (const MbrD &that) const;
     
     /// Resets back to invalid
@@ -390,7 +373,12 @@ public:
     
     /// Extend the MBR by the given points
     void addPoints(const Point2dVector &coords);
-    
+
+    template<std::size_t N>
+    void addPoints(const Point2f (&pts)[N]) { for (std::size_t i=0;i<N;++i) addPoint(pts[i]); }
+    template<std::size_t N>
+    void addPoints(const Point2d (&pts)[N]) { for (std::size_t i=0;i<N;++i) addPoint(pts[i]); }
+
     /// See if this Mbr overlaps the other one
     bool overlaps(const MbrD &that) const;
 
@@ -461,8 +449,13 @@ public:
     
     /// Construct invalid
 	GeoMbr() : pt_ll(BadVal,BadVal), pt_ur(BadVal,BadVal) { }
+    GeoMbr(GeoMbr &&that) : GeoMbr(that.pt_ll, that.pt_ur) { }
+    GeoMbr(const GeoMbr &that) : GeoMbr(that.pt_ll, that.pt_ur) { }
+    GeoMbr(Mbr &&that) : GeoMbr(that.ll(), that.ur()) { }
+    GeoMbr(const Mbr &that) : GeoMbr(that.ll(), that.ur()) { }
     /// Construct with two coordinates to start
-	GeoMbr(const Point2f &ll,const Point2f &ur) : pt_ll(ll), pt_ur(ur) { }
+    GeoMbr(Point2f &&ll, Point2f &&ur) : pt_ll(ll), pt_ur(ur) { }
+    GeoMbr(const Point2f &ll,const Point2f &ur) : pt_ll(ll), pt_ur(ur) { }
 	/// Construct from a list of geo coordinates
 	GeoMbr(const std::vector<GeoCoord> &coords);
 	/// Construct with a list of 2d coordinates.  X is lon, Y is lat
@@ -470,6 +463,10 @@ public:
 
     /// Resets back to invalid
     void reset() { pt_ll = GeoCoord(BadVal,BadVal);  pt_ur = GeoCoord(BadVal,BadVal); }
+
+    /// Resets to specific values
+    void reset(Point2f &&ll, Point2f &&ur) { pt_ll = ll;  pt_ur = ur; }
+    void reset(const Point2f &ll, const Point2f &ur) { pt_ll = ll;  pt_ur = ur; }
 
 	/// Fetch the lower left
 	const GeoCoord &ll() const { return pt_ll; }
@@ -524,8 +521,20 @@ public:
     
     /// Expand this MBR by the bounds of the other one
     void expand(const GeoMbr &mbr);
-    
+
     operator Mbr() const { return Mbr(pt_ll,pt_ur); }
+
+    GeoMbr &operator=(GeoMbr &&that) { pt_ll = that.pt_ll; pt_ur = that.pt_ur; return *this; }
+    GeoMbr &operator=(const GeoMbr &that) { pt_ll = that.pt_ll; pt_ur = that.pt_ur; return *this; }
+
+    GeoMbr &operator=(Mbr &&that) { pt_ll = that.ll(); pt_ur = that.ur(); return *this; }
+    GeoMbr &operator=(const Mbr &that) { pt_ll = that.ll(); pt_ur = that.ur(); return *this; }
+
+    bool operator==(GeoMbr &&that) const { return pt_ll == that.pt_ll && pt_ur == that.pt_ur; }
+    bool operator==(const GeoMbr &that) const { return pt_ll == that.pt_ll && pt_ur == that.pt_ur; }
+
+    bool operator==(Mbr &&that) const { return pt_ll == that.ll() && pt_ur == that.ur(); }
+    bool operator==(const Mbr &that) const { return pt_ll == that.ll() && pt_ur == that.ur(); }
 
     /// Break into one or two MBRs
 	void splitIntoMbrs(std::vector<Mbr> &mbrs) const;

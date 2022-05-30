@@ -51,7 +51,7 @@ using namespace WhirlyKit;
     if (const auto *renderControl = [viewC getRenderControl])
     if (auto *scene = renderControl->scene)
     if (const auto &view = renderControl->visualView)
-    if (const auto *coordAdapter = view->coordAdapter)
+    if (const auto *coordAdapter = view->getCoordAdapter())
     if (auto *coordSys = coordAdapter->getCoordSystem())
     {
         const auto styleSettings = (settings && settings->impl) ? settings->impl :

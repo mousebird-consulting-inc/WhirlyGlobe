@@ -31,9 +31,8 @@ namespace WhirlyKit
     pretend we're dealing with individual textures.  You can use their IDs
     in place of texture IDs for most of the layers.
   */
-class SubTexture : public Identifiable
+struct SubTexture : public Identifiable
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     SubTexture() : texId(EmptyIdentity) { trans.setIdentity(); }

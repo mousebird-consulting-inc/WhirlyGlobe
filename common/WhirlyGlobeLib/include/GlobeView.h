@@ -52,7 +52,7 @@ public:
     GlobeView(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter);
     /// Copy constructor
     GlobeView(const GlobeView &that);
-    virtual ~GlobeView();
+    virtual ~GlobeView() = default;
     
     /// Return min/max valid heights above globe
     double minHeightAboveGlobe() const;
@@ -71,10 +71,10 @@ public:
     void setCenterOffset(double offX,double offY,bool updateWatchers);
 
     /// Update the quaternion
-    virtual void setRotQuat(Eigen::Quaterniond rotQuat);
+    virtual void setRotQuat(const Eigen::Quaterniond &rotQuat);
 
     /// This version allows you to not update the watchers.
-    virtual void setRotQuat(Eigen::Quaterniond rotQuat,bool updateWatchers);
+    virtual void setRotQuat(const Eigen::Quaterniond &rotQuat,bool updateWatchers);
     
     /// Return the current quaternion
     Eigen::Quaterniond getRotQuat() const { return rotQuat; }
@@ -141,8 +141,8 @@ public:
     virtual float calcZbufferRes() override;
 
     /// Height above the globe
-    virtual double heightAboveSurface() const override;
-    
+    virtual double heightAboveSurface() const override { return heightAboveGlobe; }
+
     /// Make a globe view state from the current globe view
     virtual WhirlyKit::ViewStateRef makeViewState(WhirlyKit::SceneRenderer *renderer) override;
     
@@ -158,9 +158,9 @@ public:
     // These are all for continuous zoom mode
     double absoluteMinHeight;
     double heightInflection;
-    double defaultNearPlane;
+    float defaultNearPlane;
+    float defaultFarPlane;
     double absoluteMinNearPlane;
-    double defaultFarPlane;
     double absoluteMinFarPlane;
     
     /// Return the current height
@@ -177,9 +177,9 @@ protected:
     /// Quaternion used for rotation from origin state
     Eigen::Quaterniond rotQuat;
     /// The view can have a tilt.  0 is straight down.  PI/2 is looking to the horizon.
-    double tilt;
+    double tilt = 0.0;
     /// Roll around an axis pointed straight out of the front
-    double roll;
+    double roll = 0.0;
     WhirlyKit::FakeGeocentricDisplayAdapter fakeGeoC;
     /// Animation delegate
     GlobeViewAnimationDelegateRef delegate;
@@ -196,7 +196,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     GlobeViewState(GlobeView *globeView,WhirlyKit::SceneRenderer *renderer);
-    virtual ~GlobeViewState();
+    virtual ~GlobeViewState() = default;
     
     /// Rotation, etc, at this view state
     Eigen::Quaterniond rotQuat;

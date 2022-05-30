@@ -1,4 +1,4 @@
-/*  Scene.mm
+/*  Scene.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
@@ -77,10 +77,7 @@ void SceneManager::teardown()
 }
 
 Scene::Scene(CoordSystemDisplayAdapter *adapter) :
-    setupInfo(nullptr),
-    currentTime(0.0),
     coordAdapter(adapter),
-    overlapMargin(0.0),
     textures(100)
 {
     SetupDrawableStrings();

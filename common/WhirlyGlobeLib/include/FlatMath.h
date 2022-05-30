@@ -26,28 +26,27 @@ namespace WhirlyKit
     represents the map as a flat non-projection of that.
     This is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
-class PlateCarreeCoordSystem : public CoordSystem
+struct PlateCarreeCoordSystem : public CoordSystem
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     /// Convert from the local coordinate system to lat/lon
-    virtual GeoCoord localToGeographic(Point3f p) const override { return GeoCoord(p.x(),p.y()); }
-    virtual GeoCoord localToGeographic(Point3d p) const override { return GeoCoord(p.x(),p.y()); }
-    virtual Point2d localToGeographicD(Point3d p) const override { return Point2d(p.x(),p.y()); }
+    virtual GeoCoord localToGeographic(const Point3f &p) const override { return { p.x(), p.y() }; }
+    virtual GeoCoord localToGeographic(const Point3d &p) const override { return { (float)p.x(), (float)p.y() }; }
+    virtual Point2d localToGeographicD(const Point3d &p) const override { return { p.x(), p.y() }; }
     
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord c) const override { return {c.lon(),c.lat(),0.0}; }
-    virtual Point3d geographicToLocal3d(GeoCoord c) const override { return {c.lon(),c.lat(),0.0}; }
-    virtual Point3d geographicToLocal(Point2d c) const override { return {c.x(),c.y(),0.0}; }
+    virtual Point3f geographicToLocal(const GeoCoord &c) const override { return {c.lon(),c.lat(),0.0}; }
+    virtual Point3d geographicToLocal3d(const GeoCoord &c) const override { return {c.lon(),c.lat(),0.0}; }
+    virtual Point3d geographicToLocal(const Point2d &c) const override { return {c.x(),c.y(),0.0}; }
     virtual Point2d geographicToLocal2(const Point2d &c) const override { return {c.x(),c.y()}; }
 
     /// Convert from local coordinates to WGS84 geocentric
-    virtual Point3f localToGeocentric(Point3f) const override;
-    virtual Point3d localToGeocentric(Point3d) const override;
+    virtual Point3f localToGeocentric(const Point3f&) const override;
+    virtual Point3d localToGeocentric(const Point3d&) const override;
     /// Convert from WGS84 geocentric to local coordinates
-    virtual Point3f geocentricToLocal(Point3f) const override;
-    virtual Point3d geocentricToLocal(Point3d) const override;
+    virtual Point3f geocentricToLocal(const Point3f&) const override;
+    virtual Point3d geocentricToLocal(const Point3d&) const override;
         
     /// Return true if the other coordinate system is also Plate Carree
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
@@ -56,29 +55,28 @@ public:
 /** Flat Earth refers to the MultiGen flat earth coordinate system.
     This is a scaled unrolling from a center point.
  */
-class FlatEarthCoordSystem : public CoordSystem
+struct FlatEarthCoordSystem : public CoordSystem
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     FlatEarthCoordSystem(const GeoCoord &origin);
 
     /// Convert from the local coordinate system to lat/lon
-    virtual GeoCoord localToGeographic(Point3f) const override;
-    virtual GeoCoord localToGeographic(Point3d) const override;
-    virtual Point2d localToGeographicD(Point3d) const override;
+    virtual GeoCoord localToGeographic(const Point3f&) const override;
+    virtual GeoCoord localToGeographic(const Point3d&) const override;
+    virtual Point2d localToGeographicD(const Point3d&) const override;
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord) const override;
-    virtual Point3d geographicToLocal3d(GeoCoord) const override;
+    virtual Point3f geographicToLocal(const GeoCoord&) const override;
+    virtual Point3d geographicToLocal3d(const GeoCoord&) const override;
     virtual Point2d geographicToLocal2(const Point2d&) const override;
-    virtual Point3d geographicToLocal(Point2d) const override;
+    virtual Point3d geographicToLocal(const Point2d&) const override;
 
     /// Convert from local coordinates to WGS84 geocentric
-    virtual Point3f localToGeocentric(Point3f) const override;
-    virtual Point3d localToGeocentric(Point3d) const override;
+    virtual Point3f localToGeocentric(const Point3f&) const override;
+    virtual Point3d localToGeocentric(const Point3d&) const override;
     /// Convert from WGS84 geocentric to local coordinates
-    virtual Point3f geocentricToLocal(Point3f) const override;
-    virtual Point3d geocentricToLocal(Point3d) const override;
+    virtual Point3f geocentricToLocal(const Point3f&) const override;
+    virtual Point3d geocentricToLocal(const Point3d&) const override;
     
     /// Return true if the other coordinate system is Flat Earth with the same origin
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
@@ -97,29 +95,28 @@ static constexpr float EarthRadius = 6371000;
 /** This coord system just passes through output values as inputs.
     It's useful for an offline renderer.
   */
-class PassThroughCoordSystem : public CoordSystem
+struct PassThroughCoordSystem : public CoordSystem
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     PassThroughCoordSystem() = default;
     
     /// Convert from the local coordinate system to lat/lon
-    virtual GeoCoord localToGeographic(Point3f) const override;
-    virtual GeoCoord localToGeographic(Point3d) const override;
-    virtual Point2d localToGeographicD(Point3d) const override;
+    virtual GeoCoord localToGeographic(const Point3f&) const override;
+    virtual GeoCoord localToGeographic(const Point3d&) const override;
+    virtual Point2d localToGeographicD(const Point3d&) const override;
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord) const override;
-    virtual Point3d geographicToLocal3d(GeoCoord) const override;
-    virtual Point3d geographicToLocal(Point2d) const override;
+    virtual Point3f geographicToLocal(const GeoCoord&) const override;
+    virtual Point3d geographicToLocal3d(const GeoCoord&) const override;
+    virtual Point3d geographicToLocal(const Point2d&) const override;
     virtual Point2d geographicToLocal2(const Point2d&) const override;
 
     /// Convert from local coordinates to WGS84 geocentric
-    virtual Point3f localToGeocentric(Point3f p) const override { return p; }
-    virtual Point3d localToGeocentric(Point3d p) const override { return p; }
+    virtual Point3f localToGeocentric(const Point3f &p) const override { return p; }
+    virtual Point3d localToGeocentric(const Point3d &p) const override { return p; }
     /// Convert from WGS84 geocentric to local coordinates
-    virtual Point3f geocentricToLocal(Point3f p) const override { return p; }
-    virtual Point3d geocentricToLocal(Point3d p) const override { return p; }
+    virtual Point3f geocentricToLocal(const Point3f &p) const override { return p; }
+    virtual Point3d geocentricToLocal(const Point3d &p) const override { return p; }
     
     /// Return true if the other coordinate system is Flat Earth with the same origin
     virtual bool isSameAs(const CoordSystem *coordSys) const override;

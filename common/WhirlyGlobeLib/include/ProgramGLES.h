@@ -1,5 +1,4 @@
-/*
- *  OpenGLES2Program.h
+/*  ProgramGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 10/23/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>
@@ -29,65 +27,63 @@
 namespace WhirlyKit
 {
     
-class DirectionalLight;
-class Material;
+struct DirectionalLight;
+struct Material;
 
 /// Used to track a uniform within an OpenGL ES 2.0 shader program
-class OpenGLESUniform
+struct OpenGLESUniform
 {
-public:
-    OpenGLESUniform() : index(0), size(0), isSet(false), isTexture(false) { }
+    OpenGLESUniform() = default;
     OpenGLESUniform(StringIdentity nameID) : nameID(nameID) { }
     
     bool operator < (const OpenGLESUniform &that) const { return nameID < that.nameID; }
     
     /// Return true if this uniform is an array
-    bool isArray() { return size != 0; }
+    bool isArray() const { return size != 0; }
     /// Return true if the type matches
-    bool isType(GLenum inType) { return inType == type; }
+    bool isType(GLenum inType) const { return inType == type; }
     
     /// Name of the uniform within the program
-    StringIdentity nameID;
+    StringIdentity nameID = EmptyIdentity;
     /// Index we'll use to address the uniform
-    GLuint index;
+    GLuint index = 0;
     /// If the uniform is an array, this is the length
-    GLint size;
+    GLint size = 0;
     /// Uniform data type
-    GLenum type;
+    GLenum type = 0;
     /// Set if we know this is a texture
-    bool isTexture;
+    bool isTexture = false;
     
     /// Current value (if set)
-    bool isSet;
+    bool isSet = false;
     union {
         int iVals[4];
         float fVals[4];
         float mat[16];
-    } val;
+    } val = { { 0, 0, 0, 0 } };
 };
 
 /// Used to track an attribute (per vertex) within an OpenGL ES 2.0 shader program
-class OpenGLESAttribute
+struct OpenGLESAttribute
 {
-public:
-    OpenGLESAttribute() : index(0), size(0) { }
+    OpenGLESAttribute() = default;
     OpenGLESAttribute(StringIdentity nameID) : nameID(nameID) { }
     
     bool operator < (const OpenGLESAttribute &that) const { return nameID < that.nameID; }
     
     /// Return true if this uniform is an array
-    bool isArray() { return size != 0; }
+    bool isArray() const { return size != 0; }
     /// Return true if the type matches
-    bool isType(GLenum inType) { return inType == type; }
+    bool isType(GLenum inType) const { return inType == type; }
     
     /// Name of the per vertex attribute
-    StringIdentity nameID;
+    StringIdentity nameID = EmptyIdentity;
     /// Index we'll use to address the attribute
-    GLuint index;
+    GLuint index = 0;
     /// If an array, this is the length
-    GLint size;
+    GLint size = 0;
     /// Attribute data type
-    GLenum type;
+    GLenum type = 0;
 };
 
 /** Representation of an OpenGL ES 2.0 program.  It's an identifiable so we can
@@ -152,16 +148,16 @@ public:
     void cleanUp();
     
 protected:
-    GLuint program;
-    GLuint vertShader;
-    GLuint fragShader;
-    TimeInterval lightsLastUpdated;
+    GLuint program = 0;
+    GLuint vertShader = 0;
+    GLuint fragShader = 0;
+    TimeInterval lightsLastUpdated = 0.0;
     // Uniforms sorted for fast lookup
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESUniform>> uniforms;
     // Attributes sorted for fast lookup
     std::unordered_map<StringIdentity,std::shared_ptr<OpenGLESAttribute>> attrs;
 };
-    
+
 typedef std::shared_ptr<ProgramGLES> ProgramGLESRef;
-    
+
 }

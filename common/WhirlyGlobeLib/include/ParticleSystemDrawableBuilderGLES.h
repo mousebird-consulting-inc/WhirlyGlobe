@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemDrawableBuilderGLES.h
+/*  ParticleSystemDrawableBuilderGLES.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/14/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemDrawableBuilder.h"
@@ -25,10 +23,9 @@ namespace WhirlyKit
 {
 
 /// OpenGL ES version of the particle system drawable builder
-class ParticleSystemDrawableBuilderGLES : public ParticleSystemDrawableBuilder
+struct ParticleSystemDrawableBuilderGLES : public ParticleSystemDrawableBuilder
 {
-public:
-    ParticleSystemDrawableBuilderGLES(const std::string &name,Scene *scene);
+    ParticleSystemDrawableBuilderGLES(std::string name, Scene *scene);
     virtual ~ParticleSystemDrawableBuilderGLES();
     
     virtual void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
@@ -39,7 +36,7 @@ public:
     ParticleSystemDrawable *getDrawable() override;
     
 protected:
-    bool drawableGotten;
+    bool drawableGotten = false;
 };
     
 }

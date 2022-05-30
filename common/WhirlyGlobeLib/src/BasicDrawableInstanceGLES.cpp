@@ -24,8 +24,9 @@ using namespace Eigen;
 namespace WhirlyKit
 {
     
-BasicDrawableInstanceGLES::BasicDrawableInstanceGLES(const std::string &name)
-    : BasicDrawableInstance(name), Drawable(name)
+BasicDrawableInstanceGLES::BasicDrawableInstanceGLES(const std::string &name) :
+    BasicDrawableInstance(name),
+    DrawableGLES(name)
 {
 }
     
@@ -136,48 +137,46 @@ void BasicDrawableInstanceGLES::setupForRenderer(const RenderSetupInfo *inSetupI
     
     instBuffer = setupInfo->memManager->getBufferID(bufferSize,GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, instBuffer);
-    void *glMem;
+    uint8_t *basePtr;
+    std::vector<uint8_t> glBuf;
     if (hasMapBufferSupport)
     {
-        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
+        basePtr = (uint8_t*)glMapBufferRange(GL_ARRAY_BUFFER, 0, bufferSize, GL_MAP_WRITE_BIT);
     }
     else
     {
-        glMem = (void *)malloc(bufferSize);
+        glBuf.resize(bufferSize);
+        basePtr = &glBuf[0];
     }
 
-    if (auto *basePtr = (unsigned char *)glMem)
+    for (unsigned int ii = 0; ii < instances.size(); ii++, basePtr += instSize)
     {
-        for (unsigned int ii = 0; ii < instances.size(); ii++, basePtr += instSize)
+        const SingleInstance &inst = instances[ii];
+        const Point3f center3f = inst.center.cast<float>();;
+        const Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
+        const float colorInst = inst.colorOverride ? 1.0 : 0.0;
+        const RGBAColor locColor = inst.colorOverride ? inst.color : color;
+        memcpy(basePtr, (void *) center3f.data(), centerSize);
+        memcpy(basePtr + centerSize, (void *) mat.data(), matSize);
+        memcpy(basePtr + centerSize + matSize, (void *) &colorInst, colorInstSize);
+        memcpy(basePtr + centerSize + matSize + colorInstSize, (void *) &locColor.r, colorSize);
+        if (moving)
         {
-            const SingleInstance &inst = instances[ii];
-            const Point3f center3f(inst.center.x(), inst.center.y(), inst.center.z());
-            const Matrix4f mat = Matrix4dToMatrix4f(inst.mat);
-            const float colorInst = inst.colorOverride ? 1.0 : 0.0;
-            const RGBAColor locColor = inst.colorOverride ? inst.color : color;
-            memcpy(basePtr, (void *) center3f.data(), centerSize);
-            memcpy(basePtr + centerSize, (void *) mat.data(), matSize);
-            memcpy(basePtr + centerSize + matSize, (void *) &colorInst, colorInstSize);
-            memcpy(basePtr + centerSize + matSize + colorInstSize, (void *) &locColor.r, colorSize);
-            if (moving)
-            {
-                const Point3d modelDir = (inst.endCenter - inst.center) / inst.duration;
-                const Point3f modelDir3f(modelDir.x(), modelDir.y(), modelDir.z());
-                memcpy(basePtr + centerSize + matSize + colorInstSize + colorSize, (void *) modelDir3f.data(), modelDirSize);
-            }
-        }
-
-        if (hasMapBufferSupport)
-        {
-            glUnmapBuffer(GL_ARRAY_BUFFER);
-        }
-        else
-        {
-            glBufferData(GL_ARRAY_BUFFER, bufferSize, glMem, GL_STATIC_DRAW);
-            free(glMem);
+            const Point3d modelDir = (inst.endCenter - inst.center) / inst.duration;
+            const Point3f modelDir3f = modelDir.cast<float>();
+            memcpy(basePtr + centerSize + matSize + colorInstSize + colorSize, (void *) modelDir3f.data(), modelDirSize);
         }
     }
-    
+
+    if (hasMapBufferSupport)
+    {
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+    }
+    else
+    {
+        glBufferData(GL_ARRAY_BUFFER, bufferSize, basePtr, GL_STATIC_DRAW);
+    }
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -403,7 +402,7 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                 glEnableVertexAttribArray ( vertAttr->index );
             } else if (basicDrawGL->pointBuffer) {
                 glBindBuffer(GL_ARRAY_BUFFER,basicDrawGL->pointBuffer);
-                CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
+                CheckGLError("BasicDrawable::drawVBO2() point glBindBuffer");
                 glVertexAttribPointer(vertAttr->index, 3, GL_FLOAT, GL_FALSE, basicDrawGL->vertexSize, nullptr);
                 glEnableVertexAttribArray ( vertAttr->index );
             } else {
@@ -509,7 +508,10 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                     break;
                 case Lines:
-                    glLineWidth(lineWidth);
+                    if (lineWidth > 0)
+                    {
+                        glLineWidth(lineWidth);
+                    }
                     if (instBuffer)
                     {
                         glDrawArraysInstanced(GL_LINES, 0, basicDraw->numPoints, numInstances);
@@ -528,42 +530,55 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
             }
 
             glBindVertexArray(0);
-        } else {
+        }
+        else
+        {
             // Bind the element array
-            if (basicDrawGL->type == Triangles && basicDrawGL->sharedBuffer)
+            if (basicDrawGL->type == Triangles)
             {
                 boundElements = true;
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->sharedBuffer);
-                //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer %d",sharedBuffer);
-                CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
+                if (basicDrawGL->sharedBuffer)
+                {
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->sharedBuffer);
+                    CheckGLError("BasicDrawable::drawVBO2() shared glBindBuffer");
+                }
+                else
+                {
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->triBuffer);
+                    CheckGLError("BasicDrawable::drawVBO2() tri glBindBuffer");
+                }
             }
 
             // Draw without a VAO
             switch (basicDraw->type)
             {
                 case Triangles:
-                {
                     if (basicDrawGL->triBuffer)
                     {
-                        if (!boundElements)
-                            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basicDrawGL->triBuffer);
                         CheckGLError("BasicDrawable::drawVBO2() glBindBuffer");
                         if (instBuffer)
                         {
                             glDrawElementsInstanced(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, nullptr, numInstances);
-                        } else
-                            glDrawElements(GL_TRIANGLES, basicDrawGL->numTris*3, GL_UNSIGNED_SHORT, (void *)((uintptr_t)basicDrawGL->triBuffer));
+                        }
+                        else
+                        {
+                            const auto offset = CALCBUFOFF(nullptr, basicDrawGL->sharedBuffer ? basicDrawGL->triBuffer : 0);
+                            glDrawElements(GL_TRIANGLES, basicDrawGL->numTris * 3, GL_UNSIGNED_SHORT, offset);
+                        }
                         CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
-                        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                    } else {
+                    }
+                    else
+                    {
                         if (instBuffer)
                         {
                             glDrawElementsInstanced(GL_TRIANGLES, (GLsizei)basicDrawGL->tris.size()*3, GL_UNSIGNED_SHORT, &basicDrawGL->tris[0], numInstances);
-                        } else
-                            glDrawElements(GL_TRIANGLES, (GLsizei)basicDrawGL->tris.size()*3, GL_UNSIGNED_SHORT, &basicDrawGL->tris[0]);
+                        }
+                        else
+                        {
+                            glDrawElements(GL_TRIANGLES, (GLsizei) basicDrawGL->tris.size() * 3, GL_UNSIGNED_SHORT, &basicDrawGL->tris[0]);
+                        }
                         CheckGLError("BasicDrawable::drawVBO2() glDrawElements");
                     }
-                }
                     break;
                 case Points:
                     if (instBuffer)
@@ -574,7 +589,10 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
                     CheckGLError("BasicDrawable::drawVBO2() glDrawArrays");
                     break;
                 case GL_LINES:
-                    glLineWidth(lineWidth);
+                    if (lineWidth > 0)
+                    {
+                        glLineWidth(lineWidth);
+                    }
                     CheckGLError("BasicDrawable::drawVBO2() glLineWidth");
                     if (instBuffer)
                     {
@@ -605,6 +623,10 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
         }
 
         // Tear down the various arrays, if we stood them up
+        if (boundElements)
+        {
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        }
         if (usedLocalVertices)
         {
             glDisableVertexAttribArray(vertAttr->index);
@@ -655,22 +677,17 @@ void BasicDrawableInstanceGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *inS
             if (vertAttr)
             {
                 glDisableVertexAttribArray(vertAttr->index);
-                //            WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",vertAttr->index);
             }
             for (unsigned int ii=0;ii<basicDrawGL->vertexAttributes.size();ii++)
+            {
                 if (progAttrs[ii])
                 {
                     glDisableVertexAttribArray(progAttrs[ii]->index);
-                    //                WHIRLYKIT_LOGD("BasicDrawable glDisableVertexAttribArray %d",progAttrs[ii]->index);
                 }
-            if (boundElements) {
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-                //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
             }
             if (basicDrawGL->sharedBuffer)
             {
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
-                //            WHIRLYKIT_LOGD("BasicDrawable glBindBuffer 0");
             }
         }
     }

@@ -36,8 +36,8 @@ BasicDrawableBuilder::BasicDrawableBuilder() :
 }
     
 BasicDrawableBuilder::BasicDrawableBuilder(std::string name,Scene *scene) :
-    name(std::move(name)),
-    scene(scene)
+    scene(scene),
+    name(std::move(name))
 {
 }
     

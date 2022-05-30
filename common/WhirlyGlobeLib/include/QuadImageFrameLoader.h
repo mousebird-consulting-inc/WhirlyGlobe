@@ -237,11 +237,11 @@ protected:
                                             const QuadFrameInfoRef &frameInfo,
                                             QuadImageFrameLoader *) = 0;
 
-    State state;
+    State state = Waiting;
     QuadTreeNew::ImportantNode ident;
     
     // Set if the sampling layer thinks this should be on
-    bool shouldEnable;
+    bool shouldEnable = false;
     
     // One set of instance IDs per focus
     std::vector<std::vector<SimpleIdentity> > instanceDrawIDs;
@@ -251,7 +251,7 @@ protected:
     // Component objects associated with this tile (not frame)
     SimpleIDSet compObjs,ovlCompObjs;
     
-    int drawPriority;
+    int drawPriority = 0;
 };
 
 typedef std::shared_ptr<QIFTileAsset> QIFTileAssetRef;
@@ -276,7 +276,7 @@ public:
     public:
         FrameInfo();
         
-        bool enabled; // Set it on or off
+        bool enabled = false; // Set it on or off
         // Node we're using a texture from (could be this one)
         QuadTreeNew::Node texNode;
         std::vector<SimpleIdentity> texIDs;
@@ -294,12 +294,13 @@ typedef std::shared_ptr<QIFTileState> QIFTileStateRef;
 class QIFRenderState
 {
 public:
-    QIFRenderState();
-    QIFRenderState(int numFocus,int numFrames);
+    QIFRenderState() = default;
+    QIFRenderState(int numFocus, int numFrames);
     
     std::map<QuadTreeNew::Node,QIFTileStateRef> tiles;
 
-    int texSize,borderSize;
+    int texSize = 0;
+    int borderSize = 0;
     
     // Number of tiles loaded for each frame
     std::vector<int> tilesLoaded;
@@ -309,9 +310,9 @@ public:
     bool hasUpdate(const std::vector<double> &curFrames,bool masterUpdate) const;
     
     std::vector<double> lastCurFrames;
-    TimeInterval lastRenderTime;
-    TimeInterval lastUpdate;
-    bool lastMasterEnable;
+    TimeInterval lastRenderTime = 0.0;
+    TimeInterval lastUpdate = 0.0;
+    bool lastMasterEnable = false;
     
     // Update what the scene is looking at.  Ideally not every frame.
     void updateScene(Scene *scene,
@@ -345,7 +346,7 @@ public:
     Mode getMode() const { return mode; }
     
     /// If set, we'll see way too much output
-    void setDebugMode(bool newMode) { debugMode = newMode; }
+    void setDebugMode(bool newMode);
     bool getDebugMode() const { return debugMode; }
     
     /// Turn the display on or off.  Loading continues normally
@@ -481,7 +482,7 @@ public:
     
     /// Process the update
     virtual void updateForFrame(RendererFrameInfo *frameInfo) override;
-    
+
     /** ----- **/
     
     /**
@@ -573,73 +574,76 @@ protected:
         
     virtual void removeTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
     QIFTileAssetRef addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
-    
+
     Mode mode;
-    LoadMode loadMode;
+    LoadMode loadMode = Narrow;
     
-    bool masterEnable;
-    bool debugMode;
+    bool masterEnable = true;
+    bool debugMode = false;
     
     SamplingParams params;
-    int minZoom,maxZoom;
+    int minZoom;
+    int maxZoom;
 
     // Set if we require the top tiles to be loaded before we'll display a frame
-    bool requiringTopTilesLoaded;
+    bool requiringTopTilesLoaded = true;
     
-    TextureType texType;
-    int texSize,borderSize;
+    TextureType texType = TexTypeUnsignedByte;
+    int texSize = 0;
+    int borderSize = 0;
 
     // Number of focus points (1 by default)
-    int numFocus;
+    int numFocus = 1;
 
     // One per focus point
-    std::vector<WhirlyKit::SimpleIdentity> shaderIDs;
+    std::vector<WhirlyKit::SimpleIdentity> shaderIDs = { EmptyIdentity };
 
     // One per focus point
-    std::vector<double> curFrames;
+    std::vector<double> curFrames = { 0.0 };
     
-    bool flipY;
+    bool flipY = true;
 
-    int baseDrawPriority,drawPriorityPerLevel;
+    int baseDrawPriority = 100;
+    int drawPriorityPerLevel = 1;
 
-    bool colorChanged;
-    RGBAColor color;
+    bool colorChanged = false;
+    RGBAColor color = RGBAColor::white();
     
     // One per focus
-    std::vector<SimpleIdentity> renderTargetIDs;
+    std::vector<SimpleIdentity> renderTargetIDs = { EmptyIdentity };
     BasicDrawable::UniformBlock uniBlock;
 
     // Tiles in various states of loading or loaded
     QIFTileAssetMap tiles;
     
     // The builder this is a delegate of
-    QuadDisplayControllerNew *control;
-    QuadTileBuilder *builder;
+    QuadDisplayControllerNew *control = nullptr;
+    QuadTileBuilder *builder = nullptr;
     
     // Tile rendering info supplied from the layer thread
     QIFRenderState renderState;
     
-    bool changesSinceLastFlush;
+    bool changesSinceLastFlush = false;
     
     // We number load requests so we can catch old ones after doing a reload
-    int generation;
+    int generation = 0;
     
     // Last target level set in quadBuilder:update: callback
-    int targetLevel;
+    int targetLevel = -1;
     
     // This is set to the targetLevel when all targetLevel tiles are loaded
-    int curOvlLevel;
+    int curOvlLevel = -1;
     
     // If set, used to signal when we're done to a RunRequest in process
     std::shared_ptr<bool> lastRunReqFlag;
     
     // True if we're trying to load something, false if we're not
-    bool loadingStatus;
+    bool loadingStatus = true;
     
     // Default load priority values.  Used to assign loading priorities
-    int topPriority;        // Top nodes, if they're special.  -1 if not
-    int nearFramePriority;  // Frames next to the current one, -1 if not
-    int restPriority;       // Everything else
+    int topPriority = -1;        // Top nodes, if they're special.  -1 if not
+    int nearFramePriority = -1;  // Frames next to the current one, -1 if not
+    int restPriority = -1;       // Everything else
     
     // Information about each frame.  Subclasses do more interesting things with this
     std::vector<QuadFrameInfoRef> frames;

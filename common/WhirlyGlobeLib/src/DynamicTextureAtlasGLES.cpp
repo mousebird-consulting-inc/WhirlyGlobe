@@ -1,5 +1,4 @@
-/*
- *  DynamicTextureAtlasGLES.cpp
+/*  DynamicTextureAtlasGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "DynamicTextureAtlasGLES.h"
@@ -26,8 +24,9 @@
 namespace WhirlyKit
 {
     
-DynamicTextureGLES::DynamicTextureGLES(const std::string &name)
-    : DynamicTexture(name), TextureBase(name), glType(0), compressed(false), TextureBaseGLES(name)
+DynamicTextureGLES::DynamicTextureGLES(const std::string &name) :
+    DynamicTexture(name),
+    TextureBaseGLES(name)
 {
 }
 
@@ -103,7 +102,6 @@ void DynamicTextureGLES::setup(int texSize,int cellSize,TextureType inType,bool 
 //            break;
         default:
             return;
-            break;
     }
 }
 
@@ -113,7 +111,7 @@ static const bool ClearImages = false;
 // Create the OpenGL texture, empty
 bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
     
     // Already setup
     if (glId != 0)
@@ -151,7 +149,7 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
                 break;
         }
         
-        glCompressedTexImage2D(GL_TEXTURE_2D, 0, glType, texSize, texSize, 0, (GLsizei)size, NULL);
+        glCompressedTexImage2D(GL_TEXTURE_2D, 0, glType, texSize, texSize, 0, (GLsizei)size, nullptr);
     } else {
         // Turn this on to provide glTexImage2D with empty memory so Instruments doesn't complain
         if (ClearImages)
@@ -162,7 +160,7 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
             glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, glType, zeroMem);
             free(zeroMem);
         } else
-            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, glType, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, format, texSize, texSize, 0, format, glType, nullptr);
     }
     CheckGLError("DynamicTexture::createInGL() glTexImage2D()");
     
@@ -173,10 +171,11 @@ bool DynamicTextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 
 void DynamicTextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
-    RenderSetupInfoGLES *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
-
     if (glId)
+    {
+        auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
         setupInfo->memManager->removeTexID(glId);
+    }
     glId = 0;
 }
 
@@ -222,19 +221,17 @@ void DynamicTextureGLES::clearTextureData(int startX,int startY,int width,int he
         //            NSLog(@"Compressed texture doesn't match atlas.");
         //        else
         //            glCompressedTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, thisWidth, thisHeight, pkmType, (GLsizei)size, pixData);
-    } else {
-        if (ClearImages)
-        {
-            if (mainThreadMerge) {
-                RawDataRef clearData(new RawDataWrapper(emptyData,width*height*4,false));
-                changes.push_back(new DynamicTextureAddRegion(getId(),
-                                                              startX, startY, width, height,
-                                                              clearData));
-            } else
-                glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, glType, emptyData);
-        }
+    } else if (ClearImages)
+    {
+        if (mainThreadMerge) {
+            RawDataRef clearData(new RawDataWrapper(emptyData,width*height*4,false));
+            changes.push_back(new DynamicTextureAddRegion(getId(),
+                                                          startX, startY, width, height,
+                                                          clearData));
+        } else
+            glTexSubImage2D(GL_TEXTURE_2D, 0, startX, startY, width, height, format, glType, emptyData);
     }
-    
+
     glBindTexture(GL_TEXTURE_2D, 0);
 }
     

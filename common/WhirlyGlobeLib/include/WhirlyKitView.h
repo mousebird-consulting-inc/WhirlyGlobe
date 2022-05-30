@@ -113,14 +113,14 @@ public:
     //- (WhirlyKit::Ray3f)displaySpaceRayFromScreenPt:(WhirlyKit::Point2f)screenPt width:(float)frameWidth height:(float)frameHeight;
     
     /// Calculate a map scale
-    double currentMapScale(const WhirlyKit::Point2f &frameSize);
+    double currentMapScale(const WhirlyKit::Point2f &frameSize) const;
 
     /// Calculate the height for a given scale.  Probably for minVis/maxVis
-    double heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize);
+    double heightForMapScale(double scale,const WhirlyKit::Point2f &frameSize) const;
 
     /// Calculate map zoom
-    double currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude);
-    
+    double currentMapZoom(const WhirlyKit::Point2f &frameSize,double latitude) const;
+
     /// Return the screen size in display coordinates
     virtual WhirlyKit::Point2d screenSizeInDisplayCoords(const WhirlyKit::Point2f &frameSize);
     
@@ -135,11 +135,37 @@ public:
     
     /// Used by subclasses to notify all the watchers of updates
     virtual void runViewUpdates();
-    
-    double fieldOfView = 0.0;
+
+    const CoordSystemDisplayAdapter *getCoordAdapter() const { return coordAdapter; }
+
+    void setFieldOfView(float fov);
+    float getFieldOfView() const { return fieldOfView; }
+
+    void setNearPlane(float near);
+    float getNearPlane() const { return nearPlane; }
+
+    void setFarPlane(float far);
+    float getFarPlane() const { return farPlane; }
+
+    void setPlanes(float near, float far);
+
+    void setContinuousZoom(bool cz) { continuousZoom = cz; }
+    bool getContinuousZoom() const { return continuousZoom; }
+
+    TimeInterval getLastChangedTime() const { return lastChangedTime; }
+
+protected:
+    friend class ViewState;
+    void updateParams();
+
+    double getImagePlaneSize() const { return imagePlaneSize; }
+
+private:
+    double fieldOfView = M_PI / 3;  // 60 degree field of view
     double imagePlaneSize = 0.0;
     double nearPlane = 0.001;
     double farPlane = 10.0;
+protected:
     Point2d centerOffset = { 0, 0 };
     std::vector<Eigen::Matrix4d> offsetMatrices;
     /// The last time the position was changed

@@ -70,7 +70,7 @@ public:
     virtual void clear();
     
     /// If we're tied to a texture, the number of levels in that texture
-    virtual int numLevels();
+    virtual int numLevels() const;
     
     /// Return the pixel format.  Important for shader output and such.
     MTLPixelFormat getPixelFormat();

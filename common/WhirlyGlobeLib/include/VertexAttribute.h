@@ -92,13 +92,15 @@ public:
     void clear();
     
     /// Return a pointer to the given element
-    void *addressForElement(int which);
+    void *addressForElement(int which) const;
     
 public:
     /// Data type for the attribute data
     BDAttributeDataType dataType;
+
     /// Name used in the shader
     StringIdentity nameID;
+
     /// Default value to pass to renderer if there's no data array
     union {
         float vec4[4];
@@ -107,11 +109,13 @@ public:
         float floatVal;
         unsigned char color[4];
         int intVal;
-    } defaultData;
+    } defaultData = { {0,0,0,0} };
+
     /// Used by Metal instead of a name
     int slot;
+
     /// std::vector of attribute data.  Type is known by the caller.
-    void *data;
+    void *data = nullptr;
 };
 typedef std::shared_ptr<VertexAttribute> VertexAttributeRef;
 
@@ -121,7 +125,7 @@ typedef std::shared_ptr<VertexAttribute> VertexAttributeRef;
 class SingleVertexAttributeInfo
 {
 public:
-    SingleVertexAttributeInfo();
+    SingleVertexAttributeInfo() = default;
     SingleVertexAttributeInfo(StringIdentity nameID,int slot,BDAttributeDataType type);
     
     /// Comparison operator for set
@@ -144,13 +148,13 @@ public:
     int size() const;
     
     /// Attribute's data type
-    BDAttributeDataType type;
+    BDAttributeDataType type = BDDataTypeMax;
     
     /// Buffer slot for Metal
-    int slot;
+    int slot = -1;
     
     /// Attribute name (e.g. "u_elev")
-    StringIdentity nameID;
+    StringIdentity nameID = 0;
 };
 
 typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
@@ -158,14 +162,13 @@ typedef std::set<SingleVertexAttributeInfo> SingleVertexAttributeInfoSet;
 /** The single vertex attribute holds a single typed value to
  be merged into a basic drawable's attributes arrays.
  */
-class SingleVertexAttribute : public SingleVertexAttributeInfo
+struct SingleVertexAttribute : public SingleVertexAttributeInfo
 {
-public:
-    SingleVertexAttribute();
+    SingleVertexAttribute() = default;
     SingleVertexAttribute(StringIdentity nameID,int slot,float floatVal);
     SingleVertexAttribute(StringIdentity nameID,int slot,int intVal);
     SingleVertexAttribute(StringIdentity nameID,int slot,int64_t intVal);
-    SingleVertexAttribute(StringIdentity nameID,int slot,unsigned char colorVal[4]);
+    SingleVertexAttribute(StringIdentity nameID,int slot,const unsigned char colorVal[4]);
     SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1);
     SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2);
     SingleVertexAttribute(StringIdentity nameID,int slot,float vec0,float vec1,float vec2, float vec3);
@@ -179,7 +182,7 @@ public:
         unsigned char color[4];
         int intVal;
         int64_t int64Val;
-    } data;
+    } data = { { 0, 0, 0, 0 } };
 };
 
 typedef std::set<SingleVertexAttribute> SingleVertexAttributeSet;

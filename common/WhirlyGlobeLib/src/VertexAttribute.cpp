@@ -1,5 +1,4 @@
-/*
- *  VertexAttribute.cpp
+/*  VertexAttribute.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "VertexAttribute.h"
@@ -24,14 +22,20 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
-VertexAttribute::VertexAttribute(BDAttributeDataType dataType,int slot,StringIdentity nameID)
-: dataType(dataType), nameID(nameID), data(NULL), slot(slot)
+
+VertexAttribute::VertexAttribute(BDAttributeDataType dataType,int slot,StringIdentity nameID) :
+    dataType(dataType),
+    nameID(nameID),
+    slot(slot)
 {
-    defaultData.vec3[0] = 0.0;
-    defaultData.vec3[1] = 0.0;
-    defaultData.vec3[2] = 0.0;
-    defaultData.vec4[3] = 0.0;
+}
+
+VertexAttribute::VertexAttribute(const VertexAttribute &that) :
+    dataType(that.dataType),
+    nameID(that.nameID),
+    defaultData(that.defaultData),
+    slot(that.slot)
+{
 }
 
 VertexAttribute::~VertexAttribute()
@@ -39,15 +43,9 @@ VertexAttribute::~VertexAttribute()
     clear();
 }
 
-VertexAttribute::VertexAttribute(const VertexAttribute &that)
-: dataType(that.dataType), nameID(that.nameID), data(nullptr), defaultData(that.defaultData), slot(that.slot)
-{
-}
-
 VertexAttribute VertexAttribute::templateCopy() const
 {
-    VertexAttribute newAttr(*this);
-    return newAttr;
+    return *this;
 }
 
 BDAttributeDataType VertexAttribute::getDataType() const
@@ -81,81 +79,84 @@ void VertexAttribute::setDefaultFloat(float val)
     defaultData.floatVal = val;
 }
 
+namespace
+{
+    template<typename T, typename A>
+    static std::vector<T,A> *make(void *p) { return p ? (std::vector<T,A> *)p : new std::vector<T,A>(); }
+    template <typename T, typename A>
+    static std::vector<T,A> *op(void *p, std::function<void(std::vector<T,A> *)> f) {
+        auto *vec = make<T,A>(p);
+        f(vec);
+        return vec;
+    }
+    template<typename T, typename A = std::allocator<T>>
+    static std::vector<T,A> *add(void *p, const T &v) {
+        return op<T,A>(p, [&](std::vector<T,A> *vec){ vec->push_back(v); });
+    }
+    template<typename T, typename A = std::allocator<T>>
+    static std::vector<T,A> *reserve(void *p, int size) { return op<T,A>(p, [=](std::vector<T,A> *vec){ vec->reserve(size); }); }
+    template<typename T, typename A = Eigen::aligned_allocator<T>>
+    static std::vector<T,A> *reserveEigen(void *p, int size) { return reserve<T,A>(p, size); }
+    template<typename T, typename A = std::allocator<T>>
+    static T *addr(void *p, int n) { return &((std::vector<T,A> *)p)->operator[](n); }
+    template<typename T, typename A = Eigen::aligned_allocator<T>>
+    static T *addrEigen(void *p, int n) { return &((std::vector<T,A> *)p)->operator[](n); }
+}
+
 void VertexAttribute::addColor(const RGBAColor &color)
 {
-    if (dataType != BDChar4Type)
-        return;
-    
-    if (!data)
-        data = new std::vector<RGBAColor>();
-    std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-    (*colors).push_back(color);
+    if (dataType == BDChar4Type)
+    {
+        data = add(data, color);
+    }
 }
 
 void VertexAttribute::addVector2f(const Eigen::Vector2f &vec)
 {
-    if (dataType != BDFloat2Type)
-        return;
-    
-    if (!data)
-        data = new std::vector<Vector2f>();
-    std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-    (*vecs).push_back(vec);
+    if (dataType == BDFloat2Type)
+    {
+        data = add<Eigen::Vector2f,Eigen::aligned_allocator<Eigen::Vector2f>>(data, vec);
+    }
 }
 
 void VertexAttribute::addVector3f(const Eigen::Vector3f &vec)
 {
-    if (dataType != BDFloat3Type)
-        return;
-    
-    if (!data)
-        data = new std::vector<Vector3f>();
-    std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-    (*vecs).push_back(vec);
+    if (dataType == BDFloat3Type)
+    {
+        data = add<Vector3f,Eigen::aligned_allocator<Vector3f>>(data, vec);
+    }
 }
 
 void VertexAttribute::addVector4f(const Eigen::Vector4f &vec)
 {
-    if (dataType != BDFloat4Type)
-        return;
-    
-    if (!data)
-        data = new std::vector<Vector4f>();
-    std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
-    (*vecs).push_back(vec);
+    if (dataType == BDFloat4Type)
+    {
+        data = add<Vector4f,Eigen::aligned_allocator<Vector4f>>(data, vec);
+    }
 }
 
 void VertexAttribute::addFloat(float val)
 {
-    if (dataType != BDFloatType)
-        return;
-    
-    if (!data)
-        data = new std::vector<float>();
-    std::vector<float> *floats = (std::vector<float> *)data;
-    (*floats).push_back(val);
+    if (dataType == BDFloatType)
+    {
+        data = add(data, val);
+    }
 }
 
 void VertexAttribute::addInt(int val)
 {
-    if (dataType != BDIntType)
-        return;
-    
-    if (!data)
-        data = new std::vector<int>();
-    std::vector<int> *ints = (std::vector<int> *)data;
-    (*ints).push_back(val);
+    if (dataType == BDIntType)
+    {
+        data = add(data, val);
+    }
 }
 
 void VertexAttribute::addInt64(int64_t val)
 {
-    if (dataType != BDInt64Type)
-        return;
-    
-    if (!data)
-        data = new std::vector<int64_t>();
-    std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
-    (*ints).push_back(val);
+    if (dataType == BDInt64Type)
+    {
+        data = add(data, val);
+    }
 }
 
 /// Reserve size in the data array
@@ -163,62 +164,14 @@ void VertexAttribute::reserve(int size)
 {
     switch (dataType)
     {
-        case BDFloat4Type:
-        {
-            if (!data)
-                data = new std::vector<Vector4f>();
-            std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
-            vecs->reserve(size);
-        }
-            break;
-        case BDFloat3Type:
-        {
-            if (!data)
-                data = new std::vector<Vector3f>();
-            std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-            vecs->reserve(size);
-        }
-            break;
-        case BDFloat2Type:
-        {
-            if (!data)
-                data = new std::vector<Vector2f>();
-            std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-            vecs->reserve(size);
-        }
-            break;
-        case BDChar4Type:
-        {
-            if (!data)
-                data = new std::vector<RGBAColor>();
-            std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-            colors->reserve(size);
-        }
-            break;
-        case BDFloatType:
-        {
-            if (!data)
-                data = new std::vector<float>();
-            std::vector<float> *floats = (std::vector<float> *)data;
-            floats->reserve(size);
-        }
-            break;
-        case BDIntType:
-        {
-            if (!data)
-                data = new std::vector<int>();
-            std::vector<int> *ints = (std::vector<int> *)data;
-            ints->reserve(size);
-        }
-            break;
-        case BDInt64Type:
-        {
-            if (!data)
-                data = new std::vector<int64_t>();
-            std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
-            ints->reserve(size);
-        }
-            break;
+        case BDFloat4Type: data = WhirlyKit::reserveEigen<Vector4f>(data, size); break;
+        case BDFloat3Type: data = WhirlyKit::reserveEigen<Vector3f>(data, size); break;
+        case BDFloat2Type: data = WhirlyKit::reserveEigen<Vector2f>(data, size); break;
+        case BDChar4Type:  data = WhirlyKit::reserve<RGBAColor>(data, size); break;
+        case BDFloatType:  data = WhirlyKit::reserve<float>(data, size); break;
+        case BDIntType:    data = WhirlyKit::reserve<int>(data, size); break;
+        case BDInt64Type:  data = WhirlyKit::reserve<int64_t>(data, size); break;
+        default:
         case BDDataTypeMax:
             break;
     }
@@ -227,55 +180,18 @@ void VertexAttribute::reserve(int size)
 /// Number of elements in our array
 int VertexAttribute::numElements() const
 {
-    if (!data)
-        return 0;
-    
-    switch (dataType)
+    switch (data ? dataType : BDDataTypeMax)
     {
-        case BDFloat4Type:
-        {
-            std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
-            return (int)vecs->size();
-        }
-            break;
-        case BDFloat3Type:
-        {
-            std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-            return (int)vecs->size();
-        }
-            break;
-        case BDFloat2Type:
-        {
-            std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-            return (int)vecs->size();
-        }
-            break;
-        case BDChar4Type:
-        {
-            std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-            return (int)colors->size();
-        }
-            break;
-        case BDFloatType:
-        {
-            std::vector<float> *floats = (std::vector<float> *)data;
-            return (int)floats->size();
-        }
-            break;
-        case BDIntType:
-        {
-            std::vector<int> *ints = (std::vector<int> *)data;
-            return (int)ints->size();
-        }
-            break;
-        case BDInt64Type:
-        {
-            std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
-            return (int)ints->size();
-        }
+        case BDFloat4Type: return (int)((const std::vector<Vector4f, Eigen::aligned_allocator<Vector4f>> *)data)->size();
+        case BDFloat3Type: return (int)((const std::vector<Vector3f, Eigen::aligned_allocator<Vector3f>> *)data)->size();
+        case BDFloat2Type: return (int)((const std::vector<Vector2f, Eigen::aligned_allocator<Vector2f>> *)data)->size();
+        case BDChar4Type:  return (int)((const std::vector<RGBAColor> *)data)->size();
+        case BDFloatType:  return (int)((const std::vector<float> *)data)->size();
+        case BDIntType:    return (int)((const std::vector<int> *)data)->size();
+        case BDInt64Type:  return (int)((const std::vector<int64_t> *)data)->size();
+        default:
         case BDDataTypeMax:
             return 0;
-            break;
     }
 }
 
@@ -284,40 +200,22 @@ int VertexAttribute::size() const
 {
     switch (dataType)
     {
-        case BDFloat4Type:
-            return 4*4;
-            break;
-        case BDFloat3Type:
-            return 4*3;
-            break;
-        case BDFloat2Type:
-            return 4*2;
-            break;
-        case BDChar4Type:
-            return sizeof(unsigned char)*4;
-            break;
+        case BDFloat4Type:  return 4*4;
+        case BDFloat3Type:  return 4*3;
+        case BDFloat2Type:  return 4*2;
+        case BDChar4Type:   return sizeof(unsigned char)*4;
         case BDFloatType:
-            return 4;
-            break;
-        case BDIntType:
-            return 4;
-            break;
-        case BDInt64Type:
-            return 8;
-            break;
-        case BDDataTypeMax:
-            return 0;
-            break;
+        case BDIntType:     return 4;
+        case BDInt64Type:   return 8;
+        default:
+        case BDDataTypeMax: return 0;
     }
 }
 
-SingleVertexAttributeInfo::SingleVertexAttributeInfo()
-: nameID(0), type(BDDataTypeMax)
-{
-}
-
-SingleVertexAttributeInfo::SingleVertexAttributeInfo(StringIdentity nameID,int slot,BDAttributeDataType type)
-: nameID(nameID), type(type), slot(slot)
+SingleVertexAttributeInfo::SingleVertexAttributeInfo(StringIdentity nameID,int slot,BDAttributeDataType type) :
+    type(type),
+    slot(slot),
+    nameID(nameID)
 {
 }
 
@@ -325,45 +223,25 @@ int SingleVertexAttributeInfo::size() const
 {
     switch (type)
     {
-        case BDFloat4Type:
-            return 4*4;
-            break;
-        case BDFloat3Type:
-            return 4*3;
-            break;
-        case BDFloat2Type:
-            return 4*2;
-            break;
-        case BDChar4Type:
-            return sizeof(unsigned char)*4;
-            break;
+        case BDFloat4Type:  return 4*4;
+        case BDFloat3Type:  return 4*3;
+        case BDFloat2Type:  return 4*2;
+        case BDChar4Type:   return sizeof(unsigned char)*4;
         case BDFloatType:
-            return 4;
-            break;
-        case BDIntType:
-            return 4;
-            break;
-        case BDInt64Type:
-            return 8;
-            break;
-        case BDDataTypeMax:
-            return 0;
-            break;
+        case BDIntType:     return 4;
+        case BDInt64Type:   return 8;
+        case BDDataTypeMax: return 0;
     }
 }
 
-SingleVertexAttribute::SingleVertexAttribute()
-{
-}
-
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,float floatVal)
-: SingleVertexAttributeInfo(nameID,slot,BDFloatType)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,float floatVal) :
+    SingleVertexAttributeInfo(nameID,slot,BDFloatType)
 {
     data.floatVal = floatVal;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,int intVal)
-: SingleVertexAttributeInfo(nameID,slot,BDIntType)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,int intVal) :
+    SingleVertexAttributeInfo(nameID,slot,BDIntType)
 {
     data.intVal = intVal;
 }
@@ -374,8 +252,8 @@ SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,int6
     data.int64Val = intVal;
 }
 
-SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,unsigned char colorVal[4])
-: SingleVertexAttributeInfo(nameID,slot,BDChar4Type)
+SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,const unsigned char colorVal[4]) :
+    SingleVertexAttributeInfo(nameID,slot,BDChar4Type)
 {
     for (unsigned int ii=0;ii<4;ii++)
         data.color[ii] = colorVal[ii];
@@ -408,118 +286,42 @@ SingleVertexAttribute::SingleVertexAttribute(StringIdentity nameID,int slot,floa
 /// Clean out the data array
 void VertexAttribute::clear()
 {
-    if (data)
+    switch (data ? dataType : BDDataTypeMax)
     {
-        switch (dataType)
-        {
-            case BDFloat4Type:
-            {
-                std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
-                delete vecs;
-            }
-                break;
-            case BDFloat3Type:
-            {
-                std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-                delete vecs;
-            }
-                break;
-            case BDFloat2Type:
-            {
-                std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-                delete vecs;
-            }
-                break;
-            case BDChar4Type:
-            {
-                std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-                delete colors;
-            }
-                break;
-            case BDFloatType:
-            {
-                std::vector<float> *floats = (std::vector<float> *)data;
-                delete floats;
-            }
-                break;
-            case BDIntType:
-            {
-                std::vector<int> *ints = (std::vector<int> *)data;
-                delete ints;
-            }
-                break;
-            case BDInt64Type:
-            {
-                std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
-                delete ints;
-            }
-                break;
-            case BDDataTypeMax:
-                break;
-        }
+        case BDFloat4Type: delete (std::vector<Vector4f, Eigen::aligned_allocator<Vector4f>> *)data; break;
+        case BDFloat3Type: delete (std::vector<Vector3f, Eigen::aligned_allocator<Vector3f>> *)data; break;
+        case BDFloat2Type: delete (std::vector<Vector2f, Eigen::aligned_allocator<Vector2f>> *)data; break;
+        case BDChar4Type:  delete (std::vector<RGBAColor> *)data; break;
+        case BDFloatType:  delete (std::vector<float> *)data;     break;
+        case BDIntType:    delete (std::vector<int> *)data;       break;
+        case BDInt64Type:  delete (std::vector<int64_t> *)data;   break;
+        default:
+        case BDDataTypeMax: break;
     }
-    data = NULL;
+    data = nullptr;
 }
 
 /// Return a pointer to the given element
-void *VertexAttribute::addressForElement(int which)
+void *VertexAttribute::addressForElement(int which) const
 {
     switch (dataType)
     {
-        case BDFloat4Type:
-        {
-            std::vector<Vector4f> *vecs = (std::vector<Vector4f> *)data;
-            return &(*vecs)[which];;
-        }
-            break;
-        case BDFloat3Type:
-        {
-            std::vector<Vector3f> *vecs = (std::vector<Vector3f> *)data;
-            return &(*vecs)[which];;
-        }
-            break;
-        case BDFloat2Type:
-        {
-            std::vector<Vector2f> *vecs = (std::vector<Vector2f> *)data;
-            return &(*vecs)[which];
-        }
-            break;
-        case BDChar4Type:
-        {
-            std::vector<RGBAColor> *colors = (std::vector<RGBAColor> *)data;
-            return &(*colors)[which];
-        }
-            break;
-        case BDFloatType:
-        {
-            std::vector<float> *floats = (std::vector<float> *)data;
-            return &(*floats)[which];
-        }
-            break;
-        case BDIntType:
-        {
-            std::vector<int> *ints = (std::vector<int> *)data;
-            return &(*ints)[which];
-        }
-            break;
-        case BDInt64Type:
-        {
-            std::vector<int64_t> *ints = (std::vector<int64_t> *)data;
-            return &(*ints)[which];
-        }
-            break;
+        case BDFloat4Type: return WhirlyKit::addrEigen<Vector4f>(data, which);
+        case BDFloat3Type: return WhirlyKit::addrEigen<Vector3f>(data, which);
+        case BDFloat2Type: return WhirlyKit::addrEigen<Vector2f>(data, which);
+        case BDChar4Type: return WhirlyKit::addr<RGBAColor>(data, which);
+        case BDFloatType: return WhirlyKit::addr<float>(data, which);
+        case BDIntType: return WhirlyKit::addr<int>(data, which);
+        case BDInt64Type: return WhirlyKit::addr<int64_t>(data, which);
+        default:
         case BDDataTypeMax:
-            return NULL;
-            break;
+            return nullptr;
     }
-    
-    return NULL;
 }
 
 void VertexAttributeSetConvert(const SingleVertexAttributeSet &attrSet,SingleVertexAttributeInfoSet &infoSet)
 {
-    for (auto it : attrSet)
-        infoSet.insert(it);
+    infoSet.insert(attrSet.begin(), attrSet.end());
 }
 
 bool VertexAttributesAreCompatible(const SingleVertexAttributeInfoSet &infoSet,const SingleVertexAttributeSet &attrSet)
@@ -531,9 +333,7 @@ bool VertexAttributesAreCompatible(const SingleVertexAttributeInfoSet &infoSet,c
     auto itB = attrSet.begin();
     for (;itA != infoSet.end(); ++itA, ++itB)
     {
-        if (itA->nameID != itB->nameID)
-            return false;
-        if (itA->type != itB->type)
+        if (itA->nameID != itB->nameID || itA->type != itB->type)
             return false;
     }
     

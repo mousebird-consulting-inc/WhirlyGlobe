@@ -33,7 +33,7 @@ namespace WhirlyKit
     
 class SceneRenderer;
 class Scene;
-class SubTexture;
+struct SubTexture;
 class FontTextureManager;
 typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
 struct RenderSetupInfo;
@@ -440,12 +440,12 @@ protected:
     void setDisplayAdapter(CoordSystemDisplayAdapter *newCoordAdapter);
     
     /// Passed around to setup and teardown renderer assets
-    const RenderSetupInfo *setupInfo;
+    const RenderSetupInfo *setupInfo = nullptr;
 
     mutable std::mutex coordAdapterLock;
     /// The coordinate system display adapter converts from the local space
     ///  to display coordinates.
-    CoordSystemDisplayAdapter *coordAdapter;
+    CoordSystemDisplayAdapter *coordAdapter = nullptr;
                 
     /// All the active models
     std::vector<ActiveModelRef> activeModels;
@@ -483,25 +483,26 @@ protected:
 
     // Sampling layers will set these to talk to shaders
     mutable std::mutex zoomSlotLock;
-    float zoomSlots[MaplyMaxZoomSlots] = {};
+    float zoomSlots[MaplyMaxZoomSlots] = { 0.0f };
 
 protected:
     
     // If time is being set externally
-    TimeInterval currentTime;
+    TimeInterval currentTime = 0.0;
     // Time at initialization
-    TimeInterval baseTime;
+    TimeInterval baseTime = 0.0;
 
     /// All the OpenGL ES 2.0 shader programs we know about
     ProgramSet programs;
     
     /// Used for 2D overlap testing
-    double overlapMargin;
+    double overlapMargin = 0.0;
     
     // The font texture manager is created at startup
     FontTextureManagerRef fontTextureManager;
 
-    SceneRenderer* renderer;
+    SceneRenderer* renderer = nullptr;
 };
+using SceneRef = std::shared_ptr<Scene>;
 
 }

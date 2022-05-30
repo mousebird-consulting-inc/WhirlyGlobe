@@ -18,6 +18,7 @@
 
 #import <memory>
 #import "WhirlyGeometry.h"
+#import "WhirlyVector.h"
 
 namespace WhirlyKit
 {
@@ -45,34 +46,43 @@ typedef std::shared_ptr<DelayedDeletable> DelayedDeletableRef;
 
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
-class CoordSystem : public DelayedDeletable
+struct CoordSystem : public DelayedDeletable
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystem() = default;
+    CoordSystem() : bounds({-M_PI,-M_PI_2}, {M_PI,M_PI_2})
+    {
+    }
+
     virtual ~CoordSystem() = default;
     
     /// Convert from the local coordinate system to lat/lon
-    virtual GeoCoord localToGeographic(Point3f) const = 0;
-    virtual Point2d localToGeographicD(Point3d) const = 0;
-    virtual GeoCoord localToGeographic(Point3d) const = 0;
+    virtual GeoCoord localToGeographic(const Point3f&) const = 0;
+    virtual Point2d localToGeographicD(const Point3d&) const = 0;
+    virtual GeoCoord localToGeographic(const Point3d&) const = 0;
     /// Convert from lat/lon t the local coordinate system
-    virtual Point3f geographicToLocal(GeoCoord) const = 0;
-    virtual Point3d geographicToLocal(Point2d) const = 0;
+    virtual Point3f geographicToLocal(const GeoCoord&) const = 0;
+    virtual Point3d geographicToLocal(const Point2d&) const = 0;
     virtual Point2d geographicToLocal2(const Point2d&) const = 0;
-    virtual Point3d geographicToLocal3d(GeoCoord) const = 0;
+    virtual Point3d geographicToLocal3d(const GeoCoord&) const = 0;
 
     /// Convert from the local coordinate system to geocentric
-    virtual Point3f localToGeocentric(Point3f) const = 0;
-    virtual Point3d localToGeocentric(Point3d) const = 0;
+    virtual Point3f localToGeocentric(const Point3f&) const = 0;
+    virtual Point3d localToGeocentric(const Point3d&) const = 0;
     
     /// Convert from display coordinates to geocentric
-    virtual Point3f geocentricToLocal(Point3f) const = 0;
-    virtual Point3d geocentricToLocal(Point3d) const = 0;
+    virtual Point3f geocentricToLocal(const Point3f&) const = 0;
+    virtual Point3d geocentricToLocal(const Point3d&) const = 0;
     
     /// Return true if the given coordinate system is the same as the one passed in
     virtual bool isSameAs(const CoordSystem *coordSys) const { return false; }
+
+    const GeoMbr &getBounds() const { return bounds; }
+    template <typename T> void setBounds(T mbr) { bounds = mbr; }
+    template <typename T> void setBounds(T ll, T ur) { bounds.reset(ll, ur); }
+
+protected:
+    GeoMbr bounds;
 };
     
 typedef std::shared_ptr<CoordSystem> CoordSystemRef;
@@ -85,15 +95,13 @@ Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outS
     converting coordinates in the native system to data values we
     can display.
  */
-class CoordSystemDisplayAdapter : public DelayedDeletable
+struct CoordSystemDisplayAdapter : public DelayedDeletable
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystemDisplayAdapter(CoordSystem *coordSys,Point3d center) :
-            coordSys(coordSys),
-            center(center),
-            scale(1.0,1.0,1.0)
+    CoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &center) :
+        center(center),
+        coordSys(coordSys)
     {
         assert(coordSys);
     }
@@ -136,16 +144,16 @@ public:
     Point3d getScale() const { return scale; }
 
     /// Convert from the system's local coordinates to display coordinates
-    virtual Point3f localToDisplay(Point3f) const = 0;
-    virtual Point3d localToDisplay(Point3d) const = 0;
+    virtual Point3f localToDisplay(const Point3f&) const = 0;
+    virtual Point3d localToDisplay(const Point3d&) const = 0;
     
     /// Convert from display coordinates to the local system's coordinates
-    virtual Point3f displayToLocal(Point3f) const = 0;
-    virtual Point3d displayToLocal(Point3d) const = 0;
+    virtual Point3f displayToLocal(const Point3f&) const = 0;
+    virtual Point3d displayToLocal(const Point3d&) const = 0;
     
     /// For flat systems the normal is Z up.  For the globe, it's based on the location.
-    virtual Point3f normalForLocal(Point3f) const = 0;
-    virtual Point3d normalForLocal(Point3d) const = 0;
+    virtual Point3f normalForLocal(const Point3f&) const = 0;
+    virtual Point3d normalForLocal(const Point3d&) const = 0;
 
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() const = 0;
@@ -156,7 +164,7 @@ public:
     
 protected:
     Point3d center;
-    Point3d scale;
+    Point3d scale = { 1, 1, 1 };
     const CoordSystem *coordSys;
 };
 
@@ -165,12 +173,13 @@ typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
 /** The general coord system display adapter is used by flat maps to encapsulate a general coordinate system.
     This needs to be one which is flat, but is otherwise unconstrained.  The bounding box is where the coordinate system is valid and the center will be the center of display coordinates.
   */
-class GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
+struct GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,const Point3d &center,const Point3d &scale);
+    GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,
+                                     const Point3d &ll,const Point3d &ur,
+                                     const Point3d &center,const Point3d &scale);
 
     /// Bounding box where the coordinate system is valid
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override;
@@ -182,16 +191,16 @@ public:
     virtual bool getGeoBounds(Point2d &ll,Point2d &ur) const override;
 
     /// Convert from the system's local coordinates to display coordinates
-    virtual Point3f localToDisplay(Point3f) const override;
-    virtual Point3d localToDisplay(Point3d) const override;
+    virtual Point3f localToDisplay(const Point3f&) const override;
+    virtual Point3d localToDisplay(const Point3d&) const override;
     
     /// Convert from display coordinates to the local system's coordinates
-    virtual Point3f displayToLocal(Point3f) const override;
-    virtual Point3d displayToLocal(Point3d) const override;
+    virtual Point3f displayToLocal(const Point3f&) const override;
+    virtual Point3d displayToLocal(const Point3d&) const override;
     
     /// For flat systems the normal is Z up.
-    virtual Point3f normalForLocal(Point3f) const override { return Point3f(0,0,1); }
-    virtual Point3d normalForLocal(Point3d) const override { return Point3d(0,0,1); }
+    virtual Point3f normalForLocal(const Point3f&) const override { return {0,0,1 }; }
+    virtual Point3d normalForLocal(const Point3d&) const override { return {0,0,1 }; }
     
     /// Get a reference to the coordinate system
     virtual CoordSystem *getCoordSystem() const override { return coordSys; }

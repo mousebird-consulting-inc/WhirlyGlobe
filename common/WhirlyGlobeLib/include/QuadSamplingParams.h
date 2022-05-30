@@ -31,63 +31,68 @@ namespace WhirlyKit
 class SamplingParams
 {
 public:
-    SamplingParams();
+    SamplingParams() = default;
     virtual ~SamplingParams() = default;
     
     bool operator == (const SamplingParams &) const;
-    
+
+    /// Set coordinate system and use its bounds
+    void setCoordSys(CoordSystemRef);
+
     /// The coordinate system we'll be sampling from.
     CoordSystemRef coordSys;
+
     /// Bounding box for the coordinate system
     MbrD coordBounds;
 
     /// Min zoom level for sampling.  Don't set this to anything other than 0 or 1
-    int minZoom;
+    int minZoom = 0;
     /// Max zoom level for sampling
-    int maxZoom;
+    int maxZoom = 0;
     
     /// We'll report out to this zoom level, even if we don't load them
-    int reportedMaxZoom;
+    int reportedMaxZoom = -1;
     
     /// Maximum number of tiles to load
-    int maxTiles;
+    int maxTiles = 128;
     
     /// Cutoff for loading tiles.  This is size in screen space (pixels^2)
-    double minImportance;
+    double minImportance = 256 * 256;
     
     /// Normally we always load the lowest level
     /// If this is set we only load those lowest level tiles that pass this test
     /// Must be greater than zero but less than minImportance to have any effect.
-    double minImportanceTop;
+    double minImportanceTop = 0.0;
     
     /// Generate geometry to cover the north and south poles
     /// Only works for world-wide projections
-    bool coverPoles;
+    bool coverPoles = true;
     
     /// If set, generate skirt geometry to hide the edges between levels
-    bool edgeMatching;
+    bool edgeMatching = true;
     
     /// Tesselation values per level for breaking down the coordinate system (e.g. globe)
-    int tessX,tessY;
+    int tessX = 10;
+    int tessY = 10;
     
     /// If set, we'll always load the lowest level first
     /// forceMinLevelHeight must also be set to have any effect
-    bool forceMinLevel;
+    bool forceMinLevel = true;
     
     /// If non-zero we'll only force min level loading above this height
-    double forceMinLevelHeight;
+    double forceMinLevelHeight = 0.0;
     
     /// If set, we'll try to load a single level
-    bool singleLevel;
+    bool singleLevel = false;
 
     /// Scale the bounding boxes of tiles before we evaluate them
-    double boundsScale;
+    double boundsScale = 1.0;
     
     /// If set, the tiles are clipped to this boundary
     MbrD clipBounds;
     
     /// Do we need globe geometry for this sampling set or nah?
-    bool generateGeom;
+    bool generateGeom = true;
     
     /**
      Detail the levels you want loaded in target level mode.
@@ -106,5 +111,4 @@ public:
     std::vector<double> importancePerLevel;
 };
 
-    
 }

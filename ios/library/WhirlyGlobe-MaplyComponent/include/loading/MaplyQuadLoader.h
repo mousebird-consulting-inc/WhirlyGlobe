@@ -121,8 +121,8 @@ typedef void (__strong ^InitCompletionBlock)(void);
 /// If set, we'll call the interpreter on this queue
 @property (nonatomic,nullable,strong) dispatch_queue_t queue;
 
-/// Number of simulataneous tiles we'll parse
-/// This is really just a limit on the number of tiles we'lll parse concurrently to keep memory use under control
+/// Number of simultaneous tiles we'll parse
+/// This is really just a limit on the number of tiles we'll parse concurrently to keep memory use under control
 @property (nonatomic) unsigned int numSimultaneousTiles;
 
 // True if the loader is not currently loading anything

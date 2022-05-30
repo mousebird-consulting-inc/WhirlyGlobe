@@ -48,37 +48,41 @@ typedef std::shared_ptr<GeometryInfo> GeometryInfoRef;
  resources we've created to represent generic geometry passed in by the
  user.
  */
-class GeomSceneRep : public Identifiable
+struct GeomSceneRep : public Identifiable
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    GeomSceneRep() : fade(0.0) { }
+    GeomSceneRep() = default;
     GeomSceneRep(SimpleIdentity theID) : Identifiable(theID) { }
-    
-    // Drawables created for this geometry
-    SimpleIDSet drawIDs;
-    
-    // IDs kept with the selection manager
-    SimpleIDSet selectIDs;
-    
-    // Bounding box (for use in instances of a base model)
-    Point3d ll,ur;
-    
-    // If set, the amount of time to fade out before deletion
-    float fade;
-    
+
     // Remove the contents of this scene rep
     void clearContents(SelectionManagerRef &selectManager,ChangeSet &changes,TimeInterval when);
     
     // Enable/disable contents
     void enableContents(SelectionManagerRef &selectManager,bool enable,ChangeSet &changes);
+
+    // Drawables created for this geometry
+    SimpleIDSet drawIDs;
+
+    // IDs kept with the selection manager
+    SimpleIDSet selectIDs;
+
+    // Bounding box (for use in instances of a base model)
+    Point3d ll = { 0, 0, 0 };
+    Point3d ur = { 0, 0, 0 };
+
+    // If set, the amount of time to fade out before deletion
+    float fade = 0.0f;
 };
     
 typedef std::set<GeomSceneRep *,IdentifiableSorter> GeomSceneRepSet;
 
 /// Types supported for raw geometry
-typedef enum {WhirlyKitGeometryNone,WhirlyKitGeometryLines,WhirlyKitGeometryTriangles} WhirlyKitGeometryRawType;
+typedef enum WhirlyKitGeometryRawType_t {
+    WhirlyKitGeometryNone,
+    WhirlyKitGeometryLines,
+    WhirlyKitGeometryTriangles
+} WhirlyKitGeometryRawType;
     
 /// Raw Geometry object.  Fill it in and pass it to the layer.
 class GeometryRaw
@@ -88,10 +92,9 @@ public:
     GeometryRaw(const GeometryRaw &that);
 
     /// Simple triangle representation
-    class RawTriangle
+    struct RawTriangle
     {
-    public:
-        RawTriangle() { }
+        RawTriangle() = default;
         /// Construct with three vertex indices
         RawTriangle(int v0,int v1,int v2) { verts[0] = v0; verts[1] = v1; verts[2] = v2; }
         /// Vertices are indices into a vertex array
@@ -134,119 +137,134 @@ public:
 };
 
 /// Represents a single Geometry Instance
-class GeometryInstance : public Identifiable
+struct GeometryInstance : public Identifiable
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    GeometryInstance() : mat(mat.Identity()), colorOverride(false), selectable(false), duration(0.0) { }
+    GeometryInstance() : mat(mat.Identity()) { }
     
     // Center for the instance
-    Point3d center;
+    Point3d center = { 0, 0, 0 };
     // End center for the instance
-    Point3d endCenter;
+    Point3d endCenter = { 0, 0, 0 };
     // Duration for the animation
-    TimeInterval duration;
+    TimeInterval duration = 0.0;
     // Rotation etc... for the instance
     Eigen::Matrix4d mat;
     // Set if we're forcing the colors in an instance
-    bool colorOverride;
-    RGBAColor color;
+    bool colorOverride = false;
+    RGBAColor color = RGBAColor::white();
     // True if this is selectable
-    bool selectable;
+    bool selectable = false;
 };
     
 // Data types for geometry attributes
-typedef enum {GeomRawIntType,GeomRawFloatType,GeomRawFloat2Type,GeomRawFloat3Type,GeomRawFloat4Type,GeomRawDouble2Type,GeomRawDouble3Type,GeomRawTypeMax} GeomRawDataType;
+typedef enum GeomRawDataType_t {
+    GeomRawIntType,
+    GeomRawFloatType,
+    GeomRawFloat2Type,
+    GeomRawFloat3Type,
+    GeomRawFloat4Type,
+    GeomRawDouble2Type,
+    GeomRawDouble3Type,
+    GeomRawTypeMax
+} GeomRawDataType;
 
 // Geometry attribute base class
-class GeomPointAttrData
+struct GeomPointAttrData
 {
-public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     GeomPointAttrData(GeomRawDataType dataType) : dataType(dataType) { }
-    StringIdentity nameID;
+    virtual ~GeomPointAttrData() = default;
+
+    virtual int getNumVals() const = 0;
+
+    StringIdentity nameID = EmptyIdentity;
     GeomRawDataType dataType;
-    virtual int getNumVals() = 0;
-    virtual ~GeomPointAttrData() { }
 };
 
 // Int geometry attribute
-class GeomPointAttrDataInt : public GeomPointAttrData
+struct GeomPointAttrDataInt : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataInt() : GeomPointAttrData(GeomRawIntType) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataInt() { }
+    virtual ~GeomPointAttrDataInt() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     std::vector<int> vals;
 };
 
 // Float geometry attribute
-class GeomPointAttrDataFloat : public GeomPointAttrData
+struct GeomPointAttrDataFloat : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataFloat() : GeomPointAttrData(GeomRawFloatType) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataFloat() { }
+    virtual ~GeomPointAttrDataFloat() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     std::vector<float> vals;
 };
 
 // Float2 geometry attribute
-class GeomPointAttrDataPoint2f : public GeomPointAttrData
+struct GeomPointAttrDataPoint2f : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataPoint2f() : GeomPointAttrData(GeomRawFloat2Type) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataPoint2f() { }
+    virtual ~GeomPointAttrDataPoint2f() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     Point2fVector vals;
 };
 
 // Double2 geometry attribute
-class GeomPointAttrDataPoint2d : public GeomPointAttrData
+struct GeomPointAttrDataPoint2d : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataPoint2d() : GeomPointAttrData(GeomRawDouble2Type) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataPoint2d() { }
+    virtual ~GeomPointAttrDataPoint2d() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     Point2dVector vals;
 };
 
 // Float3 geometry attribute
-class GeomPointAttrDataPoint3f : public GeomPointAttrData
+struct GeomPointAttrDataPoint3f : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataPoint3f() : GeomPointAttrData(GeomRawFloat3Type) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataPoint3f() { }
+    virtual ~GeomPointAttrDataPoint3f() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     Point3fVector vals;
 };
 
 // Double3 geometry attribute
-class GeomPointAttrDataPoint3d : public GeomPointAttrData
+struct GeomPointAttrDataPoint3d : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataPoint3d() : GeomPointAttrData(GeomRawDouble3Type) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataPoint3d() { }
+    virtual ~GeomPointAttrDataPoint3d() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     Point3dVector vals;
 };
 
 // Double4 geometry attribute
-class GeomPointAttrDataPoint4f : public GeomPointAttrData
+struct GeomPointAttrDataPoint4f : public GeomPointAttrData
 {
-public:
     GeomPointAttrDataPoint4f() : GeomPointAttrData(GeomRawFloat4Type) { }
-    int getNumVals() { return (int)vals.size(); }
-    virtual ~GeomPointAttrDataPoint4f() { }
+    virtual ~GeomPointAttrDataPoint4f() = default;
+
+    int getNumVals() const { return (int)vals.size(); }
+
     Vector4fVector vals;
 };
     
 /// An optimized version of raw geometry for points only
-class GeometryRawPoints
+struct GeometryRawPoints
 {
-public:
-    GeometryRawPoints();
+    GeometryRawPoints() = default;
     ~GeometryRawPoints();
     
     // Check if we've got a consistent set of attributes
@@ -282,9 +300,9 @@ public:
     // Find an attribute by name
     int findAttribute(StringIdentity nameID) const;
     
-public:
     void buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,const Eigen::Matrix4d &mat,GeometryInfo *geomInfo,SceneRenderer *sceneRender) const;
-    
+
+protected:
     std::vector<WhirlyKit::GeomPointAttrData *> attrData;
 };
 

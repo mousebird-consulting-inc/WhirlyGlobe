@@ -27,29 +27,37 @@ SphericalMercatorCoordSystem::SphericalMercatorCoordSystem(float originLon)
 {
 }
 
+SphericalMercatorCoordSystemRef SphericalMercatorCoordSystem::makeWebStandard()
+{
+    auto sys = std::make_shared<SphericalMercatorCoordSystem>(0.0);
+    sys->bounds.reset(Slice(sys->geographicToLocal(GeoCoord::CoordFromDegrees(-180., -85.05113))),
+                      Slice(sys->geographicToLocal(GeoCoord::CoordFromDegrees( 180.,  85.05113))));
+    return sys;
+}
+
 // Keep things right below/above the poles
 static constexpr double PoleLimit = DegToRad(85.05113);
     
 /// Convert from the local coordinate system to lat/lon
-GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3f pt) const
+GeoCoord SphericalMercatorCoordSystem::localToGeographic(const Point3f &pt) const
 {
     GeoCoord coord;
-    coord.lon() = pt.x() + originLon;
+    coord.lon() = (float)(pt.x() + originLon);
     coord.lat() = atanf(sinhf(pt.y()));
     
     return coord;    
 }
 
-GeoCoord SphericalMercatorCoordSystem::localToGeographic(Point3d pt) const
+GeoCoord SphericalMercatorCoordSystem::localToGeographic(const Point3d &pt) const
 {
     GeoCoord coord;
-    coord.lon() = pt.x() + originLon;
-    coord.lat() = atan(sinh(pt.y()));
+    coord.lon() = (float)(pt.x() + originLon);
+    coord.lat() = (float)atan(sinh(pt.y()));
     
-    return coord;    
+    return coord;
 }
 
-Point2d SphericalMercatorCoordSystem::localToGeographicD(Point3d pt) const
+Point2d SphericalMercatorCoordSystem::localToGeographicD(const Point3d &pt) const
 {
     Point2d coord;
     coord.x() = pt.x() + originLon;
@@ -59,10 +67,10 @@ Point2d SphericalMercatorCoordSystem::localToGeographicD(Point3d pt) const
 }
 
 /// Convert from lat/lon t the local coordinate system
-Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo) const
+Point3f SphericalMercatorCoordSystem::geographicToLocal(const GeoCoord &geo) const
 {
     Point3f coord;
-    coord.x() = geo.lon() - originLon;
+    coord.x() = (float)(geo.lon() - originLon);
     float lat = geo.lat();
     if (lat < -PoleLimit) lat = -PoleLimit;
     if (lat > PoleLimit) lat = PoleLimit;
@@ -72,7 +80,7 @@ Point3f SphericalMercatorCoordSystem::geographicToLocal(GeoCoord geo) const
     return coord;    
 }
 
-Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo) const
+Point3d SphericalMercatorCoordSystem::geographicToLocal3d(const GeoCoord &geo) const
 {
     Point3d coord;
     coord.x() = geo.lon() - originLon;
@@ -85,7 +93,7 @@ Point3d SphericalMercatorCoordSystem::geographicToLocal3d(GeoCoord geo) const
     return coord;    
 }
 
-Point3d SphericalMercatorCoordSystem::geographicToLocal(Point2d geo) const
+Point3d SphericalMercatorCoordSystem::geographicToLocal(const Point2d &geo) const
 {
     const double lat = std::min(PoleLimit, std::max(-PoleLimit, geo.y()));
     return { geo.x() - originLon,
@@ -100,30 +108,30 @@ Point2d SphericalMercatorCoordSystem::geographicToLocal2(const Point2d &geo) con
 }
 
 /// Convert from the local coordinate system to geocentric
-Point3f SphericalMercatorCoordSystem::localToGeocentric(Point3f localPt) const
+Point3f SphericalMercatorCoordSystem::localToGeocentric(const Point3f &localPt) const
 {
     const GeoCoord geoCoord = localToGeographic(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3f(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
 
-Point3d SphericalMercatorCoordSystem::localToGeocentric(Point3d localPt) const
+Point3d SphericalMercatorCoordSystem::localToGeocentric(const Point3d &localPt) const
 {
     const Point2d geoCoord = localToGeographicD(localPt);
     return GeoCoordSystem::LocalToGeocentric(Point3d(geoCoord.x(),geoCoord.y(),localPt.z()));
 }
     
 /// Convert from display coordinates to geocentric
-Point3f SphericalMercatorCoordSystem::geocentricToLocal(Point3f geocPt) const
+Point3f SphericalMercatorCoordSystem::geocentricToLocal(const Point3f &geocPt) const
 {
     const Point3f geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
     const Point3f localPt = geographicToLocal(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
-    return {localPt.x(),localPt.y(),geoCoordPlus.z()};
+    return { (float)localPt.x(), (float)localPt.y(), (float)geoCoordPlus.z() };
 }
 
-Point3d SphericalMercatorCoordSystem::geocentricToLocal(Point3d geocPt) const
+Point3d SphericalMercatorCoordSystem::geocentricToLocal(const Point3d &geocPt) const
 {
     const Point3d geoCoordPlus = GeoCoordSystem::GeocentricToLocal(geocPt);
-    const Point3d localPt = geographicToLocal3d(GeoCoord(geoCoordPlus.x(),geoCoordPlus.y()));
+    const Point3d localPt = geographicToLocal3d(GeoCoord((float)geoCoordPlus.x(), (float)geoCoordPlus.y()));
     return {localPt.x(),localPt.y(),geoCoordPlus.z()};
 }
 
@@ -134,11 +142,11 @@ bool SphericalMercatorCoordSystem::isSameAs(const CoordSystem *coordSys) const
 }
 
 
-SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR) :
-    CoordSystemDisplayAdapter(&smCoordSys,Point3d(0,0,0)),
-    smCoordSys(originLon),
-    geoLL(geoLL.lon(),geoLL.lat()),
-    geoUR(geoUR.lon(),geoUR.lat())
+SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,const GeoCoord &geoLL, const GeoCoord &geoUR) :
+    CoordSystemDisplayAdapter(&smCoordSys,{ 0,0,0 }),
+    geoLL(geoLL.x(), geoLL.y()),
+    geoUR(geoUR.x(), geoUR.y()),
+    smCoordSys(originLon)
 {
     const Point3d ll3d = smCoordSys.geographicToLocal3d(geoLL);
     const Point3d ur3d = smCoordSys.geographicToLocal3d(geoUR);
@@ -148,11 +156,13 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
     org = (ll+ur)/2.0;
 }
     
-SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,GeoCoord geoLL,GeoCoord geoUR,Point3d displayOrigin) :
+SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,
+                                                                 const GeoCoord &geoLL, const GeoCoord &geoUR,
+                                                                 const Point3d &displayOrigin) :
     CoordSystemDisplayAdapter(&smCoordSys,displayOrigin),
-    smCoordSys(originLon),
     geoLL(geoLL.lon(),geoLL.lat()),
-    geoUR(geoUR.lon(),geoUR.lat())
+    geoUR(geoUR.lon(),geoUR.lat()),
+    smCoordSys(originLon)
 {
     const Point3d ll3d = smCoordSys.geographicToLocal3d(geoLL);
     const Point3d ur3d = smCoordSys.geographicToLocal3d(geoUR);
@@ -163,38 +173,34 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
 }
     
 /// Return the valid boundary in spherical mercator.  Z coordinate is ignored at present.
-bool SphericalMercatorDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR) const
+bool SphericalMercatorDisplayAdapter::getBounds(Point3f &outLL, Point3f &outUR) const
 {
-    outLL.x() = ll.x();  outLL.y() = ll.y();  outLL.z() = 0.0;
-    outUR.x() = ur.x();  outUR.y() = ur.y();  outUR.z() = 0.0;
+    outLL.x() = (float)ll.x();  outLL.y() = (float)ll.y();  outLL.z() = 0.0;
+    outUR.x() = (float)ur.x();  outUR.y() = (float)ur.y();  outUR.z() = 0.0;
     
     return true;
 }
 
 /// Convert from the system's local coordinates to display coordinates
-WhirlyKit::Point3f SphericalMercatorDisplayAdapter::localToDisplay(WhirlyKit::Point3f localPt) const
+WhirlyKit::Point3f SphericalMercatorDisplayAdapter::localToDisplay(const WhirlyKit::Point3f &localPt) const
 {
-    Point3f dispPt = localPt-Point3f(org.x(),org.y(),0.0);
-    return dispPt;
+    return localPt - Point3f((float)org.x(),(float)org.y(),0.0f);
 }
 
-WhirlyKit::Point3d SphericalMercatorDisplayAdapter::localToDisplay(WhirlyKit::Point3d localPt) const
+WhirlyKit::Point3d SphericalMercatorDisplayAdapter::localToDisplay(const WhirlyKit::Point3d &localPt) const
 {
-    Point3d dispPt = localPt-Point3d(org.x(),org.y(),0.0);
-    return dispPt;
+    return localPt - Point3d(org.x(),org.y(),0.0);
 }
     
 /// Convert from display coordinates to the local system's coordinates
-WhirlyKit::Point3f SphericalMercatorDisplayAdapter::displayToLocal(WhirlyKit::Point3f dispPt) const
+WhirlyKit::Point3f SphericalMercatorDisplayAdapter::displayToLocal(const WhirlyKit::Point3f &dispPt) const
 {
-    Point3f localPt = dispPt+Point3f(org.x(),org.y(),0.0);
-    return localPt;
+    return dispPt + Point3f((float)org.x(),(float)org.y(),0.0f);
 }
 
-WhirlyKit::Point3d SphericalMercatorDisplayAdapter::displayToLocal(WhirlyKit::Point3d dispPt) const
+WhirlyKit::Point3d SphericalMercatorDisplayAdapter::displayToLocal(const WhirlyKit::Point3d &dispPt) const
 {
-    Point3d localPt = dispPt+Point3d(org.x(),org.y(),0.0);
-    return localPt;
+    return dispPt + Point3d(org.x(),org.y(),0.0);
 }
 
 }

@@ -22,14 +22,17 @@
     defined(HAS_GL_MAP_BUFFER) && \
     defined(INVALIDATE_GL_DEPTH)
     const bool hasVertexArraySupport = HAS_GL_VERT_ARRAY;
+    const bool hasSharedBufferSupport = HAS_GL_SHARED_BUFFER;
     const bool hasMapBufferSupport = HAS_GL_MAP_BUFFER;
     const bool invalidateGLDepth = INVALIDATE_GL_DEPTH;
 #elif __ANDROID__
     const bool hasVertexArraySupport = false;
+    const bool hasSharedBufferSupport = true;
     const bool hasMapBufferSupport = false;
     const bool invalidateGLDepth = false;
 #elif defined(iOS)
     const bool hasVertexArraySupport = true;
+    const bool hasSharedBufferSupport = true;
     const bool hasMapBufferSupport = true;
     const bool invalidateGLDepth = true;
 #else

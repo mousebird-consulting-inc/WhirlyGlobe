@@ -62,7 +62,7 @@ public:
     // Vectors objects associated with this component object
     std::vector<VectorObjectRef> vecObjs;
     
-    Point2d vectorOffset;
+    Point2d vectorOffset = { 0, 0, };
     
     std::string uuid;
     std::string representation;
@@ -70,9 +70,9 @@ public:
     // If the object uses masks, these are the masks in use
     SimpleIDSet maskIDs;
 
-    bool isSelectable;
     bool enable;
-    bool underConstruction;
+    bool isSelectable;
+    bool underConstruction = false;
     
     // Empty out references
     void clear();
@@ -84,6 +84,7 @@ public:
 };
 
 typedef std::shared_ptr<ComponentObject> ComponentObjectRef;
+using ComponentObjectRefVec = std::vector<ComponentObjectRef>;
     
 typedef std::map<SimpleIdentity,ComponentObjectRef> ComponentObjectMap;
     
@@ -96,7 +97,7 @@ typedef std::map<SimpleIdentity,ComponentObjectRef> ComponentObjectMap;
 class ComponentManager : public SceneManager
 {
 public:
-    ComponentManager();
+    ComponentManager() = default;
     virtual ~ComponentManager() = default;
     
     // Called when the scene sets up the managers
@@ -229,7 +230,7 @@ protected:
     std::unordered_map<std::string,MaskEntryRef> maskEntriesByName;
     std::unordered_map<SimpleIdentity,MaskEntryRef> maskEntriesByID;
     // We have 32 bits of range in the mask ID on iOS
-    unsigned int lastMaskID;
+    unsigned int lastMaskID = 0;
     std::mutex maskLock;
 };
 typedef std::shared_ptr<ComponentManager> ComponentManagerRef;

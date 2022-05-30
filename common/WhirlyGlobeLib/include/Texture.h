@@ -27,21 +27,22 @@ namespace WhirlyKit
 
 /** Base class for textures.  This is enough information to track it in the Scene, but little else.
 */
-class TextureBase : virtual public Identifiable
+struct TextureBase : virtual public Identifiable
 {
-public:
     /// Construct for comparison
-    TextureBase();
-    TextureBase(SimpleIdentity thisId);
-    TextureBase(const std::string &name);
-    
-    virtual ~TextureBase();
+    TextureBase() : Identifiable() { }
+    TextureBase(SimpleIdentity thisId) : Identifiable(thisId) { }
+    TextureBase(std::string name) : Identifiable(), name(std::move(name)) { }
+
+    virtual ~TextureBase() = default;
     
     /// Render side only.  Don't call this.  Create the openGL version
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo) = 0;
-	
-	/// Render side only.  Don't call this.  Destroy the openGL version
+
+    /// Render side only.  Don't call this.  Destroy the openGL version
     virtual void destroyInRenderer(const RenderSetupInfo *setupInfo,Scene *scene) = 0;
+
+    const std::string& getName() const { return name; }
 
 protected:
     /// Used for debugging
@@ -51,29 +52,50 @@ protected:
 typedef std::shared_ptr<TextureBase> TextureBaseRef;
     
 /// For single byte pixels, what's the source, R G B or A?
-typedef enum {WKSingleRed,WKSingleGreen,WKSingleBlue,WKSingleRGB,WKSingleAlpha} WKSingleByteSource;
+typedef enum WKSingleByteSource_t {
+    WKSingleRed,
+    WKSingleGreen,
+    WKSingleBlue,
+    WKSingleRGB,
+    WKSingleAlpha
+} WKSingleByteSource;
 
 /// Texture formats we allow
-typedef enum {TexTypeUnsignedByte,TexTypeShort565,TexTypeShort4444,TexTypeShort5551,TexTypeSingleChannel,TexTypeDoubleChannel,TexTypeSingleFloat16,TexTypeSingleFloat32,TexTypeDoubleFloat16,TexTypeDoubleFloat32,TexTypeQuadFloat16,TexTypeQuadFloat32,TexTypeDepthFloat32, TexTypeSingleInt16,TexTypeSingleUInt32,TexTypeDoubleUInt32,TexTypeQuadUInt32} TextureType;
+typedef enum TextureType_t {
+    TexTypeUnsignedByte,
+    TexTypeShort565,
+    TexTypeShort4444,
+    TexTypeShort5551,
+    TexTypeSingleChannel,
+    TexTypeDoubleChannel,
+    TexTypeSingleFloat16,
+    TexTypeSingleFloat32,
+    TexTypeDoubleFloat16,
+    TexTypeDoubleFloat32,
+    TexTypeQuadFloat16,
+    TexTypeQuadFloat32,
+    TexTypeDepthFloat32,
+    TexTypeSingleInt16,
+    TexTypeSingleUInt32,
+    TexTypeDoubleUInt32,
+    TexTypeQuadUInt32
+} TextureType;
+
 /// Interpolation types for upscaling
-typedef enum {TexInterpNearest,TexInterpLinear} TextureInterpType;
-    
+typedef enum TextureInterpType_t {
+    TexInterpNearest,
+    TexInterpLinear
+} TextureInterpType;
+
 /** Your basic Texture representation.
-    This is how you get an image sent over to the
-    rendering engine.  Set up one of these and add it.
-    If you want to remove it, you need to use its
-    Identifiable ID.
+    This is how you get an image sent over to the rendering engine.
+    Set up one of these and add it.
+    If you want to remove it, you need to use its Identifiable ID.
  */
-class Texture : virtual public TextureBase
+struct Texture : virtual public TextureBase
 {
-public:
-    /// Construct with name
-	Texture(const std::string &name);
-	/// Construct with raw texture data.  PVRTC is preferred.
-	Texture(const std::string &name,RawDataRef texData,bool isPVRTC);
-	
-	virtual ~Texture();
-    
+    virtual ~Texture() = default;
+
     /// Set the format (before createInGL() is called)
     void setFormat(TextureType inFormat) { format = inFormat; }
     /// Return the format
@@ -85,14 +107,17 @@ public:
 
     /// Set the raw data directly
     /// Texture takes possession of the bytes.  It will free them.
-    void setRawData(RawData *rawData,int width,int height);
-	    
+    void setRawData(RawData *rawData, int width, int height);
+
+    /// Set the raw data directly
+    void setRawData(RawDataRef rawData, int width, int height);
+
     /// Process the data for display based on the format.
     RawDataRef processData();
     
     /// Set up from raw PKM (ETC2/EAC) data
     void setPKMData(RawDataRef data);
-	
+
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
     /// Get the texture width
@@ -111,28 +136,32 @@ public:
     /// If set, this is a texture we're creating for output purposes
     void setIsEmptyTexture(bool inIsEmptyTexture) { isEmptyTexture = inIsEmptyTexture; }
 
+protected:
+    Texture() = default;
+    Texture(RawDataRef texData, bool isPVRTC);
+    Texture(RawDataRef texData, TextureType fmt, int width, int height, bool isPVRTC);
+
     /// Raw texture data
     RawDataRef texData;
 
-protected:
-    /// Used by subclass
-    Texture();
-
     /// Need to know how we're going to load it
-	bool isPVRTC;
+    bool isPVRTC = false;
     /// This one has a header
-    bool isPKM;
-    /// If we're converting down to one byte, where do we get it?
-    WKSingleByteSource byteSource;
-	
-    /// If not PVRTC, the format we'll use for the texture
-    TextureType format;
-    TextureInterpType interpType;
+    bool isPKM = false;
 
-	unsigned int width,height;
-    bool usesMipmaps;
-    bool wrapU,wrapV;
-    bool isEmptyTexture;
+    bool usesMipmaps = false;
+    bool wrapU = false;
+    bool wrapV = false;
+    bool isEmptyTexture = false;
+
+    /// If we're converting down to one byte, where do we get it?
+    WKSingleByteSource byteSource = WKSingleRGB;
+    /// If not PVRTC, the format we'll use for the texture
+    TextureType format = TexTypeUnsignedByte;
+    TextureInterpType interpType = TexInterpLinear;
+
+    unsigned int width = 0;
+    unsigned int height = 0;
 };
     
 typedef std::shared_ptr<Texture> TextureRef;

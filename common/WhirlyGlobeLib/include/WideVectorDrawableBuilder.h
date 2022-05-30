@@ -212,7 +212,7 @@ protected:
     float lineWidth = 1.0f;
     float lineOffset = 0.0f;
     bool lineOffsetSet = false;
-    bool globeMode = true;
+    bool globeMode = false;
     float texRepeat = 1.0f;
     Point2f texOffset = { 0.0f, 0.0f };
     float edgeSize = 1.0f;
@@ -232,8 +232,8 @@ protected:
     
     // Controls whether we're building basic drawables or instances
     // We do instances on Metal
+    WideVecImplType implType = WideVecImplBasic;
     BasicDrawableBuilderRef basicDrawable;
-    WideVecImplType implType;
     BasicDrawableInstanceBuilderRef instDrawable;
 
     FloatExpressionInfoRef widthExp;

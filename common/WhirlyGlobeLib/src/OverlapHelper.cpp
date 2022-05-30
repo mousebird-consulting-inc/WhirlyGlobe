@@ -148,15 +148,10 @@ void OverlapHelper::addObject(Point2dVector pts, std::string mergeID,
     }
 }
 
-ClusterHelper::SimpleObject::SimpleObject()
-    : objEntry(nullptr), parentObject(-1)
-{
-}
-
 ClusterHelper::ClusterHelper(const Mbr &mbr,int sizeX,int sizeY,float resScale, Point2d clusterMarkerSize) :
+    clusterMarkerSize(std::move(clusterMarkerSize)),
     mbr(mbr), sizeX(sizeX), sizeY(sizeY), resScale(resScale),
-    cellSize(mbr.span().cwiseQuotient(Point2f(sizeX, sizeY)).cast<double>()),
-    clusterMarkerSize(std::move(clusterMarkerSize))
+    cellSize(mbr.span().cwiseQuotient(Point2f(sizeX, sizeY)).cast<double>())
 {
     grid.resize(sizeX * sizeY);
 }

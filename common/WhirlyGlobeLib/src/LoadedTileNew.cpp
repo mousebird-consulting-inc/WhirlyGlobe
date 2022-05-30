@@ -25,22 +25,14 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-TileGeomSettings::TileGeomSettings()
-    : buildGeom(true), useTileCenters(true), color(RGBAColor::white()),
-      programID(0), sampleX(10), sampleY(10), topSampleX(10), topSampleY(10),
-      minVis(DrawVisibleInvalid), maxVis(DrawVisibleInvalid),
-      baseDrawPriority(0), drawPriorityPerLevel(1), lineMode(false),
-      includeElev(false), enableGeom(true), singleLevel(false)
+LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr) :
+    ident(ident),
+    mbr(mbr),
+    tileNumber(ident.NodeNumber())
 {
 }
     
-LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD &mbr)
-    : ident(ident), mbr(mbr), enabled(false),
-      tileNumber(ident.NodeNumber())
-{
-}
-    
-bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
+bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage) const
 {
     const MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
 
@@ -48,7 +40,8 @@ bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage)
     return geomManage->mbr.inside(theMbr.mid());
 }
 
-void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,const TileGeomSettings &geomSettings,ChangeSet &changes)
+void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,
+                                  const TileGeomSettings &geomSettings,ChangeSet &changes)
 {
     enabled = true;
 
@@ -85,14 +78,14 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     const Point3d ur = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ur().x(),theMbr.ur().y(),0.0))));
     Point3d dispCenter = (ll+ur)/2.0;
     // This clips the center to something 32 bit floating point can represent.
-    const Point3f dispCenter3f(dispCenter.x(),dispCenter.y(),dispCenter.z());
+    const Point3f dispCenter3f = dispCenter.cast<float>();
     dispCenter = Point3d(dispCenter3f.x(),dispCenter3f.y(),dispCenter3f.z());
 
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
     const Point3d chunkMidDisp = (geomSettings.useTileCenters ? dispCenter : Point3d(0,0,0));
 //        wkLogLevel(Debug,"id = %d: (%d,%d),mid = (%f,%f,%f)",ident.level,ident.x,ident.y,chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z());
     const Eigen::Affine3d trans(Eigen::Translation3d(chunkMidDisp.x(),chunkMidDisp.y(),chunkMidDisp.z()));
-    const Matrix4d transMat = trans.matrix();
+    const Matrix4d &transMat = trans.matrix();
 
     // Size of each chunk
     const Point2d chunkSize = theMbr.ur() - theMbr.ll();
@@ -117,7 +110,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     const Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
     
     // Texture increment for each tessellation
-    const TexCoord texIncr(1.0/(float)sphereTessX * texScale.x(),1.0/(float)sphereTessY * texScale.y());
+    const TexCoord texIncr(1.0f/(float)sphereTessX * texScale.x(),1.0f/(float)sphereTessY * texScale.y());
     
     // We need the corners in geographic for the cullable
     const Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());
@@ -168,7 +161,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         poleChunk->setLocalMbr(Mbr(Point2f(geoLL.x(),geoLL.y()),Point2f(geoUR.x(),geoUR.y())));
         poleChunk->setProgram(geomSettings.programID);
         poleChunk->setOnOff(false);
-        drawInfo.push_back(DrawableInfo(DrawablePole,poleChunk->getDrawableID(),poleChunk->getDrawablePriority(),drawOrder));
+        drawInfo.emplace_back(DrawablePole,poleChunk->getDrawableID(),poleChunk->getDrawablePriority(),drawOrder);
         separatePoleChunk = true;
     } else
         poleChunk = chunk;
@@ -187,7 +180,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 const auto ptA_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
                 const auto ptB_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                 
-                const TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
+                const TexCoord texCoord(ix*texIncr.x(),1.0f-(iy*texIncr.y()));
                 
                 chunk->addPoint(Point3d(org3D-chunkMidDisp));
                 chunk->addNormal(org3D);
@@ -228,7 +221,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 locs[iy*(sphereTessX+1)+ix] = loc3D;
                 
                 // Do the texture coordinate separately
-                const TexCoord texCoord(ix*texIncr.x(),1.0-(iy*texIncr.y()));
+                const TexCoord texCoord(ix*texIncr.x(),1.0f-(iy*texIncr.y()));
                 texCoords[iy*(sphereTessX+1)+ix] = texCoord;
             }
         }
@@ -296,7 +289,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             // We'll vary the skirt size a bit.  Otherwise the fill gets ridiculous when we're looking
             //  at the very highest levels.  On the other hand, this doesn't fix a really big large/small
             //  disparity
-            const float skirtFactor = 1.0 - 0.2 / (1<<ident.level);
+            const auto skirtFactor = 1.0 - 0.2 / (1<<ident.level);
             
             // Bottom skirt
             Point3dVector skirtLocs;
@@ -353,10 +346,10 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 else
                     poleChunk->addTexCoord(-1,singleTexCoord);
                 poleChunk->addNormal(Point3d(0,0,1.0));
-                const int northVert = poleChunk->getNumPoints()-1;
+                const unsigned northVert = poleChunk->getNumPoints()-1;
                 
                 // A line of points for the outer ring, but we can copy them
-                const int startOfLine = poleChunk->getNumPoints();
+                const unsigned startOfLine = poleChunk->getNumPoints();
                 const int iy = sphereTessY;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
@@ -394,10 +387,10 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 else
                     poleChunk->addTexCoord(-1,singleTexCoord);
                 poleChunk->addNormal(Point3d(0,0,-1.0));
-                int southVert = poleChunk->getNumPoints()-1;
+                const unsigned southVert = poleChunk->getNumPoints()-1;
                 
                 // A line of points for the outside ring, which we can copy
-                const int startOfLine = poleChunk->getNumPoints();
+                const unsigned startOfLine = poleChunk->getNumPoints();
                 const int iy = 0;
                 for (unsigned int ix=0;ix<sphereTessX+1;ix++)
                 {
@@ -456,7 +449,7 @@ void LoadedTileNew::buildSkirt(const BasicDrawableBuilderRef &draw,const Point3d
         cornerTex[3] = texCoords[ii];
         
         // Toss in the points, but point the normal up
-        const int base = draw->getNumPoints();
+        const unsigned base = draw->getNumPoints();
         for (unsigned int jj=0;jj<4;jj++)
         {
             draw->addPoint(Point3d(corners[jj]-theCenter));
@@ -505,18 +498,9 @@ void LoadedTileNew::removeDrawables(ChangeSet &changes)
     }
 }
 
-TileGeomManager::TileGeomManager() :
-    sceneRender(nullptr), quadTree(nullptr),
-    coordAdapter(nullptr), coverPoles(false),
-    useNorthPoleColor(false), northPoleColor(255,255,255,255),
-    useSouthPoleColor(false), southPoleColor(255,255,255,255),
-    buildSkirts(false)
-{
-}
-
 void TileGeomManager::setup(SceneRenderer *inSceneRender,TileGeomSettings &geomSettings,
                             QuadTreeNew *inQuadTree,CoordSystemDisplayAdapter *inCoordAdapter,
-                            CoordSystemRef inCoordSys,MbrD inMbr)
+                            CoordSystemRef inCoordSys,const MbrD &inMbr)
 {
     sceneRender = inSceneRender;
     settings = geomSettings;
