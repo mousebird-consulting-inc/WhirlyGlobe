@@ -20,7 +20,6 @@ package com.mousebird.maply;
 
 import android.app.Activity;
 import android.graphics.Color;
-import android.opengl.GLSurfaceView;
 import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,12 +42,10 @@ import java.util.List;
  * calls to add and remove geometry.  Those calls are thread safe.
  * 
  * @author sjg
- *
  */
 @SuppressWarnings({"unused","UnusedReturnValue","RedundantSuppression"})
 public class MapController extends BaseController implements View.OnTouchListener, Choreographer.FrameCallback
 {
-
 	/**
 	 * Settings are parameters we need at the very start of the
 	 * setup process.
@@ -80,12 +77,14 @@ public class MapController extends BaseController implements View.OnTouchListene
 		super(mainActivity,settings);
 
 		if (settings.coordSys != null)
-			InitCoordSys(settings.coordSys,settings.displayCenter,settings.clearColor);
+			InitCoordSys(settings.coordSys,settings.displayCenter,settings);
 		else
-			Init(settings.clearColor);
+			Init(settings);
 	}
 
-	protected void InitCoordSys(CoordSystem coordSys,Point3d displayCenter,int clearColor)
+	protected void InitCoordSys(@NotNull CoordSystem coordSys,
+								@Nullable Point3d displayCenter,
+								@Nullable Settings settings)
 	{
 		Mbr mbr = coordSys.getBounds();
 		double scaleFactor = 1.0;
@@ -102,7 +101,7 @@ public class MapController extends BaseController implements View.OnTouchListene
 			center = new Point3d(0,0,0);
 		GeneralDisplayAdapter genCoordAdapter = new GeneralDisplayAdapter(coordSys,coordSys.ll,coordSys.ur,center,new Point3d(scaleFactor,scaleFactor,1.0));
 
-		setupTheRest(genCoordAdapter,clearColor);
+		setupTheRest(genCoordAdapter,settings);
 
 		// Set up the bounds
 		if (coordAdapter != null) {
@@ -122,12 +121,12 @@ public class MapController extends BaseController implements View.OnTouchListene
 	{
 		super(mainActivity,null);
 
-		Init(Color.BLACK);
+		Init(null);
 	}
 
-	protected void Init(int clearColor)
+	protected void Init(@Nullable Settings settings)
 	{
-		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()),clearColor);
+		setupTheRest(new CoordSystemDisplayAdapter(new SphericalMercatorCoordSystem()),settings);
 
 		// Set up the bounds
 		if (coordAdapter != null) {
@@ -140,7 +139,8 @@ public class MapController extends BaseController implements View.OnTouchListene
 		}
 	}
 
-	protected void setupTheRest(CoordSystemDisplayAdapter inCoordAdapter,int clearColor)
+	protected void setupTheRest(@NotNull CoordSystemDisplayAdapter inCoordAdapter,
+								@Nullable Settings settings)
 	{
 		coordAdapter = inCoordAdapter;
 
@@ -148,11 +148,11 @@ public class MapController extends BaseController implements View.OnTouchListene
 		scene = new Scene(coordAdapter,renderControl);
 		mapView = new MapView(this,coordAdapter);
 		view = mapView;
-		super.setClearColor(clearColor);
+		setClearColor((settings != null) ? settings.clearColor : renderControl.clearColor);
 
 		super.Init();
 
-		if (baseView != null)
+		if (baseView != null && (settings == null || settings.enableGestures))
 		{
 			baseView.setOnTouchListener(this);
 			gestureHandler = new MapGestureHandler(this,baseView);

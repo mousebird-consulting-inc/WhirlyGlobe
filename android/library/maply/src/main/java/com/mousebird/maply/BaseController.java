@@ -309,6 +309,10 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 		 * Super special option.  You probably don't need that.
 		 */
 		public String loadLibraryName = null;
+		/**
+		 * Set to false to turn off gestures
+		 */
+		public boolean enableGestures = true;
 	}
 
 	// Set if we're using a TextureView rather than a SurfaceView

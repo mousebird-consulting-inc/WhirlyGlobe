@@ -62,19 +62,17 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	public GlobeController(@NotNull Activity mainActivity, @Nullable Settings settings)
 	{
 		super(mainActivity, settings);
-
-		final int clearColor = ((settings != null) ? settings : new Settings()).clearColor;
-		Init(clearColor);
+		Init(settings);
 	}
 
 	public GlobeController(@NotNull Activity mainActivity)
 	{
 		super(mainActivity,null);
 
-		Init(renderControl.clearColor);
+		Init(null);
 	}
 
-	protected void Init(int clearColor)
+	protected void Init(@Nullable Settings settings)
 	{
 		// Need a coordinate system to display conversion
 		// For now this just sets up spherical mercator
@@ -86,11 +84,11 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		view = globeView;
 		globeView.northUp = true;
 		globeView.setContinuousZoom(true);
-		super.setClearColor(clearColor);
+		setClearColor((settings != null) ? settings.clearColor : renderControl.clearColor);
 
 		super.Init();
 
-		if (baseView != null)
+		if (baseView != null && (settings == null || settings.enableGestures))
 		{
 			baseView.setOnTouchListener(this);
 			gestureHandler = new GlobeGestureHandler(this,baseView);
