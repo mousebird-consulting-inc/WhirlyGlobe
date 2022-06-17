@@ -105,6 +105,11 @@
   */
 - (bool)canBeDegrees;
 
+/**
+    Allow this system to wrap around when being mapped to another system
+ */
+- (void)setCanBeWrapped:(bool)b;
+
 @end
 
 /** 

@@ -158,6 +158,14 @@ using namespace WhirlyKit;
     return ret;
 }
 
+- (void)setCanBeWrapped:(bool)b
+{
+    if (coordSystem)
+    {
+        coordSystem->setCanBeWrapped(b);
+    }
+}
+
 @end
 
 @implementation MaplyPlateCarree

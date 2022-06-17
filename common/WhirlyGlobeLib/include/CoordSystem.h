@@ -81,8 +81,13 @@ struct CoordSystem : public DelayedDeletable
     template <typename T> void setBounds(T mbr) { bounds = mbr; }
     template <typename T> void setBounds(T ll, T ur) { bounds.reset(ll, ur); }
 
+    virtual Point3d getWrapCoords() const { return { 0, 0, 0 }; }
+    virtual bool canBeWrapped() const { return canWrap; }
+    virtual void setCanBeWrapped(bool b) { canWrap = b; }
+
 protected:
     GeoMbr bounds;
+    bool canWrap = false;
 };
     
 typedef std::shared_ptr<CoordSystem> CoordSystemRef;

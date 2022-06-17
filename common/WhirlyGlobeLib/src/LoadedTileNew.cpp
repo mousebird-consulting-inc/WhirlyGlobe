@@ -200,26 +200,86 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         chunk->setType(Triangles);
         // Generate point, texture coords, and normals
         Point3dVector locs((sphereTessX+1)*(sphereTessY+1));
-        std::vector<float> elevs;
-        if (geomSettings.includeElev)
-            elevs.resize((sphereTessX+1)*(sphereTessY+1));
-        std::vector<TexCoord> texCoords((sphereTessX+1)*(sphereTessY+1));
+        std::vector<float> elevs(geomSettings.includeElev ? (sphereTessX+1)*(sphereTessY+1) : 0);
+        
+        const auto cs = geomManage->coordSys.get();
+        const bool sameCS = cs->isSameAs(sceneCoordSys);
+        const Point3d wrapAt = sceneCoordSys->getWrapCoords();
+        const bool enableWrap = !sameCS && cs->canBeWrapped() && (wrapAt.squaredNorm() > 0);
+        const auto dmax = std::numeric_limits<double>::max();
+        Point3d minLoc(dmax,dmax,dmax), maxLoc(-dmax,-dmax,-dmax), sgnLoc(0,0,0);
         for (unsigned int iy=0;iy<sphereTessY+1;iy++)
         {
             for (unsigned int ix=0;ix<sphereTessX+1;ix++)
             {
-                float locZ = 0.0;
-                const auto cs = geomManage->coordSys.get();
-                auto loc3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),locZ)));
+                constexpr auto locZ = 0.0;
+                auto &loc = locs[iy*(sphereTessX+1)+ix];
+
+                loc = Point3d(chunkLL.x() + ix * incr.x(),
+                              chunkLL.y() + iy * incr.y(),
+                              locZ);
+                if (!sameCS)
+                {
+                    loc = CoordSystemConvert3d(cs, sceneCoordSys, loc);
+                    if (enableWrap)
+                    {
+                        minLoc = minLoc.cwiseMin(loc);
+                        maxLoc = maxLoc.cwiseMax(loc);
+                        sgnLoc += Point3d(std::copysign(1.0, loc.x()),
+                                          std::copysign(1.0, loc.y()),
+                                          std::copysign(1.0, loc.z()));
+                    }
+                }
+            }
+        }
+
+        // Check for wrapping in coordinate conversion
+        if (enableWrap)
+        {
+            // Do spans of the converted coordinates differ by more than that amount?
+            const Point3d dwrap = maxLoc - minLoc;
+            for (int axis = 0; axis < 3; ++axis)
+            {
+                if (wrapAt[axis] && dwrap[axis] > wrapAt[axis])
+                {
+                    // We assume it always wraps symmetrically centered on zero.
+                    constexpr auto wrapAround = 0.0;
+                    const auto wrapRight = (sgnLoc[axis] > 0);
+                    const auto wrapVal = (wrapRight ? 2 : -2) * wrapAt[axis];
+                    for (unsigned int iy=0;iy<sphereTessY+1;iy++)
+                    {
+                        for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+                        {
+                            auto &loc = locs[iy*(sphereTessX+1)+ix];
+                            if ((wrapRight && loc[axis] < wrapAround) ||
+                                (!wrapRight && loc[axis] > wrapAround))
+                            {
+                                loc[axis] += wrapVal;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        std::vector<TexCoord, Eigen::aligned_allocator<TexCoord>> texCoords((sphereTessX+1)*(sphereTessY+1));
+        for (unsigned int iy=0;iy<sphereTessY+1;iy++)
+        {
+            for (unsigned int ix=0;ix<sphereTessX+1;ix++)
+            {
+                constexpr auto locZ = 0.0;
+
+                auto &loc = locs[iy*(sphereTessX+1)+ix];
+                loc = geomManage->coordAdapter->localToDisplay(loc);
                 if (geomManage->coordAdapter->isFlat())
-                    loc3D.z() = locZ;
+                {
+                    loc.z() = locZ;
+                }
                 
                 // Use Z priority to sort the levels
                 //                    if (singleLevel != -1)
                 //                        loc3D.z() = (drawPriority + nodeInfo->ident.level * 0.01)/10000;
-                
-                locs[iy*(sphereTessX+1)+ix] = loc3D;
-                
+
                 // Do the texture coordinate separately
                 const TexCoord texCoord(ix*texIncr.x(),1.0f-(iy*texIncr.y()));
                 texCoords[iy*(sphereTessX+1)+ix] = texCoord;

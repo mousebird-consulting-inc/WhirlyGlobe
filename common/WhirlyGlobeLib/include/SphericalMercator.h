@@ -56,7 +56,9 @@ struct SphericalMercatorCoordSystem : public CoordSystem
     
     /// True if the other system is Spherical Mercator with the same origin
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
-        
+
+    virtual Point3d getWrapCoords() const override { return { M_PI, 0, 0 }; }
+
 protected:
     double originLon;
 };
