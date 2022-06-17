@@ -39,6 +39,18 @@ using namespace WhirlyKit;
     params.setCoordSys([coordSys getCoordSystem]);
 }
 
+- (MaplyBoundingBox) getCoordBounds
+{
+    return MaplyBoundingBox {
+        .ll = MaplyCoordinateMake((float)params.coordBounds.ll().x(), (float)params.coordBounds.ll().y()),
+        .ur = MaplyCoordinateMake((float)params.coordBounds.ur().x(), (float)params.coordBounds.ur().y()),
+    };
+}
+- (void)setCoordBounds:(MaplyBoundingBox)bbox
+{
+    params.coordBounds = MbrD({bbox.ll.x,bbox.ll.y},{bbox.ur.x,bbox.ur.y});
+}
+
 - (int)minZoom
 {
     return params.minZoom;

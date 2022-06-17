@@ -34,6 +34,10 @@
 /// The coordinate system we'll be sampling from.
 @property (nonatomic,nonnull,strong) MaplyCoordinateSystem *coordSys;
 
+/// The extent of valid coordinates for the tiles.
+/// Set automatically when assigning coordSys
+@property (nonatomic) MaplyBoundingBox coordBounds;
+
 /// Min zoom level for sampling.  Don't set this to anything other than 0 or 1
 @property (nonatomic) int minZoom;
 
