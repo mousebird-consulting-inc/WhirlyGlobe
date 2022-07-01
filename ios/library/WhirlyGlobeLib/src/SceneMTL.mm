@@ -59,9 +59,11 @@ void SceneMTL::teardown(PlatformThreadInfo *inst)
         it.second->destroyInRenderer(setupInfo,this);
     }
     textures.clear();
+#if !MAPLY_MINIMAL
     if (fontTextureManager) {
         fontTextureManager->teardown(inst);
     }
+#endif //!MAPLY_MINIMAL
     Scene::teardown(inst);
 }
     

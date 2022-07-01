@@ -18,21 +18,24 @@
  *
  */
 
-#import "BillboardManager.h"
-#import "GeometryManager.h"
-#import "IntersectionManager.h"
-#import "LabelManager.h"
-#import "LayoutManager.h"
-#import "LoftManager.h"
-#import "MarkerManager.h"
-#import "ParticleSystemManager.h"
-#import "SceneGraphManager.h"
 #import "ShapeManager.h"
-#import "SphericalEarthChunkManager.h"
-#import "VectorManager.h"
-#import "VectorObject.h"
-#import "WideVectorManager.h"
-#import "SelectionManager.h"
+
+#if !MAPLY_MINIMAL
+# import "BillboardManager.h"
+# import "GeometryManager.h"
+# import "IntersectionManager.h"
+# import "LabelManager.h"
+# import "LayoutManager.h"
+# import "LoftManager.h"
+# import "MarkerManager.h"
+# import "ParticleSystemManager.h"
+# import "SceneGraphManager.h"
+# import "SphericalEarthChunkManager.h"
+# import "VectorManager.h"
+# import "VectorObject.h"
+# import "WideVectorManager.h"
+# import "SelectionManager.h"
+#endif //!MAPLY_MINIMAL
 
 namespace WhirlyKit
 {
@@ -187,17 +190,19 @@ public:
             const Point2f &frameSize,int resultLimit = 0);
 
     // These are here for convenience
+    ShapeManagerRef shapeManager;
+#if !MAPLY_MINIMAL
     LayoutManagerRef layoutManager;
     MarkerManagerRef markerManager;
     LabelManagerRef labelManager;
     VectorManagerRef vectorManager;
     WideVectorManagerRef wideVectorManager;
-    ShapeManagerRef shapeManager;
     SphericalChunkManagerRef chunkManager;
     LoftManagerRef loftManager;
     BillboardManagerRef billManager;
     GeometryManagerRef geomManager;
     ParticleSystemManagerRef partSysManager;
+#endif //!MAPLY_MINIMAL
 
 protected:
     // Subclass fills this in

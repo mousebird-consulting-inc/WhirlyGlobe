@@ -20,8 +20,11 @@
 
 #import "MaplyVariableTarget_private.h"
 #import "visual_objects/MaplyShape.h"
-#import <vector>
 #import "MaplyBaseViewController_private.h"
+#import "MaplyRenderController_private.h"
+#import "MaplyBaseInteractionLayer_private.h"
+
+#import <vector>
 
 @implementation MaplyVariableTarget
 {
@@ -85,18 +88,32 @@
         else
             NSLog(@"Failed to add auxiliary render target in setupRectangle for MaplyVariableTarget.");
     }
+
+#if MAPLY_MINIMAL
+    MaplyShader *shader = _shader ? _shader : [theViewC getShaderByName:kMaplyShaderDefaultTriNoLighting];
+
+    WhirlyKit::ShapeInfo shapeInfo;
+    shapeInfo.color = [_color asRGBAColor];
+    shapeInfo.drawPriority = _drawPriority;
+    shapeInfo.zBufferRead = _zBuffer;
+    shapeInfo.zBufferWrite = false;
+    shapeInfo.programID = [shader getShaderID];
+
+    _rectObj = [theViewC addShapes:@[rect] info:shapeInfo desc:nil mode:MaplyThreadCurrent];
+#else
     const NSString * const shaderName = _shader ? [_shader name] : kMaplyShaderDefaultTriNoLighting;
-    _rectObj = [theViewC addShapes:@[rect]
-                          desc:@{kMaplyColor: _color,
-                                 kMaplyDrawPriority: @(_drawPriority),
-                                 kMaplyShader: shaderName,
-                                 kMaplyZBufferRead: @(_zBuffer),
-                                 kMaplyZBufferWrite: @(NO)
-                                 }
-                          mode:MaplyThreadCurrent];
+    NSDictionary *desc = @{
+        kMaplyColor: _color,
+        kMaplyDrawPriority: @(_drawPriority),
+        kMaplyShader: shaderName,
+        kMaplyZBufferRead: @(_zBuffer),
+        kMaplyZBufferWrite: @(NO)
+    };
+    _rectObj = [theViewC addShapes:@[rect] desc:desc mode:MaplyThreadCurrent];
+#endif
     
     // Pass through the uniform blocks if they've been set up
-    for (auto block : uniBlocks) {
+    for (const auto &block : uniBlocks) {
         [theViewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
     }
 }
@@ -152,8 +169,10 @@
 - (void)clear
 {
     const auto vc = viewC;
+#if !MAPLY_MINIMAL
     if (_renderTarget && [vc isKindOfClass:[MaplyBaseViewController class]])
         [(MaplyBaseViewController *)vc clearRenderTarget:_renderTarget mode:MaplyThreadCurrent];
+#endif //!MAPLY_MINIMAL
 }
 
 /// Stop rendering to the target and release everything

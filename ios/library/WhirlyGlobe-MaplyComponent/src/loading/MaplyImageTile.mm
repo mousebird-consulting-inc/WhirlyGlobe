@@ -38,7 +38,7 @@ using namespace WhirlyKit;
     
     self = [super init];
     
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS([viewC getRenderControl]->renderType));
+    imageTile = std::make_shared<ImageTile_iOS>([viewC getRenderControl]->renderType);
     imageTile->type = MaplyImgTypeRawImage;
     imageTile->components = 4;
     imageTile->width = width;
@@ -49,21 +49,28 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height depth:(int)depth components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC
 {
     if (![data isKindOfClass:[NSData class]])
         return nil;
-    if ([data length] != width*height*comp)
+    if (data.length != width * height * comp * depth / 8)
+    {
+        wkLogLevel(Warn, "initWithRawImage: expected %d bytes for %d,%d, got %d",
+                   width * height * comp * depth / 8, width, height, data.length);
         return nil;
-    
-    self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
-    imageTile->type = MaplyImgTypeRawImage;
-    imageTile->components = comp;
-    imageTile->width = width;
-    imageTile->height = height;
-    imageTile->borderSize = 0;
-    imageTile->imageStuff = data;
+    }
+
+    if ((self = [super init]))
+    {
+        imageTile = std::make_shared<ImageTile_iOS>(viewC.getRenderControl->renderType);
+        imageTile->type = MaplyImgTypeRawImage;
+        imageTile->depth = depth;
+        imageTile->components = comp;
+        imageTile->width = width;
+        imageTile->height = height;
+        imageTile->borderSize = 0;
+        imageTile->imageStuff = data;
+    }
 
     return self;
 }
@@ -74,7 +81,7 @@ using namespace WhirlyKit;
         return nil;
 
     self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
+    imageTile = std::make_shared<ImageTile_iOS>(viewC.getRenderControl->renderType);
     imageTile->type = MaplyImgTypeRawImage;
     switch (viewC.getRenderControl->renderType)
     {
@@ -83,7 +90,7 @@ using namespace WhirlyKit;
             break;
         case WhirlyKit::SceneRenderer::RenderMetal:
             Texture *tex = new TextureMTL("Image Tile");
-            tex->setRawData(new RawNSDataReader(data), width, height);
+            tex->setRawData(std::make_shared<RawNSDataReader>(data), width, height, 8, 4);
             imageTile->tex = tex;
             // TODO: More this somewhere central
             switch (format) {
@@ -151,7 +158,7 @@ using namespace WhirlyKit;
         return nil;
     
     self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
+    imageTile = std::make_shared<ImageTile_iOS>(viewC.getRenderControl->renderType);
     imageTile->type = MaplyImgTypeImage;
     imageTile->components = 4;
     imageTile->width = image.size.width;
@@ -168,7 +175,7 @@ using namespace WhirlyKit;
         return nil;
     
     self = [super init];
-    imageTile = ImageTile_iOSRef(new ImageTile_iOS(viewC.getRenderControl->renderType));
+    imageTile = std::make_shared<ImageTile_iOS>(viewC.getRenderControl->renderType);
     imageTile->type = MaplyImgTypeDataUIKitRecognized;
     imageTile->components = 4;
     imageTile->width = -1;

@@ -93,6 +93,7 @@ int pj_datum_set(projCtx ctx, paralist *pl, PJ *projdef)
 /* -------------------------------------------------------------------- */
 /*      Check for grid catalog parameter, and optional date.            */
 /* -------------------------------------------------------------------- */
+#if !MAPLY_MINIMAL
     else if( (catalog = pj_param(ctx, pl,"scatalog").s) != NULL )
     {
         const char *date;
@@ -104,6 +105,7 @@ int pj_datum_set(projCtx ctx, paralist *pl, PJ *projdef)
         if( date != NULL) 
             projdef->datum_date = pj_gc_parsedate( ctx, date);
     }
+#endif //!MAPLY_MINIMAL
 
 /* -------------------------------------------------------------------- */
 /*      Check for towgs84 parameter.                                    */

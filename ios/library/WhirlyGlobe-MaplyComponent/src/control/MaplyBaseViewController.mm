@@ -21,17 +21,20 @@
 #import "UIKit/NSData+Zlib.h"
 
 #import "MaplyTexture_private.h"
-#import "MaplyAnnotation_private.h"
 #import "UIKit/NSDictionary+StyleRules.h"
-#import "gestures/Maply3dTouchPreviewDelegate.h"
 #import "MaplyTexture_private.h"
 #import "MaplyRenderTarget_private.h"
-#import "FontTextureManager_iOS.h"
 #import "UIColor+Stuff.h"
 #import "MTLView.h"
 #import "WorkRegion_private.h"
 #import "MaplyURLSessionManager+Private.h"
 #import <sys/utsname.h>
+
+#if !MAPLY_MINIMAL
+# import "MaplyAnnotation_private.h"
+# import "gestures/Maply3dTouchPreviewDelegate.h"
+# import "FontTextureManager_iOS.h"
+#endif //!MAPLY_MINIMAL
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -150,9 +153,11 @@ using namespace WhirlyKit;
     renderControl->scene = NULL;
     renderControl->sceneRenderer = NULL;
     
+#if !MAPLY_MINIMAL
     viewTrackers = nil;
     annotations = nil;
-    
+#endif //!MAPLY_MINIMAL
+
     [renderControl clear];
     renderControl = nil;
 }
@@ -195,6 +200,7 @@ using namespace WhirlyKit;
     return renderControl.screenObjectDrawPriorityOffset;
 }
 
+#if !MAPLY_MINIMAL
 - (void)setLayoutFade:(bool)enable
 {
     _layoutFade = enable;
@@ -210,6 +216,7 @@ using namespace WhirlyKit;
 {
     return _layoutFade;
 }
+#endif //!MAPLY_MINIMAL
 
 // Kick off the analytics logic.  First we need the server name.
 - (void)startAnalytics
@@ -260,7 +267,12 @@ using namespace WhirlyKit;
     [req setHTTPMethod:@"POST"];
     [req setHTTPBody:[postArgs dataUsingEncoding:NSASCIIStringEncoding]];
     
+#if !MAPLY_MINIMAL
     NSURLSession *session = [[MaplyURLSessionManager sharedManager] createURLSession];
+#else
+    NSURLSession *session = [NSURLSession sharedSession];
+#endif //!MAPLY_MINIMAL
+
     NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:req completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         TimeInterval now = TimeGetCurrent();
         NSHTTPURLResponse *resp = (NSHTTPURLResponse *)response;
@@ -302,12 +314,14 @@ using namespace WhirlyKit;
     [renderControl loadSetup_scene:[self loadSetup_interactionLayer]];
     [self loadSetup_lighting];
 
+#if !MAPLY_MINIMAL
     viewTrackers = [NSMutableArray array];
     annotations = [NSMutableArray array];
         
     // View placement manager
     viewPlacementModel = std::make_shared<ViewPlacementActiveModel>();
     renderControl->scene->addActiveModel(viewPlacementModel);
+#endif //!MAPLY_MINIMAL
 
     // Apply layout fade option set before init to the newly-created manager
     [self setLayoutFade:_layoutFade];
@@ -476,6 +490,7 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
+#if !MAPLY_MINIMAL
 - (void)setShowDebugLayoutBoundaries:(bool)show
 {
     self->_showDebugLayoutBoundaries = show;
@@ -488,6 +503,7 @@ static const float PerfOutputDelay = 15.0;
         }
     }
 }
+#endif //!MAPLY_MINIMAL
 
 // Run every so often to dump out stats
 - (void)periodicPerfOutput
@@ -504,7 +520,7 @@ static const float PerfOutputDelay = 15.0;
     }
     NSLog(@"Sampling layers: %lu",renderControl->samplingLayers.size());
     
-    [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];    
+    [self performSelector:@selector(periodicPerfOutput) withObject:nil afterDelay:PerfOutputDelay];
 }
 
 - (bool)performanceOutput
@@ -512,6 +528,7 @@ static const float PerfOutputDelay = 15.0;
     return _performanceOutput;
 }
 
+#if !MAPLY_MINIMAL
 // Build an array of lights and send them down all at once
 - (void)updateLights
 {
@@ -537,6 +554,7 @@ static const float PerfOutputDelay = 15.0;
 {
     [renderControl removeLight:light];
 }
+#endif //!MAPLY_MINIMAL
 
 - (void)addShaderProgram:(MaplyShader *)shader
 {
@@ -573,6 +591,7 @@ static const float PerfOutputDelay = 15.0;
 
 #pragma mark - Geometry related methods
 
+#if !MAPLY_MINIMAL
 - (MaplyComponentObject *)addScreenMarkers:(NSArray *)markers desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode;
 {
     MaplyComponentObject *compObj = [renderControl addScreenMarkers:markers desc:desc mode:threadMode];
@@ -701,6 +720,7 @@ static const float PerfOutputDelay = 15.0;
 {
     [self changeVector:compObj desc:desc mode:MaplyThreadAny];
 }
+#endif //!MAPLY_MINIMAL
 
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
@@ -714,6 +734,7 @@ static const float PerfOutputDelay = 15.0;
     return [self addShapes:shapes desc:desc mode:MaplyThreadAny];
 }
 
+#if !MAPLY_MINIMAL
 - (MaplyComponentObject *)addModelInstances:(NSArray *)modelInstances desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
     MaplyComponentObject *compObj = [renderControl addModelInstances:modelInstances desc:desc mode:threadMode];
@@ -827,6 +848,7 @@ static const float PerfOutputDelay = 15.0;
         }
     }
 }
+#endif //!MAPLY_MINIMAL
 
 // Overridden by the subclasses
 - (CGPoint)screenPointFromGeo:(MaplyCoordinate)geoCoord
@@ -840,6 +862,7 @@ static const float PerfOutputDelay = 15.0;
     return false;
 }
 
+#if !MAPLY_MINIMAL
 - (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset
 {
     if (!renderControl)
@@ -959,6 +982,7 @@ static const float PerfOutputDelay = 15.0;
     for (MaplyAnnotation *annotation in allAnnotations)
         [self removeAnnotation:annotation];
 }
+#endif //!MAPLY_MINIMAL
 
 - (MaplyTexture *)addTexture:(UIImage *)image imageFormat:(MaplyQuadImageFormat)imageFormat wrapFlags:(int)wrapFlags mode:(MaplyThreadMode)threadMode
 {
@@ -975,12 +999,14 @@ static const float PerfOutputDelay = 15.0;
     return maplyTex;
 }
 
+#if !MAPLY_MINIMAL
 - (MaplyTexture *__nullable)addSubTexture:(MaplyTexture *__nonnull)tex xOffset:(int)x yOffset:(int)y width:(int)width height:(int)height mode:(MaplyThreadMode)threadMode
 {
     MaplyTexture *maplyTex = [renderControl addSubTexture:tex xOffset:x yOffset:y width:width height:height mode:threadMode];
     
     return maplyTex;
 }
+#endif //!MAPLY_MINIMAL
 
 - (MaplyTexture *__nullable)createTexture:(NSDictionary * _Nullable)inDesc sizeX:(int)sizeX sizeY:(int)sizeY mode:(MaplyThreadMode)threadMode
 {
@@ -999,6 +1025,7 @@ static const float PerfOutputDelay = 15.0;
     [renderControl removeTextures:textures mode:threadMode];
 }
 
+#if !MAPLY_MINIMAL
 - (MaplyTexture *)addTextureToAtlas:(UIImage *)image mode:(MaplyThreadMode)threadMode
 {
     MaplyTexture *maplyTex = [self addTextureToAtlas:image imageFormat:MaplyImageIntRGBA wrapFlags:0 mode:threadMode];
@@ -1013,6 +1040,7 @@ static const float PerfOutputDelay = 15.0;
                                          kMaplyTexWrapY: @(wrapFlags & MaplyImageWrapY),
                                          kMaplyTexAtlas: @(YES)} mode:threadMode];
 }
+#endif //!MAPLY_MINIMAL
 
 - (void)addRenderTarget:(MaplyRenderTarget *)renderTarget
 {
@@ -1034,6 +1062,7 @@ static const float PerfOutputDelay = 15.0;
     [renderControl removeRenderTarget:renderTarget];
 }
 
+#if !MAPLY_MINIMAL
 - (void)setMaxLayoutObjects:(int)maxLayoutObjects
 {
     if (const auto layoutManager = renderControl->scene->getManager<LayoutManager>(kWKLayoutManager))
@@ -1192,6 +1221,7 @@ static const float PerfOutputDelay = 15.0;
     }
     [renderControl setRepresentation:repName fallbackRepName:fallbackRepName ofUUIDs:theUUIDs mode:threadMode];
 }
+#endif //!MAPLY_MINIMAL
 
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID forObjects:(NSArray<MaplyComponentObject *> *__nonnull)compObjs mode:(MaplyThreadMode)threadMode
 {
@@ -1216,6 +1246,7 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 
+#if !MAPLY_MINIMAL
 - (NSArray*)objectsAtCoord:(MaplyCoordinate)coord
 {
     if (!renderControl)
@@ -1231,6 +1262,7 @@ static const float PerfOutputDelay = 15.0;
 
     return [renderControl->interactLayer selectMultipleLabelsAndMarkersForScreenPoint:[self screenPointFromGeo:coord]];
 }
+#endif //!MAPLY_MINIMAL
 
 #pragma mark - Properties
 
@@ -1498,6 +1530,7 @@ static const float PerfOutputDelay = 15.0;
     return { pt.x(), pt.y(), pt.z() };
 }
 
+#if !MAPLY_MINIMAL
 - (BOOL)enable3dTouchSelection:(NSObject<Maply3dTouchPreviewDatasource>*)previewDataSource
 {
     if (!renderControl)
@@ -1529,11 +1562,13 @@ static const float PerfOutputDelay = 15.0;
         previewingContext = nil;
     }
 }
+#endif //!MAPLY_MINIMAL
 
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other {
     // Implement in derived class.
 }
 
+#if !MAPLY_MINIMAL
 - (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
                                useHeading:(bool)useHeading
                                 useCourse:(bool)useCourse {
@@ -1589,6 +1624,7 @@ static const float PerfOutputDelay = 15.0;
         return nil;
     return _locationTracker.locationManager;
 }
+#endif //!MAPLY_MINIMAL
 
 -(NSArray *)loadedLayers
 {

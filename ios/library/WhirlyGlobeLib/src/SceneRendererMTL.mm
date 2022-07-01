@@ -86,8 +86,16 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     indirectRender = false;
 #endif
 
+    MTLCaptureManager* captureMgr = [MTLCaptureManager sharedCaptureManager];
+    cmdCaptureScope = [captureMgr newCaptureScopeWithCommandQueue:cmdQueue];
+    cmdCaptureScope.label = label.empty() ? @"Maply SceneRenderer" : [NSString stringWithUTF8String:label.c_str()];
+    if (!captureMgr.defaultCaptureScope)
+    {
+        captureMgr.defaultCaptureScope = cmdCaptureScope;
+    }
+
     init();
-        
+
     // Calculation shaders
     workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::Calculation));
     // Offscreen target render group
@@ -418,7 +426,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                             SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
                             
                             // Figure out the program to use for drawing
-                            if (calcProgID == EmptyIdentity)
+                            if (calcProgID == EmptyIdentity || calcProgID == Program::NoProgramID)
                                 continue;
                             ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
                             if (!calcProgram) {
@@ -436,6 +444,9 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                             DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
                             if (!drawMTL) {
                                 wkLogLevel(Error, "SceneRendererMTL: Invalid drawable");
+                                continue;
+                            }
+                            if (drawMTL->getProgram() == Program::NoProgramID) {
                                 continue;
                             }
                             
@@ -582,6 +593,8 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
 
     // Send the command buffer and encoders
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
+
+    [cmdCaptureScope beginScope];
 
     const auto frameInfoRef = makeFrameInfo();
     auto &baseFrameInfo = *frameInfoRef;
@@ -842,7 +855,7 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
                             const SimpleIdentity calcProgID = drawMTL->getCalculationProgram();
                             
                             // Figure out the program to use for drawing
-                            if (calcProgID == EmptyIdentity)
+                            if (calcProgID == EmptyIdentity || calcProgID == Program::NoProgramID)
                                 continue;
 
                             ProgramMTL *calcProgram = (ProgramMTL *)scene->getProgram(calcProgID);
@@ -882,6 +895,10 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
                             }
 
                             // Figure out the program to use for drawing
+                            if (drawMTL->getProgram() == Program::NoProgramID &&
+                                drawMTL->getCalculationProgram() == Program::NoProgramID) {
+                                continue;
+                            }
                             ProgramMTL *program = (ProgramMTL *)scene->getProgram(drawMTL->getProgram());
                             if (!program) {
                                 program = (ProgramMTL *)scene->getProgram(drawMTL->getCalculationProgram());
@@ -1021,6 +1038,8 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
     }
     lastRenderNo++;
 
+    [cmdCaptureScope endScope];
+
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
     
@@ -1065,6 +1084,13 @@ void SceneRendererMTL::shutdown()
         draw->teardownForRenderer(nullptr, nullptr, nullptr);
     }
 
+    MTLCaptureManager* captureMgr = [MTLCaptureManager sharedCaptureManager];
+    if (captureMgr.defaultCaptureScope == cmdCaptureScope)
+    {
+        captureMgr.defaultCaptureScope = nil;
+    }
+
+    cmdCaptureScope = nil;
     cmdQueue = nil;
 
     SceneRenderer::shutdown();
@@ -1114,12 +1140,21 @@ BasicDrawableInstanceBuilderRef SceneRendererMTL::makeBasicDrawableInstanceBuild
 
 BillboardDrawableBuilderRef SceneRendererMTL::makeBillboardDrawableBuilder(const std::string &name) const
 {
+#if !MAPLY_MINIMAL
     return std::make_shared<BillboardDrawableBuilderMTL>(name,scene);
+#else
+    // need a stub for the vtable
+    return nullptr;
+#endif //!MAPLY_MINIMAL
 }
 
 ScreenSpaceDrawableBuilderRef SceneRendererMTL::makeScreenSpaceDrawableBuilder(const std::string &name) const
 {
+#if !MAPLY_MINIMAL
     return std::make_shared<ScreenSpaceDrawableBuilderMTL>(name,scene);
+#else
+    return nullptr;
+#endif //!MAPLY_MINIMAL
 }
 
 ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBuilder(const std::string &name) const
@@ -1129,7 +1164,11 @@ ParticleSystemDrawableBuilderRef  SceneRendererMTL::makeParticleSystemDrawableBu
 
 WideVectorDrawableBuilderRef SceneRendererMTL::makeWideVectorDrawableBuilder(const std::string &name) const
 {
+#if !MAPLY_MINIMAL
     return std::make_shared<WideVectorDrawableBuilderMTL>(name,this,scene);
+#else
+    return nullptr;
+#endif //!MAPLY_MINIMAL
 }
 
 RenderTargetRef SceneRendererMTL::makeRenderTarget() const
@@ -1139,7 +1178,11 @@ RenderTargetRef SceneRendererMTL::makeRenderTarget() const
 
 DynamicTextureRef SceneRendererMTL::makeDynamicTexture(const std::string &name) const
 {
+#if !MAPLY_MINIMAL
     return std::make_shared<DynamicTextureMTL>(name);
+#else
+    return nullptr;
+#endif //!MAPLY_MINIMAL
 }
 
 

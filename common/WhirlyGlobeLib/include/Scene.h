@@ -16,15 +16,16 @@
  *  limitations under the License.
  */
 
-#import <vector>
-#import <set>
-#import <unordered_map>
 #import "WhirlyVector.h"
 #import "Texture.h"
 #import "Program.h"
 #import "BasicDrawableInstance.h"
 #import "ActiveModel.h"
 #import "CoordSystem.h"
+
+#import <vector>
+#import <set>
+#import <unordered_map>
 
 namespace WhirlyKit
 {
@@ -34,9 +35,13 @@ namespace WhirlyKit
 class SceneRenderer;
 class Scene;
 struct SubTexture;
+struct RenderSetupInfo;
+
+#if !MAPLY_MINIMAL
 class FontTextureManager;
 typedef std::shared_ptr<FontTextureManager> FontTextureManagerRef;
-struct RenderSetupInfo;
+#endif //!MAPLY_MINIMAL
+
 
 /// Request that the renderer add the given texture.
 /// This will make it available for use, referenced by ID.
@@ -429,11 +434,15 @@ public:
     /// Return the number of change requests
     int getNumChangeRequests() const;
 
+#if !MAPLY_MINIMAL
+
     /// Set up the font texture manager.  Don't call this yourself.
     void setFontTextureManager(const FontTextureManagerRef &newManager);
 
     /// Returns the font texture manager, which is thread safe
     FontTextureManagerRef getFontTextureManager() const { return fontTextureManager; }
+
+#endif //!MAPLY_MINIMAL
 
 protected:
     /// Don't be calling this
@@ -498,8 +507,10 @@ protected:
     /// Used for 2D overlap testing
     double overlapMargin = 0.0;
     
+#if !MAPLY_MINIMAL
     // The font texture manager is created at startup
     FontTextureManagerRef fontTextureManager;
+#endif //!MAPLY_MINIMAL
 
     SceneRenderer* renderer = nullptr;
 };

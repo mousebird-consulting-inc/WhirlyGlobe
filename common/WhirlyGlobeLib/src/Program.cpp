@@ -23,6 +23,8 @@
 namespace WhirlyKit
 {
 
+SimpleIdentity Program::NoProgramID = (SimpleIdentity)-1;
+
 const std::string &Program::getName() const
 {
     return name;

@@ -37,29 +37,6 @@ TextureMTL::TextureMTL(std::string name) :
 {
 }
 
-TextureMTL::TextureMTL(std::string name, RawDataRef inTexData, bool isPVRTC) :
-    TextureBase(std::move(name)),
-    Texture(std::move(inTexData), isPVRTC),
-    TextureBaseMTL()
-{
-    if (!texData)
-    {
-        NSLog(@"TextureMTL: Got texture with empty data");
-        return;
-    }
-    if (auto texDataRef = std::dynamic_pointer_cast<RawNSDataReader>(texData))
-    {
-        if (texDataRef->getData() == nil)
-        {
-            NSLog(@"TextureMTL: Got texture ref with empty data");
-        }
-    }
-    else
-    {
-        NSLog(@"TextureMTL: Got unrecognized texture data");
-    }
-}
-
 TextureMTL::TextureMTL(std::string name, UIImage *inImage, int inWidth, int inHeight) :
     TextureBase(std::move(name)),
     Texture(),
@@ -94,6 +71,7 @@ TextureMTL::TextureMTL(std::string name, UIImage *inImage) :
         texData = std::make_shared<RawNSDataReader>(data);
     }
 }
+
 
 #if !TARGET_OS_MACCATALYST
 static RawDataRef ConvertRGBA8888toRGB565(const RawDataRef &inData, int width, int height)
@@ -148,6 +126,7 @@ RawDataRef TextureMTL::convertData()
     case TexTypeUnsignedByte:
     case TexTypeSingleChannel:
     case TexTypeSingleInt16:
+    case TexTypeDoubleUInt16:
         // no conversion needed?
         return texData;
     case TexTypeDoubleChannel:
@@ -203,7 +182,20 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         }
         return false;
     }
-    
+
+    if (rawDepth && texData && texData->getLen())
+    {
+        if (texData->getLen() != height * width * rawChannels * rawDepth / 8)
+        {
+            wkLogLevel(Warn, "Expected %d bytes for %d,%d texture data, got %d",
+                       height * width * rawChannels * rawDepth / 8, width, height, texData->getLen());
+        }
+        if (texData->getLen() < height * width * rawChannels * rawDepth / 8)
+        {
+            return false;
+        }
+    }
+
     MTLPixelFormat pixFormat;
     int bytesPerRow = 0;
     
@@ -291,11 +283,19 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
 #endif
             break;
         case TexTypeSingleChannel:
-            pixFormat = MTLPixelFormatA8Unorm;
+            switch (byteSource)
+            {
+                case WKSingleGreen:
+                case WKSingleBlue:
+                case WKSingleRed: pixFormat = MTLPixelFormatR8Unorm; break;
+                case WKSingleRGB:   // ?
+                case WKSingleAlpha: pixFormat = MTLPixelFormatA8Unorm; break;
+            }
             // Nudge up the size a bit
             bytesPerRow = width;
             break;
         case TexTypeDoubleChannel:
+            // Raw data will be converted from 4 to 2 8-bit channels
             pixFormat = MTLPixelFormatRG8Unorm;
             bytesPerRow = 2*width;
             break;
@@ -330,6 +330,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
         case TexTypeSingleInt16:
             pixFormat = MTLPixelFormatR16Sint;
             bytesPerRow = 2*width;
+            break;
+        case TexTypeDoubleUInt16:
+            pixFormat = MTLPixelFormatRG16Unorm;
+            bytesPerRow = 4*width;
             break;
         case TexTypeSingleUInt32:
             pixFormat = MTLPixelFormatR32Uint;
@@ -383,12 +387,11 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     }
 
     RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
-    const size_t size = bytesPerRow * height;
-    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc,size);
+    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc,bytesPerRow * height);
 
     if (!name.empty())
     {
-        [texBuf.tex setLabel:[NSString stringWithFormat:@"%s",name.c_str()]];
+        [texBuf.tex setLabel:[NSString stringWithUTF8String:name.c_str()]];
     }
 
     if (texBuf.tex && texData)

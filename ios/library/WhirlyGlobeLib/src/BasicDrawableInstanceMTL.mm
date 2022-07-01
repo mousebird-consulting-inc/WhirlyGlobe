@@ -308,8 +308,10 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 id<MTLBlitCommandEncoder> bltEncode,
                 SceneMTL *scene)
 {
-    bool ret = false;
-    
+    if (programID == Program::None) {
+        return true;
+    }
+   
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programID);
     if (!prog) {
         NSLog(@"Drawable %s missing program.",name.c_str());
@@ -317,6 +319,7 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
     }
     RenderSetupInfoMTL *setupMTL = (RenderSetupInfoMTL *)sceneRender->getRenderSetupInfo();
 
+    bool ret = false;
     if (texturesChanged || valuesChanged || prog->texturesChanged || prog->valuesChanged) {
         ret = true;
         if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {

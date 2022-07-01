@@ -62,12 +62,12 @@ typedef enum WKSingleByteSource_t {
 
 /// Texture formats we allow
 typedef enum TextureType_t {
-    TexTypeUnsignedByte,
+    TexTypeUnsignedByte,    // RGBA8Unorm
     TexTypeShort565,
     TexTypeShort4444,
     TexTypeShort5551,
-    TexTypeSingleChannel,
-    TexTypeDoubleChannel,
+    TexTypeSingleChannel,   // A8Unorm
+    TexTypeDoubleChannel,   // ABGR8 => RG8Unorm
     TexTypeSingleFloat16,
     TexTypeSingleFloat32,
     TexTypeDoubleFloat16,
@@ -75,7 +75,8 @@ typedef enum TextureType_t {
     TexTypeQuadFloat16,
     TexTypeQuadFloat32,
     TexTypeDepthFloat32,
-    TexTypeSingleInt16,
+    TexTypeSingleInt16,     // R16Sint
+    TexTypeDoubleUInt16,    // RG16Unorm
     TexTypeSingleUInt32,
     TexTypeDoubleUInt32,
     TexTypeQuadUInt32
@@ -107,16 +108,16 @@ struct Texture : virtual public TextureBase
 
     /// Set the raw data directly
     /// Texture takes possession of the bytes.  It will free them.
-    void setRawData(RawData *rawData, int width, int height);
+    virtual void setRawData(RawData *rawData, int width, int height, int depth, int channels);
 
     /// Set the raw data directly
-    void setRawData(RawDataRef rawData, int width, int height);
+    virtual void setRawData(RawDataRef rawData, int width, int height, int depth, int channels);
 
     /// Process the data for display based on the format.
-    RawDataRef processData();
+    virtual RawDataRef processData();
     
     /// Set up from raw PKM (ETC2/EAC) data
-    void setPKMData(RawDataRef data);
+    virtual void setPKMData(RawDataRef data);
 
     /// Set the texture width
     void setWidth(unsigned int newWidth) { width = newWidth; }
@@ -143,6 +144,8 @@ protected:
 
     /// Raw texture data
     RawDataRef texData;
+    int rawDepth = 0;
+    int rawChannels = 0;
 
     /// Need to know how we're going to load it
     bool isPVRTC = false;

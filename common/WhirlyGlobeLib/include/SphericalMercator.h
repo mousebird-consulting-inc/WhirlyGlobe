@@ -110,8 +110,10 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
 
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
+#if !MAPLY_MINIMAL
     virtual bool isFlat() const override { return true; }
-    
+#endif //!MAPLY_MINIMAL
+
 protected:
     Point2d org,ll,ur,geoLL,geoUR;
     SphericalMercatorCoordSystem smCoordSys;

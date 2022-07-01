@@ -19,13 +19,13 @@
 #import "VectorObject.h"
 #import "GlobeMath.h"
 #import "VectorData.h"
-#import "ShapeReader.h"
 #import "Tesselator.h"
 #import "GridClipper.h"
 #import "WhirlyKitLog.h"
 #import "GlobeView.h"
 #import "MaplyView.h"
 
+#import "ShapeReader.h"
 #import "GeographicLib/Geocentric.hpp"
 #import "GeographicLib/Geodesic.hpp"
 #import "GeographicLib.h"
@@ -33,7 +33,7 @@
 namespace WhirlyKit
 {
 using namespace detail;
-    
+
 VectorObject::VectorObject()
     : VectorObject(10)
 {
@@ -104,7 +104,6 @@ bool VectorObject::fromShapeFile(const std::string &fileName)
     for (unsigned int ii=0;ii<numObj;ii++) {
         shapes.insert(shapeReader.getObjectByIndex(ii, nullptr));
     }
-    
     return true;
 }
 
@@ -1055,21 +1054,6 @@ static void SubdivideEdgesToSurfaceGCGeo(const VectorRing &inPts,VectorRing &out
     }
 }
 
-#if 0
-static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,VectorRing &outPts2D,bool closed,
-                                         CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
-                                         float eps,float surfOffset=0,int minPts=0)
-{
-    VectorRing inPts2D;
-    inPts2D.reserve(inPts.size());
-    for (const auto &p : inPts)
-    {
-        inPts2D.emplace_back(p.x(),p.y());
-    }
-    SubdivideEdgesToSurfaceGCGeo(inPts2D,outPts2D,closed,adapter,coordSys,eps,surfOffset,minPts);
-}
-#endif
-
 static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,Point3dVector &outPts,bool closed,
                                          CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
                                          float eps,float surfOffset=0,int minPts=0)
@@ -1305,25 +1289,19 @@ static void SubdivideGeoLib(const VectorRing &inPts, VectorRing &outPts, double 
     SubdivideGeoLib(inPts.begin(), inPts.end(), std::back_inserter(outPts), maxDistMeters);
 }
 
-#if 0
-static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing &outPts, double maxDistMeters)
-{
-    outPts.reserve(outPts.size() + inPts.size() * 10);
-    SubdivideGeoLib(make3to2(inPts.begin()), make3to2(inPts.end()), std::back_inserter(outPts), maxDistMeters);
-}
-#endif
-
 static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing3d &outPts, double maxDistMeters)
 {
     outPts.reserve(outPts.size() + inPts.size() * 10);
     SubdivideGeoLib(make3to2(inPts.begin()), make3to2(inPts.end()), make2to3(std::back_inserter(outPts)), maxDistMeters);
 }
 
+#define GEOC_EARTH_RAD detail::wgs84Geodesic().EquatorialRadius()
+
 void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool useGeoLib,bool edgeMode)
 {
     CoordSystem *coordSys = adapter->getCoordSystem();
 
-    const auto geoDist = useGeoLib ? epsilon * detail::wgs84Geodesic().EquatorialRadius() : 0.0;
+    const auto geoDist = useGeoLib ? epsilon * GEOC_EARTH_RAD : 0.0;
 
     for (const auto &shapeRef : shapes)
     {
@@ -1331,9 +1309,12 @@ void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDispl
         if (const auto lin = dynamic_cast<VectorLinear*>(shape))
         {
             VectorRing outPts2D;
-            if (useGeoLib) {
+            if (useGeoLib)
+            {
                 SubdivideGeoLib(lin->pts,outPts2D,geoDist);
-            } else {
+            }
+            else
+            {
                 SubdivideEdgesToSurfaceGCGeo(lin->pts,outPts2D,false,adapter,coordSys,epsilon);
             }
 
@@ -1348,9 +1329,12 @@ void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDispl
             }
         } else if (const auto lin3d = dynamic_cast<VectorLinear3d*>(shape)) {
             VectorRing3d outPts;
-            if (useGeoLib) {
+            if (useGeoLib)
+            {
                 SubdivideGeoLib(lin3d->pts, outPts, geoDist);
-            } else {
+            }
+            else
+            {
                 SubdivideEdgesToSurfaceGCGeo(lin3d->pts, outPts, false, adapter, coordSys, epsilon);
             }
             lin3d->pts = outPts;
@@ -1359,9 +1343,12 @@ void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDispl
             for (unsigned int ii=0;ii<ar->loops.size();ii++)
             {
                 outPts.clear();
-                if (useGeoLib) {
+                if (useGeoLib)
+                {
                     SubdivideGeoLib(ar->loops[ii], outPts, geoDist);
-                } else {
+                }
+                else
+                {
                     SubdivideEdgesToSurfaceGCGeo(ar->loops[ii], outPts, true, adapter, coordSys, epsilon);
                 }
                 ar->loops[ii] = outPts;
@@ -1777,7 +1764,7 @@ VectorObjectRef VectorObject::clipToMbr(const Point2d &ll,const Point2d &ur)
 
     return newVec;
 }
- 
+
 void SampleGreatCircle(const Point2d &startPt,const Point2d &endPt,double height,Point3dVector &pts,
                        const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,double eps)
 {

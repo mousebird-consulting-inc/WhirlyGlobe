@@ -68,7 +68,11 @@ projCtx pj_get_default_ctx()
         default_context.debug_level = PJ_LOG_NONE;
         default_context.logger = pj_stderr_logger;
         default_context.app_data = NULL;
+#if !MAPLY_MINIMAL
         default_context.fileapi = pj_get_default_fileapi();
+#else
+        default_context.fileapi = NULL;
+#endif //!MAPLY_MINIMAL
 
         if( getenv("PROJ_DEBUG") != NULL )
         {

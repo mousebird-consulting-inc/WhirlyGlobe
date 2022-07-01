@@ -16,9 +16,9 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <WhirlyGlobe/WhirlyGlobe.h>
-#import <WhirlyGlobe/GlobePinchDelegate.h>
-#import <WhirlyGlobe/GlobeView_iOS.h>
+#import "WhirlyGlobe.h"
+#import "GlobePinchDelegate.h"
+#import "GlobeView_iOS.h"
 #import "GlobeAnimateHeight.h"
 
 // Sent out when the tilt delegate takes control

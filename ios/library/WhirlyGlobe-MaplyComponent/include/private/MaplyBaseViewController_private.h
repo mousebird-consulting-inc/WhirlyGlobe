@@ -22,20 +22,24 @@
 
 #import "control/MaplyBaseViewController.h"
 #import "MaplyControllerLayer_private.h"
-#import "MaplyComponentObject_private.h"
 #import "WGInteractionLayer_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
-#import "MaplyVectorObject_private.h"
 #import "MaplyShader_private.h"
 #import "MaplyActiveObject_private.h"
 #import "MaplyCoordinateSystem_private.h"
-#import "visual_objects/MaplyCluster.h"
-#import "SMCalloutView.h"
-#import "gestures/Maply3dTouchPreviewDelegate.h"
 #import "MaplyRenderController_private.h"
 #import "ViewPlacementActiveModel.h"
-#import "FontTextureManager_iOS.h"
 #import "ViewWrapper.h"
+#import "SMCalloutView.h"
+
+#if !MAPLY_MINIMAL
+# import "MaplyComponentObject_private.h"
+# import "MaplyVectorObject_private.h"
+# import "visual_objects/MaplyCluster.h"
+# import "gestures/Maply3dTouchPreviewDelegate.h"
+# import "FontTextureManager_iOS.h"
+#endif //!MAPLY_MINIMAL
+
 
 @interface MaplyBaseViewController() <SMCalloutViewDelegate, ViewWrapperDelegateProtocol>
 {
@@ -44,6 +48,7 @@
     
     UIView<WhirlyKitViewWrapper> *wrapView;
         
+#if !MAPLY_MINIMAL
     // List of views we're tracking for location
     NSMutableArray *viewTrackers;
     
@@ -52,7 +57,8 @@
     
     /// View Placement logic used to move annotations around
     WhirlyKit::ViewPlacementActiveModelRef viewPlacementModel;
-                
+#endif //!MAPLY_MINIMAL
+
     /// Set if we're dumping out performance output
     bool _performanceOutput;
     
@@ -65,8 +71,10 @@
     /// 3dtouch preview context, so we can remove it.
     id <UIViewControllerPreviewing> previewingContext;
   
+#if !MAPLY_MINIMAL
     /// Need to keep a ref to this because the system keeps a weak ref
     Maply3dTouchPreviewDelegate *previewTouchDelegate;
+#endif //!MAPLY_MINIMAL
 }
 
 /// This is called by the subclasses.  Don't call it yourself.

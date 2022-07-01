@@ -18,7 +18,7 @@
 
 #import <UIKit/UIKit.h>
 #import "MaplyPanDelegate.h"
-#import <WhirlyGlobe/MapView_iOS.h>
+#import "MapView_iOS.h"
 #import <vector>
 
 // Sent out when the pan delegate takes control

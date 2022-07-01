@@ -33,6 +33,13 @@
 #import <WhirlyGlobe/MaplyActiveObject.h>
 #import <WhirlyGlobe/MaplyControllerLayer.h>
 
+#if defined(__cplusplus)
+namespace WhirlyKit
+{
+    struct ShapeInfo;
+}
+#endif //defined(__cplusplus)
+
 @class MaplyRemoteTileFetcher;
 
 /// Where we'd like an add to be executed.  If you need immediate feedback,
@@ -55,8 +62,17 @@ typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
     MaplyImage4Layer8Bit,
     // Metal only
-    MaplyImageSingleFloat16,MaplyImageSingleFloat32,MaplyImageDoubleFloat16,MaplyImageDoubleFloat32,MaplyImageQuadFloat16,MaplyImageQuadFloat32,
-    MaplyImageInt16,MaplyImageUInt32,MaplyImageDoubleUInt32,MaplyImageQuadUInt32
+    MaplyImageSingleFloat16,
+    MaplyImageSingleFloat32,
+    MaplyImageDoubleFloat16,
+    MaplyImageDoubleFloat32,
+    MaplyImageQuadFloat16,
+    MaplyImageQuadFloat32,
+    MaplyImageInt16,
+    MaplyImageDoubleUInt16,
+    MaplyImageUInt32,
+    MaplyImageDoubleUInt32,
+    MaplyImageQuadUInt32
 };
 
 /// Wrap values for certain types of textures
@@ -496,6 +512,10 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  @return Returns a MaplyComponentObject, which can be used to make modifications or delete the objects created.
  */
 - (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+
+#if defined(__cplusplus)
+- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes info:(WhirlyKit::ShapeInfo &)shapeInfo desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+#endif
 
 /**
  Add one or more MaplySticker objects to the current scene.
@@ -1006,6 +1026,12 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 
 /// Initialize as an offline renderer of a given target size with default renderer (Metal)
 - (instancetype __nullable)initWithSize:(CGSize)size;
+
+/// Initialize as an offline renderer with a map view
+- (instancetype __nullable)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType mapView:(int)mapView;
+
+/// Set center and height.  No bounds checking.
+- (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
 /// If set up in offline mode, this is how we draw
 - (UIImage * __nullable)renderToImage;

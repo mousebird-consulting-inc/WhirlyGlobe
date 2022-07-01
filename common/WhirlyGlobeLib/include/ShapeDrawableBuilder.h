@@ -32,6 +32,7 @@ struct ShapeInfo : public BaseInfo
 {
     ShapeInfo();
     ShapeInfo(const Dictionary &);
+    ShapeInfo(const ShapeInfo &that);
     virtual ~ShapeInfo() = default;
 
     // Convert contents to a string for debugging

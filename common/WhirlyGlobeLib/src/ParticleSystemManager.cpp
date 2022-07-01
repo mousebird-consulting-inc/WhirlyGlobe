@@ -72,7 +72,18 @@ void ParticleSystemSceneRep::clearContents(ChangeSet &changes)
 void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
 {
     for (const ParticleSystemDrawable *it : draws)
-        changes.push_back(new OnOffChangeRequest(it->getId(),enable));
+    {
+        changes.push_back(new OnOffChangeRequest(it->getId(), enable));
+    }
+    
+    for (auto id : basicIDs)
+    {
+        changes.push_back(new OnOffChangeRequest(id, enable));
+    }
+    for (auto id : instIDs)
+    {
+        changes.push_back(new OnOffChangeRequest(id, enable));
+    }
 }
     
 ParticleSystemManager::ParticleSystemManager()
@@ -107,6 +118,8 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         basicBuild->addPoint(Point3f(-0.5,0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(0.0,1.0));
         basicBuild->addTriangle(BasicDrawable::Triangle(0,1,2));
         basicBuild->addTriangle(BasicDrawable::Triangle(0,2,3));
+        basicBuild->setProgram(Program::NoProgramID);       // Don't actually draw this one
+        basicBuild->setCalculationProgram(Program::NoProgramID);
         sceneRep->basicIDs.insert(basicBuild->getDrawableID());
         changes.push_back(new AddDrawableReq(basicBuild->getDrawable()));
         
@@ -151,7 +164,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
                     useRectangles,
                     useInstancing);
         draw->getDrawable()->setOnOff(newSystem.enable);
-        draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
+        //draw->getDrawable()->setPointSize(sceneRep->partSys.pointSize);
         draw->getDrawable()->setProgram(sceneRep->partSys.renderShaderID);
         draw->getDrawable()->setCalculationProgram(sceneRep->partSys.calcShaderID);
         draw->getDrawable()->setDrawOrder(sceneRep->partSys.drawOrder);

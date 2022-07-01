@@ -49,6 +49,7 @@ public:
     int borderSize = 0;
     int width = 0;
     int height = 0;
+    int depth = 8;
     int components = 0;
     int targetWidth = 0;
     int targetHeight = 0;

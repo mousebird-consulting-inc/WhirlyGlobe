@@ -65,17 +65,19 @@ void ComponentManager::setScene(Scene *scene)
 {
     SceneManager::setScene(scene);
 
+    shapeManager      = scene ? scene->getManager<ShapeManager>(kWKShapeManager) : nullptr;
+#if !MAPLY_MINIMAL
     layoutManager     = scene ? scene->getManager<LayoutManager>(kWKLayoutManager) : nullptr;
     markerManager     = scene ? scene->getManager<MarkerManager>(kWKMarkerManager) : nullptr;
     labelManager      = scene ? scene->getManager<LabelManager>(kWKLabelManager) : nullptr;
     vectorManager     = scene ? scene->getManager<VectorManager>(kWKVectorManager) : nullptr;
     wideVectorManager = scene ? scene->getManager<WideVectorManager>(kWKWideVectorManager) : nullptr;
-    shapeManager      = scene ? scene->getManager<ShapeManager>(kWKShapeManager) : nullptr;
     chunkManager      = scene ? scene->getManager<SphericalChunkManager>(kWKSphericalChunkManager) : nullptr;
     loftManager       = scene ? scene->getManager<LoftManager>(kWKLoftedPolyManager) : nullptr;
     billManager       = scene ? scene->getManager<BillboardManager>(kWKBillboardManager) : nullptr;
     geomManager       = scene ? scene->getManager<GeometryManager>(kWKGeometryManager) : nullptr;
     partSysManager    = scene ? scene->getManager<ParticleSystemManager>(kWKParticleSystemManager) : nullptr;
+#endif //!MAPLY_MINIMAL
 }
 
 void ComponentManager::addComponentObject(const ComponentObjectRef &compObj, ChangeSet &changes)
@@ -214,6 +216,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
     for (const ComponentObjectRef &compObj : compRefs)
     {
         // Get rid of the various layer objects
+#if !MAPLY_MINIMAL
         if (!compObj->markerIDs.empty())
             markerManager->removeMarkers(compObj->markerIDs, changes);
         if (!compObj->labelIDs.empty())
@@ -222,8 +225,10 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
             vectorManager->removeVectors(compObj->vectorIDs, changes);
         if (!compObj->wideVectorIDs.empty())
             wideVectorManager->removeVectors(compObj->wideVectorIDs, changes);
+#endif //!MAPLY_MINIMAL
         if (!compObj->shapeIDs.empty())
             shapeManager->removeShapes(compObj->shapeIDs, changes);
+#if !MAPLY_MINIMAL
         if (!compObj->loftIDs.empty())
             loftManager->removeLoftedPolys(compObj->loftIDs, changes);
         if (!compObj->chunkIDs.empty())
@@ -252,6 +257,7 @@ void ComponentManager::removeComponentObjects(PlatformThreadInfo *threadInfo,
         }
         if (!compObj->maskIDs.empty())
             maskIDs.insert(compObj->maskIDs.begin(),compObj->maskIDs.end());
+#endif //!MAPLY_MINIMAL
     }
 
     releaseMaskIDs(maskIDs);
@@ -360,6 +366,7 @@ void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, 
     //       But I'm not sure I want one std::mutex per object
     compObj->enable = enable;
 
+#if !MAPLY_MINIMAL
     if (!compObj->vectorIDs.empty())
         vectorManager->enableVectors(compObj->vectorIDs, enable, changes);
     if (!compObj->wideVectorIDs.empty())
@@ -368,8 +375,10 @@ void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, 
         markerManager->enableMarkers(compObj->markerIDs, enable, changes);
     if (!compObj->labelIDs.empty())
         labelManager->enableLabels(compObj->labelIDs, enable, changes);
+#endif //!MAPLY_MINIMAL
     if (!compObj->shapeIDs.empty())
         shapeManager->enableShapes(compObj->shapeIDs, enable, changes);
+#if !MAPLY_MINIMAL
     if (!compObj->billIDs.empty())
         billManager->enableBillboards(compObj->billIDs, enable, changes);
     if (!compObj->loftIDs.empty())
@@ -390,6 +399,7 @@ void ComponentManager::enableComponentObject(const ComponentObjectRef &compObj, 
             partSysManager->enableParticleSystem(it, enable, changes);
         }
     }
+#endif //!MAPLY_MINIMAL
 
     // Handle the other representations of the same thing?
     if (resolveReps && !compObj->uuid.empty())
@@ -584,6 +594,7 @@ void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataR
         if (shapeManager && !compObj->shapeIDs.empty()) {
             shapeManager->setUniformBlock(compObj->shapeIDs,uniBlock,bufferID,changes);
         }
+#if !MAPLY_MINIMAL
         if (partSysManager && !compObj->partSysIDs.empty()) {
             partSysManager->setUniformBlock(compObj->partSysIDs,uniBlock,bufferID,changes);
         }
@@ -591,6 +602,7 @@ void ComponentManager::setUniformBlock(const SimpleIDSet &compIDs,const RawDataR
             geomManager->setUniformBlock(compObj->geomIDs,uniBlock,bufferID,changes);
         }
         // TODO: Fill this in for the other object types
+#endif //!MAPLY_MINIMAL
     }
 }
 
@@ -637,7 +649,9 @@ void ComponentManager::releaseMaskIDs(const SimpleIDSet &maskIDs)
         }
     }
 }
-    
+
+#if !MAPLY_MINIMAL
+
 std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> ComponentManager::findVectors(
         const Point2d &pt,double maxDist,const ViewStateRef &viewState,
         const Point2f &frameSize,int resultLimit)
@@ -685,5 +699,7 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> ComponentManager::fin
     
     return rets;
 }
+
+#endif //!MAPLY_MINIMAL
 
 }

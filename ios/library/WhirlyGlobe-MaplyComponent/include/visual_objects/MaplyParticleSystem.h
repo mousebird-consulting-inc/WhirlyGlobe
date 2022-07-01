@@ -71,6 +71,7 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
     Individual particle lifetime.
     
     The created particles will last only a certain amount of time.
+    Only for OpenGL ES.
   */
 @property (nonatomic,assign) NSTimeInterval lifetime;
 

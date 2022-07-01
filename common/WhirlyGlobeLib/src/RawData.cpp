@@ -58,6 +58,8 @@ RawDataWrapper::~RawDataWrapper()
     data = nullptr;
 }
 
+#if !MAPLY_MINIMAL
+
 RawDataReader::RawDataReader(const RawData *rawData) :
     rawData(rawData),
     pos(0)
@@ -159,5 +161,7 @@ RawDataWrapper *RawDataFromFile(FILE *fp,unsigned int dataLen)
     
     return new RawDataWrapper(data,dataLen,true);
 }
+
+#endif //!MAPLY_MINIMAL
 
 }

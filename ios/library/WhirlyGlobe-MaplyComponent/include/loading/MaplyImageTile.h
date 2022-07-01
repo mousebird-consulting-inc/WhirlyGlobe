@@ -56,7 +56,7 @@
  
  @param comp The number of components (1, 2 or 4)
  */
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height depth:(int)depth components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
 
 /**
 Initialize with an NSData object containing pixels of a given format.

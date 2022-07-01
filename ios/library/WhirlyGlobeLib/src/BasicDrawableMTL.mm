@@ -423,18 +423,21 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
 // Called before anything starts calculating or drawing to fill in buffers and such
 bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuffer> cmdBuff,id<MTLBlitCommandEncoder> bltEncode,SceneMTL *scene)
 {
-    bool ret = false;
-    
+    if (programId == Program::NoProgramID && calcProgramId == Program::NoProgramID) {
+        return true;
+    }
+
     // Either regular program or calculation program
     ProgramMTL *prog = (ProgramMTL *)scene->getProgram(programId);
     if (!prog) {
         prog = (ProgramMTL *)scene->getProgram(calcProgramId);
         if (!prog) {
-            NSLog(@"Drawable %s missing program.",name.c_str());
+            NSLog(@"Drawable %lld (%s) missing program (%lld/%lld)", getId(), name.c_str(), programId, calcProgramId);
             return false;
         }
     }
 
+    bool ret = false;
     if (texturesChanged || valuesChanged || prog->texturesChanged || prog->valuesChanged) {
         ret = true;
         
@@ -759,18 +762,20 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
 void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
     // Ignore calculation drawables
-    if (calcDataEntries > 0)
+    if (calcDataEntries > 0 || programId == Program::NoProgramID)
+    {
         return;
-    
+    }
+
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programId);
     if (!program) {
-        NSLog(@"BasicDrawableMTL: Missing programId for %s",name.c_str());
+        NSLog(@"BasicDrawableMTL: Missing programId for %lld (%s)", getId(), name.c_str());
         return;
     }
     
     if (!setupForMTL)
     {
-        wkLogLevel(Warn, "Drawable %lld not set up - skipping", getId());
+        wkLogLevel(Warn, "Drawable %lld (%s) not set up - skipping", getId(), name.c_str());
         return;
     }
 

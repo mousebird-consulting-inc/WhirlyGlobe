@@ -165,8 +165,13 @@ struct CoordSystemDisplayAdapter : public DelayedDeletable
     
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
+#if !MAPLY_MINIMAL
     virtual bool isFlat() const = 0;
-    
+#else
+    // Allow the compiler to discard `if(!...->isFlat())` sections
+    bool isFlat() const { return true; }
+#endif //!MAPLY_MINIMAL
+
 protected:
     Point3d center;
     Point3d scale = { 1, 1, 1 };
@@ -212,8 +217,10 @@ struct GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
     
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
+#if !MAPLY_MINIMAL
     virtual bool isFlat() const override { return true; }
-    
+#endif //!MAPLY_MINIMAL
+
 protected:
     Point3d ll,ur;
     Point3d dispLL,dispUR;

@@ -16,31 +16,37 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <WhirlyGlobeMaplyComponent/PublicHeader.h>
 
-#import <WhirlyGlobe/GeographicLib_ObjC.h>
-#import <WhirlyGlobe/GeoJSONSource.h>
-#import <WhirlyGlobe/GlobeDoubleTapDelegate.h>
-#import <WhirlyGlobe/GlobeDoubleTapDragDelegate.h>
-#import <WhirlyGlobe/GlobePanDelegate.h>
-#import <WhirlyGlobe/GlobePinchDelegate.h>
-#import <WhirlyGlobe/GlobeRotateDelegate.h>
-#import <WhirlyGlobe/GlobeTapDelegate.h>
-#import <WhirlyGlobe/GlobeTiltDelegate.h>
-#import <WhirlyGlobe/GlobeTwoFingerTapDelegate.h>
-#import <WhirlyGlobe/MapboxVectorInterpreter.h>
-#import <WhirlyGlobe/MapboxVectorStyleSet.h>
-#import <WhirlyGlobe/MapboxVectorTiles.h>
-#import <WhirlyGlobe/Maply3DTouchPreviewDatasource.h>
-#import <WhirlyGlobe/Maply3dTouchPreviewDelegate.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/GeographicLib_ObjC.h>
+# import <WhirlyGlobe/GeoJSONSource.h>
+# import <WhirlyGlobe/GlobeDoubleTapDelegate.h>
+# import <WhirlyGlobe/GlobeDoubleTapDragDelegate.h>
+# import <WhirlyGlobe/GlobePanDelegate.h>
+# import <WhirlyGlobe/GlobePinchDelegate.h>
+# import <WhirlyGlobe/GlobeRotateDelegate.h>
+# import <WhirlyGlobe/GlobeTapDelegate.h>
+# import <WhirlyGlobe/GlobeTiltDelegate.h>
+# import <WhirlyGlobe/GlobeTwoFingerTapDelegate.h>
+# import <WhirlyGlobe/MapboxVectorInterpreter.h>
+# import <WhirlyGlobe/MapboxVectorStyleSet.h>
+# import <WhirlyGlobe/MapboxVectorTiles.h>
+# import <WhirlyGlobe/Maply3DTouchPreviewDatasource.h>
+# import <WhirlyGlobe/Maply3dTouchPreviewDelegate.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyActiveObject.h>
-#import <WhirlyGlobe/MaplyAnnotation.h>
-#import <WhirlyGlobe/MaplyAtmosphere.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyAnnotation.h>
+# import <WhirlyGlobe/MaplyAtmosphere.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyBaseViewController.h>
-#import <WhirlyGlobe/MaplyBillboard.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyBillboard.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyBridge.h>
-#import <WhirlyGlobe/MaplyBridge.h>
-#import <WhirlyGlobe/MaplyCluster.h>
-#import <WhirlyGlobe/MaplyColorRampGenerator.h>
-#import <WhirlyGlobe/MaplyComponent.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyCluster.h>
+# import <WhirlyGlobe/MaplyColorRampGenerator.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyComponent.h>
 #import <WhirlyGlobe/MaplyComponentObject.h>
 #import <WhirlyGlobe/MaplyControllerLayer.h>
@@ -48,20 +54,30 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 #import <WhirlyGlobe/MaplyCoordinateSystem.h>
 #import <WhirlyGlobe/MaplyDoubleTapDelegate.h>
 #import <WhirlyGlobe/MaplyDoubleTapDragDelegate.h>
-#import <WhirlyGlobe/MaplyGeomBuilder.h>
-#import <WhirlyGlobe/MaplyGeomModel.h>
-#import <WhirlyGlobe/MaplyGlobeRenderController.h>
-#import <WhirlyGlobe/MaplyIconManager.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyGeomBuilder.h>
+# import <WhirlyGlobe/MaplyGeomModel.h>
+# import <WhirlyGlobe/MaplyGlobeRenderController.h>
+# import <WhirlyGlobe/MaplyIconManager.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyImageTile.h>
-#import <WhirlyGlobe/MaplyLabel.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyLabel.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyLight.h>
-#import <WhirlyGlobe/MaplyLocationTracker.h>
-#import <WhirlyGlobe/MaplyMarker.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyLocationTracker.h>
+# import <WhirlyGlobe/MaplyMarker.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyMatrix.h>
 #import <WhirlyGlobe/MaplyMBTileFetcher.h>
-#import <WhirlyGlobe/MaplyMoon.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyMoon.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyPanDelegate.h>
-#import <WhirlyGlobe/MaplyParticleSystem.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyParticleSystem.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyPinchDelegate.h>
 #import <WhirlyGlobe/MaplyPoints.h>
 #import <WhirlyGlobe/MaplyQuadImageFrameLoader.h>
@@ -73,16 +89,20 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 #import <WhirlyGlobe/MaplyRenderController.h>
 #import <WhirlyGlobe/MaplyRenderTarget.h>
 #import <WhirlyGlobe/MaplyRotateDelegate.h>
-#import <WhirlyGlobe/MaplyScreenLabel.h>
-#import <WhirlyGlobe/MaplyScreenMarker.h>
-#import <WhirlyGlobe/MaplyScreenObject.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyScreenLabel.h>
+# import <WhirlyGlobe/MaplyScreenMarker.h>
+# import <WhirlyGlobe/MaplyScreenObject.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyShader.h>
 #import <WhirlyGlobe/MaplyShape.h>
 #import <WhirlyGlobe/MaplySharedAttributes.h>
 #import <WhirlyGlobe/MaplySimpleTileFetcher.h>
-#import <WhirlyGlobe/MaplyStarsModel.h>
-#import <WhirlyGlobe/MaplySticker.h>
-#import <WhirlyGlobe/MaplySun.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyStarsModel.h>
+# import <WhirlyGlobe/MaplySticker.h>
+# import <WhirlyGlobe/MaplySun.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyTapDelegate.h>
 #import <WhirlyGlobe/MaplyTapMessage.h>
 #import <WhirlyGlobe/MaplyTexture.h>
@@ -92,30 +112,40 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 #import <WhirlyGlobe/MaplyTwoFingerTapDelegate.h>
 #import <WhirlyGlobe/MaplyUpdateLayer.h>
 #import <WhirlyGlobe/MaplyVariableTarget.h>
-#import <WhirlyGlobe/MaplyVectorObject.h>
-#import <WhirlyGlobe/MaplyVectorStyle.h>
-#import <WhirlyGlobe/MaplyVectorStyleSimple.h>
-#import <WhirlyGlobe/MaplyVectorTileLineStyle.h>
-#import <WhirlyGlobe/MaplyVectorTileMarkerStyle.h>
-#import <WhirlyGlobe/MaplyVectorTilePolygonStyle.h>
-#import <WhirlyGlobe/MaplyVectorTileStyle.h>
-#import <WhirlyGlobe/MaplyVectorTileTextStyle.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyVectorObject.h>
+# import <WhirlyGlobe/MaplyVectorStyle.h>
+# import <WhirlyGlobe/MaplyVectorStyleSimple.h>
+# import <WhirlyGlobe/MaplyVectorTileLineStyle.h>
+# import <WhirlyGlobe/MaplyVectorTileMarkerStyle.h>
+# import <WhirlyGlobe/MaplyVectorTilePolygonStyle.h>
+# import <WhirlyGlobe/MaplyVectorTileStyle.h>
+# import <WhirlyGlobe/MaplyVectorTileTextStyle.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyVertexAttribute.h>
 #import <WhirlyGlobe/MaplyViewController.h>
 #import <WhirlyGlobe/MaplyViewTracker.h>
-#import <WhirlyGlobe/MaplyWMSTileSource.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MaplyWMSTileSource.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyZoomGestureDelegate.h>
-#import <WhirlyGlobe/MapnikStyle.h>
-#import <WhirlyGlobe/MapnikStyleRule.h>
-#import <WhirlyGlobe/MapnikStyleSet.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/MapnikStyle.h>
+# import <WhirlyGlobe/MapnikStyleRule.h>
+# import <WhirlyGlobe/MapnikStyleSet.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/NSData+Zlib.h>
 #import <WhirlyGlobe/NSDictionary+StyleRules.h>
-#import <WhirlyGlobe/SLDExpressions.h>
-#import <WhirlyGlobe/SLDOperators.h>
-#import <WhirlyGlobe/SLDStyleSet.h>
-#import <WhirlyGlobe/SLDSymbolizers.h>
-#import <WhirlyGlobe/SLDWellKnownMarkers.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/SLDExpressions.h>
+# import <WhirlyGlobe/SLDOperators.h>
+# import <WhirlyGlobe/SLDStyleSet.h>
+# import <WhirlyGlobe/SLDSymbolizers.h>
+# import <WhirlyGlobe/SLDWellKnownMarkers.h>
+#endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/WGCoordinate.h>
-#import <WhirlyGlobe/WhirlyGlobeComponent.h>
-#import <WhirlyGlobe/WhirlyGlobeComponent.h>
-#import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#if !MAPLY_MINIMAL
+# import <WhirlyGlobe/WhirlyGlobeComponent.h>
+# import <WhirlyGlobe/WhirlyGlobeComponent.h>
+# import <WhirlyGlobe/WhirlyGlobeViewController.h>
+#endif //!MAPLY_MINIMAL

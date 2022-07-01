@@ -344,11 +344,15 @@ public:
 
     /// Loading mode we're currently supporting
     Mode getMode() const { return mode; }
-    
+
     /// If set, we'll see way too much output
     void setDebugMode(bool newMode);
     bool getDebugMode() const { return debugMode; }
-    
+
+    void setLabel(const char* lbl) { label.clear(); if (lbl) label = lbl; }
+    void setLabel(std::string s) { label = std::move(s); }
+    const std::string &getLabel() const { return label; }
+
     /// Turn the display on or off.  Loading continues normally
     void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
     
@@ -580,6 +584,7 @@ protected:
     
     bool masterEnable = true;
     bool debugMode = false;
+    std::string label;
     
     SamplingParams params;
     int minZoom;

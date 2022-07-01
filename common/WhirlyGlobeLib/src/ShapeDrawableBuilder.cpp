@@ -54,6 +54,16 @@ ShapeInfo::ShapeInfo(const Dictionary &dict)
     }
 }
 
+ShapeInfo::ShapeInfo(const ShapeInfo &info) :
+    BaseInfo(info),
+    color(info.color),
+    lineWidth(info.lineWidth),
+    insideOut(info.insideOut),
+    hasCenter(info.hasCenter),
+    center(info.center)
+{
+}
+
 ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, SceneRenderer *sceneRender, const ShapeInfo &shapeInfo, bool linesOrPoints, const Point3d &center)
     : coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo), drawable(NULL), center(center)
 {
@@ -380,6 +390,8 @@ void ShapeDrawableBuilderTri::addConvexOutline(Point3dVector &pts,std::vector<Te
         addTriangle(pts[0], norm, color, texCoords[0], pts[ii-1], norm, color, texCoords[ii-1], pts[ii], norm, color, texCoords[ii], shapeMbr);
 }
 
+#if !MAPLY_MINIMAL
+
 void ShapeDrawableBuilderTri::addComplexOutline(Point3dVector &pts,Point3d norm,RGBAColor color,Mbr shapeMbr)
 {
     Point3f norm3f(norm.x(),norm.y(),norm.z());
@@ -405,6 +417,8 @@ void ShapeDrawableBuilderTri::addComplexOutline(Point3dVector &pts,Point3d norm,
         addTriangle(thePts[0], norm3f, color, thePts[1], norm3f, color, thePts[2], norm3f, color, shapeMbr);
     }
 }
+
+#endif //!MAPLY_MINIMAL
 
 void ShapeDrawableBuilderTri::flush()
 {

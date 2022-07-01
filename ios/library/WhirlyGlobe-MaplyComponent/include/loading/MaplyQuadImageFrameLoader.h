@@ -93,7 +93,7 @@ typedef NS_ENUM(NSInteger, MaplyLoadFrameMode) {
  @param tileInfos A list of tile info objects to fetch for each frame.
  @param viewC the View controller (or renderer) to add objects to.
  */
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(MaplyBaseViewController * __nonnull)viewC;
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)params tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)tileInfos viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)viewC;
 
 /// How frames are loaded (top down vs broad)
 @property (nonatomic,assign) MaplyLoadFrameMode loadFrameMode;

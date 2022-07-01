@@ -17,13 +17,17 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <set>
-#import <WhirlyGlobe_iOS.h>
-#import "MaplyComponentObject_private.h"
 #import "ImageTexture_private.h"
 #import "control/MaplyBaseViewController.h"
 #import "MaplyTextureAtlas_private.h"
 #import "ComponentManager_iOS.h"
+
+#if !MAPLY_MINIMAL
+#import "WhirlyGlobe_iOS.h"
+#import "MaplyComponentObject_private.h"
+#endif //!MAPLY_MINIMAL
+
+#import <set>
 
 @interface MaplyBaseInteractionLayer : NSObject<WhirlyKitLayer>
 {
@@ -104,6 +108,11 @@
 
 // Add shapes
 - (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
+
+- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes
+                                         info:(WhirlyKit::ShapeInfo&)shapeInfo
+                                         desc:(NSDictionary *__nullable)inDesc
+                                         mode:(MaplyThreadMode)threadMode;
 
 // Add model instances
 - (MaplyComponentObject *__nullable)addModelInstances:(NSArray *__nonnull)modelInstances desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode;
@@ -216,6 +225,11 @@
 // Find the Maply object corresponding to the given ID (from the selection manager).
 // Thread-safe
 - (NSObject *__nullable)getSelectableObject:(WhirlyKit::SimpleIdentity)objId;
+
+// Look up a shader program by name
+- (WhirlyKit::SimpleIdentity) getProgramID:(NSString *_Nonnull)name;
+
+- (MaplyShader *__nullable)getProgramByName:(const NSString *__nonnull)name;
 
 // Called right before asking us to do some work
 - (bool)startOfWork;

@@ -35,6 +35,8 @@ using namespace WhirlyKit;
 
 @end
 
+#if !MAPLY_MINIMAL
+
 @implementation MaplyShapeCircle
 
 - (Shape *)asWKShape:(NSDictionary *)desc
@@ -141,6 +143,8 @@ using namespace WhirlyKit;
 
 @end
 
+#endif //!MAPLY_MINIMAL
+
 @implementation MaplyShapeRectangle
 
 - (instancetype)init
@@ -169,6 +173,8 @@ using namespace WhirlyKit;
 }
 
 @end
+
+#if !MAPLY_MINIMAL
 
 @implementation MaplyShapeLinear
 {
@@ -306,3 +312,4 @@ using namespace WhirlyKit;
 
 @end
 
+#endif //!MAPLY_MINIMAL

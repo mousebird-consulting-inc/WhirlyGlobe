@@ -18,7 +18,7 @@
 #import <Foundation/Foundation.h>
 #import "MaplyView.h"
 #import "SceneRenderer.h"
-#import <WhirlyGlobe/MapView_iOS.h>
+#import "MapView_iOS.h"
 
 #define kZoomGestureDelegateDidStart @"WKZoomDelegateStarted"
 // Sent out when the pan delegate finished (but hands off to momentum)

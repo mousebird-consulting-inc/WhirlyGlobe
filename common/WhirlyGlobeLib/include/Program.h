@@ -69,6 +69,8 @@ public:
 
     // Current reduce mode (or off)
     virtual ReduceMode getReduceMode() const;
+
+    static SimpleIdentity NoProgramID;
     
 public:
     bool texturesChanged = true;

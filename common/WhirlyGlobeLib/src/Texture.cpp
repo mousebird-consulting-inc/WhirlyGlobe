@@ -239,16 +239,18 @@ Texture::Texture(RawDataRef texData, TextureType inFormat, int inWidth, int inHe
 {
 }
 
-void Texture::setRawData(RawDataRef rawData, int inWidth, int inHeight)
+void Texture::setRawData(RawDataRef rawData, int inWidth, int inHeight, int depth, int channels)
 {
     texData = std::move(rawData);
     width = inWidth;
     height = inHeight;
+    rawDepth = depth;
+    rawChannels = channels;
 }
 
-void Texture::setRawData(RawData *rawData, int inWidth, int inHeight)
+void Texture::setRawData(RawData *rawData, int inWidth, int inHeight, int depth, int channels)
 {
-    setRawData(RawDataRef(rawData), inWidth, inHeight);
+    setRawData(RawDataRef(rawData), inWidth, inHeight, depth, channels);
 }
 
 RawDataRef Texture::processData()

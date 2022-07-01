@@ -260,6 +260,7 @@ int pj_transform( PJ *srcdefn, PJ *dstdefn, long point_count, int point_offset,
 /*      Do we need to translate from geoid to ellipsoidal vertical      */
 /*      datum?                                                          */
 /* -------------------------------------------------------------------- */
+#if !MAPLY_MINIMAL
     if( srcdefn->has_geoid_vgrids && z != NULL )
     {
         if( pj_apply_vgridshift( srcdefn, "sgeoidgrids", 
@@ -268,7 +269,8 @@ int pj_transform( PJ *srcdefn, PJ *dstdefn, long point_count, int point_offset,
                                  0, point_count, point_offset, x, y, z ) != 0 )
             return pj_ctx_get_errno(srcdefn->ctx);
     }
-        
+#endif //!MAPLY_MINIMAL
+
 /* -------------------------------------------------------------------- */
 /*      Convert datums if needed, and possible.                         */
 /* -------------------------------------------------------------------- */
@@ -285,6 +287,7 @@ int pj_transform( PJ *srcdefn, PJ *dstdefn, long point_count, int point_offset,
 /*      Do we need to translate from geoid to ellipsoidal vertical      */
 /*      datum?                                                          */
 /* -------------------------------------------------------------------- */
+#if !MAPLY_MINIMAL
     if( dstdefn->has_geoid_vgrids && z != NULL )
     {
         if( pj_apply_vgridshift( dstdefn, "sgeoidgrids", 
@@ -293,7 +296,8 @@ int pj_transform( PJ *srcdefn, PJ *dstdefn, long point_count, int point_offset,
                                  1, point_count, point_offset, x, y, z ) != 0 )
             return dstdefn->ctx->last_errno;
     }
-        
+#endif //!MAPLY_MINIMAL
+
 /* -------------------------------------------------------------------- */
 /*      But if they are staying lat long, adjust for the prime          */
 /*      meridian if there is one in effect.                             */
@@ -735,6 +739,7 @@ int pj_datum_transform( PJ *srcdefn, PJ *dstdefn,
 /*	If this datum requires grid shifts, then apply it to geodetic   */
 /*      coordinates.                                                    */
 /* -------------------------------------------------------------------- */
+#if !MAPLY_MINIMAL
     if( srcdefn->datum_type == PJD_GRIDSHIFT )
     {
         pj_apply_gridshift_2( srcdefn, 0, point_count, point_offset, x, y, z );
@@ -749,6 +754,7 @@ int pj_datum_transform( PJ *srcdefn, PJ *dstdefn,
         dst_a = SRS_WGS84_SEMIMAJOR;
         dst_es = SRS_WGS84_ESQUARED;
     }
+#endif //!MAPLY_MINIMAL
 
 /* ==================================================================== */
 /*      Do we need to go through geocentric coordinates?                */
@@ -796,11 +802,13 @@ int pj_datum_transform( PJ *srcdefn, PJ *dstdefn,
 /* -------------------------------------------------------------------- */
 /*      Apply grid shift to destination if required.                    */
 /* -------------------------------------------------------------------- */
+#if !MAPLY_MINIMAL
     if( dstdefn->datum_type == PJD_GRIDSHIFT )
     {
         pj_apply_gridshift_2( dstdefn, 1, point_count, point_offset, x, y, z );
         CHECK_RETURN(dstdefn);
     }
+#endif //!MAPLY_MINIMAL
 
     if( z_is_temp )
         pj_dalloc( z );

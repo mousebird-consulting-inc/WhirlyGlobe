@@ -27,10 +27,14 @@ namespace WhirlyKit
  Pulls the raw data out of a PNG image.
  Returns NULL on failure, check the err value.
  */
-extern unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width,unsigned int &height,
-                                                   const unsigned char *data,size_t length,
-                                                   const std::vector<int> &valueMap,
-                                                   int &byteWidth,
-                                                   unsigned int &err);
+extern unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width,
+                                                   unsigned int &height,
+                                                   const unsigned char *data,
+                                                   size_t length,
+                                                   const int valueMap[256],
+                                                   unsigned *outDepth,
+                                                   unsigned *outComponents,
+                                                   unsigned int *outErr,
+                                                   std::string *outErrStr);
 
 }

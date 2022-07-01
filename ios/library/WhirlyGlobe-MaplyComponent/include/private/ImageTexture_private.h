@@ -1,5 +1,4 @@
-/*
- *  ImageTexture_private.h
+/*  ImageTexture_private.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 9/19/12.
@@ -15,10 +14,8 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
-#import <WhirlyGlobe_iOS.h>
 #import "MaplyTexture_private.h"
 
 // Used to map UIImages to Texture IDs

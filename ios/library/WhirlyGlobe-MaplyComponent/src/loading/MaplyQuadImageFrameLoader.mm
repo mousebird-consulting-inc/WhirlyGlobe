@@ -123,7 +123,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     bool started;
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(MaplyBaseViewController * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC
 {
     if (!inParams.singleLevel) {
         NSLog(@"MaplyQuadImageFrameLoader only supports samplers with singleLevel set to true");

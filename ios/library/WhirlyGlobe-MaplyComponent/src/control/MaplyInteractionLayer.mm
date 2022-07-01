@@ -69,6 +69,7 @@ using namespace WhirlyGlobe;
 // Runs in the layer thread
 - (void)userDidTapLayerThread:(MaplyTapMessage *)msg
 {
+#if !MAPLY_MINIMAL
     // First, we'll look for labels and markers
     NSMutableArray *retSelectArr = [self selectMultipleLabelsAndMarkersForScreenPoint:msg.touchLoc];
     
@@ -82,6 +83,7 @@ using namespace WhirlyGlobe;
                        [self->_viewController handleSelection:msg didSelect:retSelectArr];
                    }
                    );
+#endif //!MAPLY_MINIMAL
 }
 
 // Check for a selection
@@ -91,6 +93,7 @@ using namespace WhirlyGlobe;
     [self performSelector:@selector(userDidTapLayerThread:) onThread:layerThread withObject:msg waitUntilDone:NO];
 }
 
+#if !MAPLY_MINIMAL
 - (NSMutableArray*)selectMultipleLabelsAndMarkersForScreenPoint:(CGPoint)screenPoint
 {
     SelectionManagerRef selectManager = std::dynamic_pointer_cast<SelectionManager>(scene->getManager(kWKSelectionManager));
@@ -99,5 +102,6 @@ using namespace WhirlyGlobe;
 
     return [self convertSelectedObjects:selectedObjs];
 }
+#endif //!MAPLY_MINIMAL
 
 @end

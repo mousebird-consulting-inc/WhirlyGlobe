@@ -26,8 +26,11 @@
 namespace WhirlyKit
 {
     
-ProgramMTL::ProgramMTL(const std::string &inName,id<MTLFunction> vertFunc,id<MTLFunction> fragFunc)
-    : vertFunc(vertFunc), fragFunc(fragFunc), lightsLastUpdated(0.0), valid(true)
+ProgramMTL::ProgramMTL(const std::string &inName,id<MTLFunction> vertFunc,id<MTLFunction> fragFunc) :
+    vertFunc(vertFunc),
+    fragFunc(fragFunc),
+    lightsLastUpdated(0.0),
+    valid(vertFunc)     // fragment program is not mandatory (for calc shaders)
 {
     name = inName;
 }

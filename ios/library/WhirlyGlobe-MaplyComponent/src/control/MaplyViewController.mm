@@ -307,6 +307,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 
 - (void) loadSetup_lighting
 {
+#if !MAPLY_MINIMAL
     NSString *lightingType = renderControl->hints[kWGRendererLightingMode];
     int lightingRegular = true;
     if ([lightingType respondsToSelector:@selector(compare:)])
@@ -331,6 +332,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         light.viewDependent = false;
         [self addLight:light];
     }
+#endif //!MAPLY_MINIMAL
 }
 
 - (ViewRef) loadSetup_view
@@ -1447,6 +1449,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     return maxHeight;
 }
 
+#if !MAPLY_MINIMAL
 // Called back on the main thread after the interaction thread does the selection
 - (void)handleSelection:(MaplyTapMessage *)msg didSelect:(NSArray *)selectedObjs
 {
@@ -1501,6 +1504,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
             [self animateToPosition:coord time:1.0];
     }
 }
+#endif //!MAPLY_MINIMAL
 
 
 - (void)tapOnMap:(NSNotification *)note

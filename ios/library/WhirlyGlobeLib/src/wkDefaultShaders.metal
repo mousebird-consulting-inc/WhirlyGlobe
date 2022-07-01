@@ -1,5 +1,4 @@
-/*
- *  wkDefaultShaders.metal
+/*  wkDefaultShaders.metal
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #include <metal_stdlib>
@@ -23,6 +21,22 @@
 
 using namespace metal;
 using namespace WhirlyKitShader;
+
+struct VertexArgBufferA {
+    UniformDrawStateA uniDrawState  [[ id(WKSUniformDrawStateEntry) ]];
+};
+struct VertexTriArgBufferB {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    bool hasTextures;
+    bool hasLighting;
+};
+struct VertexTriArgBufferC {
+    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
+    UniformDrawStateExp drawStateExp    [[ id(WKSUniformVecEntryExp) ]];
+    bool hasTextures;
+    bool hasLighting;
+};
+
 
 // Calculate fade based on time
 // (or) based on height.
@@ -74,6 +88,8 @@ float calculateFade(constant Uniforms &uni,
 
     return fade;
 }
+
+#if !MAPLY_MINIMAL
 
 // Get zoom from appropriate slot
 float ZoomFromSlot(constant Uniforms &uniforms,int zoomSlot)
@@ -177,11 +193,6 @@ float4 ExpCalculateColor(constant ColorExp &floatExp,float zoom,float4 defaultVa
     return floatExp.stopOutputs[stopB];
 }
 
-
-struct VertexArgBufferA {
-    UniformDrawStateA uniDrawState  [[ id(WKSUniformDrawStateEntry) ]];
-};
-
 // Vertex shader for simple line on the globe
 vertex ProjVertexA vertexLineOnly_globe(
     VertexA vert [[stage_in]],
@@ -267,6 +278,8 @@ fragment float4 fragmentLineOnly_flat(
     return vert.color;
 }
 
+#endif //!MAPLY_MINIMAL
+
 // True if the given texture entry is there
 bool TextureIsPresent(int bits,int which)
 {
@@ -301,6 +314,7 @@ float4 resolveLighting(float3 pos,
                       constant Lighting &lighting,
                       float4x4 mvpMatrix)
 {
+#if !MAPLY_MINIMAL
     float4 ambient(0.0,0.0,0.0,0.0);
     float4 diffuse(0.0,0.0,0.0,0.0);
     
@@ -316,6 +330,19 @@ float4 resolveLighting(float3 pos,
     }
     
     return float4(ambient.xyz * lighting.mat.ambient.xyz * color.xyz + diffuse.xyz * color.xyz,color.a);
+#else
+    return color;
+#endif //!MAPLY_MINIMAL
+}
+
+float4 basicPos(const float3 position,
+                const constant Uniforms &uniforms,
+                const constant UniformDrawStateA &uniDrawState)
+{
+    const float3 vertPos = (uniDrawState.singleMat * float4(position,1.0)).xyz;
+    return uniDrawState.clipCoords ? float4(vertPos,1.0) :
+        uniforms.pMatrix * (uniforms.mvMatrix * float4(position,1.0) +
+                            uniforms.mvMatrixDiff * float4(position,1.0));
 }
 
 // Simple vertex shader for triangle with no lighting
@@ -328,15 +355,7 @@ vertex ProjVertexTriA vertexTri_noLight(
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
 
-    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    
-    if (vertArgs.uniDrawState.clipCoords)
-        outVert.position = float4(vertPos,1.0);
-    else {
-        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
-        outVert.position = pt;
-    }
-
+    outVert.position = basicPos(vert.position, uniforms, vertArgs.uniDrawState);
     outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
     if (TexturesBase(texArgs.texPresent) > 0)
@@ -344,6 +363,8 @@ vertex ProjVertexTriA vertexTri_noLight(
     
     return outVert;
 }
+
+#if !MAPLY_MINIMAL
 
 // Simple vertex shader for triangle with no lighting that handles expressions
 vertex ProjVertexTriA vertexTri_noLightExp(
@@ -381,12 +402,7 @@ vertex ProjVertexTriA vertexTri_noLightExp(
     return outVert;
 }
 
-
-struct VertexTriArgBufferB {
-    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
-    bool hasTextures;
-    bool hasLighting;
-};
+#endif //!MAPLY_MINIMAL
 
 // Simple vertex shader for triangle with basic lighting
 vertex ProjVertexTriA vertexTri_light(
@@ -399,15 +415,7 @@ vertex ProjVertexTriA vertexTri_light(
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
     
-    float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    if (vertArgs.uniDrawState.clipCoords)
-        outVert.position = float4(vertPos,1.0);
-    else {
-        float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
-                                        uniforms.mvMatrixDiff * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0));
-        outVert.position = pt;
-    }
-    
+    outVert.position = basicPos(vert.position, uniforms, vertArgs.uniDrawState);
     outVert.color = resolveLighting(vert.position,
                                     vert.normal,
                                     vert.color,
@@ -420,12 +428,7 @@ vertex ProjVertexTriA vertexTri_light(
     return outVert;
 }
 
-struct VertexTriArgBufferC {
-    UniformDrawStateA uniDrawState      [[ id(WKSUniformDrawStateEntry) ]];
-    UniformDrawStateExp drawStateExp    [[ id(WKSUniformVecEntryExp) ]];
-    bool hasTextures;
-    bool hasLighting;
-};
+#if !MAPLY_MINIMAL
 
 // Simple vertex shader for triangle with basic lighting and handles expressions
 vertex ProjVertexTriA vertexTri_lightExp(
@@ -468,6 +471,7 @@ vertex ProjVertexTriA vertexTri_lightExp(
     return outVert;
 }
 
+#endif //!MAPLY_MINIMAL
 
 // Simple fragment shader for lines on flat map
 fragment float4 fragmentTri_basic(
@@ -484,6 +488,7 @@ fragment float4 fragmentTri_basic(
     return vert.color;
 }
 
+#if !MAPLY_MINIMAL
 // Fragment shader that pulls the mask ID out only
 fragment unsigned int fragmentTri_mask(ProjVertexTriA vert [[stage_in]],
                               constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
@@ -492,6 +497,7 @@ fragment unsigned int fragmentTri_mask(ProjVertexTriA vert [[stage_in]],
 {
     return vert.maskIDs[0];
 }
+#endif //!MAPLY_MINIMAL
 
 // Vertex shader that handles up to two textures
 vertex ProjVertexTriB vertexTri_multiTex(
@@ -558,6 +564,7 @@ fragment float4 fragmentTri_multiTex(
     }
 }
 
+#if !MAPLY_MINIMAL
 vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
                 VertexTriB vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
@@ -1776,3 +1783,5 @@ fragment float4 fragmentStars(ProjVertexTriB vert [[stage_in]],
         return vert.color;
     }
 }
+
+#endif //!MAPLY_MINIMAL

@@ -38,11 +38,18 @@
 - (void)setBounds:(MaplyBoundingBox)bounds;
 
 /**
-    Set the bounding box in the local coordinate system.
+    Set the bounding box in the local coordinate system, but convert to geographic first.
  
     This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
  */
 - (void)setBoundsD:(MaplyBoundingBoxD)boundsD;
+
+/**
+    Set the bounding box in the local coordinate system without going through geographic.
+ 
+    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+ */
+- (void)setBoundsDLocal:(MaplyBoundingBoxD)boundsD;
 
 /** 
     Set the bounding box in the local coordinate system.

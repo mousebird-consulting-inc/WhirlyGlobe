@@ -7,7 +7,9 @@
 #define PJ_LIB__
 #include	<projects.h>
 PROJ_HEAD(stere, "Stereographic") "\n\tAzi, Sph&Ell\n\tlat_ts=";
+#if !MAPLY_MINIMAL
 PROJ_HEAD(ups, "Universal Polar Stereographic") "\n\tAzi, Sph&Ell\n\tsouth";
+#endif //!MAPLY_MINIMAL
 #define sinph0	P->sinX1
 #define cosph0	P->cosX1
 #define EPS10	1.e-10
@@ -227,6 +229,7 @@ ENTRY0(stere)
 	P->phits = pj_param(P->ctx, P->params, "tlat_ts").i ?
             pj_param(P->ctx, P->params, "rlat_ts").f : HALFPI;
 ENDENTRY(setup(P))
+#if !MAPLY_MINIMAL
 ENTRY0(ups)
 	/* International Ellipsoid */
 	P->phi0 = pj_param(P->ctx, P->params, "bsouth").i ? - HALFPI: HALFPI;
@@ -237,3 +240,4 @@ ENTRY0(ups)
 	P->phits = HALFPI;
 	P->lam0 = 0.;
 ENDENTRY(setup(P))
+#endif //!MAPLY_MINIMAL

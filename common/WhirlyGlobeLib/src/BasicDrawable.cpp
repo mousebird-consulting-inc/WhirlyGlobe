@@ -600,10 +600,12 @@ void OnOffChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,DrawableR
     {
         basicDrawInst->setEnable(newOnOff);
     }
+#if !MAPLY_MINIMAL
     else if (auto partSys = dynamic_cast<ParticleSystemDrawable*>(draw.get()))
     {
         partSys->setOnOff(newOnOff);
     }
+#endif //!MAPLY_MINIMAL
 }
 
 VisibilityChangeRequest::VisibilityChangeRequest(SimpleIdentity drawId,float minVis,float maxVis)
@@ -809,11 +811,13 @@ void RenderTargetChangeRequest::execute2(Scene *scene,SceneRenderer *renderer,Dr
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setRenderTarget(targetID);
+#if !MAPLY_MINIMAL
         else {
             ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
             if (partDrawable)
                 partDrawable->setRenderTarget(targetID);
         }
+#endif //!MAPLY_MINIMAL
     }
     
     renderer->addDrawable(draw);
@@ -835,11 +839,13 @@ void UniformBlockSetRequest::execute2(Scene *scene,SceneRenderer *renderer,Drawa
         BasicDrawableInstanceRef basicDrawInst = std::dynamic_pointer_cast<BasicDrawableInstance>(draw);
         if (basicDrawInst)
             basicDrawInst->setUniBlock(uniBlock);
+#if !MAPLY_MINIMAL
         else {
             ParticleSystemDrawableRef partDrawable = std::dynamic_pointer_cast<ParticleSystemDrawable>(draw);
             if (partDrawable)
                 partDrawable->setUniBlock(uniBlock);
         }
+#endif //!MAPLY_MINIMAL
     }
 }
 

@@ -42,6 +42,8 @@ typedef struct {
     int at_eof;
 } pj_read_state;
 
+#if !MAPLY_MINIMAL
+
 /************************************************************************/
 /*                            fill_buffer()                             */
 /************************************************************************/
@@ -212,6 +214,7 @@ get_opt(projCtx ctx, paralist **start, PAFile fid, char *name, paralist *next,
 
     return next;
 }
+#endif //!MAPLY_MINIMAL
 
 /************************************************************************/
 /*                            get_defaults()                            */
@@ -220,6 +223,7 @@ static paralist *
 get_defaults(projCtx ctx, paralist **start, paralist *next, char *name) {
     PAFile fid;
 
+#if !MAPLY_MINIMAL
     if ( (fid = pj_open_lib(ctx,"proj_def.dat", "rt")) != NULL) {
         next = get_opt(ctx, start, fid, "general", next, NULL);
         pj_ctx_fseek(ctx, fid, 0, SEEK_SET);
@@ -228,10 +232,13 @@ get_defaults(projCtx ctx, paralist **start, paralist *next, char *name) {
     }
     if (errno)
         errno = 0; /* don't care if can't open file */
+#endif //!MAPLY_MINIMAL
     ctx->last_errno = 0;
     
     return next;
 }
+
+#if !MAPLY_MINIMAL
 
 /************************************************************************/
 /*                              get_init()                              */
@@ -284,6 +291,7 @@ get_init(projCtx ctx, paralist **start, paralist *next, char *name,
 
     return next;
 }
+#endif //!MAPLY_MINIMAL
 
 /************************************************************************/
 /*                            pj_init_plus()                            */
@@ -402,6 +410,7 @@ pj_init_ctx(projCtx ctx, int argc, char **argv) {
     if (ctx->last_errno) goto bum_call;
 
     /* check if +init present */
+#if !MAPLY_MINIMAL
     if (pj_param(ctx, start, "tinit").i) {
         int found_def = 0;
 
@@ -411,6 +420,7 @@ pj_init_ctx(projCtx ctx, int argc, char **argv) {
             goto bum_call;
         if (!found_def) { pj_ctx_set_errno( ctx, -2); goto bum_call; }
     }
+#endif //!MAPLY_MINIMAL
 
     /* find projection selection */
     if (!(name = pj_param(ctx, start, "sproj").s))

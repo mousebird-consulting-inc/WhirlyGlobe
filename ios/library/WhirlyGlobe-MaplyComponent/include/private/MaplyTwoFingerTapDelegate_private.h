@@ -15,8 +15,8 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobe/MaplyTwoFingerTapDelegate.h>
-#import <WhirlyGlobe/MapView_iOS.h>
+#import "MaplyTwoFingerTapDelegate.h"
+#import "MapView_iOS.h"
 
 @interface MaplyTwoFingerTapDelegate ()
 

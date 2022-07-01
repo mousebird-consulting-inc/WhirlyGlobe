@@ -211,6 +211,7 @@ public:
     dispatch_queue_t releaseQueue;
 
     id<MTLCommandQueue> cmdQueue;
+    id<MTLCaptureScope> cmdCaptureScope;
 
     // This keeps us from stomping on the previous frame's uniforms
     int lastRenderNo;

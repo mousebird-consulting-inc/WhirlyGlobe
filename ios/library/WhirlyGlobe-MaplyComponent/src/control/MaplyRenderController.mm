@@ -31,6 +31,7 @@
 #import "MaplyActiveObject_private.h"
 #import "MaplyRenderTarget_private.h"
 #import "WorkRegion_private.h"
+#import "MaplyBaseInteractionLayer_private.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -41,6 +42,7 @@ using namespace Eigen;
     // This view is used when we're not provided with a real view
     PassThroughCoordSystemRef coordSys;
     GeneralCoordSystemDisplayAdapterRef genCoordAdapter;
+    CoordSystemDisplayAdapterRef coordAdapterRef;
     Maply::FlatViewRef flatView;
 
     bool offlineMode;
@@ -77,13 +79,13 @@ using namespace Eigen;
     // If the coordinate system hasn't been set up, we'll do a flat one
     if (!coordAdapter) {
         // Coordinate system and view that just pass coordinates through
-        coordSys = PassThroughCoordSystemRef(new PassThroughCoordSystem());
+        coordSys = std::make_shared<PassThroughCoordSystem>();
         Point3d ll(0.0,0.0,0.0),ur(size.width,size.height,0.0);
         Point3d scale(1.0,1.0,1.0);
         Point3d center = (ll+ur)/2.0;
-        genCoordAdapter = GeneralCoordSystemDisplayAdapterRef(new GeneralCoordSystemDisplayAdapter(coordSys.get(),ll,ur,center,scale));
+        genCoordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(coordSys.get(),ll,ur,center,scale);
         coordAdapter = genCoordAdapter.get();
-        flatView = Maply::FlatViewRef(new Maply::FlatView(coordAdapter));
+        flatView = std::make_shared<Maply::FlatView>(coordAdapter);
         visualView = flatView;
         Mbr extents;
         extents.addPoint(Point2f(ll.x(),ll.y()));
@@ -91,12 +93,40 @@ using namespace Eigen;
         flatView->setExtents(extents);
         flatView->setWindow(Point2d(size.width,size.height),Point2d(0.0,0.0));
     }
-    
+
     [self loadSetup];
-    
+
     [self loadSetup_scene:[[MaplyBaseInteractionLayer alloc] initWithView:visualView]];
-    [self setupShaders];
-        
+
+    return self;
+}
+
+- (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType mapView:(int)_
+{
+    const auto originLon = 0.0;
+    const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
+    const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
+    coordAdapterRef = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
+    coordAdapter = coordAdapterRef.get();
+    auto mapView = std::make_shared<Maply::MapView>(coordAdapter);
+    visualView = mapView;
+    mapView->setContinuousZoom(true);
+    //mapView->setWrap(_viewWrap);
+    //mapView->addWatcher(&animWrapper);
+
+    if (!(self = [self initWithSize:size mode:renderType]))
+    {
+        return nil;
+    }
+
+    if (auto sr = dynamic_cast<SceneRendererMTL*>(sceneRenderer.get()))
+    {
+        sr->offscreenBlendEnable = true;
+        sr->getRenderTargets().front()->blendEnable = true;
+    }
+
+    [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+
     return self;
 }
 
@@ -121,7 +151,9 @@ using namespace Eigen;
             [interactLayer teardown];
     }
     
+#if !MAPLY_MINIMAL
     defaultClusterGenerator = nil;
+#endif //!MAPLY_MINIMAL
 
     if (baseLayerThread)
     {
@@ -155,10 +187,13 @@ using namespace Eigen;
     sceneRenderer = nil;
     
     layerThreads = nil;
-    //    NSLog(@"BaseViewController: Layers shut down");
+#if !MAPLY_MINIMAL
     fontTexManager = NULL;
+#endif //!MAPLY_MINIMAL
     baseLayerThread = nil;
+#if !MAPLY_MINIMAL
     layoutLayer = nil;
+#endif //!MAPLY_MINIMAL
 
     activeObjects = nil;
     
@@ -213,9 +248,11 @@ using namespace Eigen;
     sceneRenderer->setScene(scene);
 
     // Set up a Font Texture Manager
+#if !MAPLY_MINIMAL
     fontTexManager = std::make_shared<FontTextureManager_iOS>(sceneRenderer.get(),scene);
     scene->setFontTextureManager(fontTexManager);
-    
+#endif //!MAPLY_MINIMAL
+
     layerThreads = [NSMutableArray array];
     
     // Need a layer thread to manage the layers
@@ -223,9 +260,11 @@ using namespace Eigen;
     [layerThreads addObject:baseLayerThread];
     
     // Layout still needs a layer to kick it off
+#if !MAPLY_MINIMAL
     layoutLayer = [[WhirlyKitLayoutLayer alloc] initWithRenderer:sceneRenderer.get()];
     [baseLayerThread addLayer:layoutLayer];
-    
+#endif //!MAPLY_MINIMAL
+
     if (newInteractLayer) {
         interactLayer = newInteractLayer;
         interactLayer.screenObjectDrawPriorityOffset = [self screenObjectDrawPriorityOffset];
@@ -241,8 +280,10 @@ using namespace Eigen;
     [baseLayerThread start];
     
     // Default cluster generator
+#if !MAPLY_MINIMAL
     defaultClusterGenerator = [[MaplyBasicClusterGenerator alloc] initWithColors:@[[UIColor orangeColor]] clusterNumber:0 size:CGSizeMake(32,32) viewC:self];
     [self addClusterGenerator:defaultClusterGenerator];
+#endif //!MAPLY_MINIMAL
 
     interactLayer->layerThreads = layerThreads;
     [baseLayerThread addLayer:interactLayer];
@@ -258,6 +299,28 @@ using namespace Eigen;
 - (int)screenObjectDrawPriorityOffset
 {
     return screenDrawPriorityOffset;
+}
+
+- (void)setPosition:(MaplyCoordinate)newPos height:(float)height
+{
+    visualView->cancelAnimation();
+
+    const auto geo = GeoCoord(newPos.x, newPos.y);
+
+    if (auto mv = dynamic_cast<Maply::MapView*>(visualView.get()))
+    {
+        const auto adapter = visualView->getCoordAdapter();
+        Point3d loc = adapter->getCoordSystem()->geographicToLocal3d(geo);
+        loc.z() = height;
+        mv->setLoc(loc);
+    }
+#if !MAPLY_MINIMAL
+    else if (auto gv = dynamic_cast<WhirlyGlobe::GlobeView*>(visualView.get()))
+    {
+        gv->setRotQuat(gv->makeRotationToGeoCoord(geo, true));
+        gv->setHeightAboveGlobe(height);
+    }
+#endif //!MAPLY_MINIMAL
 }
 
 - (UIImage *)renderToImage
@@ -290,6 +353,7 @@ using namespace Eigen;
     return toRet;
 }
 
+#if !MAPLY_MINIMAL
 - (void)clearLights
 {
     lights = nil;
@@ -353,6 +417,7 @@ using namespace Eigen;
     }
     sceneRenderer->replaceLights(newLights);
 }
+#endif //!MAPLY_MINIMAL
 
 - (void)addShaderProgram:(MaplyShader *__nonnull)shader
 {
@@ -398,16 +463,7 @@ using namespace Eigen;
 
 - (MaplyShader *__nullable)getShaderByName:(const NSString *__nonnull)name
 {
-    if (!interactLayer)
-        return nil;
-
-    @synchronized (interactLayer->shaders) {
-        for (MaplyShader *shader in interactLayer->shaders)
-            if (![name compare:shader.name])
-                return shader;
-    }
-    
-    return nil;
+    return [interactLayer getProgramByName:name];
 }
 
 // Merge the two dictionaries, add taking precidence into account, and then look for NSNulls
@@ -556,6 +612,17 @@ using namespace Eigen;
 
     if (auto wr = WorkRegion(interactLayer)) {
         return [interactLayer addShapes:shapes desc:desc mode:threadMode];
+    }
+    return nil;
+}
+
+- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes info:(ShapeInfo &)shapeInfo desc:(NSDictionary *__nullable)desc mode:(MaplyThreadMode)threadMode
+{
+    if ([shapes count] == 0)
+        return nil;
+
+    if (auto wr = WorkRegion(interactLayer)) {
+        return [interactLayer addShapes:shapes info:shapeInfo desc:desc mode:threadMode];
     }
     return nil;
 }
@@ -914,7 +981,7 @@ using namespace Eigen;
     if (!interactLayer)
         return;
     
-    if (!program) {
+    if (!program || !program->isValid()) {
         NSLog(@"Default shader setup:  Failed to create %@",inName);
         return;
     }
@@ -1271,7 +1338,9 @@ using namespace Eigen;
 
 - (void)runLayout
 {
+#if !MAPLY_MINIMAL
     [layoutLayer scheduleUpdateNow];
+#endif //!MAPLY_MINIMAL
 }
 
 - (id<MTLDevice>)getMetalDevice

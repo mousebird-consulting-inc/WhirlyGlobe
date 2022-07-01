@@ -107,13 +107,17 @@ RawDataRef RenderTargetMTL::snapshot()
         return RawDataRef();
     
     MTLRegion region = MTLRegionMake2D(0,0,[tex width],[tex height]);
-    int width = [tex width], height = [tex height];
-    int pixSize = calcPixelSize([tex pixelFormat]);
+    const int width = [tex width];
+    const int height = [tex height];
+    const int pixSize = calcPixelSize([tex pixelFormat]);
     
-    NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize];
-    [tex getBytes:[data mutableBytes] bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
-
-    return std::make_shared<RawNSDataReader>(data);
+    if (NSMutableData *data = [[NSMutableData alloc] initWithLength:width*height*pixSize])
+    if (auto *bytes = [data mutableBytes])
+    {
+        [tex getBytes:bytes bytesPerRow:width*pixSize fromRegion:region mipmapLevel:0];
+        return std::make_shared<RawNSDataReader>(data);
+    }
+    return RawDataRef();
 }
 
 RawDataRef RenderTargetMTL::snapshot(int startX,int startY,int snapWidth,int snapHeight)
@@ -193,15 +197,28 @@ void RenderTargetMTL::makeRenderPassDesc()
             case MTLPixelFormatBGRA8Unorm:
                 rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
                 break;
+            case MTLPixelFormatA8Unorm:
+                
+            case MTLPixelFormatR8Unorm:
+            case MTLPixelFormatR8Snorm:
+            case MTLPixelFormatR8Uint:
+            case MTLPixelFormatR8Sint:
+
             case MTLPixelFormatR16Uint:
             case MTLPixelFormatR16Sint:
+                
             case MTLPixelFormatR32Float:
-            case MTLPixelFormatRG32Float:
-            case MTLPixelFormatRGBA32Float:
-            case MTLPixelFormatRG16Float:
-            case MTLPixelFormatRGBA16Float:
             case MTLPixelFormatR32Uint:
+                
+            case MTLPixelFormatRG16Float:
+            case MTLPixelFormatRG16Unorm:
+
+            case MTLPixelFormatRG32Float:
             case MTLPixelFormatRG32Uint:
+
+            case MTLPixelFormatRGBA16Float:
+
+            case MTLPixelFormatRGBA32Float:
             case MTLPixelFormatRGBA32Uint:
                 rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
                 break;

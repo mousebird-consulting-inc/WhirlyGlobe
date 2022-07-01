@@ -41,7 +41,7 @@ void InitProj4()
             pj_geocentric = pj_init_plus("+proj=geocent +datum=WGS84");
     });
 }
-    
+
 Point3f GeoCoordSystem::LocalToGeocentric(const Point3f &localPt)
 {
     InitProj4();
@@ -90,13 +90,14 @@ Mbr GeoCoordSystem::GeographicMbrToLocal(const GeoMbr &geoMbr)
     return localMbr;
 }
 
+#if !MAPLY_MINIMAL
+
 bool GeoCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
     const auto other = dynamic_cast<const GeoCoordSystem *>(coordSys);
     return (other != nullptr);
 }
 
-    
 Point3f FakeGeocentricDisplayAdapter::LocalToDisplay(const Point3f &geoPt)
 {
     float z = sinf(geoPt.y());
@@ -189,5 +190,7 @@ double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,
     Vector4d testDir = viewModelNormalMat * Vector4d(norm.x(),norm.y(),norm.z(),0.0);
     return Vector3d(-pt.x(),-pt.y(),-pt.z()).dot(Vector3d(testDir.x(),testDir.y(),testDir.z()));
 }
+
+#endif //!MAPLY_MINIMAL
 
 }

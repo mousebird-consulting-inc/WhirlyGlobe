@@ -17,7 +17,11 @@
  */
 
 #import "QuadImageFrameLoader.h"
+#import "BasicDrawableInstanceBuilder.h"
 #import "WhirlyKitLog.h"
+
+#import <array>
+#import <cstdio>
 
 namespace WhirlyKit
 {
@@ -232,7 +236,9 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
                                  ChangeSet &changes)
 {
     drawPriority = defaultDrawPriority;
-    
+
+    const auto label = loader->getLabel().empty() ? "QIFLoader" : loader->getLabel();
+
     // One set of instances per focus
     for (int focusID = 0; focusID < loader->getNumFocus(); focusID++)
     {
@@ -260,9 +266,9 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
             }
 
             std::vector<char> buf(256);
-            snprintf(&buf[0], buf.size() - 1, "MaplyQuadImageFrameLoader[%d:(%d,%d)-%d-%d]",
-                     loadedTile->ident.level, loadedTile->ident.x, loadedTile->ident.y,
-                     focusID, di.kind);
+            snprintf(&buf[0], buf.size() - 1, "%s[%d:(%d,%d)-%d-%d]",
+                     label.c_str(), loadedTile->ident.level,
+                     loadedTile->ident.x, loadedTile->ident.y, focusID, di.kind);
 
             // Make a drawable instance to shadow the geometry
             auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder(&buf[0]);
@@ -705,14 +711,17 @@ void QIFRenderState::updateScene(Scene *,
         }
     }
 }
-    
+
+static int gen = 1;
+
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode) :
     mode(mode),
     params(params),
+    label("QIFLoader " + std::to_string(gen++)),
     lastRunReqFlag(std::make_shared<bool>(true))
 {
     updatePriorityDefaults();
-    
+
     minZoom = params.minZoom;
     maxZoom = params.maxZoom;
 }
@@ -1010,6 +1019,13 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
         for (const auto& image : loadReturn->images) {
             //const auto loadedTile = builder->getLoadedTile(ident);
             if (image) {
+#if DEBUG
+                std::array<char,256> buf;
+                snprintf(&buf[0], buf.size()-1, "%s %d:(%d,%d)", label.c_str(),
+                         loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y);
+                image->name = &buf[0];
+#endif
+
                 Texture *tex = image->buildTexture();
                 image->clearTexture();
                 if (tex) {

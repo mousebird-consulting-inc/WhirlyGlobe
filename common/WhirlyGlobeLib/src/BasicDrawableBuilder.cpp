@@ -595,6 +595,7 @@ void BasicDrawableBuilder::setUniforms(const SingleVertexAttributeSet &uniforms)
 
 void BasicDrawableBuilder::applySubTexture(int which,const SubTexture &subTex,int startingAt)
 {
+#if !MAPLY_MINIMAL
     if (which == -1)
     {
         // Apply the mapping everywhere
@@ -617,8 +618,7 @@ void BasicDrawableBuilder::applySubTexture(int which,const SubTexture &subTex,in
             (*texCoords)[ii] = subTex.processTexCoord(TexCoord(tc.x(),tc.y()));
         }
     }
+#endif //!MAPLY_MINIMAL
 }
 
 }
-
-#include <utility>

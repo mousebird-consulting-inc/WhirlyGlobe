@@ -91,6 +91,14 @@ using namespace WhirlyKit;
     [self setBounds:box];
 }
 
+- (void)setBoundsDLocal:(MaplyBoundingBoxD)boundsD
+{
+    if (coordSystem)
+    {
+        coordSystem->setBounds(Point2f(boundsD.ll.x,boundsD.ll.y), Point2f(boundsD.ur.x,boundsD.ur.y));
+    }
+}
+
 - (void)setBoundsLL:(const MaplyCoordinate *)inLL ur:(const MaplyCoordinate *)inUR
 {
     if (coordSystem)

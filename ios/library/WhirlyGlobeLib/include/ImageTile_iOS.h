@@ -44,6 +44,7 @@ public:
     
     /// Stop keeping track of texture if you were
     virtual void clearTexture();
+
     
 public:
     SceneRenderer::Type renderType;
@@ -54,7 +55,7 @@ public:
     
     Texture *tex;
 };
-    
+
 typedef std::shared_ptr<ImageTile_iOS> ImageTile_iOSRef;
-    
+
 }

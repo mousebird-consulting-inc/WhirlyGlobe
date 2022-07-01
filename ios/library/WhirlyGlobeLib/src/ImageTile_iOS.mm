@@ -44,7 +44,13 @@ void ImageTile_iOS::clearTexture()
 Texture *ImageTile_iOS::buildTexture()
 {
     if (tex)
+    {
         return tex;
+    }
+    if (!imageStuff)
+    {
+        return nullptr;
+    }
     
     int destWidth = targetWidth;
     int destHeight = targetHeight;
@@ -58,7 +64,9 @@ Texture *ImageTile_iOS::buildTexture()
         wkLogLevel(Error,"ImageTile_iOS 0 width or height: %s",name.c_str());
         return nullptr;
     }
-    
+
+    const std::string texName = name.empty() ? "ImageTile_iOS" : name;
+
     // We need this to be square.  Because duh.
     if (destWidth != destHeight)
     {
@@ -68,46 +76,43 @@ Texture *ImageTile_iOS::buildTexture()
     switch (type)
     {
         case MaplyImgTypeImage:
-        {
-            UIImage *image = (UIImage *)imageStuff;
-            if (!image) {
-                return nullptr;
-            }
-            if (destWidth <= 0) {
-                destWidth = (int)(image.size.width * image.scale);
-            }
-            if (destHeight <= 0) {
-                destHeight = (int)(image.size.height * image.scale);
-            }
-            destWidth = destHeight = std::max(destWidth,destHeight);
+            if (UIImage *image = (UIImage *)imageStuff)
+            {
+                if (destWidth <= 0)
+                {
+                    destWidth = (int)(image.size.width * image.scale);
+                }
+                if (destHeight <= 0)
+                {
+                    destHeight = (int)(image.size.height * image.scale);
+                }
+                destWidth = destHeight = std::max(destWidth,destHeight);
 
-            if (NSData *rawData = [(UIImage *)imageStuff rawDataScaleWidth:destWidth height:destHeight border:0])
-            {
-                tex = new TextureMTL("ImageTile_iOS",std::make_shared<RawNSDataReader>(rawData),false);
-                tex->setWidth(destWidth);
-                tex->setHeight(destHeight);
+                if (NSData *rawData = [(UIImage *)imageStuff rawDataScaleWidth:destWidth height:destHeight border:0])
+                {
+                    tex = new TextureMTL(texName);
+                    tex->setRawData(std::make_shared<RawNSDataReader>(rawData), destWidth, destHeight, 8, 4);
+                }
             }
-            else
-            {
-                return nullptr;
-            }
-        }
             break;
         case MaplyImgTypeDataUIKitRecognized:
         {
-            UIImage *texImage = [UIImage imageWithData:(NSData *)imageStuff];
-            if (!texImage)
-                return nullptr;
-            if (destWidth <= 0)
-                destWidth = (int)CGImageGetWidth(texImage.CGImage);
-            if (destHeight <= 0)
-                destHeight = (int)CGImageGetHeight(texImage.CGImage);
-
-            if (NSData *rawData = [texImage rawDataScaleWidth:destWidth height:destHeight border:0])
+            if (UIImage *texImage = [UIImage imageWithData:(NSData *)imageStuff])
             {
-                tex = new TextureMTL("ImageTile_iOS",RawDataRef(new RawNSDataReader(rawData)),false);
-                tex->setWidth(destWidth);
-                tex->setHeight(destHeight);
+                if (destWidth <= 0)
+                {
+                    destWidth = (int)CGImageGetWidth(texImage.CGImage);
+                }
+                if (destHeight <= 0)
+                {
+                    destHeight = (int)CGImageGetHeight(texImage.CGImage);
+                }
+
+                if (NSData *rawData = [texImage rawDataScaleWidth:destWidth height:destHeight border:0])
+                {
+                    tex = new TextureMTL(texName);
+                    tex->setRawData(std::make_shared<RawNSDataReader>(rawData), destWidth, destHeight, 8, 4);
+                }
             }
             else
             {
@@ -116,21 +121,28 @@ Texture *ImageTile_iOS::buildTexture()
         }
             break;
         case MaplyImgTypeDataPKM:
-            tex = new TextureMTL("ImageTile_iOS");
+            tex = new TextureMTL(texName);
             tex->setPKMData(RawDataRef(new RawNSDataReader((NSData *)imageStuff)));
             tex->setWidth(destWidth);
             tex->setHeight(destHeight);
             break;
         case MaplyImgTypeDataPVRTC4:
-            tex = new TextureMTL("ImageTile_iOS", RawDataRef(new RawNSDataReader((NSData *)imageStuff)),true);
-            tex->setWidth(destWidth);
-            tex->setHeight(destHeight);
+            tex = new TextureMTL(texName);
+            tex->setPKMData(std::make_shared<RawNSDataReader>((NSData *)imageStuff));
             break;
         case MaplyImgTypeRawImage:
-            tex = new TextureMTL("ImageTile_iOS",RawDataRef(new RawNSDataReader((NSData *)imageStuff)),false);
-            tex->setWidth(destWidth);
-            tex->setHeight(destHeight);
+            tex = new TextureMTL(texName);
+            tex->setRawData(std::make_shared<RawNSDataReader>((NSData *)imageStuff),
+                            destWidth, destHeight, depth, components);
             break;
+    }
+
+    imageStuff = nil;
+
+    if (tex)
+    {
+        tex->setWidth(destWidth);
+        tex->setHeight(destHeight);
     }
 
     return tex;

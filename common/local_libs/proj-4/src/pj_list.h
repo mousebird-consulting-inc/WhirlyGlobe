@@ -5,6 +5,7 @@ static const char PJ_LIST_H_ID[] = "@(#)pj_list.h	4.5	95/08/09	GIE	REL";
 **
 ** Copy this file and retain only appropriate lines for subset list
 */
+#if !MAPLY_MINIMAL
 PROJ_HEAD(aea, "Albers Equal Area")
 PROJ_HEAD(aeqd, "Azimuthal Equidistant")
 PROJ_HEAD(airy, "Airy")
@@ -30,7 +31,9 @@ PROJ_HEAD(eck3, "Eckert III")
 PROJ_HEAD(eck4, "Eckert IV")
 PROJ_HEAD(eck5, "Eckert V")
 PROJ_HEAD(eck6, "Eckert VI")
+#endif //!MAPLY_MINIMAL
 PROJ_HEAD(eqc, "Equidistant Cylindrical (Plate Caree)")
+#if !MAPLY_MINIMAL
 PROJ_HEAD(eqdc, "Equidistant Conic")
 PROJ_HEAD(euler, "Euler")
 PROJ_HEAD(etmerc, "Extended Transverse Mercator" )
@@ -38,7 +41,9 @@ PROJ_HEAD(fahey, "Fahey")
 PROJ_HEAD(fouc, "Foucaut")
 PROJ_HEAD(fouc_s, "Foucaut Sinusoidal")
 PROJ_HEAD(gall, "Gall (Gall Stereographic)")
+#endif //!MAPLY_MINIMAL
 PROJ_HEAD(geocent, "Geocentric")
+#if !MAPLY_MINIMAL
 PROJ_HEAD(geos, "Geostationary Satellite View")
 PROJ_HEAD(gins8, "Ginsburg VIII (TsNIIGAiK)")
 PROJ_HEAD(gn_sinu, "General Sinusoidal Series")
@@ -61,11 +66,13 @@ PROJ_HEAD(laea, "Lambert Azimuthal Equal Area")
 PROJ_HEAD(lagrng, "Lagrange")
 PROJ_HEAD(larr, "Larrivee")
 PROJ_HEAD(lask, "Laskowski")
+#endif //!MAPLY_MINIMAL
 PROJ_HEAD(lonlat, "Lat/long (Geodetic)")
 PROJ_HEAD(latlon, "Lat/long (Geodetic alias)")
 PROJ_HEAD(latlong, "Lat/long (Geodetic alias)")
 PROJ_HEAD(longlat, "Lat/long (Geodetic alias)")
 PROJ_HEAD(lcc, "Lambert Conformal Conic")
+#if !MAPLY_MINIMAL
 PROJ_HEAD(lcca, "Lambert Conformal Conic Alternative")
 PROJ_HEAD(leac, "Lambert Equal Area Conic")
 PROJ_HEAD(lee_os, "Lee Oblated Stereographic")
@@ -76,7 +83,9 @@ PROJ_HEAD(mbt_fps, "McBryde-Thomas Flat-Pole Sine (No. 2)")
 PROJ_HEAD(mbtfpp, "McBride-Thomas Flat-Polar Parabolic")
 PROJ_HEAD(mbtfpq, "McBryde-Thomas Flat-Polar Quartic")
 PROJ_HEAD(mbtfps, "McBryde-Thomas Flat-Polar Sinusoidal")
+#endif //!MAPLY_MINIMAL
 PROJ_HEAD(merc, "Mercator")
+#if !MAPLY_MINIMAL
 PROJ_HEAD(mil_os, "Miller Oblated Stereographic")
 PROJ_HEAD(mill, "Miller Cylindrical")
 PROJ_HEAD(moll, "Mollweide")
@@ -114,7 +123,9 @@ PROJ_HEAD(rpoly, "Rectangular Polyconic")
 PROJ_HEAD(sch, "Spherical Cross-track Height")
 PROJ_HEAD(sinu, "Sinusoidal (Sanson-Flamsteed)")
 PROJ_HEAD(somerc, "Swiss. Obl. Mercator")
+#endif //!MAPLY_MINIMAL
 PROJ_HEAD(stere, "Stereographic")
+#if !MAPLY_MINIMAL
 PROJ_HEAD(sterea, "Oblique Stereographic Alternative")
 PROJ_HEAD(gstmerc, "Gauss-Schreiber Transverse Mercator (aka Gauss-Laborde Reunion)")
 PROJ_HEAD(tcc, "Transverse Central Cylindrical")
@@ -143,4 +154,5 @@ PROJ_HEAD(weren, "Werenskiold I")
 PROJ_HEAD(wink1, "Winkel I")
 PROJ_HEAD(wink2, "Winkel II")
 PROJ_HEAD(wintri, "Winkel Tripel")
+#endif //!MAPLY_MINIMAL
 

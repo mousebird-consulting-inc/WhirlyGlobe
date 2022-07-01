@@ -19,8 +19,6 @@
 #import <UIKit/UIKit.h>
 #import <Metal/Metal.h>
 #import <WhirlyGlobe/MaplyCoordinate.h>
-#import <WhirlyGlobe/MaplyScreenMarker.h>
-#import <WhirlyGlobe/MaplyVectorObject.h>
 #import <WhirlyGlobe/MaplyViewTracker.h>
 #import <WhirlyGlobe/MaplyComponentObject.h>
 #import <WhirlyGlobe/MaplySharedAttributes.h>
@@ -29,9 +27,11 @@
 #import <WhirlyGlobe/MaplyShader.h>
 #import <WhirlyGlobe/MaplyActiveObject.h>
 #import <WhirlyGlobe/MaplyTexture.h>
+#import <WhirlyGlobe/MaplyPoints.h>
+#import <WhirlyGlobe/MaplyScreenMarker.h>
+#import <WhirlyGlobe/MaplyVectorObject.h>
 #import <WhirlyGlobe/MaplyAnnotation.h>
 #import <WhirlyGlobe/MaplyParticleSystem.h>
-#import <WhirlyGlobe/MaplyPoints.h>
 #import <WhirlyGlobe/MaplyCluster.h>
 #import <WhirlyGlobe/Maply3DTouchPreviewDatasource.h>
 #import <WhirlyGlobe/MaplyLocationTracker.h>
@@ -39,6 +39,10 @@
 #import <WhirlyGlobe/MaplyRenderController.h>
 #import <WhirlyGlobe/MaplyRemoteTileFetcher.h>
 #import <WhirlyGlobe/MaplyVertexAttribute.h>
+
+#if !MAPLY_MINIMAL
+#endif //!MAPLY_MINIMAL
+
 
 typedef double (^ZoomEasingBlock)(double z0,double z1,double t);
 typedef void (__strong ^InitCompletionBlock)(void);

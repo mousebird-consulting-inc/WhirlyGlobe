@@ -50,8 +50,6 @@ struct TextureMTL : virtual public Texture, virtual public TextureBaseMTL
 {
     TextureMTL();
     TextureMTL(std::string name);
-    /// Construct with raw texture data.
-    TextureMTL(std::string name,RawDataRef texData,bool isPVRTC);
     /// Construct by scaling the image to the given size
     TextureMTL(std::string name,UIImage *inImage,int width,int height);
     /// Construct with just the image

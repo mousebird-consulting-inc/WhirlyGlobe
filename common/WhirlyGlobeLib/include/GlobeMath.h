@@ -99,8 +99,10 @@ struct FakeGeocentricDisplayAdapter : public CoordSystemDisplayAdapter
     virtual CoordSystem *getCoordSystem() const override { return &geoCoordSys; }
     
     /// This system is round
+#if !MAPLY_MINIMAL
     bool isFlat() const override { return false; }
-    
+#endif //!MAPLY_MINIMAL
+
 protected:
     mutable GeoCoordSystem geoCoordSys;
 };
@@ -141,7 +143,9 @@ struct GeocentricDisplayAdapter : public CoordSystemDisplayAdapter
     virtual CoordSystem *getCoordSystem() const override { return &geoCoordSys; }
     
     /// This system is round
+#if !MAPLY_MINIMAL
     bool isFlat() const override { return false; }
+#endif //!MAPLY_MINIMAL
 
 protected:
     mutable GeoCoordSystem geoCoordSys;

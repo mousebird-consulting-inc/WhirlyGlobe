@@ -83,7 +83,7 @@ struct ParticleSystemDrawable : virtual public Drawable
     void setBaseTime(TimeInterval inBaseTime) { baseTime = inBaseTime; }
     
     /// Set the point size
-    void setPointSize(float inPointSize) { pointSize = inPointSize; }
+    //void setPointSize(float inPointSize) { pointSize = inPointSize; }
     
     /// Set the lifetime
     void setLifetime(TimeInterval inLifetime) { lifetime = inLifetime; }
@@ -131,7 +131,7 @@ protected:
     SimpleIdentity renderProgramId = EmptyIdentity;
     int64_t drawOrder = BaseInfo::DrawOrderTiles;
     int drawPriority = 0;
-    float pointSize = 0.0f;
+    //float pointSize = 0.0f;
     TimeInterval lifetime = 0.0;
     bool requestZBuffer = false;
     bool writeZBuffer = false;

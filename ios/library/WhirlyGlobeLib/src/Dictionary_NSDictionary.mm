@@ -148,7 +148,7 @@ iosDictionary::iosDictionary()
 
 iosDictionary::iosDictionary(const NSDictionary *inDict)
 {
-    dict = inDict;
+    dict = inDict ? inDict : [[NSDictionary alloc] init];
 }
 
 iosDictionary::iosDictionary(const iosDictionary &that)

@@ -22,21 +22,24 @@
 #import "GlobeMath.h"
 #import "TextureAtlas.h"
 #import "Platform.h"
-#import "FontTextureManager.h"
-#import "SelectionManager.h"
-#import "IntersectionManager.h"
-#import "LayoutManager.h"
-#import "ShapeManager.h"
-#import "MarkerManager.h"
-#import "LabelManager.h"
-#import "VectorManager.h"
-#import "WideVectorManager.h"
-#import "SphericalEarthChunkManager.h"
-#import "LoftManager.h"
-#import "ParticleSystemManager.h"
-#import "BillboardManager.h"
-#import "GeometryManager.h"
+
+#if !MAPLY_MINIMAL
+# import "FontTextureManager.h"
+# import "SelectionManager.h"
+# import "IntersectionManager.h"
+# import "LayoutManager.h"
+# import "MarkerManager.h"
+# import "LabelManager.h"
+# import "VectorManager.h"
+# import "WideVectorManager.h"
+# import "SphericalEarthChunkManager.h"
+# import "LoftManager.h"
+# import "ParticleSystemManager.h"
+# import "BillboardManager.h"
+# import "GeometryManager.h"
+#endif //!MAPLY_MINIMAL
 #import "ComponentManager.h"
+#import "ShapeManager.h"
 
 #if __clang_major__ >= 3
 #include <cxxabi.h>
@@ -82,14 +85,17 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter) :
 {
     SetupDrawableStrings();
     
+#if !MAPLY_MINIMAL
     // Selection manager is used for object selection from any thread
     addManager(kWKSelectionManager,std::make_shared<SelectionManager>(this));
     // Intersection handling
     addManager(kWKIntersectionManager, std::make_shared<IntersectionManager>(this));
     // Layout manager handles text and icon layout
     addManager(kWKLayoutManager, std::make_shared<LayoutManager>());
+#endif //!MAPLY_MINIMAL
     // Shape manager handles circles, spheres and such
     addManager(kWKShapeManager, std::make_shared<ShapeManager>());
+#if !MAPLY_MINIMAL
     // Marker manager handles 2D and 3D markers
     addManager(kWKMarkerManager, std::make_shared<MarkerManager>());
     // Label manager handles 2D and 3D labels
@@ -108,6 +114,7 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter) :
     addManager(kWKWideVectorManager, std::make_shared<WideVectorManager>());
     // Raw Geometry
     addManager(kWKGeometryManager, std::make_shared<GeometryManager>());
+#endif //!MAPLY_MINIMAL
     // Components (groups of things)
     addManager(kWKComponentManager, MakeComponentManager());
 
@@ -193,6 +200,7 @@ Scene::~Scene()
 
     programs.clear();
 
+#if !MAPLY_MINIMAL
     if (fontTextureManager)
     {
         ChangeSet changes;
@@ -200,6 +208,7 @@ Scene::~Scene()
         discardChanges(changes);
         fontTextureManager.reset();
     }
+#endif //!MAPLY_MINIMAL
 }
 
 void Scene::teardown(PlatformThreadInfo* env)
@@ -210,10 +219,12 @@ void Scene::teardown(PlatformThreadInfo* env)
         {
             manager.second->teardown();
         }
+#if !MAPLY_MINIMAL
         if (fontTextureManager)
         {
             fontTextureManager->teardown(env);
         }
+#endif //!MAPLY_MINIMAL
     }
     setRenderer(nullptr);
 }
@@ -605,11 +616,13 @@ void Scene::dumpStats() const
     wkLogLevel(Verbose,"Scene: %ld textures",textures.size());
     wkLogLevel(Verbose,"Scene: %ld sub textures",subTextureMap.size());
 }
-    
+
+#if !MAPLY_MINIMAL
 void Scene::setFontTextureManager(const FontTextureManagerRef &newManager)
 {
     fontTextureManager = newManager;
 }
+#endif //!MAPLY_MINIMAL
 
 Program *Scene::getProgram(SimpleIdentity progId)
 {

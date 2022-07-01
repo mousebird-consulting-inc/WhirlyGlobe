@@ -296,11 +296,8 @@ std::unique_ptr<DrawableString> FontTextureManager_iOS::addString(
                     Point2f offset,textureOffset;
                     if (NSData *glyphImage = renderGlyph(glyph, fm, texSize, glyphSize, offset, textureOffset))
                     {
-                        RawDataRef glyphImageWrap = std::make_shared<RawNSDataReader>(glyphImage);
-
-                        TextureMTL tex("Font Texture Manager",glyphImageWrap,false);
-                        tex.setWidth(texSize.x());
-                        tex.setHeight(texSize.y());
+                        TextureMTL tex("Font Texture Manager");
+                        tex.setRawData(std::make_shared<RawNSDataReader>(glyphImage), texSize.x(), texSize.y(), 8, 4);
 
                         SubTexture subTex;
                         const Point2f realSize(glyphSize.x()+2*textureOffset.x(),glyphSize.y()+2*textureOffset.y());

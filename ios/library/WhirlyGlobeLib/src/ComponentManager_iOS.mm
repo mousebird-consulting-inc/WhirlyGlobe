@@ -32,7 +32,11 @@ ComponentObject_iOS::ComponentObject_iOS()
 }
 
 ComponentObject_iOS::ComponentObject_iOS(bool enable, bool isSelectable, const NSDictionary *_Nullable desc) :
-    ComponentObject(enable, isSelectable, iosDictionary(desc))
+    ComponentObject(enable, isSelectable
+#if !MAPLY_MINIMAL
+                    ,iosDictionary(desc)
+#endif //!MAPLY_MINIMAL
+                    )
 {
 }
 
@@ -68,7 +72,11 @@ NSObject *ComponentManager_iOS::getSelectObject(SimpleIdentity selID)
     
 ComponentObjectRef ComponentManager_iOS::makeComponentObject(const Dictionary *desc)
 {
-    NSDictionary *nsDesc = desc ? [NSMutableDictionary fromDictionaryCPointer:desc] : nil;
+    NSDictionary *nsDesc =
+#if !MAPLY_MINIMAL
+        desc ? [NSMutableDictionary fromDictionaryCPointer:desc] :
+#endif //!MAPLY_MINIMAL
+        nil;
     return std::make_shared<ComponentObject_iOS>(/*enabled=*/false, /*isSelectable=*/false, nsDesc);
 }
     
