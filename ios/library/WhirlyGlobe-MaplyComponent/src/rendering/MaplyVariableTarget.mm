@@ -139,7 +139,12 @@
     _texSize = screenSize;
 
     // Set up the render target
-    _renderTex = [vc createTexture:@{kMaplyTexFormat: @(_type)} sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
+    NSString *name = self.accessibilityLabel ? self.accessibilityLabel : @"MaplyVariableTarget";
+    NSDictionary *desc = @{
+        kMaplyTexFormat: @(_type),
+        kMaplyDrawableName: name,
+    };
+    _renderTex = [vc createTexture:desc sizeX:screenSize.width sizeY:screenSize.height mode:MaplyThreadCurrent];
     _renderTarget.texture = _renderTex;
     _renderTarget.clearEveryFrame = _clearEveryFrame;
     _renderTarget.clearVal = _clearVal;

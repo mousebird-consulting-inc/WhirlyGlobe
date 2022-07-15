@@ -293,7 +293,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     const bool wrapY = [desc boolForKey:kMaplyTexWrapY default:false];
     const int magFilter = [desc enumForKey:kMaplyTexMagFilter values:@[kMaplyMinFilterNearest,kMaplyMinFilterLinear] default:0];
     const bool mipmap = [desc boolForKey:kMaplyTexMipmap default:false];
-    
+    const NSString *name = [desc stringForKey:kMaplyDrawableName default:nil];
+    const std::string cname = name.UTF8String ? name.UTF8String : "MaplyBaseInteraction";
+
     int imgWidth,imgHeight;
     if (image)
     {
@@ -312,9 +314,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     Texture *tex;
     // Metal
     if (image)
-        tex = new TextureMTL("MaplyBaseInteraction",image,imgWidth,imgHeight);
+        tex = new TextureMTL(cname,image,imgWidth,imgHeight);
     else {
-        tex = new TextureMTL("MaplyBaseInteraction");
+        tex = new TextureMTL(cname);
         tex->setWidth(imgWidth);
         tex->setHeight(imgHeight);
         tex->setIsEmptyTexture(true);

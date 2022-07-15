@@ -30,6 +30,10 @@
 #import "RawData_NSData.h"
 #import "RenderTargetMTL.h"
 
+// Capture a range of frames to the developer tools (frames are 1-based)
+#define CAPTURE_FRAME_START 0
+#define CAPTURE_FRAME_END (CAPTURE_FRAME_START+0)
+
 using namespace Eigen;
 
 namespace WhirlyKit
@@ -594,7 +598,32 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
     // Send the command buffer and encoders
     id<MTLDevice> mtlDevice = setupInfo.mtlDevice;
 
-    [cmdCaptureScope beginScope];
+#if CAPTURE_FRAME_START && CAPTURE_FRAME_END >= CAPTURE_FRAME_START
+    if (@available(iOS 13.0, *))
+    {
+        // "When you capture a frame programmatically, you can capture Metal commands that span multiple
+        //  frames by using a custom capture scope. For example, by calling begin() at the start of frame
+        //  1 and end() after frame 3, the trace will contain command data from all the buffers that were
+        //  committed in the three frames."
+        // https://developer.apple.com/documentation/metal/debugging_tools/capturing_gpu_command_data_programmatically
+        MTLCaptureManager *captureMgr = [MTLCaptureManager sharedCaptureManager];
+        if (frameCount == CAPTURE_FRAME_START && !captureMgr.isCapturing &&
+            [captureMgr supportsDestination:MTLCaptureDestination::MTLCaptureDestinationDeveloperTools])
+        {
+            MTLCaptureDescriptor *desc = [MTLCaptureDescriptor new];
+            desc.captureObject = cmdCaptureScope;
+            desc.destination = MTLCaptureDestination::MTLCaptureDestinationDeveloperTools;
+            NSError *err = nil;
+            [captureMgr startCaptureWithDescriptor:desc error:&err];
+            if (err)
+            {
+                NSLog(@"Failed to start Metal capture: %@", err);
+            }
+
+            [cmdCaptureScope beginScope];
+        }
+    }
+#endif
 
     const auto frameInfoRef = makeFrameInfo();
     auto &baseFrameInfo = *frameInfoRef;
@@ -1038,7 +1067,17 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
     }
     lastRenderNo++;
 
-    [cmdCaptureScope endScope];
+#if CAPTURE_FRAME_START && CAPTURE_FRAME_END >= CAPTURE_FRAME_START
+    if (@available(iOS 13.0, *))
+    {
+        MTLCaptureManager *captureMgr = [MTLCaptureManager sharedCaptureManager];
+        if (frameCount == CAPTURE_FRAME_END && captureMgr.isCapturing)
+        {
+            [cmdCaptureScope endScope];
+            //[captureMgr stopCapture];
+        }
+    }
+#endif
 
     if (perfInterval > 0)
         perfTimer.stopTiming("Render Frame");
