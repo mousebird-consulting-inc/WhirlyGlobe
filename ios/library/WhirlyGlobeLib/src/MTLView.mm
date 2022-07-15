@@ -50,7 +50,14 @@ using namespace WhirlyKit;
     self.framebufferOnly = true;
     animating = true;
     self.preferredFramesPerSecond = 120;
-    
+
+#if DEBUG
+    if ([self.layer isKindOfClass:[CAMetalLayer class]])
+    {
+        CAMetalLayer *ml = (CAMetalLayer *)self.layer;
+        ml.allowsNextDrawableTimeout = NO;
+    }
+#endif
     return self;
 }
 

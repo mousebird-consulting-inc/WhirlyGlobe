@@ -93,7 +93,8 @@ class WorkGroupMTL : public WorkGroup
 {
 public:
     WorkGroupMTL(GroupType groupType);
-    virtual ~WorkGroupMTL();
+    WorkGroupMTL(GroupType groupType, std::string name);
+    virtual ~WorkGroupMTL() = default;
     
 protected:
     virtual RenderTargetContainerRef makeRenderTargetContainer(RenderTargetRef renderTarget);

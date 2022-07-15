@@ -741,18 +741,30 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
         BufferEntryMTL &buff = vertABInfo->getBuffer();
+        if (!buff.buffer.label)
+        {
+            buff.buffer.label = @"VertexArgs";
+        }
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
+        if (!buff.buffer.label)
+        {
+            buff.buffer.label = @"VertexTexArgs";
+        }
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
 
     // Wire up the buffers themselves.  One will be input, another output.
     for (unsigned int ii=0;ii<calcBuffers.size();ii++) {
         const BufferEntryMTL &calcBuf = calcBuffers[ii];
+        if (!calcBuf.buffer.label)
+        {
+            calcBuf.buffer.label = [NSString stringWithFormat:@"CalcBuf%d", ii];
+        }
         [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
     }
 
@@ -807,20 +819,36 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,Sce
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
         BufferEntryMTL &buff = vertABInfo->getBuffer();
+        if (!buff.buffer.label)
+        {
+            buff.buffer.label = @"VertexArgs";
+        }
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertexArgBuffer];
     }
     if (fragABInfo) {
         BufferEntryMTL &buff = fragABInfo->getBuffer();
+        if (!buff.buffer.label)
+        {
+            buff.buffer.label = @"FragArgs";
+        }
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragmentArgBuffer];
     }
 
     // Textures may or may not be passed in to shaders
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
+        if (!buff.buffer.label)
+        {
+            buff.buffer.label = @"VertexTexArgs";
+        }
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
+        if (!buff.buffer.label)
+        {
+            buff.buffer.label = @"FragTexArgs";
+        }
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
     }
 
