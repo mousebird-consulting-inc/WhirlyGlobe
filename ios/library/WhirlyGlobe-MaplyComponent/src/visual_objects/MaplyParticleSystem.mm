@@ -71,6 +71,7 @@ using namespace WhirlyKit;
     _lifetime = 5.0;
     _batchSize = 2000;
     _totalParticles = 100000;
+    _trianglesPerParticle = 2;
     _viewC = viewC;
     MaplyRenderController *renderControl = [viewC getRenderControl];
     _baseTime = renderControl->scene->getCurrentTime();

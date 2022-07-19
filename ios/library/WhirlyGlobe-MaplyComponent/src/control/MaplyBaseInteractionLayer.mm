@@ -3130,6 +3130,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
         wkPartSys.totalParticles = partSys.totalParticles;
+        wkPartSys.trianglesPerParticle = partSys.trianglesPerParticle;
         wkPartSys.vertexSize = partSys.vertexSize;
         wkPartSys.baseTime = partSys.baseTime;
         wkPartSys.continuousUpdate = partSys.continuousUpdate;
