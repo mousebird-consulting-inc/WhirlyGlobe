@@ -415,8 +415,16 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
                 auto uniBlock = it.second;
                 if (uniBlock->bufferID == WhirlyKitShader::WKSUniformVecEntryExp)
                     hasExp = true;
-                vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
-                fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID, (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
+                if (vertABInfo)
+                {
+                    vertABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID,
+                                            (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
+                }
+                if (fragABInfo)
+                {
+                    fragABInfo->updateEntry(sceneRender->setupInfo.mtlDevice,bltEncode,uniBlock->bufferID,
+                                            (void *)uniBlock->blockData->getRawData(), uniBlock->blockData->getLen());
+                }
             }
             
             // If we're overriding the color, we copy that into its own buffer
