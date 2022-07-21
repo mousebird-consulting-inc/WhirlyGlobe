@@ -77,31 +77,24 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         BasicDrawableBuilderRef basicBuild = renderer->makeBasicDrawableBuilder(newSystem.name + " Base Calculate");
         basicBuild->setOnOff(false);
         basicBuild->setType(GeometryType::Triangles);
-        // 3←←←2    0→1→2
-        // ↓ / ↑    0→2→3
-        // 0→→→1
+
         basicBuild->addPoint(Point3f(-0.5f, -0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(0.0f, 0.0f));
         basicBuild->addPoint(Point3f( 0.5f, -0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(1.0f, 0.0f));
-        basicBuild->addPoint(Point3f( 0.5f,  0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(1.0f, 1.0f));
-        basicBuild->addTriangle(BasicDrawable::Triangle(0,1,2));
-        if (newSystem.trianglesPerParticle > 1)
+        for (int i = 0; i < newSystem.trianglesPerParticle; ++i)
         {
-            basicBuild->addPoint(Point3f(-0.5f, 0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(0.0f, 1.0f));
-            basicBuild->addTriangle(BasicDrawable::Triangle(0,2,3));
-        }
-        if (newSystem.trianglesPerParticle > 2)
-        {
-            // 5←←←4   3→2→4
-            // ↓ / ↑   3→4→5
-            // 3←←←2
-            //  ...
-            for (int i = 2; i < newSystem.trianglesPerParticle; ++i)
-            {
-                const float texX = (float)((i + 1) & 1);
-                const float texY = (float)((i + 2) / 2);
-                basicBuild->addPoint(Point3f(0.f,0.f,0.f));   basicBuild->addTexCoord(0, TexCoord(texX, texY));
-                basicBuild->addTriangle(BasicDrawable::Triangle(i + ((i + 1) & 1), i + (i & 1), i + 2));
-            }
+            // i    pt            tri      tex       CW       CCW
+            // 0  (-0.5, 0.5,0)  (0,1,2)  (1, 0)     0--→1    1←--0    0: 0→1→2
+            // 1  ( 0.5, 0.5,0)  (1,3,2)  (0, 0)     ↑ / ↓    ↓ \ ↑    1: 1→3→2
+            // 2  (-0.5, 1.5,0)  (2,3,4)  (1, 1)     2←--3    3--→2
+            // 3  ( 0.5, 1.5,0)  (3,5,4)  (0, 1)     2--→3    3←--2    2: 2→3→4
+            // 4  (-0.5, 2.5,0)  (4,5,6)  (1, 2)     ↑ / ↓    ↓ \ ↑    3: 3→5→4
+            // 5  ( 0.5, 2.5,0)  (5,7,6)  (0, 2)     4←--5    5--→4
+            // 6  (-0.5, 3.5,0)  (6,7,8)  (1, 3)
+            // 7  ( 0.5, 3.5,0)  (7,9,8)  (0, 3)
+            basicBuild->addPoint(Point3f(float((i & 1) * 2 - 1) / 2,
+                                         float(i / 2 * 2 + 1) / 2, 0.f));
+            basicBuild->addTexCoord(0, TexCoord((i + 1) & 1, i / 2));
+            basicBuild->addTriangle(BasicDrawable::Triangle(i, i + 1 + (i & 1), i + 2 - (i & 1)));
         }
 
         basicBuild->setProgram(Program::NoProgramID);       // Don't actually draw this one
