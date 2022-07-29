@@ -3,6 +3,7 @@
 project 'AutoTesterPod.xcodeproj'
 platform :ios, '12.0'
 install! 'cocoapods', :deterministic_uuids => false
+use_frameworks!
 
 target 'AutoTesterPod' do
   pod 'WhirlyGlobe', { :git => 'https://github.com/mousebird/WhirlyGlobe.git', :branch => 'develop' }

@@ -27,7 +27,7 @@ PODS:
     - WhirlyGlobe/locallibs
 
 DEPENDENCIES:
-  - WhirlyGlobe (from `https://github.com/mousebird/WhirlyGlobe.git`, branch `topic/sun-stars-case`)
+  - WhirlyGlobe (from `https://github.com/mousebird/WhirlyGlobe.git`, branch `develop`)
 
 SPEC REPOS:
   trunk:
@@ -39,12 +39,12 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   WhirlyGlobe:
-    :branch: topic/sun-stars-case
+    :branch: develop
     :git: https://github.com/mousebird/WhirlyGlobe.git
 
 CHECKOUT OPTIONS:
   WhirlyGlobe:
-    :commit: 988e7e743304925f2e69f76090ed1805db9ada11
+    :commit: 7c2de54c72ebe88398674df24e2f3f555ed975d8
     :git: https://github.com/mousebird/WhirlyGlobe.git
 
 SPEC CHECKSUMS:
@@ -55,6 +55,6 @@ SPEC CHECKSUMS:
   SMCalloutView: 5c0ee363dc8e7204b2fda17dfad38c93e9e23481
   WhirlyGlobe: 72e575d95c9dd9b286f0ada088fb3fb0e7b19c8e
 
-PODFILE CHECKSUM: f0bda966e4050effe4692f7a207e825ef6a967d8
+PODFILE CHECKSUM: 63140d242c04dfc28e3e3291859070aea5897f8e
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3

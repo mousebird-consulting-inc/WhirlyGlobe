@@ -22,7 +22,7 @@
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wall"
-#import <libjson.h>
+#import "libjson.h"
 #pragma clang diagnostic pop
 
 

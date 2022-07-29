@@ -132,6 +132,11 @@
 		316B5CFE260A58A8000B4F15 /* MapTilerCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */; };
 		31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */; };
 		3183380F25A67CD8005FEF70 /* RepresentationsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */; };
+		31A874D728945AC900959889 /* MaplyTestCase.h.orig in Resources */ = {isa = PBXBuildFile; fileRef = 31A874D228945AC900959889 /* MaplyTestCase.h.orig */; };
+		31A874D828945AC900959889 /* WideVectorsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A874D328945AC900959889 /* WideVectorsTestCase.swift */; };
+		31A874D928945AC900959889 /* OfflineRenderTestCase.swift.orig in Resources */ = {isa = PBXBuildFile; fileRef = 31A874D428945AC900959889 /* OfflineRenderTestCase.swift.orig */; };
+		31A874DA28945AC900959889 /* FadeTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31A874D528945AC900959889 /* FadeTestCase.swift */; };
+		31A874DB28945AC900959889 /* ParticleTestCase.swift.orig in Resources */ = {isa = PBXBuildFile; fileRef = 31A874D628945AC900959889 /* ParticleTestCase.swift.orig */; };
 		31D3287C262FADF100456B93 /* TestTileImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */; };
 		31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
@@ -530,6 +535,7 @@
 		8F981DB91DE3577C00717DF1 /* ne_10m_roads.prj in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB31DE3577C00717DF1 /* ne_10m_roads.prj */; };
 		8F981DBB1DE3577C00717DF1 /* ne_10m_roads.shp in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */; };
 		8F981DBC1DE3577C00717DF1 /* ne_10m_roads.shx in Resources */ = {isa = PBXBuildFile; fileRef = 8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */; };
+		9976FA07F1F97657AAAC4093 /* Pods_AutoTesterPod.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B6ABB58996C41A145074F0F7 /* Pods_AutoTesterPod.framework */; };
 		D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */; };
 		D8200CA11BE9563F00B22CF5 /* StickersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA01BE9563F00B22CF5 /* StickersTestCase.swift */; };
 		D8200CA41BE9624300B22CF5 /* LoftedPolysTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */; };
@@ -543,7 +549,6 @@
 		D8F2FE291BE7C2000058A310 /* MarkersTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */; };
 		D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2B1BE7CAD30058A310 /* MegaMarkersTestCase.m */; };
 		D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F2FE2D1BE7CF310058A310 /* ModelsTestCase.swift */; };
-		E0D333623509A56C61C2228C /* libPods-AutoTesterPod.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B0C308BBE20E3D71A8EEB294 /* libPods-AutoTesterPod.a */; };
 		E53CF5DA1E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5D91E1EAF63000FB5C1 /* belfast_ireland_amenities.geojson */; };
 		E53CF5DE1E1EAF6A000FB5C1 /* amenities.sld in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DD1E1EAF6A000FB5C1 /* amenities.sld */; };
 		E53CF5E41E1EAF73000FB5C1 /* firehouse.png in Resources */ = {isa = PBXBuildFile; fileRef = E53CF5DF1E1EAF73000FB5C1 /* firehouse.png */; };
@@ -719,6 +724,11 @@
 		31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ChangeVectorsTestCase.mm; sourceTree = "<group>"; };
 		3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RepresentationsTestCase.mm; sourceTree = "<group>"; };
 		3183380E25A67CD8005FEF70 /* RepresentationsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepresentationsTestCase.h; sourceTree = "<group>"; };
+		31A874D228945AC900959889 /* MaplyTestCase.h.orig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MaplyTestCase.h.orig; sourceTree = "<group>"; };
+		31A874D328945AC900959889 /* WideVectorsTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WideVectorsTestCase.swift; sourceTree = "<group>"; };
+		31A874D428945AC900959889 /* OfflineRenderTestCase.swift.orig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OfflineRenderTestCase.swift.orig; sourceTree = "<group>"; };
+		31A874D528945AC900959889 /* FadeTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FadeTestCase.swift; sourceTree = "<group>"; };
+		31A874D628945AC900959889 /* ParticleTestCase.swift.orig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ParticleTestCase.swift.orig; sourceTree = "<group>"; };
 		31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTileImageFetcher.swift; sourceTree = "<group>"; };
 		31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatCircleTestCase.swift; sourceTree = "<group>"; };
 		3D6D9431634E599E2DCD9E5E /* Pods-AutoTesterPod.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AutoTesterPod.release.xcconfig"; path = "Target Support Files/Pods-AutoTesterPod/Pods-AutoTesterPod.release.xcconfig"; sourceTree = "<group>"; };
@@ -1128,7 +1138,7 @@
 		8F981DB51DE3577C00717DF1 /* ne_10m_roads.shp */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shp; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shp; sourceTree = "<group>"; };
 		8F981DB61DE3577C00717DF1 /* ne_10m_roads.shx */ = {isa = PBXFileReference; lastKnownFileType = file; name = ne_10m_roads.shx; path = ../../../resources/vectors/ne_10m_roads/ne_10m_roads.shx; sourceTree = "<group>"; };
 		8FE129181CDFB3B8004744FC /* TestCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TestCell.swift; sourceTree = "<group>"; };
-		B0C308BBE20E3D71A8EEB294 /* libPods-AutoTesterPod.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-AutoTesterPod.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B6ABB58996C41A145074F0F7 /* Pods_AutoTesterPod.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_AutoTesterPod.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8200C8F1BE92B2F00B22CF5 /* WideVectorsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WideVectorsTestCase.h; sourceTree = "<group>"; };
 		D8200C901BE92B2F00B22CF5 /* WideVectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WideVectorsTestCase.mm; sourceTree = "<group>"; };
 		D8200C971BE93E6E00B22CF5 /* StarsSunTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StarsSunTestCase.swift; sourceTree = "<group>"; };
@@ -1205,7 +1215,7 @@
 				E5D2D66C1DE6C26000E02305 /* libz.tbd in Frameworks */,
 				E5D2D66A1DE6C25A00E02305 /* libxml2.tbd in Frameworks */,
 				E5D2D6681DE6C25300E02305 /* libsqlite3.tbd in Frameworks */,
-				E0D333623509A56C61C2228C /* libPods-AutoTesterPod.a in Frameworks */,
+				9976FA07F1F97657AAAC4093 /* Pods_AutoTesterPod.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1315,7 +1325,7 @@
 				E5D2D66B1DE6C26000E02305 /* libz.tbd */,
 				E5D2D6691DE6C25A00E02305 /* libxml2.tbd */,
 				E5D2D6671DE6C25300E02305 /* libsqlite3.tbd */,
-				B0C308BBE20E3D71A8EEB294 /* libPods-AutoTesterPod.a */,
+				B6ABB58996C41A145074F0F7 /* Pods_AutoTesterPod.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -1323,6 +1333,11 @@
 		88BF115A1BCDA9530002205E /* testCases */ = {
 			isa = PBXGroup;
 			children = (
+				31A874D528945AC900959889 /* FadeTestCase.swift */,
+				31A874D228945AC900959889 /* MaplyTestCase.h.orig */,
+				31A874D428945AC900959889 /* OfflineRenderTestCase.swift.orig */,
+				31A874D628945AC900959889 /* ParticleTestCase.swift.orig */,
+				31A874D328945AC900959889 /* WideVectorsTestCase.swift */,
 				31041A3D27A4AE76004B25E1 /* ActiveObjectTestCase.swift */,
 				2B6611E525D1C35D009D228F /* AirwayTestCase.swift */,
 				D8E12ECC1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift */,
@@ -2010,6 +2025,7 @@
 				88E4B8BC1B83B6AB0050D21B /* Frameworks */,
 				88E4B8BD1B83B6AB0050D21B /* Resources */,
 				2BB4766C20004764006AAACB /* Embed Frameworks */,
+				85AD8A43C3B0546A2400F498 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -2094,6 +2110,7 @@
 				88FF5EEA1BC31D95002F15CE /* YEM.geojson in Resources */,
 				88FF5E111BC31D95002F15CE /* BLR.geojson in Resources */,
 				311E0A9F2680F597007BE16F /* Airspace_Boundary.shp in Resources */,
+				31A874D928945AC900959889 /* OfflineRenderTestCase.swift.orig in Resources */,
 				88FF5ED61BC31D95002F15CE /* TUN.geojson in Resources */,
 				2B5E8AF51E943560000B39E5 /* greensquare.png in Resources */,
 				88FF5E9C1BC31D95002F15CE /* NOR.geojson in Resources */,
@@ -2369,6 +2386,7 @@
 				88FF5EBC1BC31D95002F15CE /* SLE.geojson in Resources */,
 				E5C82FD01E221C890074DF23 /* residential.png in Resources */,
 				2B4B30C22395F08D00854073 /* maptiler_topo.json in Resources */,
+				31A874DB28945AC900959889 /* ParticleTestCase.swift.orig in Resources */,
 				88FF5E811BC31D95002F15CE /* MDG.geojson in Resources */,
 				88FF5E371BC31D95002F15CE /* EGY.geojson in Resources */,
 				88FF5E9F1BC31D95002F15CE /* NZL.geojson in Resources */,
@@ -2473,6 +2491,7 @@
 				88FF5EF01BC31D95002F15CE /* tl_2013_06075_roads.prj in Resources */,
 				88FF5ED91BC31D95002F15CE /* TWN.geojson in Resources */,
 				88FF5CEA1BC31D6D002F15CE /* zoo-24@2x.png in Resources */,
+				31A874D728945AC900959889 /* MaplyTestCase.h.orig in Resources */,
 				88FF5E661BC31D95002F15CE /* JEY.geojson in Resources */,
 				88FF5EA01BC31D95002F15CE /* OMN.geojson in Resources */,
 				2B033BE624F6D7BA00B55248 /* Roboto-Italic.ttf in Resources */,
@@ -2582,6 +2601,34 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		85AD8A43C3B0546A2400F498 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-AutoTesterPod/Pods-AutoTesterPod-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/FMDB/FMDB.framework",
+				"${BUILT_PRODUCTS_DIR}/KissXML/KissXML.framework",
+				"${BUILT_PRODUCTS_DIR}/SMCalloutView/SMCalloutView.framework",
+				"${BUILT_PRODUCTS_DIR}/WhirlyGlobe/WhirlyGlobe.framework",
+				"${BUILT_PRODUCTS_DIR}/libjson/libjson.framework",
+				"${BUILT_PRODUCTS_DIR}/proj4/proj4.framework",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/FMDB.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/KissXML.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SMCalloutView.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/WhirlyGlobe.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/libjson.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/proj4.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-AutoTesterPod/Pods-AutoTesterPod-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -2613,6 +2660,7 @@
 				2B7787CA21CDA47F006ABF5D /* CartoDBLightTestCase.swift in Sources */,
 				2B4B30AD2395E0DE00854073 /* LayerStartupShutdownTestCase.swift in Sources */,
 				E5679F4A1CB72DE800369A15 /* FindHeightTestCase.m in Sources */,
+				31A874DA28945AC900959889 /* FadeTestCase.swift in Sources */,
 				2B158BEF1D5D19E900103E04 /* VectorHoleTestCase.m in Sources */,
 				D8200C911BE92B2F00B22CF5 /* WideVectorsTestCase.mm in Sources */,
 				2B446AAE21EFE29B0078A975 /* WMSTestCase.m in Sources */,
@@ -2626,6 +2674,7 @@
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
 				311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
+				31A874D828945AC900959889 /* WideVectorsTestCase.swift in Sources */,
 				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
 				2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */,
