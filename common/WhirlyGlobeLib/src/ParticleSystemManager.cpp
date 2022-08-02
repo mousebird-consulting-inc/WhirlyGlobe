@@ -82,19 +82,24 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         basicBuild->addPoint(Point3f( 0.5f, -0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(1.0f, 0.0f));
         for (int i = 0; i < newSystem.trianglesPerParticle; ++i)
         {
-            // i    pt            tri      tex       CW       CCW
-            // 0  (-0.5, 0.5,0)  (0,1,2)  (1, 0)     0--→1    1←--0    0: 0→1→2
-            // 1  ( 0.5, 0.5,0)  (1,3,2)  (0, 0)     ↑ / ↓    ↓ \ ↑    1: 1→3→2
-            // 2  (-0.5, 1.5,0)  (2,3,4)  (1, 1)     2←--3    3--→2
-            // 3  ( 0.5, 1.5,0)  (3,5,4)  (0, 1)     2--→3    3←--2    2: 2→3→4
-            // 4  (-0.5, 2.5,0)  (4,5,6)  (1, 2)     ↑ / ↓    ↓ \ ↑    3: 3→5→4
-            // 5  ( 0.5, 2.5,0)  (5,7,6)  (0, 2)     4←--5    5--→4
-            // 6  (-0.5, 3.5,0)  (6,7,8)  (1, 3)
-            // 7  ( 0.5, 3.5,0)  (7,9,8)  (0, 3)
-            basicBuild->addPoint(Point3f(float((i & 1) * 2 - 1) / 2,
-                                         float(i / 2 * 2 + 1) / 2, 0.f));
-            basicBuild->addTexCoord(0, TexCoord((i + 1) & 1, i / 2));
-            basicBuild->addTriangle(BasicDrawable::Triangle(i, i + 1 + (i & 1), i + 2 - (i & 1)));
+            // i tri  pt             tri      tex     tex      CW       CCW
+            //    0   (-0.5,-0.5,0)  (0,1,2)  (0, 0)  (1, 0)   0--→1    1←--0    0: 0→1→2
+            //    0   ( 0.5,-0.5,0)  (1,3,2)  (1, 0)  (0, 0)   ↑ / ↓    ↓ \ ↑    1: 1→3→2
+            // 0  0   (-0.5, 0.5,0)  (2,3,4)  (0, 1)  (1, 1)   2←--3    3--→2
+            // 1  1   ( 0.5, 0.5,0)  (3,5,4)  (1, 1)  (0, 1)   2--→3    3←--2    2: 2→3→4
+            // 2  2   (-0.5, 1.5,0)  (4,5,6)  (0, 2)  (1, 2)   ↑ / ↓    ↓ \ ↑    3: 3→5→4
+            // 3  3   ( 0.5, 1.5,0)  (5,7,6)  (1, 2)  (0, 2)   4←--5    5--→4
+            // 4  4   (-0.5, 2.5,0)  (6,7,8)  (0, 3)  (1, 3)
+            // 5  5   ( 0.5, 2.5,0)  (7,9,8)  (1, 3)  (0, 3)
+            const float x = float((i & 1) * 2 - 1) / 2;
+            const float y = float(i / 2 * 2 + 1) / 2 - 1;
+            const float texX = i & 1;
+            const float texY = float((i + 2) / 2) / ((newSystem.trianglesPerParticle + 1) / 2);
+            const int tri1 = i + 1 + (i & 1);
+            const int tri2 = i + 2 - (i & 1);
+            basicBuild->addPoint(Point3f(x, y, 0.f));
+            basicBuild->addTexCoord(0, TexCoord(texX, texY));
+            basicBuild->addTriangle(BasicDrawable::Triangle(i, tri1, tri2));
         }
 
         basicBuild->setProgram(Program::NoProgramID);       // Don't actually draw this one
