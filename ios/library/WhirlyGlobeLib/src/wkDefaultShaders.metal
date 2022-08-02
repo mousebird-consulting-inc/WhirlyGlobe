@@ -339,10 +339,9 @@ float4 basicPos(const float3 position,
                 const constant Uniforms &uniforms,
                 const constant UniformDrawStateA &uniDrawState)
 {
-    const float3 vertPos = (uniDrawState.singleMat * float4(position,1.0)).xyz;
-    return uniDrawState.clipCoords ? float4(vertPos,1.0) :
-        uniforms.pMatrix * (uniforms.mvMatrix * float4(position,1.0) +
-                            uniforms.mvMatrixDiff * float4(position,1.0));
+    const float4 vertPos = float4((uniDrawState.singleMat * float4(position, 1.0f)).xyz, 1.0f);
+    return uniDrawState.clipCoords ? vertPos :
+        uniforms.pMatrix * (uniforms.mvMatrix * vertPos + uniforms.mvMatrixDiff * vertPos);
 }
 
 // Simple vertex shader for triangle with no lighting
