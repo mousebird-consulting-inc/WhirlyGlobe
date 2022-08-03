@@ -454,20 +454,20 @@ public:
     /// Before we tell the delegate to unload tiles, see if they want to keep them around
     /// Returns the tiles we want to preserve after all
     virtual QuadTreeNew::NodeSet builderUnloadCheck(QuadTileBuilder *inBuilder,
-                                                    const WhirlyKit::QuadTreeNew::ImportantNodeSet &loadTiles,
-                                                    const WhirlyKit::QuadTreeNew::NodeSet &unloadTiles,
+                                                    const QuadTreeNew::ImportantNodeSet &loadTiles,
+                                                    const QuadTreeNew::NodeSet &unloadTiles,
                                                     int inTargetLevel) override;
     
     /// Load the given group of tiles.  If you don't load them immediately, up to you to cancel any requests
     virtual void builderLoad(PlatformThreadInfo *threadInfo,
                              QuadTileBuilder *inBuilder,
-                             const WhirlyKit::TileBuilderDelegateInfo &updates,
+                             const TileBuilderDelegateInfo &updates,
                              ChangeSet &changes) override;
     
     /// Called within builderLoad to let subclasses do other things
     virtual void builderLoadAdditional(PlatformThreadInfo *threadInfo,
                                        QuadTileBuilder *inBuilder,
-                                       const WhirlyKit::TileBuilderDelegateInfo &updates,
+                                       const TileBuilderDelegateInfo &updates,
                                        ChangeSet &changes);
     
     /// Called right before the layer thread flushes all its current changes
@@ -552,12 +552,19 @@ public:
     // Run on the layer thread.  Merge the loaded tile into the data.
     virtual void mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLoaderReturn *loadReturn,ChangeSet &changes);
 
+    // Add a delegate to be called whenever the loading status changes
+    using LoadingDelegate = std::function<void(SimpleIdentity,bool)>;
+    SimpleIdentity addLoadingDelegate(LoadingDelegate);
+    void removeLoadingDelegate(SimpleIdentity);
+
+public:
     ComponentManagerRef compManager;
 
 protected:
     // Return a set of the active frames
     std::set<QuadFrameInfoRef> getActiveFrames() const;
 
+    void setLoadingStatus(bool isLoading);
     void updateLoadingStatus();
 
     mutable std::mutex statsLock;
@@ -601,7 +608,7 @@ protected:
     int numFocus = 1;
 
     // One per focus point
-    std::vector<WhirlyKit::SimpleIdentity> shaderIDs = { EmptyIdentity };
+    std::vector<SimpleIdentity> shaderIDs = { EmptyIdentity };
 
     // One per focus point
     std::vector<double> curFrames = { 0.0 };
@@ -652,6 +659,8 @@ protected:
     
     // Information about each frame.  Subclasses do more interesting things with this
     std::vector<QuadFrameInfoRef> frames;
-};
     
+    std::map<SimpleIdentity,LoadingDelegate> loadingDelegates;
+};
+
 }

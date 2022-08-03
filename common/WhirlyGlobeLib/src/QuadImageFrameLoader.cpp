@@ -882,8 +882,8 @@ void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,
     if (debugMode)
         wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frameIndex);
     
-    loadingStatus = true;
-    
+    setLoadingStatus(true);
+
     auto batchOps = std::unique_ptr<QIFBatchOps>(makeBatchOps(threadInfo));
     const auto frame = (frameIndex >= 0 && frameIndex < frames.size()) ? frames[frameIndex] : nullptr;
 
@@ -1086,7 +1086,19 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
         loadReturn->clear();
     }
 }
-    
+
+SimpleIdentity QuadImageFrameLoader::addLoadingDelegate(LoadingDelegate delegate)
+{
+    const auto id = Identifiable::genId();
+    const auto result = loadingDelegates.insert(std::make_pair(id, std::move(delegate)));
+    return result.second ? id : EmptyIdentity;
+}
+
+void QuadImageFrameLoader::removeLoadingDelegate(SimpleIdentity ident)
+{
+    loadingDelegates.erase(ident);
+}
+
 // Figure out what needs to be on/off for the non-frame cases
 void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
 {
@@ -1100,7 +1112,7 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
             break;
         }
     }
-    loadingStatus = !allLoaded;
+    setLoadingStatus(!allLoaded);
 
     // Figure out the overlay level
     if (curOvlLevel == -1) {
@@ -1435,6 +1447,18 @@ void QuadImageFrameLoader::builderLoadAdditional(PlatformThreadInfo *threadInfo,
 {
 }
 
+void QuadImageFrameLoader::setLoadingStatus(bool isLoading)
+{
+    if (isLoading != loadingStatus)
+    {
+        loadingStatus = isLoading;
+        for (auto &kvp : loadingDelegates)
+        {
+            kvp.second(kvp.first, isLoading);
+        }
+    }
+}
+
 void QuadImageFrameLoader::updateLoadingStatus()
 {
     int numTilesLoading = 0;
@@ -1443,7 +1467,7 @@ void QuadImageFrameLoader::updateLoadingStatus()
 //            wkLogLevel(Debug,"  Tile %d: (%d,%d)  for %d",tile.first.level,tile.first.x,tile.first.y,(long)this);
             numTilesLoading++;
         }
-    this->loadingStatus = numTilesLoading != 0;
+    setLoadingStatus(numTilesLoading != 0);
 }
 
 /// Called right before the layer thread flushes all its current changes
