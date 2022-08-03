@@ -115,6 +115,11 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 @property (nonatomic,assign) bool continuousUpdate;
 
+/**
+    Use premultiplied alpha when rendering
+ */
+@property (nonatomic,assign) bool blendPremultipliedAlpha;
+
 /** 
     Initialize a particle system with a name.
     

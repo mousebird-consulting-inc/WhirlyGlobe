@@ -892,6 +892,10 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
                     cmdEncode.label = [NSString stringWithFormat:@"Workgroup=%d \"%s\" Target=%d Level=%d",
                                        workGroupIndex, workGroup->name.c_str(), targetContainerIndex, level];
                 }
+
+                // Uncomment to draw wireframes for troubleshooting
+                //[cmdEncode setTriangleFillMode:MTLTriangleFillModeLines];
+
                 [cmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
 
                 resources.use(cmdEncode);

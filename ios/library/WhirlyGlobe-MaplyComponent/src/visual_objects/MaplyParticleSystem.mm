@@ -78,6 +78,7 @@ using namespace WhirlyKit;
     _renderTargetID = EmptyIdentity;
     _numRegAttrs = 0;
     _vertexSize = 0;
+    _blendPremultipliedAlpha = false;
     
     return self;
 }

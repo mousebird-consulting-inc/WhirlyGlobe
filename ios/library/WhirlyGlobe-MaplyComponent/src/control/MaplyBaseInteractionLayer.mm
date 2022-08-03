@@ -3137,6 +3137,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.zBufferRead = dictBool(inDesc, kMaplyZBufferRead);
         wkPartSys.zBufferWrite = dictBool(inDesc, kMaplyZBufferWrite);
         wkPartSys.renderTargetID = partSys.renderTargetID;
+        wkPartSys.blendPremultipliedAlpha = partSys.blendPremultipliedAlpha;
         // Type
         switch (partSys.type)
         {

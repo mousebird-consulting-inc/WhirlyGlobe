@@ -129,6 +129,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         instDrawBuild->setMasterID(basicBuild->getDrawableID(), BasicDrawableInstance::ReferenceStyle);
         instDrawBuild->setInstID(calcBuild->getDrawableID());
         auto instDraw = instDrawBuild->getDrawable();
+        instDraw->setBlendPremultipliedAlpha(newSystem.blendPremultipliedAlpha);
         instDraw->setupForRenderer(renderer->getRenderSetupInfo(),renderer->getScene());
         sceneRep->instIDs.insert(instDrawBuild->getDrawableID());
         changes.push_back(new AddDrawableReq(instDraw));

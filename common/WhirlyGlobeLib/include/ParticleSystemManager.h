@@ -58,6 +58,7 @@ public:
     bool continuousUpdate = true;
     bool zBufferRead = false;
     bool zBufferWrite = false;
+    bool blendPremultipliedAlpha = false;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SingleVertexAttributeInfo> varyingAttrs;
     std::vector<SimpleIdentity> varyNames;
