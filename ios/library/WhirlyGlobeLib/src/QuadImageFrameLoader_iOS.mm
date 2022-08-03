@@ -146,33 +146,44 @@ void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,
         // Normal remote (or local) fetching case
         int whichFrame = 0;
         for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
-            auto frame = loader->getFrameInfo(whichFrame);
+            const auto frame = loader->getFrameInfo(whichFrame);
             // If we're not loading all frames, then just load the one we need
-            if (!frameToLoad || frameToLoad->getId() == frame->getId()) {
-                QIFFrameAsset_iosRef frameAsset = std::dynamic_pointer_cast<QIFFrameAsset_ios>(findFrameFor(frame));
-                id fetchInfo = nil;
-                if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
-                    fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
-                if (fetchInfo) {
-                    MaplyTileFetchRequest *request = frameAsset->setupFetch(loader,tileID,fetchInfo,frameInfo,loader->calcLoadPriority(ident,frame->frameIndex),ident.importance);
-                    NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
-
-                    // This means there's no data fetch.  Interpreter does all the work.
-                    if ([fetchInfo isKindOfClass:[NSNull class]]) {
-                        [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:nil];
+            if (frame && (!frameToLoad || frameToLoad->getId() == frame->getId())) {
+                if (const auto frameAsset = std::dynamic_pointer_cast<QIFFrameAsset_ios>(findFrameFor(frame))) {
+                    id fetchInfo = nil;
+                    if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
+                        fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
+                    if (fetchInfo) {
+                        if (const auto request = frameAsset->setupFetch(loader,tileID,fetchInfo,frameInfo,
+                                                                        loader->calcLoadPriority(ident,frame->frameIndex),
+                                                                        ident.importance)) {
+                            // This means there's no data fetch.  Interpreter does all the work.
+                            if ([fetchInfo isKindOfClass:[NSNull class]]) {
+                                [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:nil];
+                            } else {
+                                NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
+                                request.success = ^(MaplyTileFetchRequest *request, id data) {
+                                    // TODO: do we need to clean anything up if layer==nil?
+                                    [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:data];
+                                };
+                                request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                                    // TODO: do we need to clean anything up if layer==nil?
+                                    [layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
+                                };
+                                [batchOps->toStart addObject:request];
+                            }
+                        } else {
+                            NSString *errStr = [NSString stringWithFormat:@"Loader '%s' failed to set up fetch for tile %d:(%d,%d), frame %d",
+                                                loader->getLabel().c_str(), tileID.level, tileID.x, tileID.y, frame->frameIndex];
+                            NSError *error = [[NSError alloc] initWithDomain:@"MaplyQIFLoader" code:0
+                                                                    userInfo:@{NSDebugDescriptionErrorKey:errStr}];
+                            [loader->layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
+                            frameAsset->loadSkipped();
+                        }
                     } else {
-                        request.success = ^(MaplyTileFetchRequest *request, id data) {
-                            // TODO: do we need to clean anything up if layer==nil?
-                            [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:data];
-                        };
-                        request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                            // TODO: do we need to clean anything up if layer==nil?
-                            [layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
-                        };
-                        [batchOps->toStart addObject:request];
+                        frameAsset->loadSkipped();
                     }
-                } else
-                    frameAsset->loadSkipped();
+                }
             }
             whichFrame++;
         }
