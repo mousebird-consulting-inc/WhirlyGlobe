@@ -251,6 +251,17 @@ MaplyCoordinate3d MaplyCoordinate3dMake(float x,float y,float z);
  */
 MaplyCoordinate3dD MaplyCoordinate3dDMake(double x,double y,double z);
 
+/**
+    Construct a float bounding box from a double bounding box
+ */
+MaplyBoundingBox MaplyBoundingBoxMakeFromBoundingBoxD(MaplyBoundingBoxD mbr);
+
+/**
+    Construct a double bounding box from a float bounding box
+ */
+MaplyBoundingBoxD MaplyBoundingBoxDMakeFromBoundingBox(MaplyBoundingBox mbr);
+
+
 /** 
     Construct a MaplyBoundingBox from the values given.
     
