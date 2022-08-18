@@ -50,6 +50,13 @@ inline MaplyBoundingBoxD MaplyBoundingBoxDMakeFromMbrD(MbrD mbr) {
     return { MaplyCoordinateDMake(mbr.ll().x(), mbr.ll().y()), MaplyCoordinateDMake(mbr.ur().x(), mbr.ur().y()) };
 }
 
+MaplyBoundingBox MaplyBoundingBoxMakeFromBoundingBoxD(MaplyBoundingBoxD mbr) {
+    return { MaplyCoordinateMakeWithMaplyCoordinateD(mbr.ll), MaplyCoordinateMakeWithMaplyCoordinateD(mbr.ur) };
+}
+MaplyBoundingBoxD MaplyBoundingBoxDMakeFromBoundingBox(MaplyBoundingBox mbr) {
+    return { MaplyCoordinateDMakeWithMaplyCoordinate(mbr.ll), MaplyCoordinateDMakeWithMaplyCoordinate(mbr.ur) };
+}
+
 MaplyBoundingBox MaplyBoundingBoxMakeWithDegrees(float degLon0,float degLat0,float degLon1,float degLat1)
 {
     return {
