@@ -37,6 +37,11 @@ public class MapboxKindaMap {
     //  anything in the style sheet, just do this
     public var fileOverride : (_ file: URL) -> URL = { return $0 }
     
+    // If set, we'll flip the indexing of tile sources in the Y axis
+    // The default is usually right.  Don't change this unless things loop out
+    //  of order vertically.
+    public var flipTileSources = true
+    
     /**
          If you want to build the URL Requests yourself, maybe add some headers, change the timeout, whatever,
             just provide this function and you can do what you like.  Otherwise we just build simple URL Requests
@@ -422,9 +427,18 @@ public class MapboxKindaMap {
                 if let minZoom = source.tileSpec?["minzoom"] as? Int32,
                     let maxZoom = source.tileSpec?["maxzoom"] as? Int32,
                     let tiles = source.tileSpec?["tiles"] as? [String] {
-                    let tileSource = MaplyRemoteTileInfoNew(baseURL: tiles[0], minZoom: minZoom, maxZoom: maxZoom)
+                    var newTileURLs = [String]()
+                    for tileURL in tiles {
+                        // We need the last bit, but we can't turn it into a valid URL
+                        if let idx = tileURL.firstIndex(of: "{") {
+                            let baseURL = String(tileURL[..<idx])
+                            let newBaseURL = (fileOverride(URL(string: baseURL)!).absoluteString)
+                            newTileURLs.append(newBaseURL + tileURL[idx...])
+                        }
+                    }
+                    let tileSource = MaplyRemoteTileInfoNew(baseURL: newTileURLs[0], minZoom: minZoom, maxZoom: maxZoom)
                     if let cacheDir = self.cacheDir {
-                        tileSource.cacheDir = cacheDir.appendingPathComponent(tiles[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_").replacingOccurrences(of: "{", with: "").replacingOccurrences(of: "}", with: "").replacingOccurrences(of: "?", with: "_")).path
+                        tileSource.cacheDir = cacheDir.appendingPathComponent(newTileURLs[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_").replacingOccurrences(of: "{", with: "").replacingOccurrences(of: "}", with: "").replacingOccurrences(of: "?", with: "_")).path
                     }
                     tileInfos.append(tileSource)
                 }
@@ -491,6 +505,7 @@ public class MapboxKindaMap {
                 self.stop()
                 return
             }
+            imageLoader.flipY = flipTileSources
             // TODO: Doesn't handle more than one local source
             if !localFetchers.isEmpty {
                 imageLoader.setTileFetcher(localFetchers[0])
