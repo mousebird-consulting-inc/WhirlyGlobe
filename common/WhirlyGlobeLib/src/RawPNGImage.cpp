@@ -123,7 +123,7 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
 #endif
 
     // Remap data values
-    if (depth == 8 && channels == 1 && valueMap)
+    if (depth == 8 && channels == 1 && valueMap && outData)
     {
         auto *p = (uint8_t*)outData;
         for (unsigned int ii=0;ii<width*height;ii++,p++)
@@ -136,7 +136,7 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
         }
     }
     // PNG is big-endian
-    if (depth == 16 && OSHostByteOrder() == OSLittleEndian)
+    if (depth == 16 && OSHostByteOrder() == OSLittleEndian && outData)
     {
         auto *p = (uint16_t *)outData;
         for (int i = 0; i < width * height * channels; ++i, ++p)
