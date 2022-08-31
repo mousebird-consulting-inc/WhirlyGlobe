@@ -40,6 +40,24 @@ bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage) const
     return geomManage->mbr.overlaps(theMbr);
 }
 
+// Clip the span of a tile to the bounds of the world in one dimension, calculating the scale
+// and offset necessary to place the right part of the texture on the resulting geometry.
+static std::tuple<double,double,double,double> clipDim(Point2d tile, Point2d world)
+{
+    // Limit the tile edges to the world span
+    const auto lo = std::max(tile[0], world[0]);
+    const auto hi = std::min(tile[1], world[1]);
+
+    // The texture scale is the ratio of the visible portion of the tile to the whole tile
+    const auto tileSpan = tile[1] - tile[0];
+    const auto scale = (hi - lo) / tileSpan;
+
+    // If we're adjusting the low side, we also need to offset the texture by that fraction
+    const auto offset = (tile[0] - lo) / tileSpan;
+
+    return { lo, hi, scale, offset };
+}
+
 void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,
                                   const TileGeomSettings &geomSettings,ChangeSet &changes)
 {
@@ -50,29 +68,10 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         return;
 
     MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
-
-    // Scale texture coordinates if we're clipping this tile
-    Point2d texScale(1.0,1.0);
-    Point2d texOffset(0.0,0.0);
-    
-    // Snap to the designated area
-    if (theMbr.ll().x() < geomManage->mbr.ll().x()) {
-        // todo: probably need to adjust scale/offset here...
-        theMbr.ll().x() = geomManage->mbr.ll().x();
-    }
-    if (theMbr.ur().x() > geomManage->mbr.ur().x()) {
-        texScale.x() = (geomManage->mbr.ur().x()-theMbr.ll().x())/(theMbr.ur().x()-theMbr.ll().x());
-        theMbr.ur().x() = geomManage->mbr.ur().x();
-    }
-    if (theMbr.ll().y() < geomManage->mbr.ll().y()) {
-        texScale.y() = (theMbr.ur().y()-geomManage->mbr.ll().y())/(theMbr.ur().y()-theMbr.ll().y());
-        texOffset.y() = texScale.y() - 1;
-        theMbr.ll().y() = geomManage->mbr.ll().y();
-    }
-    if (theMbr.ur().y() > geomManage->mbr.ur().y()) {
-        texScale.y() = (geomManage->mbr.ur().y()-theMbr.ll().y())/(theMbr.ur().y()-theMbr.ll().y());
-        theMbr.ur().y() = geomManage->mbr.ur().y();
-    }
+    Point2d texScale(1, 1);
+    Point2d texOffset(0, 0);
+    std::tie(theMbr.ll().x(), theMbr.ur().x(), texScale.x(), texOffset.x()) = clipDim(theMbr.x(), geomManage->mbr.x());
+    std::tie(theMbr.ll().y(), theMbr.ur().y(), texScale.y(), texOffset.y()) = clipDim(theMbr.y(), geomManage->mbr.y());
 
     // Calculate a center for the tile
     const CoordSystemDisplayAdapter *sceneAdapter = geomManage->coordAdapter;
@@ -110,11 +109,11 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     }
     
     // Unit size of each tessellation in spherical mercator
-    const Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
-    
+    const Point2d sphereTess = Point2d(1.0 / sphereTessX, 1.0 / sphereTessY);
+    const Point2d incr = chunkSize.cwiseProduct(sphereTess);
+
     // Texture increment for each tessellation
-    const TexCoord texIncr(1.0f/(float)sphereTessX * texScale.x(),
-                           1.0f/(float)sphereTessY * texScale.y());
+    const Point2d texIncr = sphereTess.cwiseProduct(texScale);
 
     // We need the corners in geographic for the cullable
     const Point2d chunkLL = theMbr.ll();
