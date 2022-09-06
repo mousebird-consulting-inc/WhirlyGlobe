@@ -547,7 +547,7 @@ using namespace WhirlyKit;
     
     for (MaplyTileFetchRequest *request in requests) {
         // Set up new request
-        TileInfoRef tile(new TileInfo());
+        TileInfoRef tile = std::make_shared<TileInfo>();
         tile->tileID = request.tileID;
         tile->tileSource = request.tileSource;
         tile->importance = request.importance;
@@ -673,8 +673,15 @@ using namespace WhirlyKit;
         // Do the actual writing somewhere else
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             NSError *error;
-            [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error];
-            [tileData writeToFile:cacheFile atomically:NO];
+            if (![[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:&error])
+            {
+                NSLog(@"Failed to create '%@': %@", dir, error);
+            }
+            error = nil;
+            if (![tileData writeToFile:cacheFile options:NSDataWritingAtomic error:&error])
+            {
+                NSLog(@"Failed to write cache '%@': %@", cacheFile, error);
+            }
         });
     }
 }
