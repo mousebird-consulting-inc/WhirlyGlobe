@@ -381,6 +381,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         case MaplyImageInt16:
             tex->setFormat(TexTypeSingleInt16);
             break;
+        case MaplyImageUInt16:
+            tex->setFormat(TexTypeSingleUInt16);
+            break;
         case MaplyImageUInt32:
             tex->setFormat(TexTypeSingleUInt32);
             break;

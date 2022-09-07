@@ -126,6 +126,7 @@ RawDataRef TextureMTL::convertData()
     case TexTypeUnsignedByte:
     case TexTypeSingleChannel:
     case TexTypeSingleInt16:
+    case TexTypeSingleUInt16:
     case TexTypeDoubleUInt16:
         // no conversion needed?
         return texData;
@@ -329,6 +330,10 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
             break;
         case TexTypeSingleInt16:
             pixFormat = MTLPixelFormatR16Sint;
+            bytesPerRow = 2*width;
+            break;
+        case TexTypeSingleUInt16:
+            pixFormat = MTLPixelFormatR16Unorm;
             bytesPerRow = 2*width;
             break;
         case TexTypeDoubleUInt16:

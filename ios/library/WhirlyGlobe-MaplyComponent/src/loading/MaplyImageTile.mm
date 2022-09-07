@@ -136,6 +136,9 @@ using namespace WhirlyKit;
                 case MaplyImageInt16:
                     tex->setFormat(TexTypeSingleInt16);
                     break;
+                case MaplyImageUInt16:
+                    tex->setFormat(TexTypeSingleUInt16);
+                    break;
                 case MaplyImageUInt32:
                     tex->setFormat(TexTypeSingleUInt32);
                     break;

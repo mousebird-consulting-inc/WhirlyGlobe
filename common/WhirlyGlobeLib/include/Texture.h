@@ -76,6 +76,7 @@ typedef enum TextureType_t {
     TexTypeQuadFloat32,
     TexTypeDepthFloat32,
     TexTypeSingleInt16,     // R16Sint
+    TexTypeSingleUInt16,     // R16Uint
     TexTypeDoubleUInt16,    // RG16Unorm
     TexTypeSingleUInt32,
     TexTypeDoubleUInt32,
