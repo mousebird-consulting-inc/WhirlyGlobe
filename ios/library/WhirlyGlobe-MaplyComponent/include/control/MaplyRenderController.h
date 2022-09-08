@@ -1022,6 +1022,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  */
 @interface MaplyRenderController : NSObject<MaplyRenderControllerProtocol>
 
+/// The time on which offsets are based
+@property (nonatomic, readonly) double baseTime;
+
 /// Initialize as an offline renderer of a given target size of the given rendering type
 - (instancetype __nullable)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType;
 
