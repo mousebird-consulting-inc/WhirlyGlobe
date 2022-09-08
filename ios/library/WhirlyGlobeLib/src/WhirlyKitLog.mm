@@ -46,7 +46,7 @@ void wkLog(const char *formatStr,...)
     va_end(args);
 }
 
-static const char * const levels[] = {"Verbose","Debug","Info","Warn","Error"};
+//static const char * const levels[] = {"Verbose","Debug","Info","Warn","Error"};
 
 void wkLogLevel_(WKLogLevel level,const char *formatStr,...)
 {

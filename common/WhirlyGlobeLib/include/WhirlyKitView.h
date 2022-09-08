@@ -154,6 +154,46 @@ public:
 
     TimeInterval getLastChangedTime() const { return lastChangedTime; }
 
+    /// Indicates that the view is currently being panned
+    bool getIsPanning() const { return isPanning; }
+    void setIsPanning(bool b) { isPanning = b; }
+
+    /// Indicates that the view is currently being zoomed
+    bool getIsZooming() const { return isZooming; }
+    void setIsZooming(bool b) { isZooming = b; }
+
+    /// Indicates that the view is currently being rotated
+    bool getIsRotating() const { return isRotating; }
+    void setIsRotating(bool b) { isRotating = b; }
+
+    /// Indicates that the view is currently being tilted
+    bool getIsTilting() const { return isTilting; }
+    void setIsTilting(bool b) { isTilting = b; }
+
+    /// Indicates that the view is currently animating
+    bool getIsAnimating() const { return isAnimating; }
+    void setIsAnimating(bool b) { isAnimating = b; }
+
+    /// Indicates that the pan/zoom/animation is user-initiated
+    bool getUserMotion() const { return userMotion; }
+    void setUserMotion(bool b) { userMotion = b; }
+
+    /// Indicates that the view center was changed directly using the toolkit (other than setViewState) since the last frame
+    bool getHasMoved() const { return hasMoved; }
+    void setHasMoved(bool b) { hasMoved = b; }
+
+    /// Indicates that the view height was changed directly using the toolkit (other than setViewState) since the last frame
+    bool getHasZoomed() const { return hasZoomed; }
+    void setHasZoomed(bool b) { hasZoomed = b; }
+
+    /// Indicates that the view heading was changed directly using the toolkit (other than setViewState) since the last frame
+    bool getHasRotated() const { return hasRotated; }
+    void setHasRotated(bool b) { hasRotated = b; }
+    
+    /// Indicates that the view heading was changed directly using the toolkit (other than setViewState) since the last frame
+    bool getHasTilted() const { return hasTilted; }
+    void setHasTilted(bool b) { hasRotated = b; }
+
 protected:
     friend class ViewState;
     void updateParams();
@@ -175,6 +215,17 @@ protected:
     /// If set, we'll scale the near and far clipping planes as we get closer
     bool continuousZoom = false;
     
+    bool isPanning = false;
+    bool isZooming = false;
+    bool isAnimating = false;
+    bool isRotating = false;
+    bool isTilting = false;
+    bool userMotion = false;
+    bool hasMoved = false;
+    bool hasZoomed = false;
+    bool hasRotated = false;
+    bool hasTilted = false;
+
     /// Called when positions are updated
     ViewWatcherSet watchers;
     std::mutex watcherLock;

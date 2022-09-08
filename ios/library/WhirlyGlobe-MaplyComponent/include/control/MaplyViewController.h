@@ -378,6 +378,21 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
   */
 @property (nonatomic,assign) bool viewWrap;
 
+/**
+    Inidcates that the view is currently being panned
+ */
+@property (nonatomic,assign) bool isPanning;
+
+/**
+    Inidcates that the view is currently being zoomed
+ */
+@property (nonatomic,assign) bool isZooming;
+
+/**
+    Inidcates that the view is currently being animated
+ */
+@property (nonatomic,assign) bool isAnimating;
+
 /** 
     The box the view point can be in.
  

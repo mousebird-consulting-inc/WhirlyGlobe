@@ -124,20 +124,20 @@
 
 /// Look for a sampling layer that matches the given parameters
 /// We'll also keep it around until the user lets us know we're done
-- (MaplyQuadSamplingLayer *__nullable)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
+- (MaplyQuadSamplingLayer * _Nullable)findSamplingLayer:(const WhirlyKit::SamplingParams &)params forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
 
 /// The given user object is done with the given sampling layer.  So we may shut it down.
-- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer *)layer forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
+- (void)releaseSamplingLayer:(MaplyQuadSamplingLayer * _Nonnull)layer forUser:(WhirlyKit::QuadTileBuilderDelegateRef)userObj;
 
 // Used for setup by the view controllers
-- (void)loadSetup_scene:(MaplyBaseInteractionLayer *)newInteractLayer;
+- (void)loadSetup_scene:(MaplyBaseInteractionLayer * _Nonnull)newInteractLayer;
 - (void)loadSetup_view:(WhirlyKit::ViewRef)view;
 
 // Version of remove objects that takes raw IDs
 - (void)removeObjectsByID:(const WhirlyKit::SimpleIDSet &)compObjIDs mode:(MaplyThreadMode)threadMode;
 
-- (void)addShader:(NSString *)inName program:(WhirlyKit::ProgramRef)program;
+- (void)addShader:(NSString * _Nonnull)inName program:(WhirlyKit::ProgramRef)program;
 
-- (MaplyComponentObject *__nullable)addShapes:(NSArray *__nonnull)shapes info:(WhirlyKit::ShapeInfo &)shapeInfo desc:(NSDictionary*)desc mode:(MaplyThreadMode)threadMode;
+- (MaplyComponentObject * _Nullable)addShapes:(NSArray * _Nonnull)shapes info:(WhirlyKit::ShapeInfo &)shapeInfo desc:(NSDictionary* _Nullable)desc mode:(MaplyThreadMode)threadMode;
 
 @end

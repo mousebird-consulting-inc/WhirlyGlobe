@@ -20,6 +20,7 @@
 #import "MaplyViewController.h"
 #import "MaplyAnimateTranslateMomentum.h"
 #import "GlobeView_iOS.h"
+#import "private/MaplyBaseViewController_private.h"
 #import "private/MaplyViewController_private.h"
 #import "private/MaplyInteractionLayer_private.h"
 #import "private/MaplyCoordinateSystem_private.h"
@@ -184,7 +185,6 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     // Content scale for scroll view mode
     float scale;
     bool scheduledToDraw;
-    bool isPanning,isZooming,isAnimating;
     
     /// Boundary quad that we're to stay within, in display coords
     Point2dVector bounds;
@@ -208,6 +208,9 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         [self setHints:@{kMaplyRendererLightingMode: @"none"}];
     }
 
+    _isPanning = false;
+    _isZooming = false;
+    _isAnimating = false;
     _pinchGesture = true;
     _rotateGesture = true;
     _doubleTapDragGesture = true;
@@ -226,6 +229,9 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         return nil;
     animWrapper.control = self;
 
+    _isPanning = false;
+    _isZooming = false;
+    _isAnimating = false;
     _autoMoveToTap = true;
     _rotateGesture = true;
     _doubleTapDragGesture = true;
@@ -246,6 +252,9 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 
     // Turn off lighting
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
+    _isPanning = false;
+    _isZooming = false;
+    _isAnimating = false;
     _rotateGesture = true;
     _doubleTapDragGesture = true;
     _twoFingerTapGesture = true;
@@ -472,6 +481,33 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     }
     
     mapView->setWrap(_viewWrap);
+}
+
+- (void)setIsPanning:(bool)isPanning
+{
+    _isPanning = isPanning;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsPanning(isPanning);
+    }
+}
+
+- (void)setIsZooming:(bool)isZooming
+{
+    _isZooming = isZooming;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsZooming(isZooming);
+    }
+}
+
+- (void)setIsAnimating:(bool)isAnimating
+{
+    _isAnimating = isAnimating;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsAnimating(isAnimating);
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -747,8 +783,12 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 - (void)setHeight:(float)height
 {
     Point3d loc = mapView->getLoc();
-    loc.z() = height;
-    mapView->setLoc(loc, true);
+    if (height != loc.z())
+    {
+        loc.z() = height;
+        mapView->setLoc(loc, true);
+        mapView->setHasZoomed(true);
+    }
 }
 
 /// Set the view extents.  This is the box the view point is allowed to be within.
@@ -1014,15 +1054,23 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
     const auto adapter = mapView->getCoordAdapter();
-    Point3d loc = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
-    loc.z() = height;
+    const Point3d curLoc = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
+    const Point3d newLoc(curLoc.x(), curLoc.y(), height);
 
     // Do a validity check and possibly adjust the center
     Maply::MapView testMapView(*(mapView.get()));
     Point3d newCenter;
-    if ([self withinBounds:loc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
+    if ([self withinBounds:newLoc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
     {
         mapView->setLoc(newCenter);
+        if (newCenter.x() != curLoc.x() || newCenter.y() != curLoc.y())
+        {
+            mapView->setHasMoved(true);
+        }
+        if (newCenter.z() != curLoc.z())
+        {
+            mapView->setHasZoomed(true);
+        }
     }
 
     [self handleStopMoving:NO];
@@ -1185,6 +1233,10 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 
 - (void)setHeading:(float)heading
 {
+    if (heading != mapView->getRotAngle())
+    {
+        mapView->setHasRotated(true);
+    }
     mapView->setRotAngle(heading,true);
 }
 
@@ -1529,7 +1581,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     //    NSLog(@"Pan started");
     
     [self handleStartMoving:true];
-    isPanning = true;
+    self.isPanning = true;
 }
 
 // Called when the pan delegate stops moving
@@ -1538,7 +1590,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (note.object != mapView->tag)
         return;
 
-    isPanning = false;
+    self.isPanning = false;
     [self handleStopMoving:true];
 }
 
@@ -1548,7 +1600,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         return;
 
     [self handleStartMoving:true];
-    isZooming = true;
+    self.isZooming = true;
 }
 
 - (void) zoomGestureDidEnd:(NSNotification *)note
@@ -1556,7 +1608,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     if (note.object != mapView->tag)
         return;
     
-    isZooming = false;
+    self.isZooming = false;
     [self handleStopMoving:true];
 }
 
@@ -1566,7 +1618,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
         return;
     
     [self handleStartMoving:false];
-    isAnimating = true;
+    self.isAnimating = true;
 }
 
 - (void) animationDidEnd:(NSNotification *)note
@@ -1577,14 +1629,16 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     const auto delegate = mapView->getDelegate();
     const bool userMotion = delegate && delegate->isUserMotion();
 
-    isAnimating = false;
+    self.isAnimating = false;
     [self handleStopMoving:userMotion];
 }
 
 // Convenience routine to handle the end of moving
 - (void)handleStartMoving:(bool)userMotion
 {
-    if (!isPanning && !isZooming && !isAnimating)
+    [super handleStartMoving:userMotion];
+
+    if (!_isPanning && !_isZooming && !_isAnimating)
     {
         const auto __strong delegate = self.delegate;
         if ([delegate respondsToSelector:@selector(maplyViewControllerDidStartMoving:userMotion:)])
@@ -1595,7 +1649,9 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving:(bool)userMotion
 {
-    if (isPanning || isZooming || isAnimating)
+    [super handleStopMoving:userMotion];
+
+    if (_isPanning || _isZooming || _isAnimating)
         return;
 
     const auto __strong delegate = self.delegate;

@@ -77,6 +77,11 @@
 #endif //!MAPLY_MINIMAL
 }
 
+/// Indicates when the view position has been explicitly set since the last frame.
+@property bool posChanged;
+/// Indicates when the view height has been explicitly set since the last frame.
+@property bool heightChanged;
+
 /// This is called by the subclasses.  Don't call it yourself.
 - (void) clear;
 
@@ -96,5 +101,11 @@
 
 /// The base classes fill this in to return their own interaction layer subclass
 - (MaplyBaseInteractionLayer *) loadSetup_interactionLayer;
+
+/// Called when starting gesture, animation
+- (void)handleStartMoving:(bool)userMotion;
+
+/// Called when ending gesture, animation
+- (void)handleStopMoving:(bool)userMotion;
 
 @end

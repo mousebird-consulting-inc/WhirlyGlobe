@@ -235,10 +235,26 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.globeMode = !coordAdapter->isFlat();
+    uniforms.isPanning = theView->getIsPanning();
+    uniforms.isZooming = theView->getIsZooming();
+    uniforms.isRotating = theView->getIsRotating();
+    uniforms.isTilting = theView->getIsTilting();
+    uniforms.isAnimating = theView->getIsAnimating();
+    uniforms.userMotion = theView->getUserMotion();
+    uniforms.didMove = theView->getHasMoved();
+    uniforms.didZoom = theView->getHasZoomed();
+    uniforms.didRotate = theView->getHasRotated();
+    uniforms.didTilt = theView->getHasTilted();
     uniforms.frameCount = frameCount;
     uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
     frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
-    
+
+    // resets each frame
+    theView->setHasMoved(false);
+    theView->setHasZoomed(false);
+    theView->setHasRotated(false);
+    theView->setHasTilted(false);
+
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     auto buff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable, &uniforms, sizeof(uniforms));

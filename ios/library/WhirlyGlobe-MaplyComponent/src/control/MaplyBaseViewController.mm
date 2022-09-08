@@ -1575,6 +1575,23 @@ static const float PerfOutputDelay = 15.0;
 }
 
 #if !MAPLY_MINIMAL
+
+- (void)handleStartMoving:(bool)userMotion
+{
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setUserMotion(userMotion);
+    }
+}
+
+- (void)handleStopMoving:(bool)userMotion
+{
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setUserMotion(userMotion);
+    }
+}
+
 - (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
                                useHeading:(bool)useHeading
                                 useCourse:(bool)useCourse {
