@@ -280,6 +280,20 @@ using namespace WhirlyKit;
     return loadInterp;
 }
 
+- (NSString*)label
+{
+    return self->loader ? [NSString stringWithUTF8String:self->loader->getLabel().c_str()] : nil;
+}
+
+- (void)setLabel:(NSString *)label
+{
+    if (self->loader)
+    {
+        const auto cstr = label.UTF8String;
+        self->loader->setLabel(cstr ? cstr : std::string());
+    }
+}
+
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp
 {
     if (loadInterp) {

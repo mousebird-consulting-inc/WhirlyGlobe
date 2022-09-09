@@ -206,4 +206,18 @@ using namespace WhirlyKit;
     imageTile->prebuildTexture();
 }
 
+- (void)setLabel:(NSString *)name
+{
+    if (imageTile)
+    {
+        if (const auto cstr = name.UTF8String)
+        {
+            imageTile->name = cstr;
+        }
+        else
+        {
+            imageTile->name.clear();
+        }
+    }
+}
 @end

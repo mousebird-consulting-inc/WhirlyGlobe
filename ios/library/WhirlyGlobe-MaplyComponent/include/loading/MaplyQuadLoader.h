@@ -125,6 +125,9 @@ typedef void (__strong ^InitCompletionBlock)(void);
 /// This is really just a limit on the number of tiles we'll parse concurrently to keep memory use under control
 @property (nonatomic) unsigned int numSimultaneousTiles;
 
+/// Label for tracking
+@property (nonatomic, assign) NSString * _Nullable label;
+
 // True if the loader is not currently loading anything
 - (bool)isLoading;
 

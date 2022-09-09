@@ -103,6 +103,11 @@ This sets up the tile with an NSData object containing raw pixels.  The pixels a
 @property (nonatomic) CGSize targetSize;
 
 /**
+    Set the underlying texture name for tracking
+ */
+@property (nonatomic, assign) NSString * _Nullable label;
+
+/**
     Preprocess into a simple texture format.
  
     Extracting from PNG or JPEG or whatever often requires a bit of work.  We'll do that work later,

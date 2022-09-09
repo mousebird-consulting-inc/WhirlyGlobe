@@ -321,6 +321,10 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                                                                     width:offlineRender.getFramebufferSize.width
                                                                    height:offlineRender.getFramebufferSize.height
                                                                     viewC:vc];
+#if DEBUG
+                tileImage.label = [NSString stringWithFormat:@"%@ offline %d:(%d,%d) %d",
+                                   loader.label, tileID.level, tileID.x, tileID.y, loadReturn.frame];
+#endif
                 [loadReturn addImageTile:tileImage];
             } else if (images.empty()) {
                 // Make a single color background image
@@ -336,12 +340,21 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                 std::fill(&data[0], &data[BackImageWidth*BackImageHeight], pixel);
 
                 auto tileImage = [[MaplyImageTile alloc] initWithRawImage:backImageData width:BackImageWidth height:BackImageHeight viewC:vc];
+#if DEBUG
+                tileImage.label = [NSString stringWithFormat:@"%@ bg %d:(%d,%d) %d",
+                                   loader.label, tileID.level, tileID.x, tileID.y, loadReturn.frame];
+#endif
                 [loadReturn addImageTile:tileImage];
             }
 
             // Any additional images are tacked on
+            int n = 0;
             for (UIImage *image : images) {
                 MaplyImageTile *tileData = [[MaplyImageTile alloc] initWithImage:image viewC:vc];
+#if DEBUG
+                tileData.label = [NSString stringWithFormat:@"%@ img%d %d:(%d,%d) %d",
+                                  loader.label, n++, tileID.level, tileID.x, tileID.y, loadReturn.frame];
+#endif
                 [loadReturn addImageTile:tileData];
             }
         }

@@ -265,13 +265,18 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
                     break;
             }
 
+#if DEBUG
             std::vector<char> buf(256);
-            snprintf(&buf[0], buf.size() - 1, "%s[%d:(%d,%d)-%d-%d]",
-                     label.c_str(), loadedTile->ident.level,
-                     loadedTile->ident.x, loadedTile->ident.y, focusID, di.kind);
+            snprintf(&buf[0], buf.size() - 1, "%s %d:(%d,%d) frames=%d focus=%d kind=%d", label.c_str(),
+                     loadedTile->ident.level, loadedTile->ident.x, loadedTile->ident.y,
+                     loader->getNumFrames(), focusID, di.kind);
+            const char * const label = &buf[0];
+#else
+            constexpr char * label = "";
+#endif
 
             // Make a drawable instance to shadow the geometry
-            auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder(&buf[0]);
+            auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder(label);
             drawInst->setMasterID(di.drawID, BasicDrawableInstance::ReuseStyle);
             drawInst->setTexId(0, EmptyIdentity);
             if (loader->getNumFrames() > 1)
@@ -1021,8 +1026,9 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
             if (image) {
 #if DEBUG
                 std::array<char,256> buf;
-                snprintf(&buf[0], buf.size()-1, "%s %d:(%d,%d)", label.c_str(),
-                         loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y);
+                snprintf(&buf[0], buf.size()-1, "%s %d:(%d,%d) frame=%d gen=%d", label.c_str(),
+                         loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
+                         loadReturn->getFrameIndex(), loadReturn->generation);
                 image->name = &buf[0];
 #endif
 
