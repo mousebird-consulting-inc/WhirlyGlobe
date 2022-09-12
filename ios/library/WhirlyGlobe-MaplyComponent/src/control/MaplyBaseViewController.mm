@@ -1588,7 +1588,7 @@ static const float PerfOutputDelay = 15.0;
 {
     if (renderControl && renderControl->visualView)
     {
-        renderControl->visualView->setUserMotion(userMotion);
+        renderControl->visualView->setUserMotion(false);
     }
 }
 
