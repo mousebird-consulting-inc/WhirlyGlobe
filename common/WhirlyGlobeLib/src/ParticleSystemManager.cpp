@@ -31,7 +31,22 @@ ParticleSystemSceneRep::ParticleSystemSceneRep(SimpleIdentity inId) :
 void ParticleSystemSceneRep::clearContents(ChangeSet &changes)
 {
     for (const ParticleSystemDrawable *it : draws)
+    {
         changes.push_back(new RemDrawableReq(it->getId()));
+    }
+    draws.clear();
+
+    for (const auto id : basicIDs)
+    {
+        changes.push_back(new RemDrawableReq(id));
+    }
+    basicIDs.clear();
+
+    for (const auto id : instIDs)
+    {
+        changes.push_back(new RemDrawableReq(id));
+    }
+    instIDs.clear();
 }
 
 void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
