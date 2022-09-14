@@ -159,8 +159,14 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
         return MAXFLOAT;
     }
     
+    Mbr clippedMbr = mbr;
+    // Possibly clip to bounds (often for world spanning tiles
+    if (params.useClipBoundsForImportance) {
+        clippedMbr = mbr.intersect(params.clipBounds);
+    }
+    
     return ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1,
-                 params.coordSys.get(), coordAdapter, mbr, ident);
+                 params.coordSys.get(), coordAdapter, clippedMbr, ident);
 }
 
 void QuadSamplingController::newViewState(ViewStateRef viewState)
