@@ -87,6 +87,10 @@
 @property (nonatomic) MaplyBoundingBoxD clipBounds;
 @property (nonatomic,readonly) bool hasClipBounds;
 
+/// If set, we'll clip the tiles before we do importance calculations.
+/// This is off by default.  In many cases it would make really skinny tiles.  Use carefully
+@property (nonatomic) bool useClipBoundsForImportance;
+
 /**
  Detail the levels you want loaded in target level mode.
  

@@ -194,9 +194,30 @@ void RenderTargetMTL::makeRenderPassDesc()
             // TODO: This is more work for the renderer.  Narrow down when to do this
             rpd.colorAttachments[0].loadAction =  MTLLoadActionLoad;
         switch (pixelFormat) {
+            // four-component formats
             case MTLPixelFormatBGRA8Unorm:
+            case MTLPixelFormatRGBA8Unorm:
+            case MTLPixelFormatRGBA8Unorm_sRGB:
+            case MTLPixelFormatRGBA8Snorm:
+            case MTLPixelFormatRGBA8Uint:
+            case MTLPixelFormatRGBA8Sint:
+            case MTLPixelFormatBGRA8Unorm_sRGB:
+            case MTLPixelFormatRGBA16Unorm:
+            case MTLPixelFormatRGBA16Snorm:
+            case MTLPixelFormatRGBA16Uint:
+            case MTLPixelFormatRGBA16Sint:
+            case MTLPixelFormatBGRA10_XR:
+            case MTLPixelFormatBGRA10_XR_sRGB:
+            case MTLPixelFormatRGBA16Float:
+            case MTLPixelFormatRGBA32Float:
+            case MTLPixelFormatRGBA32Uint:
+            case MTLPixelFormatA1BGR5Unorm:
+            case MTLPixelFormatABGR4Unorm:
+            case MTLPixelFormatBGR5A1Unorm:
                 rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
                 break;
+
+            // one-, two-, and three-component formats
             case MTLPixelFormatA8Unorm:
                 
             case MTLPixelFormatR8Unorm:
@@ -206,20 +227,34 @@ void RenderTargetMTL::makeRenderPassDesc()
 
             case MTLPixelFormatR16Uint:
             case MTLPixelFormatR16Sint:
-                
-            case MTLPixelFormatR32Float:
-            case MTLPixelFormatR32Uint:
-                
+            case MTLPixelFormatR16Snorm:
+            case MTLPixelFormatR16Unorm:
+            case MTLPixelFormatR16Float:
             case MTLPixelFormatRG16Float:
             case MTLPixelFormatRG16Unorm:
 
+            case MTLPixelFormatR32Uint:
+            case MTLPixelFormatR32Sint:
+            case MTLPixelFormatR32Float:
+
+            case MTLPixelFormatRG8Unorm:
+            case MTLPixelFormatRG8Unorm_sRGB:
+            case MTLPixelFormatRG8Snorm:
+            case MTLPixelFormatRG8Uint:
+            case MTLPixelFormatRG8Sint:
+            case MTLPixelFormatRG16Snorm:
+            case MTLPixelFormatRG16Uint:
+            case MTLPixelFormatRG16Sint:
             case MTLPixelFormatRG32Float:
             case MTLPixelFormatRG32Uint:
-
-            case MTLPixelFormatRGBA16Float:
-
-            case MTLPixelFormatRGBA32Float:
-            case MTLPixelFormatRGBA32Uint:
+            case MTLPixelFormatRG32Sint:
+                
+            case MTLPixelFormatB5G6R5Unorm:
+            case MTLPixelFormatRGB10A2Unorm:
+            case MTLPixelFormatRGB10A2Uint:
+            case MTLPixelFormatRG11B10Float:
+            case MTLPixelFormatRGB9E5Float:
+            case MTLPixelFormatBGR10A2Unorm:
                 rpd.colorAttachments[0].clearColor = MTLClearColorMake(clearVal, clearVal, clearVal, clearVal);
                 break;
             default:

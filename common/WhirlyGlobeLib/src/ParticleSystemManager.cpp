@@ -1,5 +1,4 @@
-/*
- *  ParticleSystemManager.mm
+/*  ParticleSystemManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/26/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "ParticleSystemManager.h"
@@ -25,50 +23,32 @@
 namespace WhirlyKit
 {
 
-ParticleSystem::ParticleSystem()
-: enable(true), drawOrder(BaseInfo::DrawOrderTiles),
-    drawPriority(0), pointSize(1.0), type(ParticleSystemPoint),
-    calcShaderID(EmptyIdentity), renderShaderID(EmptyIdentity),
-    lifetime(0.0), baseTime(0.0),
-    totalParticles(0), batchSize(0), vertexSize(0),
-    continuousUpdate(true),
-    zBufferRead(false), zBufferWrite(false),
-    renderTargetID(EmptyIdentity)
-{
-}
-    
-ParticleSystem::~ParticleSystem()
-{
-}
-    
-ParticleBatch::ParticleBatch()
-: batchSize(0)
-{
-}
-    
-ParticleBatch::~ParticleBatch()
-{
-}
-    
-ParticleSystemSceneRep::ParticleSystemSceneRep()
+ParticleSystemSceneRep::ParticleSystemSceneRep(SimpleIdentity inId) :
+    Identifiable(inId)
 {
 }
 
-ParticleSystemSceneRep::ParticleSystemSceneRep(SimpleIdentity inId)
-: Identifiable(inId)
-{
-}
-    
-ParticleSystemSceneRep::~ParticleSystemSceneRep()
-{
-}
-    
 void ParticleSystemSceneRep::clearContents(ChangeSet &changes)
 {
     for (const ParticleSystemDrawable *it : draws)
+    {
         changes.push_back(new RemDrawableReq(it->getId()));
+    }
+    draws.clear();
+
+    for (const auto id : basicIDs)
+    {
+        changes.push_back(new RemDrawableReq(id));
+    }
+    basicIDs.clear();
+
+    for (const auto id : instIDs)
+    {
+        changes.push_back(new RemDrawableReq(id));
+    }
+    instIDs.clear();
 }
-    
+
 void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
 {
     for (const ParticleSystemDrawable *it : draws)
@@ -85,11 +65,11 @@ void ParticleSystemSceneRep::enableContents(bool enable,ChangeSet &changes)
         changes.push_back(new OnOffChangeRequest(id, enable));
     }
 }
-    
+
 ParticleSystemManager::ParticleSystemManager()
 {
 }
-    
+
 ParticleSystemManager::~ParticleSystemManager()
 {
     std::lock_guard<std::mutex> guardLock(lock);
@@ -98,7 +78,7 @@ ParticleSystemManager::~ParticleSystemManager()
         delete it.second;
     sceneReps.clear();
 }
-    
+
 SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &newSystem,ChangeSet &changes)
 {
     ParticleSystemSceneRep *sceneRep = new ParticleSystemSceneRep(newSystem.getId());
@@ -112,12 +92,31 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         BasicDrawableBuilderRef basicBuild = renderer->makeBasicDrawableBuilder(newSystem.name + " Base Calculate");
         basicBuild->setOnOff(false);
         basicBuild->setType(GeometryType::Triangles);
-        basicBuild->addPoint(Point3f(-0.5,-0.5,0.0));  basicBuild->addTexCoord(0, TexCoord(0.0,0.0));
-        basicBuild->addPoint(Point3f(0.5,-0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(1.0,0.0));
-        basicBuild->addPoint(Point3f(0.5,0.5,0.0));    basicBuild->addTexCoord(0, TexCoord(1.0,1.0));
-        basicBuild->addPoint(Point3f(-0.5,0.5,0.0));   basicBuild->addTexCoord(0, TexCoord(0.0,1.0));
-        basicBuild->addTriangle(BasicDrawable::Triangle(0,1,2));
-        basicBuild->addTriangle(BasicDrawable::Triangle(0,2,3));
+
+        basicBuild->addPoint(Point3f(-0.5f, -0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(0.0f, 0.0f));
+        basicBuild->addPoint(Point3f( 0.5f, -0.5f, 0.0f));  basicBuild->addTexCoord(0, TexCoord(1.0f, 0.0f));
+        for (int i = 0; i < newSystem.trianglesPerParticle; ++i)
+        {
+            // i tri  pt             tri      tex     tex      CW       CCW
+            //    0   (-0.5,-0.5,0)  (0,1,2)  (0, 0)  (1, 0)   0--→1    1←--0    0: 0→1→2
+            //    0   ( 0.5,-0.5,0)  (1,3,2)  (1, 0)  (0, 0)   ↑ / ↓    ↓ \ ↑    1: 1→3→2
+            // 0  0   (-0.5, 0.5,0)  (2,3,4)  (0, 1)  (1, 1)   2←--3    3--→2
+            // 1  1   ( 0.5, 0.5,0)  (3,5,4)  (1, 1)  (0, 1)   2--→3    3←--2    2: 2→3→4
+            // 2  2   (-0.5, 1.5,0)  (4,5,6)  (0, 2)  (1, 2)   ↑ / ↓    ↓ \ ↑    3: 3→5→4
+            // 3  3   ( 0.5, 1.5,0)  (5,7,6)  (1, 2)  (0, 2)   4←--5    5--→4
+            // 4  4   (-0.5, 2.5,0)  (6,7,8)  (0, 3)  (1, 3)
+            // 5  5   ( 0.5, 2.5,0)  (7,9,8)  (1, 3)  (0, 3)
+            const float x = float((i & 1) * 2 - 1) / 2;
+            const float y = float(i / 2 * 2 + 1) / 2 - 1;
+            const float texX = i & 1;
+            const float texY = float((i + 2) / 2) / ((newSystem.trianglesPerParticle + 1) / 2);
+            const int tri1 = i + 1 + (i & 1);
+            const int tri2 = i + 2 - (i & 1);
+            basicBuild->addPoint(Point3f(x, y, 0.f));
+            basicBuild->addTexCoord(0, TexCoord(texX, texY));
+            basicBuild->addTriangle(BasicDrawable::Triangle(i, tri1, tri2));
+        }
+
         basicBuild->setProgram(Program::NoProgramID);       // Don't actually draw this one
         basicBuild->setCalculationProgram(Program::NoProgramID);
         sceneRep->basicIDs.insert(basicBuild->getDrawableID());
@@ -145,15 +144,16 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         instDrawBuild->setMasterID(basicBuild->getDrawableID(), BasicDrawableInstance::ReferenceStyle);
         instDrawBuild->setInstID(calcBuild->getDrawableID());
         auto instDraw = instDrawBuild->getDrawable();
+        instDraw->setBlendPremultipliedAlpha(newSystem.blendPremultipliedAlpha);
         instDraw->setupForRenderer(renderer->getRenderSetupInfo(),renderer->getScene());
         sceneRep->instIDs.insert(instDrawBuild->getDrawableID());
         changes.push_back(new AddDrawableReq(instDraw));
     } else {
         // Set up a single giant drawable for a particle system
-        bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
+        const bool useRectangles = sceneRep->partSys.type == ParticleSystemRectangle;
         // Note: There are devices where this won't work
-        bool useInstancing = useRectangles;
-        int totalParticles = newSystem.totalParticles;
+        const bool useInstancing = useRectangles;
+        const int totalParticles = newSystem.totalParticles;
         ParticleSystemDrawableBuilderRef draw = renderer->makeParticleSystemDrawableBuilder(newSystem.name);
         draw->setup(sceneRep->partSys.vertAttrs,
                     sceneRep->partSys.varyingAttrs,

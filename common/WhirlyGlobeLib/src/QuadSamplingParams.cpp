@@ -57,6 +57,7 @@ bool SamplingParams::operator == (const SamplingParams &that) const
         forceMinLevel == that.forceMinLevel &&
         forceMinLevelHeight == that.forceMinLevelHeight &&
         clipBounds == that.clipBounds &&
+        useClipBoundsForImportance == that.useClipBoundsForImportance &&
         generateGeom == that.generateGeom &&
         levelLoads == that.levelLoads &&
         importancePerLevel == that.importancePerLevel;

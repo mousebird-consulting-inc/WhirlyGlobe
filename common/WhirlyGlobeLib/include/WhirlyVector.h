@@ -340,13 +340,21 @@ public:
     /// Lower left corner
     const Point2d &ll() const { return pt_ll; }
     Point2d &ll() { return pt_ll; }
+
     /// Lower right corner
     Point2d lr() const { return Point2d(pt_ur.x(),pt_ll.y()); }
+
     /// Upper right corner
     const Point2d &ur() const { return pt_ur; }
     Point2d &ur() { return pt_ur; }
+
     /// Upper left corner
-    Point2d ul() { return Point2d(pt_ll.x(),pt_ur.y()); }
+    Point2d ul() const { return Point2d(pt_ll.x(),pt_ur.y()); }
+    
+    // Single dimensions
+    Point2d x() const { return { pt_ll.x(), pt_ur.x() }; }
+    Point2d y() const { return { pt_ll.y(), pt_ur.y() }; }
+
     /// Middle
     const Point2d mid() const { return (pt_ll+pt_ur)/2.0; }
     

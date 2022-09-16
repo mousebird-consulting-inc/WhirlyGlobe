@@ -381,6 +381,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         case MaplyImageInt16:
             tex->setFormat(TexTypeSingleInt16);
             break;
+        case MaplyImageUInt16:
+            tex->setFormat(TexTypeSingleUInt16);
+            break;
         case MaplyImageUInt32:
             tex->setFormat(TexTypeSingleUInt32);
             break;
@@ -3130,12 +3133,14 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.lifetime = partSys.lifetime;
         wkPartSys.batchSize = partSys.batchSize;
         wkPartSys.totalParticles = partSys.totalParticles;
+        wkPartSys.trianglesPerParticle = partSys.trianglesPerParticle;
         wkPartSys.vertexSize = partSys.vertexSize;
         wkPartSys.baseTime = partSys.baseTime;
         wkPartSys.continuousUpdate = partSys.continuousUpdate;
         wkPartSys.zBufferRead = dictBool(inDesc, kMaplyZBufferRead);
         wkPartSys.zBufferWrite = dictBool(inDesc, kMaplyZBufferWrite);
         wkPartSys.renderTargetID = partSys.renderTargetID;
+        wkPartSys.blendPremultipliedAlpha = partSys.blendPremultipliedAlpha;
         // Type
         switch (partSys.type)
         {

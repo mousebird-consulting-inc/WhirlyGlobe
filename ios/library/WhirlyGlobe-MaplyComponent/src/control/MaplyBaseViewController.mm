@@ -724,14 +724,20 @@ static const float PerfOutputDelay = 15.0;
 
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc mode:(MaplyThreadMode)threadMode
 {
-    MaplyComponentObject *compObj = [renderControl addShapes:shapes desc:desc mode:threadMode];
-
-    return compObj;
+    return [renderControl addShapes:shapes desc:desc mode:threadMode];
 }
 
 - (MaplyComponentObject *)addShapes:(NSArray *)shapes desc:(NSDictionary *)desc
 {
     return [self addShapes:shapes desc:desc mode:MaplyThreadAny];
+}
+
+- (MaplyComponentObject * _Nullable)addShapes:(NSArray * _Nonnull)shapes
+                                         info:(WhirlyKit::ShapeInfo &)shapeInfo
+                                         desc:(NSDictionary * _Nullable)desc
+                                         mode:(MaplyThreadMode)threadMode
+{
+    return [renderControl addShapes:shapes info:shapeInfo desc:desc mode:threadMode];
 }
 
 #if !MAPLY_MINIMAL
@@ -1569,6 +1575,23 @@ static const float PerfOutputDelay = 15.0;
 }
 
 #if !MAPLY_MINIMAL
+
+- (void)handleStartMoving:(bool)userMotion
+{
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setUserMotion(userMotion);
+    }
+}
+
+- (void)handleStopMoving:(bool)userMotion
+{
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setUserMotion(false);
+    }
+}
+
 - (void)startLocationTrackingWithDelegate:(NSObject<MaplyLocationTrackerDelegate> *)delegate
                                useHeading:(bool)useHeading
                                 useCourse:(bool)useCourse {

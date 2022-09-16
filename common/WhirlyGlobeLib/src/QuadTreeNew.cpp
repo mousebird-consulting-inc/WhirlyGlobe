@@ -69,10 +69,7 @@ bool QuadTreeNew::Node::operator!=(const WhirlyKit::QuadTreeNew::Node &that) con
 
 MbrD QuadTreeNew::generateMbrForNode(const Node &node) const
 {
-    Point2d chunkSize = mbr.span();
-    chunkSize.x() /= (1<<node.level);
-    chunkSize.y() /= (1<<node.level);
-
+    const Point2d chunkSize = mbr.span() / (1 << node.level);
     return {Point2d(chunkSize.x()*node.x,chunkSize.y()*node.y) + mbr.ll(),
             Point2d(chunkSize.x()*(node.x+1),chunkSize.y()*(node.y+1)) + mbr.ll()};
 }

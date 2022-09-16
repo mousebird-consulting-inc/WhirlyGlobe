@@ -214,6 +214,11 @@ using namespace Eigen;
     theClearColor = nil;
 }
 
+- (TimeInterval)baseTime
+{
+    return scene ? scene->getBaseTime() : 0.0;
+}
+
 - (void)loadSetup
 {
     screenDrawPriorityOffset = 1000000;

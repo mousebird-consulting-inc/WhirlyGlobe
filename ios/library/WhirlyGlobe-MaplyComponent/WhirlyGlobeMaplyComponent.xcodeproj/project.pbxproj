@@ -2450,7 +2450,6 @@
 		31041A3427A45A68004B25E1 /* GeographicLib.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GeographicLib.mm; sourceTree = "<group>"; };
 		31041A4227A4C3F8004B25E1 /* GlobeTapMessage_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GlobeTapMessage_private.h; sourceTree = "<group>"; };
 		310573EA2863C72D00B50828 /* WhirlyGlobe.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WhirlyGlobe.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		310573EB2863C72D00B50828 /* WhirlyGlobe copy-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "WhirlyGlobe copy-Info.plist"; path = "/Users/timsylvester/src/wdw/Frontend/external/WhirlyGlobe/ios/library/WhirlyGlobe-MaplyComponent/WhirlyGlobe copy-Info.plist"; sourceTree = "<absolute>"; };
 		313363AA253E5A24007C2F27 /* WorkRegion_private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WorkRegion_private.h; sourceTree = "<group>"; };
 		315082C9254CD29000A0A2B2 /* VectorTilePBFParser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = VectorTilePBFParser.cpp; path = ../../../../common/WhirlyGlobeLib/src/VectorTilePBFParser.cpp; sourceTree = "<group>"; };
 		315082CF254CD2BF00A0A2B2 /* VectorTilePBFParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = VectorTilePBFParser.h; path = ../../../../common/WhirlyGlobeLib/include/VectorTilePBFParser.h; sourceTree = "<group>"; };
@@ -3971,7 +3970,6 @@
 				2BE5370D1D2499E500B60FAD /* WhirlyGlobeMaplyComponentTests */,
 				2BE537001D2499E500B60FAD /* Products */,
 				2B84ED111F83FC5A00B34D73 /* Frameworks */,
-				310573EB2863C72D00B50828 /* WhirlyGlobe copy-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};

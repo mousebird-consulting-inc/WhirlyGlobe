@@ -31,13 +31,31 @@ LoadedTileNew::LoadedTileNew(const QuadTreeNew::ImportantNode &ident,const MbrD 
     tileNumber(ident.NodeNumber())
 {
 }
-    
+
 bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage) const
 {
     const MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
 
     // Make sure this overlaps the area we care about
-    return geomManage->mbr.inside(theMbr.mid());
+    return geomManage->mbr.overlaps(theMbr);
+}
+
+// Clip the span of a tile to the bounds of the world in one dimension, calculating the scale
+// and offset necessary to place the right part of the texture on the resulting geometry.
+static std::tuple<double,double,double,double> clipDim(Point2d tile, Point2d world)
+{
+    // Limit the tile edges to the world span
+    const auto lo = std::max(tile[0], world[0]);
+    const auto hi = std::min(tile[1], world[1]);
+
+    // The texture scale is the ratio of the visible portion of the tile to the whole tile
+    const auto tileSpan = tile[1] - tile[0];
+    const auto scale = (hi - lo) / tileSpan;
+
+    // If we're adjusting the low side, we also need to offset the texture by that fraction
+    const auto offset = (tile[0] - lo) / tileSpan;
+
+    return { lo, hi, scale, offset };
 }
 
 void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *geomManage,
@@ -50,36 +68,20 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         return;
 
     MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
-
-    // Scale texture coordinates if we're clipping this tile
-    Point2d texScale(1.0,1.0);
-    const Point2d texOffset(0.0,0.0);   // Note: Not using this
-    
-    // Snap to the designated area
-    if (theMbr.ll().x() < geomManage->mbr.ll().x()) {
-        theMbr.ll().x() = geomManage->mbr.ll().x();
-    }
-    if (theMbr.ur().x() > geomManage->mbr.ur().x()) {
-        texScale.x() = (geomManage->mbr.ur().x()-theMbr.ll().x())/(theMbr.ur().x()-theMbr.ll().x());
-        theMbr.ur().x() = geomManage->mbr.ur().x();
-    }
-    if (theMbr.ll().y() < geomManage->mbr.ll().y()) {
-        theMbr.ll().y() = geomManage->mbr.ll().y();
-    }
-    if (theMbr.ur().y() > geomManage->mbr.ur().y()) {
-        texScale.y() = (geomManage->mbr.ur().y()-theMbr.ll().y())/(theMbr.ur().y()-theMbr.ll().y());
-        theMbr.ur().y() = geomManage->mbr.ur().y();
-    }
+    Point2d texScale(1, 1);
+    Point2d texOffset(0, 0);
+    std::tie(theMbr.ll().x(), theMbr.ur().x(), texScale.x(), texOffset.x()) = clipDim(theMbr.x(), geomManage->mbr.x());
+    std::tie(theMbr.ll().y(), theMbr.ur().y(), texScale.y(), texOffset.y()) = clipDim(theMbr.y(), geomManage->mbr.y());
 
     // Calculate a center for the tile
-    CoordSystem *sceneCoordSys = geomManage->coordAdapter->getCoordSystem();
+    const CoordSystemDisplayAdapter *sceneAdapter = geomManage->coordAdapter;
+    const CoordSystem *sceneCoordSys = sceneAdapter->getCoordSystem();
+    const CoordSystemRef &geomCoordSys = geomManage->coordSys;
 
-    const Point3d ll = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ll().x(),theMbr.ll().y(),0.0))));
-    const Point3d ur = geomManage->coordAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomManage->coordSys->localToGeocentric(Point3d(theMbr.ur().x(),theMbr.ur().y(),0.0))));
-    Point3d dispCenter = (ll+ur)/2.0;
+    const Point3d ll = sceneAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomCoordSys->localToGeocentric(Pad(theMbr.ll()))));
+    const Point3d ur = sceneAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomCoordSys->localToGeocentric(Pad(theMbr.ur()))));
     // This clips the center to something 32 bit floating point can represent.
-    const Point3f dispCenter3f = dispCenter.cast<float>();
-    dispCenter = Point3d(dispCenter3f.x(),dispCenter3f.y(),dispCenter3f.z());
+    const Point3d dispCenter = ((ll + ur) / 2.0).cast<float>().cast<double>();
 
     // Translation for the middle.  The drawable stores floats which isn't high res enough zoomed way in
     const Point3d chunkMidDisp = (geomSettings.useTileCenters ? dispCenter : Point3d(0,0,0));
@@ -107,18 +109,18 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     }
     
     // Unit size of each tessellation in spherical mercator
-    const Point2d incr(chunkSize.x()/sphereTessX,chunkSize.y()/sphereTessY);
-    
+    const Point2d sphereTess = Point2d(1.0 / sphereTessX, 1.0 / sphereTessY);
+    const Point2d incr = chunkSize.cwiseProduct(sphereTess);
+
     // Texture increment for each tessellation
-    const TexCoord texIncr(1.0f/(float)sphereTessX * texScale.x(),1.0f/(float)sphereTessY * texScale.y());
-    
+    const Point2d texIncr = sphereTess.cwiseProduct(texScale);
+
     // We need the corners in geographic for the cullable
-    const Point2d chunkLL(theMbr.ll().x(),theMbr.ll().y());
-    const Point2d chunkUR(theMbr.ur().x(),theMbr.ur().y());
-    //    Point2d chunkMid = (chunkLL+chunkUR)/2.0;
-    const GeoCoord geoLL(geomManage->coordSys->localToGeographic(Point3d(chunkLL.x(),chunkLL.y(),0.0)));
-    const GeoCoord geoUR(geomManage->coordSys->localToGeographic(Point3d(chunkUR.x(),chunkUR.y(),0.0)));
-    
+    const Point2d chunkLL = theMbr.ll();
+    const Point2d chunkUR = theMbr.ur();
+    const GeoCoord geoLL(geomCoordSys->localToGeographic(Pad(chunkLL)));
+    const GeoCoord geoUR(geomCoordSys->localToGeographic(Pad(chunkUR)));
+
     BasicDrawableBuilderRef chunk = sceneRender->makeBasicDrawableBuilder("LoadedTileNew chunk");
     chunk->reserve((sphereTessX+1)*(sphereTessY+1),2*sphereTessX*sphereTessY);
     // Note: Make this flexible
@@ -176,11 +178,12 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             for (unsigned int ix=0;ix<sphereTessX;ix++)
             {
                 const auto cs = geomManage->coordSys.get();
-                const auto org3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                const auto ptA_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                const auto ptB_3D = geomManage->coordAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
+                const auto org3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys, Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                const auto ptA_3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
+                const auto ptB_3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                 
-                const TexCoord texCoord(ix*texIncr.x(),1.0f-(iy*texIncr.y()));
+                const TexCoord texCoord(ix*texIncr.x() + texOffset.x(),
+                                        1.0f-(iy*texIncr.y()) + texOffset.y());
                 
                 chunk->addPoint(Point3d(org3D-chunkMidDisp));
                 chunk->addNormal(org3D);
@@ -233,7 +236,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
             }
         }
 
-        // Check for wrapping in coordinate conversion
+        // Check for antimeridian wrapping in coordinate conversion
         if (enableWrap)
         {
             // Do spans of the converted coordinates differ by more than that amount?
@@ -281,7 +284,8 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 //                        loc3D.z() = (drawPriority + nodeInfo->ident.level * 0.01)/10000;
 
                 // Do the texture coordinate separately
-                const TexCoord texCoord(ix*texIncr.x(),1.0f-(iy*texIncr.y()));
+                const TexCoord texCoord(ix*texIncr.x() + texOffset.x(),
+                                        1.0f-(iy*texIncr.y()) + texOffset.y());
                 texCoords[iy*(sphereTessX+1)+ix] = texCoord;
             }
         }

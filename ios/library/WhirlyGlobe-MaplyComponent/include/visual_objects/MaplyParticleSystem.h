@@ -1,5 +1,4 @@
-/*
- *  MaplyParticleSystem.h
+/*  MaplyParticleSystem.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 4/26/15.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -89,6 +87,11 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 @property (nonatomic,assign) int totalParticles;
 
+/**
+    The number of triangles emitted for each particle.
+ */
+@property (nonatomic,assign) int trianglesPerParticle;
+
 /** 
     Batch size for MaplyParticleBatch.
     
@@ -104,12 +107,18 @@ typedef NS_ENUM(NSInteger, MaplyParticleSystemType) {
   */
 @property (nonatomic,assign) int vertexSize;
 
+
 /** 
     Turn on/off the continuous rendering for particles.
     
     Normally particle systems force the renderer to draw every frame.  That's how the particles move.  You can turn that behavior off by setting this to false.
   */
 @property (nonatomic,assign) bool continuousUpdate;
+
+/**
+    Use premultiplied alpha when rendering
+ */
+@property (nonatomic,assign) bool blendPremultipliedAlpha;
 
 /** 
     Initialize a particle system with a name.

@@ -44,7 +44,7 @@ public:
 
     /// Bounding box for the coordinate system
     MbrD coordBounds;
-
+    
     /// Min zoom level for sampling.  Don't set this to anything other than 0 or 1
     int minZoom = 0;
     /// Max zoom level for sampling
@@ -90,6 +90,9 @@ public:
     
     /// If set, the tiles are clipped to this boundary
     MbrD clipBounds;
+    
+    /// If set, we'll use the clipping bounds for importance calculations
+    bool useClipBoundsForImportance = false;
     
     /// Do we need globe geometry for this sampling set or nah?
     bool generateGeom = true;

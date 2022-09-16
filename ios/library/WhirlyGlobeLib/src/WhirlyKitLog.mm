@@ -46,17 +46,15 @@ void wkLog(const char *formatStr,...)
     va_end(args);
 }
 
-static const char * const levels[] = {"Verbose","Debug","Info","Warn","Error"};
+//static const char * const levels[] = {"Verbose","Debug","Info","Warn","Error"};
 
 void wkLogLevel_(WKLogLevel level,const char *formatStr,...)
 {
     va_list args;
     va_start(args, formatStr);
 
-    std::string fullFormatStr = std::string(levels[level]) + ": " + formatStr;
-
     // Scan once for the size and then form the string
-    int len = std::vsnprintf(NULL,0,formatStr,args);
+    int len = std::vsnprintf(nullptr,0,formatStr,args);
     if (len < 0) {
         NSLog(@"wkLogLevel: Malformed format string");
         return;

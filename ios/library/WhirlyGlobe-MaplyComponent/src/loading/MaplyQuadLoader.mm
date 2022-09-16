@@ -267,17 +267,50 @@ using namespace WhirlyKit;
     return MaplyCoordinate3dMake(dispCoord.x(), dispCoord.y(), dispCoord.z());
 }
 
+- (int)zoomSlot
+{
+    return [self getZoomSlot];
+}
+
+- (float)zoomLevel
+{
+    if (samplingLayer)
+    if (const auto disp = samplingLayer->sampleControl.getDisplayControl())
+    if (const auto control = [samplingLayer.quadLayer getController])
+    if (const auto scene = control->getScene())
+    {
+        return scene->getZoomSlotValue(disp->getZoomSlot());
+    }
+    return -1;
+}
+
 - (int)getZoomSlot
 {
-    if (!samplingLayer)
-        return -1;
-    
-    return samplingLayer->sampleControl.getDisplayControl()->getZoomSlot();
+    if (samplingLayer)
+    if (const auto disp = samplingLayer->sampleControl.getDisplayControl())
+    {
+        return disp->getZoomSlot();
+    }
+    return -1;
 }
 
 - (NSObject<MaplyLoaderInterpreter> *)getInterpreter
 {
     return loadInterp;
+}
+
+- (NSString*)label
+{
+    return self->loader ? [NSString stringWithUTF8String:self->loader->getLabel().c_str()] : nil;
+}
+
+- (void)setLabel:(NSString *)label
+{
+    if (self->loader)
+    {
+        const auto cstr = label.UTF8String;
+        self->loader->setLabel(cstr ? cstr : std::string());
+    }
 }
 
 - (void)setInterpreter:(NSObject<MaplyLoaderInterpreter> *)interp

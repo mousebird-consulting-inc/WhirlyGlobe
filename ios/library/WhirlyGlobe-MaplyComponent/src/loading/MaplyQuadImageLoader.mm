@@ -137,11 +137,16 @@ using namespace WhirlyKit;
 
 - (void)dataForTile:(MaplyImageLoaderReturn *)loadReturn loader:(MaplyQuadLoaderBase *)loader
 {
+    const auto tileID = loadReturn.tileID;
     if (const auto __strong vc = loadReturn->viewC) {
         NSArray *tileDatas = [loadReturn getTileData];
         
         for (NSData *tileData in tileDatas) {
             MaplyImageTile *imageTile = [[MaplyImageTile alloc] initWithPNGorJPEGData:tileData viewC:vc];
+#if DEBUG
+            imageTile.label = [NSString stringWithFormat:@"%@ interp %d:(%d,%d) %d",
+                               loader.label, tileID.level, tileID.x, tileID.y, loadReturn.frame];
+#endif
             [loadReturn addImageTile:imageTile];
         }
     }
@@ -270,6 +275,11 @@ using namespace WhirlyKit;
                                                                          components:channels
                                                                               viewC:vc])
             {
+                const auto tileID = loadReturn.tileID;
+#if DEBUG
+                tileData.label = [NSString stringWithFormat:@"%@ %d:(%d,%d) %d",
+                                  loader.label, tileID.level, tileID.x, tileID.y, loadReturn.frame];
+#endif
                 loadReturn->loadReturn->images.push_back(tileData->imageTile);
             }
         }
@@ -445,6 +455,9 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
             break;
         case MaplyImageInt16:
             loader->setTexType(TexTypeSingleInt16);
+            break;
+        case MaplyImageUInt16:
+            loader->setTexType(TexTypeSingleUInt16);
             break;
         case MaplyImageDoubleUInt16:
             loader->setTexType(TexTypeDoubleUInt16);

@@ -214,6 +214,16 @@ using namespace WhirlyKit;
     params.clipBounds.addPoint(Point2d(clipBounds.ur.x,clipBounds.ur.y));
 }
 
+- (bool)useClipBoundsForImportance
+{
+    return params.useClipBoundsForImportance;
+}
+
+- (void)setUseClipBoundsForImportance:(bool)useClipBoundsForImportance
+{
+    params.useClipBoundsForImportance = useClipBoundsForImportance;
+}
+
 - (bool)hasClipBounds
 {
     return params.clipBounds.valid();

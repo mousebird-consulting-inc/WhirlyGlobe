@@ -17,6 +17,8 @@
  */
 
 #import "QuadDisplayControllerNew.h"
+#import "WhirlyKitLog.h"
+
 
 namespace WhirlyKit
 {

@@ -180,7 +180,17 @@ struct Uniforms
     float currentTime;         // Current time relative to the start of the renderer
     float height;              // Height above the ground/globe
     float zoomSlots[MaxZoomSlots];  // Zoom levels calculated by the sampling layers
-    bool globeMode;
+    bool globeMode;             // globe if true, flat map otherwise
+    bool isPanning;             // map is being panned
+    bool isZooming;             // map is being zoomed
+    bool isRotating;            // map is being rotated (around z, not y)
+    bool isTilting;             // globe is being tilted
+    bool isAnimating;           // position/height is being animated
+    bool userMotion;            // motion is user-initiated
+    bool didMove;               // Position set since last frame (not animated/user-initiated)
+    bool didZoom;               // Height set since last frame (not animated/user-initiated)
+    bool didRotate;             // Heading set since last frame (not animated/user-initiated)
+    bool didTilt;               // Tilt set since last frame (not animated/user-initiated)
 };
 
 // Things that change per drawable (like fade)

@@ -19,6 +19,7 @@
 #import <WhirlyGlobe_iOS.h>
 #import "control/WhirlyGlobeViewController.h"
 #import "private/WhirlyGlobeViewController_private.h"
+#import "private/MaplyBaseViewController_private.h"
 #import "private/GlobeDoubleTapDelegate_private.h"
 #import "private/GlobeDoubleTapDragDelegate_private.h"
 #import "private/GlobePanDelegate_private.h"
@@ -147,7 +148,6 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 @implementation WhirlyGlobeViewController
 {
-    bool isPanning,isRotating,isZooming,isAnimating,isTilting;
     WhirlyGlobeViewWrapper viewWrapper;
     CGPoint globeCenter;
 }
@@ -158,6 +158,11 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     if (!self)
         return nil;
     
+    _isPanning = false;
+    _isRotating = false;
+    _isZooming = false;
+    _isAnimating = false;
+    _isTilting = false;
     _autoMoveToTap = true;
     _doubleTapZoomGesture = true;
     _twoFingerTapGesture = true;
@@ -279,6 +284,52 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
     }
 }
+
+- (void)setIsPanning:(bool)isPanning
+{
+    _isPanning = isPanning;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsPanning(isPanning);
+    }
+}
+
+- (void)setIsRotating:(bool)isRotating
+{
+    _isRotating = isRotating;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsRotating(isRotating);
+    }
+}
+
+- (void)setIsTilting:(bool)isTilting
+{
+    _isZooming = isTilting;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsTilting(isTilting);
+    }
+}
+
+- (void)setIsZooming:(bool)isZooming
+{
+    _isZooming = isZooming;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsZooming(isZooming);
+    }
+}
+
+- (void)setIsAnimating:(bool)isAnimating
+{
+    _isAnimating = isAnimating;
+    if (renderControl && renderControl->visualView)
+    {
+        renderControl->visualView->setIsAnimating(isAnimating);
+    }
+}
+
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -488,6 +539,10 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (void)setHeight:(float)height
 {
+    if (height != globeView->getHeightAboveGlobe())
+    {
+        globeView->setHasZoomed(true);
+    }
     globeView->setHeightAboveGlobe(height);
 }
 
@@ -629,6 +684,10 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (void)setTilt:(float)newTilt
 {
+    if (newTilt != globeView->getTilt())
+    {
+        globeView->setHasTilted(true);
+    }
     globeView->setTilt(newTilt);
 }
 
@@ -639,6 +698,10 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (void)setRoll:(double)newRoll
 {
+    if (newRoll != globeView->getRoll())
+    {
+        globeView->setHasRotated(true); // do we need to track roll & rotate separately?
+    }
     globeView->setRoll(newRoll, true);
 }
 
@@ -942,10 +1005,17 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         return;
     }
     
+    const auto oldRot = globeView->getRotQuat();
+    
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
     // If there's a pinch delegate, ask it to calculate the height.
     if (tiltControlDelegate) {
         self.tilt = tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe());
+    }
+
+    if (oldRot.dot(globeView->getRotQuat()) != 1.0)
+    {
+        globeView->setHasMoved(true);
     }
  }
 
@@ -961,6 +1031,11 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     }
 
     [self setPosition:newPos];
+
+    if (height != globeView->getHeightAboveGlobe())
+    {
+        globeView->setHasZoomed(true);
+    }
     globeView->setHeightAboveGlobe(height);
 }
 
@@ -974,9 +1049,21 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         NSLog(@"WhirlyGlobeViewController: Invalid location passed to setPosition:");
         return;
     }
+
+    const auto oldRot = globeView->getRotQuat();
     
     [self rotateToPoint:GeoCoord(newPos.x,newPos.y) time:0.0];
-    globeView->setHeightAboveGlobe(height);
+
+    if (oldRot.dot(globeView->getRotQuat()) != 1.0)
+    {
+        globeView->setHasMoved(true);
+    }
+
+    if (height != globeView->getHeightAboveGlobe())
+    {
+        globeView->setHasZoomed(true);
+    }
+
     // If there's a pinch delegate, ask it to calculate the height.
     if (tiltControlDelegate)
         self.tilt = tiltControlDelegate->tiltFromHeight(globeView->getHeightAboveGlobe());
@@ -1014,6 +1101,10 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     Eigen::AngleAxisd rot(heading,localPt);
     Quaterniond newRotQuat = posQuat * rot;
     
+    if (newRotQuat.dot(globeView->getRotQuat()) != 1.0)
+    {
+        globeView->setHasRotated(true);
+    }
     globeView->setRotQuat(newRotQuat);
 }
 
@@ -1182,7 +1273,9 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 
 - (void) handleStartMoving:(bool)userMotion
 {
-    if (!isPanning && !isRotating && !isZooming && !isAnimating && !isTilting)
+    [super handleStartMoving:userMotion];
+    
+    if (!_isPanning && !_isRotating && !_isZooming && !_isAnimating && !_isTilting)
     {
         const auto __strong delegate = _delegate;
         if ([delegate respondsToSelector:@selector(globeViewControllerDidStartMoving:userMotion:)])
@@ -1229,7 +1322,9 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 // Convenience routine to handle the end of moving
 - (void)handleStopMoving:(bool)userMotion
 {
-    if (isPanning || isRotating || isZooming || isAnimating || isTilting)
+    [super handleStopMoving:userMotion];
+
+    if (_isPanning || _isRotating || _isZooming || _isAnimating || _isTilting)
         return;
     
     const auto __strong delegate = _delegate;
@@ -1249,7 +1344,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
         return;
     
     [self handleStartMoving:true];
-    isTilting = true;
+    self.isTilting = true;
 }
 
 // Called when the tilt delegate stops moving
@@ -1258,7 +1353,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     if (note.object != globeView->tag)
         return;
     
-    isTilting = false;
+    self.isTilting = false;
     [self handleStopMoving:true];
 }
 
@@ -1271,7 +1366,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 //    NSLog(@"Pan started");
 
     [self handleStartMoving:true];
-    isPanning = true;
+    self.isPanning = true;
 }
 
 // Called when the pan delegate stops moving
@@ -1282,7 +1377,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     
 //    NSLog(@"Pan ended");
     
-    isPanning = false;
+    self.isPanning = false;
     [self handleStopMoving:true];
 }
 
@@ -1294,7 +1389,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 //    NSLog(@"Pinch started");
     
     [self handleStartMoving:true];
-    isZooming = true;
+    self.isZooming = true;
 }
 
 - (void) pinchDidEnd:(NSNotification *)note
@@ -1304,7 +1399,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     
 //    NSLog(@"Pinch ended");
 
-    isZooming = false;
+    self.isZooming = false;
     [self handleStopMoving:true];
 }
 
@@ -1316,7 +1411,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 //    NSLog(@"Rotate started");
     
     [self handleStartMoving:true];
-    isRotating = true;
+    self.isRotating = true;
 }
 
 - (void) rotateDidEnd:(NSNotification *)note
@@ -1326,7 +1421,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     
 //    NSLog(@"Rotate ended");
     
-    isRotating = false;
+    self.isRotating = false;
     [self handleStopMoving:true];
 }
 
@@ -1338,7 +1433,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 //    NSLog(@"Animation started");
 
     [self handleStartMoving:false];
-    isAnimating = true;
+    self.isAnimating = true;
 }
 
 - (void) animationDidEnd:(NSNotification *)note
@@ -1352,7 +1447,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     const auto delegate = globeView->getDelegate();
     const bool userMotion = delegate && delegate->isUserMotion();
     
-    isAnimating = false;
+    self.isAnimating = false;
     knownAnimateEndRot = false;
     [self handleStopMoving:userMotion];
 }

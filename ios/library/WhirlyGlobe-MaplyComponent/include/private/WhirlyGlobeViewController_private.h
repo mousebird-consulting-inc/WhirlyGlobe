@@ -64,4 +64,10 @@
     bool delegateRespondsToViewUpdate;
 }
 
+@property (nonatomic, assign) bool isPanning;
+@property (nonatomic, assign) bool isRotating;
+@property (nonatomic, assign) bool isZooming;
+@property (nonatomic, assign) bool isAnimating;
+@property (nonatomic, assign) bool isTilting;
+
 @end

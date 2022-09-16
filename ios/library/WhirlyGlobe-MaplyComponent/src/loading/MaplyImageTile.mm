@@ -136,6 +136,9 @@ using namespace WhirlyKit;
                 case MaplyImageInt16:
                     tex->setFormat(TexTypeSingleInt16);
                     break;
+                case MaplyImageUInt16:
+                    tex->setFormat(TexTypeSingleUInt16);
+                    break;
                 case MaplyImageUInt32:
                     tex->setFormat(TexTypeSingleUInt32);
                     break;
@@ -203,4 +206,18 @@ using namespace WhirlyKit;
     imageTile->prebuildTexture();
 }
 
+- (void)setLabel:(NSString *)name
+{
+    if (imageTile)
+    {
+        if (const auto cstr = name.UTF8String)
+        {
+            imageTile->name = cstr;
+        }
+        else
+        {
+            imageTile->name.clear();
+        }
+    }
+}
 @end
