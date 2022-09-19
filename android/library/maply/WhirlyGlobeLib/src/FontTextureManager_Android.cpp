@@ -230,7 +230,7 @@ std::unique_ptr<DrawableString> FontTextureManager_Android::addString(
 
                         auto rawData = new MutableRawData(bitmapPixels, info.height * info.width * 4);
                         TextureGLES tex("FontTextureManager");
-                        tex.setRawData(rawData, info.width, info.height);
+                        tex.setRawData(rawData, info.width, info.height, 8, 4);
 
                         // Add it to the texture atlas
                         SubTexture subTex;

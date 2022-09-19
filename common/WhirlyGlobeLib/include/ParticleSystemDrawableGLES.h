@@ -70,6 +70,8 @@ protected:
     GLuint pointBuffer = 0;
     GLuint rectBuffer = 0;
 
+    float pointSize = 0.0f;
+
     void drawSetupTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int &progTexBound);
     void drawTeardownTextures(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,bool hasTexture[],int progTexBound);
     void drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog);

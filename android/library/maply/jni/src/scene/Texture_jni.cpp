@@ -96,7 +96,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 			// Make a copy
 			auto rawData = new MutableRawData(bitmapPixels, info.height * info.width * 4);
 			// takes ownership
-			tex->setRawData(rawData, (int)info.width, (int)info.height);
+			tex->setRawData(rawData, (int)info.width, (int)info.height, 8, 4);
 		}
 		catch (...)
 		{

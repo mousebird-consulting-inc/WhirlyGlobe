@@ -36,18 +36,25 @@
 #define LODEPNG_NO_COMPILE_CPP  // We'll use the C API
 #import "lodepng.h"
 
-// Use zlib's crc32
 #import <stdlib.h>
 #import <string>
+#import <arpa/inet.h>
 
+#if defined __APPLE__
 #import <libkern/OSByteOrder.h>
+#endif
 
 // Use zlib's crc32
-#import <zlib.h>
+#if defined __APPLE__
+# import <zlib.h>
 unsigned lodepng_crc32(const unsigned char* buffer, size_t length)
 {
     return crc32_z(crc32(0L, Z_NULL, 0), buffer, length);
 }
+#else
+// No `crc32_z` Android's zlib for some reason
+# define LODEPNG_COMPILE_ZLIB
+#endif
 
 namespace WhirlyKit
 {
@@ -141,12 +148,13 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
         }
     }
     // PNG is big-endian
-    if (depth == 16 && OSHostByteOrder() == OSLittleEndian && outData)
+    constexpr bool needSwap = (ntohs(1) != 1);
+    if (needSwap && depth == 16 && outData)   //NOLINT
     {
         auto *p = (uint16_t *)outData;
         for (int i = 0; i < width * height * channels; ++i, ++p)
         {
-            *p = OSSwapInt16(*p);
+            *p = ntohs(*p);
         }
     }
 

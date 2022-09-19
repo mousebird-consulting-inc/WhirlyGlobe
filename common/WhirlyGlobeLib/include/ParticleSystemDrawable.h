@@ -131,7 +131,6 @@ protected:
     SimpleIdentity renderProgramId = EmptyIdentity;
     int64_t drawOrder = BaseInfo::DrawOrderTiles;
     int drawPriority = 0;
-    //float pointSize = 0.0f;
     TimeInterval lifetime = 0.0;
     bool requestZBuffer = false;
     bool writeZBuffer = false;
