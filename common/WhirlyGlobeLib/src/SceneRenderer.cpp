@@ -205,7 +205,7 @@ void SceneRenderer::removeDrawable(DrawableRef draw,bool teardown,RenderTeardown
     }
 }
 
-void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo)
+void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo,int numViewOffsets)
 {
     // Look at drawables to move into the active set
     std::vector<DrawableRef> drawsToMoveIn;
