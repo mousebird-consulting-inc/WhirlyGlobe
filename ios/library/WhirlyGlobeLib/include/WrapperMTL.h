@@ -223,6 +223,8 @@ protected:
     static constexpr size_t MB = 1024 * 1024;
 };
 
+#define MaxViewWrap 3
+
 /// Passed around to various init and teardown routines
 struct RenderSetupInfoMTL : public RenderSetupInfo
 {
@@ -237,7 +239,7 @@ struct RenderSetupInfoMTL : public RenderSetupInfo
 
     // Buffers created for shared uniforms.
     // Wired into the various drawables individually
-    BufferEntryMTL uniformBuff;
+    BufferEntryMTL uniformBuff[MaxViewWrap];   // We can have three different instances of all geometry (for view wrapping)
     BufferEntryMTL lightingBuff;
 };
 

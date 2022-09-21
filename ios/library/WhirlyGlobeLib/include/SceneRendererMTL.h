@@ -143,7 +143,7 @@ public:
     virtual RendererFrameInfoRef getFrameInfo() override { return lastFrameInfo; }
 
     /// Move things around as required by outside updates
-    virtual void updateWorkGroups(RendererFrameInfo *frameInfo) override;
+    virtual void updateWorkGroups(RendererFrameInfo *frameInfo,int numViewOffsets) override;
 
     /// Construct a basic drawable builder for the appropriate rendering type
     virtual BasicDrawableBuilderRef makeBasicDrawableBuilder(const std::string &name) const override;
@@ -170,7 +170,7 @@ public:
     virtual DynamicTextureRef makeDynamicTexture(const std::string &name) const override;
     
     /// Set up the buffer for general uniforms and attach it to its vertex/fragment buffers
-    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo, id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter);
+    void setupUniformBuffer(RendererFrameInfoMTL *frameInfo, int offset, id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter);
 
     /// Set the lights and tie them to a vertex buffer index
     void setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode);
@@ -214,6 +214,7 @@ public:
     id<MTLCommandQueue> cmdQueue;
     id<MTLCaptureScope> cmdCaptureScope;
 
+    int lastNumViewOffsets = -1;
     // This keeps us from stomping on the previous frame's uniforms
     int lastRenderNo;
     id<MTLEvent> renderEvent;

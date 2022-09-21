@@ -520,13 +520,14 @@ void BasicDrawableInstanceMTL::enumerateResources(RendererFrameInfoMTL *frameInf
     if (!basicDrawMTL)
         return;
 
-    resources.addEntry(sceneRender->setupInfo.uniformBuff);
+    for (int ii=0;ii<MaxViewWrap;ii++)
+        resources.addEntry(sceneRender->setupInfo.uniformBuff[ii]);
     if (vertHasLighting || fragHasLighting)
         resources.addEntry(sceneRender->setupInfo.lightingBuff);
     enumerateBuffers(resources);
 }
 
-void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
+void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
@@ -561,8 +562,8 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,id<M
     [cmdEncode setRenderPipelineState:renderState];
     
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
@@ -743,7 +744,7 @@ void BasicDrawableInstanceMTL::encodeIndirectCalculate(id<MTLIndirectRenderComma
 //        [cmdEncode drawPrimitives:MTLPrimitiveTypePoint vertexStart:0 vertexCount:1];
 //    }
 
-void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
+void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,int oi,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget)
 {
     BasicDrawableMTL *basicDrawMTL = dynamic_cast<BasicDrawableMTL *>(basicDraw.get());
     ProgramMTL *program = (ProgramMTL *)scene->getProgram(programID);
@@ -773,8 +774,8 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     [cmdEncode setRenderPipelineState:renderState];
 
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff.buffer offset:sceneRender->setupInfo.uniformBuff.offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
