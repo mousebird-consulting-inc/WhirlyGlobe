@@ -169,7 +169,7 @@ public:
     virtual void encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) = 0;
 
     /// Draw directly, once per frame
-    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) = 0;
+    virtual void encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MTLRenderCommandEncoder> cmdEncode,Scene *scene) = 0;
     
     /// Indirect version of calculate encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
@@ -177,7 +177,7 @@ public:
 
     /// Indirect version of regular encoding.  Called only when things change enough to re-encode.
     API_AVAILABLE(ios(13.0))
-    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget) = 0;
+    virtual void encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,int oi,SceneRendererMTL *sceneRender,Scene *scene,RenderTargetMTL *renderTarget) = 0;
 };
 
 }

@@ -113,8 +113,10 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
 
     setScale(inScale);
     setupInfo.mtlDevice = mtlDevice;
-    setupInfo.uniformBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
-    setupInfo.uniformBuff.buffer.label = @"uniforms";
+    for (unsigned int ii=0;ii<MaxViewWrap;ii++) {
+        setupInfo.uniformBuff[ii] = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
+        setupInfo.uniformBuff[ii].buffer.label = @"uniforms";
+    }
     setupInfo.lightingBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Lighting));
     setupInfo.lightingBuff.buffer.label = @"lighting";
     releaseQueue = dispatch_queue_create("Maply release queue", DISPATCH_QUEUE_SERIAL);
@@ -218,7 +220,7 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
     return true;
 }
 
-void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter)
+void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter)
 {
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     
@@ -258,7 +260,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,id<MTL
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     auto buff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable, &uniforms, sizeof(uniforms));
-    [bltEncode copyFromBuffer:buff.buffer sourceOffset:buff.offset toBuffer:sceneRender->setupInfo.uniformBuff.buffer destinationOffset:sceneRender->setupInfo.uniformBuff.offset size:sizeof(uniforms)];
+    [bltEncode copyFromBuffer:buff.buffer sourceOffset:buff.offset toBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer destinationOffset:sceneRender->setupInfo.uniformBuff[oi].offset size:sizeof(uniforms)];
 }
 
 void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode)
@@ -340,15 +342,18 @@ void SceneRendererMTL::removeSnapshotDelegate(NSObject<WhirlyKitSnapshot> *oldDe
     snapshotDelegates.erase(std::remove(snapshotDelegates.begin(), snapshotDelegates.end(), oldDelegate), snapshotDelegates.end());
 }
 
-void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
+void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo,int numViewOffsets)
 {
     RendererFrameInfoMTL *frameInfo = (RendererFrameInfoMTL *)inFrameInfo;
     RenderTeardownInfoMTLRef teardownInfoMTL = std::dynamic_pointer_cast<RenderTeardownInfoMTL>(teardownInfo);
-    SceneRenderer::updateWorkGroups(frameInfo);
+    SceneRenderer::updateWorkGroups(frameInfo,numViewOffsets);
     
     if (!indirectRender)
         return;
-
+    
+    bool viewOffsetsChanged = numViewOffsets != lastNumViewOffsets;
+    lastNumViewOffsets = numViewOffsets;
+    
     // Build the indirect command buffers if they're available
     if (@available(iOS 13.0, *)) {
         const bool isCapturing = [MTLCaptureManager sharedCaptureManager].isCapturing;
@@ -435,7 +440,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                 for (const auto &drawGroup : targetContainerMTL->drawGroups) {
                     ++drawGroupIndex;
                     int curCommand = 0;
-                    drawGroup->numCommands = drawGroup->drawables.size();
+                    drawGroup->numCommands = numViewOffsets*drawGroup->drawables.size();
                     drawGroup->indCmdBuff = [setupInfo.mtlDevice newIndirectCommandBufferWithDescriptor:cmdBuffDesc maxCommandCount:drawGroup->numCommands options:0];
                     if (!drawGroup->indCmdBuff) {
                         wkLogLevel(Error, "SceneRendererMTL: Failed to allocate indirect command buffer.  Skipping.");
@@ -484,11 +489,10 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo)
                                 continue;
                             }
                             
-                            id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
-
-                            // TODO: Handle the offset matrices by encoding twice
-
-                            drawMTL->encodeIndirect(cmdEncode,this,scene,renderTarget.get());
+                            for (int oi=0;oi<numViewOffsets;oi++) {
+                                id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
+                                drawMTL->encodeIndirect(cmdEncode,oi,this,scene,renderTarget.get());
+                            }
                             drawMTL->enumerateResources(frameInfo, drawGroup->resources);
                         }
                     }
@@ -731,7 +735,7 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
     processScene(now);
     
     // Update our work groups accordingly
-    updateWorkGroups(&baseFrameInfo);
+    updateWorkGroups(&baseFrameInfo,baseFrameInfo.offsetMatrices.size());
     
     if (perfInterval > 0)
         perfTimer.stopTiming("Scene processing");
@@ -877,7 +881,9 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
 
             // TODO: Just set these up once and copy it into position
             setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
-            setupUniformBuffer(&baseFrameInfo,bltEncode,scene->getCoordAdapter());
+            for (unsigned oi=0;oi<offFrameInfos.size();oi++) {
+                setupUniformBuffer(&offFrameInfos[oi],oi,bltEncode,scene->getCoordAdapter());
+            }
             [bltEncode updateFence:preProcessFence];
             [bltEncode endEncoding];
             
@@ -1055,16 +1061,12 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
                                 firstDepthState = false;
                             }
                             
-                            //for (unsigned int off=0;off<offFrameInfos.size();off++) {
-                                // Set up transforms to use right now (one per offset matrix)
-//                                baseFrameInfo.mvpMat = mvpMats4f[off];
-//                                baseFrameInfo.mvpInvMat = mvpInvMats4f[off];
-                                
+                            for (unsigned int off=0;off<offFrameInfos.size();off++) {
                                 baseFrameInfo.program = program;
 
                                 // "Draw" using the given program
-                                drawMTL->encodeDirect(&baseFrameInfo,cmdEncode,scene);
-                            //}
+                                drawMTL->encodeDirect(&baseFrameInfo,off,cmdEncode,scene);
+                            }
                         }
                     }
                 }

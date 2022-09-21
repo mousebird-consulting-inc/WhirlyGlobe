@@ -277,7 +277,7 @@ public:
     virtual RendererFrameInfoRef getFrameInfo() { return RendererFrameInfoRef(); }
 
     /// Move things around as required by outside updates
-    virtual void updateWorkGroups(RendererFrameInfo *frameInfo);
+    virtual void updateWorkGroups(RendererFrameInfo *frameInfo,int numViewOffsets);
         
     /// Add a render target to start rendering too
     virtual void addRenderTarget(RenderTargetRef newTarget);
