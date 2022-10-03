@@ -858,6 +858,21 @@ typedef void (__strong ^InitCompletionBlock)(void);
   */
 - (void)addAnnotation:(MaplyAnnotation *__nonnull)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset;
 
+/**
+ Add a single annotation which will track the given point.
+ 
+ This adds a MaplyAnnotation that will follow the given geo coordinate, applying the screen offset as given.
+ 
+ @param annotate The annotation we want to track a given point.
+ 
+ @param coord The location on the map (or globe) we'd like to track.
+ 
+ @param offset The screen offset for the annotation UIView.  You use this to put the annotation above or below objects.
+ 
+ @param arrowDirection Arrow direction from the SMCalloutView package.
+ */
+- (void)addAnnotation:(MaplyAnnotation *__nonnull)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset arrowDirection:(NSInteger)arrowDirection;
+
 /** 
     Remove the given annotation from the UIView.
     

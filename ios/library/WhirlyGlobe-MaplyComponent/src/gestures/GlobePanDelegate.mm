@@ -99,6 +99,12 @@ typedef enum {PanNone,PanFree,PanSuspended} PanningType;
         panRecog = [[MinDelayPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
     else
         panRecog = [[UIPanGestureRecognizer alloc] initWithTarget:panDelegate action:@selector(panAction:)];
+
+    // this enables use of the iPad trackpad for panning around the map
+    if (@available(iOS 13.4, *)) {
+        panRecog.allowedScrollTypesMask = UIScrollTypeMaskContinuous;
+    }
+
 #if TARGET_OS_MACCATALYST
     if (@available(macCatalyst 13.4, *))
     {
@@ -395,7 +401,8 @@ static const float MomentumAnimLen = 1.0;
                     float accel = - angVel / (MomentumAnimLen * MomentumAnimLen);
                     
                     // Keep going in that direction for a while
-                    if (angVel > 0.0)
+                    // If we use 0.00, it's a little too sensitive.  This cuts off the movement a little earlier.
+                    if (angVel > 0.003)
                     {
                         AnimateViewMomentum *anim = new AnimateViewMomentum(globeView,angVel,accel,upVector,_northUp);
                         globeView->setDelegate(GlobeViewAnimationDelegateRef(anim));

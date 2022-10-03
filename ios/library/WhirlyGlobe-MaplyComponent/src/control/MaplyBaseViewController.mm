@@ -871,9 +871,16 @@ static const float PerfOutputDelay = 15.0;
 #if !MAPLY_MINIMAL
 - (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset
 {
+    [self addAnnotation:annotate forPoint:coord offset:offset arrowDirection:SMCalloutArrowDirectionDown];
+}
+
+- (void)addAnnotation:(MaplyAnnotation *)annotate forPoint:(MaplyCoordinate)coord offset:(CGPoint)offset arrowDirection:(NSInteger)arrowDirection
+{
     if (!renderControl)
         return;
-    
+
+    annotate.calloutView.permittedArrowDirection = arrowDirection;
+
     // See if we're already representing the annotation
     bool alreadyHere = [annotations containsObject:annotate];
     
