@@ -407,6 +407,7 @@ public:
 
     /// In-memory texture type
     void setTexType(TextureType type) { texType = type; }
+    void setTexByteSource(WKSingleByteSource src) { texByteSource = src; }
     
     /// If we're using border pixels, set the individual texture size and border size
     void setTexSize(int texSize,int borderSize);
@@ -601,6 +602,8 @@ protected:
     bool requiringTopTilesLoaded = true;
     
     TextureType texType = TexTypeUnsignedByte;
+    WKSingleByteSource texByteSource = WKSingleRGB;
+
     int texSize = 0;
     int borderSize = 0;
 
