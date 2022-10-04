@@ -429,11 +429,24 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
             loader->setTexType(TexTypeShort5551);
             break;
         case MaplyImageUByteRed:
+            loader->setTexType(TexTypeSingleChannel);
+            loader->setTexByteSource(WKSingleByteSource::WKSingleRed);
+            break;
         case MaplyImageUByteGreen:
+            loader->setTexType(TexTypeSingleChannel);
+            loader->setTexByteSource(WKSingleByteSource::WKSingleGreen);
+            break;
         case MaplyImageUByteBlue:
+            loader->setTexType(TexTypeSingleChannel);
+            loader->setTexByteSource(WKSingleByteSource::WKSingleBlue);
+            break;
         case MaplyImageUByteAlpha:
+            loader->setTexType(TexTypeSingleChannel);
+            loader->setTexByteSource(WKSingleByteSource::WKSingleAlpha);
+            break;
         case MaplyImageUByteRGB:
             loader->setTexType(TexTypeSingleChannel);
+            loader->setTexByteSource(WKSingleByteSource::WKSingleRGB);
             break;
         case MaplyImageSingleFloat16:
             loader->setTexType(TexTypeSingleFloat16);

@@ -1036,6 +1036,7 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
                 image->clearTexture();
                 if (tex) {
                     tex->setFormat(texType);
+                    tex->setSingleByteSource(texByteSource);
                     texs.push_back(tex);
                 }
             }
