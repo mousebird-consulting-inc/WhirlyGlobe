@@ -1183,10 +1183,12 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
                 const int relX = tileID.x - texNode.x * (int)(1U<<relLevel);
                 int tileIDY = tileID.y;
                 int frameIdentY = texNode.y;
-                if (flipY) {
+                // Note: Confused why this works for both modes
+                //       Might be how the textures are laid out.  Still.  Wah?
+//                if (flipY) {
                     tileIDY = (int)(1U<<(unsigned)tileID.level)-tileIDY-1;
                     frameIdentY = (int)(1U<<(unsigned)texNode.level)-frameIdentY-1;
-                }
+//                }
                 const int relY = tileIDY - frameIdentY * (int)(1U<<relLevel);
 
                 // We'll want to match the draw priority of the tile we're changing to the texture we're using

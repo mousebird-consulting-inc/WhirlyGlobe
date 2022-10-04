@@ -28,6 +28,9 @@ public class MapboxKindaMap {
     // Works well zoomed out, less enticing zoomed in
     public var backgroundAllPolys = true
     
+    // If set, we'll use this to override the forceMinLevel default
+    public var forceMinLevel: Bool? = nil
+    
     // If set, a top level directory where we'll cache everything
     public var cacheDir: URL?
     
@@ -424,8 +427,8 @@ public class MapboxKindaMap {
                     print("Bad format in tileInfo for style sheet")
                     return
                 }
-                if let minZoom = source.tileSpec?["minzoom"] as? Int32,
-                    let maxZoom = source.tileSpec?["maxzoom"] as? Int32,
+                if var minZoom = source.tileSpec?["minzoom"] as? Int32,
+                    var maxZoom = source.tileSpec?["maxzoom"] as? Int32,
                     let tiles = source.tileSpec?["tiles"] as? [String] {
                     var newTileURLs = [String]()
                     for tileURL in tiles {
@@ -464,9 +467,9 @@ public class MapboxKindaMap {
         // If we don't have a solid underlayer for each tile, we can't really
         //  keep level 0 around all the time
         if !backgroundAllPolys {
-            sampleParams.forceMinLevel = false
+            sampleParams.forceMinLevel = forceMinLevel ?? false
         } else {
-            sampleParams.forceMinLevel = true
+            sampleParams.forceMinLevel = forceMinLevel ?? true
             sampleParams.minImportanceTop = 0.0
         }
         if viewC is WhirlyGlobeViewController {
