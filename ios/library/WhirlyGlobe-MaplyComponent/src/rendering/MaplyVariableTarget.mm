@@ -33,6 +33,7 @@
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     std::vector<MaplyVariableTarget *> auxTargets;
     std::map<int,NSData *> uniBlocks;
+    UIColor *_color;
 }
 
 /// Initialize with the variable type and view controller
@@ -56,6 +57,18 @@
     });
     
     return self;
+}
+
+- (void)setColor:(UIColor *)color
+{
+    _color = color;
+    if (_rectObj)
+        [self setupRectangle];
+}
+
+- (UIColor *)color
+{
+    return _color;
 }
 
 - (void)addVariableTarget:(MaplyVariableTarget *)target
