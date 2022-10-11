@@ -72,6 +72,63 @@ TextureMTL::TextureMTL(std::string name, UIImage *inImage) :
     }
 }
 
+static const vImage_CGImageFormat r4Format = {
+    .bitsPerComponent = 4,
+    .bitsPerPixel = 4,
+    .colorSpace = CGColorSpaceCreateDeviceGray(),
+    .bitmapInfo = kCGBitmapByteOrderDefault,
+    .version = 0,
+    .decode = nil,
+    .renderingIntent = kCGRenderingIntentDefault,
+};
+static const vImage_CGImageFormat r8Format = {
+    .bitsPerComponent = 8,
+    .bitsPerPixel = 8,
+    .colorSpace = CGColorSpaceCreateDeviceGray(),
+    .bitmapInfo = kCGBitmapByteOrderDefault,
+    .version = 0,
+    .decode = nil,
+    .renderingIntent = kCGRenderingIntentDefault,
+};
+static vImageConverterRef r4to8Converter = nullptr;
+
+static inline vImage_Buffer toVBuf(const RawDataRef &data, int width, int height, int row)
+{
+    return {
+        .data     = (void*)data->getRawData(),
+        .height   = (vImagePixelCount)height,
+        .width    = (vImagePixelCount)width,
+        .rowBytes = (size_t)row
+    };
+}
+
+static RawDataRef ConvertR4toR8(const RawDataRef &inData, int width, int height)
+{
+    constexpr vImage_Flags flags = kvImageNoFlags;  // kvImagePrintDiagnosticsToConsole
+    if (!r4to8Converter)
+    {
+        r4to8Converter = vImageConverter_CreateWithCGImageFormat(&r4Format, &r8Format, nil, flags, nil);
+        if (!r4to8Converter)
+        {
+            wkLogLevel(Warn, "vImageConverter_CreateWithCGImageFormat failed: %d");
+            return RawDataRef();
+        }
+    }
+
+    auto outData = std::make_shared<RawDataWrapper>(new uint8_t[width * height], width * height, /*free=*/true);
+
+    vImage_Buffer srcBuf = toVBuf(inData, width, height, (width + 1) / 2);
+    vImage_Buffer destBuf = toVBuf(outData, width, height, width);
+
+    const auto result = vImageConvert_AnyToAny(r4to8Converter, &srcBuf, &destBuf, nil, flags);
+    if (result != kvImageNoError)
+    {
+        wkLogLevel(Warn, "vImageConvert_AnyToAny failed: %d", result);
+        return RawDataRef();
+    }
+
+    return outData;
+}
 
 #if !TARGET_OS_MACCATALYST
 static RawDataRef ConvertRGBA8888toRGB565(const RawDataRef &inData, int width, int height)
@@ -124,11 +181,16 @@ RawDataRef TextureMTL::convertData()
     switch (format)
     {
     case TexTypeUnsignedByte:
-    case TexTypeSingleChannel:
     case TexTypeSingleInt16:
     case TexTypeSingleUInt16:
     case TexTypeDoubleUInt16:
         // no conversion needed?
+        return texData;
+    case TexTypeSingleChannel:
+        if (texData && texData->getLen() * 2 ==  width * height)
+        {
+            return ConvertR4toR8(texData, width, height);
+        }
         return texData;
     case TexTypeDoubleChannel:
         return ConvertRGBATo16(texData,width,height,false);
