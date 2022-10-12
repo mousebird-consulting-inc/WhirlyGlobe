@@ -544,7 +544,11 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int 
     BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
-    
+    if (!renderState)
+    {
+        return;
+    }
+
     // Wire up the various inputs that we know about
     for (const auto &vertAttr : basicDrawMTL->vertexAttributes) {
         auto vertAttrMTL = (const VertexAttributeMTL *)vertAttr;
@@ -757,6 +761,10 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     BasicDrawableMTL *instDrawMTL = dynamic_cast<BasicDrawableMTL *>(instDraw.get());
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender, scene, program, renderTarget, basicDrawMTL);
+    if (!renderState)
+    {
+        return;
+    }
 
     // Wire up the various inputs that we know about
     for (const auto &vertAttr : basicDrawMTL->vertexAttributes) {

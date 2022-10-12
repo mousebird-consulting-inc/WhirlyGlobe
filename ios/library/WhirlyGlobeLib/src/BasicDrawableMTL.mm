@@ -619,6 +619,10 @@ void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,(ProgramMTL *)frameInfo->program,(RenderTargetMTL *)frameInfo->renderTarget);
+    if (!renderState)
+    {
+        return;
+    }
 
     [cmdEncode setRenderPipelineState:renderState];
 
@@ -658,7 +662,11 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MT
     SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,(ProgramMTL *)frameInfo->program,(RenderTargetMTL *)frameInfo->renderTarget);
-    
+    if (!renderState)
+    {
+        return;
+    }
+
     // Wire up the various inputs that we know about
     for (const auto &vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
@@ -732,6 +740,10 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
     }
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,program,renderTarget);
+    if (!renderState)
+    {
+        return;
+    }
 
     [cmdEncode setRenderPipelineState:renderState];
 
@@ -793,7 +805,11 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,int
     }
 
     id<MTLRenderPipelineState> renderState = getRenderPipelineState(sceneRender,scene,program,renderTarget);
-    
+    if (!renderState)
+    {
+        return;
+    }
+
     // Wire up the various inputs that we know about
     for (const auto &vertAttr : vertexAttributes) {
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)vertAttr;
