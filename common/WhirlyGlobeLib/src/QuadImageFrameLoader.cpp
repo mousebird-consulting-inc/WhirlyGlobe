@@ -270,10 +270,10 @@ void QIFTileAsset::setupContents(QuadImageFrameLoader *loader,
             snprintf(&buf[0], buf.size() - 1, "%s %d:(%d,%d) frames=%d focus=%d kind=%d", label.c_str(),
                      loadedTile->ident.level, loadedTile->ident.x, loadedTile->ident.y,
                      loader->getNumFrames(), focusID, di.kind);
-            const char * const label = &buf[0];
 #else
-            constexpr char * label = "";
+            const char buf[1] = { '\0' };
 #endif
+            const char * const label = &buf[0];
 
             // Make a drawable instance to shadow the geometry
             auto drawInst = loader->getController()->getRenderer()->makeBasicDrawableInstanceBuilder(label);

@@ -129,15 +129,17 @@ public class MapGestureHandler
 				final Point3d hit = thisMapView.pointOnPlaneFromScreen(corners[ii], fullMatrix, frameSize, false);
 				final Point2d hit2d = new Point2d(hit.getX(), hit.getY());
 				if (!GeometryUtils.PointInPolygon(hit2d, bounds)) {
-					final Point2d closePt = new Point2d();
-					GeometryUtils.ClosestPointToPolygon(bounds,hit2d,closePt);
-					final Point2d thisOffset = new Point2d(1.01*(closePt.getX()-hit2d.getX()),
-					                                       1.01*(closePt.getY()-hit2d.getY()));
+					final Point2d closePt = new Point2d(0, 0);
+					final double dist = GeometryUtils.ClosestPointToPolygon(bounds,hit2d,closePt);
+					if (dist != Double.MAX_VALUE) {
+						final Point2d thisOffset = new Point2d(1.01 * (closePt.getX() - hit2d.getX()),
+						                                       1.01 * (closePt.getY() - hit2d.getY()));
 
-					locOffset = locOffset.addTo(thisOffset);
-					checkOkay = false;
+						locOffset = locOffset.addTo(thisOffset);
+						checkOkay = false;
 
-					break;
+						break;
+					}
 				}
 			}
 

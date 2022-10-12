@@ -82,19 +82,23 @@ public class GeometryUtils
 	 * @param pt Point that's near the polygon.
 	 * @param retClosePt The closest point on the polygon to the input pt.
 	 */
-	public static double ClosestPointToPolygon(Point2d pts[],Point2d pt,Point2d retClosePt)
+	public static double ClosestPointToPolygon(Point2d[] pts,Point2d pt,Point2d retClosePt)
 	{
 		double minDist2 = Double.MAX_VALUE;
 		Point2d closePt = null;
 
+		if (pts == null || pts.length < 2) {
+			return minDist2;
+		}
+
 		for (int ii=0;ii<pts.length;ii++)
 		{
-        	Point2d p0 = pts[ii];
-        	Point2d p1 = pts[(ii+1)%pts.length];
+			Point2d p0 = pts[ii];
+			Point2d p1 = pts[(ii+1)%pts.length];
 
-			double t;
 			Point2d thisClosePt = ClosestPointOnLineSegment(p0, p1, pt);
-			double thisDist2 = (new Point2d(pt.getX()-thisClosePt.getX(),pt.getY()-thisClosePt.getY())).squaredNorm();
+			double thisDist2 = (new Point2d(pt.getX()-thisClosePt.getX(),
+			                                pt.getY()-thisClosePt.getY())).squaredNorm();
 			if (thisDist2 < minDist2)
 			{
 				minDist2 = thisDist2;
@@ -102,8 +106,10 @@ public class GeometryUtils
 			}
 		}
 
-		retClosePt.setValue(closePt.getX(),closePt.getY());
+		if (closePt != null && retClosePt != null) {
+			retClosePt.setValue(closePt.getX(), closePt.getY());
+		}
 
-		return Math.sqrt(minDist2);
+		return (closePt != null) ? Math.sqrt(minDist2) : minDist2;
 	}
 }
