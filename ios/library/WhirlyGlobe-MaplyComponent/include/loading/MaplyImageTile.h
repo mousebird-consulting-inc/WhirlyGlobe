@@ -41,7 +41,7 @@
     
     @param height The height of the raw image contained in the data object.
  */
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (instancetype _Nullable)initWithRawImage:(NSData *_Nonnull)data width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC;
 
 /**
  Initialize with an NSData object containing 32 bit pixels.
@@ -56,7 +56,12 @@
  
  @param comp The number of components (1, 2 or 4)
  */
-- (instancetype)initWithRawImage:(NSData *)data width:(int)width height:(int)height depth:(int)depth components:(int)comp viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (instancetype _Nullable)initWithRawImage:(NSData *_Nonnull)data
+                                     width:(int)width
+                                    height:(int)height
+                                     depth:(int)depth
+                                components:(int)comp
+                                     viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC;
 
 /**
 Initialize with an NSData object containing pixels of a given format.
@@ -71,21 +76,27 @@ This sets up the tile with an NSData object containing raw pixels.  The pixels a
 
 @param height The height of the raw image contained in the data object.
 */
-- (instancetype)initWithRawImage:(NSData *)data format:(MaplyQuadImageFormat)format width:(int)width height:(int)height viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (instancetype _Nullable)initWithRawImage:(NSData *_Nonnull)data
+                                    format:(MaplyQuadImageFormat)format
+                                     width:(int)width
+                                    height:(int)height
+                                     viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC;
 
 /** 
     Initialize with a single UIImage for the tile.
     
     This sets up the given UIImage as the return for the given tile.  You can then set targetSize and such.
  */
-- (instancetype)initWithImage:(UIImage *)image viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (instancetype _Nullable)initWithImage:(UIImage *_Nonnull)image
+                                  viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC;
 
 /** 
     Initialize with an NSData object containing PNG or JPEG data that can be interpreted by UIImage.
     
     We're expecting PNG, JPEG or another self identified format (e.g. PKM).  These we can interpret ourselves.
  */
-- (instancetype)initWithPNGorJPEGData:(NSData *)data viewC:(NSObject<MaplyRenderControllerProtocol> *)viewC;
+- (instancetype _Nullable)initWithPNGorJPEGData:(NSData *_Nonnull)data
+                                          viewC:(NSObject<MaplyRenderControllerProtocol> *_Nonnull)viewC;
 
 /**
     Border size that was set on initialization.

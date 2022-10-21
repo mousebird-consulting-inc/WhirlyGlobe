@@ -281,9 +281,6 @@ public:
     // Uniforms to apply to shader
     SingleVertexAttributeSet uniforms;
         
-    // If set the geometry is already in OpenGL clip coordinates, so no transform
-    bool clipCoords = false;
-    
     // Set if we changed one of the general values (presumably during execution)
     bool valuesChanged = false;
     // Set if the textures changed

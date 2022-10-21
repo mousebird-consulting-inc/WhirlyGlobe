@@ -89,7 +89,13 @@ public:
 
     /// Check if we're supposed to write to the z buffer
     virtual bool getWriteZbuffer() const = 0;
-    
+
+    /// Get whether we should skip transforms on this drawable
+    virtual bool getClipCoords() const { return clipCoords; }
+
+    /// Set whether we should skip transforms on this drawable
+    virtual void setClipCoords(bool newValue) { clipCoords = newValue; }
+
     /// Drawables can override where they're drawn.  EmptyIdentity is the regular screen.
     virtual SimpleIdentity getRenderTarget() const = 0;
     
@@ -125,6 +131,9 @@ public:
 protected:
     std::string name;
     DrawableTweakerRefSet tweakers;
+
+    // If set the geometry is already in OpenGL clip coordinates, so no transform
+    bool clipCoords = false;
 
     bool blendPremultipliedAlpha = false;
 };

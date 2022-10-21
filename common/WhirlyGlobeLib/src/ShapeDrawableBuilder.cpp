@@ -64,17 +64,31 @@ ShapeInfo::ShapeInfo(const ShapeInfo &info) :
 {
 }
 
-ShapeDrawableBuilder::ShapeDrawableBuilder(CoordSystemDisplayAdapter *coordAdapter, SceneRenderer *sceneRender, const ShapeInfo &shapeInfo, bool linesOrPoints, const Point3d &center)
-    : coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo), drawable(NULL), center(center)
+ShapeDrawableBuilder::ShapeDrawableBuilder(const CoordSystemDisplayAdapter *coordAdapter,
+                                           SceneRenderer *sceneRender,
+                                           const ShapeInfo &shapeInfo,
+                                           bool linesOrPoints,
+                                           const Point3d &center) :
+    coordAdapter(coordAdapter),
+    sceneRender(sceneRender),
+    shapeInfo(shapeInfo),
+    center(center),
+    primType(linesOrPoints ? Lines : Points)
 {
-    primType = (linesOrPoints ? Lines : Points);
 }
 
-ShapeDrawableBuilder::~ShapeDrawableBuilder()
+void ShapeDrawableBuilder::setClipCoords(bool newClipCoords)
 {
+    // Can't mix different coordinates in the same drawable
+    if (clipCoords != newClipCoords && drawable)
+    {
+        flush();
+    }
+    clipCoords = newClipCoords;
 }
 
-void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,float lineWidth,bool closed)
+void ShapeDrawableBuilder::addPoints(const Point3dVector &pts,RGBAColor color,
+                                     const Mbr &mbr,float lineWidth,bool closed)
 {
     // Decide if we'll appending to an existing drawable or
     //  create a new one
@@ -89,6 +103,7 @@ void ShapeDrawableBuilder::addPoints(Point3dVector &pts,RGBAColor color,Mbr mbr,
         shapeInfo.setupBasicDrawable(drawable);
         drawMbr.reset();
         drawable->setType(primType);
+        drawable->setClipCoords(clipCoords);
         // Adjust according to the vector info
         //            drawable->setColor([shapeInfo.color asRGBAColor]);
         drawable->setLineWidth(lineWidth);
@@ -171,7 +186,7 @@ void ShapeDrawableBuilder::flush()
     }
 }
 
-void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet &drawIDs)
+void ShapeDrawableBuilder::getChanges(ChangeSet &changes,SimpleIDSet &drawIDs)
 {
     flush();
     for (auto & draw : drawables)
@@ -183,11 +198,14 @@ void ShapeDrawableBuilder::getChanges(WhirlyKit::ChangeSet &changes,SimpleIDSet 
 }
 
 
-ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter,
-                                                 SceneRenderer *sceneRender, const ShapeInfo &shapeInfo,
+ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(const CoordSystemDisplayAdapter *coordAdapter,
+                                                 SceneRenderer *sceneRender,
+                                                 const ShapeInfo &shapeInfo,
                                                  const Point3d &center) :
-    coordAdapter(coordAdapter), sceneRender(sceneRender), shapeInfo(shapeInfo),
-    drawable(nullptr), center(center), clipCoords(false)
+    coordAdapter(coordAdapter),
+    sceneRender(sceneRender),
+    shapeInfo(shapeInfo),
+    center(center)
 {
 }
 
@@ -195,8 +213,7 @@ void ShapeDrawableBuilderTri::setupNewDrawable()
 {
     drawable = sceneRender->makeBasicDrawableBuilder("Shape Layer");
     shapeInfo.setupBasicDrawable(drawable);
-    if (clipCoords)
-        drawable->setClipCoords(true);
+    drawable->setClipCoords(clipCoords);
     drawMbr.reset();
     drawable->setType(Triangles);
     // Adjust according to the vector info
