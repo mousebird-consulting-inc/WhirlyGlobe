@@ -182,7 +182,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 const auto ptA_3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
                 const auto ptB_3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
                 
-                const TexCoord texCoord(ix*texIncr.x() + texOffset.x(),
+                const TexCoord texCoord(ix*texIncr.x() - texOffset.x(),
                                         1.0f-(iy*texIncr.y()) + texOffset.y());
                 
                 chunk->addPoint(Point3d(org3D-chunkMidDisp));
@@ -284,7 +284,7 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 //                        loc3D.z() = (drawPriority + nodeInfo->ident.level * 0.01)/10000;
 
                 // Do the texture coordinate separately
-                const TexCoord texCoord(ix*texIncr.x() + texOffset.x(),
+                const TexCoord texCoord(ix*texIncr.x() - texOffset.x(),
                                         1.0f-(iy*texIncr.y()) + texOffset.y());
                 texCoords[iy*(sphereTessX+1)+ix] = texCoord;
             }
