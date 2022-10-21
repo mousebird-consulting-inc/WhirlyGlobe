@@ -442,7 +442,7 @@ void ShapeDrawableBuilderTri::flush()
 
             drawables.push_back(drawable);
         }
-        drawable = NULL;
+        drawable.reset();
     }
 }
 

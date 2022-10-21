@@ -351,7 +351,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo,int numVi
     if (!indirectRender)
         return;
     
-    bool viewOffsetsChanged = numViewOffsets != lastNumViewOffsets;
+    //bool viewOffsetsChanged = numViewOffsets != lastNumViewOffsets;
     lastNumViewOffsets = numViewOffsets;
     
     // Build the indirect command buffers if they're available
