@@ -458,7 +458,13 @@ public class MapboxKindaMap {
                 }
             }
         }
-        
+
+        if tileInfos.isEmpty {
+            print("Failed to set up tile infos")
+            self.stop()
+            return
+        }
+
         // Parameters describing how we want a globe broken down
         let sampleParams = MaplySamplingParams()
         sampleParams.coordSys = MaplySphericalMercator(webStandard: ())
