@@ -351,7 +351,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo,int numVi
     if (!indirectRender)
         return;
     
-    bool viewOffsetsChanged = numViewOffsets != lastNumViewOffsets;
+    //bool viewOffsetsChanged = numViewOffsets != lastNumViewOffsets;
     lastNumViewOffsets = numViewOffsets;
     
     // Build the indirect command buffers if they're available
@@ -489,7 +489,10 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo,int numVi
                                 continue;
                             }
                             
-                            for (int oi=0;oi<numViewOffsets;oi++) {
+                            // Draw once for each matrix, unless the drawable uses
+                            // clip coordinates and doesn't need to be transformed.
+                            const int numDraws = drawMTL->getClipCoords() ? 1 : numViewOffsets;
+                            for (int oi=0;oi<numDraws;oi++) {
                                 id<MTLIndirectRenderCommand> cmdEncode = [drawGroup->indCmdBuff indirectRenderCommandAtIndex:curCommand++];
                                 drawMTL->encodeIndirect(cmdEncode,oi,this,scene,renderTarget.get());
                             }
@@ -741,7 +744,7 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
         perfTimer.stopTiming("Scene processing");
     
     // Work through the available offset matrices (only 1 if we're not wrapping)
-    std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
+    const std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
     std::vector<RendererFrameInfoMTL> offFrameInfos;
     // Turn these drawables in to a vector
     std::vector<Matrix4d> mvpMats;
@@ -1060,8 +1063,11 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
                                 [cmdEncode setDepthStencilState:depthStencil];
                                 firstDepthState = false;
                             }
-                            
-                            for (unsigned int off=0;off<offFrameInfos.size();off++) {
+
+                            // Draw once for each matrix, unless the drawable uses
+                            // clip coordinates and doesn't need to be transformed.
+                            const size_t numDraws = drawMTL->getClipCoords() ? 1 : offFrameInfos.size();
+                            for (size_t off=0;off<numDraws;off++) {
                                 baseFrameInfo.program = program;
 
                                 // "Draw" using the given program

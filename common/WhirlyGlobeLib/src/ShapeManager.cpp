@@ -245,7 +245,7 @@ void Sphere::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder
         for (unsigned int ix=0;ix<sampleX;ix++)
         {
             BasicDrawable::Triangle triA,triB;
-            if (regBuilder->shapeInfo.insideOut)
+            if (regBuilder->getShapeInfo()->insideOut)
             {
                 // Flip the triangles
                 triA.verts[0] = iy*(sampleX+1)+ix;
@@ -652,11 +652,6 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     ShapeDrawableBuilderTri drawBuildTri(scene->getCoordAdapter(),renderer,shapeInfo,center);
     ShapeDrawableBuilder drawBuildReg(scene->getCoordAdapter(),renderer,shapeInfo,true,center);
     
-    // Some special shapes are already in OpenGL clip space
-    if (shape.clipCoords)
-    {
-        drawBuildTri.clipCoords = true;
-    }
     auto selectManage = SelectionManagerRef();
     shape.makeGeometryWithBuilder(&drawBuildReg,&drawBuildTri,scene,selectManage,nullptr);
     
@@ -665,7 +660,7 @@ void ShapeManager::convertShape(Shape &shape,std::vector<WhirlyKit::GeometryRaw>
     rawGeom.resize(1);
     GeometryRaw &outGeom = rawGeom.front();
     outGeom.type = WhirlyKitGeometryTriangles;
-    for (const BasicDrawableBuilderRef &draw : drawBuildTri.drawables)
+    for (const BasicDrawableBuilderRef &draw : drawBuildTri.getDrawables())
     {
         int basePts = (int)outGeom.pts.size();
         outGeom.pts.reserve(draw->points.size());
@@ -723,10 +718,8 @@ SimpleIdentity ShapeManager::addShapes(const std::vector<Shape*> &shapes, const 
     // Work through the shapes
     for (auto shape : shapes)
     {
-        if (shape->clipCoords)
-            drawBuildTri.setClipCoords(true);
-        else
-            drawBuildTri.setClipCoords(false);
+        drawBuildReg.setClipCoords(shape->clipCoords);
+        drawBuildTri.setClipCoords(shape->clipCoords);
         shape->makeGeometryWithBuilder(&drawBuildReg, &drawBuildTri, getScene(), selectManager, sceneRep.get());
     }
 
@@ -736,7 +729,7 @@ SimpleIdentity ShapeManager::addShapes(const std::vector<Shape*> &shapes, const 
     drawBuildTri.flush();
     drawBuildTri.getChanges(changes, sceneRep->drawIDs);
 
-    SimpleIdentity shapeID = sceneRep->getId();
+    const SimpleIdentity shapeID = sceneRep->getId();
     {
         std::lock_guard<std::mutex> guardLock(lock);
         shapeReps.insert(sceneRep.release());   // transfer ownership

@@ -81,7 +81,7 @@ void BasicDrawableBuilderMTL::setupTexCoordEntry(int which,int numReserve)
     {
         BasicDrawable::TexInfo newInfo;
         char attributeName[40];
-        sprintf(attributeName,"a_texCoord%d",ii);
+        snprintf(attributeName,sizeof(attributeName),"a_texCoord%d",ii);
         newInfo.texCoordEntry = addAttribute(BDFloat2Type,StringIndexer::getStringID(attributeName));
         VertexAttributeMTL *vertAttrMTL = (VertexAttributeMTL *)basicDraw->vertexAttributes[newInfo.texCoordEntry];
         vertAttrMTL->setDefaultVector2f(Vector2f(0.0,0.0));
