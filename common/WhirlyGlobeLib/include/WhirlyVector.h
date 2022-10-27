@@ -333,6 +333,7 @@ public:
     MbrD(const Point2d (&pts)[N]) : pt_ll(0,0), pt_ur(-1,-1) { addPoints(pts); }
 
     bool operator == (const MbrD &that) const;
+    bool operator != (const MbrD &that) const { return !operator==(that); }
     
     /// Resets back to invalid
     void reset() { pt_ll = Point2d(0.0,0.0);  pt_ur = Point2d(-1.0,-1.0); }
