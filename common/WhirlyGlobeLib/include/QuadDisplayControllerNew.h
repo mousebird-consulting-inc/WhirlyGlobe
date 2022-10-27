@@ -44,11 +44,11 @@ public:
     virtual CoordSystem *getCoordSystem() const = 0;
     
     /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
-    virtual Mbr getTotalExtents() const = 0;
+    virtual MbrD getTotalExtents() const = 0;
     
     /// Bounding box of data you actually want to display.  In local coordinate system.
     /// Unless you're being clever, make this the same as totalExtents.
-    virtual Mbr getValidExtents() const = 0;
+    virtual MbrD getValidExtents() const = 0;
     
     /// Return the minimum quad tree zoom level (usually 0)
     virtual int getMinZoom() const = 0;
@@ -184,7 +184,7 @@ protected:
     Scene *scene;
     SceneRenderer *renderer;
     CoordSystem *coordSys;
-    Mbr mbr;
+    MbrD mbr;
     int maxTiles = 128;
     std::vector<double> minImportancePerLevel;
     std::vector<double> reportedMinImportancePerLevel;

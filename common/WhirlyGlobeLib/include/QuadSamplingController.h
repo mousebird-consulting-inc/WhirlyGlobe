@@ -69,11 +69,11 @@ public:
     virtual CoordSystem *getCoordSystem() const override { return params.coordSys.get(); }
     
     /// Bounding box used to calculate quad tree nodes.  In local coordinate system.
-    virtual Mbr getTotalExtents() const override { return params.coordBounds; }
+    virtual MbrD getTotalExtents() const override { return params.coordBounds; }
     
     /// Bounding box of data you actually want to display.  In local coordinate system.
     /// Unless you're being clever, make this the same as totalExtents.
-    virtual Mbr getValidExtents() const override;
+    virtual MbrD getValidExtents() const override;
     
     /// Return the minimum quad tree zoom level (usually 0)
     virtual int getMinZoom() const override { return params.minZoom; }

@@ -24,7 +24,7 @@ namespace WhirlyKit
 {
     
 QuadDisplayControllerNew::QuadDisplayControllerNew(QuadDataStructure *dataStructure,QuadLoaderNew *loader,SceneRenderer *renderer) :
-    QuadTreeNew(MbrD(dataStructure->getTotalExtents()),
+    QuadTreeNew(dataStructure->getTotalExtents(),
                 dataStructure->getMinZoom(),
                 dataStructure->getMaxZoom()),
     dataStructure(dataStructure),

@@ -68,10 +68,21 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         return;
 
     MbrD theMbr = geomManage->quadTree->generateMbrForNode(ident);
+    //const MbrD origMbr = theMbr;
+
     Point2d texScale(1, 1);
     Point2d texOffset(0, 0);
     std::tie(theMbr.ll().x(), theMbr.ur().x(), texScale.x(), texOffset.x()) = clipDim(theMbr.x(), geomManage->mbr.x());
     std::tie(theMbr.ll().y(), theMbr.ur().y(), texScale.y(), texOffset.y()) = clipDim(theMbr.y(), geomManage->mbr.y());
+
+    //if (theMbr != origMbr)
+    //{
+    //    wkLog("Tile %d:%d,%d clip: %.8f,%.8f / %.8f,%.8f => %.8f,%.8f / %.8f,%.8f scale=%.4f,%.4f offset=%.4f,%.4f",
+    //          ident.level, ident.x, ident.y,
+    //          origMbr.ll().x(), origMbr.ll().y(), origMbr.ur().x(), origMbr.ur().y(),
+    //          theMbr.ll().x(), theMbr.ll().y(), theMbr.ur().x(), theMbr.ur().y(),
+    //          texScale.x(), texScale.y(), texOffset.x(), texOffset.y());
+    //}
 
     // Calculate a center for the tile
     const CoordSystemDisplayAdapter *sceneAdapter = geomManage->coordAdapter;

@@ -142,9 +142,9 @@ bool QuadSamplingController::builderIsLoading() const
 
 /// **** QuadDataStructure methods ****
 
-Mbr QuadSamplingController::getValidExtents() const
+MbrD QuadSamplingController::getValidExtents() const
 {
-    return params.clipBounds.valid() ? Mbr(params.clipBounds) : getTotalExtents();
+    return params.clipBounds.valid() ? params.clipBounds : getTotalExtents();
 }
 
 double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident,
