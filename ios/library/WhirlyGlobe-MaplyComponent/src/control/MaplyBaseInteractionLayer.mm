@@ -1,5 +1,4 @@
-/*
- *  MaplyBaseInteractionLayer.mm
+/*  MaplyBaseInteractionLayer.mm
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
@@ -15,8 +14,12 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
+
+// `CarbonCore/AIFF.h` in the OSX SDK (used under MacCatalyst) defines a `Marker` that conflicts
+// with the one we import via `using namespace WhirlyKit`.  We will never need those APIs, and
+// that header is deprecated anyway, so just exclude it completely via its preprocessor guard.
+#define __AIFF__
 
 #import "MaplyBaseInteractionLayer_private.h"
 #import "math/MaplyCoordinate.h"
