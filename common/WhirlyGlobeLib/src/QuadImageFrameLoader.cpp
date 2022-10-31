@@ -719,8 +719,9 @@ void QIFRenderState::updateScene(Scene *,
 
 static int gen = 1;
 
-QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params,Mode mode) :
+QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params, Mode mode, FrameLoadMode frameMode) :
     mode(mode),
+    frameLoadMode(frameMode),
     params(params),
     label("QIFLoader " + std::to_string(gen++)),
     lastRunReqFlag(std::make_shared<bool>(true))
@@ -843,13 +844,36 @@ void QuadImageFrameLoader::setTexSize(int inTexSize,int inBorderSize)
     texSize = inTexSize;
     borderSize = inBorderSize;
 }
-    
-void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *,int focusID,double inCurFrame)
+
+void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *,
+                                       int focusID, double inCurFrame)
 {
     curFrames[focusID] = inCurFrame;
 }
+
+void QuadImageFrameLoader::setCurFrame(PlatformThreadInfo *threadInfo,
+                                       int focusID, double inCurFrame,
+                                       ChangeSet &changes)
+{
+    const auto oldFrame = curFrames[focusID];
+    curFrames[focusID] = inCurFrame;
     
-double QuadImageFrameLoader::getCurFrame(int focusID)
+    // Changing active frames in current-frame-only mode?
+    // Reload the old one(s) to cancel any pending loads and the new one(s) to start them.
+    if (frameLoadMode == FrameLoadMode::Current && floor(oldFrame) != floor(inCurFrame))
+    {
+        const auto frames = std::unordered_set<int> {
+            (int)floor(oldFrame), (int)ceil(oldFrame),
+            (int)floor(inCurFrame), (int)ceil(inCurFrame)
+        };
+        for (int frame : frames)
+        {
+            reload(threadInfo, frame, changes);
+        }
+    }
+}
+
+double QuadImageFrameLoader::getCurFrame(int focusID) const
 {
     return curFrames[focusID];
 }
@@ -857,6 +881,24 @@ double QuadImageFrameLoader::getCurFrame(int focusID)
 QuadFrameInfoRef QuadImageFrameLoader::getFrameInfo(int which) const
 {
     return (which >= 0 && which < frames.size()) ? frames[which] : QuadFrameInfoRef();
+}
+
+bool QuadImageFrameLoader::frameShouldLoad(int which) const
+{
+    if (frameLoadMode == FrameLoadMode::All || getNumFrames() < 2)
+    {
+        return true;
+    }
+
+    for (int focusID = 0; focusID < getNumFocus(); ++focusID)
+    {
+        const double curFrame = getCurFrame(focusID);
+        if (which >= floor(curFrame) && which <= ceil(curFrame))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void QuadImageFrameLoader::setFrames(const std::vector<QuadFrameInfoRef> &newFrames)
@@ -882,10 +924,48 @@ static MbrD GeoBoundToLocal(const Mbr &bound, const CoordSystem& cs)
     return {{ll.x(),ll.y()},{ur.x(),ur.y()}};
 }
 
+bool QuadImageFrameLoader::setFrameLoadMode(FrameLoadMode mode, PlatformThreadInfo *threadInfo, ChangeSet &changes)
+{
+    if (mode == frameLoadMode)
+    {
+        return false;
+    }
+    frameLoadMode = mode;
+
+    // Work out the active frames
+    const int numFrames = getNumFrames();
+    if (numFrames < 2)
+    {
+        return false;
+    }
+
+    std::unordered_set<int> activeFrames(numFrames);
+    for (int focusID = 0; focusID < getNumFocus(); ++focusID)
+    {
+        const double curFrame = getCurFrame(focusID);
+        activeFrames.insert((int)floor(curFrame));
+        activeFrames.insert((int)ceil(curFrame));
+    }
+
+    // Reload frames other than the current ones to either start
+    // or cancel loading them, depending on the current mode.
+    bool anyChanges = false;
+    for (int frameIndex = 0; frameIndex < numFrames; ++frameIndex)
+    {
+        if (activeFrames.find(frameIndex) == activeFrames.end())
+        {
+            reload(threadInfo, frameIndex, nullptr, 0, changes);
+            anyChanges = true;
+        }
+    }
+
+    return anyChanges;
+}
+
 void QuadImageFrameLoader::reload(PlatformThreadInfo *threadInfo,int frameIndex,const Mbr* bounds,int boundCount,ChangeSet &changes)
 {
     if (debugMode)
-        wkLogLevel(Debug, "QuadImageFrameLoader: Starting reload of frame %d",frameIndex);
+        wkLogLevel(Debug, "QuadImageFrameLoader '%s': Starting reload of frame %d", label.c_str(), frameIndex);
     
     setLoadingStatus(true);
 
@@ -973,7 +1053,7 @@ QIFTileAssetRef QuadImageFrameLoader::addNewTile(PlatformThreadInfo *threadInfo,
     }
     
     if (debugMode)
-        wkLogLevel(Debug,"MaplyQuadImageLoader: Starting fetch for tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+        wkLogLevel(Debug,"MaplyQuadImageLoader '%s': Starting fetch for tile %d: (%d,%d)", label.c_str(), ident.level,ident.x,ident.y);
     
     // Normal remote data fetching
     newTile->startFetching(threadInfo,this, nullptr, batchOps, changes);
@@ -987,7 +1067,7 @@ void QuadImageFrameLoader::removeTile(PlatformThreadInfo *threadInfo,const QuadT
     // If it's here, let's get rid of it.
     if (it != tiles.end()) {
         if (debugMode)
-            wkLogLevel(Debug,"MaplyQuadImageLoader: Unloading tile %d: (%d,%d)",ident.level,ident.x,ident.y);
+            wkLogLevel(Debug,"MaplyQuadImageLoader '%s': Unloading tile %d: (%d,%d)", label.c_str(), ident.level,ident.x,ident.y);
         
         it->second->clear(threadInfo, this, batchOps, changes);
         
@@ -1003,7 +1083,9 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     changesSinceLastFlush = true;
 
     if (debugMode)
-        wkLogLevel(Debug, "MaplyQuadImageLoader: Merging data from tile %d: (%d,%d)",loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y);
+        wkLogLevel(Debug, "MaplyQuadImageLoader '%s': Merging data from tile %d: (%d,%d) frame %d",
+                   label.c_str(), loadReturn->ident.level,loadReturn->ident.x,loadReturn->ident.y,
+                   loadReturn->getFrameIndex());
 
     QuadTreeNew::Node ident(loadReturn->ident);
     const auto it = tiles.find(ident);
@@ -1012,9 +1094,9 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     // Tile disappeared in the mean time, so drop it
     bool failed = (!tile || loadReturn->hasError || loadReturn->cancel);
     if (failed && debugMode) {
-        wkLogLevel(Debug, "MaplyQuadImageLoader: "
+        wkLogLevel(Debug, "MaplyQuadImageLoader %s: "
                    "Failed to load tile before it was erased %d: (%d,%d) (%stile,%serror,%scanceled)",
-                   loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
+                   label.c_str(), loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
                    tile ? "" : "no ", loadReturn->hasError ? "" : "no ",loadReturn->cancel ? "" : "not ");
     }
     
@@ -1125,10 +1207,10 @@ void QuadImageFrameLoader::updateRenderState(ChangeSet &changes)
     if (curOvlLevel == -1) {
         curOvlLevel = targetLevel;
         if (debugMode)
-            wkLogLevel(Debug, "MaplyQuadImageLoader: Picking new overlay level %d",curOvlLevel);
+            wkLogLevel(Debug, "MaplyQuadImageLoader '%s': Picking new overlay level %d", label.c_str(), curOvlLevel);
     } else if (allLoaded && curOvlLevel != targetLevel) {
         if (debugMode)
-            wkLogLevel(Debug, "MaplyQuadImageLoader: Picking new overlay level %d -> %d",curOvlLevel,targetLevel);
+            wkLogLevel(Debug, "MaplyQuadImageLoader '%s': Picking new overlay level %d -> %d", label.c_str(), curOvlLevel,targetLevel);
         curOvlLevel = targetLevel;
     }
     
@@ -1442,7 +1524,7 @@ void QuadImageFrameLoader::builderLoad(PlatformThreadInfo *threadInfo,
     delete batchOps;
     
     if (debugMode)
-        wkLogLevel(Debug,"MaplyQuadImageLoader: changeRequests: %d",(int)changes.size());
+        wkLogLevel(Debug,"MaplyQuadImageLoader '%s': changeRequests: %d", label.c_str(), (int)changes.size());
     
     changesSinceLastFlush |= somethingChanged;
     

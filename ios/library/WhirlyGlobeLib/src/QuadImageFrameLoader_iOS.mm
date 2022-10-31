@@ -142,73 +142,82 @@ void QIFTileAsset_ios::startFetching(PlatformThreadInfo *threadInfo,
     state = Active;
     
     MaplyTileID tileID;  tileID.level = ident.level;  tileID.x = ident.x;  tileID.y = ident.y;
-    if (loader->frameInfos) {
-        // Normal remote (or local) fetching case
-        int whichFrame = 0;
-        for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
-            const auto frame = loader->getFrameInfo(whichFrame);
-            // If we're not loading all frames, then just load the one we need
-            if (frame && (!frameToLoad || frameToLoad->getId() == frame->getId())) {
-                if (const auto frameAsset = std::dynamic_pointer_cast<QIFFrameAsset_ios>(findFrameFor(frame))) {
-                    id fetchInfo = nil;
-                    if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
-                        fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
-                    if (fetchInfo) {
-                        if (const auto request = frameAsset->setupFetch(loader,tileID,fetchInfo,frameInfo,
-                                                                        loader->calcLoadPriority(ident,frame->frameIndex),
-                                                                        ident.importance)) {
-                            // This means there's no data fetch.  Interpreter does all the work.
-                            if ([fetchInfo isKindOfClass:[NSNull class]]) {
-                                [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:nil];
-                            } else {
-                                NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
-                                request.success = ^(MaplyTileFetchRequest *request, id data) {
-                                    // TODO: do we need to clean anything up if layer==nil?
-                                    [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:data];
-                                };
-                                request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
-                                    // TODO: do we need to clean anything up if layer==nil?
-                                    [layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
-                                };
-                                [batchOps->toStart addObject:request];
-                            }
-                        } else {
-                            NSString *errStr = [NSString stringWithFormat:@"Loader '%s' failed to set up fetch for tile %d:(%d,%d), frame %d",
-                                                loader->getLabel().c_str(), tileID.level, tileID.x, tileID.y, frame->frameIndex];
-                            NSError *error = [[NSError alloc] initWithDomain:@"MaplyQIFLoader" code:0
-                                                                    userInfo:@{NSDebugDescriptionErrorKey:errStr}];
-                            [loader->layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
-                            frameAsset->loadSkipped();
-                        }
-                    } else {
-                        frameAsset->loadSkipped();
-                    }
-                }
-            }
-            whichFrame++;
-        }
-    } else {
+    if (!loader->frameInfos)
+    {
         // There's no data source, so we always succeed and then the interpreter does the work
         [loader->layer fetchRequestSuccess:nil tileID:tileID frame:-1 data:nil];
+        return;
+    }
+
+    // Normal remote (or local) fetching case
+    int whichFrame = 0;
+    for (NSObject<MaplyTileInfoNew> *frameInfo in loader->frameInfos) {
+        const auto frame = loader->getFrameInfo(whichFrame);
+        // If we're not loading all frames, then just load the one we need
+        if (frame && loader->frameShouldLoad(whichFrame) &&
+            (!frameToLoad || frameToLoad->getId() == frame->getId()))
+        {
+            if (const auto frameAsset = std::dynamic_pointer_cast<QIFFrameAsset_ios>(findFrameFor(frame))) {
+                id fetchInfo = nil;
+                if (frameInfo.minZoom <= tileID.level && tileID.level <= frameInfo.maxZoom)
+                    fetchInfo = [frameInfo fetchInfoForTile:tileID flipY:loader->getFlipY()];
+                if (fetchInfo) {
+                    if (const auto request = frameAsset->setupFetch(loader,tileID,fetchInfo,frameInfo,
+                                                                    loader->calcLoadPriority(ident,frame->frameIndex),
+                                                                    ident.importance)) {
+                        // This means there's no data fetch.  Interpreter does all the work.
+                        if ([fetchInfo isKindOfClass:[NSNull class]]) {
+                            [loader->layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:nil];
+                        } else {
+                            NSObject<QuadImageFrameLoaderLayer> * __weak layer = loader->layer;
+                            request.success = ^(MaplyTileFetchRequest *request, id data) {
+                                // TODO: do we need to clean anything up if layer==nil?
+                                [layer fetchRequestSuccess:request tileID:tileID frame:frame->frameIndex data:data];
+                            };
+                            request.failure = ^(MaplyTileFetchRequest *request, NSError *error) {
+                                // TODO: do we need to clean anything up if layer==nil?
+                                [layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
+                            };
+                            [batchOps->toStart addObject:request];
+                        }
+                    } else {
+                        NSString *errStr = [NSString stringWithFormat:@"Loader '%s' failed to set up fetch for tile %d:(%d,%d), frame %d",
+                                            loader->getLabel().c_str(), tileID.level, tileID.x, tileID.y, frame->frameIndex];
+                        NSError *error = [[NSError alloc] initWithDomain:@"MaplyQIFLoader" code:0
+                                                                userInfo:@{NSDebugDescriptionErrorKey:errStr}];
+                        [loader->layer fetchRequestFail:request tileID:tileID frame:frame->frameIndex error:error];
+                        frameAsset->loadSkipped();
+                    }
+                } else {
+                    frameAsset->loadSkipped();
+                }
+            }
+        }
+        whichFrame++;
     }
 }
-    
-QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSObject<MaplyTileInfoNew> *inTileInfo,Mode mode)
-: QuadImageFrameLoader(params,mode), tileFetcher(nil), layer(nil)
+
+QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,
+                                                   NSObject<MaplyTileInfoNew> *inTileInfo,
+                                                   Mode mode,
+                                                   FrameLoadMode frameMode) :
+    QuadImageFrameLoader(params,mode,frameMode),
+    frameInfos(inTileInfo ? @[inTileInfo] : nil),
+    tileFetcher(nil),
+    layer(nil)
 {
-    if (inTileInfo)
-        frameInfos = @[inTileInfo];
-    else
-        frameInfos = nil;
-    
     setupFrames();
 }
 
-QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,Mode mode)
-    : QuadImageFrameLoader(params,mode), tileFetcher(nil), layer(nil)
+QuadImageFrameLoader_ios::QuadImageFrameLoader_ios(const SamplingParams &params,
+                                                   NSArray<NSObject<MaplyTileInfoNew> *> *inFrameInfos,
+                                                   Mode mode,
+                                                   FrameLoadMode frameMode) :
+    QuadImageFrameLoader(params,mode,frameMode),
+    frameInfos(inFrameInfos),
+    tileFetcher(nil),
+    layer(nil)
 {
-    frameInfos = inFrameInfos;
-    
     setupFrames();
 }
 
@@ -219,10 +228,6 @@ void QuadImageFrameLoader_ios::setupFrames()
         frame->frameIndex = ii;
         frames.push_back(frame);
     }
-}
-    
-QuadImageFrameLoader_ios::~QuadImageFrameLoader_ios()
-{
 }
 
 QIFTileAssetRef QuadImageFrameLoader_ios::makeTileAsset(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident)

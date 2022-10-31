@@ -442,7 +442,8 @@ using namespace WhirlyKit;
         return;
     
     if (loader->getDebugMode())
-        NSLog(@"MaplyQuadImageLoader: Got fetch back for tile %d: (%d,%d) frame %d",tileID.level,tileID.x,tileID.y,frame);
+        NSLog(@"MaplyQuadImageLoader '%s': Got fetch back for tile %d: (%d,%d) frame %d",
+              loader->getLabel().c_str(), tileID.level,tileID.x,tileID.y,frame);
     
     MaplyLoaderReturn *loadData = nil;
     if ([data isKindOfClass:[MaplyLoaderReturn class]]) {
@@ -456,7 +457,8 @@ using namespace WhirlyKit;
         if ([data isKindOfClass:[NSData class]]) {
             [loadData addTileData:data];
         } else if (data != nil) {
-            NSLog(@"MaplyQuadLader:fetchRequestSuccess: client return unknown data type.  Dropping.");
+            NSLog(@"MaplyQuadImageLoader '%s': fetchRequestSuccess: client return unknown data type.  Dropping.",
+                  loader->getLabel().c_str());
         }
     }
 
