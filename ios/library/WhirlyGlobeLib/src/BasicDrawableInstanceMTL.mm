@@ -566,25 +566,37 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int 
     [cmdEncode setRenderPipelineState:renderState];
     
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                        offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                       atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                          offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                         atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
-        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
+        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer
+                            offset:sceneRender->setupInfo.lightingBuff.offset
+                           atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     if (fragHasLighting)
-        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer
+                              offset:sceneRender->setupInfo.lightingBuff.offset
+                             atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
     
     // Instances go to the vertex shader if they're present
     if (instBuffer.buffer)
-        [cmdEncode setVertexBuffer:instBuffer.buffer offset:instBuffer.offset atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
+        [cmdEncode setVertexBuffer:instBuffer.buffer
+                            offset:instBuffer.offset
+                           atIndex:WhirlyKitShader::WKSVertModelInstanceArgBuffer];
     
     // Instances actually come from another drawable
     // There may be several buffers (imagine particles)
     if (instDrawMTL) {
         for (unsigned int ii=0;ii<instDrawMTL->calcBuffers.size();ii++) {
             const BufferEntryMTL &calcBuf = instDrawMTL->calcBuffers[ii];
-            [cmdEncode setVertexBuffer:calcBuf.buffer offset:calcBuf.offset atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
+            [cmdEncode setVertexBuffer:calcBuf.buffer
+                                offset:calcBuf.offset
+                               atIndex:WhirlyKitShader::WKSVertCalculationArgBuffer+ii];
         }
     }
 
@@ -782,14 +794,22 @@ void BasicDrawableInstanceMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEn
     [cmdEncode setRenderPipelineState:renderState];
 
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                        offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                       atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                          offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                         atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
-        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
+        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer
+                            offset:sceneRender->setupInfo.lightingBuff.offset
+                           atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     if (fragHasLighting)
-        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer
+                              offset:sceneRender->setupInfo.lightingBuff.offset
+                             atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
     
     // Instances go to the vertex shader if they're present
     if (instBuffer.buffer)

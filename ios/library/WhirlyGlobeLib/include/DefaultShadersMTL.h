@@ -181,6 +181,7 @@ struct Uniforms
     float height;              // Height above the ground/globe
     float zoomSlots[MaxZoomSlots];  // Zoom levels calculated by the sampling layers
     bool globeMode;             // globe if true, flat map otherwise
+    bool viewWrap;              // Wrapped flat mode, with multiple view transforms
     bool isPanning;             // map is being panned
     bool isZooming;             // map is being zoomed
     bool isRotating;            // map is being rotated (around z, not y)

@@ -115,7 +115,7 @@ SceneRendererMTL::SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLib
     setupInfo.mtlDevice = mtlDevice;
     for (unsigned int ii=0;ii<MaxViewWrap;ii++) {
         setupInfo.uniformBuff[ii] = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Uniforms));
-        setupInfo.uniformBuff[ii].buffer.label = @"uniforms";
+        setupInfo.uniformBuff[ii].buffer.label = [NSString stringWithFormat:@"uniforms %d", ii];
     }
     setupInfo.lightingBuff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::Drawable,sizeof(WhirlyKitShader::Lighting));
     setupInfo.lightingBuff.buffer.label = @"lighting";
@@ -222,8 +222,10 @@ bool SceneRendererMTL::resize(int sizeX,int sizeY)
 
 void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi,id<MTLBlitCommandEncoder> bltEncode,CoordSystemDisplayAdapter *coordAdapter)
 {
-    SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
-    
+    const SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
+    const auto *mapView = dynamic_cast<Maply::MapView*>(theView);
+    const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
+
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
     CopyIntoMtlFloat4x4Pair(uniforms.mvpMatrix,uniforms.mvpMatrixDiff,frameInfo->mvpMat4d);
@@ -234,9 +236,9 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
     CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
     CopyIntoMtlFloat3(uniforms.eyeVec,frameInfo->eyeVec);
     CopyIntoMtlFloat2(uniforms.screenSizeInDisplayCoords,Point2f(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()));
-    const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.globeMode = !coordAdapter->isFlat();
+    uniforms.viewWrap = mapView && mapView->getWrap();
     uniforms.isPanning = theView->getIsPanning();
     uniforms.isZooming = theView->getIsZooming();
     uniforms.isRotating = theView->getIsRotating();
@@ -260,7 +262,11 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
     // Copy this to a buffer and then blit that buffer into place
     // TODO: Try to reuse these
     auto buff = setupInfo.heapManage.allocateBuffer(HeapManagerMTL::HeapType::Drawable, &uniforms, sizeof(uniforms));
-    [bltEncode copyFromBuffer:buff.buffer sourceOffset:buff.offset toBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer destinationOffset:sceneRender->setupInfo.uniformBuff[oi].offset size:sizeof(uniforms)];
+    [bltEncode copyFromBuffer:buff.buffer
+                 sourceOffset:buff.offset
+                     toBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+            destinationOffset:sceneRender->setupInfo.uniformBuff[oi].offset
+                         size:sizeof(uniforms)];
 }
 
 void SceneRendererMTL::setupLightBuffer(SceneMTL *scene,RendererFrameInfoMTL *frameInfo,id<MTLBlitCommandEncoder> bltEncode)

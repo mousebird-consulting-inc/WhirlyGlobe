@@ -627,8 +627,12 @@ void BasicDrawableMTL::encodeDirectCalculate(RendererFrameInfoMTL *frameInfo,id<
     [cmdEncode setRenderPipelineState:renderState];
 
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[0].buffer offset:sceneRender->setupInfo.uniformBuff[0].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[0].buffer offset:sceneRender->setupInfo.uniformBuff[0].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[0].buffer
+                        offset:sceneRender->setupInfo.uniformBuff[0].offset
+                       atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[0].buffer
+                          offset:sceneRender->setupInfo.uniformBuff[0].offset
+                         atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
@@ -681,8 +685,12 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MT
     [cmdEncode setRenderPipelineState:renderState];
     
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                        offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                       atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                          offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                         atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
@@ -748,8 +756,12 @@ void BasicDrawableMTL::encodeIndirectCalculate(id<MTLIndirectRenderCommand> cmdE
     [cmdEncode setRenderPipelineState:renderState];
 
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[0].buffer offset:sceneRender->setupInfo.uniformBuff[0].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[0].buffer offset:sceneRender->setupInfo.uniformBuff[0].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[0].buffer
+                        offset:sceneRender->setupInfo.uniformBuff[0].offset
+                       atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[0].buffer
+                          offset:sceneRender->setupInfo.uniformBuff[0].offset
+                         atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
@@ -824,14 +836,22 @@ void BasicDrawableMTL::encodeIndirect(id<MTLIndirectRenderCommand> cmdEncode,int
     [cmdEncode setRenderPipelineState:renderState];
     
     // Everything takes the uniforms
-    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
-    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer offset:sceneRender->setupInfo.uniformBuff[oi].offset atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
+    [cmdEncode setVertexBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                        offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                       atIndex:WhirlyKitShader::WKSVertUniformArgBuffer];
+    [cmdEncode setFragmentBuffer:sceneRender->setupInfo.uniformBuff[oi].buffer
+                          offset:sceneRender->setupInfo.uniformBuff[oi].offset
+                         atIndex:WhirlyKitShader::WKSFragUniformArgBuffer];
 
     // Some shaders take the lighting
     if (vertHasLighting)
-        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
+        [cmdEncode setVertexBuffer:sceneRender->setupInfo.lightingBuff.buffer
+                            offset:sceneRender->setupInfo.lightingBuff.offset
+                           atIndex:WhirlyKitShader::WKSVertLightingArgBuffer];
     if (fragHasLighting)
-        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer offset:sceneRender->setupInfo.lightingBuff.offset atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
+        [cmdEncode setFragmentBuffer:sceneRender->setupInfo.lightingBuff.buffer
+                              offset:sceneRender->setupInfo.lightingBuff.offset
+                             atIndex:WhirlyKitShader::WKSFragLightingArgBuffer];
 
     // More flexible data structures passed in to the shaders
     if (vertABInfo) {
