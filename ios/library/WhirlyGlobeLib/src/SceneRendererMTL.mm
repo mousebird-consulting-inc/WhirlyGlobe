@@ -224,6 +224,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
 {
     const SceneRendererMTL *sceneRender = (SceneRendererMTL *)frameInfo->sceneRenderer;
     const auto *mapView = dynamic_cast<Maply::MapView*>(theView);
+    const bool viewWrap = mapView && mapView->getWrap();
     const Point2f frameSize = frameInfo->sceneRenderer->getFramebufferSize();
 
     WhirlyKitShader::Uniforms uniforms;
@@ -233,12 +234,15 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
     CopyIntoMtlFloat4x4Pair(uniforms.mvMatrix,uniforms.mvMatrixDiff,frameInfo->viewAndModelMat4d);
     CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
     CopyIntoMtlFloat4x4(uniforms.pMatrix,frameInfo->projMat);
+    CopyIntoMtlFloat4x4(uniforms.offsetMatrix,frameInfo->offsetMatrices[oi]);
+    CopyIntoMtlFloat4x4(uniforms.offsetInvMatrix,Matrix4d(frameInfo->offsetMatrices[oi].inverse()));
     CopyIntoMtlFloat3(uniforms.eyePos,frameInfo->eyePos);
     CopyIntoMtlFloat3(uniforms.eyeVec,frameInfo->eyeVec);
     CopyIntoMtlFloat2(uniforms.screenSizeInDisplayCoords,Point2f(frameInfo->screenSizeInDisplayCoords.x(),frameInfo->screenSizeInDisplayCoords.y()));
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
+    uniforms.offsetView = oi;
+    uniforms.offsetViews = viewWrap ? frameInfo->offsetMatrices.size() : 0;
     uniforms.globeMode = !coordAdapter->isFlat();
-    uniforms.viewWrap = mapView && mapView->getWrap();
     uniforms.isPanning = theView->getIsPanning();
     uniforms.isZooming = theView->getIsZooming();
     uniforms.isRotating = theView->getIsRotating();
