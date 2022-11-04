@@ -37,7 +37,7 @@ bool MaplyGestureWithinBounds(const Point2dVector &bounds,
         return true;
     
     // The corners of the view should be within the bounds
-    Point2f frameSize = sceneRender->getFramebufferSize();
+    const Point2f frameSize = sceneRender->getFramebufferSize();
     const Point2f corners[4] = {
         { 0, 0 },
         { frameSize.x(), 0.0 },
@@ -45,28 +45,39 @@ bool MaplyGestureWithinBounds(const Point2dVector &bounds,
         { 0.0, frameSize.y() },
     };
 
+    // Wrapping map with no east-west bound is signaled with MAXFLOAT for the X coordinates,
+    // but `ClosestPointToPolygon` breaks down and the precision of the intersect point is very
+    // low in that case, leading to large left-right jumps when hitting an edge.
+    // Construct a temporary local bounding box with more reasonable "far off" bounds.
+    Point2dVector localBounds = bounds;
+    for (auto &p : localBounds)
+    {
+        constexpr double lim = 1000.0;      // maybe this should come from the coord system?
+        p.x() = std::max(-lim, std::min(lim, p.x()));
+    }
+
     bool isValid = false;
     Point2d locOffset(0,0);
     for (unsigned tests=0;tests<4;tests++)
     {
-        Point3d newLoc = loc+Point3d(locOffset.x(),locOffset.y(),0.0);
-        testMapView->setLoc(newLoc,false);
-        Eigen::Matrix4d fullMatrix = testMapView->calcFullMatrix();
+        const Point3d newLoc = loc + Pad(locOffset, 0.0);
+        testMapView->setLoc(newLoc, false);
+        const Matrix4d fullMatrix = testMapView->calcFullMatrix();
         
         bool checkOkay = true;
         for (unsigned int ii=0;ii<4;ii++)
         {
             Point3d planePt;
-            testMapView->pointOnPlaneFromScreen(corners[ii], &fullMatrix, frameSize, &planePt, false);
-            if (!PointInPolygon(Point2d(planePt.x(),planePt.y()), bounds))
+            constexpr bool clip = false;
+            testMapView->pointOnPlaneFromScreen(corners[ii], &fullMatrix, frameSize, &planePt, clip);
+            if (!PointInPolygon(Slice(planePt), bounds))
             {
                 Point2d closePt;
-                ClosestPointToPolygon(bounds, Point2d(planePt.x(),planePt.y()), &closePt);
-                Point2d thisOffset = 1.001 * (closePt - Point2d(planePt.x(),planePt.y()));
-                // Try to move around, inward
-                locOffset += thisOffset;
+                ClosestPointToPolygon(localBounds, Slice(planePt), &closePt);
+
+                // Try to move around, inward, and test again.
+                locOffset += 1.001 * (closePt - Slice(planePt));
                 checkOkay = false;
-                
                 break;
             }
         }
@@ -82,9 +93,9 @@ bool MaplyGestureWithinBounds(const Point2dVector &bounds,
     
     return isValid;
 }
-    
+
 AnimateViewTranslation::AnimateViewTranslation(const MapViewRef &mapView,
-                                               WhirlyKit::SceneRenderer *inRenderer,
+                                               SceneRenderer *inRenderer,
                                                Point3d &newLoc,float howLong) :
     renderer(inRenderer)
 {

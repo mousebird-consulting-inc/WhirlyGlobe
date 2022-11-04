@@ -146,56 +146,49 @@ unsigned int NextPowOf2(unsigned int val)
 	val = (val >> 4) | val;
 	val = (val >> 8) | val;
 	val = (val >> 16) | val;
-	
+
 	return (val + 1);
 }
-    
+
 // General purpose 2D point closest to line segment
 Point2f ClosestPointOnLineSegment(const Point2f &p0,const Point2f &p1,const Point2f &pt,float &t)
 {
-    float dx = p1.x()-p0.x(), dy = p1.y()-p0.y();
-    float denom = dx*dx+dy*dy;
+    const double dx = (double)p1.x() - p0.x();
+    const double dy = (double)p1.y() - p0.y();
+    const float denom = dx * dx + dy * dy;
     
     if (denom == 0.0)
+    {
+        t = 0.0f;
         return p0;
+    }
     
-    float u = ((pt.x()-p0.x())*(p1.x()-p0.x())+(pt.y()-p0.y())*(p1.y()-p0.y()))/denom;
-    t = u;
-    
-    if (u <= 0.0)
-        return p0;
-    
-    if (u >= 1.0)
-        return p1;
+    const double u = ((pt.x()-p0.x())*(p1.x()-p0.x())+(pt.y()-p0.y())*(p1.y()-p0.y()))/denom;
+    t = (float)u;
 
-    return Point2f(p0.x()+dx*u,p0.y()+dy*u);
+    return (u <= 0.0) ? p0 : ((u >= 1.0) ? p1 : p0 + Point2f((float)dx, (float)dy) * u);
 }
     
 Point2d ClosestPointOnLineSegment(const Point2d &p0,const Point2d &p1,const Point2d &pt,double &t)
 {
-    float dx = p1.x()-p0.x(), dy = p1.y()-p0.y();
-    float denom = dx*dx+dy*dy;
+    const double dx = p1.x()-p0.x(), dy = p1.y()-p0.y();
+    const double denom = dx * dx + dy * dy;
     
     if (denom == 0.0)
+    {
+        t = 0.0;
         return p0;
+    }
     
-    float u = ((pt.x()-p0.x())*(p1.x()-p0.x())+(pt.y()-p0.y())*(p1.y()-p0.y()))/denom;
-    
-    t = u;
-    
-    if (u <= 0.0)
-        return p0;
-    
-    if (u >= 1.0)
-        return p1;
-    
-    return Point2d(p0.x()+dx*u,p0.y()+dy*u);
+    t = ((pt.x()-p0.x())*(p1.x()-p0.x())+(pt.y()-p0.y())*(p1.y()-p0.y()))/denom;
+
+    return (t <= 0.0) ? p0 : ((t >= 1.0) ? p1 : p0 + Point2d(dx,dy) * t);
 }
     
 double ClosestPointToPolygon(const Point2dVector &pts,const Point2d &pt,Point2d *retClosePt)
 {
     double minDist2 = MAXFLOAT;
-    Point2d closePt;
+    Point2d closePt(MAXFLOAT, MAXFLOAT);
     
     for (unsigned int ii=0;ii<4;ii++)
     {
@@ -203,8 +196,8 @@ double ClosestPointToPolygon(const Point2dVector &pts,const Point2d &pt,Point2d 
         const Point2d &p1 = pts[(ii+1)%4];
         
         double t;
-        Point2d thisClosePt = ClosestPointOnLineSegment(p0, p1, pt, t);
-        double thisDist2 = (pt - thisClosePt).squaredNorm();
+        const Point2d thisClosePt = ClosestPointOnLineSegment(p0, p1, pt, t);
+        const double thisDist2 = (pt - thisClosePt).squaredNorm();
         if (thisDist2 < minDist2)
         {
             minDist2 = thisDist2;
@@ -217,7 +210,7 @@ double ClosestPointToPolygon(const Point2dVector &pts,const Point2d &pt,Point2d 
     
     return sqrt(minDist2);
 }
-	
+
 bool IntersectLines(const Point2f &p1,const Point2f &p2,const Point2f &p3,const Point2f &p4,Point2f *iPt)
 {
     float denom = (p1.x()-p2.x())*(p3.y()-p4.y()) - (p1.y() - p2.y())*(p3.x() - p4.x());
