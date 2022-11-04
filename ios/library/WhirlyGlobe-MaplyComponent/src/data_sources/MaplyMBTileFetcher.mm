@@ -42,6 +42,13 @@ using namespace WhirlyKit;
                                cacheSize:(int)cacheSize
 {
     NSString *infoPath = nil;
+    
+    // fileExistsAtPath can't handle file URLs
+    if (NSURL* url = [NSURL URLWithString:mbTilesName])
+    {
+        mbTilesName = url.path;
+    }
+
     // See if that was a direct path first
     if ([[NSFileManager defaultManager] fileExistsAtPath:mbTilesName])
         infoPath = mbTilesName;
