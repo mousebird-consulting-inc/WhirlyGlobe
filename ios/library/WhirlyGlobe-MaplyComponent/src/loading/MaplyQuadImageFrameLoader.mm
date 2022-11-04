@@ -192,10 +192,10 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     [self updatePriorities];
 }
 
-- (void)uploadLoadAllFrames:(NSNumber*)loadAll
+- (void)updateLoadAllFrames:(NSNumber*)loadAll
 {
     const auto __strong thread = samplingLayer.layerThread;
-    if (loadAll.boolValue == _loadAllFrames || !thread)
+    if (loadAll.boolValue == _loadAllFrames)
     {
         return;
     }
@@ -209,6 +209,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     ChangeSet changes;
     loader->setFrameLoadMode(opt, nil, changes);
     [thread addChangeRequests:changes];
+    discardChanges(changes);
 }
 
 - (void)setLoadAllFrames:(bool)loadAll
@@ -221,13 +222,13 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     }
 
     NSNumber *opt = [NSNumber numberWithBool:loadAll];
-    if ([NSThread currentThread] == thread)
+    if (!thread || [NSThread currentThread] == thread)
     {
-        [self uploadLoadAllFrames:opt];
+        [self updateLoadAllFrames:opt];
     }
     else
     {
-        [self performSelector:@selector(uploadLoadAllFrames:) onThread:thread withObject:opt waitUntilDone:NO];
+        [self performSelector:@selector(updateLoadAllFrames:) onThread:thread withObject:opt waitUntilDone:NO];
     }
 }
 
@@ -270,7 +271,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
     const auto ldr = self->loader;
     const auto __strong thread = samplingLayer.layerThread;
-    if (!ldr || !thread)
+    if (!ldr)
     {
         return;
     }
@@ -284,6 +285,7 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     ChangeSet changes;
     loader->setCurFrame(nullptr, focusID, newFrame, changes);
     [thread addChangeRequests:changes];
+    discardChanges(changes);
 
     // Update the loading priorities if we're in narrow mode and we changed images
     if (_loadFrameMode != MaplyLoadFrameBroad && floor(newFrame) != floor(oldFrame))
@@ -296,14 +298,14 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 {
     const auto ldr = self->loader;
     const auto __strong thread = samplingLayer.layerThread;
-    if (!ldr || !thread)
+    if (!ldr)
     {
         return;
     }
 
     NSArray *obj = @[ [NSNumber numberWithInt:focusID],
                       [NSNumber numberWithDouble:where] ];
-    if ([NSThread currentThread] == thread)
+    if (!thread || [NSThread currentThread] == thread)
     {
         [self runSetFocus:obj];
     }
