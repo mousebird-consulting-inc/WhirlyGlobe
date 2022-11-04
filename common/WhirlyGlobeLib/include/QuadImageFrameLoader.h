@@ -332,8 +332,10 @@ class QuadImageFrameLoader : public QuadTileBuilderDelegate, public ActiveModel
 {
 public:
     typedef enum {SingleFrame,MultiFrame,Object} Mode;
-    
-    QuadImageFrameLoader(const SamplingParams &params,Mode);
+    typedef enum {Broad,Narrow} LoadMode;
+    typedef enum {All,Current} FrameLoadMode;
+
+    QuadImageFrameLoader(const SamplingParams &, Mode, FrameLoadMode = FrameLoadMode::All);
     virtual ~QuadImageFrameLoader() = default;
     
     /// Add a focus
@@ -356,12 +358,15 @@ public:
     /// Turn the display on or off.  Loading continues normally
     void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
     
-    typedef enum {Broad,Narrow} LoadMode;
-    
     /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
     void setLoadMode(LoadMode newMode);
     LoadMode getLoadMode() const { return loadMode; }
-    
+
+    ///  Load all frames or only the one(s) current visible
+    ///  Returns true if the mode was changed, resulting in cancel/refresh actions.
+    bool setFrameLoadMode(FrameLoadMode, PlatformThreadInfo *, ChangeSet &changes);
+    FrameLoadMode getFrameLoadMode() const { return frameLoadMode; }
+
     /// True if there's loading going on, false if it's settled
     bool getLoadingStatus() const { return loadingStatus; }
     
@@ -416,10 +421,15 @@ public:
     void setBaseDrawPriority(int newPrior) { baseDrawPriority = newPrior; }
     void setDrawPriorityPerLevel(int newPrior) { drawPriorityPerLevel = newPrior; }
 
-    // What part of the animation we're displaying
-    void setCurFrame(PlatformThreadInfo *threadInfo, int focusID, double curFrame);
-    double getCurFrame(int focusID);
+    /// What part of the animation we're displaying.
+    /// If the frame loading mode is set to `Current`, you will need to refresh the appropriate frame(s) manually.
+    void setCurFrame(PlatformThreadInfo *, int focusID, double curFrame);
     
+    /// What part of the animation we're displaying.
+    void setCurFrame(PlatformThreadInfo *, int focusID, double curFrame, ChangeSet &);
+
+    double getCurFrame(int focusID) const;
+
     // Need to know how we're loading the tiles to calculate the render state
     void setFlipY(bool newFlip) { flipY = newFlip; }
     
@@ -431,7 +441,10 @@ public:
     
     // Return the frame info object for a given index
     virtual QuadFrameInfoRef getFrameInfo(int which) const;
-    
+
+    // Determine whether a given frame should be loaded right now
+    bool frameShouldLoad(int which) const;
+
     // Reset all the frames at once
     virtual void setFrames(const std::vector<QuadFrameInfoRef> &newFrames);
     
@@ -588,7 +601,8 @@ protected:
     QIFTileAssetRef addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
 
     Mode mode;
-    LoadMode loadMode = Narrow;
+    LoadMode loadMode = LoadMode::Narrow;
+    FrameLoadMode frameLoadMode = FrameLoadMode::All;
     
     bool masterEnable = true;
     bool debugMode = false;

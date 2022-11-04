@@ -1,5 +1,4 @@
-/*
- *  MaplyQuadImageFrameLoader.mm
+/*  MaplyQuadImageFrameLoader.mm
  *
  *  Created by Steve Gifford on 9/13/18.
  *  Copyright 2012-2022 mousebird consulting inc
@@ -14,7 +13,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "loading/MaplyQuadImageFrameLoader.h"
@@ -123,7 +121,17 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     bool started;
 }
 
-- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams
+                              tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos
+                                  viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC
+{
+    return [self initWithParams:inParams tileInfos:frameInfos viewC:inViewC loadAllFrames:true];
+}
+
+- (nullable instancetype)initWithParams:(MaplySamplingParams *__nonnull)inParams
+                              tileInfos:(NSArray<NSObject<MaplyTileInfoNew> *> *__nonnull)frameInfos
+                                  viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)inViewC
+                          loadAllFrames:(bool)loadAllFrames
 {
     if (!inParams.singleLevel) {
         NSLog(@"MaplyQuadImageFrameLoader only supports samplers with singleLevel set to true");
@@ -131,13 +139,17 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     }
     self = [super initWithViewC:inViewC];
 
+    _loadAllFrames = loadAllFrames;
+
     params = inParams->params;
     params.generateGeom = true;
 
+    constexpr auto frameMode = QuadImageFrameLoader::MultiFrame;
+    const auto frameLoadMode = loadAllFrames ? QuadImageFrameLoader::FrameLoadMode::All :
+                                               QuadImageFrameLoader::FrameLoadMode::Current;
+
     // Loader does all the work.  The Obj-C version is just a wrapper
-    self->loader = QuadImageFrameLoader_iosRef(new QuadImageFrameLoader_ios(params,
-                                                                            frameInfos,
-                                                                            QuadImageFrameLoader::MultiFrame));
+    self->loader = std::make_shared<QuadImageFrameLoader_ios>(params, frameInfos, frameMode, frameLoadMode);
     
     self.baseDrawPriority = kMaplyImageLayerDrawPriorityDefault;
     self.drawPriorityPerLevel = 100;
@@ -180,6 +192,46 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     [self updatePriorities];
 }
 
+- (void)updateLoadAllFrames:(NSNumber*)loadAll
+{
+    const auto __strong thread = samplingLayer.layerThread;
+    if (loadAll.boolValue == _loadAllFrames)
+    {
+        return;
+    }
+
+    _loadAllFrames = loadAll;
+
+    //const bool opt = loadAll.boolValue;
+    const auto opt = loadAll.boolValue ? QuadImageFrameLoader::FrameLoadMode::All :
+                                         QuadImageFrameLoader::FrameLoadMode::Current;
+
+    ChangeSet changes;
+    loader->setFrameLoadMode(opt, nil, changes);
+    [thread addChangeRequests:changes];
+    discardChanges(changes);
+}
+
+- (void)setLoadAllFrames:(bool)loadAll
+{
+    const auto ldr = self->loader;
+    const auto __strong thread = samplingLayer.layerThread;
+    if (loadAll == _loadAllFrames || !ldr || !thread)
+    {
+        return;
+    }
+
+    NSNumber *opt = [NSNumber numberWithBool:loadAll];
+    if (!thread || [NSThread currentThread] == thread)
+    {
+        [self updateLoadAllFrames:opt];
+    }
+    else
+    {
+        [self performSelector:@selector(updateLoadAllFrames:) onThread:thread withObject:opt waitUntilDone:NO];
+    }
+}
+
 - (bool)delayedInit
 {
     started = true;
@@ -215,19 +267,51 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
     [self setFocus:0 currentImage:where];
 }
 
+- (void)runSetFocus:(NSArray<NSNumber*>*)obj
+{
+    const auto ldr = self->loader;
+    const auto __strong thread = samplingLayer.layerThread;
+    if (!ldr)
+    {
+        return;
+    }
+
+    const int focusID = obj[0].intValue;
+    const double where = obj[1].doubleValue;
+
+    const double newFrame = std::min(std::max(where,0.0),(double)([ldr->frameInfos count]-1));
+    const double oldFrame = ldr->getCurFrame(focusID);
+
+    ChangeSet changes;
+    loader->setCurFrame(nullptr, focusID, newFrame, changes);
+    [thread addChangeRequests:changes];
+    discardChanges(changes);
+
+    // Update the loading priorities if we're in narrow mode and we changed images
+    if (_loadFrameMode != MaplyLoadFrameBroad && floor(newFrame) != floor(oldFrame))
+    {
+        ldr->updatePriorities(nullptr);
+    }
+}
+
 - (void)setFocus:(int)focusID currentImage:(double)where
 {
-    double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
-    double oldFrame = loader->getCurFrame(focusID);
-    loader->setCurFrame(NULL, focusID, curFrame);
-    
-    // Update the loading priorities if we're in narrow mode and we changed images
-    if (_loadFrameMode != MaplyLoadFrameBroad) {
-        int oldInt = oldFrame;
-        int newInt = curFrame;
+    const auto ldr = self->loader;
+    const auto __strong thread = samplingLayer.layerThread;
+    if (!ldr)
+    {
+        return;
+    }
 
-        if (oldInt != newInt)
-            [self updatePriorities];
+    NSArray *obj = @[ [NSNumber numberWithInt:focusID],
+                      [NSNumber numberWithDouble:where] ];
+    if (!thread || [NSThread currentThread] == thread)
+    {
+        [self runSetFocus:obj];
+    }
+    else
+    {
+        [self performSelector:@selector(runSetFocus:) onThread:thread withObject:obj waitUntilDone:NO];
     }
 }
 
