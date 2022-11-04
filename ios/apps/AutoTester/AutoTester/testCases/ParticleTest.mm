@@ -273,7 +273,7 @@ void main()
     _coordSys = [[MaplySphericalMercator alloc] initWebStandard];
     viewC = inViewC;
     
-    MaplyParticleSystemType partSysType = MaplyParticleSystemTypeRectangle;
+    //MaplyParticleSystemType partSysType = MaplyParticleSystemTypeRectangle;
     
     // These govern how the particles are structured
     _updateInterval = 0.05;
@@ -432,7 +432,7 @@ void main()
 {
     char tileStr[100];
     // Letting NSString do this is sloooow
-    sprintf(tileStr,"%d_%d_%d",tileID.x,tileID.y,tileID.level);
+    snprintf(tileStr,sizeof(tileStr),"%d_%d_%d",tileID.x,tileID.y,tileID.level);
     return [[NSString alloc] initWithUTF8String:tileStr];
 }
 
