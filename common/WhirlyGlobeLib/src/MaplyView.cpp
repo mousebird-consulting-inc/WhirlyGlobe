@@ -72,57 +72,51 @@ Eigen::Matrix4d MapView::calcViewMatrix() const
     return rot.matrix();
 }
 
-void MapView::getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
+void MapView::getOffsetMatrices(std::vector<Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
 {
-    Point3d scale = coordAdapter->getScale();
+    const Point3d scale = coordAdapter->getScale();
     
     Point3f ll,ur;
     if (wrap && coordAdapter && coordAdapter->getBounds(ll, ur))
     {
         // Figure out where we are, first off
-        GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
-        GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
-        float spanX = geoUR.x()-geoLL.x();
-        float offX = loc.x()*scale.x()-geoLL.x();
+        const GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
+        const GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
+        const float spanX = geoUR.x()-geoLL.x();
+        const float offX = loc.x()*scale.x()-geoLL.x();
         const auto num = (int)floor(offX/spanX);
-        std::vector<int> nums = { num, num - 1, num + 1 };
-
-        float localSpanX = ur.x()-ll.x();
+        const float localSpanX = ur.x()-ll.x();
         
         // See if the framebuffer lands in any of the potential matrices
-        Eigen::Matrix4d modelTrans = calcViewMatrix() * calcModelMatrix();
-        Mbr screenMbr;
-        screenMbr.addPoint(Point2f(-1.0,-1.0));
-        screenMbr.addPoint(Point2f(1.0,1.0));
-        Matrix4d projMat = calcProjectionMatrix(frameBufferSize,0.0);
-        for (unsigned int ii=0;ii<nums.size();ii++)
+        const Matrix4d modelTrans = calcViewMatrix() * calcModelMatrix();
+        const Matrix4d projMat = calcProjectionMatrix(frameBufferSize,0.0);
+        const Matrix4d testMat = projMat * modelTrans;
+        const MbrD screenMbr({ -1.0, -1.0 }, { 1.0, 1.0 });
+
+        for (int thisNum : { num, num - 1, num + 1 })
         {
-            int thisNum = nums[ii];
-            Eigen::Affine3d offsetMat(Eigen::Translation3d(thisNum*localSpanX,0.0,0.0));
-            Eigen::Matrix4d testMat = projMat * modelTrans;
-            Point3d testPts[4];
-            testPts[0] = Point3d(thisNum*localSpanX+ll.x()-bufferSizeX,ll.y(),0.0);
-            testPts[1] = Point3d((thisNum+1)*localSpanX+ll.x()+bufferSizeX,ll.y(),0.0);
-            testPts[2] = Point3d((thisNum+1)*localSpanX+ll.x()+bufferSizeX,ur.y(),0.0);
-            testPts[3] = Point3d(thisNum*localSpanX+ll.x()-bufferSizeX,ur.y(),0.0);
-            Mbr testMbr;
+            const Affine3d offsetMat(Translation3d(thisNum*localSpanX,0.0,0.0));
+            const Point3d testPts[4] = {
+                {  thisNum      * localSpanX + ll.x() - bufferSizeX, ll.y(), 0.0 },
+                { (thisNum + 1) * localSpanX + ll.x() + bufferSizeX, ll.y(), 0.0 },
+                { (thisNum + 1) * localSpanX + ll.x() + bufferSizeX, ur.y(), 0.0 },
+                {  thisNum      * localSpanX + ll.x() - bufferSizeX, ur.y(), 0.0 },
+            };
+            MbrD testMbr;
             for (unsigned int jj=0;jj<4;jj++)
             {
-                Vector4d screenPt = testMat * Vector4d(testPts[jj].x(),testPts[jj].y(),testPts[jj].z(),1.0);
-                screenPt /= screenPt.w();
-                testMbr.addPoint(Point2f(screenPt.x(),screenPt.y()));
+                testMbr.addPoint(Slice(Clip(Point4d(testMat * Pad(testPts[jj], 1.0)))));
             }
             if (testMbr.overlaps(screenMbr))
+            {
                 offsetMatrices.push_back(offsetMat.matrix());
+            }
         }
+    }
 
-        // Don't know why this would happen, but let's not tempt fate
-        if (offsetMatrices.empty())
-            offsetMatrices.push_back(Matrix4d::Identity());
-    } else {
-        // Just pass back the identity matrix
-        Eigen::Matrix4d ident;
-        offsetMatrices.push_back(ident.Identity());
+    if (offsetMatrices.empty())
+    {
+        offsetMatrices.push_back(Matrix4d::Identity());
     }
 }
 

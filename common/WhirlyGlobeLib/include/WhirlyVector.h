@@ -596,10 +596,26 @@ Eigen::Matrix<TA,3,1> Scale(const Eigen::Matrix<TA,3,1> &a, const Eigen::Matrix<
     return {a.x() * b.x(), a.y() * b.y(), a.z() * b.z() };
 }
 
+/// Slice off the last component (or two)
+// v[Eigen::seq(0,2)] might be better, but doesn't seem to be available in this version...
 template <typename T>
-Eigen::Matrix<T,2,1> Slice(const Eigen::Matrix<T,3,1> &v) { return {v.x(), v.y() }; }
+Eigen::Matrix<T,2,1> Slice(const Eigen::Matrix<T,3,1> &v) { return { v.x(), v.y() }; }
+template <typename T>
+Eigen::Matrix<T,3,1> Slice(const Eigen::Matrix<T,4,1> &v) { return { v.x(), v.y(), v.z() }; }
+template <typename T>
+Eigen::Matrix<T,2,1> Slice2(const Eigen::Matrix<T,4,1> &v) { return { v.x(), v.y() }; }
+
+/// Pad out with one (or two) additional components
 template <typename T>
 Eigen::Matrix<T,3,1> Pad(const Eigen::Matrix<T,2,1> &v, T z = 0) { return { v.x(), v.y(), z }; }
+template <typename T>
+Eigen::Matrix<T,4,1> Pad(const Eigen::Matrix<T,2,1> &v, T z, T w) { return { v.x(), v.y(), z, w }; }
+template <typename T>
+Eigen::Matrix<T,4,1> Pad(const Eigen::Matrix<T,3,1> &v, T w = 0) { return { v.x(), v.y(), v.z(), w }; }
+
+/// Convert from clip-space by dividing the first three components by the fourth
+template <typename T>
+Eigen::Matrix<T,3,1> Clip(const Eigen::Matrix<T,4,1> &v) { return Slice(Eigen::Matrix<T,4,1>(v / v.w())); }
 
 // Slice with arbitrary (inlined) function
 template <typename TI,typename TO>
