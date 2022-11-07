@@ -231,7 +231,13 @@
 @property (nonatomic) int localData;
 
 // Total time spent waiting for successful remote data requests
-@property (nonatomic) NSTimeInterval totalLatency;
+@property (nonatomic) NSTimeInterval totalResponseTime;
+
+// Total number of up-stream (not local) cache hits
+@property (nonatomic) int remoteCacheHits;
+
+// Total number of up-stream (not local) cache misses
+@property (nonatomic) int remoteCacheMisses;
 
 // The maximum number of requests we've had at once (since the last reset)
 @property (nonatomic) int maxActiveRequests;

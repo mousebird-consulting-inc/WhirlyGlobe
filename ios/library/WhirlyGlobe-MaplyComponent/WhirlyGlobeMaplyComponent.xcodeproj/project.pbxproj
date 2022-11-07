@@ -1518,9 +1518,9 @@
 		727E05F327158118005576CB /* MaplyRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B127BF720126FBD0099F405 /* MaplyRenderController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		727E05F4271583AC005576CB /* MaplySimpleTileFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B7E689E22A1E34B00BBFD9E /* MaplySimpleTileFetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9547BAE327E480C5004BF3E5 /* MaplyURLSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9547BAE127E480C5004BF3E5 /* MaplyURLSessionManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9547BAE427E480C5004BF3E5 /* MaplyURLSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.m */; };
+		9547BAE427E480C5004BF3E5 /* MaplyURLSessionManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.mm */; };
 		9547BAE827E48284004BF3E5 /* MaplyURLSessionManager+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 9547BAE627E48284004BF3E5 /* MaplyURLSessionManager+Private.h */; };
-		9547BAE927E48284004BF3E5 /* MaplyURLSessionManager+Private.m in Sources */ = {isa = PBXBuildFile; fileRef = 9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.m */; };
+		9547BAE927E48284004BF3E5 /* MaplyURLSessionManager+Private.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.mm */; };
 		C490572A265AB9E3001E4A98 /* bucketalloc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C4905728265AB9E3001E4A98 /* bucketalloc.cpp */; };
 		C490572B265AB9E3001E4A98 /* bucketalloc.h in Headers */ = {isa = PBXBuildFile; fileRef = C4905729265AB9E3001E4A98 /* bucketalloc.h */; };
 		C490572D265ABAB8001E4A98 /* glues.h in Headers */ = {isa = PBXBuildFile; fileRef = C490572C265ABAB8001E4A98 /* glues.h */; };
@@ -2556,9 +2556,9 @@
 		31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AtmosphereShadersMTL.h; sourceTree = "<group>"; };
 		9547BAE127E480C5004BF3E5 /* MaplyURLSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyURLSessionManager.h; sourceTree = "<group>"; };
-		9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyURLSessionManager.m; sourceTree = "<group>"; };
+		9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyURLSessionManager.mm; sourceTree = "<group>"; };
 		9547BAE627E48284004BF3E5 /* MaplyURLSessionManager+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "MaplyURLSessionManager+Private.h"; sourceTree = "<group>"; };
-		9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "MaplyURLSessionManager+Private.m"; sourceTree = "<group>"; };
+		9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = "MaplyURLSessionManager+Private.mm"; sourceTree = "<group>"; };
 		C4905728265AB9E3001E4A98 /* bucketalloc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bucketalloc.cpp; sourceTree = "<group>"; };
 		C4905729265AB9E3001E4A98 /* bucketalloc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bucketalloc.h; sourceTree = "<group>"; };
 		C490572C265ABAB8001E4A98 /* glues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glues.h; path = ../../include/glues.h; sourceTree = "<group>"; };
@@ -4494,7 +4494,7 @@
 			isa = PBXGroup;
 			children = (
 				9547BAE527E48260004BF3E5 /* private */,
-				9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.m */,
+				9547BAE227E480C5004BF3E5 /* MaplyURLSessionManager.mm */,
 			);
 			path = URLSession;
 			sourceTree = "<group>";
@@ -4502,7 +4502,7 @@
 		9547BAE527E48260004BF3E5 /* private */ = {
 			isa = PBXGroup;
 			children = (
-				9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.m */,
+				9547BAE727E48284004BF3E5 /* MaplyURLSessionManager+Private.mm */,
 			);
 			path = private;
 			sourceTree = "<group>";
@@ -5978,7 +5978,7 @@
 				2B82B6511E82E2490095FB14 /* PJ_collg.c in Sources */,
 				2B82B6651E82E24A0095FB14 /* pj_fwd.c in Sources */,
 				2BC3D6CB2203E9D700CE91D0 /* MaplyMoon.mm in Sources */,
-				9547BAE927E48284004BF3E5 /* MaplyURLSessionManager+Private.m in Sources */,
+				9547BAE927E48284004BF3E5 /* MaplyURLSessionManager+Private.mm in Sources */,
 				31833148259112BA005FEF70 /* Math.cpp in Sources */,
 				2B82B6BD1E82E24A0095FB14 /* PJ_vandg2.c in Sources */,
 				31833152259112BA005FEF70 /* GeodesicExact.cpp in Sources */,
@@ -6023,7 +6023,7 @@
 				2B82B61D1E82E2490095FB14 /* JSONWriter.cpp in Sources */,
 				2B82B67A1E82E24A0095FB14 /* PJ_krovak.c in Sources */,
 				2B8A78CD228B7B63008B0A1F /* ScreenSpaceDrawableBuilder.cpp in Sources */,
-				9547BAE427E480C5004BF3E5 /* MaplyURLSessionManager.m in Sources */,
+				9547BAE427E480C5004BF3E5 /* MaplyURLSessionManager.mm in Sources */,
 				2BC3D6F8220CAAC700CE91D0 /* WhirlyKitLog.mm in Sources */,
 				2B82B6B11E82E24A0095FB14 /* PJ_sts.c in Sources */,
 				2B82B6611E82E24A0095FB14 /* pj_errno.c in Sources */,

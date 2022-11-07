@@ -1295,6 +1295,17 @@ typedef void (__strong ^InitCompletionBlock)(void);
 /// Remove all the user created MaplyControllerLayer objects from the globe or map.
 - (void)removeAllLayers;
 
+
+/// Find or create  a tile fetcher we may share between loaders
+- (MaplyRemoteTileFetcher * __nullable)addTileFetcher:(NSString * __nonnull)name;
+
+/// Find or create  a tile fetcher we may share between loaders
+- (MaplyRemoteTileFetcher * __nullable)addTileFetcher:(NSString * __nonnull)name
+                                   withMaxConnections:(int)maxConnections;
+
+/// Return a tile fetcher we may share between loaders
+- (MaplyRemoteTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
+
 /** 
     Utility routine to convert from a lat/lon (in radians) to display coordinates
     
@@ -1498,6 +1509,9 @@ typedef void (__strong ^InitCompletionBlock)(void);
     This is not thread safe and will block the main thread.
  */
 - (NSArray * _Nullable)labelsAndMarkersAtCoord:(MaplyCoordinate)coord;
+
+/// The default max number of connections per fetcher
+@property (nonatomic) int tileFetcherConnections;
 
 /// Turn on/off performance output (goes to the log periodically).
 @property (nonatomic,assign) bool performanceOutput;

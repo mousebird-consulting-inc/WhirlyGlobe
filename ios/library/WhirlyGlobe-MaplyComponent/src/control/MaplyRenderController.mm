@@ -55,7 +55,7 @@ using namespace Eigen;
     self = [super init];
     mainThread = [NSThread currentThread];
 
-    tileFetcherConnections = 16;
+    _tileFetcherConnections = 16;
     userLayers = [NSMutableArray array];
 
     return self;
@@ -1324,14 +1324,36 @@ using namespace Eigen;
     }
 }
 
+- (MaplyRemoteTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name
+{
+    for (const auto &tileFetcher : tileFetchers)
+    {
+        if ([tileFetcher.name isEqualToString:name])
+        {
+            return tileFetcher;
+        }
+    }
+    return nil;
+}
+
 - (MaplyRemoteTileFetcher *)addTileFetcher:(NSString *)name
 {
-    for (auto tileFetcher : tileFetchers)
-        if ([tileFetcher.name isEqualToString:name])
-            return tileFetcher;
-    
-    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:tileFetcherConnections];
-    tileFetchers.push_back(tileFetcher);
+    return [self addTileFetcher:name withMaxConnections:_tileFetcherConnections];
+}
+
+- (MaplyRemoteTileFetcher *)addTileFetcher:(NSString *)name
+                        withMaxConnections:(int)maxConnections
+{
+    if (MaplyRemoteTileFetcher *existingFetcher = [self getTileFetcher:name])
+    {
+        return existingFetcher;
+    }
+
+    MaplyRemoteTileFetcher *tileFetcher = [[MaplyRemoteTileFetcher alloc] initWithName:name connections:maxConnections];
+    if (tileFetcher)
+    {
+        tileFetchers.push_back(tileFetcher);
+    }
     
     return tileFetcher;
 }

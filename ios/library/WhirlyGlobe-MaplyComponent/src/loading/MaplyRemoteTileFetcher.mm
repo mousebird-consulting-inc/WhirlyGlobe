@@ -183,8 +183,8 @@ using namespace WhirlyKit;
 
     // Fill out the replacement string
     NSString *fullURLStr = [[[_baseURL stringByReplacingOccurrencesOfString:@"{z}" withString:[@(tileID.level) stringValue]]
-                             stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
-                            stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
+                                       stringByReplacingOccurrencesOfString:@"{x}" withString:[@(tileID.x) stringValue]]
+                                       stringByReplacingOccurrencesOfString:@"{y}" withString:[@(y) stringValue]];
     urlReq = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:fullURLStr]];
     if (_timeOut != 0.0)
         [urlReq setTimeoutInterval:_timeOut];
@@ -246,7 +246,9 @@ using namespace WhirlyKit;
     _totalFails = 0;
     _remoteData = 0;
     _localData = 0;
-    _totalLatency = 0;
+    _totalResponseTime = 0;
+    _remoteCacheHits = 0;
+    _remoteCacheMisses = 0;
     _maxActiveRequests = 0;
     _activeRequests = 0;
     
@@ -266,7 +268,9 @@ using namespace WhirlyKit;
     _totalFails += stats.totalFails;
     _remoteData += stats.remoteData;
     _localData += stats.localData;
-    _totalLatency += stats.totalLatency;
+    _totalResponseTime += stats.totalResponseTime;
+    _remoteCacheHits += stats.remoteCacheHits;
+    _remoteCacheMisses += stats.remoteCacheMisses;
     // Active requests don't add
 }
 
@@ -280,11 +284,17 @@ using namespace WhirlyKit;
     NSLog(@"   Canceled Requests = %d",_totalCancels);
     NSLog(@"   Failed Requests = %d",_totalFails);
     NSLog(@"   Data Transferred = %.2fMB",_remoteData / (1024.0*1024.0));
-    if (_remoteRequests > 0) {
-        NSLog(@"   Latency per request = %.2fms",_totalLatency / _remoteRequests * 1000.0);
+    if (_remoteRequests > 0)
+    {
+        NSLog(@"   Time per request = %.2fms",_totalResponseTime / _remoteRequests * 1000.0);
         NSLog(@"   Average request size = %.2fKB",_remoteData / _remoteRequests / 1024.0);
+        if (_remoteCacheHits > 0)
+        {
+            NSLog(@"   Remote Cache Rate = %.1f%%",
+                  100 * _remoteCacheHits / double(_remoteCacheHits + _remoteCacheMisses));
+        }
     }
-    NSLog(@"   Cached Data = %.2fMB",_localData / (1024.0*1024.0));
+    NSLog(@"   Cached Data Loaded = %.2fMB",_localData / (1024.0*1024.0));
     NSLog(@"   Num Simultaneous = %d",fetcher.numConnections);
 }
 
@@ -764,7 +774,11 @@ using namespace WhirlyKit;
     recentStats.maxActiveRequests = std::max(recentStats.maxActiveRequests,recentStats.activeRequests);
 }
 
-- (void)handleData:(NSData *)data response:(NSHTTPURLResponse *)response error:(NSError *)error tile:(TileInfoRef)tile fetchStart:(TimeInterval)fetchStartTile
+- (void)handleData:(NSData *)data
+          response:(NSHTTPURLResponse *)response
+             error:(NSError *)error
+              tile:(TileInfoRef)tile
+        fetchStart:(TimeInterval)fetchStartTile
 {
     bool success = true;
     bool useCache = true;
@@ -786,36 +800,70 @@ using namespace WhirlyKit;
            return;
        }
     }
-    
-    if (success) {
-       int length = [data length];
 
-       if (_debugMode)
-           NSLog(@"Remote return for: %@, %dk",tile->fetchInfo.urlReq.URL.absoluteString,length / 1024);
-       if (log)
-           [log addRemoteSuccess:tile length:length startTime:fetchStartTile];
+    const TimeInterval howLong = TimeGetCurrent() - fetchStartTile;
 
-       allStats.remoteRequests = allStats.remoteRequests + 1;
-       recentStats.remoteRequests = recentStats.remoteRequests + 1;
-       allStats.remoteData = allStats.remoteData + length;
-       recentStats.remoteData = recentStats.remoteData + length;
-       TimeInterval howLong = TimeGetCurrent() - fetchStartTile;
-       allStats.totalLatency = allStats.totalLatency + howLong;
-       recentStats.totalLatency = recentStats.totalLatency + howLong;
-       [self finishedLoading:tile data:data error:error];
-       if (useCache)
-           [self writeToCache:tile tileData:data];
+    allStats.remoteRequests += 1;
+    recentStats.remoteRequests += 1;
+
+    allStats.totalResponseTime += howLong;
+    recentStats.totalResponseTime += howLong;
+
+    if (success)
+    {
+        const int length = [data length];
+
+        bool cacheHit = false;
+        if (@available(iOS 13.0, *))
+        {
+            if (NSString *cacheHeader = [response valueForHTTPHeaderField:@"x-cache"])
+            {
+                cacheHit = ([cacheHeader rangeOfString:@"hit " options:NSCaseInsensitiveSearch].length &&
+                            ![cacheHeader rangeOfString:@"miss " options:NSCaseInsensitiveSearch].length);
+            }
+        }
+        allStats.remoteCacheHits += cacheHit ? 1 : 0;
+        recentStats.remoteCacheHits += cacheHit ? 1 : 0;
+        allStats.remoteCacheMisses += cacheHit ? 0 : 1;
+        recentStats.remoteCacheMisses += cacheHit ? 0 : 1;
+
+        if (_debugMode)
+        {
+            NSLog(@"Remote return for: %@, %.1fk, %.3fs%s",
+                  tile->fetchInfo.urlReq.URL.absoluteString, length / 1024.0, howLong,
+                  cacheHit ? " (remote cache hit)" : "");
+        }
+        if (log)
+        {
+            [log addRemoteSuccess:tile length:length startTime:fetchStartTile];
+        }
+
+        allStats.remoteData += length;
+        recentStats.remoteData += length;
+
+        [self finishedLoading:tile data:data error:error];
+
+        if (useCache)
+        {
+            [self writeToCache:tile tileData:data];
+        }
     } else {
         // Failed.  Sad.  :-{
-        allStats.totalFails = allStats.totalFails + 1;
-        recentStats.totalFails = recentStats.totalFails + 1;
+        allStats.totalFails += 1;
+        recentStats.totalFails += 1;
+        
         if (_debugMode)
-            NSLog(@"Remote fail for: %@",tile->fetchInfo.urlReq.URL.absoluteString);
-        // Build an NSError around the status code
+        {
+            NSLog(@"Remote fail for: %@, %.3fs",
+                  tile->fetchInfo.urlReq.URL.absoluteString, howLong);
+        }
+
+        // Build an NSError around the status code if one wasn't provided
         if (!error) {
+            NSString *key = [NSString stringWithFormat:@"Server response: %d", (int)response.statusCode];
             error = [[NSError alloc] initWithDomain:@"MaplyRemoteTileFetcher"
                                                code:response.statusCode
-                                           userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:@"Server response: %d",(int)response.statusCode]}];
+                                           userInfo:@{NSLocalizedDescriptionKey:key}];
         }
 
         [self finishedLoading:tile data:nil error:error];
@@ -846,9 +894,9 @@ using namespace WhirlyKit;
 
 - (void)handleFinishLoading:(NSData *)data tile:(TileInfoRef)tile
 {
-    int length = [data length];
-    allStats.localData = allStats.localData + length;
-    recentStats.localData = recentStats.localData + length;
+    const int length = [data length];
+    allStats.localData += length;
+    recentStats.localData += length;
     [self finishedLoading:tile data:data error:nil];
 }
 

@@ -1646,7 +1646,23 @@ void QuadImageFrameLoader::makeStats()
             }
         }
     }
-    
+
+#if 0
+    if (debugMode)
+    {
+        wkLog("Loader '%s' stats - %d tiles in %d frames",
+              label.c_str(), newStats.numTiles, (int)newStats.frameStats.size());
+        for (size_t i = 0; i < newStats.frameStats.size(); ++i)
+        {
+            const auto &fs = newStats.frameStats[i];
+            if (fs.tilesToLoad > 0)
+            {
+                wkLog("%s Frame %d: %d to load of %d", label.c_str(), i, fs.tilesToLoad, fs.totalTiles);
+            }
+        }
+    }
+#endif
+
     std::lock_guard<std::mutex> guardLock(statsLock);
     stats = newStats;
 }

@@ -148,4 +148,5 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 # import <WhirlyGlobe/WhirlyGlobeComponent.h>
 # import <WhirlyGlobe/WhirlyGlobeComponent.h>
 # import <WhirlyGlobe/WhirlyGlobeViewController.h>
+# import <WhirlyGlobe/MaplyURLSessionManager.h>
 #endif //!MAPLY_MINIMAL

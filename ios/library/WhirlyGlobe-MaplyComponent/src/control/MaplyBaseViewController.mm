@@ -1691,48 +1691,61 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)addActiveObject:(MaplyActiveObject *__nonnull)theObj
 {
-    if (renderControl)
-        [renderControl addActiveObject:theObj];
+    [renderControl addActiveObject:theObj];
 }
 
 - (void)removeActiveObject:(MaplyActiveObject *__nonnull)theObj
 {
-    if (renderControl)
-        [renderControl removeActiveObject:theObj];
+    [renderControl removeActiveObject:theObj];
 }
 
 - (void)removeActiveObjects:(NSArray *__nonnull)theObjs
 {
-    if (renderControl)
-        [renderControl removeActiveObjects:theObjs];
+    [renderControl removeActiveObjects:theObjs];
 }
 
 - (bool)addLayer:(MaplyControllerLayer *__nonnull)layer
 {
-    return renderControl && [renderControl addLayer:layer];
+    return [renderControl addLayer:layer];
 }
 
 - (void)removeLayer:(MaplyControllerLayer *__nonnull)layer
 {
-    if (renderControl)
-        [renderControl removeLayer:layer];
+    [renderControl removeLayer:layer];
 }
 
 - (void)removeLayers:(NSArray *__nonnull)layers
 {
-    if (renderControl)
-        [renderControl removeLayers:layers];
+    [renderControl removeLayers:layers];
 }
 
 - (void)removeAllLayers
 {
-    if (renderControl)
-        [renderControl removeAllLayers];
+    [renderControl removeAllLayers];
+}
+
+- (int)getTileFetcherConnections
+{
+    return renderControl.tileFetcherConnections;
+}
+
+- (void)setTileFetcherConnections:(int)value
+{
+    renderControl.tileFetcherConnections = value;
 }
 
 - (MaplyRemoteTileFetcher *)addTileFetcher:(NSString * __nonnull)name
 {
-    return renderControl ? [renderControl addTileFetcher:name] : nil;
+    return [renderControl addTileFetcher:name];
+}
+
+- (MaplyRemoteTileFetcher * _Nullable)addTileFetcher:(NSString * _Nonnull)name withMaxConnections:(int)maxConnections {
+    return [renderControl addTileFetcher:name withMaxConnections:maxConnections];
+}
+
+- (MaplyRemoteTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name
+{
+    return [renderControl getTileFetcher:name];
 }
 
 - (void)layoutDidRun

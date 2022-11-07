@@ -998,6 +998,13 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 /// Return a tile fetcher we may share between loaders
 - (MaplyRemoteTileFetcher * __nullable)addTileFetcher:(NSString * __nonnull)name;
 
+/// Return a tile fetcher we may share between loaders
+- (MaplyRemoteTileFetcher * __nullable)addTileFetcher:(NSString * __nonnull)name
+                                   withMaxConnections:(int)maxConnections;
+
+/// Get an existing tile fetcher by name, but don't create a new one
+- (MaplyRemoteTileFetcher * __nullable)getTileFetcher:(NSString * __nonnull)name;
+
 /**
     If in Metal rendering mode, return the Metal device being used.
   */
@@ -1024,6 +1031,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 
 /// The time on which offsets are based
 @property (nonatomic, readonly) double baseTime;
+
+/// The default max number of connections per fetcher
+@property (nonatomic) int tileFetcherConnections;
 
 /// Initialize as an offline renderer of a given target size of the given rendering type
 - (instancetype __nullable)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType;

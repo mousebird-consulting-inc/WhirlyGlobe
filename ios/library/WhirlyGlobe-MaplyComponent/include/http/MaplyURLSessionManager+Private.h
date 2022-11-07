@@ -16,8 +16,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MaplyURLSessionManager (Private)
 
-/** Create an URL session
- 
+/** Create a URL session
     All url session  must be created by MaplyURLSessionManager using createURLSession method
   */
 - (NSURLSession*)createURLSession;
