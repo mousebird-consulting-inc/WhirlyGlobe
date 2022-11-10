@@ -160,12 +160,15 @@ static MaplyURLSessionManager * sharedManager = nil;
         {
             NSURLSessionConfiguration *config = [[NSURLSessionConfiguration defaultSessionConfiguration] mutableCopy];
             config.allowsCellularAccess = _allowCellularRequests;
-            config.HTTPMaximumConnectionsPerHost = _maxConnectionsPerHost;
             config.HTTPShouldUsePipelining = _usePipelining;
             config.requestCachePolicy = _defaultCachePolicy;
             config.waitsForConnectivity = _waitForConnectivity;
             config.HTTPCookieAcceptPolicy = _acceptCookies ? NSHTTPCookieAcceptPolicyAlways : NSHTTPCookieAcceptPolicyNever;
 
+            if (_maxConnectionsPerHost > 0)
+            {
+                config.HTTPMaximumConnectionsPerHost = _maxConnectionsPerHost;
+            }
             if (@available(iOS 13.0, *))
             {
                 config.allowsExpensiveNetworkAccess = _allowExpensiveRequests;
