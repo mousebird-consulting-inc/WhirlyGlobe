@@ -629,6 +629,7 @@ using namespace WhirlyKit;
         switch (tile->state) {
             case TileInfo::Loading:
                 [tile->task cancel];
+                tile->task = nil;
                 break;
             case TileInfo::ToLoad:
                 break;
@@ -877,6 +878,7 @@ using namespace WhirlyKit;
         // It failed (which happens) so we need to fetch it after all
         [tile->task resume];
     } else {
+        [tile->task cancel];
         tile->task = nil;
         
         if (_debugMode)

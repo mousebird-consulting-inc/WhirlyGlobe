@@ -99,3 +99,5 @@
 #import "MaplyRotateDelegate.h"
 #import "MaplyZoomGestureDelegate.h"
 #import "WhirlyGlobeComponent.h"
+#import "MaplyURLSessionManager.h"
+

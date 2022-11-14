@@ -51,6 +51,8 @@ typedef NS_ENUM(NSUInteger, MaplyURLSessionPriority) {
 
 @property (nonatomic) bool logRequestMetrics;
 
+- (void)reset;
+
 + (instancetype)sharedManager;
 
 @end

@@ -18,6 +18,14 @@ static MaplyURLSessionManager * sharedManager = nil;
 @implementation MaplyURLSessionManager
 {
     NSURLSession *session;
+    bool _allowCellularRequestsSet;
+    bool _allowConstrainedRequestsSet;
+    bool _allowExpensiveRequestsSet;
+    bool _acceptCookiesSet;
+    bool _usePipeliningSet;
+    bool _defaultCachePolicySet;
+    bool _waitForConnectivitySet;
+    bool _prioritySet;
 }
 
 + (instancetype)sharedManager
@@ -35,28 +43,50 @@ static MaplyURLSessionManager * sharedManager = nil;
 {
     if ((self = [super init]))
     {
-        session = nil;
-        _allowCellularRequests = true;
-        _allowConstrainedRequests = false;
-        _allowExpensiveRequests = false;
-        _additionalHeaders = nil;
-        _acceptCookies = false;
-        _maxConnectionsPerHost = -1;
-        _usePipelining = true;
-        _defaultCachePolicy = NSURLRequestUseProtocolCachePolicy;
-        _requestTimeout = -1;
-        _resourceTimeout = -1;
-        _waitForConnectivity = false;
-        _priority = MaplyURLSessionPriorityDefault;
-        _logRequestMetrics = false;
+        [self reset];
     }
     return self;
 }
 
+- (void)reset
+{
+    session = nil;
+    _allowCellularRequests = true;
+    _allowCellularRequestsSet = false;
+    _allowConstrainedRequests = true;
+    _allowConstrainedRequestsSet = false;
+    _allowExpensiveRequests = true;
+    _allowExpensiveRequestsSet = false;
+    _additionalHeaders = nil;
+    _acceptCookies = true;
+    _acceptCookiesSet = false;
+    _maxConnectionsPerHost = -1;
+    _usePipelining = false;
+    _usePipeliningSet = false;
+    _defaultCachePolicy = NSURLRequestUseProtocolCachePolicy;
+    _defaultCachePolicySet = false;
+    _requestTimeout = -1;
+    _resourceTimeout = -1;
+    _waitForConnectivity = false;
+    _waitForConnectivitySet = false;
+    _priority = MaplyURLSessionPriorityDefault;
+    _prioritySet = false;
+    _logRequestMetrics = false;
+}
+
+- (void)setSessionManagerDelegate:(id<MaplyURLSessionManagerDelegate>)delegate {
+    @synchronized(self) {
+        if (delegate != _sessionManagerDelegate) {
+            _sessionManagerDelegate = delegate;
+            session = nil;
+        }
+    }
+}
 - (void)setAllowCellularRequests:(bool)value {
     @synchronized(self) {
         if (value != _allowCellularRequests) {
             _allowCellularRequests = value;
+            _allowCellularRequestsSet = true;
             session = nil;
         }
     }
@@ -65,6 +95,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _allowConstrainedRequests) {
             _allowConstrainedRequests = value;
+            _allowConstrainedRequestsSet = true;
             session = nil;
         }
     }
@@ -73,6 +104,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _allowExpensiveRequests) {
             _allowExpensiveRequests = value;
+            _allowExpensiveRequestsSet = true;
             session = nil;
         }
     }
@@ -90,6 +122,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _acceptCookies) {
             _acceptCookies = value;
+            _acceptCookiesSet = true;
             session = nil;
         }
     }
@@ -106,6 +139,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _usePipelining) {
             _usePipelining = value;
+            _usePipeliningSet = true;
             session = nil;
         }
     }
@@ -114,6 +148,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _defaultCachePolicy) {
             _defaultCachePolicy = value;
+            _defaultCachePolicySet = true;
             session = nil;
         }
     }
@@ -138,6 +173,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _waitForConnectivity) {
             _waitForConnectivity = value;
+            _waitForConnectivitySet = true;
             session = nil;
         }
     }
@@ -146,6 +182,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     @synchronized(self) {
         if (value != _priority) {
             _priority = value;
+            _prioritySet = true;
             session = nil;
         }
     }
@@ -158,12 +195,51 @@ static MaplyURLSessionManager * sharedManager = nil;
     {
         if (!session)
         {
+            // If nothing is overridden, use the default session.  This shouldn't make
+            // any difference but it seems to for some users in some network conditions.
+            if (!_sessionManagerDelegate &&
+                !_allowCellularRequestsSet &&
+                !_allowConstrainedRequestsSet &&
+                !_allowExpensiveRequestsSet &&
+                !_additionalHeaders &&
+                !_acceptCookiesSet &&
+                !_usePipeliningSet &&
+                !_defaultCachePolicySet &&
+                !_waitForConnectivitySet &&
+                !_prioritySet &&
+                !_logRequestMetrics &&
+                _requestTimeout <= 0 &&
+                _resourceTimeout <= 0 &&
+                _maxConnectionsPerHost <= 0)
+            {
+                wkLogLevel(Debug, "Using un-configured shared NSURLSession");
+                session = [NSURLSession sharedSession];
+                return session;
+            }
+
+            wkLogLevel(Debug, "Using configured NSURLSession");
+
             NSURLSessionConfiguration *config = [[NSURLSessionConfiguration defaultSessionConfiguration] mutableCopy];
-            config.allowsCellularAccess = _allowCellularRequests;
-            config.HTTPShouldUsePipelining = _usePipelining;
-            config.requestCachePolicy = _defaultCachePolicy;
-            config.waitsForConnectivity = _waitForConnectivity;
-            config.HTTPCookieAcceptPolicy = _acceptCookies ? NSHTTPCookieAcceptPolicyAlways : NSHTTPCookieAcceptPolicyNever;
+            if (_allowCellularRequestsSet)
+            {
+                config.allowsCellularAccess = _allowCellularRequests;
+            }
+            if (_usePipeliningSet)
+            {
+                config.HTTPShouldUsePipelining = _usePipelining;
+            }
+            if (_defaultCachePolicySet)
+            {
+                config.requestCachePolicy = _defaultCachePolicy;
+            }
+            if (_waitForConnectivitySet)
+            {
+                config.waitsForConnectivity = _waitForConnectivity;
+            }
+            if (_acceptCookiesSet)
+            {
+                config.HTTPCookieAcceptPolicy = _acceptCookies ? NSHTTPCookieAcceptPolicyAlways : NSHTTPCookieAcceptPolicyNever;
+            }
 
             if (_maxConnectionsPerHost > 0)
             {
@@ -171,14 +247,20 @@ static MaplyURLSessionManager * sharedManager = nil;
             }
             if (@available(iOS 13.0, *))
             {
-                config.allowsExpensiveNetworkAccess = _allowExpensiveRequests;
-                config.allowsConstrainedNetworkAccess = _allowConstrainedRequests;
+                if (_allowExpensiveRequestsSet)
+                {
+                    config.allowsExpensiveNetworkAccess = _allowExpensiveRequests;
+                }
+                if (_allowConstrainedRequestsSet)
+                {
+                    config.allowsConstrainedNetworkAccess = _allowConstrainedRequests;
+                }
             }
             if (_additionalHeaders)
             {
                 config.HTTPAdditionalHeaders = _additionalHeaders;
             }
-            if (_requestTimeout >= 0)
+            if (_requestTimeout > 0)
             {
                 config.timeoutIntervalForRequest = _requestTimeout;
             }
@@ -187,12 +269,15 @@ static MaplyURLSessionManager * sharedManager = nil;
                 config.timeoutIntervalForResource = _resourceTimeout;
             }
 
-            switch (_priority)
+            if (_prioritySet)
             {
-                default:
-                case MaplyURLSessionPriorityDefault: config.networkServiceType = NSURLNetworkServiceTypeDefault; break;
-                case MaplyURLSessionPriorityLow:     config.networkServiceType = NSURLNetworkServiceTypeBackground; break;
-                case MaplyURLSessionPriorityHigh:    config.networkServiceType = NSURLNetworkServiceTypeResponsiveData; break;
+                switch (_priority)
+                {
+                    default:
+                    case MaplyURLSessionPriorityDefault: config.networkServiceType = NSURLNetworkServiceTypeDefault; break;
+                    case MaplyURLSessionPriorityLow:     config.networkServiceType = NSURLNetworkServiceTypeBackground; break;
+                    case MaplyURLSessionPriorityHigh:    config.networkServiceType = NSURLNetworkServiceTypeResponsiveData; break;
+                }
             }
 
             session = [NSURLSession sessionWithConfiguration:config
@@ -207,7 +292,7 @@ static MaplyURLSessionManager * sharedManager = nil;
     didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
       completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition, NSURLCredential * _Nullable))completionHandler
 {
-    id <MaplyURLSessionManagerDelegate> delegate = self.sessionManagerDelegate;
+    id <MaplyURLSessionManagerDelegate> delegate = _sessionManagerDelegate;
     if ([delegate respondsToSelector:@selector(didReceiveChallenge:completionHandler:)])
     {
         [delegate didReceiveChallenge:challenge completionHandler:completionHandler];
