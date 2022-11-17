@@ -36,6 +36,7 @@ using namespace WhirlyKit;
 
 - (void)setCoordSys:(MaplyCoordinateSystem *)coordSys
 {
+    _coordSys = coordSys;
     params.setCoordSys([coordSys getCoordSystem]);
 }
 
