@@ -260,7 +260,7 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     }
 
     MTLPixelFormat pixFormat;
-    int bytesPerRow = 0;
+    unsigned bytesPerRow = 0;
     
     // "Don't use the following pixel formats: r8Unorm_srgb, b5g6r5Unorm, a1bgr5Unorm, abgr4Unorm, bgr5A1Unorm, or any XR10 or YUV formats."
     // https://developer.apple.com/documentation/metal/developing_metal_apps_that_run_in_simulator
@@ -454,7 +454,8 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     }
 
     RenderSetupInfoMTL *setupInfo = (RenderSetupInfoMTL *)inSetupInfo;
-    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc,bytesPerRow * height);
+    const unsigned expectedBytes = bytesPerRow * height;
+    texBuf = setupInfo->heapManage.newTextureWithDescriptor(desc, expectedBytes);
 
     if (!name.empty())
     {
@@ -465,6 +466,19 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     {
         if (const auto convData = convertData())
         {
+            if (convData->getLen() != expectedBytes)
+            {
+                wkLogLevel(Warn, "Bad size for texture '%s' fmt %d: got %d expected %d",
+                           name.c_str(), format, (int)convData->getLen(), expectedBytes);
+                
+                // If it's smaller we might crash.  If it's larger it'll probably be visibly wrong
+                // which only helps find the problem.
+                if (convData->getLen() < expectedBytes)
+                {
+                    return false;
+                }
+            }
+
             MTLRegion region = MTLRegionMake2D(0,0,width,height);
             [texBuf.tex replaceRegion:region
                           mipmapLevel:0
