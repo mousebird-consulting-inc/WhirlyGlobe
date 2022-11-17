@@ -75,7 +75,7 @@ struct RendererFrameInfo
     Eigen::Matrix4d pvMat4d;
     Eigen::Matrix4f pvMat;
     /// If the visual view supports wrapping, these are the available offset matrices
-    std::vector<Eigen::Matrix4d> offsetMatrices;
+    Matrix4dVector offsetMatrices;
     /// Scene itself.  Don't mess with this
     Scene *scene = nullptr;
     /// Expected length of the current frame

@@ -45,5 +45,7 @@ using Point3fVector = std::vector<Point3f,Eigen::aligned_allocator<Point3f>>;
 using Point3dVector = std::vector<Point3d,Eigen::aligned_allocator<Point3d>>;
 using Vector4fVector = std::vector<Eigen::Vector4f,Eigen::aligned_allocator<Eigen::Vector4f>>;
 using Vector4dVector = std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d>>;
+using Matrix4fVector = std::vector<Eigen::Matrix4f,Eigen::aligned_allocator<Eigen::Matrix4f>>;
+using Matrix4dVector = std::vector<Eigen::Matrix4d,Eigen::aligned_allocator<Eigen::Matrix4d>>;
 
 }

@@ -72,7 +72,7 @@ Eigen::Matrix4d MapView::calcViewMatrix() const
     return rot.matrix();
 }
 
-void MapView::getOffsetMatrices(std::vector<Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
+void MapView::getOffsetMatrices(Matrix4dVector &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
 {
     const Point3d scale = coordAdapter->getScale();
     

@@ -163,20 +163,25 @@ using namespace Maply;
 // Also used to catch view geometry updates
 struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDelegate, public ViewWatcher
 {
+    MaplyViewControllerAnimationWrapper(MaplyViewController *control) : control(control)
+    {
+    }
+
     // Called by the View to set up view state per frame
-    void updateView(WhirlyKit::View *view)
+    virtual void updateView(WhirlyKit::View *view) override
     {
         [control updateView:(Maply::MapView *)view];
     }
     
     // Called by the view when things are changed
-    virtual void viewUpdated(View *view)
+    virtual void viewUpdated(View *view) override
     {
         [control viewUpdated:view];
     }
 
-    virtual bool isUserMotion() const { return false; }
+    virtual bool isUserMotion() const override { return false; }
 
+private:
     MaplyViewController __weak * control = nil;
 };
 
@@ -190,7 +195,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     Point2dVector bounds;
     Point2d bounds2d[4];
     
-    MaplyViewControllerAnimationWrapper animWrapper;
+    std::shared_ptr<MaplyViewControllerAnimationWrapper> animWrapper;
 }
 
 - (instancetype)initWithMapType:(MaplyMapType)mapType
@@ -198,7 +203,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     self = [super init];
     if (!self)
         return nil;
-    animWrapper.control = self;
+    
+    animWrapper = std::make_shared<MaplyViewControllerAnimationWrapper>(self);
 
     if (mapType == MaplyMapType3D) {
         _autoMoveToTap = true;
@@ -227,7 +233,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     self = [super init];
     if (!self)
         return nil;
-    animWrapper.control = self;
+
+    animWrapper = std::make_shared<MaplyViewControllerAnimationWrapper>(self);
 
     _isPanning = false;
     _isZooming = false;
@@ -248,7 +255,8 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     self = [super init];
     if (!self)
         return nil;
-    animWrapper.control = self;
+
+    animWrapper = std::make_shared<MaplyViewControllerAnimationWrapper>(self);
 
     // Turn off lighting
     [self setHints:@{kMaplyRendererLightingMode: @"none"}];
@@ -369,7 +377,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
     mapView->setContinuousZoom(true);
     mapView->setWrap(_viewWrap);
-    mapView->addWatcher(&animWrapper);
+    mapView->addWatcher(animWrapper);
 
     return mapView;
 }
@@ -1178,9 +1186,7 @@ struct MaplyViewControllerAnimationWrapper : public Maply::MapViewAnimationDeleg
     // Tell the delegate what we're up to
     [animationDelegate mapViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
     
-    auto delegate = std::make_shared<MaplyViewControllerAnimationWrapper>();
-    delegate->control = self;
-    mapView->setDelegate(std::move(delegate));
+    mapView->setDelegate(std::make_shared<MaplyViewControllerAnimationWrapper>(self));
 }
 
 // Called every frame from within the map view

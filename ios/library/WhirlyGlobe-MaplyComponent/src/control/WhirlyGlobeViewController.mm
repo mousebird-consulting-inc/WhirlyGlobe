@@ -129,26 +129,31 @@ using namespace WhirlyGlobe;
 // Also used to catch view geometry updates
 struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, public ViewWatcher
 {
+    WhirlyGlobeViewWrapper(WhirlyGlobeViewController *control) : control(control)
+    {
+    }
+
     // Called by the View to set up view state per frame
-    void updateView(WhirlyKit::View *view)
+    virtual void updateView(WhirlyKit::View *view) override
     {
         [control updateView:(WhirlyGlobe::GlobeView *)view];
     }
 
     // Called by the view when things are changed
-    virtual void viewUpdated(View *view)
+    virtual void viewUpdated(View *view) override
     {
         [control viewUpdated:view];
     }
 
-    virtual bool isUserMotion() const { return false; }
+    virtual bool isUserMotion() const override { return false; }
 
+private:
     WhirlyGlobeViewController __weak * control = nil;
 };
 
 @implementation WhirlyGlobeViewController
 {
-    WhirlyGlobeViewWrapper viewWrapper;
+    std::shared_ptr<WhirlyGlobeViewWrapper> viewWrapper;
     CGPoint globeCenter;
 }
 
@@ -170,7 +175,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     _zoomTapFactor = 2.0;
     _zoomTapAnimationDuration = 0.1;
     globeCenter = {-1000,-1000};
-    viewWrapper.control = self;
+    viewWrapper = std::make_shared<WhirlyGlobeViewWrapper>(self);
 
     return self;
 }
@@ -222,7 +227,7 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
 {
     globeView = std::make_shared<GlobeView_iOS>();
     globeView->setContinuousZoom(true);
-    globeView->addWatcher(&viewWrapper);
+    globeView->addWatcher(viewWrapper);
     
     return globeView;
 }
@@ -1878,10 +1883,8 @@ struct WhirlyGlobeViewWrapper : public WhirlyGlobe::GlobeViewAnimationDelegate, 
     
     // Tell the delegate what we're up to
     [animationDelegate globeViewController:self startState:stateStart startTime:now endTime:animationDelegateEnd];
-    
-    WhirlyGlobeViewWrapper *delegate = new WhirlyGlobeViewWrapper();
-    delegate->control = self;
-    globeView->setDelegate(GlobeViewAnimationDelegateRef(delegate));
+
+    globeView->setDelegate(std::make_shared<WhirlyGlobeViewWrapper>(self));
 }
 
 - (void)setViewState:(WhirlyGlobeViewControllerAnimationState *)animState

@@ -16,12 +16,14 @@
  *  limitations under the License.
  */
 
-#import <set>
-#import <mutex>
 #import "Platform.h"
 #import "WhirlyTypes.h"
 #import "WhirlyVector.h"
 #import "CoordSystem.h"
+
+#import <memory>
+#import <mutex>
+#import <set>
 
 namespace WhirlyKit
 {
@@ -32,14 +34,15 @@ class ViewState;
 typedef std::shared_ptr<ViewState> ViewStateRef;
 
 /// Watcher Callback
-class ViewWatcher
+struct ViewWatcher
 {
-public:
-    virtual ~ViewWatcher() { }
+    virtual ~ViewWatcher() = default;
+
     /// Called when the view changes position
     virtual void viewUpdated(View *view) = 0;
 };
-typedef std::set<ViewWatcher *> ViewWatcherSet;
+using ViewWatcherRef = std::shared_ptr<ViewWatcher>;
+using ViewWatcherWeakRef = std::weak_ptr<ViewWatcher>;
 
 struct ViewAnimationDelegate
 {
@@ -101,7 +104,7 @@ public:
     virtual Eigen::Vector3d eyePos() const;
     
     /// Put together one or more offset matrices to express wrapping
-    virtual void getOffsetMatrices(std::vector<Eigen::Matrix4d> &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX) const;
+    virtual void getOffsetMatrices(Matrix4dVector &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferX) const;
 
     /// If we're wrapping, we may need a non-wrapped coordinate
     virtual WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt) const;
@@ -128,10 +131,10 @@ public:
     virtual ViewStateRef makeViewState(SceneRenderer *renderer) = 0;
 
     /// Add a watcher delegate.  Call this on the main thread.
-    virtual void addWatcher(ViewWatcher *delegate);
+    virtual void addWatcher(const ViewWatcherRef &);
     
-    /// Remove the given watcher delegate.  Call this on the main thread
-    virtual void removeWatcher(ViewWatcher *delegate);
+    /// Remove the given watcher delegate.  Call this on the main thread.
+    virtual void removeWatcher(const ViewWatcherRef &);
     
     /// Used by subclasses to notify all the watchers of updates
     virtual void runViewUpdates();
@@ -205,9 +208,12 @@ private:
     double imagePlaneSize = 0.0;
     double nearPlane = 0.001;
     double farPlane = 10.0;
+    
+    void removeWatcherLocked(const ViewWatcherRef &);
+    
 protected:
     Point2d centerOffset = { 0, 0 };
-    std::vector<Eigen::Matrix4d> offsetMatrices;
+    Matrix4dVector offsetMatrices;
     /// The last time the position was changed
     TimeInterval lastChangedTime = 0.0;
     /// Display adapter and coordinate system we're working in
@@ -227,7 +233,9 @@ protected:
     bool hasTilted = false;
 
     /// Called when positions are updated
-    ViewWatcherSet watchers;
+    // Can't use a set or unordered_set for things that can change, but there
+    // should never be huge numbers of watchers, or rapid adds/removes.
+    std::vector<ViewWatcherWeakRef> watchers;
     std::mutex watcherLock;
 };
     
@@ -268,7 +276,7 @@ public:
     void log();
     
     Eigen::Matrix4d modelMatrix,projMatrix;
-    std::vector<Eigen::Matrix4d> viewMatrices,invViewMatrices,fullMatrices,fullNormalMatrices,invFullMatrices;
+    Matrix4dVector viewMatrices,invViewMatrices,fullMatrices,fullNormalMatrices,invFullMatrices;
     Eigen::Matrix4d invModelMatrix,invProjMatrix;
     double fieldOfView;
     double imagePlaneSize;
