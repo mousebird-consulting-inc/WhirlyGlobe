@@ -1,5 +1,4 @@
-/*
- *  GlobeView_iOS.h
+/*  GlobeView_iOS.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/30/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <GlobeView.h>

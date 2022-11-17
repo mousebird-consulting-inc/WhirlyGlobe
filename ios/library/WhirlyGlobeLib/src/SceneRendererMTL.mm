@@ -754,7 +754,7 @@ void SceneRendererMTL::render(TimeInterval duration, RenderInfo *renderInfo)
         perfTimer.stopTiming("Scene processing");
     
     // Work through the available offset matrices (only 1 if we're not wrapping)
-    const std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
+    const Matrix4dVector &offsetMats = baseFrameInfo.offsetMatrices;
     std::vector<RendererFrameInfoMTL> offFrameInfos;
     // Turn these drawables in to a vector
     std::vector<Matrix4d> mvpMats;

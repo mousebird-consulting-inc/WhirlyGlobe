@@ -1,5 +1,4 @@
-/*
- *  LayerViewWatcher.mm
+/*  LayerViewWatcher.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/28/12.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "LayerViewWatcher.h"
@@ -60,16 +58,20 @@ using namespace WhirlyKit;
 namespace WhirlyKit {
 
 // Interface with C++ View
-class ViewWatcherWrapper : public ViewWatcher
+struct ViewWatcherWrapper : public ViewWatcher
 {
-public:
-    WhirlyKitLayerViewWatcher * __weak viewWatcher;
-    
+    ViewWatcherWrapper(WhirlyKitLayerViewWatcher *watcher) : viewWatcher(watcher)
+    {
+    }
+
     // View has been updated so we'll just hand that over to the watcher
-    virtual void viewUpdated(View *view)
+    virtual void viewUpdated(View *view) override
     {
         [viewWatcher viewUpdated:view];
     }
+
+private:
+    WhirlyKitLayerViewWatcher * __weak viewWatcher;
 };
 
 }
@@ -92,7 +94,7 @@ public:
     bool kickoffScheduled;
     bool sweepLaggardsScheduled;
     
-    ViewWatcherWrapper viewWatchWrapper;
+    std::shared_ptr<ViewWatcherWrapper> viewWatchWrapper;
 }
 
 - (id)initWithView:(View *)inView thread:(WhirlyKitLayerThread *)inLayerThread
@@ -104,8 +106,8 @@ public:
         view = inView;
         watchers = [NSMutableArray array];
         lastViewState = inView->makeViewState(inLayerThread.renderer);
-        viewWatchWrapper.viewWatcher = self;
-        inView->addWatcher(&viewWatchWrapper);
+        viewWatchWrapper = std::make_shared<ViewWatcherWrapper>(self);
+        inView->addWatcher(viewWatchWrapper);
     }
     
     return self;
@@ -113,7 +115,7 @@ public:
 
 - (void)stop
 {
-    view->removeWatcher(&viewWatchWrapper);
+    view->removeWatcher(viewWatchWrapper);
 }
 
 - (void)addWatcherTarget:(id)target selector:(SEL)selector minTime:(TimeInterval)minTime minDist:(double)minDist maxLagTime:(TimeInterval)maxLagTime

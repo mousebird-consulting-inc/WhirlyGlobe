@@ -135,7 +135,7 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
     const float margin = 0.1f;
     const Mbr frameMbr = frameInfo->sceneRenderer->getFramebufferBound(margin);
 
-    std::vector<Eigen::Matrix4d> modelAndViewMats; // modelAndViewNormalMats;
+    Matrix4dVector modelAndViewMats; // modelAndViewNormalMats;
     modelAndViewMats.reserve(frameInfo->offsetMatrices.size());
     for (const auto &mat : frameInfo->offsetMatrices)
     {

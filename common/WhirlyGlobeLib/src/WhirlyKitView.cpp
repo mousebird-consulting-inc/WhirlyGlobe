@@ -148,7 +148,7 @@ Eigen::Matrix4d View::calcProjectionMatrix(Point2f frameBufferSize,float margin)
     return projMat;
 }
 
-void View::getOffsetMatrices(std::vector<Eigen::Matrix4d> &matrices,
+void View::getOffsetMatrices(Matrix4dVector &matrices,
                              const WhirlyKit::Point2f &frameBufferSize,float bufferX) const
 {
     matrices.emplace_back(Eigen::Matrix4d::Identity());
@@ -239,29 +239,46 @@ Point2d View::screenSizeInDisplayCoords(const Point2f &frameSize)
 }
 
 /// Add a watcher delegate
-void View::addWatcher(ViewWatcher *watcher)
+void View::addWatcher(const ViewWatcherRef &watcher)
 {
     std::lock_guard<std::mutex> guardLock(watcherLock);
-    watchers.insert(watcher);
+    removeWatcherLocked(watcher);
+    watchers.push_back(watcher);
 }
 
 /// Remove the given watcher delegate
-void View::removeWatcher(ViewWatcher *watcher)
+void View::removeWatcher(const ViewWatcherRef &watcher)
 {
     std::lock_guard<std::mutex> guardLock(watcherLock);
-    watchers.erase(watcher);
+    removeWatcherLocked(watcher);
+}
+
+void View::removeWatcherLocked(const ViewWatcherRef &watcher)
+{
+    // Remove items from the watcher list if they match the given reference or reference dead watchers.
+    const ViewWatcher *ptr = watcher.get();
+    const auto pred = [&](auto &weak){
+        auto ref = weak.lock();
+        return !ref || ref.get() == ptr;
+    };
+    watchers.erase(std::remove_if(watchers.begin(), watchers.end(), pred), watchers.end());
 }
 
 void View::runViewUpdates()
 {
-    // Make a copy so we don't step on watchers being removed
-    ViewWatcherSet watchersToRun;
+    // Make a copy so we don't block everyone while running updates
+    std::vector<ViewWatcherWeakRef> watchersToRun;
     {
         std::lock_guard<std::mutex> guardLock(watcherLock);
         watchersToRun = watchers;
     }
-    for (const auto &it : watchersToRun)
-        it->viewUpdated(this);
+    for (auto &weakRef : watchersToRun)
+    {
+        if (auto watcher = weakRef.lock())
+        {
+            watcher->viewUpdated(this);
+        }
+    }
 }
 
 ViewState::ViewState(WhirlyKit::View *view,SceneRenderer *renderer) :
@@ -271,7 +288,7 @@ ViewState::ViewState(WhirlyKit::View *view,SceneRenderer *renderer) :
     modelMatrix = view->calcModelMatrix();
     invModelMatrix = modelMatrix.inverse();
     
-    std::vector<Eigen::Matrix4d> offMatrices;
+    Matrix4dVector offMatrices;
     Point2f frameSize = renderer->getFramebufferSize();
     view->getOffsetMatrices(offMatrices, frameSize, 0.0);
     viewMatrices.resize(offMatrices.size());
