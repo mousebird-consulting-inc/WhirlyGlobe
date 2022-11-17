@@ -246,22 +246,23 @@ using namespace WhirlyKit;
 
 @implementation MaplyProj4CoordSystem
 {
-    Proj4CoordSystem *p4CoordSys;
 }
 
 - (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str
 {
     self = [super init];
     std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
-    p4CoordSys = new Proj4CoordSystem(str);
-    coordSystem = CoordSystemRef(p4CoordSys);
-        
+    coordSystem = std::make_shared<Proj4CoordSystem>(std::move(str));
     return self;
 }
 
 - (bool)valid
 {
-    return p4CoordSys != nil && p4CoordSys->isValid();
+    if (auto cs = dynamic_cast<const Proj4CoordSystem*>(coordSystem.get()))
+    {
+        return cs->isValid();
+    }
+    return false;
 }
 
 @end
