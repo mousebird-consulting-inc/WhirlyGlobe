@@ -120,7 +120,8 @@
         kMaplyDrawPriority: @(_drawPriority),
         kMaplyShader: shaderName,
         kMaplyZBufferRead: @(_zBuffer),
-        kMaplyZBufferWrite: @(NO)
+        kMaplyZBufferWrite: @(NO),
+        kMaplyDrawableName: self.accessibilityLabel ? self.accessibilityLabel : @"MaplyVariableTarget-Rect",
     };
     _rectObj = [theViewC addShapes:@[rect] desc:desc mode:MaplyThreadCurrent];
 #endif

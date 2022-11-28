@@ -169,6 +169,14 @@ using namespace WhirlyKit;
     newRect->ur.x() = _ur.x;  newRect->ur.y() = _ur.y;  newRect->ur.z() = _ur.z;
     newRect->clipCoords = self.clipCoords;
     
+    if (NSObject *obj = [desc objectForKey:kMaplyDrawableName])
+    {
+        if ([obj isKindOfClass:NSString.class])
+        {
+            newRect->label = ((NSString*)obj).UTF8String;
+        }
+    }
+
     return newRect;
 }
 
@@ -181,7 +189,7 @@ using namespace WhirlyKit;
     /// Number of coordinates to display in linear
     int numCoords;
     /// Coordinates we'll display for the linear (lon,lat,Z in display units)
-    MaplyCoordinate3d *coords;    
+    MaplyCoordinate3d *coords;
 }
 
 - (instancetype)initWithCoords:(MaplyCoordinate3d *)inCoords numCoords:(int)inNumCoords

@@ -63,10 +63,11 @@ public:
 
 public:
     bool isSelectable;
-    WhirlyKit::SimpleIdentity selectID;
     bool useColor;
-    WhirlyKit::RGBAColor color;
     bool clipCoords;
+    WhirlyKit::SimpleIdentity selectID;
+    WhirlyKit::RGBAColor color;
+    std::string label;
 };
 
 

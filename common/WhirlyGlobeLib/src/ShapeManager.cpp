@@ -720,6 +720,7 @@ SimpleIdentity ShapeManager::addShapes(const std::vector<Shape*> &shapes, const 
     {
         drawBuildReg.setClipCoords(shape->clipCoords);
         drawBuildTri.setClipCoords(shape->clipCoords);
+        drawBuildTri.setDrawableName(shape->label);
         shape->makeGeometryWithBuilder(&drawBuildReg, &drawBuildTri, getScene(), selectManager, sceneRep.get());
     }
 

@@ -146,6 +146,10 @@ struct ShapeDrawableBuilderTri
     const CoordSystemDisplayAdapter *coordAdapter;
     SceneRenderer *sceneRender;
 
+    /// The name set on generated drawables, for debugging
+    void setDrawableName(const char *name) { drawableName = name ? name : ""; }
+    void setDrawableName(std::string name) { drawableName = std::move(name); }
+
 protected:
     // Creates a new local drawable with all the appropriate settings
     void setupNewDrawable();
@@ -156,6 +160,7 @@ protected:
     std::vector<BasicDrawableBuilderRef> drawables;
     std::vector<SimpleIdentity> texIDs;
     Point3d center;
+    std::string drawableName;
     bool clipCoords = false;
 };
 

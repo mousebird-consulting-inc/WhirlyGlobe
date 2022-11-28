@@ -211,7 +211,7 @@ ShapeDrawableBuilderTri::ShapeDrawableBuilderTri(const CoordSystemDisplayAdapter
 
 void ShapeDrawableBuilderTri::setupNewDrawable()
 {
-    drawable = sceneRender->makeBasicDrawableBuilder("Shape Layer");
+    drawable = sceneRender->makeBasicDrawableBuilder(drawableName.empty() ? "Shape Layer" : drawableName);
     shapeInfo.setupBasicDrawable(drawable);
     drawable->setClipCoords(clipCoords);
     drawMbr.reset();
