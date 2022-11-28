@@ -357,7 +357,10 @@ void Scene::removeActiveModel(PlatformThreadInfo *threadInfo, const ActiveModelR
     }
     if (which < activeModels.size()) {
         activeModels.erase(activeModels.begin() + which);
-        activeModel->teardown(threadInfo);
+        if (activeModel)
+        {
+            activeModel->teardown(threadInfo);
+        }
     }
 }
 

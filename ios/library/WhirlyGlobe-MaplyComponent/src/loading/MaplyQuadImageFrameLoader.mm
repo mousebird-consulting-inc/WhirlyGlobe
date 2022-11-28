@@ -382,9 +382,12 @@ NSString * const MaplyQuadImageLoaderFetcherName = @"QuadImageLoader";
 
 - (void)shutdown
 {
-    if (self->samplingLayer) {
-        auto layerThread = self->samplingLayer.layerThread;
-        layerThread.scene->removeActiveModel(nullptr, loader);
+    if (loader)
+    if (auto layer = self->samplingLayer)
+    if (auto layerThread = layer.layerThread)
+    if (auto scene = layerThread.scene)
+    {
+        scene->removeActiveModel(nullptr, loader);
     }
 
     [super shutdown];

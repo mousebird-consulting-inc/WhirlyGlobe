@@ -738,8 +738,7 @@ using namespace WhirlyKit;
         valid = false;
     }
     
-    const auto __strong thread = samplingLayer.layerThread;
-    if (thread)
+    if (const auto __strong thread = samplingLayer.layerThread)
     {
         [self performSelector:@selector(cleanup) onThread:thread withObject:nil waitUntilDone:NO];
     }
