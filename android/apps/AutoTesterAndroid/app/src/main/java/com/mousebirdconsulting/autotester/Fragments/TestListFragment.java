@@ -105,7 +105,7 @@ public class TestListFragment extends Fragment {
 				new GestureFeedbackTestCase(a),
 				new GreatCircleTestCase(a),
 				new ImageReloadTestCase(a),
-				new LayerShutdownTestCase(a),
+				//new LayerShutdownTestCase(a),
 				new LightingTestCase(a),
 				new LocationTrackingRealTestCase(a),
 				new LocationTrackingSimTestCase(a),

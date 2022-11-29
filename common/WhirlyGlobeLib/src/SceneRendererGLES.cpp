@@ -433,15 +433,15 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
             perfTimer.stopTiming("Scene processing");
         
         // Work through the available offset matrices (only 1 if we're not wrapping)
-        const std::vector<Matrix4d> &offsetMats = baseFrameInfo.offsetMatrices;
+        const Matrix4dVector &offsetMats = baseFrameInfo.offsetMatrices;
         // Turn these drawables in to a vector
         std::vector<DrawableContainer> drawList;
         std::vector<DrawableRef> screenDrawables;
         std::vector<DrawableRef> generatedDrawables;
-        std::vector<Matrix4d> mvpMats;
-        std::vector<Matrix4d> mvpInvMats;
-        std::vector<Matrix4f> mvpMats4f;
-        std::vector<Matrix4f> mvpInvMats4f;
+        Matrix4dVector mvpMats;
+        Matrix4dVector mvpInvMats;
+        Matrix4fVector mvpMats4f;
+        Matrix4fVector mvpInvMats4f;
         mvpMats.resize(offsetMats.size());
         mvpInvMats.resize(offsetMats.size());
         mvpMats4f.resize(offsetMats.size());
