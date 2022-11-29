@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
+project(MaplyJNI)
 
 #SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -v")
 #SET(CMAKE_LINKER_FLAGS  "${CMAKE_CXX_FLAGS} -v")
