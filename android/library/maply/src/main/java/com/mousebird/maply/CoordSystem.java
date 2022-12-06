@@ -20,6 +20,8 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.Nullable;
+
 /**
  * The coord system is a very simple representation of the coordinate
  * systems supported by WhirlyGlobe-Maply. Very few moving parts are
@@ -51,7 +53,14 @@ public class CoordSystem
 	public Point3d ur = null;
 
 	/**
-	 * Return the valid bounding box for the coordinate system.
+	 * Returns true if the corner points are set and not identical
+	 */
+	public boolean isValid() {
+		return (ll != null && ur != null && ll.getX() < ur.getX());
+	}
+
+	/**
+	 * Return the valid bounding box for the coordinate system in local coordinates.
 	 * null means everywhere is valid.
      */
 	public Mbr getBounds()
@@ -60,19 +69,28 @@ public class CoordSystem
 	}
 
 	/**
-	 * Returns true if the corner points are set and not identical
-	 */
-	public boolean isValid() {
-		return (ll != null && ur != null && ll.getX() < ur.getX());
-	}
-	/**
-	 * Set the bounding box for the coordinate system.
-	 * @param mbr
+	 * Set the bounding box for the coordinate system in local coordinates.
      */
 	public void setBounds(Mbr mbr)
 	{
 		ll = new Point3d(mbr.ll.getX(),mbr.ll.getY(),0.0);
 		ur = new Point3d(mbr.ur.getX(),mbr.ur.getY(),0.0);
+	}
+
+	/**
+	 * Get the bounds in geographic coordinates
+	 */
+	@Nullable
+	public Mbr getBoundsGeo() {
+		return isValid() ? new Mbr(localToGeographic(ll).xy(), localToGeographic(ur).xy()) : null;
+	}
+
+	/**
+	 * Set the bounds in geographic coordinates
+	 */
+	public void setBoundsGeo(@Nullable Mbr bound) {
+		ll = (bound != null) ? geographicToLocal(bound.ll.withZ()) : null;
+		ur = (bound != null) ? geographicToLocal(bound.ur.withZ()) : null;
 	}
 
 	/**
@@ -108,6 +126,16 @@ public class CoordSystem
 	public native Point3d geocentricToLocal(Point3d pt);
 
 	/**
+	 * Whether the coordinate system can span the anti-meridian
+	 */
+	public native boolean getCanBeWrapped();
+
+	/**
+	 * Set whether the coordinate system can span the anti-meridian
+	 */
+	public native void setCanBeWrapped(boolean b);
+
+	/**
 	 * Convert the coordinate between systems.
 	 * @param inSystem The system the coordinate is in.
 	 * @param outSystem The system the coordinate you want it in.
@@ -115,7 +143,7 @@ public class CoordSystem
      * @return Returns the coordinate in the outSystem.
      */
 	public static native Point3d CoordSystemConvert3d (CoordSystem inSystem, CoordSystem outSystem, Point3d inCoord);
-	
+
 	static
 	{
 		nativeInit();

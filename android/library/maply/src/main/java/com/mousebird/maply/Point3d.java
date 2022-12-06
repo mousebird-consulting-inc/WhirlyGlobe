@@ -139,6 +139,11 @@ public class Point3d
 	}
 
 	/**
+	 * Get the X and Y coordinates as a 2D point
+	 */
+	public Point2d xy() { return new Point2d(getX(), getY()); }
+
+	/**
 	 * Dot product
      */
 	public double dot(@NotNull Point3d pt) {
