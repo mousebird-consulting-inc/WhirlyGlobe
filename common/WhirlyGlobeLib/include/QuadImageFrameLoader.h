@@ -355,6 +355,8 @@ public:
     void setLabel(std::string s) { label = std::move(s); }
     const std::string &getLabel() const { return label; }
 
+    bool getMasterEnable() const { return masterEnable; }
+
     /// Turn the display on or off.  Loading continues normally
     void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
     
