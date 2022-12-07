@@ -25,6 +25,55 @@
 using namespace WhirlyKit;
 
 extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getEnabled
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getMasterEnable();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setEnabledNative
+  (JNIEnv *env, jobject obj, jboolean value)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            if (value != (*loader)->getMasterEnable())
+            {
+                (*loader)->setMasterEnable(value);
+                return true;
+            }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getLoadFrameModeNative
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getLoadMode();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return -1;
+}
+
+extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFrameModeNative
   (JNIEnv *env, jobject obj, jint mode)
 {
@@ -38,6 +87,41 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoad
                 (*loader)->setLoadMode(newMode);
                 return true;
             }
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getLoadFramesModeNative
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getFrameLoadMode();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return -1;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFramesModeNative
+        (JNIEnv *env, jobject obj, jint mode, jobject changesObj)
+{
+    try
+    {
+        const auto newMode = (QuadImageFrameLoader::FrameLoadMode)mode;
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        if (*loader && (*loader)->getFrameLoadMode() != newMode)
+        if (const auto changes = ChangeSetClassInfo::get(env,changesObj))
+        {
+            PlatformInfo_Android platformInfo(env);
+            (*loader)->setFrameLoadMode(newMode, &platformInfo, **changes);
+            return true;
         }
     }
     MAPLY_STD_JNI_CATCH()

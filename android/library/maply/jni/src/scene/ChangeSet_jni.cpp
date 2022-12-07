@@ -188,7 +188,20 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addTexture
 		(*changeSet)->push_back(new AddTextureReq(texture));
 	}
 	MAPLY_STD_JNI_CATCH()
+}
 
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_addFlush
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (ChangeSetRef *changeSet = ChangeSetClassInfo::get(env,obj))
+		{
+			(*changeSet)->push_back(nullptr);
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -203,7 +216,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_ChangeSet_removeTexture
 		}
 	}
 	MAPLY_STD_JNI_CATCH()
-
 }
 
 extern "C"
