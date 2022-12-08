@@ -81,13 +81,31 @@ public class RenderController implements RenderControllerInterface
      */
     public enum ImageFormat {
         MaplyImageIntRGBA,
+
         MaplyImageUShort565,
         MaplyImageUShort4444,
         MaplyImageUShort5551,
-        MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+
+        MaplyImageUByteRed,
+        MaplyImageUByteGreen,
+        MaplyImageUByteBlue,
+        MaplyImageUByteAlpha,
         MaplyImageUByteRGB,
-        MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-        MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
+
+        MaplyImageSingleFloat16,
+        MaplyImageDoubleFloat16,
+        MaplyImageSingleFloat32,
+        MaplyImageDoubleFloat32,
+
+        MaplyImageETC2RGB8,
+        MaplyImageETC2RGBA8,
+        MaplyImageETC2RGBPA8,
+
+        MaplyImageEACR11,
+        MaplyImageEACR11S,
+        MaplyImageEACRG11,
+        MaplyImageEACRG11S,
+
         MaplyImage4Layer8Bit
     }
 

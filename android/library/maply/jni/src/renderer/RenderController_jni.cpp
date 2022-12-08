@@ -28,72 +28,49 @@ template<> SceneRendererInfo *SceneRendererInfo::classInfoObj = nullptr;
 
 namespace WhirlyKit {
 GLenum ImageFormatToGLenum(MaplyImageType format) {
-	GLenum ret = GL_UNSIGNED_BYTE;
-
 	switch (format) {
 		case MaplyImageIntRGBA:
-		case MaplyImage4Layer8Bit:
-			ret = GL_UNSIGNED_BYTE;
-			break;
-		case MaplyImageUShort565:
-			ret = GL_UNSIGNED_SHORT_5_6_5;
-			break;
-		case MaplyImageUShort4444:
-			ret = GL_UNSIGNED_SHORT_4_4_4_4;
-			break;
-		case MaplyImageUShort5551:
-			ret = GL_UNSIGNED_SHORT_5_5_5_1;
-			break;
+		case MaplyImage4Layer8Bit:    return GL_UNSIGNED_BYTE;
+		case MaplyImageUShort565:     return GL_UNSIGNED_SHORT_5_6_5;
+		case MaplyImageUShort4444:    return GL_UNSIGNED_SHORT_4_4_4_4;
+		case MaplyImageUShort5551:    return GL_UNSIGNED_SHORT_5_5_5_1;
 		case MaplyImageUByteRed:
 		case MaplyImageUByteGreen:
 		case MaplyImageUByteBlue:
 		case MaplyImageUByteAlpha:
-		case MaplyImageUByteRGB:
-			ret = GL_ALPHA;
-			break;
-		default:
-			break;
+		case MaplyImageUByteRGB:      return GL_ALPHA;
+		case MaplyImageSingleFloat16: return GL_R16F;
+		case MaplyImageDoubleFloat16: return GL_RG16F;
+		case MaplyImageSingleFloat32: return GL_R32F;
+		case MaplyImageDoubleFloat32: return GL_RG32F;
+		default:                      return GL_UNSIGNED_BYTE;
 			// Note: Not supporting everything
 //				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
 //				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
 	}
-
-	return ret;
 }
 
 TextureType ImageFormatToTexType(MaplyImageType format) {
-	TextureType ret = TexTypeUnsignedByte;
-
 	switch (format) {
 		case MaplyImageIntRGBA:
-		case MaplyImage4Layer8Bit:
-			ret = TexTypeUnsignedByte;
-			break;
-		case MaplyImageUShort565:
-			ret = TexTypeShort565;
-			break;
-		case MaplyImageUShort4444:
-			ret = TexTypeShort4444;
-			break;
-		case MaplyImageUShort5551:
-			ret = TexTypeShort5551;
-			break;
+		case MaplyImage4Layer8Bit:    return TexTypeUnsignedByte;
+		case MaplyImageUShort565:     return TexTypeShort565;
+		case MaplyImageUShort4444:    return TexTypeShort4444;
+		case MaplyImageUShort5551:    return TexTypeShort5551;
 		case MaplyImageUByteRed:
 		case MaplyImageUByteGreen:
 		case MaplyImageUByteBlue:
 		case MaplyImageUByteAlpha:
-		case MaplyImageUByteRGB:
-			ret = TexTypeSingleChannel;
-			break;
-			// Note: Need to add dual channel
-		default:
-			break;
+		case MaplyImageUByteRGB:      return TexTypeSingleChannel;
+		case MaplyImageSingleFloat16: return TexTypeSingleFloat16;
+		case MaplyImageDoubleFloat16: return TexTypeDoubleFloat16;
+		case MaplyImageSingleFloat32: return TexTypeSingleFloat32;
+		case MaplyImageDoubleFloat32: return TexTypeDoubleFloat32;
+		default:                      return TexTypeUnsignedByte;
 			// Note: Not supporting everything
 //				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
 //				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
 	}
-
-	return ret;
 }
 
 }

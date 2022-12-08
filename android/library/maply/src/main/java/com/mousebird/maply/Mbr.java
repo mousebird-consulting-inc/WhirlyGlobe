@@ -121,20 +121,20 @@ public class Mbr
 	 * Convert from degrees to radians
 	 */
 	public Mbr degToRad() {
-		return new Mbr(ll.getX() * Math.PI / 180,
-		               ll.getY() * Math.PI / 180,
-		               ur.getX() * Math.PI / 180,
-		               ur.getY() * Math.PI / 180);
+		return isValid() ? new Mbr(ll.getX() * Math.PI / 180,
+		                           ll.getY() * Math.PI / 180,
+		                           ur.getX() * Math.PI / 180,
+		                           ur.getY() * Math.PI / 180) : new Mbr();
 	}
 
 	/**
 	 * Convert from radians to degrees
 	 */
 	public Mbr radToDeg() {
-		return new Mbr(ll.getX() / Math.PI * 180,
-		               ll.getY() / Math.PI * 180,
-		               ur.getX() / Math.PI * 180,
-		               ur.getY() / Math.PI * 180);
+		return isValid() ? new Mbr(ll.getX() / Math.PI * 180,
+		                           ll.getY() / Math.PI * 180,
+		                           ur.getX() / Math.PI * 180,
+		                           ur.getY() / Math.PI * 180) : new Mbr();
 	}
 
 	/**
