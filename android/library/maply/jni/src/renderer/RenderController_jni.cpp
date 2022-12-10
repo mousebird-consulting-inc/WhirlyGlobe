@@ -73,6 +73,21 @@ TextureType ImageFormatToTexType(MaplyImageType format) {
 	}
 }
 
+	MaplyImageType TexTypeToImageFormat(TextureType format) {
+	switch (format) {
+		default:
+		case TexTypeUnsignedByte:  return MaplyImageIntRGBA;
+		case TexTypeShort565:      return MaplyImageUShort565;
+		case TexTypeShort4444:     return MaplyImageUShort4444;
+		case TexTypeShort5551:     return MaplyImageUShort5551;
+		case TexTypeSingleChannel: return MaplyImageUByteRGB;
+		case TexTypeSingleFloat16: return MaplyImageSingleFloat16;
+		case TexTypeDoubleFloat16: return MaplyImageDoubleFloat16;
+		case TexTypeSingleFloat32: return MaplyImageSingleFloat32;
+		case TexTypeDoubleFloat32: return MaplyImageDoubleFloat32;
+	}
+}
+
 }
 
 extern "C"
@@ -183,9 +198,14 @@ public:
 	{
 		auto localShader = std::make_shared<Shader_Android>();
 		localShader->setupPreBuildProgram(std::move(prog));
-		scene->addProgram(localShader->prog);
-		jobject shaderObj = MakeShader(env,localShader);
-		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);
+		if (localShader->prog)
+		{
+			scene->addProgram(localShader->prog);
+		}
+		if (jobject shaderObj = MakeShader(env,localShader))
+		{
+			env->CallVoidMethod(renderControlObj, addShaderID, shaderObj);
+		}
 	}
 
 	JNIEnv *env;

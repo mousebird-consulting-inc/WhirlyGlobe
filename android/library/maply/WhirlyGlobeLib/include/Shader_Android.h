@@ -1,5 +1,4 @@
-/*
- *  Shader_Android.h
+/*  Shader_Android.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/8/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -29,8 +27,8 @@ namespace WhirlyKit
  */
 class Shader_Android : ProgramGLES {
 public:
-    Shader_Android();
-    virtual ~Shader_Android();
+    Shader_Android() = default;
+    virtual ~Shader_Android() = default;
 
     // Do the actual program setup
     void setupProgram(const std::string &name,const std::string &vertProg,const std::string &fragProg);
@@ -40,6 +38,7 @@ public:
 
     // Program after set up
     ProgramGLESRef prog;
+
     // Varyings if they exist.  Need to be passed in during creation.
     std::vector<std::string> varyings;
 };

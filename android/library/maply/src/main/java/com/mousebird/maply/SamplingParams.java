@@ -19,16 +19,20 @@
  */
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+
 /**
  Sampling parameters.
 
  These are used to describe how we want to break down the globe or
  flat projection onto the globe.
  **/
+@SuppressWarnings("unused")
 public class SamplingParams
 {
-    public SamplingParams()
-    { initialise(); }
+    public SamplingParams() {
+        initialise();
+    }
 
     /**
      * Set the coordinate system for the model itself
@@ -37,7 +41,7 @@ public class SamplingParams
     {
         // Note: bound coords are in projected coordinates, not geographic
         final Mbr bounds = coordSystem.getBounds();
-        setCoordSystemNative(coordSystem, new Point3d(bounds.ll,0),new Point3d(bounds.ur,0));
+        setCoordSystemNative(coordSystem, bounds.ll.withZ(), bounds.ur.withZ());
     }
 
     protected native void setCoordSystemNative(CoordSystem coordSystem,Point3d ll,Point3d ur);
@@ -94,13 +98,13 @@ public class SamplingParams
     public native int getMaxTiles();
 
     /**
-     * Size of a tile in scren space (pixels^2).
+     * Size of a tile in screen space (pixels^2).
      * Anything taking up less space than this will not be loaded.
      */
     public native void setMinImportance(double minImport);
 
     /**
-     * Size of a tile in scren space (pixels^2).
+     * Size of a tile in screen space (pixels^2).
      * Anything taking up less space than this will not be loaded.
      */
     public native double getMinImportance();
@@ -153,7 +157,7 @@ public class SamplingParams
     public native boolean getEdgeMatching();
 
     /**
-     * Each tile will be tesselated into a given number of X and Y grid
+     * Each tile will be tessellated into a given number of X and Y grid
      * points.
      */
     public native void setTesselation(int tessX,int tessY);
@@ -164,6 +168,13 @@ public class SamplingParams
      * loading.  Not great for basemaps.  On by default.
      */
     public native void setForceMinLevel(boolean force);
+    public native boolean getForceMinLevel();
+
+    /**
+     * The height at which setForceMinLevel applies
+     */
+    public native void setForceMinLevelHeight(float height);
+    public native float getForceMinLevelHeight();
 
     /**
      * Return the tesselation in X for a single tile.
@@ -204,12 +215,26 @@ public class SamplingParams
     /**
      * If set, we won't load any tiles outside these boundaries.
      */
-    public void setClipBounds(Mbr bounds)
-    {
-        setClipBounds(bounds.ll.getX(),bounds.ll.getY(),bounds.ur.getX(),bounds.ur.getY());
+    public void setClipBounds(Mbr bounds) {
+        if (bounds.isValid()) {
+            setClipBounds(bounds.ll.getX(), bounds.ll.getY(),
+                          bounds.ur.getX(), bounds.ur.getY());
+        }
     }
 
+    public Mbr getClipBounds() {
+        final double[] coords = new double[4];
+        return getClipBounds(coords) ? new Mbr(coords[0], coords[1], coords[2], coords[3]) : null;
+    }
+
+    /**
+     * If set, we'll use the clipping bounds for importance calculations.
+     */
+    public native boolean getUseClipBoundsForImportance();
+    public native void setUseClipBoundsForImportance(boolean b);
+
     private native void setClipBounds(double llx,double lly,double urx,double ury);
+    private native boolean getClipBounds(double[] coords);
 
     @Override
     public boolean equals(Object obj) {
@@ -222,7 +247,7 @@ public class SamplingParams
 
     private native boolean equalsNative(Object obj);
 
-    public void finalize()
+    protected void finalize()
     {
         dispose();
     }
@@ -233,5 +258,6 @@ public class SamplingParams
     private static native void nativeInit();
     native void initialise();
     native void dispose();
-    private long nativeHandle;
+    @Keep @SuppressWarnings("unused")     // Used by JNI
+    private long nativeHandle = 0;
 }

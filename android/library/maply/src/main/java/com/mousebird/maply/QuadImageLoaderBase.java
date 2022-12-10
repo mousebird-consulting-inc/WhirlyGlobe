@@ -22,6 +22,8 @@ package com.mousebird.maply;
 
 import android.graphics.Color;
 
+import androidx.annotation.Nullable;
+
 import java.lang.ref.WeakReference;
 
 /**
@@ -208,7 +210,14 @@ public class QuadImageLoaderBase extends QuadLoaderBase
     public void setImageFormat(RenderController.ImageFormat imageFormat) {
         setImageFormatNative(imageFormat.ordinal());
     }
+    @Nullable
+    public RenderController.ImageFormat getImageFormat() {
+        final int n = getImageFormatNative();
+        return (0 <= n && n < imageFormatValues.length) ? imageFormatValues[n] : null;
+    }
+    private final RenderController.ImageFormat[] imageFormatValues = RenderController.ImageFormat.values();
 
+    protected native int getImageFormatNative();
     protected native void setImageFormatNative(int imageFormat);
 
     /**
