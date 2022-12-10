@@ -24,6 +24,8 @@
 #import "TextureGLES.h"
 #import "WhirlyKitLog.h"
 
+#pragma ide diagnostic ignored "readability-make-member-function-const"
+
 using namespace Eigen;
 
 namespace WhirlyKit
@@ -48,16 +50,13 @@ ProgramGLES::~ProgramGLES()
 bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 {
     OpenGLESUniform *uni = findUniform(nameID);
-    if (!uni)
+    if (!uni || uni->type != GL_FLOAT)
         return false;
-    
-    if (uni->type != GL_FLOAT)
-        return false;
-    
+
     if (uni->isSet && uni->val.fVals[0] == val)
         return true;
     
-    glUniform1f(uni->index,val);
+    glUniform1f((GLint)uni->index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
@@ -75,7 +74,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,float val,int index)
     if (uni->type != GL_FLOAT)
         return false;
     
-    glUniform1f(uni->index+index,val);
+    glUniform1f((GLint)uni->index+index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
@@ -95,7 +94,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     if (uni->isSet && uni->val.iVals[0] == val)
         return true;
     
-    glUniform1i(uni->index,val);
+    glUniform1i((GLint)uni->index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
@@ -142,7 +141,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
     if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y())
         return true;
     
-    glUniform2f(uni->index, vec.x(), vec.y());
+    glUniform2f((GLint)uni->index, vec.x(), vec.y());
     CheckGLError("ProgramGLES::setUniform() glUniform2f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
@@ -161,7 +160,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
     if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() && uni->val.fVals[2] == vec.z())
         return true;
     
-    glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
+    glUniform3f((GLint)uni->index, vec.x(), vec.y(), vec.z());
     CheckGLError("ProgramGLES::setUniform() glUniform3f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
@@ -182,7 +181,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
         uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
         return true;
     
-    glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
+    glUniform4f((GLint)uni->index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
@@ -203,7 +202,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,in
         uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
         return true;
     
-    glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
+    glUniform4f((GLint)uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
@@ -235,7 +234,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
             return true;
     }
     
-    glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
+    glUniformMatrix4fv((GLint)uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
     CheckGLError("ProgramGLES::setUniform() glUniformMatrix4fv");
     uni->isSet = true;
     for (unsigned int ii=0;ii<16;ii++)
@@ -243,7 +242,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
     
     return true;
 }
-    
+
 bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
 {
     bool ret = false;
@@ -312,7 +311,10 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 #define DUMP_UNIFORMS 0
 
 // Construct the program, compile and link
-ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
+ProgramGLES::ProgramGLES(const std::string &inName,
+                         const std::string &vShaderString,
+                         const std::string &fShaderString,
+                         const std::vector<std::string> *varying)
     : ProgramGLES()
 {
     name = inName;
@@ -352,26 +354,26 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
     CheckGLError("ProgramGLES: glAttachShader() fragment");
 
     // Designate the varyings that we want out of the shader
-    if (varying) {
-        auto **names = (GLchar **)malloc(sizeof(GLchar *)*varying->size());
-        if (names) {
-            for (unsigned int ii = 0; ii < varying->size(); ii++) {
-                const std::string &name = (*varying)[ii];
-                names[ii] = (GLchar *) malloc(sizeof(GLchar) * (name.size() + 1));
-                if (names[ii]) {
-                    strcpy(names[ii], name.c_str());
-                }
-            }
-            glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
+    if (varying && !varying->empty()) {
+        std::vector<GLchar*> names(varying->size());
+        for (unsigned int ii = 0; ii < varying->size(); ii++) {
+            const std::string &name = varying->at(ii);
 
-            CheckGLError("ProgramGLES: Error setting up varyings in");
-
-            for (unsigned int ii = 0; ii < varying->size(); ii++) {
-                if (names[ii]) {
-                    free(names[ii]);
-                }
+            // TODO: Do we really need copies here, when we're just doing to free them?
+            names[ii] = (GLchar *) malloc(sizeof(GLchar) * (name.size() + 1));
+            if (names[ii]) {
+                strcpy(names[ii], name.c_str());
             }
-            free(names);
+        }
+
+        glTransformFeedbackVaryings(program, (int)varying->size(), &names[0], GL_SEPARATE_ATTRIBS);
+
+        CheckGLError("ProgramGLES: Error setting up varyings in");
+
+        for (unsigned int ii = 0; ii < varying->size(); ii++) {
+            if (names[ii]) {
+                free(names[ii]);
+            }
         }
     }
     
@@ -527,7 +529,7 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
     }
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     if (lightAttr)
-        glUniform1i(lightAttr->index, numLights);
+        glUniform1i((GLint)lightAttr->index, numLights);
     else
         return false;
     
@@ -553,7 +555,7 @@ int ProgramGLES::bindTextures()
         {
             glActiveTexture(GL_TEXTURE0+numTextures);
             glBindTexture(GL_TEXTURE_2D, uni.second->val.iVals[0]);
-            glUniform1i(uni.second->index,numTextures);
+            glUniform1i((GLint)uni.second->index,numTextures);
             numTextures++;
         }
     }

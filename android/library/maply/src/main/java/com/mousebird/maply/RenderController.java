@@ -90,12 +90,31 @@ public class RenderController implements RenderControllerInterface
         MaplyImageUByteGreen,
         MaplyImageUByteBlue,
         MaplyImageUByteAlpha,
+
+        MaplyImageUByteRG,
         MaplyImageUByteRGB,
 
+        MaplyImageInt8,
+        MaplyImageUInt8,
+        MaplyImageDoubleInt8,
+        MaplyImageDoubleUInt8,
+
+        MaplyImageInt16,
+        MaplyImageUInt16,
+        MaplyImageDoubleInt16,
+        MaplyImageDoubleUInt16,
+
+        MaplyImageInt32,
+        MaplyImageUInt32,
+        MaplyImageDoubleInt32,
+        MaplyImageDoubleUInt32,
+
         MaplyImageSingleFloat16,
-        MaplyImageDoubleFloat16,
         MaplyImageSingleFloat32,
+        MaplyImageDoubleFloat16,
         MaplyImageDoubleFloat32,
+        MaplyImageQuadFloat16,
+        MaplyImageQuadFloat32,
 
         MaplyImageETC2RGB8,
         MaplyImageETC2RGBA8,
@@ -106,7 +125,7 @@ public class RenderController implements RenderControllerInterface
         MaplyImageEACRG11,
         MaplyImageEACRG11S,
 
-        MaplyImage4Layer8Bit
+        MaplyImage4Layer8Bit,
     }
 
     /**

@@ -23,27 +23,14 @@
 namespace WhirlyKit
 {
 
-Shader_Android::Shader_Android()
-: prog(NULL)
-{
-}
-
-Shader_Android::~Shader_Android()
-{
-    prog = NULL;
-}
-
 void Shader_Android::setupProgram(const std::string &name,const std::string &vertProg,const std::string &fragProg)
 {
-    if (varyings.empty())
-    	prog = ProgramGLESRef(new ProgramGLES(name,vertProg,fragProg));
-    else
-        prog = ProgramGLESRef(new ProgramGLES(name,vertProg,fragProg,&varyings));
+    prog = std::make_shared<ProgramGLES>(name, vertProg, fragProg, &varyings);
 }
 
 void Shader_Android::setupPreBuildProgram(ProgramGLESRef inProg)
 {
-    prog = inProg;
+    prog = std::move(inProg);
 }
 
 }

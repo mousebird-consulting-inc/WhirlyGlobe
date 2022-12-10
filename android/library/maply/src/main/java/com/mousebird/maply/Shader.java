@@ -151,7 +151,7 @@ public class Shader
 	/**
 	 * Check if the shader is valid.
      * The shader setup can fail in a number of ways.  Check this after creating the shader
-	 * to see if it succeeded.  If not, look to <ref>getError</ref> to see why.
+	 * to see if it succeeded.
 	 */
 	public native boolean valid();
 

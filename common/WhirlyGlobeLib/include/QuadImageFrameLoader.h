@@ -414,6 +414,7 @@ public:
 
     /// In-memory texture type
     void setTexType(TextureType type) { texType = type; }
+    TextureType getTexType() const { return texType; }
     void setTexByteSource(WKSingleByteSource src) { texByteSource = src; }
     
     /// If we're using border pixels, set the individual texture size and border size

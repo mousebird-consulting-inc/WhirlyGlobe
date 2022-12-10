@@ -51,10 +51,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__Ljava_lang_St
 		(*shader)->setupProgram(name,vertProg,fragProg);
 		ShaderClassInfo::getClassInfo()->setHandle(env,obj,shader);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -62,19 +59,16 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_initialise__(JNIEnv *env,
 {
     try
     {
-        Shader_AndroidRef *shader = new Shader_AndroidRef(new Shader_Android());
+        Shader_AndroidRef *shader = new Shader_AndroidRef(std::make_shared<Shader_Android>());
         ShaderClassInfo::getClassInfo()->setHandle(env,obj,shader);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::initialise()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 jobject MakeShader(JNIEnv *env,Shader_AndroidRef shader)
 {
 	ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo(env,"com/mousebird/maply/Shader");
-	return classInfo->makeWrapperObject(env,new Shader_AndroidRef(shader));
+	return classInfo->makeWrapperObject(env,new Shader_AndroidRef(std::move(shader)));
 }
 
 extern "C"
@@ -99,10 +93,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_delayedSetupNative
 
 		(*shader)->setupProgram(name,vertProg,fragProg);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -123,10 +114,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_dispose(JNIEnv *env, jobj
             classInfo->clearHandle(env,obj);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -140,12 +128,21 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_valid(JNIEnv *env, jo
             return false;
         return (*inst)->prog->isValid();
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::valid()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return false;
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getError(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
+		return env->NewStringUTF((*inst)->prog->getName().c_str());
+	}
+	MAPLY_STD_JNI_CATCH()
+	return nullptr;
 }
 
 extern "C"
@@ -157,12 +154,8 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName(JNIEnv *env, j
 		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
         return env->NewStringUTF((*inst)->prog->getName().c_str());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::getName()");
-    }
-    
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
 extern "C"
@@ -176,11 +169,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID(JNIEnv *env, jobje
 		    return EmptyIdentity;
         return (*inst)->prog->getId();
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::getID()");
-    }
-    
+	MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
 }
 
@@ -201,10 +190,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
         const auto idx = StringIndexer::getStringID(name.getCString());
 		(*changes)->push_back(new ShaderAddTextureReq((*inst)->prog->getId(),idx,texID,-1));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::addTextureNative()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
 
@@ -228,11 +214,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),(float)uni);
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -256,11 +238,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNati
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),(float)uni,index);
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniformByIndex()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -285,11 +263,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),(int)uni);
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -313,11 +287,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),Vector2f((float)x,(float)y));
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -341,11 +311,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),Vector3f((float)x,(float)y,(float)z));
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -369,11 +335,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),Vector4f((float)x,(float)y,(float)z,(float)w));
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return false;
 }
 
@@ -401,11 +363,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorByInde
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),colorVec,index);
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -433,11 +391,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformColorNative
 		(*inst)->prog->setUniform(StringIndexer::getStringID(name),colorVec);
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::setUniform()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -458,10 +412,6 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addVarying(JNIEnv *env, j
 		(*inst)->varyings.push_back(name);
         return;
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Shader::addVarying()");
-    }
-
+	MAPLY_STD_JNI_CATCH()
     return;
 }

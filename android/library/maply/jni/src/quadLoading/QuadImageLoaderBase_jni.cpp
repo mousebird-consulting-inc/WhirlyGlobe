@@ -1,5 +1,4 @@
-/*
- *  QuadImageLoaderBase_jni.cpp
+/*  QuadImageLoaderBase_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg on 3/25/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadLoading_jni.h"
@@ -27,8 +25,9 @@
 using namespace Eigen;
 using namespace WhirlyKit;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitNative
-        (JNIEnv *env, jobject obj, jobject sceneObj)
+  (JNIEnv *env, jobject obj, jobject sceneObj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -50,14 +49,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitN
             scene->addActiveModel(*loader);
         }
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::delayedInitNative()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBaseDrawPriority
-(JNIEnv *env, jobject obj, jint baseDrawPriority)
+  (JNIEnv *env, jobject obj, jint baseDrawPriority)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -65,14 +62,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBaseDrawP
             return;
         (*loader)->setBaseDrawPriority(baseDrawPriority);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setBaseDrawPriority()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setDrawPriorityPerLevel
-(JNIEnv *env, jobject obj, jint perLevel)
+  (JNIEnv *env, jobject obj, jint perLevel)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -80,14 +75,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setDrawPrior
             return;
         (*loader)->setDrawPriorityPerLevel(perLevel);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setDrawPriorityPerLevel()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setColor
-(JNIEnv *env, jobject obj, jfloat red, jfloat green, jfloat blue, jfloat alpha, jobject changeSetObj)
+  (JNIEnv *env, jobject obj, jfloat red, jfloat green, jfloat blue, jfloat alpha, jobject changeSetObj)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -97,14 +90,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setColor
         RGBAColor color(red*255,green*255,blue*255,alpha*255);
         (*loader)->setColor(color,changeSet ? changeSet->get() : nullptr);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setColor()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setZBufferWrite
-(JNIEnv *env, jobject obj, jboolean zBufferWrite)
+  (JNIEnv *env, jobject obj, jboolean zBufferWrite)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -112,14 +103,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setZBufferWr
             return;
         // TODO: Hook this up
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setZBufferWrite()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setZBufferRead
-(JNIEnv *env, jobject obj, jboolean)
+  (JNIEnv *env, jobject obj, jboolean)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -127,14 +116,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setZBufferRe
             return;
         // TODO: Hook this up
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setZBufferRead()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setShaderID
-(JNIEnv *env, jobject obj, jlong shaderID)
+  (JNIEnv *env, jobject obj, jlong shaderID)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -142,14 +129,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setShaderID
             return;
         (*loader)->setShaderID(0,shaderID);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setShaderID()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setRenderTargetID
-(JNIEnv *env, jobject obj, jlong targetID)
+  (JNIEnv *env, jobject obj, jlong targetID)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -157,14 +142,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setRenderTar
             return;
         (*loader)->setRenderTarget(0,targetID);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setRenderTargetID()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_getImageFormatNative
+  (JNIEnv *env, jobject obj)
+{
+    try {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return TexTypeToImageFormat((*loader)->getTexType());
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return -1;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setImageFormatNative
-(JNIEnv *env, jobject obj, jint imageFormat)
+  (JNIEnv *env, jobject obj, jint imageFormat)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -172,15 +169,12 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setImageForm
             return;
         (*loader)->setTexType(ImageFormatToTexType((MaplyImageType)imageFormat));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setRenderTargetID()");
-    }
-
+    MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBorderTexel
-(JNIEnv *env, jobject obj, jint borderTexel)
+  (JNIEnv *env, jobject obj, jint borderTexel)
 {
     try {
         QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
@@ -188,8 +182,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBorderTex
             return;
         // TODO: Do something with this
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QuadImageLoaderBase::setBorderTexel()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }
