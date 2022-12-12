@@ -191,3 +191,18 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_CoordSystemConver
 	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystem_isValidNative
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (const auto coordSys = CoordSystemRefClassInfo::get(env, obj))
+		{
+			return (*coordSys)->isValid();
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}

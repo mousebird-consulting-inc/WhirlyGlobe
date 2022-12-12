@@ -391,6 +391,7 @@ public:
 
     /// Set if we need the top tiles to load before we'll display a frame
     virtual void setRequireTopTilesLoaded(bool newVal) { requiringTopTilesLoaded = newVal; }
+    virtual bool getRequireTopTilesLoaded() const { return requiringTopTilesLoaded; }
 
     /// Return the quad display controller this is attached to
     QuadDisplayControllerNew *getController() const { return control; }
@@ -422,7 +423,11 @@ public:
     
     /// Control draw priority assigned to basic drawable instances
     void setBaseDrawPriority(int newPrior) { baseDrawPriority = newPrior; }
+    int getBaseDrawPriority() const { return baseDrawPriority; }
+
+    /// Control the priority added to each level (keeping more detailed levels on top)
     void setDrawPriorityPerLevel(int newPrior) { drawPriorityPerLevel = newPrior; }
+    int getDrawPriorityPerLevel() const { return drawPriorityPerLevel; }
 
     /// What part of the animation we're displaying.
     /// If the frame loading mode is set to `Current`, you will need to refresh the appropriate frame(s) manually.
