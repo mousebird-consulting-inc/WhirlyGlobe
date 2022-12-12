@@ -53,27 +53,59 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_delayedInitN
 }
 
 extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_getBaseDrawPriority
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getBaseDrawPriority();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return -1;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBaseDrawPriority
   (JNIEnv *env, jobject obj, jint baseDrawPriority)
 {
-    try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        if (!loader)
-            return;
-        (*loader)->setBaseDrawPriority(baseDrawPriority);
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setBaseDrawPriority(baseDrawPriority);
+        }
     }
     MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_getDrawPriorityPerLevel
+        (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getDrawPriorityPerLevel();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return -1;
 }
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setDrawPriorityPerLevel
   (JNIEnv *env, jobject obj, jint perLevel)
 {
-    try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        if (!loader)
-            return;
-        (*loader)->setDrawPriorityPerLevel(perLevel);
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setDrawPriorityPerLevel(perLevel);
+        }
     }
     MAPLY_STD_JNI_CATCH()
 }

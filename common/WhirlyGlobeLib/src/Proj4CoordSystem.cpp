@@ -38,10 +38,19 @@ Proj4CoordSystem::~Proj4CoordSystem()
 {
     try
     {
-        pj_free(pj);
-        pj_free(pj_latlon);
-        pj_free(pj_geocentric);
-    }
+	    if (pj)
+	    {
+	        pj_free(pj);
+	    }
+	    if (pj_latlon)
+	    {
+	        pj_free(pj_latlon);
+	    }
+	    if (pj_geocentric)
+	    {
+	        pj_free(pj_geocentric);
+	    }
+	}
     WK_STD_DTOR_CATCH()
 }
 

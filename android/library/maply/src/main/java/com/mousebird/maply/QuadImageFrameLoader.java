@@ -6,38 +6,40 @@ import android.os.Handler;
 
 import androidx.annotation.Nullable;
 
+import java.util.Objects;
+
 /**
  * The Maply Quad Image Frame Loader is for paging individual frames of image pyramids.
  * <br>
  * This works much like the Quad Image Loader, but handles more than one frame.  You can animate
  * between the frames with the QuadImageFrameAnimator.
  */
-public class QuadImageFrameLoader extends QuadImageLoaderBase
-{
+@SuppressWarnings("unused")
+public class QuadImageFrameLoader extends QuadImageLoaderBase {
     protected boolean valid = false;
 
-    protected QuadImageFrameLoader() { }
+    protected QuadImageFrameLoader() { }    // for JNI
 
-    public QuadImageFrameLoader(BaseController control)
-    {
+    public QuadImageFrameLoader(BaseController control) {
         super(control);
-
         valid = true;
     }
 
-    public QuadImageFrameLoader(final SamplingParams params,TileInfoNew inTileInfos[],BaseController control)
-    {
+    public QuadImageFrameLoader(final SamplingParams params, TileInfoNew[] inTileInfos, BaseController control) {
+        this(params, inTileInfos, control, FramesLoadMode.All);
+    }
+
+    public QuadImageFrameLoader(final SamplingParams params, TileInfoNew[] inTileInfos,
+                                BaseController control, FramesLoadMode framesLoadMode) {
         super(control, params, inTileInfos.length);
         tileInfos = inTileInfos;
 
-        valid = true;
-        Handler handler = new Handler(control.getActivity().getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!valid)
-                    return;
+        setLoadFramesMode(framesLoadMode);
 
+        valid = true;
+        final Handler handler = new Handler(Objects.requireNonNull(control.getActivity()).getMainLooper());
+        handler.post(() -> {
+            if (valid) {
                 delayedInit(params);
             }
         });
@@ -66,7 +68,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
         // If we changed the frame mode we may need to refresh the priorities
         if (setLoadFrameModeNative(mode.ordinal()) && samplingLayer != null) {
             final QuadSamplingLayer layer = samplingLayer.get();
-            if (layer != null && layer.layerThread == null) {
+            if (layer != null && layer.layerThread != null) {
                 layer.layerThread.addTask(this::updatePriorities);
             }
         }
@@ -89,7 +91,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
         final ChangeSet changes = new ChangeSet();
         if (setLoadFramesModeNative(mode.ordinal(), changes) && samplingLayer != null) {
             final QuadSamplingLayer layer = samplingLayer.get();
-            if (layer != null && layer.layerThread == null) {
+            if (layer != null && layer.layerThread != null) {
                 layer.layerThread.addChanges(changes);
             } else {
                 changes.discard();
@@ -150,8 +152,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      * <br>
      * This value is used once per frame, so feel free to call this as much as you'd like.
      */
-    public void setCurrentImage(double where)
-    {
+    public void setCurrentImage(double where) {
         setCurrentImage(0,where);
     }
 
@@ -162,20 +163,13 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      */
     public void setCurrentImage(int focusID,double where)
     {
-//        double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
-        double curFrame = Math.min(Math.max(where,0.0),(double)(tileInfos.length-1));
-
+        final double curFrame = Math.min(Math.max(where, 0.0), tileInfos.length - 1);
         if (setCurrentImageNative(focusID,where) && samplingLayer != null) {
             // setCurrentImage tells us if we changed the actual image
-            QuadSamplingLayer layer = samplingLayer.get();
-            if (layer == null || layer.layerThread == null)
-                return;
-            layer.layerThread.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    updatePriorities();
-                }
-            });
+            final QuadSamplingLayer layer = samplingLayer.get();
+            if (layer != null && layer.layerThread != null) {
+                layer.layerThread.addTask(this::updatePriorities);
+            }
         }
     }
 
@@ -184,8 +178,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     /**
      *   Return the interpolated location within the array of frames.
      */
-    public double getCurrentImage()
-    {
+    public double getCurrentImage() {
         return getCurrentImage(0);
     }
 
@@ -201,6 +194,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      *  to be in memory before it will display a frame at all.  You can turn this off.
      */
     public native void setRequireTopTiles(boolean newVal);
+    public native boolean getRequireTopTiles();
 
     /**
      *  An optional render target for this loader.
@@ -210,8 +204,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      *
      *  This version takes a specific focus.  See addFocus for what that means.
      */
-    public void setRenderTarget(int focusID,RenderTarget renderTarget)
-    {
+    public void setRenderTarget(int focusID,RenderTarget renderTarget) {
         setRenderTargetIDNative(focusID,renderTarget.renderTargetID);
     }
 
@@ -230,8 +223,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      *
      *  Consult addFocus for what this means.
      */
-    public void setShader(int focusID,Shader shader)
-    {
+    public void setShader(int focusID,Shader shader) {
         setShaderIDNative(focusID,(shader != null) ? shader.getID() : 0);
     }
 
@@ -261,7 +253,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     /**
      * The Maply Quad Image Frame Loader can generation per-frame stats.  These are them.
      */
-    public class FrameStats
+    public static class FrameStats
     {
         /**
          * Number of tiles this frame is in (loading and loaded)
@@ -277,7 +269,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     /**
      * Stats generated by the Maply Quad Image Frame Loader.
      */
-    public class Stats
+    public static class Stats
     {
         /**
          * Total number of tiles managed by the loader

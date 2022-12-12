@@ -47,6 +47,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -1939,7 +1940,7 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 		final T[] result;
 		try {
 			//noinspection unchecked
-			result = (T[])Array.newInstance(array0.getClass().getComponentType(), length);
+			result = (T[])Array.newInstance(Objects.requireNonNull(array0.getClass().getComponentType()), length);
 		} catch (ClassCastException ignored) {
 			return null;
 		}

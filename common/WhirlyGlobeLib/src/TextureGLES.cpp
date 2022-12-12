@@ -55,6 +55,62 @@ TextureGLES::TextureGLES(std::string name, RawDataRef texData,
 {
 }
 
+static int bytesPerRow(TextureType tt, int width)
+{
+    switch (tt)
+    {
+        case TexTypeShort5551:
+        case TexTypeShort4444:
+        case TexTypeShort565:      return width * 4;
+        case TexTypeSingleChannel:
+        case TexTypeDoubleChannel:
+        case TexTypeUnsignedByte:  return width * 1;
+        default:                   return GL_NONE;
+    }
+}
+
+static GLint mapInternalFormat(TextureType tt)
+{
+    switch (tt)
+    {
+        case TexTypeUnsignedByte:
+        case TexTypeShort5551:
+        case TexTypeShort4444:     return GL_RGBA;
+        case TexTypeShort565:      return GL_RGB;
+        case TexTypeSingleChannel: return GL_ALPHA;     // single channel source?
+        case TexTypeDoubleChannel: return GL_RG8;
+        default:                   return GL_NONE;
+    }
+}
+
+static GLenum mapGLFormat(TextureType tt)
+{
+    switch (tt)
+    {
+        case TexTypeUnsignedByte:
+        case TexTypeShort4444:
+        case TexTypeShort5551:     return GL_RGBA;
+        case TexTypeShort565:      return GL_RGB;
+        case TexTypeSingleChannel: return GL_ALPHA;
+        case TexTypeDoubleChannel: return GL_RG;
+        default:                   return GL_NONE;
+    }
+}
+
+static GLenum mapGLType(TextureType tt)
+{
+    switch (tt)
+    {
+        case TexTypeUnsignedByte:
+        case TexTypeSingleChannel:
+        case TexTypeDoubleChannel: return GL_UNSIGNED_BYTE;
+        case TexTypeShort565:      return GL_UNSIGNED_SHORT_5_6_5;
+        case TexTypeShort4444:     return GL_UNSIGNED_SHORT_4_4_4_4;
+        case TexTypeShort5551:     return GL_UNSIGNED_SHORT_5_5_5_1;
+        default:                   return GL_NONE;
+    }
+}
+
 // Figure out the PKM data
 unsigned char *TextureGLES::ResolvePKM(const RawDataRef &texData,int &pkmType,int &size,int &width,int &height)
 {
@@ -69,51 +125,29 @@ unsigned char *TextureGLES::ResolvePKM(const RawDataRef &texData,int &pkmType,in
         return nullptr;
     
     width = (header[8] << 8) | header[9];
-    height = (header[10] << 8) | header[11];;
+    height = (header[10] << 8) | header[11];
     
     // Resolve the GL type
     int glType = -1;
     switch (*type)
     {
-        case 0:
-            // ETC1 not supported
-            break;
-        case 1:
-            glType = GL_COMPRESSED_RGB8_ETC2;
-            size = width * height / 2;
-            break;
-        case 2:
-            // Unused
-            break;
-        case 3:
-            glType = GL_COMPRESSED_RGBA8_ETC2_EAC;
-            size = width * height;
-            break;
-        case 4:
-            glType = GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-            size = width * height / 2;
-            break;
-        case 5:
-            glType = GL_COMPRESSED_R11_EAC;
-            size = width * height / 2;
-            break;
-        case 6:
-            glType = GL_COMPRESSED_RG11_EAC;
-            size = width * height;
-            break;
-        case 7:
-            glType = GL_COMPRESSED_SIGNED_R11_EAC;
-            size = width * height / 2;
-            break;
-        case 8:
-            glType = GL_COMPRESSED_SIGNED_RG11_EAC;
-            size = width * height;
-            break;
+
+        case 0: break;   // ETC1 not supported
+        case 1: size = width * height / 2; glType = GL_COMPRESSED_RGB8_ETC2;       break;
+        case 2: break;  // Unused
+        case 3: size = width * height;     glType = GL_COMPRESSED_RGBA8_ETC2_EAC;  break;
+        case 4: size = width * height / 2; glType = GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2; break;
+        case 5: size = width * height / 2; glType = GL_COMPRESSED_R11_EAC;         break;
+        case 6: size = width * height;     glType = GL_COMPRESSED_RG11_EAC;        break;
+        case 7: size = width * height / 2; glType = GL_COMPRESSED_SIGNED_R11_EAC;  break;
+        case 8: size = width * height;     glType = GL_COMPRESSED_SIGNED_RG11_EAC; break;
     }
+
     if (glType == -1)
+    {
         return nullptr;
+    }
     pkmType = glType;
-    
     return (unsigned char*)&header[16];
 }
 
@@ -134,26 +168,26 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
         glId = setupInfo->memManager->getTexID();
     else
         glGenTextures(1, &glId);
-    CheckGLError("Texture::createInGL() glGenTextures()");
+    CheckGLError("Texture::createInRenderer() glGenTextures()");
     
     glBindTexture(GL_TEXTURE_2D, glId);
-    CheckGLError("Texture::createInGL() glBindTexture()");
+    CheckGLError("Texture::createInRenderer() glBindTexture()");
     
-    GLenum interTypeGL = (interpType == TexInterpNearest) ? GL_NEAREST : GL_LINEAR;
+    const GLenum interTypeGL = (interpType == TexInterpNearest) ? GL_NEAREST : GL_LINEAR;
     // Set the texture parameters to use a minifying filter and a linear filter (weighted average)
     if (usesMipmaps)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
     else
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interTypeGL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interTypeGL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)interTypeGL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)interTypeGL);
     
-    CheckGLError("Texture::createInGL() glTexParameteri()");
+    CheckGLError("Texture::createInRenderer() glTexParameteri()");
     
     // Configure textures
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (wrapU ? GL_REPEAT : GL_CLAMP_TO_EDGE));
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (wrapV ? GL_REPEAT : GL_CLAMP_TO_EDGE));
     
-    CheckGLError("Texture::createInGL() glTexParameteri()");
+    CheckGLError("Texture::createInRenderer() glTexParameteri()");
     
     RawDataRef convertedData = processData();
     
@@ -166,44 +200,43 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
         glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG, width, height, 0, (GLsizei)convertedData->getLen(), convertedData->getRawData());
         CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
 #endif
-    } else if (isPKM)
+        wkLogLevel(Error, "PVRTC not supported");
+    }
+    else if (isPKM)
     {
         int compressedType,size;
-        int thisWidth,thisHeight;
-        unsigned char *rawData = ResolvePKM(texData,compressedType,size,thisWidth,thisHeight);
-        glCompressedTexImage2D(GL_TEXTURE_2D, 0, compressedType, width, height, 0, size, rawData);
-        CheckGLError("Texture::createInGL() glCompressedTexImage2D()");
-    } else {
-        // Depending on the format, we may need to mess around with the bytes
-        switch (format)
+        int thisWidth, thisHeight;
+        if (unsigned char *rawData = ResolvePKM(texData,compressedType,size,thisWidth,thisHeight))
         {
-            case TexTypeUnsignedByte:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
-                             (convertedData ? convertedData->getRawData() : NULL));
-                break;
-            case TexTypeShort565:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_SHORT_5_6_5,
-                             (convertedData ? convertedData->getRawData() : NULL));
-                break;
-            case TexTypeShort4444:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_4_4_4_4,
-                             (convertedData ? convertedData->getRawData() : NULL));
-                break;
-            case TexTypeShort5551:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_SHORT_5_5_5_1,
-                             (convertedData ? convertedData->getRawData() : NULL));
-                break;
-            case TexTypeSingleChannel:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, width, height, 0, GL_ALPHA, GL_UNSIGNED_BYTE,
-                             (convertedData ? convertedData->getRawData() : NULL));
-                break;
-            case TexTypeDoubleChannel:
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RG8, width, height, 0, GL_RG, GL_UNSIGNED_BYTE,
-                             (convertedData ? convertedData->getRawData() : NULL));
-                break;
-            default:
-                wkLogLevel(Error, "Unknown texture type %d for GLES",(int)format);
-                // Note: Porting
+            glCompressedTexImage2D(GL_TEXTURE_2D, /*level=*/0, compressedType,
+                                   (GLsizei) width, (GLsizei) height, /*border=*/0,
+                                   size, rawData);
+            CheckGLError("Texture::createInRenderer() glCompressedTexImage2D()");
+        }
+        else
+        {
+            wkLogLevel(Error, "Failed to resolve PKM");
+        }
+    }
+    else
+    {
+        // Depending on the format, we may need to mess around with the bytes
+        const GLint internalFormat = mapInternalFormat(format);
+        const GLenum glFormat = mapGLFormat(format);
+        const GLenum glType = mapGLType(format);
+        if (internalFormat != GL_NONE && glFormat != GL_NONE && glType != GL_NONE)
+        {
+            wkLog("glTexImage2D %dx%d %ld", width, height, convertedData ? convertedData->getLen() : 0);
+            const auto *data = convertedData ? convertedData->getRawData() : nullptr;
+            glTexImage2D(GL_TEXTURE_2D, /*level=*/0, internalFormat,
+                         (GLsizei)width, (GLsizei)height, /*border=*/0,
+                         glFormat, glType, data);
+            CheckGLError("Texture::createInRenderer() glTexImage2D()");
+        }
+        else
+        {
+            wkLogLevel(Error, "Unknown texture type %d for GLES",(int)format);
+            // Note: Porting
 //            case GL_COMPRESSED_RGB8_ETC2:
 //                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0,
 //                                       (GLsizei)(convertedData ? convertedData->getLen() : 0),
@@ -214,7 +247,6 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 //                             (convertedData ? convertedData->getRawData() : NULL));
 //                break;
         }
-        CheckGLError("Texture::createInGL() glTexImage2D()");
     }
     
     if (usesMipmaps)
@@ -229,10 +261,11 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 // Release the OpenGL texture
 void TextureGLES::destroyInRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene)
 {
-    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
-
-    if (glId)
+    const auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+    if (glId && setupInfo)
+    {
         setupInfo->memManager->removeTexID(glId);
+    }
 }
 
 }

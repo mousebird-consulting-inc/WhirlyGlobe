@@ -85,6 +85,8 @@ struct CoordSystem : public DelayedDeletable
     virtual bool canBeWrapped() const { return canWrap; }
     virtual void setCanBeWrapped(bool b) { canWrap = b; }
 
+    virtual bool isValid() const { return true; }
+
 protected:
     GeoMbr bounds;
     bool canWrap = false;

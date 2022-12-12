@@ -1,5 +1,4 @@
-/*
- *  ImageLoaderReturn_jni.cpp
+/*  ImageLoaderReturn_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by sjg on 3/20/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "QuadLoading_jni.h"
@@ -28,60 +26,54 @@ using namespace WhirlyKit;
 namespace WhirlyKit {
 
 // Stores value mappings for raw PNGs
-class RawPNGImage {
-public:
+struct RawPNGImage {
 	std::vector<int> valueMap;
 };
 
 }
 
 typedef JavaClassInfo<WhirlyKit::RawPNGImage> RawPNGImageClassInfo;
-template<> RawPNGImageClassInfo *RawPNGImageClassInfo::classInfoObj = NULL;
+template<> RawPNGImageClassInfo *RawPNGImageClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_nativeInit
-(JNIEnv *env, jclass cls)
+  (JNIEnv *env, jclass cls)
 {
 	RawPNGImageClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_initialise
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		RawPNGImage *rawImage = new RawPNGImage();
 		RawPNGImageClassInfo::getClassInfo()->setHandle(env,obj,rawImage);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RawPNGImage::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dispose
-(JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		RawPNGImageClassInfo *classInfo = RawPNGImageClassInfo::getClassInfo();
 		std::lock_guard<std::mutex> lock(disposeMutex);
 		RawPNGImage *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return;
 		delete inst;
-
 		classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RawPNGImage::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dataForTileNative
-(JNIEnv *env, jobject obj, jbyteArray inImage,jobject loadReturnObj)
+  (JNIEnv *env, jobject obj, jbyteArray inImage,jobject loadReturnObj)
 {
 	try
 	{
@@ -104,36 +96,32 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dat
                 &components,
 				&err,
 				/*errStr=*/nullptr);
-		int byteWidth = components * depth / 8;
-		extern unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width,
-														   unsigned int &height,
-														   const unsigned char *data,
-														   size_t length,
-														   const int valueMap[256],
-														   unsigned *outDepth,
-														   unsigned *outComponents,
-														   unsigned int *outErr,
-														   std::string *outErrStr);
+		const int byteWidth = components * depth / 8;
 
 		env->ReleaseByteArrayElements(inImage,bytes, 0);
 
-		if (err != 0 && !outData) {
-            wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d)",(*loadReturn)->ident.level,(*loadReturn)->ident.x,(*loadReturn)->ident.y);
-        } else {
-			RawDataWrapperRef wrap = std::make_shared<RawDataWrapper>(outData,width*height*byteWidth,true);
-			ImageTileRef imgTile = std::make_shared<ImageTile_Android>("Raw PNG",wrap);
-			imgTile->width = width;  imgTile->height = height;
-			imgTile->components = byteWidth;
-			(*loadReturn)->images.push_back(imgTile);
+		if (err != 0 && !outData)
+		{
+            wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d)",
+					   (*loadReturn)->ident.level,(*loadReturn)->ident.x,(*loadReturn)->ident.y);
+        }
+		else
+		{
+			auto wrap = std::make_shared<RawDataWrapper>(outData,width*height*byteWidth,true);
+			auto imgTile = std::make_shared<ImageTile_Android>("Raw PNG", std::move(wrap));
+			imgTile->width = width;
+			imgTile->height = height;
+			imgTile->depth = depth;
+			imgTile->components = components;
+			(*loadReturn)->images.push_back(std::move(imgTile));
         }
     }
-	catch (...) {
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RawPNGImage::dataForTileNative()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_addMappingFrom
-(JNIEnv *env, jobject obj, jint inVal, jint outVal)
+  (JNIEnv *env, jobject obj, jint inVal, jint outVal)
 {
 	try
 	{
@@ -146,7 +134,5 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_add
 		if (inVal < 256)
 			rawImage->valueMap[inVal] = outVal;
 	}
-	catch (...) {
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in RawPNGImage::addMappingFrom()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }

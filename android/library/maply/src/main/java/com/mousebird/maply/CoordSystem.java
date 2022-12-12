@@ -1,5 +1,4 @@
-/*
- *  CoordSystem.java
+/*  CoordSystem.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,34 +14,31 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
 import androidx.annotation.Nullable;
 
 /**
- * The coord system is a very simple representation of the coordinate
- * systems supported by WhirlyGlobe-Maply. Very few moving parts are
- * accessible at this level.  In general, you'll want to instantiate
- * one of the subclasses and pass it around to Mapy objects as needed.
- *
+ * The coord system is a very simple representation of the coordinate systems supported by
+ * WhirlyGlobe-Maply. Very few moving parts are accessible at this level.  In general, you'll
+ * want to instantiate one of the subclasses and pass it around to Maply objects as needed.
  */
+@SuppressWarnings("unused")
 public class CoordSystem
 {
 	/**
 	 * Only ever called by the subclass.  Don't use this directly please.
 	 */
-	protected CoordSystem()
-	{
+	protected CoordSystem() {
 	}
 	
-	public void finalize()
-	{
+	protected void finalize() {
 		dispose();
 	}
-		
+
 	/**
 	 * Lower left corner of the bounding box in local coordinates.
 	 */
@@ -56,25 +52,29 @@ public class CoordSystem
 	 * Returns true if the corner points are set and not identical
 	 */
 	public boolean isValid() {
-		return (ll != null && ur != null && ll.getX() < ur.getX());
+		return (ll != null && ur != null && ll.getX() < ur.getX() && isValidNative());
 	}
+
+	private native boolean isValidNative();
 
 	/**
 	 * Return the valid bounding box for the coordinate system in local coordinates.
 	 * null means everywhere is valid.
      */
-	public Mbr getBounds()
-	{
+	public Mbr getBounds() {
 		return isValid() ? new Mbr(ll.getX(),ll.getY(), ur.getX(),ur.getY()) : null;
 	}
 
 	/**
 	 * Set the bounding box for the coordinate system in local coordinates.
      */
-	public void setBounds(Mbr mbr)
-	{
-		ll = new Point3d(mbr.ll.getX(),mbr.ll.getY(),0.0);
-		ur = new Point3d(mbr.ur.getX(),mbr.ur.getY(),0.0);
+	public void setBounds(Mbr mbr) {
+		if (mbr.isValid()) {
+			ll = mbr.ll.withZ(0);
+			ur = mbr.ur.withZ(0);
+		} else {
+			ll = ur = null;
+		}
 	}
 
 	/**
@@ -89,8 +89,12 @@ public class CoordSystem
 	 * Set the bounds in geographic coordinates
 	 */
 	public void setBoundsGeo(@Nullable Mbr bound) {
-		ll = (bound != null) ? geographicToLocal(bound.ll.withZ()) : null;
-		ur = (bound != null) ? geographicToLocal(bound.ur.withZ()) : null;
+		if (bound != null && bound.isValid()) {
+			ll = geographicToLocal(bound.ll.withZ());
+			ur = geographicToLocal(bound.ur.withZ());
+		} else {
+			ll = ur = null;
+		}
 	}
 
 	/**
@@ -151,5 +155,7 @@ public class CoordSystem
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
+	@Keep
+	@SuppressWarnings("unused")
 	private long nativeHandle;
 }

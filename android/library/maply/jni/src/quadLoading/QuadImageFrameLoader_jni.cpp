@@ -192,10 +192,26 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getCurre
 }
 
 extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getRequireTopTiles
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getRequireTopTilesLoaded();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return false;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setRequireTopTiles
   (JNIEnv *env, jobject obj, jboolean loadTopTiles)
 {
-    try {
+    try
+    {
         if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
         {
             (*loader)->setRequireTopTilesLoaded(loadTopTiles);

@@ -101,6 +101,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      * This is the base value.
      */
     public native void setBaseDrawPriority(int drawPriority);
+    public native int getBaseDrawPriority();
 
     /**
      * Set the draw priority offset per level.
@@ -112,6 +113,7 @@ public class QuadImageLoaderBase extends QuadLoaderBase
      * it be masked by high levels.  We do this with vector tile data.
      */
     public native void setDrawPriorityPerLevel(int drawPriority);
+    public native int getDrawPriorityPerLevel();
 
     /**
      * Set the color used by the geometry.
