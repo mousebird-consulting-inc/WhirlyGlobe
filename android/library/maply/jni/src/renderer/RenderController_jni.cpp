@@ -66,16 +66,34 @@ TextureType ImageFormatToTexType(MaplyImageType format) {
 		case MaplyImageDoubleFloat16: return TexTypeDoubleFloat16;
 		case MaplyImageSingleFloat32: return TexTypeSingleFloat32;
 		case MaplyImageDoubleFloat32: return TexTypeDoubleFloat32;
+		case MaplyImageDoubleInt8:
+		case MaplyImageDoubleUInt8:
+		case MaplyImageUByteRG: return TexTypeDoubleChannel;
+		//case MaplyImageInt8: return TexTypeSignedByte;
+		case MaplyImageUInt8: return TexTypeUnsignedByte;
+		case MaplyImageInt16: return TexTypeSingleInt16;
+		case MaplyImageUInt16: return TexTypeSingleUInt16;
+		//case MaplyImageDoubleInt16: return TexTypeDoubleInt16;
+		case MaplyImageDoubleUInt16: return TexTypeDoubleUInt16;
+		//case MaplyImageInt32: return TexTypeSingleInt32;
+		case MaplyImageUInt32: return TexTypeSingleUInt32;
+		//case MaplyImageDoubleInt32: return TexTypeDoubleUInt32;
+		case MaplyImageDoubleUInt32: return TexTypeDoubleUInt32;
+		case MaplyImageQuadFloat16: return TexTypeQuadFloat16;
+		case MaplyImageQuadFloat32: return TexTypeQuadFloat32;
+		case MaplyImageETC2RGB8:
+		case MaplyImageETC2RGBA8:
+		case MaplyImageETC2RGBPA8:
+		case MaplyImageEACR11:
+		case MaplyImageEACR11S:
+		case MaplyImageEACRG11:
+		case MaplyImageEACRG11S:      wkLogLevel(Warn, "Unsupported image type %d", format);
 		default:                      return TexTypeUnsignedByte;
-			// Note: Not supporting everything
-//				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-//				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
 	}
 }
 
 	MaplyImageType TexTypeToImageFormat(TextureType format) {
 	switch (format) {
-		default:
 		case TexTypeUnsignedByte:  return MaplyImageIntRGBA;
 		case TexTypeShort565:      return MaplyImageUShort565;
 		case TexTypeShort4444:     return MaplyImageUShort4444;
@@ -85,6 +103,19 @@ TextureType ImageFormatToTexType(MaplyImageType format) {
 		case TexTypeDoubleFloat16: return MaplyImageDoubleFloat16;
 		case TexTypeSingleFloat32: return MaplyImageSingleFloat32;
 		case TexTypeDoubleFloat32: return MaplyImageDoubleFloat32;
+		case TexTypeDoubleChannel: return MaplyImageUByteRG;
+		case TexTypeQuadFloat16:   return MaplyImageQuadFloat16;
+		case TexTypeQuadFloat32:   return MaplyImageQuadFloat32;
+		case TexTypeSingleInt16:   return MaplyImageInt16;
+		case TexTypeSingleUInt16:  return MaplyImageUInt16;
+		case TexTypeDoubleUInt16:  return MaplyImageDoubleUInt16;
+		case TexTypeSingleUInt32:  return MaplyImageUInt32;
+		case TexTypeDoubleUInt32:  return MaplyImageDoubleUInt16;
+		case TexTypeQuadUInt32:
+		case TexTypeDepthFloat32:
+		default:
+			wkLogLevel(Warn, "Unsupported texture type %d", format);
+			return MaplyImageIntRGBA;
 	}
 }
 

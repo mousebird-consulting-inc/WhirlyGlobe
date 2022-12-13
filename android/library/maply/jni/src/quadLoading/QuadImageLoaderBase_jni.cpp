@@ -195,11 +195,12 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setImageFormatNative
   (JNIEnv *env, jobject obj, jint imageFormat)
 {
-    try {
-        QuadImageFrameLoader_AndroidRef *loader = QuadImageFrameLoaderClassInfo::getClassInfo()->getObject(env,obj);
-        if (!loader)
-            return;
-        (*loader)->setTexType(ImageFormatToTexType((MaplyImageType)imageFormat));
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setTexType(ImageFormatToTexType((MaplyImageType) imageFormat));
+        }
     }
     MAPLY_STD_JNI_CATCH()
 }
