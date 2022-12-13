@@ -67,7 +67,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase {
     public void setLoadFrameMode(FrameLoadMode mode) {
         // If we changed the frame mode we may need to refresh the priorities
         if (setLoadFrameModeNative(mode.ordinal()) && samplingLayer != null) {
-            final QuadSamplingLayer layer = samplingLayer.get();
+            final QuadSamplingLayer layer = getSamplingLayer();
             if (layer != null && layer.layerThread != null) {
                 layer.layerThread.addTask(this::updatePriorities);
             }
@@ -90,7 +90,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase {
         // If we changed the frame mode we may need to refresh the priorities
         final ChangeSet changes = new ChangeSet();
         if (setLoadFramesModeNative(mode.ordinal(), changes) && samplingLayer != null) {
-            final QuadSamplingLayer layer = samplingLayer.get();
+            final QuadSamplingLayer layer = getSamplingLayer();
             if (layer != null && layer.layerThread != null) {
                 layer.layerThread.addChanges(changes);
             } else {
@@ -110,7 +110,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase {
      */
     public void setEnabled(boolean b) {
         if (setEnabledNative(b)) {
-            final QuadSamplingLayer layer = samplingLayer.get();
+            final QuadSamplingLayer layer = getSamplingLayer();
             if (layer != null && layer.layerThread != null) {
                 final ChangeSet changes = new ChangeSet();
                 changes.addFlush();
@@ -166,7 +166,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase {
         final double curFrame = Math.min(Math.max(where, 0.0), tileInfos.length - 1);
         if (setCurrentImageNative(focusID,where) && samplingLayer != null) {
             // setCurrentImage tells us if we changed the actual image
-            final QuadSamplingLayer layer = samplingLayer.get();
+            final QuadSamplingLayer layer = getSamplingLayer();
             if (layer != null && layer.layerThread != null) {
                 layer.layerThread.addTask(this::updatePriorities);
             }
@@ -242,6 +242,12 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase {
     public void changeTileInfo(final TileInfoNew[] newTileInfo) {
         super.changeTileInfo(newTileInfo);
     }
+
+    /**
+     * Set a label to be displayed in debug output for this loader
+     */
+    public native void setLabel(@Nullable String label);
+    @Nullable public native String getLabel();
 
     @Override
     public void shutdown() {

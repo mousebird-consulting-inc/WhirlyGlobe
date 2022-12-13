@@ -263,6 +263,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setShaderID
 }
 
 extern "C"
+JNIEXPORT jstring JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getLabel
+  (JNIEnv *env, jobject obj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return env->NewStringUTF((*loader)->getLabel().c_str());
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLabel
+  (JNIEnv *env, jobject obj, jstring labelObj)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setLabel(JavaString(env, labelObj).getCString());
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getStatsNative
   (JNIEnv *env, jobject obj, jintArray totalTilesArr, jintArray tilesToLoadArr)
 {
