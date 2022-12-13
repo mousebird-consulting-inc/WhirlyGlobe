@@ -77,13 +77,26 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dat
 {
 	try
 	{
-		RawPNGImage *rawImage = RawPNGImageClassInfo::getClassInfo()->getObject(env,obj);
-		QuadLoaderReturnRef *loadReturn = LoaderReturnClassInfo::getClassInfo()->getObject(env,loadReturnObj);
+		RawPNGImage *rawImage = RawPNGImageClassInfo::get(env,obj);
+		QuadLoaderReturnRef *loadReturnRef = LoaderReturnClassInfo::get(env,loadReturnObj);
+		QuadLoaderReturnRef loadReturn = loadReturnRef ? *loadReturnRef : nullptr;
 		if (!rawImage || !loadReturn)
+		{
 			return;
+		}
 
-		jbyte *bytes = env->GetByteArrayElements(inImage,NULL);
-		jsize len = env->GetArrayLength(inImage);
+		jbyte * const bytes = env->GetByteArrayElements(inImage,nullptr);
+		const jsize len = env->GetArrayLength(inImage);
+		if (!bytes || len < 1)
+		{
+			wkLogLevel(Warn, "Empty PNG input for tile %d:(%d,%d)",
+					   loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y);
+			if (bytes)
+			{
+				env->ReleaseByteArrayElements(inImage, bytes, 0);
+			}
+			return;
+		}
 
         unsigned int width=0,height=0;
         unsigned int err = 0;
@@ -100,10 +113,10 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dat
 
 		env->ReleaseByteArrayElements(inImage,bytes, 0);
 
-		if (err != 0 && !outData)
+		if (err != 0 || !outData)
 		{
-            wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d: (%d,%d)",
-					   (*loadReturn)->ident.level,(*loadReturn)->ident.x,(*loadReturn)->ident.y);
+            wkLogLevel(Warn, "Failed to read PNG in MaplyRawPNGImageLoaderInterpreter for tile %d:(%d,%d) err=%d",
+			           loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y, err);
         }
 		else
 		{
@@ -113,7 +126,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_RawPNGImageLoaderInterpreter_dat
 			imgTile->height = height;
 			imgTile->depth = depth;
 			imgTile->components = components;
-			(*loadReturn)->images.push_back(std::move(imgTile));
+			loadReturn->images.push_back(std::move(imgTile));
         }
     }
 	MAPLY_STD_JNI_CATCH()

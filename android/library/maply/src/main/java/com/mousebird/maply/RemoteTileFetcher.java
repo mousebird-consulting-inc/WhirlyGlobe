@@ -40,7 +40,9 @@ import java.util.TreeSet;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -470,7 +472,7 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
         }
 
         // Have to run on our own thread
-        Handler handler = new Handler(getLooper());
+        final Handler handler = new Handler(getLooper());
         handler.post(() -> {
             try {
                 final double howLong = System.currentTimeMillis() / 1000.0 - fetchStartTile;
@@ -489,8 +491,12 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                 boolean success = (inE == null && response != null && response.isSuccessful());
                 Exception e = inE;
 
-                if (debugMode)
-                    Log.d("RemoteTileFetcher", "Got response for: " + response.request());
+                final Request dbgReq = (debugMode && response != null) ? response.request() : null;
+                final HttpUrl dbgUrl = (dbgReq != null) ? dbgReq.url() : null;
+                final String dbgUrlStr = (dbgUrl != null) ? dbgUrl.toString() : "(none)";
+                if (debugMode) {
+                    Log.d("RemoteTileFetcher", "Got " + (success ? "success" : "error") + " for " + dbgUrlStr);
+                }
 
                 if (success) {
                     try (final ResponseBody body = response.body()) {
@@ -510,9 +516,15 @@ public class RemoteTileFetcher extends HandlerThread implements TileFetcher
                         } else {
                             // empty response is an error, otherwise
                             success = false;
+                            if (debugMode) {
+                                Log.d("RemoteTileFetcher", "Treating empty response as an error for " + dbgUrlStr);
+                            }
                         }
                     } catch (Exception thisE) {
                         success = false;
+                        if (debugMode) {
+                            Log.d("RemoteTileFetcher", "handleFinishLoading failed for " + dbgUrlStr + ": " + thisE);
+                        }
                         e = thisE;
                     }
                 }

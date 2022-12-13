@@ -112,7 +112,13 @@ android {
         if (maplyBuildNative) {
             externalNativeBuild {
                 cmake {
-                    cppFlags "-frtti", "-fexceptions", "-std=gnu++14"
+                    cppFlags "-frtti", "-fexceptions", "-std=gnu++14",
+                             "-DLODEPNG_NO_COMPILE_ENCODER",     // Match RawPNGImage.cpp
+                             "-DLODEPNG_NO_COMPILE_DISK",
+                             "-DLODEPNG_NO_COMPILE_ANCILLARY_CHUNKS",
+                             "-DLODEPNG_NO_COMPILE_ERROR_TEXT",
+                             "-DLODEPNG_NO_COMPILE_CPP",
+                             "-DLODEPNG_COMPILE_ZLIB"
                 }
             }
         }
