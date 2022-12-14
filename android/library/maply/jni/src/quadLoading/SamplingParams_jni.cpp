@@ -42,10 +42,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_initialise
 	    SamplingParams *params = new SamplingParams();
 		SamplingParamsClassInfo::getClassInfo()->setHandle(env,obj,params);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -62,10 +59,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_dispose
 		delete params;
 		classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -85,10 +79,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setCoordSystemNat
 		params->coordBounds.addPoint(Point2d(ll->x(),ll->y()));
 		params->coordBounds.addPoint(Point2d(ur->x(),ur->y()));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setCoordSystem()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -103,10 +94,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_SamplingParams_getCoordSystem
 			return MakeCoordSystem(env,params->coordSys);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getCoordSystem()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return nullptr;
 }
 
@@ -121,11 +109,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setReportedMaxZoo
 			return;
 		params->reportedMaxZoom = maxZoom;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SamplingParams::setReportedMaxZoom()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -139,11 +123,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getReportedMaxZoo
 			return 0;
 		return params->reportedMaxZoom;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in SamplingParams::getReportedMaxZoom()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -154,13 +134,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMinZoom
 	{
 		if (const auto params = SamplingParamsClassInfo::get(env,obj))
 		{
-			params->minZoom = minZoom;
+			// See [MaplySamplingParams setMinZoom:]
+			if (minZoom > 1)
+			{
+				wkLogLevel(Error, "\n============Error===============\n"
+				                  "Do not set MaplySamplingParams minZoom to anything more than 1.\n"
+				                  "Instead, set the minZoom of your tileSource to the right number.\n"
+				                  "============Error===============\n");
+			}
+
+			params->minZoom = std::max(0, std::min(1, minZoom));
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setMinZoom()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -174,10 +160,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getMinZoom
 			return params->minZoom;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getMinZoom()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -192,10 +175,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMaxZoom
 			params->maxZoom = maxZoom;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setMaxZoom()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -209,11 +189,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getMaxZoom
 			return params->maxZoom;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getMaxZoom()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -228,10 +204,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMaxTiles
 			params->maxTiles = maxTiles;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setMaxTiles()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -245,10 +218,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getMaxTiles
 			return params->maxTiles;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getMaxTiles()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -265,10 +235,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMinImportance_
 				params->minImportanceTop = minImport;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setMinImportance()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -282,10 +249,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_SamplingParams_getMinImportan
 			return params->minImportance;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getMinImportance()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return 0.0;
 }
 
@@ -300,10 +264,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMinImportanceT
 			params->minImportanceTop = minImportanceTop;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setMinImportanceTop()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -317,10 +278,7 @@ JNIEXPORT jdouble JNICALL Java_com_mousebird_maply_SamplingParams_getMinImportan
 			return params->minImportanceTop;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getMinImportanceTop()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return 0.0;
 }
 
@@ -335,10 +293,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMinImportance_
 			params->setImportanceLevel(minImport,level);
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setMinImportance()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -352,10 +307,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setCoverPoles
 			params->coverPoles = coverPoles;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setCoverPoles()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -367,10 +319,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getCoverPoles
 		const auto params = SamplingParamsClassInfo::get(env,obj);
 		return params && params->coverPoles;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getCoverPoles()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -385,10 +334,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setEdgeMatching
 			params->edgeMatching = edgeMatching;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setEdgeMatching()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -402,11 +348,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getEdgeMatchi
 			return params->edgeMatching;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getEdgeMatching()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -422,10 +364,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setTesselation
 			params->tessY = tessY;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setTesselation()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -439,11 +378,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationX
 			return params->tessX;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getTesselationX()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -458,11 +393,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationY
 			return params->tessY;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getTesselationY()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return 0;
 }
 
@@ -477,10 +408,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
 			params->forceMinLevel = forceMinLevel;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setForceMinLevel()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -494,10 +422,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setSingleLevel
 			params->singleLevel = singleLevel;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setSingleLevel()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -511,11 +436,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getSingleLeve
 			return params->singleLevel;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::getSingleLevel()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
@@ -532,10 +453,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setLevelLoads
 			params->levelLoads = levels;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setLevelLoads()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
@@ -548,10 +466,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
 			params->boundsScale = scale;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setLevelLoads()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -568,10 +483,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setClipBounds
 			params->clipBounds = mbr;
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::setClipBounds()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -585,9 +497,6 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_equalsNative
 		const auto paramsB = classInfo->getObject(env,otherObj);
 		return paramsA && paramsB && *paramsA == *paramsB;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in SamplingParams::equalsNative()");
-	}
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }

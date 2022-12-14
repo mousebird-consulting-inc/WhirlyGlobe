@@ -41,7 +41,7 @@ import androidx.annotation.Nullable;
  * Will work for image or vector MBTiles files.
  */
 @SuppressWarnings({"ConstantConditions", "unused"}) // Don't trust @NonNull
-public class MBTileFetcher extends  SimpleTileFetcher
+public class MBTileFetcher extends SimpleTileFetcher
 {
 
     /**

@@ -565,7 +565,7 @@ open class MapboxKindaMap(
             it.singleLevel = true
             it.coverPoles = (theControl is GlobeController)
             it.edgeMatching = (theControl is GlobeController)
-            it.minZoom = minZoom
+            it.minZoom = minZoom.coerceAtMost(1)
             it.maxZoom = maxZoom
             // Let the reported zoom go beyond the maximum
             it.reportedMaxZoom = (maxZoom + 1).coerceAtLeast(reportedMaxZoom ?: 0)
