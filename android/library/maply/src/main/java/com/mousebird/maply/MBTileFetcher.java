@@ -73,6 +73,8 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
     // Query parameters and such
 
+    public String format // To fetch the MbTile format
+
     private static final String TAG = MBTiles.class.getSimpleName();
 
     //private static final String BOUNDS = "bounds";
@@ -136,9 +138,11 @@ public class MBTileFetcher extends  SimpleTileFetcher
                     minZoom = c.getInt(valueIdx);
                 }
 
-                if (!isJpg && FORMAT.equals(meta)) {
-                    String format = c.getString(valueIdx);
-                    isJpg = (JPG.equals(format) || JPEG.equals(format));
+                if (FORMAT.equals(meta)) {
+                    format = c.getString(valueIdx);
+                    if (!isJpg && format != null) {
+                        isJpg = (JPG.equals(format) || JPEG.equals(format));
+                    }
                 }
 
                 if (NAME.equals(meta)) {
