@@ -29,6 +29,9 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * MBTiles tile fetcher.
  * <br>
@@ -37,6 +40,7 @@ import android.util.Log;
  * <br>
  * Will work for image or vector MBTiles files.
  */
+@SuppressWarnings({"ConstantConditions", "unused"}) // Don't trust @NonNull
 public class MBTileFetcher extends  SimpleTileFetcher
 {
 
@@ -73,7 +77,13 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
     // Query parameters and such
 
-    public String format // To fetch the MbTile format
+    @NonNull private String[] imageFormats = new String[] { JPG, JPEG, PNG };
+
+    @NonNull public String[] getImageFormats() { return imageFormats; }
+    public void setImageFormats(@NonNull String[] formats) { imageFormats = formats; }
+
+    @Nullable private String format = null;
+    @Nullable public String getFormat() { return format; }
 
     private static final String TAG = MBTiles.class.getSimpleName();
 
@@ -88,7 +98,7 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
     private static final String NAME = "name";
     private static final String VALUE = "value";
-    //private static final String PNG = "png";
+    private static final String PNG = "png";
     private static final String JPG = "jpg";
     private static final String JPEG = "jpeg";
 
@@ -101,11 +111,26 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
     private SQLiteDatabase mbTileDb;
 
-    private boolean isJpg;          // Are we containing jpg tiles (or png tiles)
+    public boolean getIsPng() { return formatMatch(new String[] { PNG }); }
+    public boolean getIsJpg() { return formatMatch(new String[] { JPG, JPEG }); }
+    public boolean getIsImage() { return formatMatch(imageFormats); }
+    private boolean formatMatch(final String[] formats) {
+        if (format != null && formats != null) {
+            for (String ii : formats) {
+                if (format.equalsIgnoreCase(ii)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
-    @SuppressWarnings("FieldCanBeLocal")
-    private String name = "UNSET";            // Name of the tile dataset
-    private String description = "UNSET";     // Description of the tile dataset
+    @Nullable private String name = "UNSET";            // Name of the tile dataset
+    @Nullable public String getDatasetName() { return name; }
+
+    @Nullable private String description = "UNSET";     // Description of the tile dataset
+    @Nullable public String getDescription() { return description; }
+
     //private String type = "UNSET";            // Type of tile (overlay | baselayer)
 
 
@@ -140,9 +165,6 @@ public class MBTileFetcher extends  SimpleTileFetcher
 
                 if (FORMAT.equals(meta)) {
                     format = c.getString(valueIdx);
-                    if (!isJpg && format != null) {
-                        isJpg = (JPG.equals(format) || JPEG.equals(format));
-                    }
                 }
 
                 if (NAME.equals(meta)) {
@@ -171,7 +193,7 @@ public class MBTileFetcher extends  SimpleTileFetcher
         Log.v(TAG, String.format("Initialized MBTilesSource %s (%s)", name, description));
         Log.v(TAG, String.format("  > Zoom %d -> %d", minZoom, maxZoom));
         //Log.v(TAG, String.format("  > Type \"%s\"", type));
-        Log.v(TAG, String.format("  > Format \"%s\"", (isJpg ? "jpg" : "png")));
+        Log.v(TAG, String.format("  > Format \"%s\"", (format != null) ? format : "(none)"));
     }
 
     /**
