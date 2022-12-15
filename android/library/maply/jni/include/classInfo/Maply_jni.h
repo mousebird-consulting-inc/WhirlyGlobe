@@ -81,6 +81,10 @@ public:
 			return nullptr;
 		}
 		jobject obj = env->NewObject(theClass,initMethodID);
+        if (!obj)
+        {
+            return nullptr;
+        }
 		T *oldRef = getObject(env,obj);
 		setHandle(env, obj, cObj);
 		if (oldRef && cObj)
