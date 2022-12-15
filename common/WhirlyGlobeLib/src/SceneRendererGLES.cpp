@@ -107,7 +107,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
     framebufferHeight = sizeY;
     
     setupInfo.glesVersion = apiVersion;
-    
+
     // We need a texture to draw to in this case
     if (framebufferWidth > 0)
     {

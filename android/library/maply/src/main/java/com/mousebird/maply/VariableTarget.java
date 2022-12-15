@@ -89,7 +89,17 @@ public class VariableTarget
      */
     public int drawPriority = VariableTargetDrawPriority;
 
-    public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImage4Layer8Bit;
+    /**
+     * Pixel format for the render target texture
+     */
+    public RenderController.ImageFormat imageFormat =
+            RenderController.ImageFormat.MaplyImage4Layer8Bit;
+
+    /**
+     * Texture filtering setting for the render target texture
+     */
+    public RenderControllerInterface.TextureSettings.FilterType filterType =
+            RenderControllerInterface.TextureSettings.FilterType.FilterLinear;
 
     private Shader shader = null;
 
@@ -182,6 +192,7 @@ public class VariableTarget
 
         final RenderControllerInterface.TextureSettings settings = new RenderControllerInterface.TextureSettings();
         settings.imageFormat = imageFormat;
+        settings.filterType = filterType;
         renderTex = viewC.createTexture(frameSize[0], frameSize[1],settings, RenderControllerInterface.ThreadMode.ThreadCurrent);
         renderTarget.texture = renderTex;
         renderTarget.clearEveryFrame = clearEveryFrame;
