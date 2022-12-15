@@ -95,7 +95,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoad
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getLoadFramesModeNative
-        (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -110,7 +110,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_getLoadFram
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_QuadImageFrameLoader_setLoadFramesModeNative
-        (JNIEnv *env, jobject obj, jint mode, jobject changesObj)
+  (JNIEnv *env, jobject obj, jint mode, jobject changesObj)
 {
     try
     {
