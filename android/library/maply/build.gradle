@@ -117,8 +117,8 @@ android {
                              "-DLODEPNG_NO_COMPILE_DISK",
                              "-DLODEPNG_NO_COMPILE_ANCILLARY_CHUNKS",
                              "-DLODEPNG_NO_COMPILE_ERROR_TEXT",
-                             "-DLODEPNG_NO_COMPILE_CPP",
-                             "-DLODEPNG_COMPILE_ZLIB"
+                             "-DLODEPNG_NO_COMPILE_CPP"
+                             // not "-DLODEPNG_NO_COMPILE_ZLIB"
                 }
             }
         }

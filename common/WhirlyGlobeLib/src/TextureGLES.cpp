@@ -123,14 +123,14 @@ static const std::unordered_map<TextureInterpType, const char* const> interpStrM
     STRPAIR(TexInterpLinear),
 };
 template <typename T>
-static inline const char* mapStr(T tt, const std::unordered_map<T,const char* const> &m) {
+__attribute__((unused)) static inline const char* mapStr(T tt, const std::unordered_map<T,const char* const> &m) {
     const auto it = m.find(tt);
     return (it == m.end()) ? "(unknown)" : it->second;
 }
-static inline const char* texStr(TextureType tt) { return mapStr(tt, texTypeStrMap); }
-static inline const char* bsStr(WKSingleByteSource tt) { return mapStr(tt, bsStrMap); }
-static inline const char* glStr(int tt) { return mapStr(tt, glStrMap); }
-static inline const char* interpStr(TextureInterpType tt) { return mapStr(tt, interpStrMap); }
+__attribute__((unused)) static inline const char* texStr(TextureType tt) { return mapStr(tt, texTypeStrMap); }
+__attribute__((unused)) static inline const char* bsStr(WKSingleByteSource tt) { return mapStr(tt, bsStrMap); }
+__attribute__((unused)) static inline const char* glStr(int tt) { return mapStr(tt, glStrMap); }
+__attribute__((unused)) static inline const char* interpStr(TextureInterpType tt) { return mapStr(tt, interpStrMap); }
 
 
 namespace WhirlyKit
@@ -169,8 +169,7 @@ static unsigned getBytesPerRow(TextureType tt, unsigned width)
 {
     switch (tt)
     {
-        case TexTypeSingleChannel:
-        case TexTypeUnsignedByte:  return width * 1;
+        case TexTypeSingleChannel: return width * 1;
         case TexTypeDoubleChannel:
         case TexTypeSingleFloat16:
         case TexTypeShort5551:
@@ -182,7 +181,8 @@ static unsigned getBytesPerRow(TextureType tt, unsigned width)
         case TexTypeDoubleFloat16:
         case TexTypeSingleFloat32:
         case TexTypeDepthFloat32:
-        case TexTypeSingleUInt32:  return width * 4;
+        case TexTypeUnsignedByte:  return width * 4;
+        case TexTypeSingleUInt32:
         case TexTypeDoubleFloat32:
         case TexTypeDoubleUInt32:
         case TexTypeQuadFloat16:   return width * 8;
@@ -462,8 +462,9 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 
             if (convertedData && convertedData->getLen() != bytesPerRow * height)
             {
-                wkLogLevel(Warn, "Texture data size mismatch fmt=%s w=%d h=%d expected=%d actual=%d",
-                           texStr(format), width, height, bytesPerRow * height, convertedData->getLen());
+                wkLogLevel(Warn, "Texture %lld/%d data size mismatch fmt=%s=>%s w=%d h=%d expected=%d actual=%d",
+                           getId(), getGLId(), texStr(format), glStr(internalFormat),
+                           width, height, bytesPerRow * height, convertedData->getLen());
 
                 // If we have too few bytes, the `glTexImage2D` is likely to crash by walking off
                 // the end of the allocated memory block.
