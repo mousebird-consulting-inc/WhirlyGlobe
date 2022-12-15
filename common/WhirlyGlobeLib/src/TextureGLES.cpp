@@ -23,6 +23,116 @@
 using namespace WhirlyKit;
 using namespace Eigen;
 
+#if !defined(STRINGIFY) && !defined(_STRINGIFY)
+# define STRINGIFY_(x) #x
+# define STRINGIFY(x) STRINGIFY_(x)
+#endif
+#define STRPAIR(X) { X, STRINGIFY(X) }
+#define STRS(X,Y) { X, Y }
+
+static const std::unordered_map<TextureType, const char* const> texTypeStrMap =   // NOLINT(cert-err58-cpp)
+{
+    STRPAIR(TexTypeUnsignedByte),
+    STRPAIR(TexTypeShort565),
+    STRPAIR(TexTypeShort4444),
+    STRPAIR(TexTypeShort5551),
+    STRPAIR(TexTypeSingleChannel),
+    STRPAIR(TexTypeDoubleChannel),
+    STRPAIR(TexTypeSingleFloat16),
+    STRPAIR(TexTypeSingleFloat32),
+    STRPAIR(TexTypeDoubleFloat16),
+    STRPAIR(TexTypeDoubleFloat32),
+    STRPAIR(TexTypeQuadFloat16),
+    STRPAIR(TexTypeQuadFloat32),
+    STRPAIR(TexTypeDepthFloat32),
+    STRPAIR(TexTypeSingleInt16),
+    STRPAIR(TexTypeSingleUInt16),
+    STRPAIR(TexTypeDoubleUInt16),
+    STRPAIR(TexTypeSingleUInt32),
+    STRPAIR(TexTypeDoubleUInt32),
+    STRPAIR(TexTypeQuadUInt32),
+};
+static const std::unordered_map<WKSingleByteSource, const char* const> bsStrMap =    // NOLINT(cert-err58-cpp)
+{
+    STRPAIR(WKSingleRed),
+    STRPAIR(WKSingleGreen),
+    STRPAIR(WKSingleBlue),
+    STRPAIR(WKSingleRGB),
+    STRPAIR(WKSingleAlpha),
+};
+static const std::unordered_map<int, const char* const> glStrMap =    // NOLINT(cert-err58-cpp)
+{
+    STRS(GL_ALPHA,                                    "GL_ALPHA"),
+    STRS(GL_BYTE,                                     "GL_BYTE"),
+    STRS(GL_COMPRESSED_R11_EAC,                       "GL_COMPRESSED_R11_EAC"),
+    STRS(GL_COMPRESSED_RG11_EAC,                      "GL_COMPRESSED_RG11_EAC"),
+    STRS(GL_COMPRESSED_RGB8_ETC2,                     "GL_COMPRESSED_RGB8_ETC2"),
+    STRS(GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2, "GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2"),
+    STRS(GL_COMPRESSED_RGBA8_ETC2_EAC,                "GL_COMPRESSED_RGBA8_ETC2_EAC"),
+    STRS(GL_COMPRESSED_SIGNED_R11_EAC,                "GL_COMPRESSED_SIGNED_R11_EAC"),
+    STRS(GL_COMPRESSED_SIGNED_RG11_EAC,               "GL_COMPRESSED_SIGNED_RG11_EAC"),
+    STRS(GL_DEPTH_COMPONENT,                          "GL_DEPTH_COMPONENT"),
+    STRS(GL_DEPTH_COMPONENT32F,                       "GL_DEPTH_COMPONENT32F"),
+    STRS(GL_DEPTH_STENCIL,                            "GL_DEPTH_STENCIL"),
+    STRS(GL_FLOAT,                                    "GL_FLOAT"),
+    STRS(GL_FLOAT_32_UNSIGNED_INT_24_8_REV,           "GL_FLOAT_32_UNSIGNED_INT_24_8_REV"),
+    STRS(GL_HALF_FLOAT,                               "GL_HALF_FLOAT"),
+    STRS(GL_INT,                                      "GL_INT"),
+    STRS(GL_LUMINANCE,                                "GL_LUMINANCE"),
+    STRS(GL_LUMINANCE_ALPHA,                          "GL_LUMINANCE_ALPHA"),
+    STRS(GL_NONE,                                     "GL_NONE"),
+    STRS(GL_R16F,                                     "GL_R16F"),
+    STRS(GL_R16I,                                     "GL_R16I"),
+    STRS(GL_R16UI,                                    "GL_R16UI"),
+    STRS(GL_R32F,                                     "GL_R32F"),
+    STRS(GL_R32UI,                                    "GL_R32UI"),
+    STRS(GL_R8,                                       "GL_R8"),
+    STRS(GL_RED,                                      "GL_RED"),
+    STRS(GL_RED_INTEGER,                              "GL_RED_INTEGER"),
+    STRS(GL_RG,                                       "GL_RG"),
+    STRS(GL_RG16F,                                    "GL_RG16F"),
+    STRS(GL_RG16UI,                                   "GL_RG16UI"),
+    STRS(GL_RG32F,                                    "GL_RG32F"),
+    STRS(GL_RG32UI,                                   "GL_RG32UI"),
+    STRS(GL_RG8,                                      "GL_RG8"),
+    STRS(GL_RGB,                                      "GL_RGB"),
+    STRS(GL_RGB565,                                   "GL_RGB565"),
+    STRS(GL_RGB5_A1,                                  "GL_RGB5_A1"),
+    STRS(GL_RGBA,                                     "GL_RGBA"),
+    STRS(GL_RGBA32F,                                  "GL_RGBA32F"),
+    STRS(GL_RGBA32UI,                                 "GL_RGBA32UI"),
+    STRS(GL_RGBA8,                                    "GL_RGBA8"),
+    STRS(GL_RGBA_INTEGER,                             "GL_RGBA_INTEGER"),
+    STRS(GL_RGB_INTEGER,                              "GL_RGB_INTEGER"),
+    STRS(GL_RG_INTEGER,                               "GL_RG_INTEGER"),
+    STRS(GL_SHORT,                                    "GL_SHORT"),
+    STRS(GL_UNSIGNED_BYTE,                            "GL_UNSIGNED_BYTE"),
+    STRS(GL_UNSIGNED_INT,                             "GL_UNSIGNED_INT"),
+    STRS(GL_UNSIGNED_INT_10F_11F_11F_REV,             "GL_UNSIGNED_INT_10F_11F_11F_REV"),
+    STRS(GL_UNSIGNED_INT_24_8,                        "GL_UNSIGNED_INT_24_8"),
+    STRS(GL_UNSIGNED_INT_2_10_10_10_REV,              "GL_UNSIGNED_INT_2_10_10_10_REV"),
+    STRS(GL_UNSIGNED_INT_5_9_9_9_REV,                 "GL_UNSIGNED_INT_5_9_9_9_REV"),
+    STRS(GL_UNSIGNED_SHORT,                           "GL_UNSIGNED_SHORT"),
+    STRS(GL_UNSIGNED_SHORT_4_4_4_4,                   "GL_UNSIGNED_SHORT_4_4_4_4"),
+    STRS(GL_UNSIGNED_SHORT_5_5_5_1,                   "GL_UNSIGNED_SHORT_5_5_5_1"),
+    STRS(GL_UNSIGNED_SHORT_5_6_5,                     "GL_UNSIGNED_SHORT_5_6_5"),
+};
+static const std::unordered_map<TextureInterpType, const char* const> interpStrMap =    // NOLINT(cert-err58-cpp)
+{
+    STRPAIR(TexInterpNearest),
+    STRPAIR(TexInterpLinear),
+};
+template <typename T>
+static inline const char* mapStr(T tt, const std::unordered_map<T,const char* const> &m) {
+    const auto it = m.find(tt);
+    return (it == m.end()) ? "(unknown)" : it->second;
+}
+static inline const char* texStr(TextureType tt) { return mapStr(tt, texTypeStrMap); }
+static inline const char* bsStr(WKSingleByteSource tt) { return mapStr(tt, bsStrMap); }
+static inline const char* glStr(int tt) { return mapStr(tt, glStrMap); }
+static inline const char* interpStr(TextureInterpType tt) { return mapStr(tt, interpStrMap); }
+
+
 namespace WhirlyKit
 {
 
@@ -55,7 +165,7 @@ TextureGLES::TextureGLES(std::string name, RawDataRef texData,
 {
 }
 
-static int getBytesPerRow(TextureType tt, int width)
+static unsigned getBytesPerRow(TextureType tt, unsigned width)
 {
     switch (tt)
     {
@@ -79,6 +189,35 @@ static int getBytesPerRow(TextureType tt, int width)
         case TexTypeQuadFloat32:
         case TexTypeQuadUInt32:    return width * 16;
         default:                   return GL_NONE;
+    }
+}
+
+static bool isFilterable(GLenum internalFormat)
+{
+    // https://docs.gl/es3/glTexImage2D#idp103216
+    switch (internalFormat)
+    {
+        case GL_R8:
+        case GL_R8_SNORM:
+        case GL_R16F:
+        case GL_RG8:
+        case GL_RG8_SNORM:
+        case GL_RG16F:
+        case GL_RGB8:
+        case GL_SRGB8:
+        case GL_RGB565:
+        case GL_RGB8_SNORM:
+        case GL_R11F_G11F_B10F:
+        case GL_RGB9_E5:
+        case GL_RGB16F:
+        case GL_RGBA8:
+        case GL_SRGB8_ALPHA8:
+        case GL_RGBA8_SNORM:
+        case GL_RGB5_A1:
+        case GL_RGBA4:
+        case GL_RGB10_A2:
+        case GL_RGBA16F: return true;
+        default:         return false;
     }
 }
 
@@ -113,8 +252,8 @@ static GLint mapInternalFormat(TextureType tt, WKSingleByteSource byteSource)
         case TexTypeDoubleFloat32:  return GL_RG32F;
         case TexTypeDepthFloat32:   return GL_DEPTH_COMPONENT32F;
         case TexTypeQuadFloat32:    return GL_RGBA32F;
-        case TexTypeSingleInt16:    return GL_R16I;
-        case TexTypeSingleUInt16:   return GL_R16UI;
+        case TexTypeSingleInt16:    return GL_R16I;                 // format=GL_RED_INTEGER type=GL_SHORT R=i16 colorRenderable=Y
+        case TexTypeSingleUInt16:   return GL_R16UI;                // format=GL_RED_INTEGER type=GL_UNSIGNED_SHORT R=ui16 colorRenderable=Y
         case TexTypeDoubleUInt16:   return GL_RG16UI;
         case TexTypeSingleUInt32:   return GL_R32UI;
         case TexTypeDoubleUInt32:   return GL_RG32UI;
@@ -167,7 +306,7 @@ static GLenum mapGLFormat(TextureType tt, WKSingleByteSource byteSource)
 //  GL_FLOAT, GL_UNSIGNED_SHORT_5_6_5, GL_UNSIGNED_SHORT_4_4_4_4, GL_UNSIGNED_SHORT_5_5_5_1,
 //  GL_UNSIGNED_INT_2_10_10_10_REV, GL_UNSIGNED_INT_10F_11F_11F_REV, GL_UNSIGNED_INT_5_9_9_9_REV,
 //  GL_UNSIGNED_INT_24_8, and GL_FLOAT_32_UNSIGNED_INT_24_8_REV."
-static GLenum mapGLType(TextureType tt, WKSingleByteSource byteSource)
+static GLenum mapGLType(TextureType tt)
 {
     switch (tt)
     {
@@ -214,7 +353,6 @@ unsigned char *TextureGLES::ResolvePKM(const RawDataRef &texData,int &pkmType,in
     int glType = -1;
     switch (*type)
     {
-
         case 0: break;   // ETC1 not supported
         case 1: size = width * height / 2; glType = GL_COMPRESSED_RGB8_ETC2;       break;
         case 2: break;  // Unused
@@ -255,7 +393,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     
     glBindTexture(GL_TEXTURE_2D, glId);
     CheckGLError("Texture::createInRenderer() glBindTexture()");
-    
+
     const GLenum interTypeGL = (interpType == TexInterpNearest) ? GL_NEAREST : GL_LINEAR;
     // Set the texture parameters to use a minifying filter and a linear filter (weighted average)
     if (usesMipmaps)
@@ -312,14 +450,20 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
         // Depending on the format, we may need to mess around with the bytes
         const GLint internalFormat = mapInternalFormat(format, byteSource);
         const GLenum glFormat = mapGLFormat(format, byteSource);
-        const GLenum glType = mapGLType(format, byteSource);
-        const int bytesPerRow = getBytesPerRow(format, width);
+        const GLenum glType = mapGLType(format);
+        const unsigned bytesPerRow = getBytesPerRow(format, width);
         if (internalFormat != GL_NONE && glFormat != GL_NONE && glType != GL_NONE)
         {
+            if (!isFilterable(internalFormat) && interpType != TexInterpNearest)
+            {
+                wkLogLevel(Warn, "Texture format %s (%s) doesn't support %s",
+                           texStr(format), glStr(internalFormat), interpStr(interpType));
+            }
+
             if (convertedData && convertedData->getLen() != bytesPerRow * height)
             {
-                wkLogLevel(Warn, "Texture data size mismatch fmt=%d w=%d h=%d expected=%d actual=%d",
-                           format, width, height, bytesPerRow * height, convertedData->getLen());
+                wkLogLevel(Warn, "Texture data size mismatch fmt=%s w=%d h=%d expected=%d actual=%d",
+                           texStr(format), width, height, bytesPerRow * height, convertedData->getLen());
 
                 // If we have too few bytes, the `glTexImage2D` is likely to crash by walking off
                 // the end of the allocated memory block.
@@ -330,9 +474,14 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
                     return false;
                 }
             }
-            //wkLog("fmt=%d sb=%d w=%d h=%d => if=0x%x f=0x%x t=0x%x b=%d",
-            //      format, byteSource, width, height, internalFormat, glFormat, glType, bytesPerRow);
             const auto *data = convertedData ? convertedData->getRawData() : nullptr;
+            //if (data)
+            //{
+            //    wkLog("Loading texture id=%d from fmt=%s(%s) w=%d h=%d => if=%s f=%s t=%s b=%d raw=%.8x %.8x ...",
+            //          glId, texStr(format), bsStr(byteSource), width, height,
+            //          glStr(internalFormat), glStr(glFormat), glStr(glType), bytesPerRow,
+            //          ((int*)data)[0], ((int*)data)[1]);
+            //}
             glTexImage2D(GL_TEXTURE_2D, /*level=*/0, internalFormat,
                          (GLsizei)width, (GLsizei)height, /*border=*/0,
                          glFormat, glType, data);

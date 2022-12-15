@@ -1101,13 +1101,17 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     }
     
     std::vector<Texture *> texs;
-    if (!failed) {
+    if (!failed)
+    {
         // Build the texture(s)
-        for (const auto& image : loadReturn->images) {
+        texs.reserve(loadReturn->images.size());
+        for (const auto& image : loadReturn->images)
+        {
             //const auto loadedTile = builder->getLoadedTile(ident);
-            if (image) {
+            if (image)
+            {
 #if DEBUG
-                std::array<char,256> buf;
+                std::array<char,256> buf = {0};
                 snprintf(&buf[0], buf.size()-1, "%s %d:(%d,%d) frame=%d gen=%d", label.c_str(),
                          loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
                          loadReturn->getFrameIndex(), loadReturn->generation);
@@ -1119,6 +1123,7 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
                 if (tex) {
                     tex->setFormat(texType);
                     tex->setSingleByteSource(texByteSource);
+                    tex->setInterpType(texInterpType);
                     texs.push_back(tex);
                 }
             }

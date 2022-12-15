@@ -222,6 +222,26 @@ public class QuadImageLoaderBase extends QuadLoaderBase
     protected native int getImageFormatNative();
     protected native void setImageFormatNative(int imageFormat);
 
+
+    /**
+     *  Set the interpolation type.
+     *  <br>
+     *  Be sure to set this at layer creation, it won't do anything later on.
+     */
+    public void setTextureInterpolation(RenderControllerInterface.TextureSettings.FilterType imageFormat) {
+        setTexInterpNative(imageFormat.ordinal());
+    }
+    @Nullable
+    public RenderControllerInterface.TextureSettings.FilterType getTextureInterpolation() {
+        final int n = getTexInterpNative();
+        return (0 <= n && n < texInterpValues.length) ? texInterpValues[n] : null;
+    }
+    private final RenderControllerInterface.TextureSettings.FilterType[] texInterpValues =
+            RenderControllerInterface.TextureSettings.FilterType.values();
+
+    protected native int getTexInterpNative();
+    protected native void setTexInterpNative(int type);
+
     /**
      *  Number of border texels to set up around image tiles.
      *  <br>

@@ -206,6 +206,34 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setImageForm
 }
 
 extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_getTexInterpNative
+  (JNIEnv *env, jobject obj)
+{
+    try {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            return (*loader)->getTexInterp();
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+    return -1;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setTexInterpNative
+  (JNIEnv *env, jobject obj, jint type)
+{
+    try
+    {
+        if (const auto loader = QuadImageFrameLoaderClassInfo::get(env,obj))
+        {
+            (*loader)->setTexInterp((TextureInterpType)type);
+        }
+    }
+    MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QuadImageLoaderBase_setBorderTexel
   (JNIEnv *env, jobject obj, jint borderTexel)
 {

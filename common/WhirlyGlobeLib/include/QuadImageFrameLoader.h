@@ -416,8 +416,15 @@ public:
     /// In-memory texture type
     void setTexType(TextureType type) { texType = type; }
     TextureType getTexType() const { return texType; }
+
+    // For "single byte" formats, set which channel is used
     void setTexByteSource(WKSingleByteSource src) { texByteSource = src; }
-    
+    WKSingleByteSource getTexByteSource() const { return texByteSource; }
+
+    /// Texture interpolation type
+    void setTexInterp(TextureInterpType type) { texInterpType = type; }
+    TextureInterpType getTexInterp() const { return texInterpType; }
+
     /// If we're using border pixels, set the individual texture size and border size
     void setTexSize(int texSize,int borderSize);
     
@@ -625,6 +632,7 @@ protected:
     
     TextureType texType = TexTypeUnsignedByte;
     WKSingleByteSource texByteSource = WKSingleRGB;
+    TextureInterpType texInterpType = TexInterpLinear;
 
     int texSize = 0;
     int borderSize = 0;

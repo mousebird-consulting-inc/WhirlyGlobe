@@ -85,7 +85,11 @@ public interface RenderControllerInterface
         {
         }
 
-        public enum FilterType {FilterNearest,FilterLinear}
+        // Needs to match native TextureInterpType
+        public enum FilterType {
+            FilterNearest /* = 0*/,
+            FilterLinear /* = 1 */,
+        }
 
         /**
          * Image format to use when creating textures.
