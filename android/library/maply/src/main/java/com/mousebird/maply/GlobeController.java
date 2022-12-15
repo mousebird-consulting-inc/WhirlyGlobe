@@ -517,52 +517,6 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 
 	/**
 	 * Set the current view position.
-	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
-	 * @param z Height above the map in display units.
-	 */
-	public void setPositionGeo(final Point2d pt,final double z) {
-		setPositionGeo(pt.getX(), pt.getY(), z, null);
-	}
-
-	/**
-	 * Set the current view position.
-	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
-	 * @param z Height above the map in display units.
-	 * @param heading New heading in radians
-	 */
-	public void setPositionGeo(final Point2d pt,final double z,double heading) {
-		setPositionGeo(pt.getX(), pt.getY(), z, heading);
-	}
-
-	/**
-	 * Set the current view position.
-	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
-	 */
-	public void setPositionGeo(final Point3d pt) {
-		setPositionGeo(pt.getX(), pt.getY(), pt.getZ(), null);
-	}
-
-	/**
-	 * Set the current view position.
-	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
-	 * @param heading New heading in radians
-	 */
-	public void setPositionGeo(final Point3d pt,double heading) {
-		setPositionGeo(pt.getX(), pt.getY(), pt.getZ(), heading);
-	}
-
-	/**
-	 * Set the current view position.
-	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
-	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
-	 * @param z Height above the map in display units.
-	 */
-	public void setPositionGeo(final double x,final double y,final double z) {
-		setPositionGeo(x,y,z,null);
-	}
-
-	/**
-	 * Set the current view position.
 	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
 	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
 	 * @param z Height above the map in display units.
@@ -606,83 +560,6 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 		return running && globeView != null && renderWrapper != null &&
 				renderWrapper.maplyRender != null && renderControl.frameSize != null;
 	}
-	
-	/**
-	 * Animate to a new view position
-	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
-	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
-	 * @param z Height above the map in display units.
-	 * @param howLong Time (in seconds) to animate.
-	 */
-	public void animatePositionGeo(final double x,final double y,final double z,final double howLong)
-	{
-		animatePositionGeo(x,y,z,null,howLong);
-	}
-
-	/**
-	 * Animate to a new view position
-	 * @param targetGeoLoc Location of the center of the screen in geographic radians (not degrees).
-	 * @param hdg New heading
-	 * @param howLong Time (in seconds) to animate.
-	 */
-	public void animatePositionGeo(final Point3d targetGeoLoc,Double hdg,final double howLong) {
-		animatePositionGeo(targetGeoLoc.getX(),targetGeoLoc.getY(),targetGeoLoc.getZ(),hdg,howLong);
-	}
-
-	/**
-	 * Animate to a new view position
-	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
-	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
-	 * @param z Height above the map in display units.
-	 * @param hdg New heading
-	 * @param howLong Time (in seconds) to animate.
-	 */
-	public void animatePositionGeo(final double x,final double y,final double z,Double hdg,final double howLong)
-	{
-		if (!isCompletelySetup()) {
-			if (!rendererAttached) {
-				addPostSurfaceRunnable(() -> animatePositionGeo(x, y, z, howLong));
-			}
-			return;
-		}
-
-		hdg = globeView.northUp ? 0 : ((hdg != null) ? hdg : globeView.getHeading());
-
-		globeView.cancelAnimation();
-		Point3d geoCoord = globeView.coordAdapter.coordSys.geographicToLocal(new Point3d(x,y,0.0));
-		if (geoCoord != null) {
-			Quaternion newQuat = globeView.makeRotationToGeoCoord(x, y, globeView.northUp);
-			if (newQuat != null) {
-				globeView.setAnimationDelegate(
-						new GlobeAnimateRotation(globeView, renderControl, newQuat, z,
-						                         hdg, howLong, zoomAnimationEasing));
-			}
-		}
-	}
-
-	/**
-	 * Animate to a new view position
-	 * @param x Horizontal location in geographic radians (not degrees).
-	 * @param y Vertical location in geographic radians (not degrees).
-	 * @param z Height above the map in display units.
-	 * @param offset Screen offset for the target point
-	 * @param hdg New heading
-	 * @param howLong Time (in seconds) to animate.
-	 */
-	public void animatePositionGeo( double x, double y, double z,Point2d offset,Double hdg, double howLong) {
-		animatePositionGeo(new Point3d(x,y,z),offset,hdg,howLong);
-	}
-
-	/**
-	 * Animate to a new view position
-	 * @param xy Location of the in geographic radians (not degrees).
-	 * @param height Height above the map in display units.
-	 * @param hdg New heading
-	 * @param howLong Time (in seconds) to animate.
-	 */
-	public void animatePositionGeo(Point2d xy, Double height, Double hdg, double howLong) {
-		animatePositionGeo(xy.getX(), xy.getY(), height, hdg, howLong);
-	}
 
 	/**
 	 * Animate to a new view position
@@ -691,7 +568,7 @@ public class GlobeController extends BaseController implements View.OnTouchListe
 	 * @param hdg New heading
 	 * @param howLong Time (in seconds) to animate.
 	 */
-	public void animatePositionGeo(final Point3d targetGeoLoc,final Point2d offset,Double hdg,final double howLong)
+	public void animatePositionGeo(final Point3d targetGeoLoc, @Nullable final Point2d offset,Double hdg,final double howLong)
 	{
 		if (!isCompletelySetup()) {
 			if (!rendererAttached) {

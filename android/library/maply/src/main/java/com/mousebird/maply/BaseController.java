@@ -507,15 +507,173 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 
 				baseView = glTextureView;
 			}
-        } else {
-        	Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
-        	return;
-        }
+		} else {
+			Toast.makeText(activity,  "This device does not support OpenGL ES 2.0.", Toast.LENGTH_LONG).show();
+			return;
+		}
 
 		running = true;
 
 		startAnalytics();
 	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 */
+	public void setPositionGeo(final Point2d pt,final double z) {
+		setPositionGeo(pt.getX(), pt.getY(), z, null);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param heading New heading in radians
+	 */
+	public void setPositionGeo(final Point2d pt,final double z,double heading) {
+		setPositionGeo(pt.getX(), pt.getY(), z, heading);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
+	 */
+	public void setPositionGeo(final Point3d pt) {
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ(), null);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param pt Location of the center of the screen in geographic radians (not degrees), z = height
+	 * @param heading New heading in radians
+	 */
+	public void setPositionGeo(final Point3d pt,double heading) {
+		setPositionGeo(pt.getX(), pt.getY(), pt.getZ(), heading);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 */
+	public void setPositionGeo(final double x,final double y,final double z) {
+		setPositionGeo(x,y,z,null);
+	}
+
+	/**
+	 * Set the current view position.
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param heading New heading in radians
+	 */
+	abstract public void setPositionGeo(final double x,final double y,final double z,final Double heading);
+
+	/**
+	 * Returns the position in on the globe in terms of longitude and latitude in radians and height.
+	 * Height is height above the globe.  The globe has a radius of 1.0.
+	 */
+	abstract public Point3d getPositionGeo();
+
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final double x,final double y,final double z,final double howLong) {
+		animatePositionGeo(x,y,z,null,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param targetGeoLoc Location of the center of the screen in geographic radians (not degrees).
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final Point3d targetGeoLoc,Double hdg,final double howLong) {
+		animatePositionGeo(targetGeoLoc.getX(),targetGeoLoc.getY(),targetGeoLoc.getZ(),hdg,howLong);
+	}
+
+	/**
+	 * Animate to a new location, placing that location at a specified position on the screen relative to the normal center position
+	 * @param geoLoc Location in geographic radians (not degrees), z = height in display units
+	 * @param offset The offset from the viewport center
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final Point3d geoLoc,final Point2d offset,final double howLong) {
+		animatePositionGeo(geoLoc,offset,null,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location of the center of the screen in geographic radians (not degrees).
+	 * @param y Vertical location of the center of the screen in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(final double x,final double y,final double z,Double hdg,final double howLong) {
+		animatePositionGeo(new Point3d(x,y,z), null, hdg, howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param x Horizontal location in geographic radians (not degrees).
+	 * @param y Vertical location in geographic radians (not degrees).
+	 * @param z Height above the map in display units.
+	 * @param offset Screen offset for the target point
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo( double x, double y, double z,Point2d offset,Double hdg, double howLong) {
+		animatePositionGeo(new Point3d(x,y,z),offset,hdg,howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param xy Location of the in geographic radians (not degrees).
+	 * @param height Height above the map in display units.
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	public void animatePositionGeo(Point2d xy, Double height, Double hdg, double howLong) {
+		animatePositionGeo(xy.getX(), xy.getY(), height, hdg, howLong);
+	}
+
+	/**
+	 * Animate to a new view position
+	 * @param targetGeoLoc Location of the in geographic radians (not degrees).
+	 * @param offset Screen offset for the target point
+	 * @param hdg New heading
+	 * @param howLong Time (in seconds) to animate.
+	 */
+	abstract public void animatePositionGeo(final Point3d targetGeoLoc, @Nullable final Point2d offset,Double hdg,final double howLong);
+
+	/**
+	 * Get the current height
+	 */
+	abstract public double getHeight();
+
+	/**
+	 * Set the view height, display units
+	 */
+	abstract public void setHeight(final double height);
+
+	/**
+	 * Get the azimuth of the screen Y-axis
+	 */
+	abstract public double getHeading();
+
+	/**
+	 * Set the azimuth of the screen Y-axis
+	 */
+	abstract public void setHeading(final double heading);
+
 
 	// Kick off the analytics logic.
 	private void startAnalytics()
