@@ -159,7 +159,8 @@ JNIEXPORT jstring JNICALL Java_com_mousebird_maply_Shader_getName(JNIEnv *env, j
 }
 
 extern "C"
-JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID(JNIEnv *env, jobject obj)
+JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID
+  (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -175,7 +176,7 @@ JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Shader_getID(JNIEnv *env, jobje
 
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
-(JNIEnv *env, jobject obj, jobject changeSetObj, jstring nameStr, jlong texID)
+  (JNIEnv *env, jobject obj, jobject changeSetObj, jstring nameStr, jlong texID)
 {
     try
     {
@@ -193,34 +194,9 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Shader_addTextureNative
 	MAPLY_STD_JNI_CATCH()
 }
 
-
 extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2D
-  (JNIEnv *env, jobject obj, jstring nameStr, jdouble uni)
-{
-	try
-	{
-		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
-		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
-		if (!inst)
-			return false;
-        
-        glUseProgram((*inst)->prog->getProgram());
-
-        const char *cName = env->GetStringUTFChars(nameStr,0);
-		std::string name = cName;
-		env->ReleaseStringUTFChars(nameStr, cName);
-
-		(*inst)->prog->setUniform(StringIndexer::getStringID(name),(float)uni);
-		return true;
-	}
-	MAPLY_STD_JNI_CATCH()
-    return false;
-}
-
-extern "C"
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNative
-		(JNIEnv *env, jobject obj, jstring nameStr, jdouble uni, jint index)
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2F
+  (JNIEnv *env, jobject obj, jstring nameStr, jfloat uni)
 {
 	try
 	{
@@ -235,13 +211,50 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNati
 		std::string name = cName;
 		env->ReleaseStringUTFChars(nameStr, cName);
 
-		(*inst)->prog->setUniform(StringIndexer::getStringID(name),(float)uni,index);
+		(*inst)->prog->setUniform(StringIndexer::getStringID(name),uni);
 		return true;
 	}
 	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2D
+  (JNIEnv *env, jobject obj, jstring nameStr, jdouble uni)
+{
+	return Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2F(env, obj, nameStr, (jfloat)uni);
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNative__Ljava_lang_String_2FI
+		(JNIEnv *env, jobject obj, jstring nameStr, jfloat uni, jint index)
+{
+	try
+	{
+		ShaderClassInfo *classInfo = ShaderClassInfo::getClassInfo();
+		Shader_AndroidRef *inst = classInfo->getObject(env,obj);
+		if (!inst)
+			return false;
+
+		glUseProgram((*inst)->prog->getProgram());
+
+		const char *cName = env->GetStringUTFChars(nameStr,0);
+		std::string name = cName;
+		env->ReleaseStringUTFChars(nameStr, cName);
+
+		(*inst)->prog->setUniform(StringIndexer::getStringID(name),uni,index);
+		return true;
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformByIndexNative__Ljava_lang_String_2DI
+		(JNIEnv *env, jobject obj, jstring nameStr, jdouble uni, jint index)
+{
+	return Java_com_mousebird_maply_Shader_setUniformByIndexNative__Ljava_lang_String_2FI(env, obj, nameStr, (float)uni, index);
+}
 
 extern "C"
 JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I
@@ -265,6 +278,13 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Lja
 	}
 	MAPLY_STD_JNI_CATCH()
     return false;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2Z
+		(JNIEnv *env, jobject obj, jstring nameStr, jboolean uni)
+{
+	return Java_com_mousebird_maply_Shader_setUniformNative__Ljava_lang_String_2I(env, obj, nameStr, uni);
 }
 
 extern "C"
