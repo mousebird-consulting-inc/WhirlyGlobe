@@ -115,6 +115,7 @@ public:
     bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index);
     bool setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat);
     bool setUniform(StringIdentity nameID,int val);
+    bool setUniform(StringIdentity nameID,bool val);
     bool setUniform(const SingleVertexAttribute &attr);
     
     /// Tie a given texture ID to the given name.
