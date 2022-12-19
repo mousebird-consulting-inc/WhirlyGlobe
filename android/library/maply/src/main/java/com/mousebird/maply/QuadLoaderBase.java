@@ -250,11 +250,12 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             return;
         }
 
-        layer.removeClient(this);
         final QuadLoaderBase loaderBase = this;
 
         // Do all the shutdown on the layer thread.
         final Runnable cleanupTask = () -> {
+            layer.removeClient(this);
+
             // Clean things up
             final ChangeSet changes = new ChangeSet();
             cleanupNative(changes);
@@ -401,12 +402,13 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
                 frameAsset.request = fetchRequest;
 
                 // This will start the fetch request in a bit
-                batchOps.addToStart(fetchRequest);
+                if (batchOps != null) {
+                    batchOps.addToStart(fetchRequest);
+                }
             } else {
                 // There's no fetching to do, so we'll short circuit it
                 new BackgroundFetch(fetchRequest)
                         .executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (Void)null);
-
             }
 
             frame++;

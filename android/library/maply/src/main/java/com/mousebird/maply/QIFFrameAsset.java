@@ -20,10 +20,13 @@
 
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+
 /**
  * Android version of the frame asset keeps the FetchRequest around.
  * This is always created from the C++ side
  */
+@SuppressWarnings("unused")
 class QIFFrameAsset
 {
     protected QIFFrameAsset() { initialise(); }
@@ -66,16 +69,15 @@ class QIFFrameAsset
     // Return the priority assigned on the C++ side
     public native int getPriority();
 
-    public void finalize()
-    {
+    protected void finalize() {
         dispose();
     }
-    static
-    {
+    static {
         nativeInit();
     }
     private static native void nativeInit();
     native void initialise();
     native void dispose();
+    @Keep
     private long nativeHandle;
 }

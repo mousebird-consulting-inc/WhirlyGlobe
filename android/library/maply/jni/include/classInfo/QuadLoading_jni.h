@@ -26,8 +26,9 @@ typedef JavaClassInfo<WhirlyKit::ImageTile_AndroidRef> ImageTileClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadImageFrameLoader_AndroidRef> QuadImageFrameLoaderClassInfo;
 typedef JavaClassInfo<WhirlyKit::QuadSamplingController_Android> QuadSamplingControllerInfo;
 typedef JavaClassInfo<WhirlyKit::QIFBatchOps_Android> QIFBatchOpsClassInfo;
-typedef JavaClassInfo<WhirlyKit::QIFFrameAsset_Android> QIFFrameAssetClassInfo;
+typedef JavaClassInfo<WhirlyKit::QIFFrameAsset_AndroidRef> QIFFrameAssetClassInfo;
 
 JNIEXPORT jobject JNICALL MakeImageTile(JNIEnv *env,WhirlyKit::ImageTile_AndroidRef imgTile);
 JNIEXPORT jobject JNICALL MakeQIFBatchOps(JNIEnv *env,WhirlyKit::QIFBatchOps_Android *batchOps);
-JNIEXPORT jobject JNICALL MakeQIFFrameAsset(JNIEnv *env,WhirlyKit::QIFFrameAsset_Android *frame);
+JNIEXPORT jobject JNICALL MakeQIFFrameAsset(JNIEnv *env,WhirlyKit::QIFFrameAsset_AndroidRef frame);
+JNIEXPORT void JNICALL DisposeQIFFrameAsset(JNIEnv *env,WhirlyKit::QIFFrameAsset_Android *frame);
