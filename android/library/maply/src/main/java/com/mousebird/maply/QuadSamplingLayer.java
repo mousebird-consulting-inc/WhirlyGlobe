@@ -58,7 +58,10 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
      */
     public void addClient(ClientInterface user)
     {
-        ChangeSet changes = new ChangeSet();
+        if (Thread.currentThread().getId() != layerThread.getId()) {
+            Log.w("Maply", "QuadSamplingLayer.addClient called on an inappropriate thread");
+        }
+        final ChangeSet changes = new ChangeSet();
         user.samplingLayerConnect(this, changes);
         clients.add(user);
         layerThread.addChanges(changes);
@@ -71,9 +74,12 @@ public class QuadSamplingLayer extends Layer implements LayerThread.ViewWatcherI
      */
     public void removeClient(ClientInterface user)
     {
+        if (Thread.currentThread().getId() != layerThread.getId()) {
+            Log.w("Maply", "QuadSamplingLayer.removeClient called on an inappropriate thread");
+        }
         if (!clients.contains(user))
             return;
-        ChangeSet changes = new ChangeSet();
+        final ChangeSet changes = new ChangeSet();
         user.samplingLayerDisconnect(this, changes);
         clients.remove(user);
         layerThread.addChanges(changes);

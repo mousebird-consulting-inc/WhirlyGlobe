@@ -399,8 +399,6 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 			new Matrix3d(), new Matrix4d(), new Quaternion(),
 			new SelectedObject(),
 			new ImageTile(),
-			new QIFBatchOps(),
-			new QIFFrameAsset(),
 			new Shader(),
 			new ChangeSet(),
 			new AttrDictionary(),
@@ -1584,6 +1582,10 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 	 */
 	public QuadSamplingLayer findSamplingLayer(SamplingParams params,final QuadSamplingLayer.ClientInterface user)
 	{
+		if (getMainLooper().getThread() != Thread.currentThread()) {
+			Log.w("Maply", "findSamplingLayer called on an inappropriate thread");
+		}
+
 		QuadSamplingLayer theLayer = null;
 
 		for (QuadSamplingLayer layer : samplingLayers) {
@@ -1623,34 +1625,33 @@ public abstract class BaseController implements RenderController.TaskManager, Re
 	 * @param samplingLayer The layer
 	 * @param user The previously attached client
 	 */
-	public void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user)
-	{
+	public void releaseSamplingLayer(final QuadSamplingLayer samplingLayer,final QuadSamplingLayer.ClientInterface user) {
+
+		// Access to the list of sampling layers must be on the main thread.
+		if (getMainLooper().getThread() != Thread.currentThread()) {
+			Log.w("Maply", "releaseSamplingLayer called on an inappropriate thread");
+		}
+
 		if (!samplingLayers.contains(samplingLayer))
 			return;
 
-		// If we're the last client, we expect to remove the sampling layer after disconnecting,
-		// but we have to do thread transitions during which a `findSamplingLayer` call could queue
-		// up an `addClient` call, causing us to delete the layer after being connected, cancelling
-		// any activity in that new client.
-		// To prevent that, remove it from the list of available sampling layers now.
-		final int remainingClients = samplingLayer.getNumClients() - 1;
-		if (remainingClients == 0) {
-			samplingLayers.remove(samplingLayer);
+		final LayerThread layerThread = (samplingLayer != null) ? samplingLayer.layerThread : null;
+		if (layerThread == null) {
+			return;
 		}
 
-		// Do the remove client on the layer thread itself
-		samplingLayer.layerThread.addTask(() -> {
+		// Access to the sampling layers and their client lists must be on the sampling layer thread
+		layerThread.addTask(() -> {
 			samplingLayer.removeClient(user);
 
-			// If we were the last client, switch back to the main thread to remove the layer
-			if (remainingClients == 0) {
+			// If we're the last client, remove the layer (on the main thread)
+			if (samplingLayer.getNumClients() == 0) {
 				newMainLooperHandler().post(() -> {
-					// It shouldn't be possible to add clients, but check one more time, just in case
+					// Another client may have attached to the sampling layer between when we found
+					// zero clients above and now.
 					if (samplingLayer.getNumClients() == 0) {
+						samplingLayers.remove(samplingLayer);
 						removeLayerThread(samplingLayer.layerThread);
-					} else {
-						Log.w("Maply", "Unexpected sampling layer attach");
-						samplingLayers.add(samplingLayer);
 					}
 				});
 			}

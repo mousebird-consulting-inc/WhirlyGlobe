@@ -56,15 +56,16 @@ extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_initialise
         (JNIEnv *env, jobject obj)
 {
-    try
-    {
-        QIFBatchOpsClassInfo *info = QIFBatchOpsClassInfo::getClassInfo();
-        PlatformInfo_Android platformInfo(env);
-        auto *batchOps = new QIFBatchOps_Android(&platformInfo);
-        batchOps->batchOpsObj = obj;
-        info->setHandle(env, obj, batchOps);
-    }
-    MAPLY_STD_JNI_CATCH()
+    // QIFBatchOps objects are owned by QIFBatchOps_Android and should not be created directly.
+//    try
+//    {
+//        QIFBatchOpsClassInfo *info = QIFBatchOpsClassInfo::getClassInfo();
+//        PlatformInfo_Android platformInfo(env);
+//        auto *batchOps = new QIFBatchOps_Android(&platformInfo, obj);
+//        wkLog("Creating QIFBatchOps %llx => %x", batchOps, obj);
+//        info->setHandle(env, obj, batchOps);
+//    }
+//    MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -89,7 +90,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFBatchOps_dispose
 
 extern "C"
 JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_QIFBatchOps_getDeletes
-        (JNIEnv *env, jobject obj)
+  (JNIEnv *env, jobject obj)
 {
     try
     {
@@ -113,11 +114,14 @@ JNIEXPORT jobjectArray JNICALL Java_com_mousebird_maply_QIFBatchOps_getDeletes
     return nullptr;
 }
 
-jobject MakeQIFBatchOps(JNIEnv *env,QIFBatchOps_Android *batchOps)
+jobject MakeQIFBatchOps(JNIEnv *env, QIFBatchOps_Android *batchOps)
 {
-    QIFBatchOpsClassInfo *classInfo = QIFBatchOpsClassInfo::getClassInfo(env,"com/mousebird/maply/QIFBatchOps");
-    jobject obj = classInfo->makeWrapperObject(env,batchOps);
-    batchOps->batchOpsObj = obj;
-
-    return obj;
+    if (auto *classInfo = QIFBatchOpsClassInfo::getClassInfo(env,"com/mousebird/maply/QIFBatchOps"))
+    if (jobject obj = classInfo->makeWrapperObject(env,batchOps))
+    {
+        PlatformInfo_Android platform(env);
+        batchOps->setBatchOpsObj(&platform, obj);
+        return obj;
+    }
+    return nullptr;
 }
