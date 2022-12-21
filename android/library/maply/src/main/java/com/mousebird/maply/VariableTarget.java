@@ -22,6 +22,7 @@ import com.mousebird.maply.RenderControllerInterface.ThreadMode;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.ColorInt;
 
@@ -111,6 +112,8 @@ public class VariableTarget
     public void setShader(Shader inShader) {
         if (!setup) {
             shader = inShader;
+        } else if (inShader != shader) {
+            Log.w("Maply", "VariableTarget shader cannot be changed after setup");
         }
     }
 
