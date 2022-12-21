@@ -100,12 +100,20 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     {
         return false;
     }
-    if (uni->type != GL_INT && uni->type != GL_SAMPLER_2D && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
+    switch (uni->type)
     {
-        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
-        return false;
+        case GL_INT:
+        case GL_UNSIGNED_INT:
+        case GL_BOOL:
+        case GL_SAMPLER_2D:
+        case GL_INT_SAMPLER_2D:
+        case GL_UNSIGNED_INT_SAMPLER_2D:
+            break;
+        default:
+            wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
+            return false;
     }
-    
+
     if (uni->isSet && uni->val.iVals[0] == val)
         return true;
     

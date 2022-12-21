@@ -255,6 +255,7 @@ static GLint mapInternalFormat(TextureType tt, WKSingleByteSource byteSource)
         case TexTypeSingleInt16:    return GL_R16I;                 // format=GL_RED_INTEGER type=GL_SHORT R=i16 colorRenderable=Y
         case TexTypeSingleUInt16:   return GL_R16UI;                // format=GL_RED_INTEGER type=GL_UNSIGNED_SHORT R=ui16 colorRenderable=Y
         case TexTypeDoubleUInt16:   return GL_RG16UI;
+      //case TexTypeDoubleUNorm16:  return GL_R16;                  // Requires later versions of OpenGL
         case TexTypeSingleUInt32:   return GL_R32UI;
         case TexTypeDoubleUInt32:   return GL_RG32UI;
         case TexTypeQuadUInt32:     return GL_RGBA32UI;
