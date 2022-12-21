@@ -265,14 +265,22 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,in
         wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
     }
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+    if (uni->isSet && index == 0 && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
         uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+    {
         return true;
+    }
     
     glUniform4f((GLint)uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
-    uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
+    if (index == 0)
+    {
+        uni->val.fVals[0] = vec.x();
+        uni->val.fVals[1] = vec.y();
+        uni->val.fVals[2] = vec.z();
+        uni->val.fVals[3] = vec.w();
+    }
     
     return true;
 }
