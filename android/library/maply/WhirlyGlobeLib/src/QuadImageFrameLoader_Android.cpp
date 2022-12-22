@@ -189,7 +189,8 @@ void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadIm
     std::vector<jobject> objVec(frames.size(),nullptr);
     for (unsigned int ii=0;ii<frames.size();ii++)
     {
-        if (!frameToLoad || frameToLoad->frameIndex == -1 || frameToLoad->frameIndex == ii) {
+        if (!frameToLoad || frameToLoad->frameIndex == -1 || frameToLoad->frameIndex == ii)
+        {
             QIFFrameAsset_Android *frame = (QIFFrameAsset_Android *) (frames[ii].get());
             frame->setupFetch(loader);
             const int priority = loader->calcLoadPriority(ident,ii);
@@ -198,8 +199,10 @@ void QIFTileAsset_Android::startFetching(PlatformThreadInfo *inThreadInfo,QuadIm
         }
     }
 
+    auto *frameAssetClassInfo = QIFFrameAssetClassInfo::getClassInfo(threadInfo->env,"com/mousebird/maply/QIFFrameAsset");
+    jclass frameAssetClass = frameAssetClassInfo->getClass();
     // Give the Java side a list of frames to start fetching
-    jobjectArray frameArray = BuildObjectArray(threadInfo->env,QIFFrameAssetClassInfo::getClassInfo(threadInfo->env,"com/mousebird/maply/QIFFrameAsset")->getClass(),objVec);
+    jobjectArray frameArray = BuildObjectArray(threadInfo->env,frameAssetClass,objVec);
 
     if (const auto obj = loader->getFrameLoaderObj())
     {

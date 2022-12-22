@@ -347,7 +347,9 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
     // Start off fetches for all the frames within a given tile
     // Return an array of corresponding frame assets
     @SuppressWarnings({"unused", "RedundantSuppression"})   // Called from C++
-    public void startTileFetch(QIFBatchOps batchOps, QIFFrameAsset[] inFrameAssets, final int tileX, final int tileY, final int tileLevel, int priority, double importance)
+    public void startTileFetch(QIFBatchOps batchOps, QIFFrameAsset[] inFrameAssets,
+                               final int tileX, final int tileY, final int tileLevel,
+                               int priority, double importance)
     {
         if (tileInfos.length == 0 || inFrameAssets == null || tileInfos.length != inFrameAssets.length)
             return;
@@ -360,9 +362,15 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             final long frameID = getFrameID(frame);
             //final int dispFrame = tileInfos.length > 1 ? frame : -1;
 
+            final QIFFrameAsset frameAsset = inFrameAssets[frame];
+            if (frameAsset == null) {
+                frame++;
+                continue;
+            }
+
             // Put together a fetch request for, you know, fetching
             final TileFetchRequest fetchRequest = new TileFetchRequest();
-            fetchRequest.priority = inFrameAssets[frame].getPriority();
+            fetchRequest.priority = frameAsset.getPriority();
             fetchRequest.importance = (float)importance;
             fetchRequest.callback = new TileFetchRequest.Callback() {
                 @Override
@@ -387,7 +395,6 @@ public class QuadLoaderBase implements QuadSamplingLayer.ClientInterface
             };
 
             // Update the frame asset and track it
-            QIFFrameAsset frameAsset = inFrameAssets[frame];
             frameAssets.add(frameAsset);
 
             // If the tile is outside the range of valid zoom levels for this source,
