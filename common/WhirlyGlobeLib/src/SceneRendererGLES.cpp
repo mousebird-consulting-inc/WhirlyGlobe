@@ -474,19 +474,25 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
             drawList.reserve(rawDrawables.size());
             for (auto *draw : rawDrawables)
             {
-                auto *theDrawable = dynamic_cast<DrawableGLES *>(draw);
-                if (theDrawable && theDrawable->isOn(&offFrameInfo))
+                // Drawables with pre-transformed coordinates (screen space) are only
+                // rendered with one set of matrices.  It shouldn't matter which.
+                if (off > 0 && (!draw || draw->getClipCoords()))
+                {
+                    continue;
+                }
+                if (auto *theDrawable = dynamic_cast<DrawableGLES *>(draw))
+                if (theDrawable->isOn(&offFrameInfo))
                 {
                     if (const Matrix4d *localMat = theDrawable->getMatrix())
                     {
-                        Matrix4d newMvpMat = thisMvpMat * (*localMat);
                         Matrix4d newMvMat = modelAndViewMat4d * (*localMat);
-                        Matrix4d newMvNormalMat = newMvMat.inverse().transpose();
-                        drawList.emplace_back(theDrawable,newMvpMat,newMvMat,newMvNormalMat);
+                        drawList.emplace_back(theDrawable,thisMvpMat * (*localMat),
+                                              newMvMat,newMvMat.inverse().transpose());
                     }
                     else
                     {
-                        drawList.emplace_back(theDrawable,thisMvpMat,modelAndViewMat4d,modelAndViewNormalMat4d);
+                        drawList.emplace_back(theDrawable,thisMvpMat,
+                                              modelAndViewMat4d,modelAndViewNormalMat4d);
                     }
                 }
             }
