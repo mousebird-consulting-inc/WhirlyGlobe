@@ -32,16 +32,16 @@ void GeometryModelOBJ::setResourceDir(const std::string &inResourceDir)
 bool GeometryModelOBJ::parseMaterials(FILE *fp)
 {
     bool success = true;
-    Material *activeMtl = NULL;
-    
+    Material *activeMtl = nullptr;
+
     char line[2048];
-    int lineNo = 0;
-    
+    //int lineNo = 0;
+
     while (fgets(line, 2047, fp))
     {
-        lineNo++;
+        //lineNo++;
         int lineLen = (int)strlen(line);
-        
+
         // Empty line
         if (lineLen == 0 || line[0] == '\n')
             continue;
@@ -54,23 +54,23 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
             line[lineLen-1] = 0;
             lineLen--;
         }
-        
+
         std::vector<char *> toks;
         // Parse the various tokens into an array
-        char *tok = NULL;
+        char *tok = nullptr;
         char *ptr = line;
-        char *next = NULL;
+        char *next = nullptr;
         while ( (tok = strtok_r(ptr, " \t\n\r", &next)) )
         {
             toks.push_back(tok);
             ptr = next;
         }
-        
+
         if (toks.empty())
             continue;
-        
+
         char *key = toks[0];
-        
+
         if (!strcmp(key,"newmtl"))
         {
             if (toks.size() < 2)
@@ -78,7 +78,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             char *name = toks[1];
             materials.resize(materials.size()+1);
             Material &mat = materials[materials.size()-1];
@@ -91,7 +91,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             for (unsigned int ii=0;ii<3;ii++)
                 activeMtl->Ka[ii] = atof(toks[ii+1]);
         } else if (!strcmp(key,"Kd"))
@@ -101,10 +101,10 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             for (unsigned int ii=0;ii<3;ii++)
                 activeMtl->Kd[ii] = atof(toks[ii+1]);
-            
+
         } else if (!strcmp(key,"Ks"))
         {
             if (toks.size() < 4 || !activeMtl)
@@ -112,7 +112,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             for (unsigned int ii=0;ii<3;ii++)
                 activeMtl->Ks[ii] = atof(toks[ii+1]);
         } else if (!strcmp(key,"d"))
@@ -122,7 +122,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             activeMtl->trans = atof(toks[1]);
         } else if (!strcmp(key,"Tr"))
         {
@@ -131,7 +131,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             activeMtl->trans = 1.0-atof(toks[1]);
         } else if (!strcmp(key,"illum"))
         {
@@ -140,7 +140,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             activeMtl->illum = atof(toks[1]);
         } else if (!strcmp(key,"map_Ks"))
         {
@@ -149,7 +149,7 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             activeMtl->tex_ambient = toks[1];
         } else if (!strcmp(key, "map_Kd"))
         {
@@ -158,27 +158,27 @@ bool GeometryModelOBJ::parseMaterials(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             activeMtl->tex_diffuse = toks[1];
         }
         // Note: Ignoring map_d, map_bump, map_Ks, map_Ns or any of the options
     }
-    
+
     return success;
 }
 
 bool GeometryModelOBJ::parse(FILE *fp)
 {
     bool success = true;
-    Group *activeGroup = NULL;
+    Group *activeGroup = nullptr;
     int activeMtl = -1;
-    
+
     char line[2048],origLine[2048],tmpTok[2048];
-    int lineNo = 0;
-    
+    //int lineNo = 0;
+
     while (fgets(origLine, 2047, fp))
     {
-        lineNo++;
+        //lineNo++;
         strcpy(line,origLine);
         int lineLen = (int)strlen(line);
 
@@ -194,21 +194,21 @@ bool GeometryModelOBJ::parse(FILE *fp)
             line[lineLen-1] = 0;
             lineLen--;
         }
-        
+
         std::vector<char *> toks;
         // Parse the various tokens into an array
-        char *tok = NULL;
+        char *tok = nullptr;
         char *ptr = line;
-        char *next = NULL;
+        char *next = nullptr;
         while ( (tok = strtok_r(ptr, " \t\n\r", &next)) )
         {
             toks.push_back(tok);
             ptr = next;
         }
-        
+
         if (toks.empty())
             continue;
-        
+
         char *key = toks[0];
         if (!strcmp(key,"mtllib"))
         {
@@ -222,13 +222,13 @@ bool GeometryModelOBJ::parse(FILE *fp)
             strcpy(line,origLine);
             strtok_r(line," \t\n\r", &next);
             char *mtlFile = strtok_r(next,"\n\r", &next);
-            
+
             if (!mtlFile)
             {
                 success = false;
                 break;
             }
-            
+
             // Load the model
             std::string fullPath = resourceDir.empty() ? mtlFile : resourceDir + "/" + mtlFile;
             FILE *mtlFP = fopen(fullPath.c_str(),"r");
@@ -251,7 +251,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
                 success = false;
                 break;
             }
-            
+
             // Look for the material
             std::string mtlName = toks[1];
             int whichMtl = -1;
@@ -275,7 +275,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
         {
             groups.resize(groups.size()+1);
             activeGroup = &groups.back();
-            
+
             if (toks.size() > 1)
             {
                 activeGroup->name = toks[1];
@@ -293,7 +293,7 @@ bool GeometryModelOBJ::parse(FILE *fp)
             activeGroup->faces.resize(activeGroup->faces.size()+1);
             Face &face = activeGroup->faces.back();
             face.mtlID = activeMtl;
-            
+
             // We've either got numbers of collections of numbers separated by /
             for (unsigned int ii=1;ii<toks.size();ii++)
             {
@@ -301,11 +301,11 @@ bool GeometryModelOBJ::parse(FILE *fp)
                 bool emptyTexCoord = false;
                 if (strstr(tmpTok,"//"))
                     emptyTexCoord = true;
-                
+
                 std::vector<char *> vertToks;
-                char *vertTok = NULL;
+                char *vertTok = nullptr;
                 char *vertPtr = tmpTok;
-                char *vertNext = NULL;
+                char *vertNext = nullptr;
                 while ( (vertTok = strtok_r(vertPtr, "/", &vertNext)) )
                 {
                     vertToks.push_back(vertTok);
