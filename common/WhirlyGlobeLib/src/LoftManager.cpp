@@ -405,7 +405,7 @@ LoftManager::~LoftManager()
 // From a scene rep and a description, add the given polygons to the drawable builder
 void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ShapeSet &shapes, VectorTrianglesRef triMesh,std::vector<WhirlyKit::VectorRing> &outlines,ChangeSet &changes)
 {
-    int numShapes = 0;
+    //int numShapes = 0;
     
     // Used to toss out drawables as we go
     // Its destructor will flush out the last drawable
@@ -428,7 +428,7 @@ void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const Lofted
                     if (polyInfo.side)
                     {
                         drawBuild.addSkirtPoints(theAreal->loops[ri]);
-                        numShapes++;
+                        //numShapes++;
                         
                         // Do the uprights around the side
                         if (polyInfo.outlineSide)
