@@ -71,9 +71,9 @@ ShapeDrawableBuilder::ShapeDrawableBuilder(const CoordSystemDisplayAdapter *coor
                                            const Point3d &center) :
     coordAdapter(coordAdapter),
     sceneRender(sceneRender),
+    primType(linesOrPoints ? Lines : Points),
     shapeInfo(shapeInfo),
-    center(center),
-    primType(linesOrPoints ? Lines : Points)
+    center(center)
 {
 }
 

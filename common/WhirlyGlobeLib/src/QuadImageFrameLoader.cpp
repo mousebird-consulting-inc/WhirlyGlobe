@@ -722,8 +722,8 @@ static int gen = 1;
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params, Mode mode, FrameLoadMode frameMode) :
     mode(mode),
     frameLoadMode(frameMode),
-    params(params),
     label("QIFLoader " + std::to_string(gen++)),
+    params(params),
     lastRunReqFlag(std::make_shared<bool>(true))
 {
     updatePriorityDefaults();

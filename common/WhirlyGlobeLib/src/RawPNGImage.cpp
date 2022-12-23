@@ -71,6 +71,16 @@ static int getChannelCount(LodePNGColorType type)
     }
 }
 
+// PNG is big-endian
+#if defined(__BIG_ENDIAN__) || defined(__ORDER_BIG_ENDIAN__)
+  constexpr bool needSwap = false;
+#elif defined(__LITTLE_ENDIAN__) || defined(__ORDER_LITTLE_ENDIAN__)
+  constexpr bool needSwap = true;
+#else
+# warning Inferring byte order - requires constexpr implicit ntohs()
+  constexpr bool needSwap = (ntohs(1) != 1);
+#endif
+
 unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &height,
                                             const unsigned char * const data, const size_t length,
                                             const int valueMap[256],
@@ -148,7 +158,6 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
         }
     }
     // PNG is big-endian
-    constexpr bool needSwap = (ntohs(1) != 1);
     if (needSwap && depth == 16 && outData)   //NOLINT
     {
         auto *p = (uint16_t *)outData;
