@@ -72,13 +72,21 @@ void ShapeSceneRep::clearContents(const SelectionManagerRef &selectManager, Chan
 #endif //!MAPLY_MINIMAL
 }
 
-Shape::Shape()
-    : isSelectable(false), selectID(EmptyIdentity), useColor(false), color(255,255,255,255), clipCoords(false)
+Shape::Shape() :
+    isSelectable(false),
+    useColor(false),
+    clipCoords(false),
+    selectID(EmptyIdentity),
+    color(255,255,255,255)
 {
 }
 
 // Base shape doesn't make anything
-void Shape::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder, WhirlyKit::ShapeDrawableBuilderTri *triBuilder, WhirlyKit::Scene *scene, WhirlyKit::SelectionManagerRef &selectManager, WhirlyKit::ShapeSceneRep *sceneRep)
+void Shape::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,
+                                    ShapeDrawableBuilderTri *triBuilder,
+                                    Scene *scene,
+                                    SelectionManagerRef &selectManager,
+                                    ShapeSceneRep *sceneRep)
 {
 }
 
@@ -103,13 +111,13 @@ Point3d Circle::displayCenter(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter
     return coordAdapter->localToDisplay(localPt);
 }
 
-static const float sqrt2 = M_SQRT2;
+static constexpr float sqrt2 = (float)M_SQRT2;
 
-void Circle::makeGeometryWithBuilder(WhirlyKit::ShapeDrawableBuilder *regBuilder,
-                                     WhirlyKit::ShapeDrawableBuilderTri *triBuilder,
-                                     WhirlyKit::Scene *scene,
-                                     WhirlyKit::SelectionManagerRef &selectManager,
-                                     WhirlyKit::ShapeSceneRep *sceneRep)
+void Circle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,
+                                     ShapeDrawableBuilderTri *triBuilder,
+                                     Scene *scene,
+                                     SelectionManagerRef &selectManager,
+                                     ShapeSceneRep *sceneRep)
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
     
