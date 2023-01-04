@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.4.1)
+project(WhirlyGlobeLib)
 
 target_include_directories(
         ${WGTARGET}

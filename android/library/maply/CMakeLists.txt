@@ -3,6 +3,7 @@
 
 # Sets the minimum version of CMake required to build the native library.
 cmake_minimum_required(VERSION 3.4.1)
+project(Maply)
 
 set (WGTARGET "whirlyglobemaply")
 set (LOCALLIBS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../common/local_libs/")
