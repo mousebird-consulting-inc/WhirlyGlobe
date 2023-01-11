@@ -92,9 +92,10 @@ typedef std::map<int,NSObject <MaplyClusterGenerator> *> ClusterGenMap;
 @end
 
 // Interface between the layout manager and the cluster generators
-class OurClusterGenerator : public ClusterGenerator
+struct OurClusterGenerator : public ClusterGenerator
 {
-public:
+    OurClusterGenerator(MaplyBaseInteractionLayer *layer) : layer(layer) { }
+
     MaplyBaseInteractionLayer * __weak layer;
     
     // Called right before we start generating layout objects
@@ -133,7 +134,7 @@ public:
     int numActiveWorkers;
 #if !MAPLY_MINIMAL
     ClusterGenMap clusterGens;
-    OurClusterGenerator ourClusterGen;
+    std::shared_ptr<OurClusterGenerator> ourClusterGen;
     // Last frame (layout frame, not screen frame)
     std::vector<MaplyTexture *> currentClusterTex,oldClusterTex;
 #endif //!MAPLY_MINIMAL
@@ -197,8 +198,8 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     if (inLayerThread)
     {
         setupInfo = inLayerThread.renderer->getRenderSetupInfo();
-        ourClusterGen.layer = self;
-        compManager->layoutManager->addClusterGenerator(nullptr,&ourClusterGen);
+        ourClusterGen = std::make_shared<OurClusterGenerator>(self);
+        compManager->layoutManager->addClusterGenerator(nullptr, ourClusterGen);
     }
 #endif //!MAPLY_MINIMAL
 
@@ -214,11 +215,21 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     scene = NULL;
     imageTextures.clear();
     layerThreads = nil;
+    
 #if !MAPLY_MINIMAL
     atlasGroup = nil;
-    ourClusterGen.layer = nil;
+
+    if (ourClusterGen)
+    {
+        if (auto layout = compManager ? compManager->layoutManager : nullptr)
+        {
+            layout->addClusterGenerator(nullptr, nullptr);
+        }
+        ourClusterGen->layer = nil;
+    }
     clusterGens.clear();
 #endif //!MAPLY_MINIMAL
+
     compManager->clear();
     
     for (MaplyShader *shader in shaders)
@@ -226,12 +237,12 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
 
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
     
-    for (ThreadChangeSet::iterator it = perThreadChanges.begin();
-         it != perThreadChanges.end();++it)
+    for (const ThreadChanges &threadChanges : perThreadChanges)
     {
-        ThreadChanges threadChanges = *it;
         for (unsigned int ii=0;ii<threadChanges.changes.size();ii++)
+        {
             delete threadChanges.changes[ii];
+        }
     }
     perThreadChanges.clear();
 }
