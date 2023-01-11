@@ -296,8 +296,8 @@ void LayoutManager::removeLayoutObjects(const SimpleIDSet &oldObjectIds)
 
 bool LayoutManager::hasChanges()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-    if (clusterGen->hasChanges())
+    if (auto cg = clusterGenerator)
+    if (cg->hasChanges())
     {
         hasUpdates = true;
     }
@@ -366,10 +366,9 @@ void LayoutManager::getScreenSpaceObjects(const SelectionManager::PlacementInfo 
     }
 }
 
-void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGenerator *inClusterGen)
+void LayoutManager::addClusterGenerator(PlatformThreadInfo *, ClusterGeneratorRef inClusterGen)
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-    clusterGen = inClusterGen;
+    clusterGenerator = std::move(inClusterGen);
     hasUpdates = true;
 }
 
@@ -775,12 +774,9 @@ bool LayoutManager::runLayoutRules(PlatformThreadInfo *threadInfo,
     // Need to scale for retina displays
     const float resScale = renderer->getScale();
 
-    if (clusterGen)
-    {
-        runLayoutClustering(threadInfo, layoutObjs, clusterGroups, clusterEntries,
-                            outClusterParams, viewState, mapViewState, globeViewState,
-                            frameBufferSize, screenMbr, modelTrans, normalMat);
-    }
+    runLayoutClustering(threadInfo, layoutObjs, clusterGroups, clusterEntries,
+                        outClusterParams, viewState, mapViewState, globeViewState,
+                        frameBufferSize, screenMbr, modelTrans, normalMat);
 
     if (UNLIKELY(cancelLayout))
     {
@@ -1021,6 +1017,12 @@ void LayoutManager::runLayoutClustering(PlatformThreadInfo *threadInfo,
                                         const Matrix4d &normalMat)
 {
     const float resScale = renderer->getScale();
+
+    const auto clusterGen = clusterGenerator;
+    if (!clusterGen)
+    {
+        return;
+    }
 
     clusterGen->startLayoutObjects(threadInfo);
 
@@ -1850,6 +1852,7 @@ void LayoutManager::updateLayout(PlatformThreadInfo *threadInfo,const ViewStateR
         layoutChanges = true;
     }
 
+    if (auto clusterGen = clusterGenerator)
     if (clusterGen->hasChanges())
     {
         layoutChanges = true;

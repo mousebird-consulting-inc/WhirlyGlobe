@@ -175,6 +175,7 @@ public:
      */
     virtual bool hasChanges() { return false; }
 };
+using ClusterGeneratorRef = std::shared_ptr<ClusterGenerator>;
     
 #define kWKLayoutManager "WKLayoutManager"
  
@@ -279,7 +280,7 @@ public:
                                std::vector<ScreenSpaceObjectLocation> &screenSpaceObjs);
     
     /// Add a generator for cluster images
-    void addClusterGenerator(PlatformThreadInfo *,ClusterGenerator *clusterGen);
+    void addClusterGenerator(PlatformThreadInfo *, ClusterGeneratorRef clusterGen);
 
     /// Control whether objects with unique IDs are faded in and out
     void setFadeEnabled(bool enabled);
@@ -446,7 +447,7 @@ protected:
     /// Display parameter for the clusters
     std::vector<ClusterGenerator::ClusterClassParams> clusterParams;
     /// Cluster generators
-    ClusterGenerator *clusterGen = nullptr;
+    ClusterGeneratorRef clusterGenerator;
     /// Features we'll force to always display
     std::unordered_set<std::string> overrideUUIDs;
     
