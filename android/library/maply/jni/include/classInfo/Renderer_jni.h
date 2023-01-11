@@ -56,6 +56,7 @@ typedef enum {
     MaplyImageUInt32,
     MaplyImageDoubleInt32,
     MaplyImageDoubleUInt32,
+    MaplyImageQuadUInt32,
 
     MaplyImageSingleFloat16,
     MaplyImageSingleFloat32,

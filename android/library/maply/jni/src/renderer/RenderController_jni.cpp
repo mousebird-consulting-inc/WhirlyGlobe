@@ -79,6 +79,7 @@ TextureType ImageFormatToTexType(MaplyImageType format) {
 		case MaplyImageUInt32: return TexTypeSingleUInt32;
 		//case MaplyImageDoubleInt32: return TexTypeDoubleUInt32;
 		case MaplyImageDoubleUInt32: return TexTypeDoubleUInt32;
+		case MaplyImageQuadUInt32: return TexTypeQuadUInt32;
 		case MaplyImageQuadFloat16: return TexTypeQuadFloat16;
 		case MaplyImageQuadFloat32: return TexTypeQuadFloat32;
 		case MaplyImageETC2RGB8:
@@ -111,7 +112,7 @@ TextureType ImageFormatToTexType(MaplyImageType format) {
 		case TexTypeDoubleUInt16:  return MaplyImageDoubleUInt16;
 		case TexTypeSingleUInt32:  return MaplyImageUInt32;
 		case TexTypeDoubleUInt32:  return MaplyImageDoubleUInt16;
-		case TexTypeQuadUInt32:
+		case TexTypeQuadUInt32:    return MaplyImageQuadUInt32;
 		case TexTypeDepthFloat32:
 		default:
 			wkLogLevel(Warn, "Unsupported texture type %d", format);
