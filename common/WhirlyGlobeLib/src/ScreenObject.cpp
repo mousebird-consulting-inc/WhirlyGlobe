@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -31,26 +31,9 @@ SimplePoly::SimplePoly() :
 {
 }
 
-SimplePoly::~SimplePoly()
-{
-
-}
-
 StringWrapper::StringWrapper() :
     mat(Matrix3d::Identity()),
     size(0.0,0.0)
-{
-}
-    
-StringWrapper::~StringWrapper()
-{
-}
-
-ScreenObject::ScreenObject()
-{
-}
-
-ScreenObject::~ScreenObject()
 {
 }
 

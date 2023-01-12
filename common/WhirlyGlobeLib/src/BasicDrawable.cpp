@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,12 +27,12 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
-    
+
 BasicDrawable::Triangle::Triangle(unsigned short v0,unsigned short v1,unsigned short v2)
 {
     verts[0] = v0;  verts[1] = v1;  verts[2] = v2;
 }
-    
+
 BasicDrawable::BasicDrawable(const std::string &name) :
     Drawable(name),
     motion(false)
@@ -41,11 +41,15 @@ BasicDrawable::BasicDrawable(const std::string &name) :
 
 BasicDrawable::~BasicDrawable()
 {
-    for (auto & vertexAttribute : vertexAttributes)
+    try
     {
-        delete vertexAttribute;
+        for (auto & vertexAttribute : vertexAttributes)
+        {
+            delete vertexAttribute;
+        }
+        vertexAttributes.clear();
     }
-    vertexAttributes.clear();
+    WK_STD_DTOR_CATCH()
 }
 
 void BasicDrawable::setTexRelative(int which,int size,int borderTexel,int relLevel,int relX,int relY)

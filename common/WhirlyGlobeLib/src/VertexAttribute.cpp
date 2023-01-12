@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/8/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  */
 
 #import "VertexAttribute.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -40,7 +41,11 @@ VertexAttribute::VertexAttribute(const VertexAttribute &that) :
 
 VertexAttribute::~VertexAttribute()
 {
-    clear();
+    try
+    {
+        clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 VertexAttribute VertexAttribute::templateCopy() const

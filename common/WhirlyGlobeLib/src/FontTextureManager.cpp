@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/15/13.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #import "FontTextureManager.h"
 #import "WhirlyVector.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -27,11 +28,15 @@ namespace WhirlyKit
     
 FontManager::~FontManager()
 {
-    for (auto glyph : glyphs)
+    try
     {
-        delete glyph;
+        for (auto glyph : glyphs)
+        {
+            delete glyph;
+        }
+        glyphs.clear();
     }
-    glyphs.clear();
+    WK_STD_DTOR_CATCH()
 }
 
 // Look for an existing glyph and return it if it's there
@@ -99,7 +104,7 @@ void FontManager::removeGlyphRefs(const GlyphSet &usedGlyphs,std::vector<SubText
     }
 }
 
-                
+
 FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene) :
     sceneRender(sceneRender),
     scene(scene)
@@ -108,9 +113,13 @@ FontTextureManager::FontTextureManager(SceneRenderer *sceneRender,Scene *scene) 
 
 FontTextureManager::~FontTextureManager()
 {
-    ChangeSet changes;
-    clear(changes);
-    discardChanges(changes);
+    try
+    {
+        ChangeSet changes;
+        clear(changes);
+        discardChanges(changes);
+    }
+    WK_STD_DTOR_CATCH()
 }
     
 void FontTextureManager::init()

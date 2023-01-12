@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/16/13.
- *  Copyright 2011-2022 mousebird consulting.
+ *  Copyright 2011-2023 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -169,9 +169,9 @@ MarkerManager::~MarkerManager()
     // destructors must never throw, wrap stuff that might fail
     try
     {
-        std::lock_guard<std::mutex> guardLock(lock);
-
+        std::unique_lock<std::mutex> guardLock(lock);
         auto reps = std::move(markerReps);
+        guardLock.unlock();
         for (auto markerRep : reps)
         {
             delete markerRep;

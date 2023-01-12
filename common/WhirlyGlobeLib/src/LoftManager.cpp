@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/13.
- *  Copyright 2011-2022 mousebird consulting.
+ *  Copyright 2011-2023 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@
 #import "Tesselator.h"
 #import "BaseInfo.h"
 #import "SharedAttributes.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -385,19 +386,22 @@ protected:
     bool applyCenter = false;
     bool centerValid = false;
 };
-    
-    
+
 LoftManager::~LoftManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto loftRep : loftReps)
+    try
     {
-        delete loftRep;
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (auto loftRep : loftReps)
+        {
+            delete loftRep;
+        }
+        loftReps.clear();
     }
-    loftReps.clear();
+    WK_STD_DTOR_CATCH()
 }
-    
+
 // From a scene rep and a description, add the given polygons to the drawable builder
 void LoftManager::addGeometryToBuilder(LoftedPolySceneRep *sceneRep,const LoftedPolyInfo &polyInfo,GeoMbr &drawMbr,Point3d &center,bool centerValid,Point2d &geoCenter,ShapeSet &shapes, VectorTrianglesRef triMesh,std::vector<WhirlyKit::VectorRing> &outlines,ChangeSet &changes)
 {

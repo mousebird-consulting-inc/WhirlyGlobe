@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -26,12 +26,9 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-BasicDrawableInstance::BasicDrawableInstance(const std::string &name)
-: Drawable(name), numInstances(0), instanceTexSource(EmptyIdentity), instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
-{
-}
-    
-BasicDrawableInstance::~BasicDrawableInstance()
+BasicDrawableInstance::BasicDrawableInstance(const std::string &name) :
+    Drawable(name), numInstances(0), instanceTexSource(EmptyIdentity),
+    instanceTexProg(EmptyIdentity), valuesChanged(true), texturesChanged(true)
 {
 }
 

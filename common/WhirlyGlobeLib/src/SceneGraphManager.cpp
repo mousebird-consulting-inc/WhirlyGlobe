@@ -1,9 +1,8 @@
-/*
- *  SceneGraphManager.mm
+/*  SceneGraphManager.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/24/12.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "SceneGraphManager.h"
@@ -94,19 +92,19 @@ void SceneGraphLOD::traverseNodeDrawables(SceneGraphManager *manage,const Point3
         SceneGraphGroup::traverseNodeDrawables(manage, localPt, nodes, toDraw);
 }
 
-SceneGraphManager::SceneGraphManager()
-{
-}
-
 SceneGraphManager::~SceneGraphManager()
 {
-    for (auto node : topNodes)
-        delete node;
-    topNodes.clear();
-    allNodes.clear();
-    drawables.clear();
+    try
+    {
+        for (auto node : topNodes)
+            delete node;
+        topNodes.clear();
+        allNodes.clear();
+        drawables.clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
-    
+
 void SceneGraphManager::removeDrawable(SimpleIdentity drawID,ChangeSet &changes)
 {
     auto it = drawables.find(drawID);

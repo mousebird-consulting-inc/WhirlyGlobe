@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ public:
 
     // Drawables sorted by draw priority
     std::set<DrawableRef,PrioritySorter> drawables;
-    bool modified;   // Set when the contents of the container are modified
+    bool modified = true;   // Set when the contents of the container are modified
 
 protected:
     RenderTargetContainer(RenderTargetRef renderTarget);

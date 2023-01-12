@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/29/14.
- *  Copyright 2011-2022 mousebird consulting.
+ *  Copyright 2011-2023 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1114,11 +1114,15 @@ void WideVectorSceneRep::clearContents(ChangeSet &changes,TimeInterval when)
 
 WideVectorManager::~WideVectorManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto it : sceneReps)
-        delete it;
-    sceneReps.clear();
+    try
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (auto it : sceneReps)
+            delete it;
+        sceneReps.clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 static const std::string colorStr = "color"; // NOLINT(cert-err58-cpp)   constructor can throw

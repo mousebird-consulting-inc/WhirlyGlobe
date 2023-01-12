@@ -19,6 +19,7 @@
 #import "ViewPlacementActiveModel.h"
 #import "MaplyView.h"
 #import "SceneRenderer.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -34,7 +35,11 @@ ViewPlacementManager::ViewPlacementManager()
     
 ViewPlacementManager::~ViewPlacementManager()
 {
-    viewInstanceSet.clear();
+    try
+    {
+        viewInstanceSet.clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 void ViewPlacementManager::addView(GeoCoord loc,const Point2d &offset2,UIView *view,float minVis,float maxVis)

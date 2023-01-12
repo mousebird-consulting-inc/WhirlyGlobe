@@ -106,7 +106,7 @@ typedef std::map<SimpleIdentity,ParticleSystemSceneRep *> ParticleSystemSceneRep
 class ParticleSystemManager : public SceneManager
 {
 public:
-    ParticleSystemManager();
+    ParticleSystemManager() = default;
     virtual ~ParticleSystemManager();
     
     /// Add a particle system

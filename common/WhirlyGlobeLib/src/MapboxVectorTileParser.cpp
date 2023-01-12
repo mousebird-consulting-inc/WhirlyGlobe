@@ -38,15 +38,19 @@ VectorTileData::VectorTileData(const VectorTileData &that)
     
 VectorTileData::~VectorTileData()
 {
-#if defined(DEBUG)
-    if (std::any_of(changes.begin(), changes.end(), [](auto i){ return i; }))
+    try
     {
-        wkLogLevel(Debug, "VectorTileData disposed with pending changes");
-    }
+#if defined(DEBUG)
+        if (std::any_of(changes.begin(), changes.end(), [](auto i){ return i; }))
+        {
+            wkLogLevel(Debug, "VectorTileData disposed with pending changes");
+        }
 #endif
-    clear();
+        clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
-    
+
 void VectorTileData::mergeFrom(VectorTileData *that)
 {
     compObjs.insert(compObjs.end(),

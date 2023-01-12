@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/15/14.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@
 #include <cstring>
 #include <utility>
 #import "RawData.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -53,7 +54,11 @@ RawDataWrapper::~RawDataWrapper()
 {
     if (data && freeFunc)
     {
-        freeFunc(data);
+        try
+        {
+            freeFunc(data);
+        }
+        WK_STD_DTOR_CATCH()
     }
     data = nullptr;
 }

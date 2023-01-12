@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/13/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -33,20 +33,26 @@ static bool matrixAisSameAsB(const Matrix4d &a,const Matrix4d &b)
 
 WorkGroup::~WorkGroup()
 {
-    for (auto &targetCon : renderTargetContainers) {
-        for (auto &draw : targetCon->drawables) {
-            auto it = draw->workGroupIDs.find(getId());
-            if (it != draw->workGroupIDs.end())
-                draw->workGroupIDs.erase(it);
+    try
+    {
+        for (auto &targetCon : renderTargetContainers)
+        {
+            for (auto &draw : targetCon->drawables)
+            {
+                const auto it = draw->workGroupIDs.find(getId());
+                if (it != draw->workGroupIDs.end())
+                {
+                    draw->workGroupIDs.erase(it);
+                }
+            }
         }
     }
+    WK_STD_DTOR_CATCH()
 }
 
 RenderTargetContainer::RenderTargetContainer(RenderTargetRef renderTarget) :
-    renderTarget(renderTarget),
-    modified(true)
+    renderTarget(std::move(renderTarget))
 {
-
 }
 
 bool WorkGroup::addDrawable(DrawableRef drawable)

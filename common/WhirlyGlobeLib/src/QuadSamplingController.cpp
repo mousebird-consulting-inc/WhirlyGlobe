@@ -121,7 +121,7 @@ void QuadSamplingController::removeBuilderDelegate(PlatformThreadInfo *threadInf
         (*it)->builderShutdown(threadInfo,builder.get(), changes);
         builderDelegates.erase(it);
     }
-    
+
     scene->addChangeRequests(changes);
 }
 

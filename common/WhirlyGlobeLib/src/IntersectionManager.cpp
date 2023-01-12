@@ -13,16 +13,11 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
-IntersectionManager::IntersectionManager(Scene *scene)
-: scene(scene)
+IntersectionManager::IntersectionManager(Scene *scene) :
+    scene(scene)
 {
 }
-    
-IntersectionManager::~IntersectionManager()
-{
-    std::lock_guard<std::mutex> guardLock(lock);
-}
-    
+
 void IntersectionManager::addIntersectable(Intersectable *intersect)
 {
     intersectables.insert(intersect);

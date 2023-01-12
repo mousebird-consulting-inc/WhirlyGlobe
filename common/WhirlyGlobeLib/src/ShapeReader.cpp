@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@
 #import "ShapeReader.h"
 #import "shapefil.h"
 #import "GlobeMath.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
 
 ShapeReader::ShapeReader(const std::string &fileName)
 {
-    const char *cFile =  fileName.c_str();
+    const char *cFile = fileName.c_str();
     shp = SHPOpen(cFile, "rb");
     if (!shp)
         return;
@@ -38,10 +39,14 @@ ShapeReader::ShapeReader(const std::string &fileName)
 
 ShapeReader::~ShapeReader()
 {
-    if (shp)
-        SHPClose((SHPHandle)shp);
-    if (dbf)
-        DBFClose((DBFHandle)dbf);
+    try
+    {
+        if (shp)
+            SHPClose((SHPHandle)shp);
+        if (dbf)
+            DBFClose((DBFHandle)dbf);
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 /* Shapefiles support a lot of types.  Here are the ones we recognize:
