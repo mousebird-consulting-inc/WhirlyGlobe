@@ -45,4 +45,6 @@
 
 #import "GeographicLib.h"
 
+#import "WatchdogRunLoopObserver.h"
+
 #endif
