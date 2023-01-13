@@ -2561,6 +2561,7 @@
 		31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GeographicLib.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeographicLib.cpp; sourceTree = "<group>"; };
 		31D6C91929A96C6A00DC6282 /* ProfilingLockGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilingLockGuard.h; path = ../../../../common/WhirlyGlobeLib/include/ProfilingLockGuard.h; sourceTree = "<group>"; };
 		31D6C91C29A96C9900DC6282 /* ProfilingLockGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProfilingLockGuard.cpp; path = ../../../../common/WhirlyGlobeLib/src/ProfilingLockGuard.cpp; sourceTree = "<group>"; };
+		31CD357D2971C80700F4CC72 /* RGBAColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RGBAColor.h; sourceTree = "<group>"; };
 		31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
 		31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AtmosphereShadersMTL.h; sourceTree = "<group>"; };
@@ -2676,6 +2677,7 @@
 				2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */,
 				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
 				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
+				31CD357D2971C80700F4CC72 /* RGBAColor.h */,
 			);
 			name = util;
 			sourceTree = "<group>";
