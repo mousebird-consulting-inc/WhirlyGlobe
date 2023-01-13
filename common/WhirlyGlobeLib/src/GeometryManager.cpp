@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/25/15.
- *  Copyright 2012-2022 mousebird consulting
+ *  Copyright 2012-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -219,11 +219,17 @@ void GeometryRaw::buildDrawables(std::vector<BasicDrawableBuilderRef> &draws,con
 
 GeometryRawPoints::~GeometryRawPoints()
 {
-    for (GeomPointAttrData *attrs : attrData)
-        delete attrs;
-    attrData.clear();
+    try
+    {
+        for (GeomPointAttrData *attrs : attrData)
+        {
+            delete attrs;
+        }
+        attrData.clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
-    
+
 void GeometryRawPoints::addValue(int idx,int val)
 {
     if (idx >= attrData.size())

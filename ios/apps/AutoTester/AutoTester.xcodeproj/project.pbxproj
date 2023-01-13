@@ -90,7 +90,7 @@
 		2BA827CD225EBDBF00324594 /* GeoJSONStyleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5941DC01E0CEE7300E1C8B3 /* GeoJSONStyleTestCase.swift */; };
 		2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */; };
 		2BBB70831D5E9079009B67A6 /* VectorStyleTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BBB70821D5E9079009B67A6 /* VectorStyleTestCase.m */; };
-		2BBCE41C2220A4170013E158 /* PagingLayerTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */; };
+		2BBCE41C2220A4170013E158 /* PagingLayerTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.mm */; };
 		2BC0FB781DCAA18A004125F1 /* TextureVectorTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC0FB771DCAA18A004125F1 /* TextureVectorTestCase.m */; };
 		2BC0FB7A1DCAA574004125F1 /* dots.png in Resources */ = {isa = PBXBuildFile; fileRef = 2BC0FB791DCAA574004125F1 /* dots.png */; };
 		2BC2DCCD1D1F4CE20088D350 /* ShapefileTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */; };
@@ -133,11 +133,13 @@
 		316B5CFE260A58A8000B4F15 /* MapTilerCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */; };
 		31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */; };
 		3183380F25A67CD8005FEF70 /* RepresentationsTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */; };
+		31CBC9522970840E00681457 /* WatchdogRunLoopObserver.mm in Sources */ = {isa = PBXBuildFile; fileRef = 31CBC9512970840E00681457 /* WatchdogRunLoopObserver.mm */; };
+		31CBC955297084AE00681457 /* RunLoopWatchdog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31CBC954297084AE00681457 /* RunLoopWatchdog.swift */; };
 		31D3287C262FADF100456B93 /* TestTileImageFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */; };
 		31D328AD26387E7900456B93 /* GreatCircleTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */; };
 		31EFBCDC27EE036D007143F4 /* WideVectorsTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31EFBCDB27EE036D007143F4 /* WideVectorsTestCase.swift */; };
 		8820852B1DC81051008F8E76 /* Issue721TestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8820852A1DC81051008F8E76 /* Issue721TestCase.swift */; };
-		88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.m */; };
+		88BF11491BCD3DA40002205E /* MaplyTestCase.mm in Sources */ = {isa = PBXBuildFile; fileRef = 88BF11481BCD3DA40002205E /* MaplyTestCase.mm */; };
 		88E4B8CA1B83B6AB0050D21B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8C81B83B6AB0050D21B /* Main.storyboard */; };
 		88E4B8CF1B83B6AB0050D21B /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 88E4B8CD1B83B6AB0050D21B /* LaunchScreen.xib */; };
 		88F0951F1ECD041300E7E686 /* AutoTesterJenkins.plist in Resources */ = {isa = PBXBuildFile; fileRef = 88F0951E1ECD041300E7E686 /* AutoTesterJenkins.plist */; };
@@ -587,6 +589,13 @@
 			remoteGlobalIDString = 2BE536FE1D2499E500B60FAD;
 			remoteInfo = WhirlyGlobeMaplyComponent;
 		};
+		31CBC94F2970766200681457 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 310573EA2863C72D00B50828;
+			remoteInfo = WhirlyGlobeMin;
+		};
 		8F858AFB1E7FE60C00037D4E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 2BE53AE81D258FE800B60FAD /* WhirlyGlobeMaplyComponent.xcodeproj */;
@@ -708,7 +717,7 @@
 		2BC2DCCB1D1F4CE20088D350 /* ShapefileTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShapefileTestCase.h; sourceTree = "<group>"; };
 		2BC2DCCC1D1F4CE20088D350 /* ShapefileTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShapefileTestCase.m; sourceTree = "<group>"; };
 		2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PagingLayerTestCase.h; sourceTree = "<group>"; };
-		2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PagingLayerTestCase.m; sourceTree = "<group>"; };
+		2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PagingLayerTestCase.mm; sourceTree = "<group>"; };
 		2BD358F21DD3EA0400081EA8 /* AnimatedMarkersTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatedMarkersTestCase.swift; sourceTree = "<group>"; };
 		2BD914BB256F1C8D00E724A8 /* icon_167.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_167.png; path = icons/icon_167.png; sourceTree = "<group>"; };
 		2BD914BC256F1C8D00E724A8 /* icon_152.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon_152.png; path = icons/icon_152.png; sourceTree = "<group>"; };
@@ -746,6 +755,9 @@
 		31833792259E5291005FEF70 /* ChangeVectorsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ChangeVectorsTestCase.mm; sourceTree = "<group>"; };
 		3183380C25A67CD8005FEF70 /* RepresentationsTestCase.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RepresentationsTestCase.mm; sourceTree = "<group>"; };
 		3183380E25A67CD8005FEF70 /* RepresentationsTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepresentationsTestCase.h; sourceTree = "<group>"; };
+		31CBC9512970840E00681457 /* WatchdogRunLoopObserver.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = WatchdogRunLoopObserver.mm; sourceTree = "<group>"; };
+		31CBC9532970842600681457 /* WatchdogRunLoopObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WatchdogRunLoopObserver.h; sourceTree = "<group>"; };
+		31CBC954297084AE00681457 /* RunLoopWatchdog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunLoopWatchdog.swift; sourceTree = "<group>"; };
 		31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestTileImageFetcher.swift; sourceTree = "<group>"; };
 		31D328AC26387E7900456B93 /* GreatCircleTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GreatCircleTestCase.swift; sourceTree = "<group>"; };
 		31EFBCDB27EE036D007143F4 /* WideVectorsTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WideVectorsTestCase.swift; sourceTree = "<group>"; };
@@ -755,7 +767,7 @@
 		8895D8AE1CA4ABA9004387FB /* ParticleTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ParticleTest.h; sourceTree = "<group>"; };
 		8895D8AF1CA4ABA9004387FB /* ParticleTest.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ParticleTest.mm; sourceTree = "<group>"; };
 		88BF11471BCD3DA40002205E /* MaplyTestCase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaplyTestCase.h; sourceTree = "<group>"; };
-		88BF11481BCD3DA40002205E /* MaplyTestCase.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaplyTestCase.m; sourceTree = "<group>"; };
+		88BF11481BCD3DA40002205E /* MaplyTestCase.mm */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = MaplyTestCase.mm; sourceTree = "<group>"; };
 		88BF115E1BCDA9730002205E /* StamenWatercolorRemote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StamenWatercolorRemote.swift; sourceTree = "<group>"; };
 		88E4B8BF1B83B6AB0050D21B /* AutoTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AutoTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		88E4B8C31B83B6AB0050D21B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -1392,7 +1404,7 @@
 				D8200CA31BE9624300B22CF5 /* LoftedPolysTestCase.m */,
 				2B4B30A32395E0DE00854073 /* MapboxTestCase.swift */,
 				88BF11471BCD3DA40002205E /* MaplyTestCase.h */,
-				88BF11481BCD3DA40002205E /* MaplyTestCase.m */,
+				88BF11481BCD3DA40002205E /* MaplyTestCase.mm */,
 				316B5CFD260A58A8000B4F15 /* MapTilerCircleTestCase.swift */,
 				2B4B30A92395E0DE00854073 /* MapTilerTestCase.swift */,
 				D8F2FE281BE7C2000058A310 /* MarkersTestCase.swift */,
@@ -1404,7 +1416,7 @@
 				D84433E61C14A46100A52117 /* NASAGIBSTestCase.swift */,
 				2B4B63AD23611D690008C8C1 /* OfflineRenderTestCase.swift */,
 				2BC2DCEE1D2345AF0088D350 /* PagingLayerTestCase.h */,
-				2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.m */,
+				2BC2DCEF1D2345AF0088D350 /* PagingLayerTestCase.mm */,
 				8895D8AE1CA4ABA9004387FB /* ParticleTest.h */,
 				8895D8AF1CA4ABA9004387FB /* ParticleTest.mm */,
 				D8D3E0671C4EDA1800F0D006 /* ParticleTestCase.swift */,
@@ -1473,6 +1485,9 @@
 				2BF29B8E24D226B000553963 /* LegendViewController.swift */,
 				88BF115A1BCDA9530002205E /* testCases */,
 				31D3287B262FADF100456B93 /* TestTileImageFetcher.swift */,
+				31CBC9512970840E00681457 /* WatchdogRunLoopObserver.mm */,
+				31CBC9532970842600681457 /* WatchdogRunLoopObserver.h */,
+				31CBC954297084AE00681457 /* RunLoopWatchdog.swift */,
 			);
 			path = AutoTester;
 			sourceTree = "<group>";
@@ -1989,6 +2004,7 @@
 			isa = PBXGroup;
 			children = (
 				8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */,
+				31CBC9502970766200681457 /* WhirlyGlobe.framework */,
 				8F858AFE1E7FE60C00037D4E /* WhirlyGlobeMaplyComponentTests.xctest */,
 			);
 			name = Products;
@@ -2089,6 +2105,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		31CBC9502970766200681457 /* WhirlyGlobe.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = WhirlyGlobe.framework;
+			remoteRef = 31CBC94F2970766200681457 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		8F858AFC1E7FE60C00037D4E /* WhirlyGlobe.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
@@ -2626,7 +2649,7 @@
 				2BC41C8521F00AA9002926B7 /* BNGTestCase.swift in Sources */,
 				311E0ABA268F7A09007BE16F /* ParticleTest.mm in Sources */,
 				31041A3E27A4AE76004B25E1 /* ActiveObjectTestCase.swift in Sources */,
-				88BF11491BCD3DA40002205E /* MaplyTestCase.m in Sources */,
+				88BF11491BCD3DA40002205E /* MaplyTestCase.mm in Sources */,
 				D8341A731BE2DFE100411A46 /* ScreenLabelsTestCase.swift in Sources */,
 				E5D2D6751DEDEABF00E02305 /* AnimationDelegateTestCase.swift in Sources */,
 				D8E12ECD1BDE9FD500BB7BC7 /* AnimatedBasemapTestCase.swift in Sources */,
@@ -2646,12 +2669,14 @@
 				2BC3D6F2220B900D00CE91D0 /* TestCell.swift in Sources */,
 				311E0AAC26865D2C007BE16F /* ESRIRemoteTestCase.swift in Sources */,
 				31833793259E5291005FEF70 /* ChangeVectorsTestCase.mm in Sources */,
+				31CBC9522970840E00681457 /* WatchdogRunLoopObserver.mm in Sources */,
 				2BB8A40021ED46E10025DA98 /* StamenWatercolorRemote.swift in Sources */,
 				311E0AB9268F79CC007BE16F /* ParticleTestCase.swift in Sources */,
 				2B392B711C5AC59D001EE40B /* RunwayBuilderTestCase.m in Sources */,
 				2B68A43C225D06A8009CC720 /* ImageReloadTestCase.swift in Sources */,
 				31EFBCDC27EE036D007143F4 /* WideVectorsTestCase.swift in Sources */,
 				D8F2FE2E1BE7CF310058A310 /* ModelsTestCase.swift in Sources */,
+				31CBC955297084AE00681457 /* RunLoopWatchdog.swift in Sources */,
 				2B81009C221F4EA900CFF779 /* CartoDBInterpreter.m in Sources */,
 				2B29944B243BA08D00677DE4 /* MapboxKindaMap.swift in Sources */,
 				D8228AA81BE786BE001D6914 /* ClusteredMarkersTestCase.swift in Sources */,
@@ -2661,7 +2686,7 @@
 				313C521625D329070036C22E /* MovingScreenMarkersTestCase.swift in Sources */,
 				E5D2D65F1DE65CE400E02305 /* LocationTrackingSimTestCase.swift in Sources */,
 				E5CC4E201DF7CBEA00C0D4DE /* LocationTrackingRealTestCase.swift in Sources */,
-				2BBCE41C2220A4170013E158 /* PagingLayerTestCase.m in Sources */,
+				2BBCE41C2220A4170013E158 /* PagingLayerTestCase.mm in Sources */,
 				2B4B30AB2395E0DE00854073 /* StartupShutdownTestCase.swift in Sources */,
 				D8F2FE2C1BE7CAD30058A310 /* MegaMarkersTestCase.m in Sources */,
 				311C6A0B27B1C3FC0016BC7E /* FadeTestCase.swift in Sources */,

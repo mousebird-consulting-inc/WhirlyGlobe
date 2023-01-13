@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/3/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -125,90 +125,94 @@ Scene::Scene(CoordSystemDisplayAdapter *adapter) :
 
 Scene::~Scene()
 {
+    try
+    {
 //    wkLogLevel(Verbose,"Shutting down scene");
 
 #if DEBUG
-    const std::unique_lock<std::mutex> locks[] = {
-            std::unique_lock<std::mutex>(coordAdapterLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(drawablesLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(textureLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(changeRequestLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(subTexLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(managerLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(programLock, std::try_to_lock),
-            std::unique_lock<std::mutex>(zoomSlotLock, std::try_to_lock),
-    };
-    const auto lockCount = sizeof(locks)/sizeof(locks[0]);
-    if (!std::all_of(&locks[0],&locks[lockCount],[](const auto &l){return l.owns_lock();}))
-    {
-        assert(!"Scene destroyed while locked");
-    }
+        const std::unique_lock<std::mutex> locks[] = {
+                std::unique_lock<std::mutex>(coordAdapterLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(drawablesLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(textureLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(changeRequestLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(subTexLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(managerLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(programLock, std::try_to_lock),
+                std::unique_lock<std::mutex>(zoomSlotLock, std::try_to_lock),
+        };
+        const auto lockCount = sizeof(locks)/sizeof(locks[0]);
+        if (!std::all_of(&locks[0],&locks[lockCount],[](const auto &l){return l.owns_lock();}))
+        {
+            assert(!"Scene destroyed while locked");
+        }
 #endif
 
-    textures.clear();
+        textures.clear();
 
-    for (auto &manager : managers)
-    {
-        manager.second->setScene(nullptr);
-    }
+        for (auto &manager : managers)
+        {
+            manager.second->setScene(nullptr);
+        }
 
 #if DEBUG
-    std::vector<std::weak_ptr<SceneManager>> wm(managers.size());
-    std::transform(managers.begin(), managers.end(), wm.begin(), [](auto p){ return p.second; });
+        std::vector<std::weak_ptr<SceneManager>> wm(managers.size());
+        std::transform(managers.begin(), managers.end(), wm.begin(), [](auto p){ return p.second; });
 #endif
-    managers.clear();
+        managers.clear();
 
 #if DEBUG
-    wm.erase(std::remove_if(wm.begin(), wm.end(), [](auto p){ return !p.lock(); }), wm.end());
-    for (const auto &w : wm)
-    {
-        if (const auto p = w.lock())
+        wm.erase(std::remove_if(wm.begin(), wm.end(), [](auto p){ return !p.lock(); }), wm.end());
+        for (const auto &w : wm)
         {
-            const auto &ref = *p;
-            const auto name = typeid(ref).name();
-            int32_t status = 0;
-            size_t len = 256;
-            std::vector<char> buf(len + 1);
-#if __clang_major__ >= 3
-            abi::__cxa_demangle(name, &buf[0], &len, &status);
-#endif
-            wkLogLevel(Warn, "Scene Manager live after scene destroyed: '%s' (%s)", &buf[0], name);
+            if (const auto p = w.lock())
+            {
+                const auto &ref = *p;
+                const auto name = typeid(ref).name();
+                int32_t status = 0;
+                size_t len = 256;
+                std::vector<char> buf(len + 1);
+# if __clang_major__ >= 3
+                abi::__cxa_demangle(name, &buf[0], &len, &status);
+# endif
+                wkLogLevel(Warn, "Scene Manager live after scene destroyed: '%s' (%s)", &buf[0], name);
+            }
         }
-    }
 #endif
 
-    auto theChangeRequests = std::move(changeRequests);
-    for (auto *theChangeRequest : theChangeRequests)
-    {
-        if (theChangeRequest)
+        auto theChangeRequests = std::move(changeRequests);
+        for (auto *theChangeRequest : theChangeRequests)
         {
-            theChangeRequest->cancel();
+            if (theChangeRequest)
+            {
+                theChangeRequest->cancel();
+            }
+            delete theChangeRequest;
         }
-        delete theChangeRequest;
-    }
-    theChangeRequests.clear();
+        theChangeRequests.clear();
 
-    for (auto *theChangeRequest : timedChangeRequests)
-    {
-        delete theChangeRequest;
-    }
-    timedChangeRequests.clear();
+        for (auto *theChangeRequest : timedChangeRequests)
+        {
+            delete theChangeRequest;
+        }
+        timedChangeRequests.clear();
 
-    activeModels.clear();
-    
-    subTextureMap.clear();
+        activeModels.clear();
+        
+        subTextureMap.clear();
 
-    programs.clear();
+        programs.clear();
 
 #if !MAPLY_MINIMAL
-    if (fontTextureManager)
-    {
-        ChangeSet changes;
-        fontTextureManager->clear(changes);
-        discardChanges(changes);
-        fontTextureManager.reset();
-    }
+        if (fontTextureManager)
+        {
+            ChangeSet changes;
+            fontTextureManager->clear(changes);
+            discardChanges(changes);
+            fontTextureManager.reset();
+        }
 #endif //!MAPLY_MINIMAL
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 void Scene::teardown(PlatformThreadInfo* env)

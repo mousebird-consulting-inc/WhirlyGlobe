@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/15/13.
- *  Copyright 2011-2022 mousebird consulting.
+ *  Copyright 2011-2023 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -151,9 +151,12 @@ LayoutManager::LayoutManager() :
 
 LayoutManager::~LayoutManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    layoutObjects.clear();
+    try
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+        layoutObjects.clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 void LayoutManager::setMaxDisplayObjects(int numObjects)

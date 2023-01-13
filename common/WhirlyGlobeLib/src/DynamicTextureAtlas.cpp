@@ -1,10 +1,8 @@
-#include <utility>
-
 /*  DynamicTextureAtlas.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/28/13.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -47,19 +45,23 @@ void DynamicTexture::setup(int inTexSize,int inCellSize,TextureType inType,bool 
 
 DynamicTexture::~DynamicTexture()
 {
-    delete [] layoutGrid;
-    layoutGrid = nullptr;
+    try
+    {
+        delete [] layoutGrid;
+        layoutGrid = nullptr;
+    }
+    WK_STD_DTOR_CATCH()
 }
-    
+
 void DynamicTexture::addTexture(Texture *tex,const Region &region)
 {
-    int startX = region.sx * cellSize;
-    int startY = region.sy * cellSize;
-    int width = tex->getWidth();
-    int height = tex->getHeight();
-    
+    const int startX = region.sx * cellSize;
+    const int startY = region.sy * cellSize;
+    const int width = tex->getWidth();
+    const int height = tex->getHeight();
+
     RawDataRef data = tex->processData();
-    addTextureData(startX,startY,width,height,data);
+    addTextureData(startX,startY,width,height,std::move(data));
 }
 
 void DynamicTexture::setRegion(const Region &region, bool enable)
@@ -218,12 +220,16 @@ DynamicTextureAtlas::DynamicTextureAtlas(std::string name,int texSize,int cellSi
     
 DynamicTextureAtlas::~DynamicTextureAtlas()
 {
-    // Clean up anything we might have left over
-    for (auto *it : textures)
+    try
     {
-        delete it;
+        // Clean up anything we might have left over
+        for (auto *it : textures)
+        {
+            delete it;
+        }
+        textures.clear();
     }
-    textures.clear();
+    WK_STD_DTOR_CATCH()
 }
 
 bool DynamicTextureAtlas::addTexture(SceneRenderer *sceneRender,

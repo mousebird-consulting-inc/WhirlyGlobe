@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 #import "BillboardManager.h"
 #import "SharedAttributes.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 
@@ -82,7 +83,11 @@ BillboardBuilder::BillboardBuilder(Scene *scene,SceneRenderer *sceneRender,Chang
 
 BillboardBuilder::~BillboardBuilder()
 {
-    flush();
+    try
+    {
+        flush();
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 void BillboardBuilder::addBillboard(const Point3d &center, const Point2dVector &pts,
@@ -170,11 +175,15 @@ void BillboardBuilder::flush()
 
 BillboardManager::~BillboardManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto sceneRep : sceneReps)
-        delete sceneRep;
-    sceneReps.clear();
+    try
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (auto sceneRep : sceneReps)
+            delete sceneRep;
+        sceneReps.clear();
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 typedef std::map<SimpleIdentity,BillboardBuilderRef> BuilderMap;

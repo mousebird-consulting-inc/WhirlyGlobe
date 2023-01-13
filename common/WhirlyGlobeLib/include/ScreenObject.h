@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "WhirlyVector.h"
@@ -28,7 +27,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
     SimplePoly();
-    virtual ~SimplePoly();
+    virtual ~SimplePoly() = default;
 
     SimpleIdentity texID;
     RGBAColor color;
@@ -44,7 +43,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     StringWrapper();
-    virtual ~StringWrapper();
+    virtual ~StringWrapper() = default;
     
     Eigen::Matrix3d mat;
     Point2d size;
@@ -57,8 +56,8 @@ class ScreenObject {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    ScreenObject();
-    ~ScreenObject();
+    ScreenObject() = default;
+    ~ScreenObject() = default;
 
     std::vector<WhirlyKit::SimplePolyRef> polys;
     std::vector<WhirlyKit::StringWrapperRef> strings;

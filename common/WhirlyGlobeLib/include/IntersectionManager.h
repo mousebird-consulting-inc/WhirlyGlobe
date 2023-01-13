@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/29/16.
- *  Copyright 2011-2022 mousebird consulting.
+ *  Copyright 2011-2023 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -42,7 +42,7 @@ class IntersectionManager : public SceneManager
 {
 public:
     IntersectionManager(Scene *scene);
-    ~IntersectionManager();
+    ~IntersectionManager() = default;
 
     /** A base class for intersectable sets of objects.
         Fill in the methods and return the closest valid intersection.

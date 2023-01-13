@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -35,8 +35,8 @@ namespace WhirlyKit
  */
 class BasicDrawableInstance : virtual public Drawable
 {
-friend class BasicDrawableInstanceBuilder;
-    
+    friend class BasicDrawableInstanceBuilder;
+
 public:
     /**
      ReuseStyle - Takes the base geometry and tweaks a few settings (like color, width)
@@ -48,7 +48,7 @@ public:
     
     /// Construct empty
     BasicDrawableInstance(const std::string &name);
-    virtual ~BasicDrawableInstance();
+    virtual ~BasicDrawableInstance() = default;
     
     /// Return the master being instanced
     BasicDrawableRef getMaster() const;

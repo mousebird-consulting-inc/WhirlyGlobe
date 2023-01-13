@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/10/15.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,9 +36,13 @@ Proj4CoordSystem::Proj4CoordSystem(std::string inProj4Str) :
     
 Proj4CoordSystem::~Proj4CoordSystem()
 {
-    pj_free(pj);
-    pj_free(pj_latlon);
-    pj_free(pj_geocentric);
+    try
+    {
+        pj_free(pj);
+        pj_free(pj_latlon);
+        pj_free(pj_geocentric);
+    }
+    WK_STD_DTOR_CATCH()
 }
 
 /// Convert from the local coordinate system to lat/lon

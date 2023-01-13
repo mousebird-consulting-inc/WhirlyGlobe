@@ -1,9 +1,8 @@
-/*
- *  SphericalEarthChunkManager.cpp
+/*  SphericalEarthChunkManager.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/23/13.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <queue>
@@ -315,12 +313,7 @@ SphericalChunkManager::SphericalChunkManager()
     : borderTexel(0)
 {
 }
-    
-SphericalChunkManager::~SphericalChunkManager()
-{
-    std::lock_guard<std::mutex> guardLock(lock);
-}
-    
+
 /// Add the given chunk (enabled or disabled)
 SimpleIdentity SphericalChunkManager::addChunks(const std::vector<SphericalChunk> &chunks,const SphericalChunkInfo &chunkInfo,ChangeSet &changes)
 {

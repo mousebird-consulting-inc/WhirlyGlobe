@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by jmnavarro
- *  Copyright 2011-2022 mousebird consulting.
+ *  Copyright 2011-2023 mousebird consulting.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@
 #import "Tesselator.h"
 #import "GeometryManager.h"
 #import "FlatMath.h"
+#import "WhirlyKitLog.h"
 
 #if !MAPLY_MINIMAL
 # import "SelectionManager.h"
@@ -634,13 +635,17 @@ void Rectangle::makeGeometryWithBuilder(ShapeDrawableBuilder *regBuilder,ShapeDr
 
 ShapeManager::~ShapeManager()
 {
-    std::lock_guard<std::mutex> guardLock(lock);
-
-    for (auto shapeRep : shapeReps)
+    try
     {
-        delete shapeRep;
+        std::lock_guard<std::mutex> guardLock(lock);
+        
+        for (auto shapeRep : shapeReps)
+        {
+            delete shapeRep;
+        }
+        shapeReps.clear();
     }
-    shapeReps.clear();
+    WK_STD_DTOR_CATCH()
 }
 
 #if !MAPLY_MINIMAL
