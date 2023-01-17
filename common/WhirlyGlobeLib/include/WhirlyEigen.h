@@ -32,7 +32,7 @@
 # pragma clang diagnostic ignored "-Wunused-but-set-variable"
 #endif
 
-#import <Eigen/Eigen>
+#import <Eigen/Dense>
 
 #if defined(__EMSCRIPTEN__)
 # pragma clang diagnostic pop
