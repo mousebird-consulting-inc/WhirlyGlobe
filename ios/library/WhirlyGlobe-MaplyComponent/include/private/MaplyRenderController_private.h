@@ -137,4 +137,8 @@
 
 - (MaplyComponentObject * _Nullable)addShapes:(NSArray * _Nonnull)shapes info:(WhirlyKit::ShapeInfo &)shapeInfo desc:(NSDictionary* _Nullable)desc mode:(MaplyThreadMode)threadMode;
 
+- (void)report:(NSString * __nonnull)tag error:(NSError * __nonnull)error;
+- (void)report:(NSString * __nonnull)tag exception:(NSException * __nonnull)error;
+
 @end
+

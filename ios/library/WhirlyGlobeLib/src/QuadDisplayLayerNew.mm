@@ -20,19 +20,24 @@
 
 #import "QuadDisplayLayerNew.h"
 #import "LayerThread.h"
+#import "MaplyRenderController_private.h"
 
 using namespace WhirlyKit;
 
 @implementation WhirlyKitQuadDisplayLayerNew
 {
     QuadDisplayControllerNewRef controller;
+    __weak MaplyRenderController* renderControl;
 }
 
 - (nonnull)initWithController:(QuadDisplayControllerNewRef)inController
+                renderControl:(MaplyRenderController*)inRenderControl
 {
-    self = [super init];
-    controller = inController;
-
+    if ((self = [super init]))
+    {
+        controller = inController;
+        renderControl = inRenderControl;
+    }
     return self;
 }
 
@@ -85,7 +90,32 @@ static const float DelayPeriod = 0.1;
     if (!controller || !controller->getViewState())
         return;
 
-    [self viewUpdate:[[WhirlyKitViewStateWrapper alloc] initWithViewState:controller->getViewState()]];
+    __strong MaplyRenderController *rc = renderControl;
+    try
+    {
+        [self viewUpdate:[[WhirlyKitViewStateWrapper alloc] initWithViewState:controller->getViewState()]];
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in QuadDisplayLayerNew.delayCheck: %s", ex.what());
+        [rc report:@"QuadDisplayLayerNew-DelayCheck"
+         exception:[[NSException alloc] initWithName:@"STL Exception"
+                                              reason:[NSString stringWithUTF8String:ex.what()]
+                                            userInfo:nil]];
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in QuadDisplayLayerNew.delayCheck: %@", ex.description);
+        [rc report:@"QuadDisplayLayerNew-DelayCheck" exception:ex];
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in QuadDisplayLayerNew.delayCheck");
+        [rc report:@"QuadDisplayLayerNew-DelayCheck"
+         exception:[[NSException alloc] initWithName:@"C++ Exception"
+                                              reason:@"Unknown"
+                                            userInfo:nil]];
+    }
 }
 
 // Called periodically when the user moves, but not too often

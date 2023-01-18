@@ -19,10 +19,13 @@
  */
 
 #import "LayerThread.h"
+#import "LayerThread_private.h"
 #import "Scene.h"
 #import "GlobeView.h"
 #import "Platform.h"
 #import "SceneRendererMTL.h"
+#import "MaplyRenderController.h"
+#import "MaplyRenderController_private.h"
 #import "WhirlyKitLog.h"
 
 using namespace WhirlyKit;
@@ -53,7 +56,11 @@ using namespace WhirlyKit;
     BOOL inRunAddChangeRequests;
 }
 
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(View *)inView renderer:(SceneRenderer *)inRenderer mainLayerThread:(bool)mainLayerThread
+- (id)initWithScene:(WhirlyKit::Scene *)inScene
+               view:(View *)inView
+           renderer:(SceneRenderer *)inRenderer
+    mainLayerThread:(bool)mainLayerThread
+      renderControl:(MaplyRenderController *)inRenderControl
 {
 	if ((self = [super init]))
 	{
@@ -71,6 +78,8 @@ using namespace WhirlyKit;
         _allowFlush = true;
         
         pauseLock = [[NSCondition alloc] init];
+        
+        self.renderControl = inRenderControl;
 	}
 	
 	return self;
@@ -90,12 +99,12 @@ using namespace WhirlyKit;
     if (self.runLoop)
         [self performSelector:@selector(addLayerThread:) onThread:self withObject:layer waitUntilDone:NO];
     else
-        [layers addObject:layer];    
+        [layers addObject:layer];
 }
 
 - (void)addLayerThread:(NSObject<WhirlyKitLayer> *)layer
 {
-	[layers addObject:layer];    
+	[layers addObject:layer];
     [layer startWithThread:self scene:_scene];
 }
 
@@ -265,12 +274,21 @@ using namespace WhirlyKit;
 
 - (void)cancel
 {
+    // NSThread doesn't like to be canceled twice
+    if (self.cancelled)
+    {
+        return;
+    }
     [super cancel];
-    if (paused) {
+    if (paused)
+    {
         // Wake up from the pause lock to recognize the cancel
         [self unpause];
     }
-    CFRunLoopStop(self.runLoop.getCFRunLoop);
+    if (CFRunLoopRef loop = self.runLoop.getCFRunLoop)
+    {
+        CFRunLoopStop(loop);
+    }
 }
 
 // Empty routine used for NSTimer selector
@@ -314,7 +332,39 @@ using namespace WhirlyKit;
 //                    // Does nothing but keeps CFRunLoopRun() from returning quite so quickly
 //                }];
                 [_runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
-                CFRunLoopRun();
+                @try {
+                    try {
+                        CFRunLoopRun();
+                    } catch (const std::exception &ex) {
+                        NSLog(@"LayerThread runloop C++ exception: %s", ex.what());
+                        if (MaplyRenderController *rc = self.renderControl) {
+                            [rc report:@"LayerThreadRunLoop"
+                             exception:[[NSException alloc] initWithName:@"STL Exception"
+                                                                  reason:[NSString stringWithUTF8String:ex.what()]
+                                                                userInfo:nil]];
+                        }
+                        [self cancel];
+                    }
+                    catch (NSException *ex) {
+                        throw;
+                    }
+                    catch (...) {
+                        NSLog(@"LayerThread runloop C++ exception");
+                        if (MaplyRenderController *rc = self.renderControl) {
+                            [rc report:@"LayerThreadRunLoop"
+                             exception:[[NSException alloc] initWithName:@"C++ Exception"
+                                                                  reason:@"Unknown"
+                                                                userInfo:nil]];
+                        }
+                        [self cancel];
+                    }
+                } @catch(NSException *ex) {
+                    NSLog(@"LayerThread runloop exception: %@", ex.reason);
+                    if (MaplyRenderController *rc = self.renderControl) {
+                        [rc report:@"LayerThreadRunLoop" exception:ex];
+                    }
+                    [self cancel];
+                }
                 [timer invalidate];
             }
             [pauseLock unlock];

@@ -1508,6 +1508,8 @@
 		31AC5BF5286A070600500A3F /* MaplyQuadImageLoader.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2BBC3395221C6F230038A229 /* MaplyQuadImageLoader.mm */; };
 		31AC5BF9286A595600500A3F /* GlobeMath.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B1921F79AE30078A975 /* GlobeMath.cpp */; };
 		31AC5BFD286B5A7D00500A3F /* NSDictionary+Stuff.m in Sources */ = {isa = PBXBuildFile; fileRef = 2B82B54A1E82E2490095FB14 /* NSDictionary+Stuff.m */; };
+		31AE3BB72978791B009BF57C /* LayerThread_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31AE3BB62978791B009BF57C /* LayerThread_private.h */; };
+		31AE3BB82978791B009BF57C /* LayerThread_private.h in Headers */ = {isa = PBXBuildFile; fileRef = 31AE3BB62978791B009BF57C /* LayerThread_private.h */; };
 		31C3A796282C63AE00E1F042 /* QuadTreeIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 31C3A795282C63AE00E1F042 /* QuadTreeIdentifier.h */; };
 		31C3A798282C645000E1F042 /* WhirlyEigen.h in Headers */ = {isa = PBXBuildFile; fileRef = 31C3A797282C645000E1F042 /* WhirlyEigen.h */; };
 		31CAB8DF2792126A00A5F744 /* GeographicLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */; };
@@ -2548,6 +2550,7 @@
 		31AC5BE92869F68500500A3F /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lodepng.h; sourceTree = "<group>"; };
 		31AC5BEA2869F68500500A3F /* lodepng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lodepng.cpp; sourceTree = "<group>"; };
 		31AC5BF3286A02F100500A3F /* libz.1.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.tbd; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/usr/lib/libz.1.tbd; sourceTree = DEVELOPER_DIR; };
+		31AE3BB62978791B009BF57C /* LayerThread_private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LayerThread_private.h; sourceTree = "<group>"; };
 		31C3A795282C63AE00E1F042 /* QuadTreeIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuadTreeIdentifier.h; path = ../../../../common/WhirlyGlobeLib/include/QuadTreeIdentifier.h; sourceTree = "<group>"; };
 		31C3A797282C645000E1F042 /* WhirlyEigen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyEigen.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyEigen.h; sourceTree = "<group>"; };
 		31CAB8DD27920F4A00A5F744 /* GeographicLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GeographicLib.h; path = ../../../../common/WhirlyGlobeLib/include/GeographicLib.h; sourceTree = "<group>"; };
@@ -3289,12 +3292,13 @@
 		2B82B5131E82E2490095FB14 /* layers & generators */ = {
 			isa = PBXGroup;
 			children = (
-				2B82B52B1E82E2490095FB14 /* UpdateDisplayLayer.h */,
 				2B82B5021E82E2490095FB14 /* DataLayer.h */,
+				31AE3BB62978791B009BF57C /* LayerThread_private.h */,
+				2B82B50B1E82E2490095FB14 /* LayerThread.h */,
+				2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */,
 				2B82B5051E82E2490095FB14 /* LayoutLayer.h */,
 				2B0387F12069BC2E00DD5C40 /* QuadDisplayLayerNew.h */,
-				2B82B50A1E82E2490095FB14 /* LayerViewWatcher.h */,
-				2B82B50B1E82E2490095FB14 /* LayerThread.h */,
+				2B82B52B1E82E2490095FB14 /* UpdateDisplayLayer.h */,
 			);
 			name = "layers & generators";
 			sourceTree = "<group>";
@@ -4693,6 +4697,7 @@
 				3105749C2864C91200B50828 /* RenderTarget.h in Headers */,
 				3183311E259112BA005FEF70 /* TransverseMercator.hpp in Headers */,
 				2B8A786B2284DACC008B0A1F /* VertexAttribute.h in Headers */,
+				31AE3BB72978791B009BF57C /* LayerThread_private.h in Headers */,
 				2B82B5FA1E82E2490095FB14 /* libbase64++.h in Headers */,
 				310574932864C8EA00B50828 /* Snapshot_iOS.h in Headers */,
 				2BE5382D1D249A1200B60FAD /* MaplyUpdateLayer.h in Headers */,
@@ -5325,6 +5330,7 @@
 				3105739E2863C72D00B50828 /* mesh.h in Headers */,
 				310574722864C87D00B50828 /* GlobeDoubleTapDragDelegate_private.h in Headers */,
 				310574412864C24600B50828 /* MaplyVectorTileTextStyle.h in Headers */,
+				31AE3BB82978791B009BF57C /* LayerThread_private.h in Headers */,
 				310574672864C84600B50828 /* vector_tile.pb.h in Headers */,
 				310574782864C87D00B50828 /* GlobeTiltDelegate_private.h in Headers */,
 				310573A12863C72D00B50828 /* MaplyQuadImageFrameLoader.h in Headers */,

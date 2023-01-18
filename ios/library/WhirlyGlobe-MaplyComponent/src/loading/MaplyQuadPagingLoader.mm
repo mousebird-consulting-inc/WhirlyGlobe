@@ -100,7 +100,7 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)delayedInit
+- (bool)tryDelayedInit
 {
     if (![super delayedInit])
     {
@@ -135,6 +135,37 @@ using namespace WhirlyKit;
     [super postDelayedInit];
 
     return true;
+}
+
+- (bool)delayedInit
+{
+    const auto __strong vc = self.viewC;
+    try
+    {
+        return [self tryDelayedInit];
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in MaplyQuadPagingLoader.delayedInit: %s", ex.what());
+        [vc report:@"QuadPagingLoader-DelayedInit"
+             exception:[[NSException alloc] initWithName:@"STL Exception"
+                                                  reason:[NSString stringWithUTF8String:ex.what()]
+                                                userInfo:nil]];
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in MaplyQuadPagingLoader.delayedInit: %@", ex.description);
+        [vc report:@"QuadPagingLoader-DelayedInit" exception:ex];
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in MaplyQuadPagingLoader.delayedInit");
+        [vc report:@"QuadPagingLoader-DelayedInit"
+             exception:[[NSException alloc] initWithName:@"C++ Exception"
+                                                  reason:@"Unknown"
+                                                userInfo:nil]];
+    }
+    return false;
 }
 
 - (MaplyLoaderReturn *)makeLoaderReturn

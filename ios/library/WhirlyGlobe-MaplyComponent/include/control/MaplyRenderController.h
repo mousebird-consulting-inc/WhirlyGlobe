@@ -90,6 +90,19 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
     MaplyRenderUnknown
 };
 
+@protocol MaplyRenderControllerProtocol;
+
+@protocol MaplyErrorReportingDelegate
+@optional
+- (void)onError:(NSError * __nonnull)err
+        withTag:(NSString * __nonnull)tag
+          viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+- (void)onException:(NSException * __nonnull)err
+            withTag:(NSString * __nonnull)tag
+              viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)viewC;
+@end
+
+
 /**
     Render Controller Protocol defines the methods required of a render controller.
  
@@ -105,6 +118,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  If you set this to 0, you can control the ordering of everything more precisely.
  */
 @property (nonatomic,assign) int screenObjectDrawPriorityOffset;
+
+/// Set a delegate for error reporting
+@property (nonatomic, weak) NSObject<MaplyErrorReportingDelegate> * __nullable errorReportingDelegate;
 
 /**
  Clear all the currently active lights.
@@ -1019,6 +1035,10 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  An explicit teardown.  For render controllers you allocate standalone, this is a good idea.
  */
 - (void)teardown;
+
+@optional
+- (void)report:(NSString * __nonnull)tag error:(NSError * __nonnull)error;
+- (void)report:(NSString * __nonnull)tag exception:(NSException * __nonnull)error;
 
 @end
 

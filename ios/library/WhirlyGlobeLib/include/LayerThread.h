@@ -1,9 +1,8 @@
-/*
- *  LayerThread.h
+/*  LayerThread.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/1/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -24,6 +22,8 @@
 #import "DataLayer.h"
 #import "LayerViewWatcher.h"
 #import "SceneRenderer.h"
+
+@class MaplyRenderController;
 
 /** The Layer Thread manages the objects that put data into a scene
     and take it out later.  These objects also handle the interaction
@@ -53,7 +53,11 @@
 @property (nonatomic,assign) bool mainLayerThread;
 
 /// Set up with a scene and a view
-- (id)initWithScene:(WhirlyKit::Scene *)inScene view:(WhirlyKit::View *)inView renderer:(WhirlyKit::SceneRenderer *)renderer mainLayerThread:(bool)mainLayerThread;
+- (id)initWithScene:(WhirlyKit::Scene *)inScene
+               view:(WhirlyKit::View *)inView
+           renderer:(WhirlyKit::SceneRenderer *)renderer
+    mainLayerThread:(bool)mainLayerThread
+      renderControl:(MaplyRenderController *__nullable)renderControl;
 
 /// Add these before you kick off the thread
 - (void)addLayer:(NSObject<WhirlyKitLayer> *)layer;

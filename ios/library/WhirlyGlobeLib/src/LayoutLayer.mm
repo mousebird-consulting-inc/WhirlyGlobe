@@ -161,13 +161,35 @@ static const float MaxDelay = 1.0;
     if (const auto layoutManager = scene->getManager<LayoutManager>(kWKLayoutManager))
     {
         ChangeSet changes;
-        layoutManager->updateLayout(nullptr,viewState,changes);
-        if (auto __strong thread = layerThread)
+        try
         {
-            [thread addChangeRequests:changes];
-            // These requests are likely time-sensitive, so flush them immediately
-            // instead of posting to the thread queue and flushing them later.
-            [thread flushChangeRequests];
+            layoutManager->updateLayout(nullptr,viewState,changes);
+        }
+        catch (const std::exception &ex)
+        {
+            NSLog(@"Exception in updateLayout: %s", ex.what());
+            discardChanges(changes);
+        }
+        catch (NSException *ex)
+        {
+            NSLog(@"Exception in updateLayout: %@", ex.description);
+            discardChanges(changes);
+        }
+        catch (...)
+        {
+            NSLog(@"Exception in updateLayout");
+            discardChanges(changes);
+        }
+
+        if (!changes.empty())
+        {
+            if (auto __strong thread = layerThread)
+            {
+                [thread addChangeRequests:changes];
+                // These requests are likely time-sensitive, so flush them immediately
+                // instead of posting to the thread queue and flushing them later.
+                [thread flushChangeRequests];
+            }
         }
     }
 }

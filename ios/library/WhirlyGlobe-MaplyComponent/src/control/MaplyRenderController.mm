@@ -32,6 +32,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "WorkRegion_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
+#import "LayerThread.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -49,6 +50,8 @@ using namespace Eigen;
     NSData *snapshotData;
     CGSize initialFramebufferSize;
 }
+
+@synthesize errorReportingDelegate;
 
 - (instancetype __nullable)init
 {
@@ -261,7 +264,11 @@ using namespace Eigen;
     layerThreads = [NSMutableArray array];
     
     // Need a layer thread to manage the layers
-    baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView.get() renderer:sceneRenderer.get() mainLayerThread:true];
+    baseLayerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene
+                                                             view:visualView.get()
+                                                         renderer:sceneRenderer.get()
+                                                  mainLayerThread:true
+                                                    renderControl:self];
     [layerThreads addObject:baseLayerThread];
     
     // Layout still needs a layer to kick it off
@@ -1190,7 +1197,11 @@ using namespace Eigen;
         WhirlyKitLayerThread *layerThread = baseLayerThread;
         if ([newLayer isKindOfClass:[MaplyQuadSamplingLayer class]])
         {
-            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene view:visualView.get() renderer:sceneRenderer.get() mainLayerThread:false];
+            layerThread = [[WhirlyKitLayerThread alloc] initWithScene:scene
+                                                                 view:visualView.get()
+                                                             renderer:sceneRenderer.get()
+                                                      mainLayerThread:false
+                                                        renderControl:self];
             [layerThreads addObject:layerThread];
             [layerThread start];
         }
@@ -1389,6 +1400,26 @@ using namespace Eigen;
     id<MTLLibrary> mtlLib = [renderMTL->setupInfo.mtlDevice newDefaultLibraryWithBundle:[NSBundle bundleForClass:[MaplyRenderController class]] error:&err];
     return mtlLib;
 
+}
+
+- (void)report:(NSString * __nonnull)tag error:(NSError * __nonnull)error
+{
+    if (self && tag && error)
+    if (__strong NSObject<MaplyErrorReportingDelegate> * delegate = self.errorReportingDelegate)
+    if ([delegate respondsToSelector:@selector(onError:withTag:viewC:)])
+    {
+        [delegate onError:error withTag:tag viewC:self];
+    }
+}
+
+- (void)report:(NSString * __nonnull)tag exception:(NSException * __nonnull)error
+{
+    if (self && tag && error)
+    if (__strong NSObject<MaplyErrorReportingDelegate> * delegate = self.errorReportingDelegate)
+    if ([delegate respondsToSelector:@selector(onException:withTag:viewC:)])
+    {
+        [delegate onException:error withTag:tag viewC:self];
+    }
 }
 
 @end

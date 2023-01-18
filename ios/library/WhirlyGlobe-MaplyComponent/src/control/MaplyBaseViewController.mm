@@ -168,6 +168,7 @@ using namespace WhirlyKit;
         [self teardown];
 }
 
+
 - (ViewRef) loadSetup_view
 {
     return ViewRef(NULL);
@@ -504,6 +505,16 @@ static const float PerfOutputDelay = 15.0;
     }
 }
 #endif //!MAPLY_MINIMAL
+
+
+- (NSObject<MaplyErrorReportingDelegate> * __nullable)errorReportingDelegate
+{
+    return renderControl.errorReportingDelegate;
+}
+- (void)setErrorReportingDelegate:(NSObject<MaplyErrorReportingDelegate> *)delegate
+{
+    renderControl.errorReportingDelegate = delegate;
+}
 
 // Run every so often to dump out stats
 - (void)periodicPerfOutput
@@ -1790,6 +1801,24 @@ static const float PerfOutputDelay = 15.0;
     if (const auto render = renderControl ? renderControl->sceneRenderer : nullptr)
     {
         render->releaseZoomSlot(index);
+    }
+}
+
+- (void)report:(NSString * __nonnull)tag error:(NSError * __nonnull)error
+{
+    if (self && tag && error)
+    if (MaplyRenderController *rc = renderControl)
+    {
+        [rc report:tag error:error];
+    }
+}
+
+- (void)report:(NSString * __nonnull)tag exception:(NSException * __nonnull)error
+{
+    if (self && tag && error)
+    if (MaplyRenderController *rc = renderControl)
+    {
+        [rc report:tag exception:error];
     }
 }
 

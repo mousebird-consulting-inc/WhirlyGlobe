@@ -20,10 +20,14 @@
 
 #import "helpers/MaplyLocationTracker.h"
 #import "control/MaplyBaseViewController.h"
+#import "MaplyBaseViewController_private.h"
 #import "math/MaplyCoordinate.h"
 #import "visual_objects/MaplyShape.h"
 #import "control/WhirlyGlobeViewController.h"
 #import "MaplyViewController.h"
+
+#import <exception>
+
 
 @implementation MaplyLocationTracker {
     CLLocationManager *_locationManager;
@@ -418,7 +422,7 @@
     }
 }
 
-- (void)updateLocationInternal:(CLLocation *)location {
+- (void)tryUpdateLocationInternal:(CLLocation *)location {
     updateLocationScheduled = false;
     
     __strong MaplyBaseViewController *theViewC = _theViewC;
@@ -498,6 +502,36 @@
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
     if ([delegate respondsToSelector:@selector(updateLocation:)]) {
         [delegate updateLocation:location];
+    }
+}
+
+- (void)updateLocationInternal:(CLLocation *)location
+{
+    __strong MaplyBaseViewController *vc = _theViewC;
+    try
+    {
+        [self tryUpdateLocationInternal:location];
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in updateLocationInternal: %s", ex.what());
+        [vc report:@"LocationTracker-UpdateLocation"
+             exception:[[NSException alloc] initWithName:@"STL Exception"
+                                                  reason:[NSString stringWithUTF8String:ex.what()]
+                                                userInfo:nil]];
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in updateLocationInternal: %@", ex.description);
+        [vc report:@"LocationTracker-UpdateLocation" exception:ex];
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in updateLocationInternal");
+        [vc report:@"LocationTracker-UpdateLocation"
+             exception:[[NSException alloc] initWithName:@"C++ Exception"
+                                                  reason:@"Unknown"
+                                                userInfo:nil]];
     }
 }
 

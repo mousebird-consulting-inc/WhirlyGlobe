@@ -18,7 +18,10 @@
 
 #import "LayerViewWatcher.h"
 #import "LayerThread.h"
+#import "LayerThread_private.h"
 #import "SceneRenderer.h"
+#import "MaplyRenderController.h"
+#import "MaplyRenderController_private.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -199,12 +202,46 @@ private:
         return;
     }
 
-    ViewStateRef viewState = view->makeViewState(thread.renderer);
-    
+    ViewStateRef viewState;
+    try
+    {
+        viewState = view->makeViewState(thread.renderer);
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in makeViewState: %s", ex.what());
+        if (MaplyRenderController *rc = thread.renderControl)
+        {
+            [rc report:@"LayerViewWatcher-ViewUpdated"
+             exception:[[NSException alloc] initWithName:@"STL Exception"
+                                                  reason:[NSString stringWithUTF8String:ex.what()]
+                                                userInfo:nil]];
+        }
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in makeViewState: %@", ex.description);
+        if (MaplyRenderController *rc = thread.renderControl)
+        {
+            [rc report:@"LayerViewWatcher-ViewUpdated" exception:ex];
+        }
+    }
+    catch (...)
+    {
+        NSLog(@"Unknown exception in makeViewState");
+        if (MaplyRenderController *rc = thread.renderControl)
+        {
+            [rc report:@"LayerViewWatcher-ViewUpdated"
+             exception:[[NSException alloc] initWithName:@"C++ Exception"
+                                                  reason:@"Unknown"
+                                                userInfo:nil]];
+        }
+    }
+
     //    lastViewState = viewState;
     @synchronized(self)
     {
-        newViewState = viewState;
+        newViewState = std::move(viewState);
         if (!kickoffScheduled)
         {
             kickoffScheduled = true;
@@ -348,7 +385,22 @@ public:
         sweepLaggardsScheduled = false;
     }
     
-    [self viewUpdateLayerThread:lastViewState];
+    try
+    {
+        [self viewUpdateLayerThread:lastViewState];
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in viewUpdateLayerThread: %s", ex.what());
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in viewUpdateLayerThread: %@", ex.description);
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in viewUpdateLayerThread");
+    }
 }
 
 @end

@@ -23,6 +23,8 @@
 #import "QuadDisplayControllerNew.h"
 #import "DataLayer.h"
 
+@class MaplyRenderController;
+
 /** This layer turns view state updates into quad tree tiles to load.
   */
 @interface WhirlyKitQuadDisplayLayerNew : NSObject<WhirlyKitLayer>
@@ -31,7 +33,8 @@
 @property (nonatomic,weak,readonly,nullable) WhirlyKitLayerThread *layerThread;
 
 /// Construct with a renderer and data source for the tiles
-- (nonnull)initWithController:(WhirlyKit::QuadDisplayControllerNewRef)controller;
+- (nonnull)initWithController:(WhirlyKit::QuadDisplayControllerNewRef)controller
+                renderControl:(MaplyRenderController* __nullable)renderControl;
 
 - (WhirlyKit::QuadDisplayControllerNewRef)getController;
 
