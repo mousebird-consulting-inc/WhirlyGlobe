@@ -700,7 +700,15 @@ using namespace WhirlyKit;
     }
 
     ChangeSet changes;
-    loader->cleanup(nullptr,changes);
+    if (loader)
+    {
+        loader->cleanup(nullptr,changes);
+    }
+    else
+    {
+        // Probably the controller was destroyed first.  Don't do that.
+        wkLogLevel(Warn, "Loader shut down without cleanup");
+    }
 
     if (!changes.empty())
     {
