@@ -108,4 +108,7 @@
 /// Called when ending gesture, animation
 - (void)handleStopMoving:(bool)userMotion;
 
+- (void)report:(NSString * __nonnull)tag error:(NSError * __nonnull)error;
+- (void)report:(NSString * __nonnull)tag exception:(NSException * __nonnull)error;
+
 @end

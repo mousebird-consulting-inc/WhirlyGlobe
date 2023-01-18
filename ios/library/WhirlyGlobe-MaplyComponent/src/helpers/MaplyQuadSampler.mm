@@ -257,14 +257,18 @@ using namespace WhirlyKit;
     return self;
 }
 
-- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread scene:(WhirlyKit::Scene *)inScene renderer:(SceneRenderer *)inRenderer viewC:(MaplyBaseViewController *)inViewC
+- (bool)startLayer:(WhirlyKitLayerThread *)inLayerThread
+             scene:(WhirlyKit::Scene *)inScene
+          renderer:(SceneRenderer *)inRenderer
+             viewC:(MaplyBaseViewController *)inViewC
 {
     viewC = inViewC;
     super.layerThread = inLayerThread;
     
     sampleControl.start(_params,inScene,inRenderer);
     
-    _quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()];
+    _quadLayer = [[WhirlyKitQuadDisplayLayerNew alloc] initWithController:sampleControl.getDisplayControl()
+                                                            renderControl: [inViewC getRenderControl]];
 
     [inLayerThread addLayer:_quadLayer];
 

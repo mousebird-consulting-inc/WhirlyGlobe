@@ -388,7 +388,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     return self;
 }
 
-- (bool)delayedInit
+- (bool)tryDelayedInit
 {
     if (![super delayedInit])
     {
@@ -511,6 +511,27 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     [super postDelayedInit];
 
     return true;
+}
+
+- (bool)delayedInit
+{
+    try
+    {
+        return [self tryDelayedInit];
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in MaplyQuadLoaderBase.delayedInit: %s", ex.what());
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in MaplyQuadLoaderBase.delayedInit: %@", ex.description);
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in MaplyQuadLoaderBase.delayedInit");
+    }
+    return false;
 }
 
 - (void)setShader:(MaplyShader *)shader

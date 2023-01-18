@@ -99,6 +99,8 @@ typedef void (__strong ^InitCompletionBlock)(void);
 
 @protocol MaplyLocationTrackerDelegate;
 
+@protocol MaplyErrorReportingDelegate;
+
 /** 
     Base class for the Maply and WhirlyGlobe view controllers.
     
@@ -1518,6 +1520,9 @@ typedef void (__strong ^InitCompletionBlock)(void);
 
 /// Turn on/off debug outlines for layout objects
 @property (nonatomic,assign) bool showDebugLayoutBoundaries;
+
+/// Set a delegate for error reporting
+@property (nonatomic,assign) NSObject<MaplyErrorReportingDelegate> * __nullable errorReportingDelegate;
 
 /** 
     See derived class method.
