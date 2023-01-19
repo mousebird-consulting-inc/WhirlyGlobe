@@ -39,6 +39,8 @@
 
 @end
 
+@class MaplyRenderController;
+
 namespace WhirlyKit
 {
 
@@ -104,7 +106,7 @@ protected:
 class SceneRendererMTL : public SceneRenderer
 {
 public:
-    SceneRendererMTL(id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary,float scale);
+    SceneRendererMTL(MaplyRenderController *,id<MTLDevice> mtlDevice,id<MTLLibrary> mtlLibrary,float scale);
     virtual ~SceneRendererMTL();
     
     // Metal (obviously)
@@ -198,6 +200,8 @@ public:
 protected:
     RendererFrameInfoMTLRef makeFrameInfo();
 
+    void tryRender(TimeInterval duration, RenderInfo *);
+
 public:
     RenderTargetMTLRef getRenderTarget(SimpleIdentity renderTargetID);
     id<MTLCommandBuffer> lastCmdBuff;
@@ -222,6 +226,8 @@ public:
 private:
     RendererFrameInfoRef lastFrameInfo;
     const std::shared_ptr<bool> _isShuttingDown;
+    __weak MaplyRenderController *renderControl;
+    bool failed = false;
 };
     
 typedef std::shared_ptr<SceneRendererMTL> SceneRendererMTLRef;
