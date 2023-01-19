@@ -199,7 +199,7 @@ using namespace WhirlyGlobe;
         if (err) {
             NSLog(@"Failed to set up default Metal library in MaplyGlobeRenderController::loadSetup.  Things will be missing.");
         }
-        SceneRendererMTLRef sceneRendererMTL = std::make_shared<SceneRendererMTL>(mtlDevice,mtlLib,1.0);
+        SceneRendererMTLRef sceneRendererMTL = std::make_shared<SceneRendererMTL>(self,mtlDevice,mtlLib,1.0);
         // By default we're assuming offscreen renderers are dumb splats, but we're not doing that here
         sceneRendererMTL->offscreenBlendEnable = true;
     }
