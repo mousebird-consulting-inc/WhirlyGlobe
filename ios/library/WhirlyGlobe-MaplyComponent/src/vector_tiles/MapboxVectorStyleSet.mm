@@ -43,54 +43,76 @@ using namespace WhirlyKit;
         return nil;
     }
 
-    if (!(_viewC = viewC))
+    try
     {
-        return nil;
-    }
-
-    if (const auto *renderControl = [viewC getRenderControl])
-    if (auto *scene = renderControl->scene)
-    if (const auto &view = renderControl->visualView)
-    if (const auto *coordAdapter = view->getCoordAdapter())
-    if (auto *coordSys = coordAdapter->getCoordSystem())
-    {
-        const auto styleSettings = (settings && settings->impl) ? settings->impl :
-            std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
-        style = std::make_shared<MapboxVectorStyleSetImpl_iOS>(scene, coordSys, styleSettings);
-        style->viewC = viewC;
-    }
-    if (!style)
-    {
-        return nil;
-    }
-
-    // Copy from NSDictionary to our internal version
-    if (auto dictWrap = [styleDict toDictionaryC])
-    {
-        if (!style->parse(nullptr, dictWrap))
+        _viewC = viewC;
+        
+        if (const auto *renderControl = [viewC getRenderControl])
+            if (auto *scene = renderControl->scene)
+                if (const auto &view = renderControl->visualView)
+                    if (const auto *coordAdapter = view->getCoordAdapter())
+                        if (auto *coordSys = coordAdapter->getCoordSystem())
+                        {
+                            const auto styleSettings = (settings && settings->impl) ? settings->impl :
+                            std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+                            style = std::make_shared<MapboxVectorStyleSetImpl_iOS>(scene, coordSys, styleSettings);
+                            style->viewC = viewC;
+                        }
+        if (!style)
         {
             return nil;
         }
-    }
-    
-    _spriteURL = styleDict[@"sprite"];
-    
-    // Sources tell us where to get tiles
-    if (NSDictionary *sourceStyles = styleDict[@"sources"])
-    {
-        NSMutableArray *sources = [NSMutableArray array];
-        for (NSString *sourceName in sourceStyles.allKeys)
+        
+        // Copy from NSDictionary to our internal version
+        if (auto dictWrap = [styleDict toDictionaryC])
         {
-            NSDictionary *styleEntry = sourceStyles[sourceName];
-            if (MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName
-                                                                                               styleEntry:styleEntry
-                                                                                                 styleSet:self
-                                                                                                    viewC:viewC])
+            if (!style->parse(nullptr, dictWrap))
             {
-                [sources addObject:source];
+                return nil;
             }
         }
-        _sources = sources;
+        
+        _spriteURL = styleDict[@"sprite"];
+        
+        // Sources tell us where to get tiles
+        if (NSDictionary *sourceStyles = styleDict[@"sources"])
+        {
+            NSMutableArray *sources = [NSMutableArray array];
+            for (NSString *sourceName in sourceStyles.allKeys)
+            {
+                NSDictionary *styleEntry = sourceStyles[sourceName];
+                if (MaplyMapboxVectorStyleSource *source = [[MaplyMapboxVectorStyleSource alloc] initWithName:sourceName
+                                                                                                   styleEntry:styleEntry
+                                                                                                     styleSet:self
+                                                                                                        viewC:viewC])
+                {
+                    [sources addObject:source];
+                }
+            }
+            _sources = sources;
+        }
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in MapboxVectorStyleSet.initWithDict: %s", ex.what());
+        [viewC report:@"MapboxVectorStyleSet.initWithDict"
+         exception:[[NSException alloc] initWithName:@"STL Exception"
+                                              reason:[NSString stringWithUTF8String:ex.what()]
+                                            userInfo:nil]];
+        return nil;
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in MapboxVectorStyleSet.initWithDict: %@", ex.description);
+        [viewC report:@"MapboxVectorStyleSet.initWithDict" exception:ex];
+        return nil;
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in MapboxVectorStyleSet.initWithDict");
+        [viewC report:@"MapboxVectorStyleSet.initWithDict"
+         exception:[[NSException alloc] initWithName:@"C++ Exception" reason:@"Unknown" userInfo:nil]];
+        return nil;
     }
 
     return self;
@@ -103,7 +125,13 @@ using namespace WhirlyKit;
     NSError *error = nil;
     NSDictionary *styleDict = [NSJSONSerialization JSONObjectWithData:styleJSON options:NULL error:&error];
     if (!styleDict)
+    {
+        if (error)
+        {
+            [viewC report:@"MapboxVectorStyleSet.initWithJSON" error:error];
+        }
         return nil;
+    }
     
     return [self initWithDict:styleDict settings:settings viewC:viewC];
 }
@@ -119,16 +147,38 @@ using namespace WhirlyKit;
     if (spriteImage)
         return true;
 
-    spriteImage = image;
-    MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent];
-
-    auto newSprites = std::make_shared<MapboxVectorStyleSprites>(wholeTex.texID,(int)image.size.width,(int)image.size.height);
-    auto dictWrap = std::make_shared<iosDictionary>(spriteDict);
-    if (newSprites->parse(style, dictWrap))
+    try
     {
-        style->addSprites(newSprites,wholeTex);
-        return true;
+        if (MaplyTexture *wholeTex = [_viewC addTexture:image desc:nil mode:MaplyThreadCurrent])
+        if (auto newSprites = std::make_shared<MapboxVectorStyleSprites>(wholeTex.texID,(int)image.size.width,(int)image.size.height))
+        if (auto dictWrap = std::make_shared<iosDictionary>(spriteDict))
+        if (newSprites->parse(style, dictWrap))
+        {
+            spriteImage = image;
+            style->addSprites(newSprites,wholeTex);
+            return true;
+        }
     }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in MapboxVectorStyleSet.addSprites: %s", ex.what());
+        [_viewC report:@"MapboxVectorStyleSet.addSprites"
+         exception:[[NSException alloc] initWithName:@"STL Exception"
+                                              reason:[NSString stringWithUTF8String:ex.what()]
+                                            userInfo:nil]];
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in MapboxVectorStyleSet.addSprites: %@", ex.description);
+        [_viewC report:@"MapboxVectorStyleSet.addSprites" exception:ex];
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in MapboxVectorStyleSet.addSprites");
+        [_viewC report:@"MapboxVectorStyleSet.addSprites"
+         exception:[[NSException alloc] initWithName:@"C++ Exception" reason:@"Unknown" userInfo:nil]];
+    }
+
     return false;
 }
 
@@ -155,7 +205,7 @@ using namespace WhirlyKit;
 
 - (MapboxLayerType) layerType:(NSString * __nonnull)inLayerName
 {
-    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    const std::string layerName = [inLayerName asStdString];
     
     for (auto layer : style->layers) {
         if (layer->ident == layerName) {
@@ -179,7 +229,7 @@ using namespace WhirlyKit;
 
 - (void)setLayerVisible:(NSString *__nonnull)inLayerName visible:(bool)visible
 {
-    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    const std::string layerName = [inLayerName asStdString];
     
     for (auto layer : style->layers) {
         if (layer->ident == layerName) {
@@ -190,7 +240,7 @@ using namespace WhirlyKit;
 
 - (UIColor * __nullable) colorForLayer:(NSString *__nonnull)inLayerName
 {
-    std::string layerName = [inLayerName cStringUsingEncoding:NSUTF8StringEncoding];
+    std::string layerName = [inLayerName asStdString];
 
     for (auto layer : style->layers) {
         if (layer->ident == layerName) {
@@ -408,7 +458,7 @@ using namespace WhirlyKit;
 {
     MutableDictionaryCRef dictWrap = [attributes toDictionaryC];
     const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
-    const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
+    const std::string layerName = [layer asStdString];
     
     auto styles = style->stylesForFeature(nil, *(dictWrap.get()), tileIDc, layerName);
     
@@ -423,7 +473,7 @@ using namespace WhirlyKit;
 
 - (BOOL)layerShouldDisplay:(NSString *__nonnull)layer tile:(MaplyTileID)tileID
 {
-    const std::string layerName = [layer cStringUsingEncoding:NSUTF8StringEncoding];
+    const std::string layerName = [layer asStdString];
     const QuadTreeIdentifier tileIDc(tileID.x,tileID.y,tileID.level);
     return style->layerShouldDisplay(nil, layerName, tileIDc);
 }

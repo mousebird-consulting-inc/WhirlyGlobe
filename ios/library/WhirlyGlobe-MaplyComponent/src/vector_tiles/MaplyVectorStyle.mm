@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@ using namespace WhirlyKit;
 - (void)setUuidField:(NSString *)uuidField
 {
     if (uuidField)
-        impl->uuidField = [uuidField cStringUsingEncoding:NSASCIIStringEncoding];
+        impl->uuidField = [uuidField cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
     else
         impl->uuidField.clear();
 }
@@ -232,7 +232,7 @@ using namespace WhirlyKit;
 - (void)setArealShaderName:(NSString *)arealShaderName
 {
     if (arealShaderName)
-        impl->arealShaderName = [arealShaderName cStringUsingEncoding:NSASCIIStringEncoding];
+        impl->arealShaderName = [arealShaderName cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
     else
         impl->arealShaderName.clear();
 }
@@ -266,7 +266,7 @@ using namespace WhirlyKit;
 - (void)setIconDirectory:(NSString *)iconDirectory
 {
     if (iconDirectory)
-        impl->iconDirectory = [iconDirectory cStringUsingEncoding:NSASCIIStringEncoding];
+        impl->iconDirectory = [iconDirectory cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
     else
         impl->iconDirectory.clear();
 }
@@ -281,7 +281,7 @@ using namespace WhirlyKit;
 - (void)setFontName:(NSString *)fontName
 {
     if (fontName)
-        impl->fontName = [fontName cStringUsingEncoding:NSASCIIStringEncoding];
+        impl->fontName = [fontName cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
     else
         impl->fontName.clear();
 }
@@ -790,8 +790,7 @@ long long VectorStyleWrapper::VectorStyleWrapper::getUuid(PlatformThreadInfo *in
 
 std::string VectorStyleWrapper::getCategory(PlatformThreadInfo *inst)
 {
-    NSString *catStr = [style getCategory];
-    return [catStr cStringUsingEncoding:NSUTF8StringEncoding];
+    return [[style getCategory] asStdString];
 }
 
 bool VectorStyleWrapper::geomAdditive(PlatformThreadInfo *inst)

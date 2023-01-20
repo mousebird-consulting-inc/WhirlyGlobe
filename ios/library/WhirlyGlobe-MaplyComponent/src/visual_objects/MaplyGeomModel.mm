@@ -1,9 +1,8 @@
-/*
- *  MaplyGeomModel.mm
+/*  MaplyGeomModel.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 11/26/14.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <set>
@@ -40,14 +38,17 @@ using namespace Eigen;
     self = [super init];
     
     const char *str = [fullPath cStringUsingEncoding:NSASCIIStringEncoding];
-    FILE *fp = fopen(str, "r");
+    FILE *fp = str ? fopen(str, "r") : nullptr;
     if (!fp)
         return nil;
     
     // Parse it out of the file
     GeometryModelOBJ objModel;
     NSString *bundlePath = [[NSBundle mainBundle] resourcePath];
-    objModel.setResourceDir([bundlePath cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (auto cstr = [bundlePath cStringUsingEncoding:NSASCIIStringEncoding])
+    {
+        objModel.setResourceDir(cstr);
+    }
     
     if (!objModel.parse(fp))
         return nil;

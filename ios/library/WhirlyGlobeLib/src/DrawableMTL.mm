@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/10/20.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -53,7 +53,9 @@ ArgBuffContentsMTL::ArgBuffContentsMTL(id<MTLDevice> mtlDevice,RenderSetupInfoMT
         if (mem.dataType == MTLDataTypeStruct) {
             entries[mem.argumentIndex] = std::make_shared<Entry>(mem.argumentIndex);
         } else if (mem.dataType == MTLDataTypeBool) {
-            constants.insert([mem.name cStringUsingEncoding:NSASCIIStringEncoding]);
+            if (auto cstr = [mem.name cStringUsingEncoding:NSASCIIStringEncoding]) {
+                constants.insert(cstr);
+            }
         }
     }
     

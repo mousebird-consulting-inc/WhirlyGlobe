@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/6/15.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -191,7 +191,7 @@ BaseInfo::BaseInfo(const Dictionary &dict)
             if ([val isKindOfClass:[NSNumber class]])
             {
                 SingleVertexAttribute valAttr;
-                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
                 
                 NSNumber *num = val;
                 valAttr.type = BDFloatType;
@@ -201,7 +201,7 @@ BaseInfo::BaseInfo(const Dictionary &dict)
             } else if ([val isKindOfClass:[UIColor class]])
             {
                 SingleVertexAttribute valAttr;
-                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding];
+                valAttr.name = [key cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
                 
                 UIColor *col = val;
                 valAttr.type = BDChar4Type;

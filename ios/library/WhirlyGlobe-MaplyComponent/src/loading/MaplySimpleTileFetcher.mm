@@ -1,9 +1,8 @@
-/*
- *  MaplySimpleTileFetcher.h
+/*  MaplySimpleTileFetcher.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/31/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +14,11 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplySimpleTileFetcher.h"
 #import "WhirlyGlobeLib.h"
+#import "NSString+Stuff.h"
 
 using namespace WhirlyKit;
 
@@ -124,7 +123,8 @@ typedef std::map<MaplyTileFetchRequest *,TileInfoRef> TileFetchMap;
     _neverFail = true;
     
     tileInfo = [[MaplySimpleTileInfo alloc] initWithMinZoom:minZoom maxZoom:maxZoom];
-    _queue = dispatch_queue_create([_name cStringUsingEncoding:NSASCIIStringEncoding], DISPATCH_QUEUE_SERIAL);
+    const auto cstr = [_name cStringUsingEncoding:NSASCIIStringEncoding withDefault:"invalid name"];
+    _queue = dispatch_queue_create(cstr, DISPATCH_QUEUE_SERIAL);
     
     active = true;
     return self;

@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 5/13/13.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
  */
 
 #import "MaplyCoordinateSystem_private.h"
+#import "NSString+Stuff.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -250,8 +251,15 @@ using namespace WhirlyKit;
 
 - (nonnull instancetype)initWithString:(NSString * __nonnull)proj4Str
 {
-    self = [super init];
-    std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    std::string str = [proj4Str cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
+    if (str.empty())
+    {
+        return nil;
+    }
     coordSystem = std::make_shared<Proj4CoordSystem>(std::move(str));
     return self;
 }

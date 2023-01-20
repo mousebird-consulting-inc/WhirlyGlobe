@@ -2,7 +2,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2022 mousebird consulting
+ *  Copyright 2012-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1099,7 +1099,7 @@ static const float PerfOutputDelay = 15.0;
 {
     std::set<std::string> uuidSet;
     for (NSString *uuid in uuids) {
-        std::string uuidStr = [uuid cStringUsingEncoding:NSASCIIStringEncoding];
+        std::string uuidStr = [uuid cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
         if (!uuidStr.empty())
             uuidSet.insert(uuidStr);
     }

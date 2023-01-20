@@ -1,9 +1,8 @@
-/*
- *  FontTextureManager_iOS.mm
+/*  FontTextureManager_iOS.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/4/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -27,6 +25,7 @@
 #import "SceneRenderer.h"
 #import "RawData_NSData.h"
 #import "UIImage+Stuff.h"
+#import "NSString+Stuff.h"
 
 // We scale the fonts up so they look better sampled down.
 static const float BogusFontScale = 2.0;
@@ -81,7 +80,12 @@ void FontTextureManager_iOS::teardown(PlatformThreadInfo* inst)
 FontManager_iOSRef FontTextureManager_iOS::findFontManagerForFont(UIFont *uiFont,UIColor *colorUI,UIColor *backColorUI,UIColor *outlineColorUI,float outlineSize)
 {
     // We need to scale the font up so it looks better scaled down
-    std::string fontName = [uiFont.fontName cStringUsingEncoding:NSASCIIStringEncoding];
+    const std::string fontName = [uiFont.fontName cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
+    if (fontName.empty())
+    {
+        return FontManager_iOSRef();
+    }
+
     float pointSize = uiFont.pointSize;
     RGBAColor color = [colorUI asRGBAColor];
     RGBAColor backColor = [backColorUI asRGBAColor];

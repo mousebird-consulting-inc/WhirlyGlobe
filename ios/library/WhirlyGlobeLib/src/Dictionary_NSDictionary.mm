@@ -1,9 +1,8 @@
-/*
- *  Dictionary_NSDictionary.h
+/*  Dictionary_NSDictionary.mm
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/24/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -23,6 +21,7 @@
 #import "Dictionary_NSDictionary.h"
 #import "NSDictionary+Stuff.h"
 #import "UIColor+Stuff.h"
+#import "NSString+Stuff.h"
 
 namespace WhirlyKit {
     
@@ -38,9 +37,7 @@ static NSString *StdStringToString(const std::string &str)
     
 static std::string StringToStdString(NSString *str)
 {
-    if (!str)
-        return "";
-    return std::string([str cStringUsingEncoding:NSUTF8StringEncoding]);
+    return str ? [str asStdString] : std::string();
 }
 
 iosDictionaryEntry::iosDictionaryEntry(id inValue)
@@ -91,7 +88,7 @@ double iosDictionaryEntry::getDouble() const
 
 std::string iosDictionaryEntry::getString() const
 {
-    return [(NSString *)value cStringUsingEncoding:NSUTF8StringEncoding];
+    return StringToStdString((NSString *)value);
 }
 
 DictionaryRef iosDictionaryEntry::getDict() const
@@ -306,8 +303,12 @@ std::vector<std::string> iosDictionary::getKeys() const
 {
     std::vector<std::string> keys;
     keys.reserve([dict count]);
-    for (NSString *key in [dict allKeys]) {
-        keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
+    for (NSString *key in [dict allKeys])
+    {
+        if (auto cstr = [key cStringUsingEncoding:NSUTF8StringEncoding])
+        {
+            keys.emplace_back(cstr);
+        }
     }
     
     return keys;
@@ -491,8 +492,12 @@ std::vector<std::string> iosMutableDictionary::getKeys() const
 {
     std::vector<std::string> keys;
     keys.reserve([dict count]);
-    for (NSString *key in [dict allKeys]) {
-        keys.push_back([key cStringUsingEncoding:NSUTF8StringEncoding]);
+    for (NSString *key in [dict allKeys])
+    {
+        if (auto cstr = [key cStringUsingEncoding:NSUTF8StringEncoding])
+        {
+            keys.emplace_back(cstr);
+        }
     }
     
     return keys;
@@ -569,24 +574,21 @@ using namespace WhirlyKit;
             auto outVal = std::make_shared<DictionaryEntryCBasic>([arrVal doubleValue]);
             outArr.push_back(outVal);
         } else if ([arrVal isKindOfClass:[NSString class]]) {
-            std::string valStr = [(NSString *)arrVal cStringUsingEncoding:NSUTF8StringEncoding];
-            auto outVal = std::make_shared<DictionaryEntryCString>(valStr);
-            outArr.push_back(outVal);
+            if (auto cstr = [(NSString *)arrVal cStringUsingEncoding:NSUTF8StringEncoding]) {
+                outArr.emplace_back(std::make_shared<DictionaryEntryCString>(cstr));
+            }
         } else if ([arrVal isKindOfClass:[UIColor class]]) {
             NSString *str = [(UIColor *)arrVal asHexRGBAString];
-            std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
-            auto outVal = std::make_shared<DictionaryEntryCString>(valStr);
-            outArr.push_back(outVal);
+            if (auto cstr = [str cStringUsingEncoding:NSUTF8StringEncoding]) {
+                outArr.emplace_back(std::make_shared<DictionaryEntryCString>(cstr));
+            }
         } else if ([arrVal isKindOfClass:[NSDictionary class]]) {
-            auto valDict = [(NSDictionary *)arrVal toDictionaryC];
-            if (valDict) {
-                auto outVal = std::make_shared<DictionaryEntryCDict>(valDict);
-                outArr.push_back(outVal);
+            if (auto valDict = [(NSDictionary *)arrVal toDictionaryC]) {
+                outArr.emplace_back(std::make_shared<DictionaryEntryCDict>(valDict));
             }
         } else if ([arrVal isKindOfClass:[NSArray class]]) {
             auto valArray = [self convertArray:arrVal];
-            auto outVal = std::make_shared<DictionaryEntryCArray>(valArray);
-            outArr.push_back(outVal);
+            outArr.emplace_back(std::make_shared<DictionaryEntryCArray>(std::move(valArray)));
         } else {
             NSLog(@"Unsupported type found in NSDictionary toDictionaryC for array");
         }
@@ -600,9 +602,13 @@ using namespace WhirlyKit;
     MutableDictionaryCRef dict = std::make_shared<MutableDictionaryC>();
     
     for (NSString *key in [self keyEnumerator]) {
+        const std::string keyStr = StringToStdString(key);
+        if (keyStr.empty()) {
+            continue;
+        }
+
         id val = [self objectForKey:key];
-        std::string keyStr = [key cStringUsingEncoding:NSUTF8StringEncoding];
-        
+
         if ([val isKindOfClass:[NSNumber class]]) {
             CFNumberType cType = CFNumberGetType((CFNumberRef)val);
             switch (cType) {
@@ -631,12 +637,10 @@ using namespace WhirlyKit;
                     break;
             }
         } else if ([val isKindOfClass:[NSString class]]) {
-            std::string valStr = [(NSString *)val cStringUsingEncoding:NSUTF8StringEncoding];
-            dict->setString(keyStr, valStr);
+            dict->setString(keyStr, StringToStdString((NSString *)val));
         } else if ([val isKindOfClass:[UIColor class]]) {
             NSString *str = [(UIColor *)val asHexRGBAString];
-            std::string valStr = [str cStringUsingEncoding:NSUTF8StringEncoding];
-            dict->setString(keyStr,valStr);
+            dict->setString(keyStr, StringToStdString(str));
         } else if ([val isKindOfClass:[NSArray class]]) {
             // Convert the array into dictionary values
             std::vector<DictionaryEntryRef> outArr = [self convertArray:val];

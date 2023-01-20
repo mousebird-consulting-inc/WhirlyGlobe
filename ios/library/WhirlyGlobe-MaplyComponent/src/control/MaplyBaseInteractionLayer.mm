@@ -2,7 +2,7 @@
  *  MaplyComponent
  *
  *  Created by Steve Gifford on 12/14/12.
- *  Copyright 2012-2022 mousebird consulting
+ *  Copyright 2012-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -809,8 +809,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
     for (unsigned int ii=0;ii<MaxMaskSlots;ii++) {
         NSString *attrName = [NSString stringWithFormat:@"maskID%d",ii];
         id obj = desc[attrName];
-        if ([obj isKindOfClass:[NSString class]]) {
-            SimpleIdentity maskID = compManager->retainMaskByName([obj cStringUsingEncoding:NSUTF8StringEncoding]);
+        if ([obj isKindOfClass:[NSString class]])
+        if (auto cstr = [obj cStringUsingEncoding:NSUTF8StringEncoding]) {
+            SimpleIdentity maskID = compManager->retainMaskByName(cstr);
             desc[attrName] = @(maskID);
             compObj->contents->maskIDs.insert(maskID);
         }
@@ -947,8 +948,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
         }
         wgMarker->offset = Point2d(marker.offset.x,marker.offset.y);
         
-        if (marker.maskID) {
-            wgMarker->maskID = compManager->retainMaskByName([marker.maskID cStringUsingEncoding:NSUTF8StringEncoding]);
+        if (marker.maskID)
+        if (auto cstr = [marker.maskID cStringUsingEncoding:NSUTF8StringEncoding]) {
+            wgMarker->maskID = compManager->retainMaskByName(cstr);
             compObj->contents->maskIDs.insert(wgMarker->maskID);
             wgMarker->maskRenderTargetID = maskRenderTargetID;
         }
@@ -1442,8 +1444,9 @@ static inline bool dictBool(const NSDictionary *dict, const NSString *key, bool 
             wgLabel->selectID = Identifiable::genId();
         }
         
-        if (label.maskID) {
-            wgLabel->maskID = compManager->retainMaskByName([label.maskID cStringUsingEncoding:NSUTF8StringEncoding]);
+        if (label.maskID)
+        if (auto cstr = [label.maskID cStringUsingEncoding:NSUTF8StringEncoding]) {
+            wgLabel->maskID = compManager->retainMaskByName(cstr);
             compObj->contents->maskIDs.insert(wgLabel->maskID);
             wgLabel->maskRenderTargetID = maskRenderTargetID;
         }
@@ -3141,7 +3144,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         wkPartSys.enable = dictBool(inDesc, kMaplyEnable);
         wkPartSys.drawPriority = [inDesc[kMaplyDrawPriority] intValue];
         wkPartSys.pointSize = [inDesc[kMaplyPointSize] floatValue];
-        wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding];
+        wkPartSys.name = [partSys.name cStringUsingEncoding:NSASCIIStringEncoding withDefault:"invalid"];
         wkPartSys.renderShaderID = partSysShaderID;
         wkPartSys.calcShaderID = calcShaderID;
         wkPartSys.lifetime = partSys.lifetime;

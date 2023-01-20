@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/4/15.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -45,7 +45,8 @@ typedef struct
 {
     self = [super init];
     
-    FILE *fp = fopen([fileName cStringUsingEncoding:NSASCIIStringEncoding],"r");
+    const char *cstr = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+    FILE *fp = cstr ? fopen(cstr, "r") : nullptr;
     if (!fp)
         return nil;
 

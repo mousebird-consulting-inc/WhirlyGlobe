@@ -515,6 +515,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 - (bool)delayedInit
 {
+    const auto __strong vc = self.viewC;
     try
     {
         return [self tryDelayedInit];
@@ -522,14 +523,23 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
     catch (const std::exception &ex)
     {
         NSLog(@"Exception in MaplyQuadLoaderBase.delayedInit: %s", ex.what());
+        [vc report:@"QuadPagingLoader-DelayedInit"
+             exception:[[NSException alloc] initWithName:@"STL Exception"
+                                                  reason:[NSString stringWithUTF8String:ex.what()]
+                                                userInfo:nil]];
     }
     catch (NSException *ex)
     {
         NSLog(@"Exception in MaplyQuadLoaderBase.delayedInit: %@", ex.description);
+        [vc report:@"QuadPagingLoader-DelayedInit" exception:ex];
     }
     catch (...)
     {
         NSLog(@"Exception in MaplyQuadLoaderBase.delayedInit");
+        [vc report:@"QuadPagingLoader-DelayedInit"
+             exception:[[NSException alloc] initWithName:@"C++ Exception"
+                                                  reason:@"Unknown"
+                                                userInfo:nil]];
     }
     return false;
 }

@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 9/8/09.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -43,7 +43,10 @@ void OneShot(sqlite3 *db,const char *stmtStr)
 // NSString version
 void OneShot(sqlite3 *db,NSString *stmtStr)
 {
-	OneShot(db,[stmtStr cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (auto cstr = [stmtStr cStringUsingEncoding:NSASCIIStringEncoding])
+    {
+        OneShot(db, cstr);
+    }
 }
 	
 // Constructor for the read statement
@@ -55,7 +58,10 @@ StatementRead::StatementRead(sqlite3 *db,const char *stmtStr,bool justRun)
 // This version take an NSString
 StatementRead::StatementRead(sqlite3 *db,NSString *stmtStr,bool justRun)
 {
-	init(db,[stmtStr cStringUsingEncoding:NSASCIIStringEncoding] ,justRun);
+    if (auto cstr = [stmtStr cStringUsingEncoding:NSASCIIStringEncoding])
+    {
+        init(db, cstr,justRun);
+    }
 }
 
 void StatementRead::init(sqlite3 *db,const char *stmtStr,bool justRun)
@@ -185,7 +191,10 @@ StatementWrite::StatementWrite(sqlite3 *db,const char *stmtStr)
 // Constructor that takes an NSString
 StatementWrite::StatementWrite(sqlite3 *db,NSString *stmtStr)
 {
-	init(db,[stmtStr cStringUsingEncoding:NSASCIIStringEncoding]);
+    if (auto cstr = [stmtStr cStringUsingEncoding:NSASCIIStringEncoding])
+    {
+        init(db, cstr);
+    }
 }
 	
 void StatementWrite::init(sqlite3 *db,const char *stmtStr)
@@ -251,10 +260,15 @@ void StatementWrite::add(NSString *str)
 {
 	if (str != nil)
 	{
-		const char *strData = [str cStringUsingEncoding:NSASCIIStringEncoding];
-		sqlite3_bind_text(stmt, curField++, strData, -1, SQLITE_STATIC);
-	} else
-		sqlite3_bind_null(stmt, curField++);
+		if (const char *strData = [str cStringUsingEncoding:NSASCIIStringEncoding])
+        {
+            sqlite3_bind_text(stmt, curField++, strData, -1, SQLITE_STATIC);
+        }
+	}
+    else
+    {
+        sqlite3_bind_null(stmt, curField++);
+    }
 }
 
 // Add a bool to the row data
