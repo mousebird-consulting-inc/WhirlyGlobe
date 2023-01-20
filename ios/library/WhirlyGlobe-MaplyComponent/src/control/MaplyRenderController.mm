@@ -148,6 +148,12 @@ using namespace Eigen;
         [tileFetcher shutdown];
     tileFetchers.clear();
     
+    for (MaplyActiveObject *theObj in activeObjects)
+    {
+        [theObj removeFromScene];
+    }
+    [activeObjects removeAllObjects];
+
     // This stuff is our responsibility if we created it
     if (offlineMode) {
         if (interactLayer)

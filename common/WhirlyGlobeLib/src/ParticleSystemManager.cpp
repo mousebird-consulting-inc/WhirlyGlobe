@@ -207,7 +207,9 @@ void ParticleSystemManager::removeParticleSystem(SimpleIdentity sysID,ChangeSet 
     auto it = sceneReps.find(sysID);
     if (it != sceneReps.end())
     {
-        it->second->clearContents(changes);
+        ParticleSystemSceneRep *ps = it->second;
+        ps->clearContents(changes);
+        delete ps;
         sceneReps.erase(it);
     }
 }
