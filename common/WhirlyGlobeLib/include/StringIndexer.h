@@ -104,7 +104,8 @@ class StringIndexer
 public:
     // Return or make up a string identity
     static StringIdentity getStringID(const std::string &);
-    
+    static StringIdentity getStringID(const char *);
+
     // Return the string for a string identity
     static std::string getString(StringIdentity);
     

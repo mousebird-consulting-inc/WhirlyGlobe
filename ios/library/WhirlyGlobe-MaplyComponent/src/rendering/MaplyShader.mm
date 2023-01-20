@@ -1,9 +1,8 @@
-/*
- *  MaplyShader.mm
+/*  MaplyShader.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/7/13.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <UIKit/UIKit.h>
@@ -63,7 +61,7 @@ using namespace WhirlyKit;
 
     viewC = baseViewC;
     
-    std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding];
+    std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
     ProgramMTLRef prog(new ProgramMTL(name,vertexFunc,fragFunc));
     _program = prog;
 

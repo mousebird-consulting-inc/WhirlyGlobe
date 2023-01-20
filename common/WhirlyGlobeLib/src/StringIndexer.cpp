@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 7/30/18.
- *  Copyright 2011-2021 Saildrone Inc
+ *  Copyright 2011-2023 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -27,6 +27,11 @@ StringIndexer StringIndexer::instance;
 StringIndexer::StringIndexer() : stringToIdent(500)
 {
     identToString.reserve(500);
+}
+
+StringIdentity StringIndexer::getStringID(const char *str)
+{
+    return str ? getStringID(std::string(str)) : EmptyIdentity;
 }
 
 StringIdentity StringIndexer::getStringID(const std::string &str)

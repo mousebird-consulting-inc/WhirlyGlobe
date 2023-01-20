@@ -1,9 +1,8 @@
-/*
- *  WGVectorObject.mm
+/*  MaplyVectorObject.mm
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 8/2/12.
- *  Copyright 2012-2022 mousebird consulting
+ *  Copyright 2012-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "visual_objects/MaplyVectorObject.h"
@@ -311,15 +309,26 @@ using namespace WhirlyGlobe;
 
 - (instancetype)initWithShapeFile:(NSString *)fileName
 {
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
 	if (![[NSFileManager defaultManager] fileExistsAtPath:[NSString stringWithFormat:@"%@.shp",fileName]]) {
 		fileName = [[NSBundle mainBundle] pathForResource:fileName ofType:@"shp"];
 	}
-	if (!fileName)
-		return nil;
+    
+    const auto cstr = [fileName cStringUsingEncoding:NSASCIIStringEncoding];
+	if (!cstr)
+    {
+        return nil;
+    }
     
     vObj = std::make_shared<VectorObject>();
-    if (!vObj->fromShapeFile([fileName cStringUsingEncoding:NSASCIIStringEncoding]))
+    if (!vObj || !vObj->fromShapeFile(cstr))
+    {
         return nil;
+    }
 
 	return self;
 }

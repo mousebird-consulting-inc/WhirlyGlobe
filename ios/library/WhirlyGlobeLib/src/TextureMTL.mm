@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/16/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ static RawDataRef ConvertRGBA8888toRGB565(const RawDataRef &inData, int width, i
     srcBuff.height = height;
     srcBuff.rowBytes = 4*width;
 
-    NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+    NSMutableData *outData = [[NSMutableData alloc] initWithLength:width*height*2];
     vImage_Buffer destBuff;
     destBuff.data = (void *)[outData bytes];
     destBuff.width = width;
@@ -162,7 +162,7 @@ static RawDataRef ConvertRGBA8888toRGBA5551(const RawDataRef &inData, int width,
     srcBuff.height = height;
     srcBuff.rowBytes = 4*width;
 
-    NSMutableData *outData = [[NSMutableData alloc] initWithCapacity:width*height*2];
+    NSMutableData *outData = [[NSMutableData alloc] initWithLength:width*height*2];
     vImage_Buffer destBuff;
     destBuff.data = (void *)[outData bytes];
     destBuff.width = width;

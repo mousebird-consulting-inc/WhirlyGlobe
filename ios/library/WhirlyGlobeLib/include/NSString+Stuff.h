@@ -3,7 +3,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/11/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -24,9 +24,13 @@
 @interface NSString(Stuff)
 
 /// Build an NSString from a std::wstring
-+(NSString*) stringWithwstring:(const std::wstring&)ws;
++ (nullable NSString*) stringWithwstring:(const std::wstring&)ws;
 
-/// Convert and return a std::string
+/// Version of `cStringUsingEncoding` safe to assign to `std::string`, as long as `withDefault:` is non-null
+- (nullable const char *)cStringUsingEncoding:(NSStringEncoding)encoding
+                                  withDefault:(nullable const char*)def NS_RETURNS_INNER_POINTER;
+
+/// Convert and return a std::string with UTF-8 encoding, or blank on failure
 - (std::string) asStdString;
 
 @end

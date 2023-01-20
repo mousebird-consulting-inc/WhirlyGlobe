@@ -1,9 +1,8 @@
-/*
- *  MaplyTileFetcher.mm
+/*  MaplyRemoteTileFetcher.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/15/18.
- *  Copyright 2011-2019 Saildrone Inc
+ *  Copyright 2011-2023 Saildrone Inc
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -393,7 +392,7 @@ using namespace WhirlyKit;
             sstr << "(F),,,,";
         }
         sstr << (float)entry.size/1024 << ",";
-        sstr << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding];
+        sstr << [entry.urlReq.URL.path cStringUsingEncoding:NSASCIIStringEncoding withDefault:"<invalid>"];
         sstr << "\n";
     }
     

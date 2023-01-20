@@ -1,9 +1,8 @@
-/*
- *  MaplyPoints.mm
+/*  MaplyPoints.mm
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 10/21/15
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,10 +14,10 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyPoints_private.h"
+#import "NSString+Stuff.h"
 
 using namespace WhirlyKit;
 
@@ -74,31 +73,25 @@ using namespace WhirlyKit;
 
 - (int)addAttributeType:(NSString *__nonnull)attrName type:(MaplyShaderAttrType)type
 {
-    StringIdentity nameID = StringIndexer::getStringID([attrName cStringUsingEncoding:NSASCIIStringEncoding]);
+    std::string str = [attrName cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
+    if (str.empty())
+    {
+        return -1;
+    }
+
+    const StringIdentity nameID = StringIndexer::getStringID(str);
     
     GeomRawDataType dataType = GeomRawTypeMax;
     switch (type)
     {
-        case MaplyShaderAttrTypeInt:
-            dataType = GeomRawIntType;
-            break;
-        case MaplyShaderAttrTypeFloat:
-            dataType = GeomRawFloatType;
-            break;
-        case MaplyShaderAttrTypeFloat2:
-            dataType = GeomRawFloat2Type;
-            break;
-        case MaplyShaderAttrTypeFloat3:
-            dataType = GeomRawFloat3Type;
-            break;
-        case MaplyShaderAttrTypeFloat4:
-            dataType = GeomRawFloat4Type;
-            break;
+        case MaplyShaderAttrTypeInt:    dataType = GeomRawIntType; break;
+        case MaplyShaderAttrTypeFloat:  dataType = GeomRawFloatType; break;
+        case MaplyShaderAttrTypeFloat2: dataType = GeomRawFloat2Type; break;
+        case MaplyShaderAttrTypeFloat3: dataType = GeomRawFloat3Type; break;
+        case MaplyShaderAttrTypeFloat4: dataType = GeomRawFloat4Type; break;
+        default: return -1;
     }
-    
-    if (dataType == GeomRawTypeMax)
-        return -1;
-    
+
     return points.addAttribute(nameID, dataType);
 }
 

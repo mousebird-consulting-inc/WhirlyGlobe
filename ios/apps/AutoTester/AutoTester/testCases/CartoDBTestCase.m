@@ -66,6 +66,7 @@
     interp.maxZoom = params.maxZoom;
 
     loader = [[MaplyQuadPagingLoader alloc] initWithParams:params tileInfo:interp loadInterp:interp viewC:baseViewC];
+    loader.label = @"CartoDB";
     interp.loader = loader;
 }
 

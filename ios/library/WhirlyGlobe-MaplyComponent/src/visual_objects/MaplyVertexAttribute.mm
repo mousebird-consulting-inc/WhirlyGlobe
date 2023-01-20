@@ -1,9 +1,8 @@
-/*
- *  MaplyVertexAttribute.mm
+/*  MaplyVertexAttribute.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 11/29/13.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "MaplyVertexAttribute_private.h"
@@ -27,7 +25,10 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name slot:(int)slot float:(float)val
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
     attr.type = BDFloatType;
     attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -38,7 +39,10 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name slot:(int)slot floatX:(float)x y:(float)y
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
     attr.type = BDFloat2Type;
     attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -50,7 +54,10 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name slot:(int)slot floatX:(float)x y:(float)y z:(float)z
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
     attr.type = BDFloat3Type;
     attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -63,7 +70,10 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name slot:(int)slot color:(UIColor *)color
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
     attr.type = BDChar4Type;
     attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);
@@ -78,7 +88,10 @@ using namespace WhirlyKit;
 
 - (instancetype)initWithName:(NSString *)name slot:(int)slot int:(int)val
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
     attr.type = BDIntType;
     attr.slot = slot;
     attr.nameID = StringIndexer::getStringID([name cStringUsingEncoding:NSASCIIStringEncoding]);

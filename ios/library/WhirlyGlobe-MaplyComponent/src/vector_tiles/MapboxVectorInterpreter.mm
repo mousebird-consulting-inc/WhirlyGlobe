@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorTilesImageDelegate.h
+/*  MapboxVectorTilesImageDelegate.h
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on January 24 2018
- *  Copyright 2011-2019 Saildrone
+ *  Copyright 2011-2023 Saildrone
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "vector_tiles/MapboxVectorInterpreter.h"
@@ -71,48 +69,106 @@ static int BackImageWidth = 16, BackImageHeight = 16;
                         vectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
                               viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
-    self = [super init];
-    offlineRender = inOfflineRender;
-    viewC = inViewC;
-    coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
 
-    offlineRender.clearColor = [UIColor blueColor];
-    
-    // If the vector style is backed with the C++ implementation, just grab that
-    NSObject<MaplyVectorStyleDelegateSecret> *testImageStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inImageStyle;
-    if ([testImageStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
-        imageStyle = [testImageStyle getVectorStyleImpl];
-    } else
-        imageStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inImageStyle);
-    
-    // Same for the vector, uh, vector styles
-    NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
-    if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
-        vecStyle = [testVecStyle getVectorStyleImpl];
-    } else
-        vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
+    try
+    {
+        offlineRender = inOfflineRender;
+        viewC = inViewC;
+        coordSys = [[MaplySphericalMercator alloc] initWebStandard];
+        
+        offlineRender.clearColor = [UIColor blueColor];
+        
+        // If the vector style is backed with the C++ implementation, just grab that
+        NSObject<MaplyVectorStyleDelegateSecret> *testImageStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inImageStyle;
+        if ([testImageStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
+            imageStyle = [testImageStyle getVectorStyleImpl];
+        } else
+            imageStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inImageStyle);
+        
+        // Same for the vector, uh, vector styles
+        NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
+        if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
+            vecStyle = [testVecStyle getVectorStyleImpl];
+        } else
+            vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
+        
+        imageTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,imageStyle);
+        imageTileParser->setLocalCoords();
+        vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in MapboxVectorInterpreter.initWithImageStyle: %s", ex.what());
+        [inViewC report:@"MapboxVectorInterpreter.initWithImageStyle"
+         exception:[[NSException alloc] initWithName:@"STL Exception"
+                                              reason:[NSString stringWithUTF8String:ex.what()]
+                                            userInfo:nil]];
+        return nil;
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in MapboxVectorInterpreter.initWithImageStyle: %@", ex.description);
+        [inViewC report:@"MapboxVectorInterpreter.initWithImageStyle" exception:ex];
+        return nil;
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in MapboxVectorInterpreter.initWithImageStyle");
+        [inViewC report:@"MapboxVectorInterpreter.initWithImageStyle"
+         exception:[[NSException alloc] initWithName:@"C++ Exception" reason:@"Unknown" userInfo:nil]];
+        return nil;
+    }
 
-    imageTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,imageStyle);
-    imageTileParser->setLocalCoords();
-    vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
-    
     return self;
 }
 
 - (instancetype) initWithVectorStyle:(NSObject<MaplyVectorStyleDelegate> *)inVectorStyle
                                viewC:(NSObject<MaplyRenderControllerProtocol> *)inViewC
 {
-    self = [super init];
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+
     viewC = inViewC;
 
-    // Same for the vector, uh, vector styles
-    NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
-    if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
-        vecStyle = [testVecStyle getVectorStyleImpl];
-    } else
-        vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
-
-    vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
+    try
+    {
+        // Same for the vector, uh, vector styles
+        NSObject<MaplyVectorStyleDelegateSecret> *testVecStyle = (NSObject<MaplyVectorStyleDelegateSecret> *)inVectorStyle;
+        if ([testVecStyle respondsToSelector:@selector(getVectorStyleImpl)]) {
+            vecStyle = [testVecStyle getVectorStyleImpl];
+        } else
+            vecStyle = std::make_shared<VectorStyleDelegateWrapper>(inViewC,inVectorStyle);
+        
+        vecTileParser = std::make_shared<MapboxVectorTileParser>(nullptr,vecStyle);
+    }
+    catch (const std::exception &ex)
+    {
+        NSLog(@"Exception in MapboxVectorInterpreter.initWithVectorStyle: %s", ex.what());
+        [inViewC report:@"MapboxVectorInterpreter.initWithVectorStyle"
+         exception:[[NSException alloc] initWithName:@"STL Exception"
+                                              reason:[NSString stringWithUTF8String:ex.what()]
+                                            userInfo:nil]];
+        return nil;
+    }
+    catch (NSException *ex)
+    {
+        NSLog(@"Exception in MapboxVectorInterpreter.initWithVectorStyle: %@", ex.description);
+        [inViewC report:@"MapboxVectorInterpreter.initWithVectorStyle" exception:ex];
+        return nil;
+    }
+    catch (...)
+    {
+        NSLog(@"Exception in MapboxVectorInterpreter.initWithVectorStyle");
+        [inViewC report:@"MapboxVectorInterpreter.initWithVectorStyle"
+         exception:[[NSException alloc] initWithName:@"C++ Exception" reason:@"Unknown" userInfo:nil]];
+        return nil;
+    }
 
     return self;
 }
@@ -121,11 +177,14 @@ static int BackImageWidth = 16, BackImageHeight = 16;
 {
     if (imageTileParser || vecTileParser)
     {
-        std::string uuidName = [inUuidName cStringUsingEncoding:NSUTF8StringEncoding];
+        const std::string uuidName = [inUuidName asStdString];
         std::set<std::string> uuidValues;
         for (NSString *uuid in uuids)
         {
-            uuidValues.emplace([uuid cStringUsingEncoding:NSUTF8StringEncoding]);
+            if (auto cstr = [uuid cStringUsingEncoding:NSUTF8StringEncoding])
+            {
+                uuidValues.emplace(cstr);
+            }
         }
 
         if (imageTileParser)
