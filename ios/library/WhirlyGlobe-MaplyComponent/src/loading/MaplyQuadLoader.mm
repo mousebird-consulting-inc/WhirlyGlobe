@@ -752,8 +752,35 @@ using namespace WhirlyKit;
     }
     else
     {
-        wkLogLevel(Warn, "MaplyQuadLoader layer thread stopped before shutdown");
-        [self cleanup];
+        __strong auto vc = _viewC;
+        
+        // The sampling layer and/or thread has already been shut down, so we can't do the cleanup
+        // there.  That probably means a loader was not shut down before the map controller it was
+        // set up on.  Try to do the cleanup here.
+        wkLogLevel(Warn, "MaplyQuadLoader layer thread stopped before shutdown (%@)", self.label);
+        try
+        {
+            [self cleanup];
+        }
+        catch (const std::exception &ex)
+        {
+            NSLog(@"Exception in MaplyQuadLoaderBase.shutdown: %s", ex.what());
+            [vc report:@"MaplyQuadLoaderBase.shutdown"
+             exception:[[NSException alloc] initWithName:@"STL Exception"
+                                                  reason:[NSString stringWithUTF8String:ex.what()]
+                                                userInfo:nil]];
+        }
+        catch (NSException *ex)
+        {
+            NSLog(@"Exception in MaplyQuadLoaderBase.shutdown: %@", ex.description);
+            [vc report:@"MaplyQuadLoaderBase.shutdown" exception:ex];
+        }
+        catch (...)
+        {
+            NSLog(@"Exception in MaplyQuadLoaderBase.shutdown");
+            [vc report:@"MaplyQuadLoaderBase.shutdown"
+             exception:[[NSException alloc] initWithName:@"C++ Exception" reason:@"Unknown" userInfo:nil]];
+        }
     }
 }
 

@@ -515,6 +515,7 @@ public class MapboxKindaMap {
                 return
             }
             imageLoader.flipY = flipTileSources
+            imageLoader.label = "MapboxKindaMap-ImageVectorHybrid";
             // TODO: Doesn't handle more than one local source
             if !localFetchers.isEmpty {
                 imageLoader.setTileFetcher(localFetchers[0])
@@ -686,6 +687,7 @@ public class MapboxKindaMap {
                                                         loadInterp: mapboxInterp,
                                                         viewC: viewC) {
                 pagingLoader.flipY = false
+                pagingLoader.label = "MapboxKindaMap-SimpleOverlay";
                 if !localFetchers.isEmpty {
                     pagingLoader.setTileFetcher(localFetchers[0])
                 }
