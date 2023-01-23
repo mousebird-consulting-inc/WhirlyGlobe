@@ -86,7 +86,8 @@ typedef enum TextureType_t {
 /// Interpolation types for upscaling
 typedef enum TextureInterpType_t {
     TexInterpNearest,
-    TexInterpLinear
+    TexInterpLinear,
+    TexInterpCubic
 } TextureInterpType;
 
 /** Your basic Texture representation.

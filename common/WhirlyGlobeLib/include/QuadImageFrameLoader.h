@@ -357,6 +357,7 @@ public:
 
     /// Turn the display on or off.  Loading continues normally
     void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
+    bool getMasterEnable() const { return masterEnable; }
     
     /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
     void setLoadMode(LoadMode newMode);
