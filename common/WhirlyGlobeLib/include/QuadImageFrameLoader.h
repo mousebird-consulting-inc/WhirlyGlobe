@@ -24,6 +24,8 @@ namespace WhirlyKit
 {
 
 class QuadImageFrameLoader;
+struct TileInfo;
+using TileInfoRef = std::shared_ptr<TileInfo>;
 
 // We store cancels and adds to do them all at once
 // The subclass passes its own version of this around
@@ -571,6 +573,8 @@ public:
     using LoadingDelegate = std::function<void(SimpleIdentity,bool)>;
     SimpleIdentity addLoadingDelegate(LoadingDelegate);
     void removeLoadingDelegate(SimpleIdentity);
+
+    virtual void setTileInfos(std::vector<TileInfoRef>) { }
 
 public:
     ComponentManagerRef compManager;
