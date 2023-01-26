@@ -204,10 +204,10 @@ public:
     ParticleSystemManagerRef partSysManager;
 #endif //!MAPLY_MINIMAL
 
-protected:
     // Subclass fills this in
     virtual ComponentObjectRef makeComponentObject(const Dictionary *desc = nullptr) = 0;
 
+protected:
     void removeComponentObjects_NoLock(PlatformThreadInfo *threadInfo,
                                        const SimpleIDSet &compIDs,
                                        std::vector<ComponentObjectRef> &objs);
