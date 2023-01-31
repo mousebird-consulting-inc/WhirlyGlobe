@@ -16,8 +16,9 @@
  *  limitations under the License.
  */
 
-#import <set>
 #import <memory>
+#import <set>
+#import <unordered_set>
 
 namespace WhirlyKit
 {
@@ -36,6 +37,7 @@ static const SimpleIdentity EmptyIdentity = 0;
     
 /// A set of identities.  Often passed back as query result.
 typedef std::set<SimpleIdentity> SimpleIDSet;
+typedef std::unordered_set<SimpleIdentity> SimpleIDUSet;
 
 /** Simple unique ID base class.
     If you subclass this you'll get your own unique ID

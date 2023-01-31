@@ -292,17 +292,19 @@ void ComponentManager::enableComponentObject(SimpleIdentity compID, bool enable,
 
 
 // NOLINTNEXTLINE(google-default-arguments)
-void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes, bool resolveReps)
+template<typename T>
+void ComponentManager::enableComponentObjects(T beg, T end, bool enable, ChangeSet &changes, bool resolveReps)
 {
     std::vector<ComponentObjectRef> compRefs;
-    compRefs.reserve(compIDs.size());
+    compRefs.reserve(std::distance(beg, end));
 
     {
         // Lock around all component objects
         std::lock_guard<std::mutex> guardLock(lock);
-    
-        for (SimpleIdentity compID : compIDs)
+
+        for (; beg != end; ++beg)
         {
+            const SimpleIdentity compID = *beg;
             const auto it = compObjsById.find(compID);
             if (it == compObjsById.end())
             {
@@ -322,6 +324,18 @@ void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool en
     }
 
     enableComponentObjects(compRefs, enable, changes, resolveReps);
+}
+
+// NOLINTNEXTLINE(google-default-arguments)
+void ComponentManager::enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes, bool resolveReps)
+{
+    enableComponentObjects(compIDs.begin(), compIDs.end(), enable, changes, resolveReps);
+}
+
+// NOLINTNEXTLINE(google-default-arguments)
+void ComponentManager::enableComponentObjects(const SimpleIDUSet &compIDs,bool enable,ChangeSet &changes, bool resolveReps)
+{
+    enableComponentObjects(compIDs.begin(), compIDs.end(), enable, changes, resolveReps);
 }
 
 // Determine the new state for "that" given a change to "this."
