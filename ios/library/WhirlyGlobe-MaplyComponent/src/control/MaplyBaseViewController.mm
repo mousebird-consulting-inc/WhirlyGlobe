@@ -1041,6 +1041,9 @@ static const float PerfOutputDelay = 15.0;
 
 - (void)removeTexture:(MaplyTexture *)texture mode:(MaplyThreadMode)threadMode
 {
+    if (!texture) {
+        return;
+    }
     [renderControl removeTextures:@[texture] mode:threadMode];
 }
 

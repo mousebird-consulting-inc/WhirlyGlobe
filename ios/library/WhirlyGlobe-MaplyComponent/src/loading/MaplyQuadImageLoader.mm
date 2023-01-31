@@ -181,6 +181,10 @@ using namespace WhirlyKit;
     
     MaplyBoundingBox bbox = [loader geoBoundsForTile:loadReturn.tileID];
     MaplyScreenLabel *label = [[MaplyScreenLabel alloc] init];
+    if (!label)
+    {
+        return;
+    }
     MaplyCoordinate center;
     center.x = (bbox.ll.x+bbox.ur.x)/2.0;  center.y = (bbox.ll.y+bbox.ur.y)/2.0;
     label.loc = center;
@@ -201,8 +205,16 @@ using namespace WhirlyKit;
     coords[2] = bbox.ur;  coords[3] = MaplyCoordinateMake(bbox.ll.x, bbox.ur.y);
     coords[4] = coords[0];
     MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithLineString:coords numCoords:5 attributes:nil];
+    if (!vecObj)
+    {
+        return;
+    }
     [vecObj subdivideToGlobe:0.001];
     MaplyComponentObject *outlineObj = [vc addVectors:@[vecObj] desc:@{kMaplyEnable: @(false)} mode:MaplyThreadCurrent];
+    if (!outlineObj)
+    {
+        return;
+    }
     
     [loadReturn addCompObjs:@[labelObj,outlineObj]];
 }
@@ -689,7 +701,7 @@ static const int debugColors[MaxDebugColors] = {0x86812D, 0x5EB9C9, 0x2A7E3E, 0x
 
 - (void)changeTileInfo:(NSObject<MaplyTileInfoNew> *)tileInfo
 {
-    NSArray *tileInfos = @[tileInfo];
+    NSArray *tileInfos = tileInfo ? @[tileInfo] : @[];
     
     [super changeTileInfos:tileInfos];
 }

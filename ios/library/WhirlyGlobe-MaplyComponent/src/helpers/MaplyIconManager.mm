@@ -430,6 +430,10 @@
 
 - (MaplyComponentObject * __nullable)addFeature:(MaplyVectorObject * __nonnull)vecObj mode:(MaplyThreadMode)mode
 {
+    if (!vecObj)
+    {
+        return nil;
+    }
     const MaplySimpleStyle *style = [self makeStyle:vecObj.attributes];
 
     const auto __strong vc = viewC;
@@ -437,13 +441,14 @@
         case MaplyVectorPointType:
             // It's a screen marker
             if (style.markerTex) {
-                MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init];
-                marker.loc = [vecObj center];
-                marker.image = style.markerTex;
-                marker.size = style.markerSize;
-                marker.offset = style.markerOffset;
-                //marker.layoutImportance = MAXFLOAT;
-                return [vc addScreenMarkers:@[marker] desc:nil mode:mode];
+                if (MaplyScreenMarker *marker = [[MaplyScreenMarker alloc] init]) {
+                    marker.loc = [vecObj center];
+                    marker.image = style.markerTex;
+                    marker.size = style.markerSize;
+                    marker.offset = style.markerOffset;
+                    //marker.layoutImportance = MAXFLOAT;
+                    return [vc addScreenMarkers:@[marker] desc:nil mode:mode];
+                }
             }
             break;
         case MaplyVectorLinearType:

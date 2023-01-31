@@ -488,11 +488,13 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
         bounce.toValue = presenting ? @1.0 : @0.7;
         bounce.timingFunction = [CAMediaTimingFunction functionWithControlPoints:0.59367:0.12066:0.18878:1.5814];
 
-        CAAnimationGroup *group = [CAAnimationGroup animation];
-        group.animations = @[fade, bounce];
-        group.duration = 0.23;
-
-        animation = group;
+        if (fade && bounce) {
+            CAAnimationGroup *group = [CAAnimationGroup animation];
+            group.animations = @[fade, bounce];
+            group.duration = 0.23;
+            
+            animation = group;
+        }
     }
     else if (type == SMCalloutAnimationFade) {
         CABasicAnimation *fade = [CABasicAnimation animationWithKeyPath:@"opacity"];

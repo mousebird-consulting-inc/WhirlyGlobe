@@ -490,9 +490,13 @@
         
         NSTimeInterval ti = [NSDate timeIntervalSinceReferenceDate]+0.5;
         _markerDesc[kMaplyEnableStart] = _movingMarkerDesc[kMaplyEnableEnd] = @(ti);
-        
-        _movingMarkerObj = [theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc mode:MaplyThreadCurrent];
-        _markerObj = [theViewC addScreenMarkers:@[marker] desc:_markerDesc mode:MaplyThreadCurrent];
+
+        if (movingMarker) {
+            _movingMarkerObj = [theViewC addScreenMarkers:@[movingMarker] desc:_movingMarkerDesc mode:MaplyThreadCurrent];
+        }
+        if (marker) {
+            _markerObj = [theViewC addScreenMarkers:@[marker] desc:_markerDesc mode:MaplyThreadCurrent];
+        }
         
         [self lockToLocation:endLoc heading:(orientation ? orientation.floatValue : 0.0)];
         

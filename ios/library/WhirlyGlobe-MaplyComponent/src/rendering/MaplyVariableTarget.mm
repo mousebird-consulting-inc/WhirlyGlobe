@@ -91,6 +91,10 @@
     
     // Set up a rectangle right over the view to render the render target
     MaplyShapeRectangle *rect = [[MaplyShapeRectangle alloc] init];
+    if (!rect)
+    {
+        return;
+    }
     rect.ll = MaplyCoordinate3dDMake(-1.0, -1.0, 0.0);
     rect.ur = MaplyCoordinate3dDMake(1.0, 1.0, 0.0);
     rect.clipCoords = true;
@@ -101,17 +105,17 @@
         else
             NSLog(@"Failed to add auxiliary render target in setupRectangle for MaplyVariableTarget.");
     }
-
+    
 #if MAPLY_MINIMAL
     MaplyShader *shader = _shader ? _shader : [theViewC getShaderByName:kMaplyShaderDefaultTriNoLighting];
-
+    
     WhirlyKit::ShapeInfo shapeInfo;
     shapeInfo.color = [_color asRGBAColor];
     shapeInfo.drawPriority = _drawPriority;
     shapeInfo.zBufferRead = _zBuffer;
     shapeInfo.zBufferWrite = false;
     shapeInfo.programID = [shader getShaderID];
-
+    
     _rectObj = [theViewC addShapes:@[rect] info:shapeInfo desc:nil mode:MaplyThreadCurrent];
 #else
     const NSString * const shaderName = _shader ? [_shader name] : kMaplyShaderDefaultTriNoLighting;
@@ -127,8 +131,13 @@
 #endif
     
     // Pass through the uniform blocks if they've been set up
-    for (const auto &block : uniBlocks) {
-        [theViewC setUniformBlock:block.second buffer:block.first forObjects:@[_rectObj] mode:MaplyThreadCurrent];
+    if (_rectObj) {
+        for (const auto &block : uniBlocks) {
+            [theViewC setUniformBlock:block.second
+                               buffer:block.first
+                           forObjects:@[_rectObj]
+                                 mode:MaplyThreadCurrent];
+        }
     }
 }
 
