@@ -642,8 +642,13 @@ Program *Scene::getProgram(SimpleIdentity progId)
     
     return prog;
 }
-    
+
 Program *Scene::findProgramByName(const std::string &name)
+{
+    return findProgramRefByName(name).get();
+}
+
+ProgramRef Scene::findProgramRefByName(const std::string &name)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
     
@@ -651,12 +656,11 @@ Program *Scene::findProgramByName(const std::string &name)
     for (auto it = programs.rbegin(); it != programs.rend(); ++it) {
         if (it->second->getName() == name)
         {
-            prog = it->second.get();
+            return it->second;
             break;
         }
     }
-    
-    return prog;
+    return ProgramRef();
 }
 
 void Scene::addProgram(ProgramRef prog)
