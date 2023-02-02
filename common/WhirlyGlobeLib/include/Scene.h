@@ -423,6 +423,7 @@ public:
 
     /// Look for a program by its name (last to first)
     Program *findProgramByName(const std::string &name);
+    ProgramRef findProgramRefByName(const std::string &name);
 
     /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
     double getOverlapMargin() { return overlapMargin; }
