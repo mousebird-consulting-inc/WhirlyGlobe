@@ -18,6 +18,7 @@
 
 #import "RenderTarget.h"
 #import "SceneRenderer.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {

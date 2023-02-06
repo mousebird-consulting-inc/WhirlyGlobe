@@ -1,9 +1,8 @@
-/*
- *  RenderTargetGLES.cpp
+/*  RenderTargetGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/13/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "RenderTargetGLES.h"
@@ -25,13 +23,14 @@
 
 namespace WhirlyKit
 {
-    
+
 RenderTargetGLES::RenderTargetGLES()
 {
     init();
 }
 
-RenderTargetGLES::RenderTargetGLES(SimpleIdentity newID) : RenderTarget(newID)
+RenderTargetGLES::RenderTargetGLES(SimpleIdentity newID) :
+    RenderTargetSettings(newID)
 {
     init();
 }
@@ -40,7 +39,7 @@ void RenderTargetGLES::init()
 {
     RenderTarget::init();
 }
-    
+
 bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentity targetTexID)
 {
     auto *renderer = (SceneRendererGLES *)inRenderer;
@@ -97,11 +96,12 @@ bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentit
     
 bool RenderTargetGLES::setTargetTexture(SceneRenderer *sceneRender,Scene *scene,SimpleIdentity targetTexID)
 {
-    TextureBaseRef tex = scene->getTexture(targetTexID);
-    if (tex)
+    if (TextureBaseRef tex = scene->getTexture(targetTexID))
+    {
         setTargetTexture(tex.get());
-    
-    return tex != nullptr;
+        return true;
+    }
+    return false;
 }
 
 void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
@@ -109,7 +109,9 @@ void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
     TextureBaseGLES *tex = dynamic_cast<TextureBaseGLES *>(inTex);
     if (!tex)
         return;
-    
+
+    texId = tex->getId();
+
     if (framebuffer == 0) {
         glGenFramebuffers(1, &framebuffer);
         colorbuffer = 0;

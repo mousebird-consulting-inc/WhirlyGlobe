@@ -50,8 +50,8 @@ class AddTextureReq : public ChangeRequest
 public:
     /// Construct with a texture.
     /// You are not responsible for deleting the texture after this.
-    AddTextureReq(TextureBase *tex) { texRef = TextureBaseRef(tex); }
-    AddTextureReq(TextureBaseRef texRef) : texRef(std::move(texRef)) { }
+    AddTextureReq(TextureBase *tex);
+    AddTextureReq(TextureBaseRef texRef);
     /// If the texture hasn't been added to the renderer, clean it up.
     virtual ~AddTextureReq() = default;
 
