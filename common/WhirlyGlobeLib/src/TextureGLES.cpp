@@ -371,15 +371,20 @@ unsigned char *TextureGLES::ResolvePKM(const RawDataRef &texData,int &pkmType,in
 // Define the texture in OpenGL
 bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
 {
-    auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
-    
-    if (!texData && !isEmptyTexture)
-        return false;
-    
+    const auto *setupInfo = (RenderSetupInfoGLES *)inSetupInfo;
+
     // We'll only create this once
     if (glId)
+    {
         return true;
-    
+    }
+
+    if ((!texData || !texData->getLen()) && !isEmptyTexture)
+    {
+        wkLogLevel(Error, "Non-empty texture %lld with no data", getId());
+        return false;
+    }
+
     // Allocate a texture and set up the various params
     if (setupInfo && setupInfo->memManager)
         glId = setupInfo->memManager->getTexID();

@@ -233,10 +233,10 @@ Texture::Texture(RawDataRef texData, bool isPVRTC) :
 Texture::Texture(RawDataRef texData, TextureType inFormat, int inWidth, int inHeight, bool isPVRTC) :
     texData    (std::move(texData)),
     isPVRTC    (isPVRTC),
-    format     (inFormat),
-    width      (inWidth),
-    height     (inHeight)
+    format     (inFormat)
 {
+    width = inWidth;
+    height = inHeight;
 }
 
 void Texture::setRawData(RawDataRef rawData, int inWidth, int inHeight, int depth, int channels)
