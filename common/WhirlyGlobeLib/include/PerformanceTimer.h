@@ -80,7 +80,9 @@ public:
     
     /// Write out the timings to the log
     void log(double min = 0.0);
-    
+
+    static double getTimePrecision();
+
 protected:
     std::map<std::string,TimeInterval> actives;
     std::map<std::string,TimeEntry> timeEntries;
