@@ -119,7 +119,7 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
         framebufferTexGL->createInRenderer(nullptr);
         framebufferTex = framebufferTexGL;
     }
-    
+
     auto defaultTarget = std::make_shared<RenderTargetGLES>(EmptyIdentity);
     defaultTarget->width = sizeX;
     defaultTarget->height = sizeY;
@@ -132,11 +132,11 @@ bool SceneRendererGLES::setup(int apiVersion,int sizeX,int sizeY,float inScale)
             defaultTarget->init(this,nullptr,EmptyIdentity);
         defaultTarget->blendEnable = true;
     }
-    defaultTarget->clearEveryFrame = true;
-    renderTargets.push_back(defaultTarget);
+    defaultTarget->setClearEveryFrame(true);
+    renderTargets.push_back(std::move(defaultTarget));
 
     // GL doesn't do anything special for teardown
-    teardownInfo = RenderTeardownInfoRef(new RenderTeardownInfo());
+    teardownInfo = std::make_shared<RenderTeardownInfo>();
     
     return true;
 }
@@ -259,6 +259,9 @@ bool SceneRendererGLES::hasChanges()
 {
     return SceneRenderer::hasChanges();
 }
+
+
+static GLint maxVertexAttribs = -1; // GL_MAX_VERTEX_ATTRIBS
 
 void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
 {
@@ -572,7 +575,7 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
             
             renderTarget->setActiveFramebuffer(this);
             
-            if (renderTarget->clearEveryFrame || renderTarget->clearOnce)
+            if (renderTarget->getClearEveryFrame() || renderTarget->clearOnce)
             {
                 renderTarget->clearOnce = false;
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -662,6 +665,21 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
                 // Draw using the given program
                 drawContain.drawable->draw(&baseFrameInfo,scene);
 
+                // Some drawable is leaving a vertex attribute array enabled.
+                // For now, just disable all (~16) of them.
+                if (maxVertexAttribs < 0)
+                {
+                    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &maxVertexAttribs);
+                    if (!CheckGLError("glGet(GL_MAX_VERTEX_ATTRIBS)"))
+                    {
+                        maxVertexAttribs = 0;
+                    }
+                }
+                for (int i = 0; i < maxVertexAttribs; ++i)
+                {
+                    glDisableVertexAttribArray(i);
+                }
+
                 if (UNLIKELY(reportStats))
                     perfTimer.stopTiming("Draw Drawables");
 
@@ -741,7 +759,9 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
         frameCountStart = newNow;
         frameCount = 0;
 
-        wkLogLevel(Verbose,"---Rendering Performance---");
+        const auto timePrecision = PerformanceTimer::getTimePrecision();
+        wkLogLevel(Verbose,"---Rendering Performance (Time Precision: 1/%.0fs)---",
+                   timePrecision > 0 ? 1 / timePrecision : 0.0);
 
         const auto frameTime = perfTimer.getTiming("Render Frame");
         if (frameTime.numRuns > 0)
