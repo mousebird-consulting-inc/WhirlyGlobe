@@ -339,7 +339,7 @@ public:
 
     QuadImageFrameLoader(const SamplingParams &, Mode, FrameLoadMode = FrameLoadMode::All);
     virtual ~QuadImageFrameLoader() = default;
-    
+
     /// Add a focus
     void addFocus();
     
@@ -356,8 +356,6 @@ public:
     void setLabel(const char* lbl) { label.clear(); if (lbl) label = lbl; }
     void setLabel(std::string s) { label = std::move(s); }
     const std::string &getLabel() const { return label; }
-
-    bool getMasterEnable() const { return masterEnable; }
 
     /// Turn the display on or off.  Loading continues normally
     void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
@@ -620,6 +618,7 @@ protected:
     virtual void removeTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
     QIFTileAssetRef addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
 
+protected:
     Mode mode;
     LoadMode loadMode = LoadMode::Narrow;
     FrameLoadMode frameLoadMode = FrameLoadMode::All;

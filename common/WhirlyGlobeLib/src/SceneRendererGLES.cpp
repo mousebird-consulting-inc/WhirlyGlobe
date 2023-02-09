@@ -639,7 +639,7 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
                         
                         baseFrameInfo.program = program;
                     } else {
-                        wkLogLevel(Error, "Missing OpenGL ES Program.");
+                        wkLogLevel(Warn, "Missing OpenGL ES Program.");
                         continue;
                     }
                 }
