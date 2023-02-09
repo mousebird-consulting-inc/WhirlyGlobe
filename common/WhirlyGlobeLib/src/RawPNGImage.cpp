@@ -21,29 +21,33 @@
 
 // Note: These also need to be set on the compiler options for lodepng.cpp
 //       in order to actually exclude the un-used code from the build.
+// If we define them here, that makes it very easy to have mismatched options between
+// this compilation unit and the one for lodepng.cpp, generating tricky runtime errors.
+// So, instead, we emit errors if the CMake, etc., config doesn't set them right,
+// but it's still possible to set them correctly here but not on other compilation units.
 #if !defined(LODEPNG_NO_COMPILE_ENCODER)
-# define LODEPNG_NO_COMPILE_ENCODER
+# error Missing LODEPNG_NO_COMPILE_ENCODER
 #endif
 #if !defined(LODEPNG_NO_COMPILE_DISK)
-# define LODEPNG_NO_COMPILE_DISK
+# error Missing LODEPNG_NO_COMPILE_DISK
 #endif
 // Note that this disables color profiles (ICC, gamma, whitepoint), background color for
 // transparent pixels, text chunks, modification time, extension and unrecognized chunks,
 // but *not* transparent color-key (tRNS)
 #if !defined(LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS)
-# define LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
+# error Missing LODEPNG_NO_COMPILE_ANCILLARY_CHUNKS
 #endif
 #if !defined(LODEPNG_NO_COMPILE_ERROR_TEXT)
-# define LODEPNG_NO_COMPILE_ERROR_TEXT
+# error Missing LODEPNG_NO_COMPILE_ERROR_TEXT
 #endif
 #if !defined(LODEPNG_NO_COMPILE_CPP)
-# define LODEPNG_NO_COMPILE_CPP  // We'll use the C API
+# error Missing LODEPNG_NO_COMPILE_CPP  // We'll use the C API
 #endif
 
 // Use zlib's crc32
 #if defined __APPLE__
 # if !defined(LODEPNG_NO_COMPILE_CRC)
-#  define LODEPNG_NO_COMPILE_CRC  // We'll use the one from libz provided by the system
+#  error Missing LODEPNG_NO_COMPILE_CRC  // We'll use the one from libz provided by the system
 # endif
 
 # import <zlib.h>
@@ -53,8 +57,8 @@ unsigned lodepng_crc32(const unsigned char* buffer, size_t length)
 }
 #else
 // No `crc32_z` in Android's zlib for some reason
-# if !defined(LODEPNG_COMPILE_ZLIB)
-#  define LODEPNG_COMPILE_ZLIB
+# if defined(LODEPNG_NO_COMPILE_ZLIB)
+#  error LODEPNG_NO_COMPILE_ZLIB defined
 # endif
 #endif
 
@@ -86,10 +90,10 @@ static int getChannelCount(LodePNGColorType type)
 }
 
 // PNG is big-endian
-#if defined(__BIG_ENDIAN__) || defined(__ORDER_BIG_ENDIAN__)
+#if defined(__LITTLE_ENDIAN__) || defined(__ORDER_LITTLE_ENDIAN__) || defined(LODEPNG_FORCE_BYTE_SWAP)
+    constexpr bool needSwap = true;
+#elif defined(__BIG_ENDIAN__) || defined(__ORDER_BIG_ENDIAN__)
   constexpr bool needSwap = false;
-#elif defined(__LITTLE_ENDIAN__) || defined(__ORDER_LITTLE_ENDIAN__)
-  constexpr bool needSwap = true;
 #else
 # warning Inferring byte order - requires constexpr implicit ntohs()
   constexpr bool needSwap = (ntohs(1) != 1);
@@ -102,16 +106,37 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
                                             unsigned int *outErr, std::string* errStr)
 {
     unsigned char *outData = nullptr;
-    unsigned depth = 0, channels = 0, err;
+    unsigned depth = 0, channels = 0, err = 0;
+    LodePNGState inspectState;
+    bool inspectStateInit = false;
     try
     {
-        LodePNGState pngState;
-        lodepng_state_init(&pngState);
-        err = lodepng_inspect(&width, &height, &pngState, data, length);
+        if (!data || !length)
+        {
+            err = -6;
+            if (errStr)
+            {
+                *errStr = "missing input data";
+            }
+        }
         if (!err)
         {
-            channels = getChannelCount(pngState.info_png.color.colortype);
-            depth = pngState.info_png.color.bitdepth;
+            lodepng_state_init(&inspectState);
+            inspectStateInit = true;
+            err = lodepng_inspect(&width, &height, &inspectState, data, length);
+        }
+        if (!err && (width < 1 || height < 1))
+        {
+            err = -5;
+            if (errStr)
+            {
+                *errStr = "lodepng_inspect failed";
+            }
+        }
+        if (!err)
+        {
+            channels = getChannelCount(inspectState.info_png.color.colortype);
+            depth = inspectState.info_png.color.bitdepth;
             if (channels < 1)
             {
                 if (errStr)
@@ -123,13 +148,13 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
         }
         if (!err)
         {
-            LodePNGState state;
-            lodepng_state_init(&state);
-            state.decoder.color_convert = 0;
-            state.info_raw.colortype = pngState.info_png.color.colortype;
-            state.info_raw.bitdepth = depth;
-            err = lodepng_decode(&outData, &width, &height, &state, data, length);
-            lodepng_state_cleanup(&state);
+            LodePNGState decodeState;
+            lodepng_state_init(&decodeState);
+            decodeState.decoder.color_convert = 0;
+            decodeState.info_raw.colortype = inspectState.info_png.color.colortype;
+            decodeState.info_raw.bitdepth = depth;
+            err = lodepng_decode(&outData, &width, &height, &decodeState, data, length);
+            lodepng_state_cleanup(&decodeState);
         }
     }
     catch (const std::exception &ex)
@@ -149,6 +174,18 @@ unsigned char *RawPNGImageLoaderInterpreter(unsigned int &width, unsigned int &h
             *errStr = "Unknown exception";
         }
         err = (unsigned)-4;
+    }
+
+    if (inspectStateInit)
+    {
+        try
+        {
+            lodepng_state_cleanup(&inspectState);
+        }
+        catch (...)
+        {
+            // ?
+        }
     }
 
 #if defined(LODEPNG_COMPILE_ERROR_TEXT)
