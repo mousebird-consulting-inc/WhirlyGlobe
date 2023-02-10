@@ -181,6 +181,8 @@ public:
     MbrD() : pt_ll(0.0,0.0), pt_ur(-1.0,-1.0) { }
     /// Construct with a lower left and upper right point
     MbrD(Point2d ll,Point2d ur) : pt_ll(ll), pt_ur(ur) { }
+    /// Construct with a lower left and upper right coordinates
+    MbrD(double llx, double lly, double urx, double ury) : pt_ll(llx, lly), pt_ur(urx, ury) { }
     /// Construct a double version from the float version
     MbrD(const Mbr &inMbr) : pt_ll(Point2d(inMbr.ll().x(),inMbr.ll().y())), pt_ur(Point2d(inMbr.ur().x(),inMbr.ur().y())) { }
     /// Construct from the MBR of a vector of points
@@ -190,6 +192,10 @@ public:
     MbrD(const Point2f (&pts)[N]) : pt_ll(0,0), pt_ur(-1,-1) { addPoints(pts); }
     template<std::size_t N>
     MbrD(const Point2d (&pts)[N]) : pt_ll(0,0), pt_ur(-1,-1) { addPoints(pts); }
+
+    // Convert between degrees and radians
+    MbrD degToRad() const { return { d2r(pt_ll.x()), d2r(pt_ll.y()), d2r(pt_ur.x()), d2r(pt_ur.y()) }; }
+    MbrD radToDeg() const { return { r2d(pt_ll.x()), r2d(pt_ll.y()), r2d(pt_ur.x()), r2d(pt_ur.y()) }; }
 
     bool operator == (const MbrD &that) const;
     bool operator != (const MbrD &that) const { return !operator==(that); }
@@ -273,6 +279,10 @@ public:
     void expandByFraction(double bufferZone);
     
     typedef Point2d value_type;
+
+protected:
+    constexpr double d2r(double d) const { return d * M_PI / 180.0; }
+    constexpr double r2d(double d) const { return d * 180.0 / M_PI; }
 
 protected:
     Point2d pt_ll,pt_ur;
