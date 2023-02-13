@@ -354,15 +354,20 @@ bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
 }
 
 // Helper routine to compile a shader and check return
-bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const std::string &shaderStr)
+bool compileShader(const char *name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const char *shaderStr)
 {
+    if (!name || !name[0])
+    {
+        return false;
+    }
+
     *shaderId = glCreateShader(shaderType);
     if (*shaderId == 0) {
         wkLogLevel(Error,"Failed to create GL shader (%d)", shaderType);
         return false;
     }
 
-    const GLchar *sourceCStr = shaderStr.c_str();
+    const GLchar *sourceCStr = shaderStr ? shaderStr : "";
     glShaderSource(*shaderId, 1, &sourceCStr, nullptr);
     glCompileShader(*shaderId);
     
@@ -377,7 +382,7 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
         {
             std::vector<char> logStr(len+1);
             glGetShaderInfoLog(*shaderId, len, &len, &logStr[0]);
-            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),&logStr[0]);
+            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name,&logStr[0]);
         }
         
         glDeleteShader(*shaderId);
@@ -389,19 +394,31 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 
 #define DUMP_UNIFORMS 0
 
-// Construct the program, compile and link
-ProgramGLES::ProgramGLES(const std::string &inName,
+ProgramGLES::ProgramGLES(std::string inName,
                          const std::string &vShaderString,
                          const std::string &fShaderString,
+                         const std::vector<std::string> *varying) :
+    ProgramGLES(std::move(inName),
+                vShaderString.c_str(),
+                fShaderString.c_str(),
+                varying)
+{
+}
+
+// Construct the program, compile and link
+ProgramGLES::ProgramGLES(std::string inName,
+                         const char *vShaderString,
+                         const char *fShaderString,
                          const std::vector<std::string> *varying)
     : ProgramGLES()
 {
-    name = inName;
+    name = std::move(inName);
     program = glCreateProgram();
     if (!CheckGLError("ProgramGLES glCreateProgram"))
     {
         return;
     }
+
     if (!program)
     {
         // glCreateProgram sometimes produces zero without setting any error.
@@ -414,13 +431,13 @@ ProgramGLES::ProgramGLES(const std::string &inName,
         return;
     }
     
-    if (!compileShader(name,"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
+    if (!compileShader(name.c_str(),"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
     {
         cleanUp();
         return;
     }
     CheckGLError("ProgramGLES: compileShader() vertex");
-    if (!compileShader(name,"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
+    if (!compileShader(name.c_str(),"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
     {
         cleanUp();
         return;
@@ -438,7 +455,7 @@ ProgramGLES::ProgramGLES(const std::string &inName,
         for (unsigned int ii = 0; ii < varying->size(); ii++) {
             const std::string &name = varying->at(ii);
 
-            // TODO: Do we really need copies here, when we're just doing to free them?
+            // TODO: Do we really need copies here, when we're just going to free them?
             names[ii] = (GLchar *) malloc(sizeof(GLchar) * (name.size() + 1));
             if (names[ii]) {
                 strcpy(names[ii], name.c_str());

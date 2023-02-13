@@ -96,8 +96,14 @@ public:
     virtual ~ProgramGLES();
 
     /// Initialize with both shader programs
-    ProgramGLES(const std::string &name,const std::string &vShaderString,
-                const std::string &fShaderString,const std::vector<std::string> *varyings=nullptr);
+    ProgramGLES(std::string name,
+                const char *vShaderString,
+                const char *fShaderString,
+                const std::vector<std::string> *varyings = nullptr);
+    ProgramGLES(std::string name,
+                const std::string &vShaderString,
+                const std::string &fShaderString,
+                const std::vector<std::string> *varyings = nullptr);
     
     /// Return true if it was built correctly
     bool isValid() const override;
