@@ -92,7 +92,6 @@ struct OpenGLESAttribute
 class ProgramGLES : public Program
 {
 public:
-    ProgramGLES();
     virtual ~ProgramGLES();
 
     /// Initialize with both shader programs
@@ -153,7 +152,16 @@ public:
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) override;
     void cleanUp();
-    
+
+protected:
+    ProgramGLES();
+    ProgramGLES(const char *name);
+    ProgramGLES(std::string name);
+
+    bool init(const char *vShaderString,
+              const char *fShaderString,
+              const std::vector<std::string> *varyings);
+
 protected:
     GLuint program = 0;
     GLuint vertShader = 0;

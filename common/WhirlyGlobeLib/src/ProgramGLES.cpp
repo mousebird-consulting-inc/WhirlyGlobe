@@ -30,11 +30,44 @@ using namespace Eigen;
 
 namespace WhirlyKit
 {
+static constexpr int initCapacityUniforms = 20;
+static constexpr int initCapacityAttributes = 20;
 
 ProgramGLES::ProgramGLES() :
-    uniforms(10),
-    attrs(10)
+    ProgramGLES(std::string())
 {
+}
+
+ProgramGLES::ProgramGLES(const char *inName) :
+    ProgramGLES(inName ? std::string(inName) : std::string())
+{
+}
+
+ProgramGLES::ProgramGLES(std::string name) :
+    Program(std::move(name)),
+    uniforms(initCapacityUniforms),
+    attrs(initCapacityAttributes)
+{
+}
+
+ProgramGLES::ProgramGLES(std::string inName,
+                         const std::string &vShaderString,
+                         const std::string &fShaderString,
+                         const std::vector<std::string> *varying) :
+    ProgramGLES(std::move(inName),
+                vShaderString.c_str(),
+                fShaderString.c_str(),
+                varying)
+{
+}
+
+ProgramGLES::ProgramGLES(std::string inName,
+                         const char *vShaderString,
+                         const char *fShaderString,
+                         const std::vector<std::string> *varying) :
+    ProgramGLES(std::move(inName))
+{
+    init(vShaderString, fShaderString, varying);
 }
 
 ProgramGLES::~ProgramGLES()
@@ -394,29 +427,16 @@ bool compileShader(const char *name,const char *shaderTypeStr,GLuint *shaderId,G
 
 #define DUMP_UNIFORMS 0
 
-ProgramGLES::ProgramGLES(std::string inName,
-                         const std::string &vShaderString,
-                         const std::string &fShaderString,
-                         const std::vector<std::string> *varying) :
-    ProgramGLES(std::move(inName),
-                vShaderString.c_str(),
-                fShaderString.c_str(),
-                varying)
-{
-}
-
 // Construct the program, compile and link
-ProgramGLES::ProgramGLES(std::string inName,
-                         const char *vShaderString,
-                         const char *fShaderString,
-                         const std::vector<std::string> *varying)
-    : ProgramGLES()
+bool ProgramGLES::init(const char *vShaderString,
+                       const char *fShaderString,
+                       const std::vector<std::string> *varying)
 {
-    name = std::move(inName);
+    cleanUp();
     program = glCreateProgram();
     if (!CheckGLError("ProgramGLES glCreateProgram"))
     {
-        return;
+        return false;
     }
 
     if (!program)
@@ -428,26 +448,35 @@ ProgramGLES::ProgramGLES(std::string inName,
 #else
         wkLogLevel(Warn, "glCreateProgram Failed (%x)", glGetError());
 #endif
-        return;
+        return false;
     }
     
     if (!compileShader(name.c_str(),"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
     {
         cleanUp();
-        return;
+        return false;
     }
     CheckGLError("ProgramGLES: compileShader() vertex");
     if (!compileShader(name.c_str(),"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
     {
         cleanUp();
-        return;
+        return false;
     }
     CheckGLError("ProgramGLES: compileShader() fragment");
 
     glAttachShader(program, vertShader);
-    CheckGLError("ProgramGLES: glAttachShader() vertex");
+    if (!CheckGLError("ProgramGLES: glAttachShader() vertex"))
+    {
+        cleanUp();
+        return false;
+    }
+
     glAttachShader(program, fragShader);
-    CheckGLError("ProgramGLES: glAttachShader() fragment");
+    if (!CheckGLError("ProgramGLES: glAttachShader() fragment"))
+    {
+        cleanUp();
+        return false;
+    }
 
     // Designate the varyings that we want out of the shader
     if (varying && !varying->empty()) {
@@ -464,7 +493,11 @@ ProgramGLES::ProgramGLES(std::string inName,
 
         glTransformFeedbackVaryings(program, (int)varying->size(), &names[0], GL_SEPARATE_ATTRIBS);
 
-        CheckGLError("ProgramGLES: Error setting up varyings in");
+        if (!CheckGLError("ProgramGLES: Error setting up varyings in"))
+        {
+            cleanUp();
+            return false;
+        }
 
         for (unsigned int ii = 0; ii < varying->size(); ii++) {
             if (names[ii]) {
@@ -475,7 +508,11 @@ ProgramGLES::ProgramGLES(std::string inName,
     
     // Now link it
     glLinkProgram(program);
-    CheckGLError("ProgramGLES: glLinkProgram");
+    if (!CheckGLError("ProgramGLES: glLinkProgram"))
+    {
+        cleanUp();
+        return false;
+    }
 
     GLint status = 0;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
@@ -490,7 +527,7 @@ ProgramGLES::ProgramGLES(std::string inName,
             wkLogLevel(Error,"Link error for shader program %s:\n%s",name.c_str(),&logStr[0]);
         }
         cleanUp();
-        return;
+        return false;
     }
 
     if (vertShader)
@@ -521,7 +558,11 @@ ProgramGLES::ProgramGLES(std::string inName,
         wkLog("%s Uniform %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numUniform, uni->nameID, uni->index, thingName);
 #endif
     }
-    CheckGLError("ProgramGLES: glGetActiveUniform");
+    if (!CheckGLError("ProgramGLES: glGetActiveUniform"))
+    {
+        cleanUp();
+        return false;
+    }
 
     // Convert the attributes into a more useful form
     GLint numAttr;
@@ -539,7 +580,13 @@ ProgramGLES::ProgramGLES(std::string inName,
         wkLog("%s Attribute %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numAttr, attr->nameID, attr->index, thingName);
 #endif
     }
-    CheckGLError("ProgramGLES: glGetActiveAttrib");
+    if (!CheckGLError("ProgramGLES: glGetActiveAttrib"))
+    {
+        cleanUp();
+        return false;
+    }
+
+    return true;
 }
     
 void ProgramGLES::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown)
