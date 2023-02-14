@@ -123,7 +123,11 @@ void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
-    
+
+void RenderTargetGLES::setClearValue(float value)
+{
+    std::fill(&clearColor[0], &clearColor[4], value);
+}
 void RenderTargetGLES::setClearColor(const RGBAColor &color)
 {
     color.asUnitFloats(clearColor);
@@ -216,8 +220,9 @@ void RenderTargetGLES::setActiveFramebuffer(SceneRendererGLES *renderer)
         } else {
             glDisable(GL_BLEND);
         }
+
         glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-        
+
         CheckGLError("RenderTarget::setActiveFramebuffer: glClearColor");
         isSetup = true;
     }
