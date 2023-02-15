@@ -152,6 +152,13 @@ TextureGLES::TextureGLES(std::string name, RawDataRef texData, bool isPVRTC) :
 {
 }
 
+TextureGLES::TextureGLES(RawDataRef texData, TextureType fmt, int width, int height, bool isPVRTC) :
+    TextureBase(),
+    Texture(std::move(texData), fmt, width, height, isPVRTC),
+    TextureBaseGLES()
+{
+}
+
 TextureGLES::TextureGLES(std::string name, RawDataRef texData,
         TextureType fmt, int width, int height, bool isPVRTC) :
     TextureBase(std::move(name)),

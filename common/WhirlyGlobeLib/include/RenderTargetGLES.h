@@ -68,9 +68,6 @@ public:
     /// Set up the target texture
     virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID) override;
 
-    virtual void setClearValue(float) override;
-    virtual void setClearColor(const RGBAColor &) override;
-
     // Clear up resources from the render target
     virtual void clear() override;
     
@@ -95,6 +92,9 @@ public:
     
 protected:
     virtual void init() override;
+
+protected:
+    bool isColorTarget = true;
 };
 typedef std::shared_ptr<RenderTargetGLES> RenderTargetGLESRef;
 
