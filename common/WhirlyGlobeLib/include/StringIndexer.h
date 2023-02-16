@@ -70,6 +70,7 @@ extern StringIdentity u_TimeNameID;
 extern StringIdentity u_lifetimeNameID;
 extern StringIdentity u_pixDispSizeNameID;
 extern StringIdentity u_frameLenID;
+extern StringIdentity u_frameCountID;
 extern StringIdentity a_offsetNameID;
 extern StringIdentity u_uprightNameID;
 extern StringIdentity u_activerotNameID;

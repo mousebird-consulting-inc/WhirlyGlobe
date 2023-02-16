@@ -82,6 +82,7 @@ static const std::unordered_map<int, const char* const> glStrMap =    // NOLINT(
     STRPAIR(GL_R32F),
     STRPAIR(GL_R32UI),
     STRPAIR(GL_R8),
+    STRPAIR(GL_R8UI),
     STRPAIR(GL_RED),
     STRPAIR(GL_RED_INTEGER),
     STRPAIR(GL_RG),
@@ -240,7 +241,7 @@ static GLint mapInternalFormat(TextureType tt, WKSingleByteSource byteSource)
             switch (byteSource)
             {
                 case WKSingleAlpha: return GL_ALPHA;
-                case WKSingleRed:   return GL_R8;
+                case WKSingleRed:   return GL_R8UI;
                 case WKSingleGreen:                     // not supported?
                 case WKSingleBlue:
                 case WKSingleRGB:                       // 3/3/2?
@@ -276,7 +277,7 @@ static GLenum mapGLFormat(TextureType tt, WKSingleByteSource byteSource)
             switch (byteSource)
             {
                 case WKSingleAlpha: return GL_ALPHA;
-                case WKSingleRed:   return GL_RED;
+                case WKSingleRed:   return GL_RED_INTEGER;
                 case WKSingleGreen:
                 case WKSingleBlue:
                 case WKSingleRGB:
@@ -499,7 +500,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
         }
         else
         {
-            wkLogLevel(Error, "Unknown texture type %d for GLES", (int)format);
+            wkLogLevel(Error, "Texture type %d=%s not supported (GLES)", (int)format, texStr(format));
             // Note: Porting
 //            case GL_COMPRESSED_RGB8_ETC2:
 //                glCompressedTexImage2D(GL_TEXTURE_2D, 0, GL_COMPRESSED_RGB8_ETC2, width, height, 0,

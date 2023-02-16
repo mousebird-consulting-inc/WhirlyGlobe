@@ -130,8 +130,9 @@ public:
     RenderSetupInfoGLES setupInfo;
     
     // If set we draw one extra frame after updates stop
-    bool extraFrameMode;
-    int extraFrameCount;
+    bool extraFrameMode = false;
+    int extraFrameCount = 0;
+    int totalFrameCount = 0;
 
     RendererFrameInfoGLESRef lastFrameInfo;
 };

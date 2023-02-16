@@ -269,6 +269,7 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
         return;
     
     frameCount++;
+    totalFrameCount++;
         
     theView->animate();
     
@@ -636,7 +637,9 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
                             program->setLights(lights, lightsLastUpdated, &defaultMat, currentMvpMat);
                         // Explicitly turn the lights on
                         program->setUniform(u_numLightsNameID, (int)lights.size());
-                        
+
+                        program->setUniform(u_frameCountID, totalFrameCount);
+
                         baseFrameInfo.program = program;
                     } else {
                         wkLogLevel(Warn, "Missing OpenGL ES Program.");

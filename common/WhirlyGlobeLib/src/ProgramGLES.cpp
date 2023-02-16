@@ -133,24 +133,27 @@ bool ProgramGLES::setUniform(StringIdentity nameID,int val)
     {
         return false;
     }
+
+    if (uni->isSet && uni->val.iVals[0] == val)
+        return true;
+
     switch (uni->type)
     {
         case GL_INT:
-        case GL_UNSIGNED_INT:
         case GL_BOOL:
         case GL_SAMPLER_2D:
         case GL_INT_SAMPLER_2D:
         case GL_UNSIGNED_INT_SAMPLER_2D:
+            glUniform1i((GLint) uni->index, val);
+            break;
+        case GL_UNSIGNED_INT:
+            glUniform1ui((GLint)uni->index,(GLuint)val);
             break;
         default:
             wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
             return false;
     }
 
-    if (uni->isSet && uni->val.iVals[0] == val)
-        return true;
-    
-    glUniform1i((GLint)uni->index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
@@ -416,6 +419,7 @@ bool compileShader(const char *name,const char *shaderTypeStr,GLuint *shaderId,G
             std::vector<char> logStr(len+1);
             glGetShaderInfoLog(*shaderId, len, &len, &logStr[0]);
             wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name,&logStr[0]);
+            wkLogLevel(Verbose,"Source:\n%s",sourceCStr);
         }
         
         glDeleteShader(*shaderId);
