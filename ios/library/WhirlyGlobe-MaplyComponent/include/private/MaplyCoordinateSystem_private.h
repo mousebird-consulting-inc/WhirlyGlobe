@@ -30,14 +30,13 @@
 
 @property(nonatomic,readonly) MaplyCoordinate ll;
 @property(nonatomic,readonly) MaplyCoordinate ur;
+@property(nonatomic,readonly) MaplyCoordinateD llD;
+@property(nonatomic,readonly) MaplyCoordinateD urD;
 
 - (instancetype)initWithCoordSystem:(WhirlyKit::CoordSystemRef)newCoordSystem;
 
 /// Return the low level Maply Coordinate system that represents this one.
 /// The object owns this and must clean it up.
 - (WhirlyKit::CoordSystemRef)getCoordSystem;
-
-/// Bounding box we're working within
-- (void)getBoundsLL:(MaplyCoordinate *)ll ur:(MaplyCoordinate *)ur;
 
 @end

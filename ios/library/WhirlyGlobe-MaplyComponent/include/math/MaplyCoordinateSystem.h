@@ -31,32 +31,39 @@
 @interface MaplyCoordinateSystem : NSObject
 
 /** 
-    Set the bounding box in the local coordinate system.
+    Set the bounding box in the local coordinate system, converting to geographic.
  
-    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.
  */
 - (void)setBounds:(MaplyBoundingBox)bounds;
 
 /**
-    Set the bounding box in the local coordinate system, but convert to geographic first.
+    Set the bounding box in the local coordinate system, converting to geographic.
  
-    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.
  */
 - (void)setBoundsD:(MaplyBoundingBoxD)boundsD;
 
 /**
-    Set the bounding box in the local coordinate system without going through geographic.
+    Set the bounding box in the geographic coordinate system
  
-    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.
  */
 - (void)setBoundsDLocal:(MaplyBoundingBoxD)boundsD;
 
 /** 
-    Set the bounding box in the local coordinate system.
+    Set the bounding box in the geographic coordinate system.
     
     This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
   */
 - (void)setBoundsLL:(const MaplyCoordinate * __nonnull)ll ur:(const MaplyCoordinate * __nonnull)ll;
+
+/**
+    Set the bounding box in the geographic coordinate system.
+    
+    This is the bounding box, for things like display coordinates.  If the extents would normally be in degrees, use radians.  Otherwise, the values are in the local system.
+  */
+- (void)setBoundsDLL:(const MaplyCoordinateD * __nonnull)ll ur:(const MaplyCoordinateD * __nonnull)ll;
 
 /** 
     Return the bounding box in local coordinates.
@@ -66,11 +73,18 @@
 - (MaplyBoundingBox)getBounds;
 
 /** 
-    Return the bounding box in local coordinates.
+    Return the bounding box in geographic coordinates.
     
     This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
   */
-- (void)getBoundsLL:(MaplyCoordinate * __nonnull)ret_ll ur:(MaplyCoordinate * __nonnull)ret_ur;
+- (void)getBoundsLL:(MaplyCoordinate * __nullable)ret_ll ur:(MaplyCoordinate * __nullable)ret_ur;
+
+/**
+    Return the bounding box in geographic coordinates.
+    
+    This is the bounding box in local coordinates, or if the extents would normally be expressed in degrees, it's radians.
+  */
+- (void)getBoundsDLL:(MaplyCoordinateD * __nullable)ret_ll ur:(MaplyCoordinateD * __nullable)ret_ur;
 
 /** 
     Convert a coordinate from geographic to the local coordinate system.
@@ -85,6 +99,13 @@
     This takes a coordinate in this coordinate system and converts it to geographic (lat/lon in radians).
   */
 - (MaplyCoordinate)localToGeo:(MaplyCoordinate)coord;
+
+/**
+    Convert a coordinate from the local space to geographic.
+    
+    This takes a coordinate in this coordinate system and converts it to geographic (lat/lon in radians).
+  */
+- (MaplyCoordinateD)localToGeoD:(MaplyCoordinateD)coord;
 
 /** 
     Convert a 3D coordinate from the local space to geocentric.
