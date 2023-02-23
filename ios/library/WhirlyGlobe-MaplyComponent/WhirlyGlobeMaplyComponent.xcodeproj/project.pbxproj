@@ -127,7 +127,7 @@
 		2B462EF823A954870050438C /* NSDictionary+StyleRules.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B462EF723A954870050438C /* NSDictionary+StyleRules.mm */; };
 		2B4B63A5236102DA0008C8C1 /* MaplyGlobeRenderController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B4B63A4236102DA0008C8C1 /* MaplyGlobeRenderController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2B4B63A7236102EC0008C8C1 /* MaplyGlobeRenderController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B4B63A6236102EC0008C8C1 /* MaplyGlobeRenderController.mm */; };
-		2B50CEB025798F3200BD4004 /* RawPNGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B50CEAF25798F3200BD4004 /* RawPNGImage.cpp */; };
+		2B50CEB025798F3200BD4004 /* RawPNGImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B50CEAF25798F3200BD4004 /* RawPNGImage.cpp */; settings = {COMPILER_FLAGS = "-DLODEPNG_NO_COMPILE_ENCODER -DLODEPNG_NO_COMPILE_DISK -DLODEPNG_NO_COMPILE_ANCILLARY_CHUNKS -DLODEPNG_NO_COMPILE_ERROR_TEXT -DLODEPNG_NO_COMPILE_CRC -DLODEPNG_NO_COMPILE_CPP"; }; };
 		2B50CEB425798F4800BD4004 /* RawPNGImage.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B50CEB325798F4800BD4004 /* RawPNGImage.h */; };
 		2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B526BDB240DE04B00647336 /* MetalPerformanceShaders.framework */; };
 		2B541C171ECFAA2300EC35A0 /* MaplyRenderTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B541C161ECFAA2300EC35A0 /* MaplyRenderTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };

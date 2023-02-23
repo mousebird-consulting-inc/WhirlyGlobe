@@ -20,7 +20,7 @@
 #import "WhirlyGlobeLib.h"
 #import "NSString+Stuff.h"
 
-using namespace WhirlyKit;
+//using namespace WhirlyKit;
 
 @implementation MaplySimpleTileFetchInfo
 @end
