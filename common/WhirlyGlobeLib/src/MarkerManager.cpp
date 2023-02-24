@@ -185,7 +185,7 @@ typedef std::map<SimpleIDSet,BasicDrawableBuilderRef> DrawableMap;
 Point3dVector MarkerManager::convertGeoPtsToModelSpace(const VectorRing &inPts)
 {
     CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
-    CoordSystem *coordSys = coordAdapt->getCoordSystem();
+    const CoordSystem *coordSys = coordAdapt->getCoordSystem();
 
     Point3dVector outPts;
     outPts.reserve(inPts.size());

@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -19,66 +19,106 @@
 #import "GlobeMath.h"
 #import "FlatMath.h"
 #import "proj_api.h"
+#import <WhirlyKitLog.h>
+
+//#define PROFILE_PROJ4_LOCKS
+#if defined(PROFILE_PROJ4_LOCKS)
+#import <ProfilingLockGuard.h>
+using LockGuard = WhirlyKit::ProfilingLockGuard;
+#else
+using LockGuard = std::lock_guard<std::mutex>;
+#endif
 
 using namespace Eigen;
 using namespace WhirlyKit;
 
-// These are just pointers and they won't change
-// We'll initialize them once
-static projPJ pj_latlon=nullptr,pj_geocentric=nullptr;
-
-namespace WhirlyKit
+GeoCoordSystem::GeoCoordSystem()
 {
-
-std::once_flag globeMathFlag;
-    
-// Initialize the Proj-4 objects
-void InitProj4()
-{
-    std::call_once(globeMathFlag, []()
-    { 
-            pj_latlon = pj_init_plus("+proj=latlong +datum=WGS84");
-            pj_geocentric = pj_init_plus("+proj=geocent +datum=WGS84");
-    });
+    if ((pj_latlon_ctx = pj_ctx_alloc()))
+    {
+        pj_latlon = pj_init_plus_ctx(pj_latlon_ctx, "+proj=latlong +datum=WGS84");
+    }
+    if ((pj_geocentric_ctx = pj_ctx_alloc()))
+    {
+        pj_geocentric = pj_init_plus_ctx(pj_geocentric_ctx, "+proj=geocent +datum=WGS84");
+    }
 }
 
-Point3f GeoCoordSystem::LocalToGeocentric(const Point3f &localPt)
+GeoCoordSystem::~GeoCoordSystem()
 {
-    InitProj4();
+    if (pj_latlon)
+    {
+        pj_free(pj_latlon);
+        pj_latlon = nullptr;
+    }
+    if (pj_latlon_ctx)
+    {
+        pj_ctx_free(pj_latlon_ctx);
+        pj_latlon_ctx = nullptr;
+    }
+    if (pj_geocentric)
+    {
+        pj_free(pj_geocentric);
+        pj_geocentric = nullptr;
+    }
+    if (pj_geocentric_ctx)
+    {
+        pj_ctx_free(pj_geocentric_ctx);
+        pj_geocentric_ctx = nullptr;
+    }
+}
 
-    double x,y,z;
-    x = localPt.x(); y = localPt.y(); z = localPt.z();
-    pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
+bool GeoCoordSystem::isValid() const
+{
+    return pj_latlon && pj_geocentric;
+}
+
+CoordSystemRef GeoCoordSystem::clone() const
+{
+    return std::make_shared<GeoCoordSystem>();
+}
+
+Point3f GeoCoordSystem::localToGeocentric(const Point3f &localPt) const
+{
+    double x = localPt.x(), y = localPt.y(), z = localPt.z();
+    if (pj_latlon && pj_geocentric)
+    {
+        LockGuard lock(mutex);
+        pj_transform(pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
+    }
     return { (float)x, (float)y, (float)z };
 }
 
-Point3d GeoCoordSystem::LocalToGeocentric(const Point3d &localPt)
+Point3d GeoCoordSystem::localToGeocentric(const Point3d &localPt) const
 {
-    InitProj4();
-
-    double x,y,z;
-    x = localPt.x(); y = localPt.y(); z = localPt.z();
-    pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
+    double x = localPt.x(), y = localPt.y(), z = localPt.z();
+    if (pj_latlon && pj_geocentric)
+    {
+        LockGuard lock(mutex);
+        pj_transform( pj_latlon, pj_geocentric, 1, 1, &x, &y, &z );
+    }
     return { x, y, z };
 }
 
-Point3f GeoCoordSystem::GeocentricToLocal(const Point3f &geocPt)
+Point3f GeoCoordSystem::geocentricToLocal(const Point3f &geocPt) const
 {
-    InitProj4();
-    
-    double x,y,z;
-    x = geocPt.x(); y = geocPt.y(); z = geocPt.z();
-    pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
+    double x = geocPt.x(), y = geocPt.y(), z = geocPt.z();
+    if (pj_latlon && pj_geocentric)
+    {
+        LockGuard lock(mutex);
+        pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
+    }
     return { (float)x, (float)y, (float)z };
 }
 
-Point3d GeoCoordSystem::GeocentricToLocal(const Point3d &geocPt)
+Point3d GeoCoordSystem::geocentricToLocal(const Point3d &geocPt) const
 {
-    InitProj4();
-    
-    double x,y,z;
-    x = geocPt.x(); y = geocPt.y(); z = geocPt.z();
-    pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
+    double x = geocPt.x(), y = geocPt.y(), z = geocPt.z();
+    if (pj_latlon && pj_geocentric)
+    {
+        LockGuard lock(mutex);
+        pj_transform(pj_geocentric, pj_latlon, 1, 1, &x, &y, &z);
+    }
     return { x, y, z };
 }
 
@@ -94,6 +134,7 @@ Mbr GeoCoordSystem::GeographicMbrToLocal(const GeoMbr &geoMbr)
 
 bool GeoCoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
+    // All instances are equivalent
     const auto other = dynamic_cast<const GeoCoordSystem *>(coordSys);
     return (other != nullptr);
 }
@@ -153,28 +194,28 @@ Point3d FakeGeocentricDisplayAdapter::DisplayToLocal(const Point3d &pt)
     return { geoCoord.x(), geoCoord.y(), 0.0 };
 }
 
-Point3f GeocentricDisplayAdapter::LocalToDisplay(const Point3f &geoPt)
+Point3f GeocentricDisplayAdapter::localToDisplay(const Point3f &geoPt) const
 {
-    return GeoCoordSystem::LocalToGeocentric(geoPt) / EarthRadius;
+    return geoCoordSys.localToGeocentric(geoPt) / EarthRadius;
 }
 
-Point3d GeocentricDisplayAdapter::LocalToDisplay(const Point3d &geoPt)
+Point3d GeocentricDisplayAdapter::localToDisplay(const Point3d &geoPt) const
 {
-    return GeoCoordSystem::LocalToGeocentric(geoPt) / EarthRadius;
+    return geoCoordSys.localToGeocentric(geoPt) / EarthRadius;
 }
 
-Point3f GeocentricDisplayAdapter::DisplayToLocal(const Point3f &pt)
+Point3f GeocentricDisplayAdapter::displayToLocal(const Point3f &pt) const
 {
-    return GeoCoordSystem::GeocentricToLocal(Point3f(pt * EarthRadius));
+    return geoCoordSys.geocentricToLocal(Point3f(pt * EarthRadius));
 }
 
-Point3d GeocentricDisplayAdapter::DisplayToLocal(const Point3d &pt)
+Point3d GeocentricDisplayAdapter::displayToLocal(const Point3d &pt) const
 {
-    return GeoCoordSystem::GeocentricToLocal(Point3d(pt * EarthRadius));
+    return geoCoordSys.geocentricToLocal(Point3d(pt * EarthRadius));
 }
 
-float CheckPointAndNormFacing(const Point3f &dispLoc, const Point3f &norm,
-                              const Matrix4f &viewAndModelMat,const Matrix4f &viewModelNormalMat)
+float WhirlyKit::CheckPointAndNormFacing(const Point3f &dispLoc, const Point3f &norm,
+                                         const Matrix4f &viewAndModelMat,const Matrix4f &viewModelNormalMat)
 {
     Vector4f pt = viewAndModelMat * Vector4f(dispLoc.x(),dispLoc.y(),dispLoc.z(),1.0);
     pt /= pt.w();
@@ -182,8 +223,8 @@ float CheckPointAndNormFacing(const Point3f &dispLoc, const Point3f &norm,
     return Vector3f(-pt.x(),-pt.y(),-pt.z()).dot(Vector3f(testDir.x(),testDir.y(),testDir.z()));
 }
 
-double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,
-                               const Matrix4d &viewAndModelMat,const Matrix4d &viewModelNormalMat)
+double WhirlyKit::CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,
+                                          const Matrix4d &viewAndModelMat,const Matrix4d &viewModelNormalMat)
 {
     Vector4d pt = viewAndModelMat * Vector4d(dispLoc.x(),dispLoc.y(),dispLoc.z(),1.0);
     pt /= pt.w();
@@ -193,4 +234,3 @@ double CheckPointAndNormFacing(const Point3d &dispLoc,const Point3d &norm,
 
 #endif //!MAPLY_MINIMAL
 
-}

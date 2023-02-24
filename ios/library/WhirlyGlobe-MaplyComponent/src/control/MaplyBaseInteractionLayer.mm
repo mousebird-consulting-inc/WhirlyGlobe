@@ -2397,7 +2397,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
 - (void)addModelInstancesRun:(NSArray *)argArray
 {
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
     NSArray *modelInstances = argArray[0];
     MaplyComponentObject *compObj = argArray[1];
     NSDictionary *inDesc = argArray[2];
@@ -2953,7 +2953,7 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
     const auto threadMode = (MaplyThreadMode)[[argArray objectAtIndex:3] intValue];
     
     const auto coordAdapter = visualView->getCoordAdapter();
-    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
     
     iosDictionary dictWrap(inDesc);
     BillboardInfo billInfo(dictWrap);

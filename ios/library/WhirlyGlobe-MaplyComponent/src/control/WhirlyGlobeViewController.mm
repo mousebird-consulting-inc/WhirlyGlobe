@@ -2,7 +2,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -1997,9 +1997,9 @@ private:
 - (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range
 {
     Vector3f north(0,0,1);
-    const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView->getCoordAdapter();
-    WhirlyKit::CoordSystem *coordSys = coordAdapter->getCoordSystem();
-    Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(WhirlyKit::GeoCoord(coord.x,coord.y)));
+    const CoordSystemDisplayAdapter *coordAdapter = globeView->getCoordAdapter();
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(coord.x,coord.y)));
     // Position we're looking at in display coords
     Vector3f p0 = p0norm * (1.0 + alt);
     

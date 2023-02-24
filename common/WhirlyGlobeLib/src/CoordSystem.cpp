@@ -24,6 +24,17 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+bool CoordSystem::isValid() const
+{
+    return bounds.valid();
+}
+
+bool CoordSystem::isSameAs(const CoordSystem *coordSys) const
+{
+    return coordSys && bounds == coordSys->bounds && canWrap == coordSys->canWrap;
+}
+
+
 Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3f &inCoord)
 {
     // Easy if the coordinate systems are the same

@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 2/2/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -29,6 +29,13 @@ struct GeoCoordSystem : public CoordSystem
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
+    GeoCoordSystem();
+    virtual ~GeoCoordSystem();
+
+    virtual bool isValid() const override;
+    
+    virtual CoordSystemRef clone() const override;
+
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f &p) const override { return GeoCoord(p.x(),p.y()); }
     virtual GeoCoord localToGeographic(const Point3d &p) const override { return GeoCoord(p.x(),p.y()); }
@@ -38,27 +45,28 @@ struct GeoCoordSystem : public CoordSystem
     virtual Point3f geographicToLocal(const GeoCoord &p) const override { return {p.lon(),p.lat(),0.0}; }
     virtual Point3d geographicToLocal3d(const GeoCoord &p) const override { return {p.lon(),p.lat(),0.0}; }
     virtual Point3d geographicToLocal(const Point2d &p) const override { return {p.x(),p.y(),0.0}; }
-    virtual Point2d geographicToLocal2(const Point2d &p) const override { return {p.x(),p.y()}; }
+    virtual Point2d geographicToLocal2(const Point2d &p) const override { return p; }
 
     /// Convert from local coordinates to WGS84 geocentric
-    virtual Point3f localToGeocentric(const Point3f &p) const override { return LocalToGeocentric(p); }
-    virtual Point3d localToGeocentric(const Point3d &p) const override { return LocalToGeocentric(p); }
-    /// Static version for convenience
-    static Point3f LocalToGeocentric(const Point3f &);
-    static Point3d LocalToGeocentric(const Point3d &);
+    virtual Point3f localToGeocentric(const Point3f &p) const override;
+    virtual Point3d localToGeocentric(const Point3d &p) const override;
     
     /// Convert from WGS84 geocentric to local coordinates
-    virtual Point3f geocentricToLocal(const Point3f &p) const override { return GeocentricToLocal(p); }
-    virtual Point3d geocentricToLocal(const Point3d &p) const override { return GeocentricToLocal(p); }
-    /// Static version for convenience
-    static Point3f GeocentricToLocal(const Point3f &);
-    static Point3d GeocentricToLocal(const Point3d &);
-    
+    virtual Point3f geocentricToLocal(const Point3f &p) const override;
+    virtual Point3d geocentricToLocal(const Point3d &p) const override;
+
     /// Convenience routine to convert a whole MBR to local coordinates
-    static Mbr GeographicMbrToLocal(const GeoMbr &);
+    Mbr GeographicMbrToLocal(const GeoMbr &);
 
     /// Return true if the other coordinate system is also Geographic
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
+
+private:
+    void *pj_latlon = nullptr;
+    void *pj_latlon_ctx = nullptr;
+    void *pj_geocentric = nullptr;
+    void *pj_geocentric_ctx = nullptr;
+    mutable std::mutex mutex;
 };
 
 /** The Fake Geocentric Display Adapter is used by WhirlyGlobe to represent
@@ -122,25 +130,19 @@ struct GeocentricDisplayAdapter : public CoordSystemDisplayAdapter
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override { return false; }
     
     /// Convert from geographic+height to fake display geocentric
-    virtual Point3f localToDisplay(const Point3f &p) const override { return LocalToDisplay(p); }
-    virtual Point3d localToDisplay(const Point3d &p) const override { return LocalToDisplay(p); }
-    /// Static version
-    static Point3f LocalToDisplay(const Point3f &p);
-    static Point3d LocalToDisplay(const Point3d &p);
+    virtual Point3f localToDisplay(const Point3f &p) const override;
+    virtual Point3d localToDisplay(const Point3d &p) const override;
     
     /// Convert from fake display geocentric to geographic+height
-    virtual Point3f displayToLocal(const Point3f &p) const override { return DisplayToLocal(p); }
-    virtual Point3d displayToLocal(const Point3d &p) const override { return DisplayToLocal(p); }
-    /// Static version
-    static Point3f DisplayToLocal(const Point3f &p);
-    static Point3d DisplayToLocal(const Point3d &p);
+    virtual Point3f displayToLocal(const Point3f &p) const override;
+    virtual Point3d displayToLocal(const Point3d &p) const override;
     
     /// Return a normal for the given point
-    virtual Point3f normalForLocal(const Point3f &p) const override { return LocalToDisplay(p); }
-    virtual Point3d normalForLocal(const Point3d &p) const override { return LocalToDisplay(p); }
+    virtual Point3f normalForLocal(const Point3f &p) const override { return localToDisplay(p); }
+    virtual Point3d normalForLocal(const Point3d &p) const override { return localToDisplay(p); }
     
     /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const override { return &geoCoordSys; }
+    virtual const CoordSystem *getCoordSystem() const override { return &geoCoordSys; }
     
     /// This system is round
 #if !MAPLY_MINIMAL
@@ -148,7 +150,7 @@ struct GeocentricDisplayAdapter : public CoordSystemDisplayAdapter
 #endif //!MAPLY_MINIMAL
 
 protected:
-    mutable GeoCoordSystem geoCoordSys;
+    GeoCoordSystem geoCoordSys;
 };
 
 

@@ -114,7 +114,7 @@ using namespace WhirlyKit;
 {
     if (coordSystem)
     {
-        coordSystem->setBounds(Point2f(boundsD.ll.x,boundsD.ll.y), Point2f(boundsD.ur.x,boundsD.ur.y));
+        coordSystem->setBounds(MbrD({boundsD.ll.x,boundsD.ll.y}, {boundsD.ur.x,boundsD.ur.y}));
     }
 }
 
@@ -122,7 +122,7 @@ using namespace WhirlyKit;
 {
     if (coordSystem && inLL && inUR)
     {
-        coordSystem->setBounds(Point2f(inLL->x,inLL->y), Point2f(inUR->x,inUR->y));
+        coordSystem->setBounds(MbrD({inLL->x, inLL->y}, {inUR->x, inUR->y}));
     }
 }
 
@@ -130,14 +130,14 @@ using namespace WhirlyKit;
 {
     if (coordSystem && inLL && inUR)
     {
-        coordSystem->setBounds(Point2f(inLL->x,inLL->y), Point2f(inUR->x,inUR->y));
+        coordSystem->setBounds(MbrD({inLL->x, inLL->y}, {inUR->x, inUR->y}));
     }
 }
 
 - (MaplyBoundingBox)getBounds
 {
-    const Point3d llLoc = coordSystem->geographicToLocal(coordSystem->getBounds().ll().cast<double>());
-    const Point3d urLoc = coordSystem->geographicToLocal(coordSystem->getBounds().ur().cast<double>());
+    const Point3d llLoc = coordSystem->geographicToLocal(coordSystem->getBoundsD().ll());
+    const Point3d urLoc = coordSystem->geographicToLocal(coordSystem->getBoundsD().ur());
     return {{(float)llLoc.x(),(float)llLoc.y()},{(float)urLoc.x(),(float)urLoc.y()}};
 }
 

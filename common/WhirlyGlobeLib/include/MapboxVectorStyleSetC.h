@@ -2,7 +2,7 @@
 *  WhirlyGlobeLib
 *
 *  Created by Steve Gifford on 4/8/20.
-*  Copyright 2011-2022 mousebird consulting
+*  Copyright 2011-2023 mousebird consulting
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -215,7 +215,9 @@ typedef enum {
 class MapboxVectorStyleSetImpl : public VectorStyleDelegateImpl
 {
 public:
-    MapboxVectorStyleSetImpl(Scene *scene,CoordSystem *coordSys,VectorStyleSettingsImplRef settings);
+    MapboxVectorStyleSetImpl(Scene *scene,
+                             const CoordSystem *coordSys,
+                             VectorStyleSettingsImplRef settings);
     virtual ~MapboxVectorStyleSetImpl() = default;
     
     // Parse the entire style sheet.  False on failure
@@ -363,7 +365,7 @@ protected:
 
 public:
     Scene *scene = nullptr;
-    CoordSystem *coordSys = nullptr;
+    const CoordSystem *coordSys = nullptr;
     MapboxVectorStyleSpritesRef sprites;
 
     /// @brief Style name

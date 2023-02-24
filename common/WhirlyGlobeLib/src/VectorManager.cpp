@@ -827,7 +827,7 @@ SimpleIdentity VectorManager::addVectors(const std::vector<VectorShapeRef> &shap
 
     // Look for a geometry center.  We'll offset everything if there is one
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
     Point3d center(0,0,0);
     bool centerValid = false;
     Point2d geoCenter(0,0);

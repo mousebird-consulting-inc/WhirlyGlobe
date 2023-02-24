@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  */
 
 #import "WhirlyVector.h"
-#import "CoordSystem.h"
+#import "GlobeMath.h"
 
 namespace WhirlyKit
 {
@@ -26,9 +26,13 @@ namespace WhirlyKit
     represents the map as a flat non-projection of that.
     This is plate carree: http://en.wikipedia.org/wiki/Equirectangular_projection
   */
-struct PlateCarreeCoordSystem : public CoordSystem
+struct PlateCarreeCoordSystem : public GeoCoordSystem
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
+    virtual bool isValid() const override;
+
+    virtual CoordSystemRef clone() const override;
 
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f &p) const override { return { p.x(), p.y() }; }
@@ -55,11 +59,15 @@ struct PlateCarreeCoordSystem : public CoordSystem
 /** Flat Earth refers to the MultiGen flat earth coordinate system.
     This is a scaled unrolling from a center point.
  */
-struct FlatEarthCoordSystem : public CoordSystem
+struct FlatEarthCoordSystem : public GeoCoordSystem
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    FlatEarthCoordSystem(const GeoCoord &origin);
+    FlatEarthCoordSystem(const GeoCoordD &origin);
+
+    virtual bool isValid() const override;
+
+    virtual CoordSystemRef clone() const override;
 
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f&) const override;
@@ -82,11 +90,11 @@ struct FlatEarthCoordSystem : public CoordSystem
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
 
     /// Return the origin
-    GeoCoord getOrigin() const { return origin; }
-    
+    GeoCoordD getOrigin() const { return origin; }
+
 protected:
-    GeoCoord origin;
-    float converge;
+    GeoCoordD origin;
+    double converge;
 };
     
 /// A representative earth radius value.  We use this for scaling, not accurate geolocation.
@@ -100,7 +108,11 @@ struct PassThroughCoordSystem : public CoordSystem
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     PassThroughCoordSystem() = default;
-    
+
+    virtual bool isValid() const override;
+
+    virtual CoordSystemRef clone() const override;
+
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f&) const override;
     virtual GeoCoord localToGeographic(const Point3d&) const override;

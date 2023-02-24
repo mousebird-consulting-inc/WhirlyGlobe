@@ -1082,8 +1082,8 @@ protected:
     Mbr drawMbr;
     SceneRenderer *sceneRender = nullptr;
     Scene *scene = nullptr;
-    CoordSystemDisplayAdapter *coordAdapter = nullptr;
-    CoordSystem *coordSys = nullptr;
+    CoordSystemDisplayAdapter *coordAdapter = nullptr;  // owned by `scene`
+    const CoordSystem *coordSys = nullptr;  // owned by `coordAdapter`
     bool doColors = false;
     RGBAColor color = RGBAColor::white();
     const WideVectorInfo *vecInfo;

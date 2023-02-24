@@ -261,6 +261,7 @@ class WideVectorsTestCase : WideVectorsTestCaseBase
     private func initSlot() {
         if zoomSlot == nil,
            let slot = baseViewController?.retainZoomSlotMinZoom(0, maxHeight: 2, maxZoom: 20, minHeight: 0.001) {
+            
             zoomSlot = Int(exactly: slot)
         }
     }

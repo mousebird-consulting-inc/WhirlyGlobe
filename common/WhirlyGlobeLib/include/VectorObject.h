@@ -91,7 +91,7 @@ public:
     bool linearMiddle(Point2d &mid,double &rot) const;
     
     /// Converts to the display coordinate system before calculating
-    bool linearMiddle(Point2d &mid,double &rot,CoordSystem *coordSys) const;
+    bool linearMiddle(Point2d &mid,double &rot,const CoordSystem *coordSys) const;
     
     /// Return the point right in the middle (index-wise) of a linear feature
     bool middleCoordinate(Point2d &mid) const;

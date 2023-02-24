@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/18/11.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -334,7 +334,7 @@ public:
 
     bool operator == (const MbrD &that) const;
     bool operator != (const MbrD &that) const { return !operator==(that); }
-    
+
     /// Resets back to invalid
     void reset() { pt_ll = Point2d(0.0,0.0);  pt_ur = Point2d(-1.0,-1.0); }
     
@@ -460,11 +460,13 @@ public:
 	GeoMbr() : pt_ll(BadVal,BadVal), pt_ur(BadVal,BadVal) { }
     GeoMbr(GeoMbr &&that) : GeoMbr(that.pt_ll, that.pt_ur) { }
     GeoMbr(const GeoMbr &that) : GeoMbr(that.pt_ll, that.pt_ur) { }
+    GeoMbr(const MbrD &that) : GeoMbr(that.ll(), that.ur()) { }
     GeoMbr(Mbr &&that) : GeoMbr(that.ll(), that.ur()) { }
     GeoMbr(const Mbr &that) : GeoMbr(that.ll(), that.ur()) { }
     /// Construct with two coordinates to start
     GeoMbr(Point2f &&ll, Point2f &&ur) : pt_ll(ll), pt_ur(ur) { }
     GeoMbr(const Point2f &ll,const Point2f &ur) : pt_ll(ll), pt_ur(ur) { }
+    GeoMbr(const Point2d &ll,const Point2d &ur) : pt_ll(ll.cast<float>()), pt_ur(ur.cast<float>()) { }
 	/// Construct from a list of geo coordinates
 	GeoMbr(const std::vector<GeoCoord> &coords);
 	/// Construct with a list of 2d coordinates.  X is lon, Y is lat
