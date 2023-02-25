@@ -428,6 +428,7 @@ private:
         doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
         doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
+        doubleTapDelegate.approveAllGestures = self.fastGestures;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
     }
     if(_twoFingerTapGesture)
@@ -435,6 +436,7 @@ private:
         twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView];
         twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
         twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
+        twoFingerTapDelegate.approveAllGestures = self.fastGestures;
         if (pinchDelegate)
             [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         [tapRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
@@ -444,6 +446,8 @@ private:
         doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
         doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
+        if (self.fastGestures)
+            doubleTapDragDelegate.minimumPressDuration = 0.01;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
         [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
     }

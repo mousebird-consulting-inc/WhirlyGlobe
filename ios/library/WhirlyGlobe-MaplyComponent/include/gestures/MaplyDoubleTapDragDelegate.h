@@ -19,4 +19,7 @@
 
 @interface MaplyDoubleTapDragDelegate : MaplyZoomGestureDelegate
 
+/// Change if you want a shorter or longer press duration
+@property (nonatomic) float minimumPressDuration;
+
 @end

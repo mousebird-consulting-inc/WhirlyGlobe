@@ -263,6 +263,7 @@ private:
         doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
         doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
         doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        doubleTapDelegate.approveAllGestures = self.fastGestures;
     }
     const auto tapRecognizer = tapDelegate.gestureRecognizer;
     if(_twoFingerTapGesture)
@@ -272,6 +273,7 @@ private:
         twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
         twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
         twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        twoFingerTapDelegate.approveAllGestures = self.fastGestures;
         
         const auto twoFingerRecognizer = twoFingerTapDelegate.gestureRecognizer;
         if (pinchDelegate) {
@@ -284,6 +286,8 @@ private:
         doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView globeView:globeView.get()];
         doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        if (self.fastGestures)
+            doubleTapDragDelegate.minimumPressDuration = 0.01;
         const auto doubleTapRecognizer = doubleTapDragDelegate.gestureRecognizer;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
         [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];

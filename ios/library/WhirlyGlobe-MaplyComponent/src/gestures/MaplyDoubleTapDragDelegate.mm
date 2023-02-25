@@ -50,6 +50,11 @@ using namespace Maply;
     return FALSE;
 }
 
+- (void)setMinimumPressDuration:(float)minimumPressDuration
+{
+    ((UILongPressGestureRecognizer *)self.gestureRecognizer).minimumPressDuration = minimumPressDuration;
+}
+
 // Called for double tap actions
 - (void)pressGesture:(id)sender
 {

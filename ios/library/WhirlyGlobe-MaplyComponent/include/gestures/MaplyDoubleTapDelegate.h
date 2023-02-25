@@ -22,4 +22,7 @@
 /// How long we animate from starting to end point
 @property (nonatomic) float animTime;
 
+/// Set this to let other gesture recognizers run all the time
+@property (nonatomic) bool approveAllGestures;
+
 @end
