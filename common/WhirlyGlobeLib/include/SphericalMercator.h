@@ -111,12 +111,6 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
     virtual Point3f normalForLocal(const Point3f&) const override { return {0,0,1 }; }
     virtual Point3d normalForLocal(const Point3d&) const override { return {0,0,1 }; }
 
-    /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const override {
-        // todo: eventually return a const pointer
-        return (CoordSystem*)&smCoordSys;
-    }
-
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
 #if !MAPLY_MINIMAL

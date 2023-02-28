@@ -82,8 +82,16 @@ using CoordSystemRef = std::shared_ptr<CoordSystem>;
     /// Return true if the given coordinate system is the same as the one passed in
     virtual bool isSameAs(const CoordSystem *coordSys) const = 0;
 
+    // Deprecated as ambiguous, use getBoundsGeo
     GeoMbr getBounds() const { return GeoMbr(bounds); }
+    // Deprecated as ambiguous, use getBoundsGeo
     const MbrD &getBoundsD() const { return bounds; }
+
+    // Get the bounding box where this system is valid, in geographic coordinates
+    const MbrD &getBoundsGeo() const { return bounds; }
+
+    // Get the bounding box where this system is valid, in local coordinates
+    MbrD getBoundsLocal() const;
 
     template <typename T> void setBounds(T mbr) { bounds = mbr; }
     template <typename T> void setBounds(T ll, T ur) { bounds = { ll, ur }; }
@@ -116,7 +124,7 @@ typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     // Does not take ownership of `coordSys`, caller must manage object lifetimes
-    CoordSystemDisplayAdapter(CoordSystem *coordSys, const Point3d &center);
+    CoordSystemDisplayAdapter(const CoordSystem *coordSys, const Point3d &center);
     // Shared ownership of `coordSys`, caller must manage object lifetimes
     CoordSystemDisplayAdapter(const CoordSystemDisplayAdapter &);
     virtual ~CoordSystemDisplayAdapter() = default;
@@ -176,7 +184,7 @@ typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
     virtual Point3d normalForLocal(const Point3d&) const = 0;
 
     /// Get a reference to the coordinate system
-    virtual const CoordSystem *getCoordSystem() const = 0;
+    virtual const CoordSystem *getCoordSystem() const { return coordSys; }
     
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
@@ -228,10 +236,7 @@ struct GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
     /// For flat systems the normal is Z up.
     virtual Point3f normalForLocal(const Point3f&) const override { return {0,0,1 }; }
     virtual Point3d normalForLocal(const Point3d&) const override { return {0,0,1 }; }
-    
-    /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const override { return coordSys; }
-    
+
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
 #if !MAPLY_MINIMAL
@@ -242,7 +247,6 @@ protected:
     Point3d ll,ur;
     Point3d dispLL,dispUR;
     Point2d geoLL,geoUR;
-    CoordSystem *coordSys;
 };
 
 typedef std::shared_ptr<GeneralCoordSystemDisplayAdapter> GeneralCoordSystemDisplayAdapterRef;

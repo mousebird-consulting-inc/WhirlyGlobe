@@ -29,6 +29,12 @@ bool CoordSystem::isValid() const
     return bounds.valid();
 }
 
+MbrD CoordSystem::getBoundsLocal() const
+{
+    return { geographicToLocal2(bounds.ll()),
+             geographicToLocal2(bounds.ur()) };
+}
+
 bool CoordSystem::isSameAs(const CoordSystem *coordSys) const
 {
     return coordSys && bounds == coordSys->bounds && canWrap == coordSys->canWrap;
@@ -55,7 +61,7 @@ Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outS
     return outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
 }
 
-CoordSystemDisplayAdapter::CoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &center) :
+CoordSystemDisplayAdapter::CoordSystemDisplayAdapter(const CoordSystem *coordSys,const Point3d &center) :
     center(center),
     coordSys(coordSys)
 {
@@ -82,8 +88,8 @@ CoordSystemDisplayAdapterRef CoordSystemDisplayAdapter::cloneWithCoordSys(CoordS
 GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,
                                                                    const Point3d &inCenter,const Point3d &inScale) :
     CoordSystemDisplayAdapter(coordSys,inCenter),
-    ll(ll), ur(ur),
-    coordSys(coordSys)
+    ll(ll),
+    ur(ur)
 {
     scale = inScale;
     center = inCenter;

@@ -115,10 +115,7 @@ struct FakeGeocentricDisplayAdapter : public CoordSystemDisplayAdapter
     /// Return a normal for the given point
     virtual Point3f normalForLocal(const Point3f &p) const override { return LocalToDisplay(p); }
     virtual Point3d normalForLocal(const Point3d &p) const override { return LocalToDisplay(p); }
-    
-    /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const override { return &geoCoordSys; }
-    
+
     /// This system is round
 #if !MAPLY_MINIMAL
     bool isFlat() const override { return false; }
@@ -153,10 +150,7 @@ struct GeocentricDisplayAdapter : public CoordSystemDisplayAdapter
     /// Return a normal for the given point
     virtual Point3f normalForLocal(const Point3f &p) const override { return localToDisplay(p); }
     virtual Point3d normalForLocal(const Point3d &p) const override { return localToDisplay(p); }
-    
-    /// Get a reference to the coordinate system
-    virtual const CoordSystem *getCoordSystem() const override { return &geoCoordSys; }
-    
+
     /// This system is round
 #if !MAPLY_MINIMAL
     bool isFlat() const override { return false; }
