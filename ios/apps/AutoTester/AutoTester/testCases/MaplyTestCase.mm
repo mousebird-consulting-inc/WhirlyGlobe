@@ -31,6 +31,9 @@
     self.globeViewController = [[WhirlyGlobeViewController alloc] init];
     self.baseViewController = self.globeViewController;
     self.baseViewController.errorReportingDelegate = self;
+    
+    [self preSetUpWithGlobe:self.globeViewController];
+
     [nav pushViewController:self.baseViewController animated:YES];
     self.globeViewController.view.backgroundColor = [UIColor blackColor];
     self.globeViewController.clearColor = [UIColor blackColor];
@@ -57,6 +60,8 @@
     if (coordSys)
         self.mapViewController.coordSys = coordSys;
 
+    [self preSetUpWithMap:self.mapViewController];
+
     [nav pushViewController:self.baseViewController animated:YES];
     self.mapViewController.view.backgroundColor = [UIColor blackColor];
     self.mapViewController.clearColor = [UIColor blackColor];
@@ -71,6 +76,14 @@
 - (MaplyCoordinateSystem * _Nullable)customCoordSystem
 {
 	return nil;
+}
+
+- (void)preSetUpWithGlobe:(WhirlyGlobeViewController *)globeVC
+{
+}
+
+- (void)preSetUpWithMap:(MaplyViewController *)mapVC
+{
 }
 
 - (void)setUpWithGlobe:(WhirlyGlobeViewController *)globeVC

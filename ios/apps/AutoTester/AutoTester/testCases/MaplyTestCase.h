@@ -40,6 +40,11 @@ typedef NS_OPTIONS(NSUInteger, MaplyTestCaseImplementations) {
 - (void)startGlobe:(UINavigationController * __nonnull)nav;
 - (void)startMap:(UINavigationController * __nonnull)nav;
 
+// Called synchronously after the controller is created but before it's attached
+- (void)preSetUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
+- (void)preSetUpWithMap:(MaplyViewController * _Nonnull)mapVC;
+
+// Called asynchronously after the controller is attached to the view
 - (void)setUpWithGlobe:(WhirlyGlobeViewController * _Nonnull)globeVC;
 - (void)setUpWithMap:(MaplyViewController * _Nonnull)mapVC;
 

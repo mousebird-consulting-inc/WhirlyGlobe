@@ -437,7 +437,7 @@ private:
         twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
         twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
         twoFingerTapDelegate.approveAllGestures = self.fastGestures;
-        if (pinchDelegate)
+        if (pinchDelegate && !self.fastGestures)
             [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         [tapRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
     }
@@ -449,7 +449,8 @@ private:
         if (self.fastGestures)
             doubleTapDragDelegate.minimumPressDuration = 0.01;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
-        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        if (!self.fastGestures)
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
     }
     if(_cancelAnimationOnTouch)
     {
@@ -1618,6 +1619,18 @@ private:
 {
     if (note.object != mapView->tag)
         return;
+
+    if (self.fastGestures) {
+        // Cancel any pending recognition of other gestures.
+        // ("If you change this property to NO while a gesture recognizer is currently
+        //   regognizing a gesture, the gesture recognizer transitions to a cancelled state.")
+        UIGestureRecognizer __strong *panRec = panDelegate.gestureRecognizer;
+        panRec.enabled = NO;
+        panRec.enabled = YES;
+        UIGestureRecognizer __strong *tapRec = twoFingerTapDelegate.gestureRecognizer;
+        tapRec.enabled = NO;
+        tapRec.enabled = YES;
+    }
 
     [self handleStartMoving:true];
     self.isZooming = true;

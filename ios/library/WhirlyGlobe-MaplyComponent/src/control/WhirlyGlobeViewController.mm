@@ -276,7 +276,7 @@ private:
         twoFingerTapDelegate.approveAllGestures = self.fastGestures;
         
         const auto twoFingerRecognizer = twoFingerTapDelegate.gestureRecognizer;
-        if (pinchDelegate) {
+        if (pinchDelegate && !self.fastGestures) {
             [twoFingerRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
         [tapRecognizer requireGestureRecognizerToFail:twoFingerRecognizer];
@@ -290,7 +290,8 @@ private:
             doubleTapDragDelegate.minimumPressDuration = 0.01;
         const auto doubleTapRecognizer = doubleTapDragDelegate.gestureRecognizer;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
-        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+        if (!self.fastGestures)
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
     }
 }
 
@@ -1394,7 +1395,19 @@ private:
 {
     if (note.object != globeView->tag)
         return;
-    
+
+    if (self.fastGestures) {
+        // Cancel any pending recognition of other gestures.
+        // ("If you change this property to NO while a gesture recognizer is currently
+        //   regognizing a gesture, the gesture recognizer transitions to a cancelled state.")
+        UIGestureRecognizer __strong *panRec = panDelegate.gestureRecognizer;
+        panRec.enabled = NO;
+        panRec.enabled = YES;
+        UIGestureRecognizer __strong *tapRec = twoFingerTapDelegate.gestureRecognizer;
+        tapRec.enabled = NO;
+        tapRec.enabled = YES;
+    }
+
 //    NSLog(@"Pinch started");
     
     [self handleStartMoving:true];
