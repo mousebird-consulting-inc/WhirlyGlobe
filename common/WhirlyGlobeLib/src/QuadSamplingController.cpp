@@ -27,13 +27,35 @@ void QuadSamplingController::start(const SamplingParams &inParams,Scene *inScene
     params = inParams;
     scene = inScene;
     renderer = inRenderer;
-    
+
+    // Use a separate instance of the coordinate system so that we're
+    // not contending with anything else for the mutex it may use.
+    params.coordSys = params.coordSys ? params.coordSys->clone() : nullptr;
+    if (!params.coordSys)
+    {
+        wkLogLevel(Warn, "QuadSamplingController init failed: no coordinate system");
+        valid = false;
+        return;
+    }
+
+    const auto sca = scene->getCoordAdapter();
+    if (!sca || !sca->getCoordSystem())
+    {
+        wkLogLevel(Warn, "Scene not initialized");
+        valid = false;
+        return;
+    }
+
+    // Same as above for the scene's coordinate system and display adapter
+    sceneCoordSys = sca->getCoordSystem()->clone();
+    sceneAdapter = sca->cloneWithCoordSys(sceneCoordSys.get());
+
     builder = std::make_shared<QuadTileBuilder>(params.coordSys,this);
     builder->setBuildGeom(params.generateGeom);
     builder->setCoverPoles(params.coverPoles);
     builder->setEdgeMatching(params.edgeMatching);
     builder->setSingleLevel(params.singleLevel);
-    
+
     displayControl = std::make_shared<QuadDisplayControllerNew>(this,builder.get(),renderer);
     displayControl->setSingleLevel(params.singleLevel);
     displayControl->setKeepMinLevel(params.forceMinLevel,params.forceMinLevelHeight);
@@ -152,9 +174,8 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
                                                  const ViewStateRef &viewState,
                                                  const Point2f &frameSize)
 {
-    const auto coordAdapter = scene->getCoordAdapter();
     // World spanning level 0 nodes sometimes have problems evaluating
-    if (!coordAdapter || (params.minImportanceTop == 0.0 && ident.level == 0))
+    if (!sceneAdapter || (params.minImportanceTop == 0.0 && ident.level == 0))
     {
         return MAXFLOAT;
     }
@@ -166,7 +187,7 @@ double QuadSamplingController::importanceForTile(const QuadTreeIdentifier &ident
     }
     
     return ScreenImportance(viewState.get(), frameSize, viewState->eyeVec, 1,
-                 params.coordSys.get(), coordAdapter, clippedMbr, ident);
+                 params.coordSys.get(), sceneAdapter.get(), clippedMbr, ident);
 }
 
 void QuadSamplingController::newViewState(ViewStateRef viewState)
@@ -183,9 +204,9 @@ bool QuadSamplingController::visibilityForTile(const QuadTreeIdentifier &ident,
     
     DisplaySolidRef dispSolid;
     return TileIsOnScreen(viewState.get(), frameSize,  params.coordSys.get(),
-                          scene->getCoordAdapter(), mbr, ident, dispSolid);
+                          sceneAdapter.get(), mbr, ident, dispSolid);
 }
-    
+
 /// **** QuadTileBuilderDelegate methods ****
 
 void QuadSamplingController::setBuilder(QuadTileBuilder *inBuilder, QuadDisplayControllerNew *control)

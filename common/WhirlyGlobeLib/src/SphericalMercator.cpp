@@ -31,6 +31,12 @@ SphericalMercatorCoordSystem::SphericalMercatorCoordSystem(double originLon) :
 {
 }
 
+SphericalMercatorCoordSystem::SphericalMercatorCoordSystem(const SphericalMercatorCoordSystem &other) :
+    GeoCoordSystem(other),
+    originLon(other.originLon)
+{
+}
+
 bool SphericalMercatorCoordSystem::isValid() const
 {
     return bounds.valid() && GeoCoordSystem::isValid();
@@ -38,9 +44,7 @@ bool SphericalMercatorCoordSystem::isValid() const
 
 CoordSystemRef SphericalMercatorCoordSystem::clone() const
 {
-    auto ref = std::make_shared<SphericalMercatorCoordSystem>(originLon);
-    ref->bounds = bounds;
-    return ref;
+    return std::make_shared<SphericalMercatorCoordSystem>(*this);
 }
 
 SphericalMercatorCoordSystemRef SphericalMercatorCoordSystem::makeWebStandard()
@@ -163,6 +167,7 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
     CoordSystemDisplayAdapter(&smCoordSys,displayOrigin),
     geoLL(geoLL.lon(),geoLL.lat()),
     geoUR(geoUR.lon(),geoUR.lat()),
+    displayOrigin(displayOrigin),
     smCoordSys(originLon)
 {
     const Point3d ll3d = smCoordSys.geographicToLocal3d(geoLL);
@@ -172,7 +177,21 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
     
     org = (ll+ur)/2.0;
 }
-    
+
+SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(const SphericalMercatorDisplayAdapter &other) :
+    CoordSystemDisplayAdapter(&smCoordSys, other.displayOrigin),
+    geoLL(other.geoLL),
+    geoUR(other.geoUR),
+    displayOrigin(other.displayOrigin),
+    smCoordSys(other.smCoordSys)
+{
+}
+
+CoordSystemDisplayAdapterRef SphericalMercatorDisplayAdapter::clone() const
+{
+    return std::make_shared<SphericalMercatorDisplayAdapter>(*this);
+}
+
 /// Return the valid boundary in spherical mercator.  Z coordinate is ignored at present.
 bool SphericalMercatorDisplayAdapter::getBounds(Point3f &outLL, Point3f &outUR) const
 {

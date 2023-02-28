@@ -30,6 +30,8 @@ struct GeoCoordSystem : public CoordSystem
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     GeoCoordSystem();
+    GeoCoordSystem(const GeoCoordSystem &);
+    GeoCoordSystem(GeoCoordSystem &&);
     virtual ~GeoCoordSystem();
 
     virtual bool isValid() const override;
@@ -62,6 +64,9 @@ struct GeoCoordSystem : public CoordSystem
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
 
 private:
+    void init();
+
+private:
     void *pj_latlon = nullptr;
     void *pj_latlon_ctx = nullptr;
     void *pj_geocentric = nullptr;
@@ -79,8 +84,16 @@ struct FakeGeocentricDisplayAdapter : public CoordSystemDisplayAdapter
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    FakeGeocentricDisplayAdapter() : CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0)) { }
+    FakeGeocentricDisplayAdapter() :
+        CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0))
+    { }
+    FakeGeocentricDisplayAdapter(const FakeGeocentricDisplayAdapter &other) :
+        geoCoordSys(other.geoCoordSys),
+        CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0))
+    { }
     virtual ~FakeGeocentricDisplayAdapter() = default;
+
+    virtual CoordSystemDisplayAdapterRef clone() const override;
 
     /// There are no bounds in fake geocentric since it's not a flat system
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override { return false; }

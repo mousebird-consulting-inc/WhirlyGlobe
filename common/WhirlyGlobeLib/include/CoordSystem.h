@@ -49,11 +49,10 @@ using CoordSystemRef = std::shared_ptr<CoordSystem>;
 
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
-struct CoordSystem : public DelayedDeletable
+/*abstract*/ struct CoordSystem : public DelayedDeletable
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystem() = default;
     virtual ~CoordSystem() = default;
 
     /// If anything went wrong during construction, this will return false
@@ -94,6 +93,9 @@ struct CoordSystem : public DelayedDeletable
     virtual void setCanBeWrapped(bool b) { canWrap = b; }
 
 protected:
+    CoordSystem() = default;
+    CoordSystem(const CoordSystem&) = default;
+
     MbrD bounds = { { -M_PI, -M_PI_2 }, { M_PI, M_PI_2 } };
     bool canWrap = false;
 };
@@ -101,23 +103,30 @@ protected:
 /// Convert a point from one coordinate system to another
 Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3f &inCoord);
 Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3d &inCoord);
-    
+
+struct CoordSystemDisplayAdapter;
+typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
+
 /** The Coordinate System Display Adapter handles the task of
     converting coordinates in the native system to data values we
     can display.
  */
-struct CoordSystemDisplayAdapter : public DelayedDeletable
+/*abstract*/ struct CoordSystemDisplayAdapter : public DelayedDeletable
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &center) :
-        center(center),
-        coordSys(coordSys)
-    {
-        assert(coordSys);
-    }
+    // Does not take ownership of `coordSys`, caller must manage object lifetimes
+    CoordSystemDisplayAdapter(CoordSystem *coordSys, const Point3d &center);
+    // Shared ownership of `coordSys`, caller must manage object lifetimes
+    CoordSystemDisplayAdapter(const CoordSystemDisplayAdapter &);
     virtual ~CoordSystemDisplayAdapter() = default;
-    
+
+    // Make a copy of this object, whatever it is
+    virtual CoordSystemDisplayAdapterRef clone() const = 0;
+
+    // Make a copy, but one using a different coordinate system reference.
+    virtual CoordSystemDisplayAdapterRef cloneWithCoordSys(CoordSystem *coordSys) const;
+
     /// If the subclass can support a bounding box, this returns true
     ///  and the bounds.  Z values are ignored for now.
     /// If the subclass can't support bounds (e.g. a globe), you get false back.
@@ -184,7 +193,6 @@ protected:
     const CoordSystem *coordSys;
 };
 
-typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
 
 /** The general coord system display adapter is used by flat maps to encapsulate a general coordinate system.
     This needs to be one which is flat, but is otherwise unconstrained.  The bounding box is where the coordinate system is valid and the center will be the center of display coordinates.
@@ -196,6 +204,9 @@ struct GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
     GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,
                                      const Point3d &ll,const Point3d &ur,
                                      const Point3d &center,const Point3d &scale);
+    GeneralCoordSystemDisplayAdapter(const GeneralCoordSystemDisplayAdapter &);
+
+    virtual CoordSystemDisplayAdapterRef clone() const override;
 
     /// Bounding box where the coordinate system is valid
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override;

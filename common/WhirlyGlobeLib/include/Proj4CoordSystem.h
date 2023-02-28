@@ -30,6 +30,8 @@ struct Proj4CoordSystem : public CoordSystem
     
     /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(std::string proj4Str);
+    Proj4CoordSystem(const Proj4CoordSystem &);
+    Proj4CoordSystem(Proj4CoordSystem &&);
     virtual ~Proj4CoordSystem();
     
     /// Create a new instance equivalent to this one
@@ -58,6 +60,9 @@ struct Proj4CoordSystem : public CoordSystem
     /// Check that it actually created the pj structures
     bool isValid() const override;
     
+private:
+    void init();
+
 protected:
     void *pj = nullptr;
     void *pj_ctx = nullptr;

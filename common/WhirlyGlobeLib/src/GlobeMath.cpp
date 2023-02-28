@@ -34,6 +34,33 @@ using namespace WhirlyKit;
 
 GeoCoordSystem::GeoCoordSystem()
 {
+    init();
+}
+
+GeoCoordSystem::GeoCoordSystem(const GeoCoordSystem &other) :
+    CoordSystem(other)
+{
+    init();
+}
+
+GeoCoordSystem::GeoCoordSystem(GeoCoordSystem &&other) :
+    CoordSystem(other)
+{
+    LockGuard lock(other.mutex);
+    
+    pj_latlon = other.pj_latlon;
+    pj_latlon_ctx = other.pj_latlon_ctx;
+    pj_geocentric = other.pj_geocentric;
+    pj_geocentric_ctx = other.pj_geocentric_ctx;
+
+    other.pj_latlon = nullptr;
+    other.pj_latlon_ctx = nullptr;
+    other.pj_geocentric = nullptr;
+    other.pj_geocentric_ctx = nullptr;
+}
+
+void GeoCoordSystem::init()
+{
     if ((pj_latlon_ctx = pj_ctx_alloc()))
     {
         pj_latlon = pj_init_plus_ctx(pj_latlon_ctx, "+proj=latlong +datum=WGS84");
@@ -75,7 +102,7 @@ bool GeoCoordSystem::isValid() const
 
 CoordSystemRef GeoCoordSystem::clone() const
 {
-    return std::make_shared<GeoCoordSystem>();
+    return std::make_shared<GeoCoordSystem>(*this);
 }
 
 Point3f GeoCoordSystem::localToGeocentric(const Point3f &localPt) const
@@ -137,6 +164,12 @@ bool GeoCoordSystem::isSameAs(const CoordSystem *coordSys) const
     // All instances are equivalent
     const auto other = dynamic_cast<const GeoCoordSystem *>(coordSys);
     return (other != nullptr);
+}
+
+
+CoordSystemDisplayAdapterRef FakeGeocentricDisplayAdapter::clone() const
+{
+    return std::make_shared<FakeGeocentricDisplayAdapter>(*this);
 }
 
 Point3f FakeGeocentricDisplayAdapter::LocalToDisplay(const Point3f &geoPt)

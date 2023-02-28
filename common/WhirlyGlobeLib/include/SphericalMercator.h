@@ -34,6 +34,7 @@ struct SphericalMercatorCoordSystem : public GeoCoordSystem
     /// Construct with an optional origin for the projection in radians
     /// The equator is default
     SphericalMercatorCoordSystem(double originLon = 0.0);
+    SphericalMercatorCoordSystem(const SphericalMercatorCoordSystem &);
 
     static SphericalMercatorCoordSystemRef makeWebStandard();
 
@@ -83,7 +84,11 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
     /// Also pass in a display origin.  We'll offset everything from there.
     SphericalMercatorDisplayAdapter(float originLon, const GeoCoord &ll, const GeoCoord &ur,
                                     const Point3d &displayOrigin);
+
+    SphericalMercatorDisplayAdapter(const SphericalMercatorDisplayAdapter &);
     
+    virtual CoordSystemDisplayAdapterRef clone() const override;
+
     /// Return the valid boundary in spherical mercator.  Z coordinate is ignored at present.
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override;
 
@@ -120,6 +125,7 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
 
 protected:
     Point2d org,ll,ur,geoLL,geoUR;
+    Point3d displayOrigin;
     SphericalMercatorCoordSystem smCoordSys;
 };
     

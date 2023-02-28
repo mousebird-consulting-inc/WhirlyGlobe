@@ -36,6 +36,39 @@ using namespace WhirlyKit;
 Proj4CoordSystem::Proj4CoordSystem(std::string inProj4Str) :
     proj4Str(std::move(inProj4Str))
 {
+    init();
+}
+
+Proj4CoordSystem::Proj4CoordSystem(const Proj4CoordSystem &other) :
+    CoordSystem(other),
+    proj4Str(other.proj4Str)
+{
+    init();
+}
+
+Proj4CoordSystem::Proj4CoordSystem(Proj4CoordSystem &&other) :
+    CoordSystem(other)
+{
+    LockGuard lock(other.mutex);
+
+    proj4Str = std::move(other.proj4Str);
+    pj = other.pj;
+    pj_ctx = other.pj_ctx;
+    pj_latlon = other.pj_latlon;
+    pj_latlon_ctx = other.pj_latlon_ctx;
+    pj_geocentric = other.pj_geocentric;
+    pj_geocentric_ctx = other.pj_geocentric_ctx;
+    other.pj = nullptr;
+    other.pj_ctx = nullptr;
+    other.pj_latlon = nullptr;
+    other.pj_latlon_ctx = nullptr;
+    other.pj_geocentric = nullptr;
+    other.pj_geocentric_ctx = nullptr;
+
+}
+
+void Proj4CoordSystem::init()
+{
     if ((pj_ctx = pj_ctx_alloc()))
     {
         pj = pj_init_plus_ctx(pj_ctx, proj4Str.c_str());
@@ -49,7 +82,7 @@ Proj4CoordSystem::Proj4CoordSystem(std::string inProj4Str) :
         pj_geocentric = pj_init_plus_ctx(pj_geocentric_ctx, "+proj=geocent +datum=WGS84");
     }
 }
-    
+
 Proj4CoordSystem::~Proj4CoordSystem()
 {
     try
@@ -98,7 +131,7 @@ bool Proj4CoordSystem::isValid() const
 /// Create a new instance equivalent to this one
 CoordSystemRef Proj4CoordSystem::clone() const
 {
-    return std::make_shared<Proj4CoordSystem>(proj4Str);
+    return std::make_shared<Proj4CoordSystem>(*this);
 }
 
 /// Convert from the local coordinate system to lat/lon

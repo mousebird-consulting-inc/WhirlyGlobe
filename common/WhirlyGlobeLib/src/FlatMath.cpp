@@ -21,6 +21,11 @@
 
 using namespace WhirlyKit;
 
+PlateCarreeCoordSystem::PlateCarreeCoordSystem(const PlateCarreeCoordSystem& other) :
+    GeoCoordSystem(other)
+{
+}
+
 bool PlateCarreeCoordSystem::isValid() const
 {
     return GeoCoordSystem::isValid();
@@ -28,7 +33,7 @@ bool PlateCarreeCoordSystem::isValid() const
 
 CoordSystemRef PlateCarreeCoordSystem::clone() const
 {
-    return std::make_shared<PlateCarreeCoordSystem>();
+    return std::make_shared<PlateCarreeCoordSystem>(*this);
 }
 
 Point3f PlateCarreeCoordSystem::localToGeocentric(const Point3f &localPt) const
@@ -67,6 +72,13 @@ FlatEarthCoordSystem::FlatEarthCoordSystem(const GeoCoordD &origin) :
 // Works for flat earth, but not ideal
 static constexpr double MetersPerRadian = 111120.0 * 180.0 / M_PI;
 
+FlatEarthCoordSystem::FlatEarthCoordSystem(const FlatEarthCoordSystem& other) :
+    GeoCoordSystem(other),
+    origin(other.origin),
+    converge(other.converge)
+{
+}
+
 bool FlatEarthCoordSystem::isValid() const
 {
     return true;        // TODO: validate origin
@@ -74,7 +86,7 @@ bool FlatEarthCoordSystem::isValid() const
 
 CoordSystemRef FlatEarthCoordSystem::clone() const
 {
-    return std::make_shared<FlatEarthCoordSystem>(origin);
+    return std::make_shared<FlatEarthCoordSystem>(*this);
 }
 
 GeoCoord FlatEarthCoordSystem::localToGeographic(const Point3f &pt) const
@@ -169,15 +181,14 @@ bool FlatEarthCoordSystem::isSameAs(const CoordSystem *coordSys) const
 }
 
 
-
-bool PassThroughCoordSystem::isValid() const
+PassThroughCoordSystem::PassThroughCoordSystem(const PassThroughCoordSystem& other) :
+    CoordSystem(other)
 {
-    return true;
 }
 
 CoordSystemRef PassThroughCoordSystem::clone() const
 {
-    return std::make_shared<PassThroughCoordSystem>();
+    return std::make_shared<PassThroughCoordSystem>(*this);
 }
 
 GeoCoord PassThroughCoordSystem::localToGeographic(const Point3f &pt) const

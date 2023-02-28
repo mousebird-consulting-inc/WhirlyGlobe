@@ -135,6 +135,8 @@ protected:
     QuadDisplayControllerNewRef displayControl;
 
     WhirlyKit::Scene *scene = nullptr;
+    WhirlyKit::CoordSystemDisplayAdapterRef sceneAdapter;
+    WhirlyKit::CoordSystemRef sceneCoordSys;
     SceneRenderer *renderer = nullptr;
 
     QuadTileBuilderRef builder;

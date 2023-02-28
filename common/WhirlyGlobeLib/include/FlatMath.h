@@ -30,6 +30,9 @@ struct PlateCarreeCoordSystem : public GeoCoordSystem
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
+    PlateCarreeCoordSystem() = default;
+    PlateCarreeCoordSystem(const PlateCarreeCoordSystem&);
+
     virtual bool isValid() const override;
 
     virtual CoordSystemRef clone() const override;
@@ -64,6 +67,7 @@ struct FlatEarthCoordSystem : public GeoCoordSystem
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     FlatEarthCoordSystem(const GeoCoordD &origin);
+    FlatEarthCoordSystem(const FlatEarthCoordSystem&);
 
     virtual bool isValid() const override;
 
@@ -108,8 +112,9 @@ struct PassThroughCoordSystem : public CoordSystem
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
     PassThroughCoordSystem() = default;
+    PassThroughCoordSystem(const PassThroughCoordSystem &);
 
-    virtual bool isValid() const override;
+    virtual bool isValid() const override { return true; }
 
     virtual CoordSystemRef clone() const override;
 
