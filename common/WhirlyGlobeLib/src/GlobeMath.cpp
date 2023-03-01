@@ -167,6 +167,18 @@ bool GeoCoordSystem::isSameAs(const CoordSystem *coordSys) const
 }
 
 
+
+FakeGeocentricDisplayAdapter::FakeGeocentricDisplayAdapter() :
+    CoordSystemDisplayAdapter(&geoCoordSys, {0,0,0})
+{
+}
+
+FakeGeocentricDisplayAdapter::FakeGeocentricDisplayAdapter(const FakeGeocentricDisplayAdapter &other) :
+    geoCoordSys(other.geoCoordSys),
+    CoordSystemDisplayAdapter(&geoCoordSys, {0,0,0})
+{
+}
+
 CoordSystemDisplayAdapterRef FakeGeocentricDisplayAdapter::clone() const
 {
     return std::make_shared<FakeGeocentricDisplayAdapter>(*this);

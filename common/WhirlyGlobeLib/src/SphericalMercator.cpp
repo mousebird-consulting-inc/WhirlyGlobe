@@ -148,17 +148,8 @@ bool SphericalMercatorCoordSystem::isSameAs(const CoordSystem *coordSys) const
 
 
 SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,const GeoCoord &geoLL, const GeoCoord &geoUR) :
-    CoordSystemDisplayAdapter(&smCoordSys,{ 0,0,0 }),
-    geoLL(geoLL.x(), geoLL.y()),
-    geoUR(geoUR.x(), geoUR.y()),
-    smCoordSys(originLon)
+    SphericalMercatorDisplayAdapter(originLon, geoLL, geoUR, { 0, 0, 0})
 {
-    const Point3d ll3d = smCoordSys.geographicToLocal3d(geoLL);
-    const Point3d ur3d = smCoordSys.geographicToLocal3d(geoUR);
-    ll.x() = ll3d.x();  ll.y() = ll3d.y();
-    ur.x() = ur3d.x();  ur.y() = ur3d.y();
-    
-    org = (ll+ur)/2.0;
 }
     
 SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon,
@@ -180,6 +171,9 @@ SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(float originLon
 
 SphericalMercatorDisplayAdapter::SphericalMercatorDisplayAdapter(const SphericalMercatorDisplayAdapter &other) :
     CoordSystemDisplayAdapter(&smCoordSys, other.displayOrigin),
+    org(other.org),
+    ll(other.ll),
+    ur(other.ur),
     geoLL(other.geoLL),
     geoUR(other.geoUR),
     displayOrigin(other.displayOrigin),

@@ -84,13 +84,8 @@ struct FakeGeocentricDisplayAdapter : public CoordSystemDisplayAdapter
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    FakeGeocentricDisplayAdapter() :
-        CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0))
-    { }
-    FakeGeocentricDisplayAdapter(const FakeGeocentricDisplayAdapter &other) :
-        geoCoordSys(other.geoCoordSys),
-        CoordSystemDisplayAdapter(&geoCoordSys,Point3d(0,0,0))
-    { }
+    FakeGeocentricDisplayAdapter();
+    FakeGeocentricDisplayAdapter(const FakeGeocentricDisplayAdapter &other);
     virtual ~FakeGeocentricDisplayAdapter() = default;
 
     virtual CoordSystemDisplayAdapterRef clone() const override;
