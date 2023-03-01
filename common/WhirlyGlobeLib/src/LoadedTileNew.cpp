@@ -40,6 +40,19 @@ bool LoadedTileNew::isValidSpatial(TileGeomManager *geomManage) const
     return geomManage->mbr.overlaps(theMbr);
 }
 
+static inline Point3d CoordSystemConvert(bool isSameCS, const CoordSystem *inSystem,
+                                         const CoordSystem *outSystem,const Point3d &inCoord)
+{
+    // We'll go through geocentric which isn't horrible, but obviously we're assuming the same datum
+    // Easy if the coordinate systems are the same
+    return isSameCS ? inCoord : outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
+}
+static inline Point3d CoordSystemConvert(bool isSameCS, const CoordSystem *inSystem,
+                                         const CoordSystem *outSystem,const Point2d &inCoord)
+{
+    return CoordSystemConvert(isSameCS, inSystem, outSystem, Pad(inCoord, 0.0));
+}
+
 // Clip the span of a tile to the bounds of the world in one dimension, calculating the scale
 // and offset necessary to place the right part of the texture on the resulting geometry.
 static std::tuple<double,double,double,double> clipDim(Point2d tile, Point2d world)
@@ -87,10 +100,13 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
     // Calculate a center for the tile
     const CoordSystemDisplayAdapter *sceneAdapter = geomManage->coordAdapter;
     const CoordSystem *sceneCoordSys = sceneAdapter->getCoordSystem();
-    const CoordSystemRef &geomCoordSys = geomManage->coordSys;
+    const CoordSystem *geomCoordSys = geomManage->coordSys.get();
+    const bool isSameCS = (geomCoordSys == sceneCoordSys) || geomCoordSys->isSameAs(sceneCoordSys);
 
-    const Point3d ll = sceneAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomCoordSys->localToGeocentric(Pad(theMbr.ll()))));
-    const Point3d ur = sceneAdapter->localToDisplay(sceneCoordSys->geocentricToLocal(geomCoordSys->localToGeocentric(Pad(theMbr.ur()))));
+    // Convert through geocentric, if necessary
+    const Point3d ll = sceneAdapter->localToDisplay(CoordSystemConvert(isSameCS, geomCoordSys, sceneCoordSys, theMbr.ll()));
+    const Point3d ur = sceneAdapter->localToDisplay(CoordSystemConvert(isSameCS, geomCoordSys, sceneCoordSys, theMbr.ur()));
+
     // This clips the center to something 32 bit floating point can represent.
     const Point3d dispCenter = ((ll + ur) / 2.0).cast<float>().cast<double>();
 
@@ -188,10 +204,9 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         for (unsigned int iy=0;iy<sphereTessY;iy++)
             for (unsigned int ix=0;ix<sphereTessX;ix++)
             {
-                const auto cs = geomManage->coordSys.get();
-                const auto org3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys, Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                const auto ptA_3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+iy*incr.y(),0.0)));
-                const auto ptB_3D = sceneAdapter->localToDisplay(CoordSystemConvert3d(cs,sceneCoordSys,Point3d(chunkLL.x()+ix*incr.x(),chunkLL.y()+(iy+1)*incr.y(),0.0)));
+                const auto org3D  = sceneAdapter->localToDisplay(CoordSystemConvert(isSameCS, geomCoordSys, sceneCoordSys, Point2d(chunkLL.x()+ ix   *incr.x(),chunkLL.y()+ iy   *incr.y())));
+                const auto ptA_3D = sceneAdapter->localToDisplay(CoordSystemConvert(isSameCS, geomCoordSys, sceneCoordSys, Point2d(chunkLL.x()+(ix+1)*incr.x(),chunkLL.y()+ iy   *incr.y())));
+                const auto ptB_3D = sceneAdapter->localToDisplay(CoordSystemConvert(isSameCS, geomCoordSys, sceneCoordSys, Point2d(chunkLL.x()+ ix   *incr.x(),chunkLL.y()+(iy+1)*incr.y())));
                 
                 const TexCoord texCoord(ix*texIncr.x() - texOffset.x(),
                                         1.0f-(iy*texIncr.y()) + texOffset.y());
@@ -216,10 +231,8 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
         Point3dVector locs((sphereTessX+1)*(sphereTessY+1));
         std::vector<float> elevs(geomSettings.includeElev ? (sphereTessX+1)*(sphereTessY+1) : 0);
         
-        const auto cs = geomManage->coordSys.get();
-        const bool sameCS = cs->isSameAs(sceneCoordSys);
         const Point3d wrapAt = sceneCoordSys->getWrapCoords();
-        const bool enableWrap = !sameCS && cs->canBeWrapped() && (wrapAt.squaredNorm() > 0);
+        const bool enableWrap = !isSameCS && geomCoordSys->canBeWrapped() && (wrapAt.squaredNorm() > 0);
         const auto dmax = std::numeric_limits<double>::max();
         Point3d minLoc(dmax,dmax,dmax), maxLoc(-dmax,-dmax,-dmax), sgnLoc(0,0,0);
         for (unsigned int iy=0;iy<sphereTessY+1;iy++)
@@ -232,9 +245,9 @@ void LoadedTileNew::makeDrawables(SceneRenderer *sceneRender,TileGeomManager *ge
                 loc = Point3d(chunkLL.x() + ix * incr.x(),
                               chunkLL.y() + iy * incr.y(),
                               locZ);
-                if (!sameCS)
+                if (!isSameCS)
                 {
-                    loc = CoordSystemConvert3d(cs, sceneCoordSys, loc);
+                    loc = CoordSystemConvert(false, geomCoordSys, sceneCoordSys, loc);
                     if (enableWrap)
                     {
                         minLoc = minLoc.cwiseMin(loc);
