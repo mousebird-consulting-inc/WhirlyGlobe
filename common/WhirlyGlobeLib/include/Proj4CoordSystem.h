@@ -57,7 +57,9 @@ struct Proj4CoordSystem : public CoordSystem
     
     /// Check that it actually created the pj structures
     virtual bool isValid() const override { return pj && pj_latlon && pj_geocentric; }
-    
+
+protected:
+    void init();
 
 protected:
     void *pj = nullptr;

@@ -100,8 +100,6 @@ using CoordSystemRef = std::shared_ptr<CoordSystem>;
     virtual bool canBeWrapped() const { return canWrap; }
     virtual void setCanBeWrapped(bool b) { canWrap = b; }
 
-    virtual bool isValid() const { return true; }
-
 protected:
     CoordSystem() = default;
     CoordSystem(const CoordSystem&) = default;

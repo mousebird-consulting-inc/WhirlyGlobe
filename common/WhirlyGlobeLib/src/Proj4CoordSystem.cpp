@@ -123,11 +123,6 @@ Proj4CoordSystem::~Proj4CoordSystem()
     WK_STD_DTOR_CATCH()
 }
 
-bool Proj4CoordSystem::isValid() const
-{
-    return pj && pj_latlon && pj_geocentric;
-}
-
 /// Create a new instance equivalent to this one
 CoordSystemRef Proj4CoordSystem::clone() const
 {

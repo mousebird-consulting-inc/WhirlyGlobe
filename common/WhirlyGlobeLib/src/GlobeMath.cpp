@@ -174,8 +174,8 @@ FakeGeocentricDisplayAdapter::FakeGeocentricDisplayAdapter() :
 }
 
 FakeGeocentricDisplayAdapter::FakeGeocentricDisplayAdapter(const FakeGeocentricDisplayAdapter &other) :
-    geoCoordSys(other.geoCoordSys),
-    CoordSystemDisplayAdapter(&geoCoordSys, {0,0,0})
+    CoordSystemDisplayAdapter(&geoCoordSys, {0,0,0}),
+    geoCoordSys(other.geoCoordSys)
 {
 }
 
