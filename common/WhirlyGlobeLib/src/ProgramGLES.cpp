@@ -389,6 +389,51 @@ bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
     return ret;
 }
 
+static void logError(const char *logStr, const char * sourceCStr)
+{
+    while (logStr && logStr[0] && sourceCStr && sourceCStr[0])
+    {
+        // Find an error label
+        // "ERROR: 0:66:"
+        const char *start = strstr(logStr, "ERROR: ");
+        if (start)
+        {
+            // Skip the filename (missing for dynamic)
+            start = strchr(start + 7, ':');
+        }
+        if (!start || start[0] != ':')
+        {
+            // Nope, keep trying
+            logStr = start;
+            continue;
+        }
+
+        // Found it, look for another number, that's the line number
+        char *end = nullptr;
+        const auto errLine = strtol(start + 1, &end, 10);
+
+        // iterate over lines in the source
+        for (auto line = 1L; sourceCStr && sourceCStr[0]; ++line)
+        {
+            // Find the next newline
+            const auto lineLen = strcspn(sourceCStr, "\r\n");
+            // Print the line, if it's relevant
+            if (errLine - 3 <= line && line <= errLine + 3)
+            {
+                const char c = (line == errLine) ? '>' : ' ';
+                wkLogLevel(Warn, "%3d %c: %.*s", line, c, lineLen, sourceCStr);
+            }
+            // Advance past the line
+            sourceCStr += lineLen;
+            // And the newline(s), if appropriate
+            if (sourceCStr[0])
+            {
+                sourceCStr += (sourceCStr[0] == '\r' && sourceCStr[1] == '\n') ? 2 : 1;
+            }
+        }
+    }
+}
+
 // Helper routine to compile a shader and check return
 bool compileShader(const char *name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const char *shaderStr)
 {
@@ -419,7 +464,7 @@ bool compileShader(const char *name,const char *shaderTypeStr,GLuint *shaderId,G
             std::vector<char> logStr(len+1);
             glGetShaderInfoLog(*shaderId, len, &len, &logStr[0]);
             wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name,&logStr[0]);
-            wkLogLevel(Verbose,"Source:\n%s",sourceCStr);
+            logError(&logStr[0], sourceCStr);
         }
         
         glDeleteShader(*shaderId);

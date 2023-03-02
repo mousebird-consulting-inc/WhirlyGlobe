@@ -117,6 +117,7 @@ static const std::unordered_map<TextureInterpType, const char* const> interpStrM
 {
     STRPAIR(TexInterpNearest),
     STRPAIR(TexInterpLinear),
+    STRPAIR(TexInterpCubic),
 };
 template <typename T>
 __attribute__((unused)) static inline const char* mapStr(T tt, const std::unordered_map<T,const char* const> &m) {
@@ -406,9 +407,13 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     const GLenum interTypeGL = (interpType == TexInterpNearest) ? GL_NEAREST : GL_LINEAR;
     // Set the texture parameters to use a minifying filter and a linear filter (weighted average)
     if (usesMipmaps)
+    {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+    }
     else
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint)interTypeGL);
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (GLint) interTypeGL);
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (GLint)interTypeGL);
     
     CheckGLError("Texture::createInRenderer() glTexParameteri()");
@@ -491,11 +496,12 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
                          glFormat, glType, data);
             if (!CheckGLError("Texture::createInRenderer() glTexImage2D()"))
             {
-                wkLog("Error loading texture id=%d from fmt=%s(%s) w=%d h=%d => if=%s f=%s t=%s b=%d raw=%.8x %.8x ...",
-                      glId, texStr(format), bsStr(byteSource), width, height,
-                      glStr(internalFormat), glStr(glFormat), glStr(glType), bytesPerRow,
-                      (dataLen > 3) ? ((int*)data)[0] : 0,
-                      (dataLen > 7) ? ((int*)data)[1] : 0);
+                wkLogLevel(Warn,
+                    "Error loading texture id=%d from fmt=%s(%s) w=%d h=%d => if=%s f=%s t=%s b=%d raw=%.8x %.8x ...",
+                    glId, texStr(format), bsStr(byteSource), width, height,
+                    glStr(internalFormat), glStr(glFormat), glStr(glType), bytesPerRow,
+                    (dataLen > 3) ? ((int*)data)[0] : 0,
+                    (dataLen > 7) ? ((int*)data)[1] : 0);
             }
         }
         else

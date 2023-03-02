@@ -22,6 +22,8 @@
 #import "UtilsGLES.h"
 #import "WhirlyKitLog.h"
 
+#import <array>
+
 namespace WhirlyKit
 {
 

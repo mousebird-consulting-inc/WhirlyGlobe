@@ -118,7 +118,7 @@ public:
     }
     
     // Create an RGBAColor from HSV
-    static constexpr RGBAColor FromHSV(int hue,double s,double v) {
+    static /*constexpr*/ RGBAColor FromHSV(int hue,double s,double v) {
         const double c = s * v;
         const double x = c * (1 - std::abs(std::fmod(hue / 60.0, 2.0) - 1));
         const double m = v - c;
@@ -138,7 +138,7 @@ public:
     }
 
     // Create an RGBAColor from HSL
-    static constexpr RGBAColor FromHSL(int hue,double s,double l) {
+    static /*constexpr*/ RGBAColor FromHSL(int hue,double s,double l) {
         const double c = (1 - std::abs(2*l - 1)) * s;
         const double x = c * (1 - std::abs(fmod(hue / 60.0, 2.0) - 1));
         double m = l - c/2.0;
