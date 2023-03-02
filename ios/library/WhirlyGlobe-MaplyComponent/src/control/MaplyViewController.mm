@@ -428,6 +428,7 @@ private:
         doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
         doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
+        doubleTapDelegate.approveAllGestures = self.fastGestures;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
     }
     if(_twoFingerTapGesture)
@@ -435,7 +436,8 @@ private:
         twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView];
         twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
         twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
-        if (pinchDelegate)
+        twoFingerTapDelegate.approveAllGestures = self.fastGestures;
+        if (pinchDelegate && !self.fastGestures)
             [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         [tapRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
     }
@@ -444,8 +446,11 @@ private:
         doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
         doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
         doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
+        if (self.fastGestures)
+            doubleTapDragDelegate.minimumPressDuration = 0.01;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
-        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        if (!self.fastGestures)
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
     }
     if(_cancelAnimationOnTouch)
     {
@@ -809,8 +814,10 @@ private:
 - (void)setViewExtentsLL:(MaplyCoordinate)ll ur:(MaplyCoordinate)ur
 {
     const auto adapter = mapView->getCoordAdapter();
-    CoordSystem *coordSys = adapter->getCoordSystem();
-    boundLL = ll;    boundUR = ur;
+    const CoordSystem *coordSys = adapter->getCoordSystem();
+
+    boundLL = ll;
+    boundUR = ur;
     
     // Convert the bounds to a rectangle in local coordinates
     const Point3f bounds3d[4] = {
@@ -862,7 +869,8 @@ private:
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
     const auto adapter = mapView->getCoordAdapter();
-    Point3d loc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+    const CoordSystem *coordSys = adapter->getCoordSystem();
+    Point3d loc = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = mapView->getLoc().z();
     [self animateToPoint:loc time:howLong];
 }
@@ -883,7 +891,8 @@ private:
         Point3d oldLoc = mapView->getLoc();
         Point3f diffLoc(whereLoc.x()-oldLoc.x(),whereLoc.y()-oldLoc.y(),0.0);
         const auto adapter = mapView->getCoordAdapter();
-        Point3d loc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+        const CoordSystem *coordSys = adapter->getCoordSystem();
+        Point3d loc = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
         loc.x() -= diffLoc.x();
         loc.y() -= diffLoc.y();
         loc.z() = oldLoc.z();
@@ -914,7 +923,8 @@ private:
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
 
     const auto adapter = mapView->getCoordAdapter();
-    Point3d loc = adapter->localToDisplay(adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
+    const CoordSystem *coordSys = adapter->getCoordSystem();
+    Point3d loc = adapter->localToDisplay(coordSys->geographicToLocal3d(GeoCoord(newPos.x,newPos.y)));
     loc.z() = newHeight;
     
     [self animateToPoint:loc time:howLong];
@@ -1062,7 +1072,8 @@ private:
     if (newPos.y < boundLL.y)  newPos.y = boundLL.y;
     
     const auto adapter = mapView->getCoordAdapter();
-    const Point3d curLoc = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
+    const CoordSystem *coordSys = adapter->getCoordSystem();
+    const Point3d curLoc = coordSys->geographicToLocal3d(GeoCoord(newPos.x,newPos.y));
     const Point3d newLoc(curLoc.x(), curLoc.y(), height);
 
     // Do a validity check and possibly adjust the center
@@ -1087,7 +1098,8 @@ private:
 - (MaplyCoordinate)getPosition
 {
     const auto adapter = mapView->getCoordAdapter();
-    const GeoCoord geoCoord = adapter->getCoordSystem()->localToGeographic(adapter->displayToLocal(mapView->getLoc()));
+    const CoordSystem *coordSys = adapter->getCoordSystem();
+    const GeoCoord geoCoord = coordSys->localToGeographic(adapter->displayToLocal(mapView->getLoc()));
     return {.x = geoCoord.x(), .y = geoCoord.y()};
 }
 
@@ -1098,8 +1110,9 @@ private:
 
 - (void)getPosition:(MaplyCoordinate *)pos height:(float *)height
 {
-    Point3d loc = mapView->getLoc();
-    GeoCoord geoCoord = mapView->getCoordAdapter()->getCoordSystem()->localToGeographic(loc);
+    const Point3d loc = mapView->getLoc();
+    const CoordSystem *coordSys = mapView->getCoordAdapter()->getCoordSystem();
+    const GeoCoord geoCoord = coordSys->localToGeographic(loc);
     pos->x = geoCoord.x();  pos->y = geoCoord.y();
     *height = loc.z();
 }
@@ -1213,13 +1226,14 @@ private:
     MaplyViewControllerAnimationState *animState = [animationDelegate mapViewController:self stateForTime:now];
     
     // Do a validity check and possibly adjust the center
-    Point3d loc = coordAdapter->getCoordSystem()->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y));
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Point3d loc = coordSys->geographicToLocal3d(GeoCoord(animState.pos.x,animState.pos.y));
     loc.z() = animState.height;
     Maply::MapView testMapView(*(mapView.get()));
     Point3d newCenter {0,0,0};
     if ([self withinBounds:loc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
     {
-        GeoCoord geoCoord = coordAdapter->getCoordSystem()->localToGeographic(newCenter);
+        GeoCoord geoCoord = coordSys->localToGeographic(newCenter);
         animState.pos = {geoCoord.x(),geoCoord.y()};
         animState.height = newCenter.z();
         
@@ -1331,7 +1345,8 @@ private:
     }
 
     const auto adapter = theView->getCoordAdapter();
-    const Point3d localPt = adapter->getCoordSystem()->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
+    const CoordSystem *coordSys = adapter->getCoordSystem();
+    const Point3d localPt = coordSys->geographicToLocal3d(GeoCoord(geoCoord.x,geoCoord.y));
     const Point3d displayPt = adapter->localToDisplay(localPt);
     const Eigen::Matrix4d modelTrans = theView->calcFullMatrix();
     const Point2f frameSizeScaled = renderControl->sceneRenderer->getFramebufferSizeScaled();
@@ -1604,6 +1619,18 @@ private:
 {
     if (note.object != mapView->tag)
         return;
+
+    if (self.fastGestures) {
+        // Cancel any pending recognition of other gestures.
+        // ("If you change this property to NO while a gesture recognizer is currently
+        //   regognizing a gesture, the gesture recognizer transitions to a cancelled state.")
+        UIGestureRecognizer __strong *panRec = panDelegate.gestureRecognizer;
+        panRec.enabled = NO;
+        panRec.enabled = YES;
+        UIGestureRecognizer __strong *tapRec = twoFingerTapDelegate.gestureRecognizer;
+        tapRec.enabled = NO;
+        tapRec.enabled = YES;
+    }
 
     [self handleStartMoving:true];
     self.isZooming = true;

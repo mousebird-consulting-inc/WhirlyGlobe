@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 4/19/12.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  */
 
 #import "WhirlyVector.h"
-#import "CoordSystem.h"
+#import "GlobeMath.h"
 
 namespace WhirlyKit 
 {
@@ -29,13 +29,18 @@ using SphericalMercatorCoordSystemRef = std::shared_ptr<SphericalMercatorCoordSy
  It stretches out the world in a familiar way, making the US
  look almost as big as our collective ego.  And Greenland.  For some reason.
  */
-struct SphericalMercatorCoordSystem : public CoordSystem
+struct SphericalMercatorCoordSystem : public GeoCoordSystem
 {
     /// Construct with an optional origin for the projection in radians
     /// The equator is default
-    SphericalMercatorCoordSystem(float originLon=0.0);
+    SphericalMercatorCoordSystem(double originLon = 0.0);
+    SphericalMercatorCoordSystem(const SphericalMercatorCoordSystem &);
 
     static SphericalMercatorCoordSystemRef makeWebStandard();
+
+    virtual bool isValid() const override;
+
+    virtual CoordSystemRef clone() const override;
 
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f&) const override;
@@ -62,7 +67,7 @@ struct SphericalMercatorCoordSystem : public CoordSystem
 protected:
     double originLon;
 };
-    
+
 /** The Spherical Mercator Display adapter uses an origin and geo MBR
     to convert coordinates in and out of display space.
   */
@@ -79,7 +84,11 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
     /// Also pass in a display origin.  We'll offset everything from there.
     SphericalMercatorDisplayAdapter(float originLon, const GeoCoord &ll, const GeoCoord &ur,
                                     const Point3d &displayOrigin);
+
+    SphericalMercatorDisplayAdapter(const SphericalMercatorDisplayAdapter &);
     
+    virtual CoordSystemDisplayAdapterRef clone() const override;
+
     /// Return the valid boundary in spherical mercator.  Z coordinate is ignored at present.
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override;
 
@@ -102,12 +111,6 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
     virtual Point3f normalForLocal(const Point3f&) const override { return {0,0,1 }; }
     virtual Point3d normalForLocal(const Point3d&) const override { return {0,0,1 }; }
 
-    /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const override {
-        // todo: eventually return a const pointer
-        return (CoordSystem*)&smCoordSys;
-    }
-
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
 #if !MAPLY_MINIMAL
@@ -116,6 +119,7 @@ struct SphericalMercatorDisplayAdapter : public CoordSystemDisplayAdapter
 
 protected:
     Point2d org,ll,ur,geoLL,geoUR;
+    Point3d displayOrigin;
     SphericalMercatorCoordSystem smCoordSys;
 };
     

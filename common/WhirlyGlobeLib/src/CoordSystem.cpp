@@ -24,6 +24,23 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+bool CoordSystem::isValid() const
+{
+    return bounds.valid();
+}
+
+MbrD CoordSystem::getBoundsLocal() const
+{
+    return { geographicToLocal2(bounds.ll()),
+             geographicToLocal2(bounds.ur()) };
+}
+
+bool CoordSystem::isSameAs(const CoordSystem *coordSys) const
+{
+    return coordSys && bounds == coordSys->bounds && canWrap == coordSys->canWrap;
+}
+
+
 Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3f &inCoord)
 {
     // Easy if the coordinate systems are the same
@@ -44,11 +61,36 @@ Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outS
     return outSystem->geocentricToLocal(inSystem->localToGeocentric(inCoord));
 }
 
+CoordSystemDisplayAdapter::CoordSystemDisplayAdapter(const CoordSystem *coordSys,const Point3d &center) :
+    center(center),
+    coordSys(coordSys)
+{
+    assert(coordSys);
+}
+
+CoordSystemDisplayAdapter::CoordSystemDisplayAdapter(const CoordSystemDisplayAdapter &other) :
+    center(other.center),
+    scale(other.scale),
+    coordSys(other.coordSys)
+{
+    assert(coordSys && scale.x() > 0.0);
+}
+
+CoordSystemDisplayAdapterRef CoordSystemDisplayAdapter::cloneWithCoordSys(CoordSystem *inCoordSys) const
+{
+    if (auto trooper = this->clone())
+    {
+        trooper->coordSys = inCoordSys;
+        return trooper;
+    }
+    return {};
+}
+
 GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &ll,const Point3d &ur,
                                                                    const Point3d &inCenter,const Point3d &inScale) :
     CoordSystemDisplayAdapter(coordSys,inCenter),
-    ll(ll), ur(ur),
-    coordSys(coordSys)
+    ll(ll),
+    ur(ur)
 {
     scale = inScale;
     center = inCenter;
@@ -56,6 +98,22 @@ GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *
     dispUR = localToDisplay(ur);    //NOLINT
     geoLL = coordSys->localToGeographicD(ll);
     geoUR = coordSys->localToGeographicD(ur);
+}
+
+GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(const GeneralCoordSystemDisplayAdapter &other) :
+    CoordSystemDisplayAdapter(other),
+    ll(other.ll),
+    ur(other.ur),
+    dispLL(other.dispLL),
+    dispUR(other.dispUR),
+    geoLL(other.geoLL),
+    geoUR(other.geoUR)
+{
+}
+
+CoordSystemDisplayAdapterRef GeneralCoordSystemDisplayAdapter::clone() const
+{
+    return std::make_shared<GeneralCoordSystemDisplayAdapter>(*this);
 }
 
 bool GeneralCoordSystemDisplayAdapter::getBounds(Point3f &outLL,Point3f &outUR) const

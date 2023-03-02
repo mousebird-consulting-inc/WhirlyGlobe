@@ -267,7 +267,7 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystemDisplayAdapter_ge
         if (geoX.len != geoY.len || geoX.len != sx.len || geoX.len != sy.len)
             return false;
         
-        CoordSystem *coordSys = coordAdapter->getCoordSystem();
+        const CoordSystem *coordSys = coordAdapter->getCoordSystem();
         Matrix4d modelMat = view->calcModelMatrix();
         Matrix4d viewMat = view->calcViewMatrix();
         Matrix4d fullMat = viewMat * modelMat;

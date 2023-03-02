@@ -31,4 +31,7 @@
 /// Zoom limits
 @property (nonatomic) float minZoom,maxZoom;
 
+/// Set this to let other gesture recognizers run all the time
+@property (nonatomic) bool approveAllGestures;
+
 @end

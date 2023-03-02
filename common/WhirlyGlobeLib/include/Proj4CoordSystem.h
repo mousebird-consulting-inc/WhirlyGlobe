@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 11/10/15.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -30,8 +30,13 @@ struct Proj4CoordSystem : public CoordSystem
     
     /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(std::string proj4Str);
+    Proj4CoordSystem(const Proj4CoordSystem &);
+    Proj4CoordSystem(Proj4CoordSystem &&);
     virtual ~Proj4CoordSystem();
     
+    /// Create a new instance equivalent to this one
+    virtual CoordSystemRef clone() const override;
+
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f&) const override;
     virtual GeoCoord localToGeographic(const Point3d&) const override;
@@ -53,13 +58,20 @@ struct Proj4CoordSystem : public CoordSystem
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
     
     /// Check that it actually created the pj structures
-    bool isValid() const { return pj != nullptr; }
+    bool isValid() const override;
     
+private:
+    void init();
+
 protected:
-    void *pj;
-    void *pj_latlon;
-    void *pj_geocentric;
+    void *pj = nullptr;
+    void *pj_ctx = nullptr;
+    void *pj_latlon = nullptr;
+    void *pj_latlon_ctx = nullptr;
+    void *pj_geocentric = nullptr;
+    void *pj_geocentric_ctx = nullptr;
     std::string proj4Str;
+    mutable std::mutex mutex;
 };
     
 }

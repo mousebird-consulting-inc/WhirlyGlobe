@@ -2,7 +2,7 @@
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 1/3/14.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -74,9 +74,9 @@ class MapboxVectorStyleSetImpl_iOS : public MapboxVectorStyleSetImpl
 {
 public:
     MapboxVectorStyleSetImpl_iOS(Scene *_Nonnull scene,
-                                 CoordSystem *_Nonnull coordSys,
+                                 const CoordSystem *_Nonnull coordSys,
                                  const VectorStyleSettingsImplRef &settings);
-    ~MapboxVectorStyleSetImpl_iOS();
+    virtual ~MapboxVectorStyleSetImpl_iOS() = default;
 
     NSObject<MaplyRenderControllerProtocol> *_Nullable __weak viewC;
     

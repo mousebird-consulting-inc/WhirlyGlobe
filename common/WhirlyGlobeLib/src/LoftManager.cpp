@@ -465,7 +465,7 @@ SimpleIdentity LoftManager::addLoftedPolys(WhirlyKit::ShapeSet *shapes,const Lof
     SimpleIdentity loftID = EmptyIdentity;
 
     CoordSystemDisplayAdapter *coordAdapter = scene->getCoordAdapter();
-    CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
     LoftedPolySceneRep *sceneRep = new LoftedPolySceneRep();
     loftID = sceneRep->getId();
     sceneRep->fadeOut = polyInfo.fadeOut;

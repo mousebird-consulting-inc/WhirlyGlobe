@@ -1,7 +1,8 @@
-/*  MaplyDoubleTapDragDelegate.h
+/*  ProfilingLockGuard.h
+ *  WhirlyGlobeLib
  *
- *  Created by Steve Gifford on 2/7/14.
- *  Copyright 2011-2022 mousebird consulting
+ *  Created by Tim Sylvester on 2/23/2023
+ *  Copyright 2023-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,11 +16,21 @@
  *  limitations under the License.
  */
 
-#import <WhirlyGlobe/MaplyZoomGestureDelegate.h>
+#import <WhirlyTypes.h>
+#import <mutex>
 
-@interface MaplyDoubleTapDragDelegate : MaplyZoomGestureDelegate
+namespace WhirlyKit
+{
 
-/// Change if you want a shorter or longer press duration
-@property (nonatomic) float minimumPressDuration;
+/// Wraps `std::lock_guard` with timing information
+struct ProfilingLockGuard : std::lock_guard<std::mutex>
+{
+    ProfilingLockGuard(std::mutex &mutex, TimeInterval t0 = PerfTime());
+    ~ProfilingLockGuard();
+    const TimeInterval t0;
+    
+    static inline TimeInterval PerfTime();
+};
 
-@end
+}
+

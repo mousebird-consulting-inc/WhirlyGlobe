@@ -97,7 +97,7 @@ LabelRenderer::LabelRenderer(Scene *scene,
 Point3dVector LabelRenderer::convertGeoPtsToModelSpace(const VectorRing &inPts) const
 {
     CoordSystemDisplayAdapter *coordAdapt = scene->getCoordAdapter();
-    CoordSystem *coordSys = coordAdapt->getCoordSystem();
+    const CoordSystem *coordSys = coordAdapt->getCoordSystem();
 
     Point3dVector outPts;
     outPts.reserve(inPts.size());

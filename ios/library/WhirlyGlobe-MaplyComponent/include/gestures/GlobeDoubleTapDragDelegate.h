@@ -30,4 +30,7 @@
 /// Zoom limits
 @property (nonatomic) float minZoom,maxZoom;
 
+/// Change if you want a shorter or longer press duration
+@property (nonatomic) float minimumPressDuration;
+
 @end

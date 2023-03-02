@@ -39,6 +39,11 @@ using namespace Maply;
 	return tapDelegate;
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return _approveAllGestures;
+}
+
 // Called for double tap actions
 - (void)tapGesture:(id)sender
 {

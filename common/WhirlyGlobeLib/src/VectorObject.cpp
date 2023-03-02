@@ -339,7 +339,7 @@ bool VectorObject::linearMiddle(Point2d &middle,double &rot) const
     return true;
 }
     
-bool VectorObject::linearMiddle(Point2d &middle,double &rot,CoordSystem *coordSys) const
+bool VectorObject::linearMiddle(Point2d &middle,double &rot,const CoordSystem *coordSys) const
 {
     if (shapes.empty())
         return false;
@@ -1035,7 +1035,7 @@ void VectorObject::subdivideToGlobe(float epsilon)
 
 // SubdivideEdgesToSurfaceGC and convert back to geographic
 static void SubdivideEdgesToSurfaceGCGeo(const VectorRing &inPts,VectorRing &outPts2D,bool closed,
-                                         CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
+                                         CoordSystemDisplayAdapter *adapter,const CoordSystem* coordSys,
                                          float eps,float surfOffset=0,int minPts=0)
 {
     Point3dVector outPts;
@@ -1055,7 +1055,7 @@ static void SubdivideEdgesToSurfaceGCGeo(const VectorRing &inPts,VectorRing &out
 }
 
 static void SubdivideEdgesToSurfaceGCGeo(const VectorRing3d &inPts,Point3dVector &outPts,bool closed,
-                                         CoordSystemDisplayAdapter *adapter,CoordSystem* coordSys,
+                                         CoordSystemDisplayAdapter *adapter,const CoordSystem* coordSys,
                                          float eps,float surfOffset=0,int minPts=0)
 {
     VectorRing inPts2D;
@@ -1299,7 +1299,7 @@ static void SubdivideGeoLib(const VectorRing3d &inPts, VectorRing3d &outPts, dou
 
 void VectorObject::subdivideToInternal(float epsilon,WhirlyKit::CoordSystemDisplayAdapter *adapter,bool useGeoLib,bool edgeMode)
 {
-    CoordSystem *coordSys = adapter->getCoordSystem();
+    const CoordSystem *coordSys = adapter->getCoordSystem();
 
     const auto geoDist = useGeoLib ? epsilon * GEOC_EARTH_RAD : 0.0;
 

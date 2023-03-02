@@ -2,7 +2,7 @@
  *  WhirlyGlobeComponent
  *
  *  Created by Steve Gifford on 7/21/12.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -263,6 +263,7 @@ private:
         doubleTapDelegate.maxZoom = pinchDelegate.maxHeight;
         doubleTapDelegate.zoomTapFactor = _zoomTapFactor;
         doubleTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        doubleTapDelegate.approveAllGestures = self.fastGestures;
     }
     const auto tapRecognizer = tapDelegate.gestureRecognizer;
     if(_twoFingerTapGesture)
@@ -272,9 +273,10 @@ private:
         twoFingerTapDelegate.maxZoom = pinchDelegate.maxHeight;
         twoFingerTapDelegate.zoomTapFactor = _zoomTapFactor;
         twoFingerTapDelegate.zoomAnimationDuration = _zoomTapAnimationDuration;
+        twoFingerTapDelegate.approveAllGestures = self.fastGestures;
         
         const auto twoFingerRecognizer = twoFingerTapDelegate.gestureRecognizer;
-        if (pinchDelegate) {
+        if (pinchDelegate && !self.fastGestures) {
             [twoFingerRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
         }
         [tapRecognizer requireGestureRecognizerToFail:twoFingerRecognizer];
@@ -284,9 +286,12 @@ private:
         doubleTapDragDelegate = [WhirlyGlobeDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView globeView:globeView.get()];
         doubleTapDragDelegate.minZoom = pinchDelegate.minHeight;
         doubleTapDragDelegate.maxZoom = pinchDelegate.maxHeight;
+        if (self.fastGestures)
+            doubleTapDragDelegate.minimumPressDuration = 0.01;
         const auto doubleTapRecognizer = doubleTapDragDelegate.gestureRecognizer;
         [tapRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
-        [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
+        if (!self.fastGestures)
+            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapRecognizer];
     }
 }
 
@@ -1390,7 +1395,19 @@ private:
 {
     if (note.object != globeView->tag)
         return;
-    
+
+    if (self.fastGestures) {
+        // Cancel any pending recognition of other gestures.
+        // ("If you change this property to NO while a gesture recognizer is currently
+        //   regognizing a gesture, the gesture recognizer transitions to a cancelled state.")
+        UIGestureRecognizer __strong *panRec = panDelegate.gestureRecognizer;
+        panRec.enabled = NO;
+        panRec.enabled = YES;
+        UIGestureRecognizer __strong *tapRec = twoFingerTapDelegate.gestureRecognizer;
+        tapRec.enabled = NO;
+        tapRec.enabled = YES;
+    }
+
 //    NSLog(@"Pinch started");
     
     [self handleStartMoving:true];
@@ -1997,9 +2014,9 @@ private:
 - (WhirlyGlobeViewControllerAnimationState *)viewStateForLookAt:(MaplyCoordinate)coord tilt:(float)tilt heading:(float)heading altitude:(float)alt range:(float)range
 {
     Vector3f north(0,0,1);
-    const WhirlyKit::CoordSystemDisplayAdapter *coordAdapter = globeView->getCoordAdapter();
-    WhirlyKit::CoordSystem *coordSys = coordAdapter->getCoordSystem();
-    Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(WhirlyKit::GeoCoord(coord.x,coord.y)));
+    const CoordSystemDisplayAdapter *coordAdapter = globeView->getCoordAdapter();
+    const CoordSystem *coordSys = coordAdapter->getCoordSystem();
+    Vector3f p0norm = coordAdapter->localToDisplay(coordSys->geographicToLocal(GeoCoord(coord.x,coord.y)));
     // Position we're looking at in display coords
     Vector3f p0 = p0norm * (1.0 + alt);
     

@@ -447,13 +447,9 @@ namespace WhirlyKit
 {
 
 MapboxVectorStyleSetImpl_iOS::MapboxVectorStyleSetImpl_iOS(Scene *scene,
-                                                           CoordSystem *coordSys,
+                                                           const CoordSystem *coordSys,
                                                            const VectorStyleSettingsImplRef &settings)
     : MapboxVectorStyleSetImpl(scene,coordSys,settings)
-{
-}
-
-MapboxVectorStyleSetImpl_iOS::~MapboxVectorStyleSetImpl_iOS()
 {
 }
 

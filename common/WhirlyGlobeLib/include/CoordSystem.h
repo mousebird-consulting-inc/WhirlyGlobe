@@ -2,7 +2,7 @@
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 1/9/12.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,18 +44,23 @@ public:
 
 typedef std::shared_ptr<DelayedDeletable> DelayedDeletableRef;
 
+struct CoordSystem;
+using CoordSystemRef = std::shared_ptr<CoordSystem>;
+
 /// Base class for the various coordinate systems
 ///  we use in the toolkits.
-struct CoordSystem : public DelayedDeletable
+/*abstract*/ struct CoordSystem : public DelayedDeletable
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystem() : bounds({-M_PI,-M_PI_2}, {M_PI,M_PI_2})
-    {
-    }
-
     virtual ~CoordSystem() = default;
-    
+
+    /// If anything went wrong during construction, this will return false
+    virtual bool isValid() const = 0;
+
+    /// Create a new instance equivalent to this one
+    virtual CoordSystemRef clone() const = 0;
+
     /// Convert from the local coordinate system to lat/lon
     virtual GeoCoord localToGeographic(const Point3f&) const = 0;
     virtual Point2d localToGeographicD(const Point3d&) const = 0;
@@ -75,43 +80,61 @@ struct CoordSystem : public DelayedDeletable
     virtual Point3d geocentricToLocal(const Point3d&) const = 0;
     
     /// Return true if the given coordinate system is the same as the one passed in
-    virtual bool isSameAs(const CoordSystem *coordSys) const { return false; }
+    virtual bool isSameAs(const CoordSystem *coordSys) const = 0;
 
-    const GeoMbr &getBounds() const { return bounds; }
+    // Deprecated as ambiguous, use getBoundsGeo
+    GeoMbr getBounds() const { return GeoMbr(bounds); }
+    // Deprecated as ambiguous, use getBoundsGeo
+    const MbrD &getBoundsD() const { return bounds; }
+
+    // Get the bounding box where this system is valid, in geographic coordinates
+    const MbrD &getBoundsGeo() const { return bounds; }
+
+    // Get the bounding box where this system is valid, in local coordinates
+    MbrD getBoundsLocal() const;
+
     template <typename T> void setBounds(T mbr) { bounds = mbr; }
-    template <typename T> void setBounds(T ll, T ur) { bounds.reset(ll, ur); }
+    template <typename T> void setBounds(T ll, T ur) { bounds = { ll, ur }; }
 
     virtual Point3d getWrapCoords() const { return { 0, 0, 0 }; }
     virtual bool canBeWrapped() const { return canWrap; }
     virtual void setCanBeWrapped(bool b) { canWrap = b; }
 
 protected:
-    GeoMbr bounds;
+    CoordSystem() = default;
+    CoordSystem(const CoordSystem&) = default;
+
+    MbrD bounds = { { -M_PI, -M_PI_2 }, { M_PI, M_PI_2 } };
     bool canWrap = false;
 };
-    
-typedef std::shared_ptr<CoordSystem> CoordSystemRef;
     
 /// Convert a point from one coordinate system to another
 Point3f CoordSystemConvert(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3f &inCoord);
 Point3d CoordSystemConvert3d(const CoordSystem *inSystem,const CoordSystem *outSystem,const Point3d &inCoord);
-    
+
+struct CoordSystemDisplayAdapter;
+typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
+
 /** The Coordinate System Display Adapter handles the task of
     converting coordinates in the native system to data values we
     can display.
  */
-struct CoordSystemDisplayAdapter : public DelayedDeletable
+/*abstract*/ struct CoordSystemDisplayAdapter : public DelayedDeletable
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 
-    CoordSystemDisplayAdapter(CoordSystem *coordSys,const Point3d &center) :
-        center(center),
-        coordSys(coordSys)
-    {
-        assert(coordSys);
-    }
+    // Does not take ownership of `coordSys`, caller must manage object lifetimes
+    CoordSystemDisplayAdapter(const CoordSystem *coordSys, const Point3d &center);
+    // Shared ownership of `coordSys`, caller must manage object lifetimes
+    CoordSystemDisplayAdapter(const CoordSystemDisplayAdapter &);
     virtual ~CoordSystemDisplayAdapter() = default;
-    
+
+    // Make a copy of this object, whatever it is
+    virtual CoordSystemDisplayAdapterRef clone() const = 0;
+
+    // Make a copy, but one using a different coordinate system reference.
+    virtual CoordSystemDisplayAdapterRef cloneWithCoordSys(CoordSystem *coordSys) const;
+
     /// If the subclass can support a bounding box, this returns true
     ///  and the bounds.  Z values are ignored for now.
     /// If the subclass can't support bounds (e.g. a globe), you get false back.
@@ -161,7 +184,7 @@ struct CoordSystemDisplayAdapter : public DelayedDeletable
     virtual Point3d normalForLocal(const Point3d&) const = 0;
 
     /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const = 0;
+    virtual const CoordSystem *getCoordSystem() const { return coordSys; }
     
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
@@ -178,7 +201,6 @@ protected:
     const CoordSystem *coordSys;
 };
 
-typedef std::shared_ptr<CoordSystemDisplayAdapter> CoordSystemDisplayAdapterRef;
 
 /** The general coord system display adapter is used by flat maps to encapsulate a general coordinate system.
     This needs to be one which is flat, but is otherwise unconstrained.  The bounding box is where the coordinate system is valid and the center will be the center of display coordinates.
@@ -190,6 +212,9 @@ struct GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
     GeneralCoordSystemDisplayAdapter(CoordSystem *coordSys,
                                      const Point3d &ll,const Point3d &ur,
                                      const Point3d &center,const Point3d &scale);
+    GeneralCoordSystemDisplayAdapter(const GeneralCoordSystemDisplayAdapter &);
+
+    virtual CoordSystemDisplayAdapterRef clone() const override;
 
     /// Bounding box where the coordinate system is valid
     virtual bool getBounds(Point3f &ll,Point3f &ur) const override;
@@ -211,10 +236,7 @@ struct GeneralCoordSystemDisplayAdapter : public CoordSystemDisplayAdapter
     /// For flat systems the normal is Z up.
     virtual Point3f normalForLocal(const Point3f&) const override { return {0,0,1 }; }
     virtual Point3d normalForLocal(const Point3d&) const override { return {0,0,1 }; }
-    
-    /// Get a reference to the coordinate system
-    virtual CoordSystem *getCoordSystem() const override { return coordSys; }
-    
+
     /// Return true if this is a projected coordinate system.
     /// False for others, like geographic.
 #if !MAPLY_MINIMAL
@@ -225,7 +247,6 @@ protected:
     Point3d ll,ur;
     Point3d dispLL,dispUR;
     Point2d geoLL,geoUR;
-    CoordSystem *coordSys;
 };
 
 typedef std::shared_ptr<GeneralCoordSystemDisplayAdapter> GeneralCoordSystemDisplayAdapterRef;

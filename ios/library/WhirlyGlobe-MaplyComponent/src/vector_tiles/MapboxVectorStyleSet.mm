@@ -1,9 +1,8 @@
-/*
- *  MapboxVectorStyleSet.mm
+/*  MapboxVectorStyleSet.mm
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 2/16/15.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <WhirlyGlobe.h>
@@ -54,7 +52,7 @@ using namespace WhirlyKit;
                         if (auto *coordSys = coordAdapter->getCoordSystem())
                         {
                             const auto styleSettings = (settings && settings->impl) ? settings->impl :
-                            std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+                                std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
                             style = std::make_shared<MapboxVectorStyleSetImpl_iOS>(scene, coordSys, styleSettings);
                             style->viewC = viewC;
                         }

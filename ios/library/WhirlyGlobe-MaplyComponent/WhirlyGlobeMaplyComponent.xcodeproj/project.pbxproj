@@ -1513,6 +1513,10 @@
 		31C3A796282C63AE00E1F042 /* QuadTreeIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 31C3A795282C63AE00E1F042 /* QuadTreeIdentifier.h */; };
 		31C3A798282C645000E1F042 /* WhirlyEigen.h in Headers */ = {isa = PBXBuildFile; fileRef = 31C3A797282C645000E1F042 /* WhirlyEigen.h */; };
 		31CAB8DF2792126A00A5F744 /* GeographicLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */; };
+		31D6C91A29A96C6A00DC6282 /* ProfilingLockGuard.h in Headers */ = {isa = PBXBuildFile; fileRef = 31D6C91929A96C6A00DC6282 /* ProfilingLockGuard.h */; };
+		31D6C91B29A96C6A00DC6282 /* ProfilingLockGuard.h in Headers */ = {isa = PBXBuildFile; fileRef = 31D6C91929A96C6A00DC6282 /* ProfilingLockGuard.h */; };
+		31D6C91D29A96C9900DC6282 /* ProfilingLockGuard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31D6C91C29A96C9900DC6282 /* ProfilingLockGuard.cpp */; };
+		31D6C91E29A96C9900DC6282 /* ProfilingLockGuard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 31D6C91C29A96C9900DC6282 /* ProfilingLockGuard.cpp */; };
 		31DDA0A627A4D3B800865ECE /* WhirlyGlobe_iOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */; };
 		31DDA4BA27A8787D00865ECE /* WhirlyGlobe.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		31DDA4CD27AB476400865ECE /* AtmosphereShadersMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */; };
@@ -2555,6 +2559,8 @@
 		31C3A797282C645000E1F042 /* WhirlyEigen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyEigen.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyEigen.h; sourceTree = "<group>"; };
 		31CAB8DD27920F4A00A5F744 /* GeographicLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GeographicLib.h; path = ../../../../common/WhirlyGlobeLib/include/GeographicLib.h; sourceTree = "<group>"; };
 		31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GeographicLib.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeographicLib.cpp; sourceTree = "<group>"; };
+		31D6C91929A96C6A00DC6282 /* ProfilingLockGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilingLockGuard.h; path = ../../../../common/WhirlyGlobeLib/include/ProfilingLockGuard.h; sourceTree = "<group>"; };
+		31D6C91C29A96C9900DC6282 /* ProfilingLockGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProfilingLockGuard.cpp; path = ../../../../common/WhirlyGlobeLib/src/ProfilingLockGuard.cpp; sourceTree = "<group>"; };
 		31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
 		31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AtmosphereShadersMTL.h; sourceTree = "<group>"; };
@@ -2660,13 +2666,14 @@
 		2B23133121F9371F006AA344 /* util */ = {
 			isa = PBXGroup;
 			children = (
-				31A2B37E26AA136900221CFF /* Expect.h */,
-				2BD6FA63254B477F00FD8374 /* DictionaryC.h */,
-				2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */,
 				2B23133721F942D1006AA344 /* Dictionary.h */,
+				2BD6FA63254B477F00FD8374 /* DictionaryC.h */,
+				31A2B37E26AA136900221CFF /* Expect.h */,
 				2B446B2621F7A0D70078A975 /* Platform.h */,
+				31D6C91929A96C6A00DC6282 /* ProfilingLockGuard.h */,
 				2B23132D21F93660006AA344 /* RawData.h */,
 				2B50CEB325798F4800BD4004 /* RawPNGImage.h */,
+				2BB8E1BC21FBCEA400154CDC /* SharedAttributes.h */,
 				2B446AB921F25C330078A975 /* WhirlyKitLog.h */,
 				2B446ABA21F25C330078A975 /* WhirlyTypes.h */,
 			);
@@ -2676,8 +2683,9 @@
 		2B23133221F9373A006AA344 /* util */ = {
 			isa = PBXGroup;
 			children = (
-				2BD6FA67254B47AF00FD8374 /* DictionaryC.cpp */,
 				2B23133921F942E1006AA344 /* Dictionary.cpp */,
+				2BD6FA67254B47AF00FD8374 /* DictionaryC.cpp */,
+				31D6C91C29A96C9900DC6282 /* ProfilingLockGuard.cpp */,
 				2B23132F21F936CD006AA344 /* RawData.cpp */,
 				2B50CEAF25798F3200BD4004 /* RawPNGImage.cpp */,
 			);
@@ -4715,6 +4723,7 @@
 				2BE538361D249A1200B60FAD /* ImageTexture_private.h in Headers */,
 				2B446ABB21F25C330078A975 /* WhirlyKitLog.h in Headers */,
 				2B446AFF21F79A600078A975 /* SphericalMercator.h in Headers */,
+				31D6C91A29A96C6A00DC6282 /* ProfilingLockGuard.h in Headers */,
 				2B699851228DD31F00C31E3F /* TextureMTL.h in Headers */,
 				2BE1E75D2208F43200815D9C /* FontTextureManager_iOS.h in Headers */,
 				2BE5397D1D249BEF00B60FAD /* AAPlanetPerihelionAphelion.h in Headers */,
@@ -5032,6 +5041,7 @@
 				310572282863C72D00B50828 /* ProgramMTL.h in Headers */,
 				3105722A2863C72D00B50828 /* ShapeDrawableBuilder.h in Headers */,
 				3105722D2863C72D00B50828 /* NSDictionary+Stuff.h in Headers */,
+				31D6C91B29A96C6A00DC6282 /* ProfilingLockGuard.h in Headers */,
 				3105722E2863C72D00B50828 /* JSONSharedString.h in Headers */,
 				3105743B2864C23A00B50828 /* MaplyAtmosphere.h in Headers */,
 				310572302863C72D00B50828 /* MaplyControllerLayer.h in Headers */,
@@ -5693,6 +5703,7 @@
 				2B8A78D5228B9041008B0A1F /* WideVectorManager.cpp in Sources */,
 				2B8A78B7228A1A0F008B0A1F /* DynamicTextureAtlas.cpp in Sources */,
 				2B846EED21F138F600EF2A82 /* tess.cpp in Sources */,
+				31D6C91D29A96C9900DC6282 /* ProfilingLockGuard.cpp in Sources */,
 				2B82B6B51E82E24A0095FB14 /* PJ_tpeqd.c in Sources */,
 				2B82B6681E82E24A0095FB14 /* pj_geocent.c in Sources */,
 				2BE1E7482208CF3300815D9C /* GlobeTiltDelegate.mm in Sources */,
@@ -6099,6 +6110,7 @@
 				310570A12863C72D00B50828 /* BasicDrawableInstance.cpp in Sources */,
 				310570AB2863C72D00B50828 /* CoordSystem.cpp in Sources */,
 				31AC5BC12866664B00500A3F /* pj_ellps.c in Sources */,
+				31D6C91E29A96C9900DC6282 /* ProfilingLockGuard.cpp in Sources */,
 				31AC5BB42866654A00500A3F /* pj_mutex.c in Sources */,
 				31AC5BA52866639B00500A3F /* pj_ctx.c in Sources */,
 				31AC5BA6286663A300500A3F /* pj_errno.c in Sources */,

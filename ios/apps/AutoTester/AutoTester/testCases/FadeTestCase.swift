@@ -106,12 +106,18 @@ class FadeTestCase: MaplyTestCase {
         objs = newObjs
     }
 
+    override func preSetUp(withGlobe globeVC: WhirlyGlobeViewController) {
+        globeVC.fastGestures = true
+    }
     override func setUpWithGlobe(_ globeVC: WhirlyGlobeViewController) {
         baseCase.setUpWithGlobe(globeVC)
         globeVC.animate(toPosition: MaplyCoordinateMakeWithDegrees(-80, 40), height: 0.5, heading: 0, time: 3)
         setup()
     }
 
+    override func preSetUp(withMap mapVC: MaplyViewController) {
+        mapVC.fastGestures = true
+    }
     override func setUpWithMap(_ mapVC: MaplyViewController) {
         baseCase.setUpWithMap(mapVC)
         setup()
