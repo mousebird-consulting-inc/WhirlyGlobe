@@ -18,6 +18,9 @@ class BNGCustomMapTestCase: MaplyTestCase {
 	}
 	
 	override func setUpWithMap(_ mapVC: MaplyViewController) {
+        // View wrap causes the view matrices to be wrong when the map is rotated to exactly 60, 150, 240, or 330 degrees
+        mapVC.viewWrap = false
+
         baseCase.setUpWithMap(mapVC)
 		createBritishNationalOverlayLocal(mapVC)
 
