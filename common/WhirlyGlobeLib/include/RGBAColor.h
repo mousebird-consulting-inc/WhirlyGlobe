@@ -44,6 +44,7 @@ public:
     static RGBAColor FromVec(const Eigen::Matrix<T,4,1> &v) { return RGBAColor(v); }
 
     Eigen::Vector4f asRGBAVecF() const { return {r/255.f,g/255.f,b/255.f,a/255.f}; }
+    Eigen::Vector4d asRGBAVecD() const { return {r/255.0,g/255.0,b/255.0,a/255.0}; }
 #endif
 
     /**
@@ -172,6 +173,7 @@ public:
     /// Convert to a 32 bit integer (ala Android)
     constexpr int asInt() const { return asARGBInt(); }
     constexpr int asARGBInt() const { return a << 24 | r << 16 | g << 8 | b; }
+    constexpr int asRGBAInt() const { return r << 24 | g << 16 | b << 8 | a; }
 
     /// Returns as a 4 component array of unsigned chars
     void asUChar4(unsigned char *ret) const { ret[0] = r; ret[1] = g; ret[2] = b; ret[3] = a; }

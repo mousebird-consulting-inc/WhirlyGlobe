@@ -423,7 +423,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (wrapV ? GL_REPEAT : GL_CLAMP_TO_EDGE));
     
     CheckGLError("Texture::createInRenderer() glTexParameteri()");
-    
+
     RawDataRef convertedData = processData();
 
     if (texData && !convertedData)
@@ -474,7 +474,7 @@ bool TextureGLES::createInRenderer(const RenderSetupInfo *inSetupInfo)
                            texStr(format), glStr(internalFormat), interpStr(interpType));
             }
 
-            const int dataLen = convertedData ? convertedData->getLen() : 0;
+            const unsigned dataLen = convertedData ? convertedData->getLen() : 0;
             if (convertedData && dataLen != bytesPerRow * height)
             {
                 wkLogLevel(Warn, "Texture %lld/%d data size mismatch fmt=%s=>%s w=%d h=%d expected=%d actual=%d",

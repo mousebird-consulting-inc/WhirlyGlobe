@@ -101,7 +101,7 @@ struct ImmutableRawData : public RawData
     ImmutableRawData(const void *data, unsigned int size) :
         data((const uint8_t*)data, (const uint8_t*)data + size) { }
     // Allocate the given space, filled with the given value
-    ImmutableRawData(uint8_t value, unsigned int size) : data(value, size) { }
+    ImmutableRawData(uint8_t value, unsigned int size) : data(size, value) { }
     ImmutableRawData(const std::vector<uint8_t> &v) : data(v) { }
     ImmutableRawData(std::vector<uint8_t> &&v) : data(std::move(v)) { }
     ImmutableRawData(const ImmutableRawData &) = default;
