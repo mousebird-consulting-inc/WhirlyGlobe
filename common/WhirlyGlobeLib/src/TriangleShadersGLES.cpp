@@ -87,7 +87,8 @@ void main()
      v_color = a_color * u_fade;
    }
 
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+   vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0);
+   gl_Position = vec4(screenPos.xyz / screenPos.w, 1.0);
 }
 )";
 
@@ -147,7 +148,8 @@ void main()
         v_texCoord = a_texCoord0;
    v_color = a_color * u_fade;
 
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+   vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0);
+   gl_Position = vec4(screenPos.xyz / screenPos.w, 1.0);
 }
 )";
 
@@ -428,7 +430,8 @@ void main()
      v_color = a_color * u_fade;
    }
 
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+   vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0);
+   gl_Position = vec4(screenPos.xyz / screenPos.w, 1.0);
 }
 )";
     

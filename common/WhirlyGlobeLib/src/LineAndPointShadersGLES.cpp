@@ -44,7 +44,8 @@ void main()
    vec4 testNorm = u_mvNormalMatrix * vec4(a_normal,0.0);
    v_dot = dot(-pt.xyz,testNorm.xyz);
    v_color = a_color * u_fade;
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+   vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0);
+   gl_Position = vec4(screenPos.xyz / screenPos.w, 1.0);
 }
 )";
 
@@ -91,7 +92,8 @@ varying vec4      v_color;
 void main()
 {
    v_color = a_color * u_fade;
-   gl_Position = u_mvpMatrix * vec4(a_position,1.0);
+   vec4 screenPos = u_mvpMatrix * vec4(a_position,1.0);
+   gl_Position = vec4(screenPos.xyz / screenPos.w, 1.0);
 }
 )";
 
