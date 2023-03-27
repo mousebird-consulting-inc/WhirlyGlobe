@@ -28,7 +28,7 @@ struct Proj4CoordSystem : public CoordSystem
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     
-    /// Construct with a proj4 string to be passsed to proj.4 (duh)
+    /// Construct with a proj4 string to be passed to proj.4 (duh)
     Proj4CoordSystem(std::string proj4Str);
     Proj4CoordSystem(const Proj4CoordSystem &);
     Proj4CoordSystem(Proj4CoordSystem &&);
