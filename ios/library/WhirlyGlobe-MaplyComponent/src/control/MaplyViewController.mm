@@ -355,44 +355,35 @@ private:
 
 - (ViewRef) loadSetup_view
 {
-    if (mapType == MaplyMapTypeOverlay) {
+    if (mapType == MaplyMapTypeOverlay || !_coordSys) {
         // In this case the view is tied to an outside matrix
         const auto originLon = 0.0;
         const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
         const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
         coordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
-
-        mapView = std::make_shared<MapViewOverlay_iOS>(coordAdapter.get());
-        mapView->setContinuousZoom(true);
-        mapView->setWrap(_viewWrap);
-        mapView->addWatcher(animWrapper);
     } else {
-        if (_coordSys)
-        {
-            const auto bbox = [_coordSys getBounds];
-            const auto ll3d = Point3d(bbox.ll.x, bbox.ll.y, 0);
-            const auto ur3d = Point3d(bbox.ur.x, bbox.ur.y, 0);
-            const Point3d diff = ur3d - ll3d;
-            const auto center3d = Point3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
-            // May need to scale this to the space we're expecting
-            const auto scaleFactor = (std::abs(diff.x()) > 10.0 || std::abs(diff.y()) > 10.0) ?
-            4.0/std::max(diff.x(),diff.y()) : 1.0;
-            coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(
-                                                                              [_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
-                                                                              Point3d(scaleFactor,scaleFactor,1));
-        } else {
-            const auto originLon = 0.0;
-            const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
-            const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
-            coordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
-        }
-
-        mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
-        mapView->setContinuousZoom(true);
-        mapView->setWrap(_viewWrap);
-        mapView->addWatcher(animWrapper);
+        const auto bbox = [_coordSys getBounds];
+        const auto ll3d = Point3d(bbox.ll.x, bbox.ll.y, 0);
+        const auto ur3d = Point3d(bbox.ur.x, bbox.ur.y, 0);
+        const Point3d diff = ur3d - ll3d;
+        const auto center3d = Point3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
+        // May need to scale this to the space we're expecting
+        const auto scaleFactor = (std::abs(diff.x()) > 10.0 || std::abs(diff.y()) > 10.0) ?
+        4.0/std::max(diff.x(),diff.y()) : 1.0;
+        coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(
+                                                                          [_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
+                                                                          Point3d(scaleFactor,scaleFactor,1));
     }
     
+    if (mapType == MaplyMapTypeOverlay) {
+        mapView = std::make_shared<MapViewOverlay_iOS>(coordAdapter.get());
+    } else {
+        mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
+    }
+    mapView->setContinuousZoom(true);
+    mapView->setWrap(_viewWrap);
+    mapView->addWatcher(animWrapper);
+
     return mapView;
 }
 
@@ -1827,7 +1818,7 @@ private:
         [other requireGestureRecognizerToFail:recognizer];
 }
 
-- (void)assignViewMatrixFromMaplibre:(double *)matrixValues scale:(double)scale
+- (void)assignViewMatrixFromMaplibre:(double * __nonnull)matrixValues scale:(double)scale tileSize:(int)tileSize
 {
     if (mapType == MaplyMapTypeOverlay) {
         MapViewOverlay_iOSRef theMapView = std::dynamic_pointer_cast<MapViewOverlay_iOS>(mapView);
@@ -1837,7 +1828,7 @@ private:
             memcpy(inMvp.data(),matrixValues,sizeof(double)*16);
                 
             // Apply a scale to our data first
-            double worldSize = 256.0 / (M_PI) * pow(2.0,scale) ;
+            double worldSize = tileSize / (M_PI) * pow(2.0,scale) ;
             // Note: Can see something with this
         //    double scale = 40075016.68 / (2*8192*M_PI) ;
             const Eigen::Affine3d scaleTrans(Eigen::Scaling(worldSize,-worldSize,1.0));
