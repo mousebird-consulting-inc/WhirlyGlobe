@@ -609,21 +609,20 @@ class LocationTracker : LocationCallback {
 
         val radius = size / 2.0f
 
-        if (directional) {
+        // https://developer.android.com/topic/performance/hardware-accel#unsupported
+        if (directional && (!canvas.isHardwareAccelerated || Build.VERSION.SDK_INT >= 30)) {
             val len = size * 5 / 16f
             val width = size * 3 / 16f
-            //paint.color = markerColorOuter
-            //paint.alpha = Color.alpha(markerColorOuter)
-            val vertexes = floatArrayOf(radius, radius - gradRadius - len,
-                    radius - width, radius - gradRadius,
-                    radius + width, radius - gradRadius)
-            val indexes = shortArrayOf(0, 1, 2)
-            val colors = intArrayOf(markerColorOuter, markerColorOuter, markerColorOuter)
+            val vertexes = floatArrayOf(radius,         radius - gradRadius - len,
+                                        radius - width, radius - gradRadius,
+                                        radius + width, radius - gradRadius,
+                                        radius + width, radius - gradRadius)    // "vertexCount must be a multiple of 2."
+            val colors = Array(vertexes.size) { markerColorOuter }.toIntArray()
             canvas.drawVertices(Canvas.VertexMode.TRIANGLES,
                     vertexes.size, vertexes, 0,
                     null, 0,
                     colors, 0,
-                    indexes, 0, indexes.size,
+                    null, 0, 0,
                     paint)
         }
 

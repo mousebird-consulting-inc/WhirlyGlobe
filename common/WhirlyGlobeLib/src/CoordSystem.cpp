@@ -73,6 +73,7 @@ CoordSystemDisplayAdapter::CoordSystemDisplayAdapter(const CoordSystemDisplayAda
     scale(other.scale),
     coordSys(other.coordSys)
 {
+    assert(coordSys && scale.x() > 0.0);
 }
 
 CoordSystemDisplayAdapterRef CoordSystemDisplayAdapter::cloneWithCoordSys(CoordSystem *inCoordSys) const
@@ -100,7 +101,7 @@ GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(CoordSystem *
 }
 
 GeneralCoordSystemDisplayAdapter::GeneralCoordSystemDisplayAdapter(const GeneralCoordSystemDisplayAdapter &other) :
-    CoordSystemDisplayAdapter(other.coordSys, other.center),
+    CoordSystemDisplayAdapter(other),
     ll(other.ll),
     ur(other.ur),
     dispLL(other.dispLL),
