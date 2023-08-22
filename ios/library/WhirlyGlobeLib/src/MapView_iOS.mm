@@ -22,6 +22,9 @@
 #import "MapView_iOS.h"
 #import "GlobeView_iOS.h"
 
+using namespace Eigen;
+using namespace WhirlyKit;
+
 namespace Maply {
     
 MapView_iOS::MapView_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
@@ -49,6 +52,73 @@ void MapView_iOS::cancelAnimation()
     
     if (hadDelegate)
         [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
+}
+
+MapViewOverlay_iOS::MapViewOverlay_iOS(WhirlyKit::CoordSystemDisplayAdapter *coordAdapter)
+    : MapView_iOS(coordAdapter)
+{
+    tag = [[NSObject alloc] init];
+}
+    
+void MapViewOverlay_iOS::setDelegate(MapViewAnimationDelegateRef delegate)
+{
+    MapView::setDelegate(delegate);
+    
+    if (!delegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
+    else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationStarted object:tag];
+    }
+}
+
+void MapViewOverlay_iOS::cancelAnimation()
+{
+    bool hadDelegate = delegate != nil;
+
+    MapView::cancelAnimation();
+    
+    if (hadDelegate)
+        [[NSNotificationCenter defaultCenter] postNotificationName:kWKViewAnimationEnded object:tag];
+}
+
+Eigen::Matrix4d MapViewOverlay_iOS::calcModelMatrix() const
+{
+    return mvp;
+}
+
+Eigen::Matrix4d MapViewOverlay_iOS::calcViewMatrix() const
+{
+    return Eigen::Matrix4d::Identity();
+}
+
+Eigen::Matrix4d MapViewOverlay_iOS::calcProjectionMatrix(Point2f frameBufferSize,float margin) const
+{
+    return Eigen::Matrix4d::Identity();
+}
+
+void MapViewOverlay_iOS::assignMatrix(const Eigen::Matrix4d &mat)
+{
+    mvp = mat;
+}
+
+void MapViewOverlay_iOS::getOffsetMatrices(Matrix4dVector &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
+{
+    offsetMatrices.push_back(Matrix4d::Identity());
+}
+
+void MapViewOverlay_iOS::setLoc(WhirlyKit::Point3d newLoc)
+{
+    return;
+}
+
+void MapViewOverlay_iOS::setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates)
+{
+    return;
+}
+
+void MapViewOverlay_iOS::setRotAngle(double newRotAngle,bool runUpdates)
+{
+    return;
 }
 
 }
