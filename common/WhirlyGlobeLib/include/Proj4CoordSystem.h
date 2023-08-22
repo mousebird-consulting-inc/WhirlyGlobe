@@ -26,7 +26,7 @@ namespace WhirlyKit
   */
 struct Proj4CoordSystem : public CoordSystem
 {
-    /// Construct with a proj4 string to be passed to proj.4
+    /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(std::string proj4Str);
     Proj4CoordSystem(const Proj4CoordSystem &);
     Proj4CoordSystem(Proj4CoordSystem &&);

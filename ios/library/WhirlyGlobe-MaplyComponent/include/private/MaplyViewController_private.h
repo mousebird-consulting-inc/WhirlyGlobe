@@ -37,6 +37,8 @@
     WhirlyKit::CoordSystemDisplayAdapterRef coordAdapter;
     /// Maply view
     Maply::MapView_iOSRef mapView;
+    /// How the map was invoked
+    MaplyMapType mapType;
 
 @private    
     /// Our own interaction layer for adding and removing things

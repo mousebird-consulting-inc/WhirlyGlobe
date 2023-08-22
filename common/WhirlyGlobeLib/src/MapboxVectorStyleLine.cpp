@@ -19,6 +19,9 @@
 #import "MapboxVectorStyleLine.h"
 #import "WhirlyKitLog.h"
 
+#include <algorithm>
+#include <numeric>
+
 namespace WhirlyKit
 {
 
@@ -90,26 +93,21 @@ bool MapboxVectorLayerLine::parse(PlatformThreadInfo *inst,
     filledLineTexID = EmptyIdentity;
     if (!paint.lineDashArray.empty())
     {
-        totLen = 0.0;
-        double maxWidth = paint.width->maxVal() * styleSet->tileStyleSettings->lineScale;
+        const double width = (paint.width ? paint.width->maxVal() : 1.0);
+        const double maxWidth = width * styleSet->tileStyleSettings->lineScale;
 
         // Figure out the total length
-        for (double val : paint.lineDashArray)
-            totLen += val;
+        totLen = std::accumulate(paint.lineDashArray.begin(), paint.lineDashArray.end(), 0.0);
 
-        unsigned totLenRounded = NextPowOf2((unsigned)totLen);
-        if (totLenRounded < 64)
-            totLenRounded = 64;
-        std::vector<double> dashComponents;
-        dashComponents.reserve(paint.lineDashArray.size());
-        for (double val : paint.lineDashArray)
-        {
-            const double len = val * totLenRounded / totLen;
-            dashComponents.push_back(len);
-        }
+        const double factor = std::max(64U, NextPowOf2((unsigned)totLen)) / totLen;
+
+        std::vector<double> dashComponents(paint.lineDashArray.size());
+        std::transform(paint.lineDashArray.begin(), paint.lineDashArray.end(),
+                       dashComponents.begin(), [=](double n){ return n * factor; });
+
         totLen *= maxWidth;
-        
-        filledLineTexID = styleSet->makeLineTexture(inst,dashComponents);
+
+        filledLineTexID = styleSet->makeLineTexture(inst, std::move(dashComponents));
     }
     fade = MapboxVectorStyleSetImpl::doubleValue("fade",styleEntry,0.0);
 

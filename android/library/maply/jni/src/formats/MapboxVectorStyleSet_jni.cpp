@@ -87,13 +87,19 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_MapboxVectorStyleSet_dispose
         MapboxVectorStyleSetClassInfo *classInfo = MapboxVectorStyleSetClassInfo::getClassInfo();
 
         std::lock_guard<std::mutex> lock(disposeMutex);
-        if (auto inst = classInfo->getObject(env,obj))
+        if (auto pinst = classInfo->getObject(env,obj))
         {
-            (*inst)->cleanup(env);
-            env->DeleteWeakGlobalRef((*inst)->thisObj);
-            (*inst)->thisObj = nullptr;
-            delete inst;
+            if (auto* inst = pinst->get())
+            {
+                inst->cleanup(env);
+                if (inst->thisObj)
+                {
+                    env->DeleteWeakGlobalRef(inst->thisObj);
+                    inst->thisObj = nullptr;
+                }
+            }
             classInfo->clearHandle(env,obj);
+            delete pinst;
         }
     }
     MAPLY_STD_JNI_CATCH()
