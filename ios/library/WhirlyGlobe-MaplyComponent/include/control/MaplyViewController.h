@@ -240,6 +240,7 @@
 typedef NS_ENUM(NSInteger, MaplyMapType) {
 	MaplyMapType3D,
 	MaplyMapTypeFlat,
+    MaplyMapTypeOverlay
 };
 
 /** 
@@ -662,5 +663,11 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
     @param other The other, subordinate gesture recognizer.
  */
 - (void)requirePanGestureRecognizerToFailForGesture:(UIGestureRecognizer *__nullable)other;
+
+/**
+ If we've set up the map as an overlay, we need to pass in the matrix that's controlling it and the scale.
+ This will work for MapLibre & MapboxGL..
+ */
+- (void)assignViewMatrixFromMaplibre:(double * __nonnull)matrixValues scale:(double)scale tileSize:(int)tileSize;
 
 @end

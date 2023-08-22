@@ -198,12 +198,13 @@ private:
     std::shared_ptr<MaplyViewControllerAnimationWrapper> animWrapper;
 }
 
-- (instancetype)initWithMapType:(MaplyMapType)mapType
+- (instancetype)initWithMapType:(MaplyMapType)inMapType
 {
     self = [super init];
     if (!self)
         return nil;
-    
+    mapType = inMapType;
+        
     animWrapper = std::make_shared<MaplyViewControllerAnimationWrapper>(self);
 
     if (mapType == MaplyMapType3D) {
@@ -354,8 +355,13 @@ private:
 
 - (ViewRef) loadSetup_view
 {
-    if (_coordSys)
-    {
+    if (mapType == MaplyMapTypeOverlay || !_coordSys) {
+        // In this case the view is tied to an outside matrix
+        const auto originLon = 0.0;
+        const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
+        const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
+        coordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
+    } else {
         const auto bbox = [_coordSys getBounds];
         const auto ll3d = Point3d(bbox.ll.x, bbox.ll.y, 0);
         const auto ur3d = Point3d(bbox.ur.x, bbox.ur.y, 0);
@@ -363,18 +369,17 @@ private:
         const auto center3d = Point3d(_displayCenter.x,_displayCenter.y,_displayCenter.z);
         // May need to scale this to the space we're expecting
         const auto scaleFactor = (std::abs(diff.x()) > 10.0 || std::abs(diff.y()) > 10.0) ?
-                                    4.0/std::max(diff.x(),diff.y()) : 1.0;
+        4.0/std::max(diff.x(),diff.y()) : 1.0;
         coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(
-              [_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
-              Point3d(scaleFactor,scaleFactor,1));
-    } else {
-        const auto originLon = 0.0;
-        const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
-        const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
-        coordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
+                                                                          [_coordSys getCoordSystem].get(),ll3d,ur3d,center3d,
+                                                                          Point3d(scaleFactor,scaleFactor,1));
     }
     
-    mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
+    if (mapType == MaplyMapTypeOverlay) {
+        mapView = std::make_shared<MapViewOverlay_iOS>(coordAdapter.get());
+    } else {
+        mapView = std::make_shared<MapView_iOS>(coordAdapter.get());
+    }
     mapView->setContinuousZoom(true);
     mapView->setWrap(_viewWrap);
     mapView->addWatcher(animWrapper);
@@ -394,6 +399,12 @@ private:
 {
     [super loadSetup];
     
+    // Make the UIViews transparent to touch
+    if (mapType == MaplyMapTypeOverlay) {
+        self.view.userInteractionEnabled = false;
+        wrapView.userInteractionEnabled = false;
+    }
+    
     allowRepositionForAnnnotations = false;
     
     Point2d ll(0,0),ur(0,0);
@@ -409,52 +420,54 @@ private:
         boundUR.x = MAXFLOAT;
     }
     
-    // Wire up the gesture recognizers
-    tapDelegate = [MaplyTapDelegate tapDelegateForView:wrapView mapView:mapView.get()];
-    panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView useCustomPanRecognizer:false];
-    if (_pinchGesture)
-    {
-        pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
-        pinchDelegate.minZoom = mapView->minHeightAboveSurface();
-        pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
-    }
-    if(_rotateGesture) {
-        rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
-        rotateDelegate.rotateThreshold = _rotateGestureThreshold;
-    }
-    const auto __strong tapRecognizer = tapDelegate.gestureRecognizer;
-    if(_doubleTapZoomGesture)
-    {
-        doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
-        doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
-        doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
-        doubleTapDelegate.approveAllGestures = self.fastGestures;
-        [tapRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
-    }
-    if(_twoFingerTapGesture)
-    {
-        twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView];
-        twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
-        twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
-        twoFingerTapDelegate.approveAllGestures = self.fastGestures;
-        if (pinchDelegate && !self.fastGestures)
-            [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
-        [tapRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
-    }
-    if (_doubleTapDragGesture)
-    {
-        doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
-        doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
-        doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
-        if (self.fastGestures)
-            doubleTapDragDelegate.minimumPressDuration = 0.01;
-        [tapRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
-        if (!self.fastGestures)
-            [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
-    }
-    if(_cancelAnimationOnTouch)
-    {
-        touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:wrapView mapView:mapView.get()];
+    if (mapType != MaplyMapTypeOverlay) {
+        // Wire up the gesture recognizers
+        tapDelegate = [MaplyTapDelegate tapDelegateForView:wrapView mapView:mapView.get()];
+        panDelegate = [MaplyPanDelegate panDelegateForView:wrapView mapView:mapView useCustomPanRecognizer:false];
+        if (_pinchGesture)
+        {
+            pinchDelegate = [MaplyPinchDelegate pinchDelegateForView:wrapView mapView:mapView];
+            pinchDelegate.minZoom = mapView->minHeightAboveSurface();
+            pinchDelegate.maxZoom = mapView->maxHeightAboveSurface();
+        }
+        if(_rotateGesture) {
+            rotateDelegate = [MaplyRotateDelegate rotateDelegateForView:wrapView mapView:mapView.get()];
+            rotateDelegate.rotateThreshold = _rotateGestureThreshold;
+        }
+        const auto __strong tapRecognizer = tapDelegate.gestureRecognizer;
+        if(_doubleTapZoomGesture)
+        {
+            doubleTapDelegate = [MaplyDoubleTapDelegate doubleTapDelegateForView:wrapView mapView:mapView];
+            doubleTapDelegate.minZoom = mapView->minHeightAboveSurface();
+            doubleTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
+            doubleTapDelegate.approveAllGestures = self.fastGestures;
+            [tapRecognizer requireGestureRecognizerToFail:doubleTapDelegate.gestureRecognizer];
+        }
+        if(_twoFingerTapGesture)
+        {
+            twoFingerTapDelegate = [MaplyTwoFingerTapDelegate twoFingerTapDelegateForView:wrapView mapView:mapView];
+            twoFingerTapDelegate.minZoom = mapView->minHeightAboveSurface();
+            twoFingerTapDelegate.maxZoom = mapView->maxHeightAboveSurface();
+            twoFingerTapDelegate.approveAllGestures = self.fastGestures;
+            if (pinchDelegate && !self.fastGestures)
+                [twoFingerTapDelegate.gestureRecognizer requireGestureRecognizerToFail:pinchDelegate.gestureRecognizer];
+            [tapRecognizer requireGestureRecognizerToFail:twoFingerTapDelegate.gestureRecognizer];
+        }
+        if (_doubleTapDragGesture)
+        {
+            doubleTapDragDelegate = [MaplyDoubleTapDragDelegate doubleTapDragDelegateForView:wrapView mapView:mapView];
+            doubleTapDragDelegate.minZoom = mapView->minHeightAboveSurface();
+            doubleTapDragDelegate.maxZoom = mapView->maxHeightAboveSurface();
+            if (self.fastGestures)
+                doubleTapDragDelegate.minimumPressDuration = 0.01;
+            [tapRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+            if (!self.fastGestures)
+                [panDelegate.gestureRecognizer requireGestureRecognizerToFail:doubleTapDragDelegate.gestureRecognizer];
+        }
+        if(_cancelAnimationOnTouch)
+        {
+            touchDelegate = [MaplyTouchCancelAnimationDelegate touchDelegateForView:wrapView mapView:mapView.get()];
+        }
     }
 
     if (boundLL.x != boundUR.x || boundLL.y != boundUR.y)
@@ -1805,5 +1818,26 @@ private:
         [other requireGestureRecognizerToFail:recognizer];
 }
 
+- (void)assignViewMatrixFromMaplibre:(double * __nonnull)matrixValues scale:(double)scale tileSize:(int)tileSize
+{
+    if (mapType == MaplyMapTypeOverlay) {
+        MapViewOverlay_iOSRef theMapView = std::dynamic_pointer_cast<MapViewOverlay_iOS>(mapView);
+        if (theMapView) {
+            Eigen::Matrix4d inMvp;
+            
+            memcpy(inMvp.data(),matrixValues,sizeof(double)*16);
+                
+            // Apply a scale to our data first
+            double worldSize = tileSize / (M_PI) * pow(2.0,scale) ;
+            // Note: Can see something with this
+        //    double scale = 40075016.68 / (2*8192*M_PI) ;
+            const Eigen::Affine3d scaleTrans(Eigen::Scaling(worldSize,-worldSize,1.0));
+            const Eigen::Affine3d transTrans(Eigen::Translation3d(M_PI,-M_PI,0.0));
+            Eigen::Matrix4d mvp = (inMvp * (scaleTrans * transTrans) ).matrix();
+
+            theMapView->assignMatrix(mvp);
+        }
+    }
+}
 
 @end

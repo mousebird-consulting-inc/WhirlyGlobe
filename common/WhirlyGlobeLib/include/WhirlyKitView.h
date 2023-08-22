@@ -203,7 +203,7 @@ protected:
 
     double getImagePlaneSize() const { return imagePlaneSize; }
 
-private:
+protected:
     double fieldOfView = M_PI / 3;  // 60 degree field of view
     double imagePlaneSize = 0.0;
     double nearPlane = 0.001;
