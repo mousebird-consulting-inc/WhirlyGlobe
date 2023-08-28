@@ -190,7 +190,6 @@ void MapView::setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates)
 void MapView::setRotAngle(double newRotAngle,bool runUpdates)
 {
     rotAngle = newRotAngle;
-    runViewUpdates();
     if (runUpdates)
         runViewUpdates();
 }

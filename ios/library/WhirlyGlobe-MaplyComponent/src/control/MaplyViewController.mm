@@ -1092,7 +1092,9 @@ private:
     // Do a validity check and possibly adjust the center
     Maply::MapView testMapView(*(mapView.get()));
     Point3d newCenter;
-    if ([self withinBounds:newLoc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
+    // For overlay types we're not testing anything
+    if (mapType == MaplyMapTypeOverlay ||
+        [self withinBounds:newLoc view:wrapView renderer:renderControl->sceneRenderer.get() mapView:&testMapView newCenter:&newCenter])
     {
         mapView->setLoc(newCenter);
         if (newCenter.x() != curLoc.x() || newCenter.y() != curLoc.y())
