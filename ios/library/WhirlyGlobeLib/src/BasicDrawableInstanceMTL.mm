@@ -253,7 +253,7 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
                                                           buffBuild);
         vertHasTextures = vertABInfo->hasConstant("hasTextures");
         vertHasLighting = vertABInfo->hasConstant("hasLighting");
-        if (vertHasTextures)
+        if (vertHasTextures && setupInfo->textureArgumentBuffers)
             vertTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
                                                                       setupInfo,
                                                                       prog->vertFunc,
@@ -268,7 +268,7 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
                                                           buffBuild);
         fragHasTextures = fragABInfo->hasConstant("hasTextures");
         fragHasLighting = fragABInfo->hasConstant("hasLighting");
-        if (fragHasTextures)
+        if (fragHasTextures && setupInfo->textureArgumentBuffers)
             fragTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
                                                                       setupInfo,
                                                                       prog->fragFunc,
@@ -615,10 +615,14 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int 
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
+    } else {
+        // TODO: Pass in textures using direct method
     }
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
+    } else {
+        // TODO: Pass in textures using direct method
     }
 
     // Using the basic drawable geometry with a few tweaks

@@ -241,6 +241,9 @@ struct RenderSetupInfoMTL : public RenderSetupInfo
     // Wired into the various drawables individually
     BufferEntryMTL uniformBuff[MaxViewWrap];   // We can have three different instances of all geometry (for view wrapping)
     BufferEntryMTL lightingBuff;
+    
+    // Set if we're putting our textures into an argument buffer
+    bool textureArgumentBuffers;
 };
 
 /// Convert  a float expression into its Metal version
