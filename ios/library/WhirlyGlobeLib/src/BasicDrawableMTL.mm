@@ -394,8 +394,7 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
         vertHasLighting = vertABInfo->hasConstant(hasLighting);
         if (vertABInfo->isEmpty())
             vertABInfo = nullptr;
-        // TODO: Pass in textures using the optional method
-        if (vertHasTextures && setupInfo->textureArgumentBuffers)
+        if (vertHasTextures)
             vertTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
                                                                       setupInfo,
                                                                       prog->vertFunc,
@@ -412,7 +411,7 @@ void BasicDrawableMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSetupInfoMT
         fragHasLighting = fragABInfo->hasConstant(hasLighting);
         if (fragABInfo->isEmpty())
             fragABInfo = nullptr;
-        if (fragHasTextures && setupInfo->textureArgumentBuffers)
+        if (fragHasTextures)
             fragTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
                                                                       setupInfo,
                                                                       prog->fragFunc,
@@ -458,6 +457,9 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
 
         if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
+            
+            vertTexInfo->clear();
+            fragTexInfo->clear();
             
             int numEntries = texInfo.size();
             if (prog && !prog->textures.empty()) {
@@ -713,14 +715,23 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MT
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
-    } else {
-        // TODO: Encode textures directly
     }
+    if (!sceneRender->textureArgumentBuffers) {
+        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+            if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii] )
+                [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+        }
+    }
+    
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
-    } else {
-        // TODO: Encode textures directly
+    }
+    if (!sceneRender->textureArgumentBuffers) {
+        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+            if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii])
+                [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+        }
     }
 
     // Render the primitives themselves

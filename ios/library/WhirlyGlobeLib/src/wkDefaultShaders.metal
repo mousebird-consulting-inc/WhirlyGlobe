@@ -297,15 +297,15 @@ int TexturesBase(int bits)
     return count;
 }
 
-//float2 resolveTexCoords(float2 texCoord,constant RegularTextures &regTex,int texIdx)
-//{
-//    float2 offset(regTex.offset[texIdx*2],regTex.offset[texIdx*2+1]);
-//    float2 scale(regTex.scale[texIdx*2],regTex.scale[texIdx*2+1]);
-//    if (scale.x == 0.0)
-//        return texCoord;
-//    
-//    return texCoord * scale + offset;
-//}
+float2 resolveTexCoords(float2 texCoord,constant TextureInfo &regTex,int texIdx)
+{
+    float2 offset(regTex.offset[texIdx*2],regTex.offset[texIdx*2+1]);
+    float2 scale(regTex.scale[texIdx*2],regTex.scale[texIdx*2+1]);
+    if (scale.x == 0.0)
+        return texCoord;
+    
+    return texCoord * scale + offset;
+}
 
 // Calculate lighting for the given position and normal
 float4 resolveLighting(float3 pos,
@@ -348,7 +348,8 @@ float4 basicPos(const float3 position,
 vertex ProjVertexTriA vertexTri_noLight(
                 VertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-                constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
@@ -357,8 +358,8 @@ vertex ProjVertexTriA vertexTri_noLight(
     outVert.position = basicPos(vert.position, uniforms, vertArgs.uniDrawState);
     outVert.color = vert.color * calculateFade(uniforms,vertArgs.uniDrawState);
     
-//    if (TexturesBase(texArgs.texPresent) > 0)
-//        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    if (TexturesBase(texArgs.texPresent) > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
     
     return outVert;
 }
@@ -369,7 +370,8 @@ vertex ProjVertexTriA vertexTri_noLight(
 vertex ProjVertexTriA vertexTri_noLightExp(
                 VertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-                constant VertexTriArgBufferAExp & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferAExp & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
@@ -395,8 +397,8 @@ vertex ProjVertexTriA vertexTri_noLightExp(
 
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
     
-//    if (TexturesBase(texArgs.texPresent) > 0)
-//        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    if (TexturesBase(texArgs.texPresent) > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
     
     return outVert;
 }
@@ -408,7 +410,8 @@ vertex ProjVertexTriA vertexTri_light(
                 VertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
@@ -421,8 +424,8 @@ vertex ProjVertexTriA vertexTri_light(
                                     lighting,
                                     uniforms.mvpMatrix) *
                     calculateFade(uniforms,vertArgs.uniDrawState);
-//    if (TexturesBase(texArgs.texPresent) > 0)
-//        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    if (TexturesBase(texArgs.texPresent) > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
     
     return outVert;
 }
@@ -434,7 +437,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
                 VertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-                constant VertexTriArgBufferC & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferC & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
@@ -464,8 +468,8 @@ vertex ProjVertexTriA vertexTri_lightExp(
                                     lighting,
                                     uniforms.mvpMatrix) *
                     calculateFade(uniforms,vertArgs.uniDrawState);
-//    if (TexturesBase(texArgs.texPresent) > 0)
-//        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
+    if (TexturesBase(texArgs.texPresent) > 0)
+        outVert.texCoord = resolveTexCoords(vert.texCoord,texArgs,0);
 
     return outVert;
 }
@@ -476,14 +480,16 @@ vertex ProjVertexTriA vertexTri_lightExp(
 fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-                constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+                metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
 //                constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    int numTextures = TexturesBase(texArgs.texPresent);
-//    if (numTextures > 0) {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord);
-//    }
+    int numTextures = TexturesBase(texArgs.texPresent);
+    if (numTextures > 0) {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        return vert.color * tex[0].sample(sampler2d, vert.texCoord);
+    }
     return vert.color;
 }
 
@@ -503,7 +509,8 @@ vertex ProjVertexTriB vertexTri_multiTex(
                 VertexTriB vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriB outVert;
@@ -523,18 +530,18 @@ vertex ProjVertexTriB vertexTri_multiTex(
                                     uniforms.mvpMatrix) *
                     calculateFade(uniforms,vertArgs.uniDrawState);
 
-//    // Handle the various texture coordinate input options (none, 1, or 2)
-//    int numTextures = TexturesBase(texArgs.texPresent);
-//    if (numTextures == 0) {
-//        outVert.texCoord0 = float2(0.0,0.0);
-//        outVert.texCoord1 = float2(0.0,0.0);
-//    } else if (numTextures == 1) {
-//        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
-//        outVert.texCoord1 = outVert.texCoord0;
-//    } else {
-//        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
-//        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texArgs,1);
-//    }
+    // Handle the various texture coordinate input options (none, 1, or 2)
+    int numTextures = TexturesBase(texArgs.texPresent);
+    if (numTextures == 0) {
+        outVert.texCoord0 = float2(0.0,0.0);
+        outVert.texCoord1 = float2(0.0,0.0);
+    } else if (numTextures == 1) {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
+        outVert.texCoord1 = outVert.texCoord0;
+    } else {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
+        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texArgs,1);
+    }
     
     return outVert;
 }
@@ -543,24 +550,26 @@ vertex ProjVertexTriB vertexTri_multiTex(
 fragment float4 fragmentTri_multiTex(
         ProjVertexTriB vert [[stage_in]],
         constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-        constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+        constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+        constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
+        metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
 //        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    int numTextures = TexturesBase(texArgs.texPresent);
+    int numTextures = TexturesBase(texArgs.texPresent);
     
     // Handle none, 1 or 2 textures
-//    if (numTextures == 0) {
+    if (numTextures == 0) {
         return vert.color;
-//    } else if (numTextures == 1) {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord0);
-//    } else {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        float4 color0 = texArgs.tex[0].sample(sampler2d, vert.texCoord0);
-//        // Note: There are times we may not want to reuse the same texture coordinates
-//        float4 color1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0);
-//        return vert.color * mix(color0,color1,fragArgs.uniDrawState.interp);
-//    }
+    } else if (numTextures == 1) {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        return vert.color * tex[0].sample(sampler2d, vert.texCoord0);
+    } else {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        float4 color0 = tex[0].sample(sampler2d, vert.texCoord0);
+        // Note: There are times we may not want to reuse the same texture coordinates
+        float4 color1 = tex[1].sample(sampler2d, vert.texCoord0);
+        return vert.color * mix(color0,color1,fragArgs.uniDrawState.interp);
+    }
 }
 
 #if !MAPLY_MINIMAL
@@ -568,7 +577,8 @@ vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
                 VertexTriB vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriNightDay outVert;
@@ -587,17 +597,17 @@ vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
     //outVert.color = float4(1,1,1,1);
 
     // Handle the various texture coordinate input options (none, 1, or 2)
-//    const int numTextures = TexturesBase(texArgs.texPresent);
-//    if (numTextures == 0) {
-//        outVert.texCoord0 = float2(0.0,0.0);
-//        outVert.texCoord1 = float2(0.0,0.0);
-//    } else if (numTextures == 1) {
-//        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
-//        outVert.texCoord1 = outVert.texCoord0;
-//    } else {
-//        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
-//        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texArgs,1);
-//    }
+    const int numTextures = TexturesBase(texArgs.texPresent);
+    if (numTextures == 0) {
+        outVert.texCoord0 = float2(0.0,0.0);
+        outVert.texCoord1 = float2(0.0,0.0);
+    } else if (numTextures == 1) {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
+        outVert.texCoord1 = outVert.texCoord0;
+    } else {
+        outVert.texCoord0 = resolveTexCoords(vert.texCoord0,texArgs,0);
+        outVert.texCoord1 = resolveTexCoords(vert.texCoord0,texArgs,1);
+    }
 
     float3 adjNorm = vert.normal;
     float3 lightDir = float3(1,0,0);
@@ -618,52 +628,56 @@ vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
 fragment float4 fragmentTri_multiTex_nightDay(
         ProjVertexTriNightDay vert [[stage_in]],
         constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-        constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+        constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+        constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+        metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
 //        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    int numTextures = TexturesBase(texArgs.texPresent);
+    int numTextures = TexturesBase(texArgs.texPresent);
 
     // Handle none, 1 or 2 textures
-//    if (numTextures == 0) {
+    if (numTextures == 0) {
         return vert.color;
-//    } else if (numTextures == 1) {
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        return vert.color * texArgs.tex[0].sample(sampler2d, vert.texCoord0);
-//    } else {
-//        // Note: There are times we may not want to reuse the same texture coordinates
-//        constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        float4 color0 = texArgs.tex[0].sample(sampler2d, vert.texCoord0);
-//        float4 color1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0);
-//        return vert.color * mix(color0,color1, 1.0 - vert.ndotl);
-//    }
+    } else if (numTextures == 1) {
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        return vert.color * tex[0].sample(sampler2d, vert.texCoord0);
+    } else {
+        // Note: There are times we may not want to reuse the same texture coordinates
+        constexpr sampler sampler2d(coord::normalized, filter::linear);
+        float4 color0 = tex[0].sample(sampler2d, vert.texCoord0);
+        float4 color1 = tex[1].sample(sampler2d, vert.texCoord0);
+        return vert.color * mix(color0,color1, 1.0 - vert.ndotl);
+    }
 }
 
 // Fragment shader that handles two textures and does a ramp lookup
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
                                          constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-                                         constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                                         constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                                         constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+                                         metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
 //                                         constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    int numTextures = TexturesBase(texArgs.texPresent);
-//    float index = 0.0;
-//
-//    constexpr sampler sampler2d(coord::normalized, filter::linear);
-//
-//    // Handle none, 1 or 2 textures
-//    if (numTextures <= 1) {
-//        index = texArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
-//    } else  {
-//        float index0 = texArgs.tex[0].sample(sampler2d, vert.texCoord0).r;
-//        // Note: There are times we may not want to reuse the same texture coordinates
-//        float index1 = texArgs.tex[1].sample(sampler2d, vert.texCoord0).r;
-//        index = mix(index0,index1,fragArgs.uniDrawState.interp);
-//    }
-//
-//    // Use the lookup ramp if it's here
+    int numTextures = TexturesBase(texArgs.texPresent);
+    float index = 0.0;
+
+    constexpr sampler sampler2d(coord::normalized, filter::linear);
+
+    // Handle none, 1 or 2 textures
+    if (numTextures <= 1) {
+        index = tex[0].sample(sampler2d, vert.texCoord0).r;
+    } else  {
+        float index0 = tex[0].sample(sampler2d, vert.texCoord0).r;
+        // Note: There are times we may not want to reuse the same texture coordinates
+        float index1 = tex[1].sample(sampler2d, vert.texCoord0).r;
+        index = mix(index0,index1,fragArgs.uniDrawState.interp);
+    }
+
+    // Use the lookup ramp if it's here
     float4 lookupColor(1.0,1.0,1.0,1.0);
-//    if (TextureIsPresent(texArgs.texPresent, WKSTextureEntryLookup)) {
-//        lookupColor = texArgs.tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
-//    }
+    if (TextureIsPresent(texArgs.texPresent, WKSTextureEntryLookup)) {
+        lookupColor = tex[WKSTextureEntryLookup].sample(sampler2d,float2(index,0.5));
+    }
     
     return vert.color * lookupColor;
 }
@@ -802,30 +816,34 @@ fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
             constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+            metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ texture(0) ]],
+            metal::texture2d<unsigned int, metal::access::sample> maskTex [[texture(WKSTextureEntryLookup)]],
+            metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax-WKSTextureEntryLookup> tex2    [[ texture(WKSTextureEntryLookup+1) ]])
 //            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    const int numTextures = TexturesBase(texArgs.texPresent);
+    const int numTextures = TexturesBase(texArgs.texPresent);
 
     // Dot/dash pattern
     float4 patternColor(1.0,1.0,1.0,1.0);
-//    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
-//        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
-//            // Pull the maskID from the input texture
-//            constexpr sampler sampler2d(coord::normalized, filter::linear);
-//            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
-//            unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
-//            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
-//                discard_fragment();
-//        }
-//    }
-//
-//    if (numTextures > 0) {
-//        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
-//        // Just pulling the alpha at the moment
-//        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
-//        patternColor.a = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
-//    }
+    if (texArgs.texPresent & (1<<WKSTextureEntryLookup)) {
+        if (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0) {
+            // Pull the maskID from the input texture
+            constexpr sampler sampler2d(coord::normalized, filter::linear);
+            float2 loc(vert.position.x/uniforms.frameSize.x,vert.position.y/uniforms.frameSize.y);
+            unsigned int maskID = maskTex.sample(sampler2d, loc).r;
+            if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID)
+                discard_fragment();
+        }
+    }
+
+    if (numTextures > 0) {
+        constexpr sampler sampler2d(coord::normalized, address::repeat, filter::linear);
+        // Just pulling the alpha at the moment
+        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+        patternColor.a = tex[0].sample(sampler2d, vert.texCoord).a;
+    }
     float alpha = 1.0;
     float across = vert.w2 * vert.texCoord.x;
     if (across < fragArgs.wideVec.edge)
@@ -1339,29 +1357,32 @@ constant constexpr auto defaultWideTexFiltering =
 fragment float4 fragmentTri_wideVecPerf(
             ProjVertexTriWideVecPerf vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+            constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+            metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ texture(0) ]],
+            metal::texture2d<unsigned int, metal::access::sample> maskTex [[texture(WKSTextureEntryLookup)]])
 //            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    if (texArgs.texPresent & (1<<WKSTextureEntryLookup) && (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0)) {
-//        // Pull the maskID from the input texture
-//        constexpr sampler sampler2d(coord::normalized, filter::nearest);
-//        const float2 loc = vert.position.xy / uniforms.frameSize;
-//        unsigned int maskID = texArgs.maskTex.sample(sampler2d, loc).r;
-//        if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID) {
-//            discard_fragment();
-//        }
-//    }
-//
-//    // If there's a texture, apply its alpha channel to get dash patterns, or whatever.
-//    const int numTextures = TexturesBase(texArgs.texPresent);
+    if (texArgs.texPresent & (1<<WKSTextureEntryLookup) && (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0)) {
+        // Pull the maskID from the input texture
+        constexpr sampler sampler2d(coord::normalized, filter::nearest);
+        const float2 loc = vert.position.xy / uniforms.frameSize;
+        unsigned int maskID = maskTex.sample(sampler2d, loc).r;
+        if (vert.maskIDs[0] == maskID || vert.maskIDs[1] == maskID) {
+            discard_fragment();
+        }
+    }
+
+    // If there's a texture, apply its alpha channel to get dash patterns, or whatever.
+    const int numTextures = TexturesBase(texArgs.texPresent);
     float patternAlpha = 1.0;
-//    if (numTextures > 0) {
-//        const auto filt = defaultWideTexFiltering;  // todo: pull this from the args
-//        constexpr sampler sampler2d(coord::normalized, address::repeat, filt);
-//        // Just pulling the alpha at the moment
-//        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
-//        patternAlpha = texArgs.tex[0].sample(sampler2d, vert.texCoord).a;
-//    }
+    if (numTextures > 0) {
+        const auto filt = defaultWideTexFiltering;  // todo: pull this from the args
+        constexpr sampler sampler2d(coord::normalized, address::repeat, filt);
+        // Just pulling the alpha at the moment
+        // If we use the rest, we get interpolation down to zero, which isn't quite what we want here
+        patternAlpha = tex[0].sample(sampler2d, vert.texCoord).a;
+    }
 
     // Reduce alpha of the "tip" for round joins to get a round look.
     float roundAlpha = 1.0;
@@ -1770,17 +1791,18 @@ vertex VertexOut vertStars(constant VertexIn* vertex_array [[ buffer(0) ]],
 
 fragment float4 fragmentStars(ProjVertexTriB vert [[stage_in]],
                                      constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-                                     constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                                     constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                                     constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //                                     constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
-//    int numTextures = TexturesBase(texArgs.texPresent);
+    int numTextures = TexturesBase(texArgs.texPresent);
     
-//    // Handle none, 1 or 2 textures
-//    if (numTextures == 0) {
+    // Handle none, 1 or 2 textures
+    if (numTextures == 0) {
         return vert.color;
-//    } else {
-//        return vert.color;
-//    }
+    } else {
+        return vert.color;
+    }
 }
 
 #endif //!MAPLY_MINIMAL

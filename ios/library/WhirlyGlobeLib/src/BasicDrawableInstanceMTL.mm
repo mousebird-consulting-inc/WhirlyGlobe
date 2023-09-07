@@ -253,7 +253,7 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
                                                           buffBuild);
         vertHasTextures = vertABInfo->hasConstant("hasTextures");
         vertHasLighting = vertABInfo->hasConstant("hasLighting");
-        if (vertHasTextures && setupInfo->textureArgumentBuffers)
+        if (vertHasTextures)
             vertTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
                                                                       setupInfo,
                                                                       prog->vertFunc,
@@ -268,7 +268,7 @@ void BasicDrawableInstanceMTL::setupArgBuffers(id<MTLDevice> mtlDevice,RenderSet
                                                           buffBuild);
         fragHasTextures = fragABInfo->hasConstant("hasTextures");
         fragHasLighting = fragABInfo->hasConstant("hasLighting");
-        if (fragHasTextures && setupInfo->textureArgumentBuffers)
+        if (fragHasTextures)
             fragTexInfo = std::make_shared<ArgBuffRegularTexturesMTL>(mtlDevice,
                                                                       setupInfo,
                                                                       prog->fragFunc,
@@ -324,6 +324,8 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         ret = true;
         if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
+            vertTexInfo->clear();
+            fragTexInfo->clear();
 
             // Sometimes it's just boring geometry and the texture's in the base
             // Sometimes we're doing something clever and it's in the instance
@@ -615,14 +617,23 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int 
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
-    } else {
-        // TODO: Pass in textures using direct method
     }
+    if (!sceneRender->textureArgumentBuffers) {
+        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+            if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii])
+                [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+        }
+    }
+
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
-    } else {
-        // TODO: Pass in textures using direct method
+    }
+    if (!sceneRender->textureArgumentBuffers) {
+        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+            if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii] )
+                [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+        }
     }
 
     // Using the basic drawable geometry with a few tweaks

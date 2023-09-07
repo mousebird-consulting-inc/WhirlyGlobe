@@ -107,6 +107,10 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
     }
     setupInfo.textureArgumentBuffers = textureArgumentBuffers;
 
+    // TODO: Make this optional for newer devices
+    textureArgumentBuffers = false;
+    indirectRender = false;
+
     MTLCaptureManager* captureMgr = [MTLCaptureManager sharedCaptureManager];
     cmdCaptureScope = [captureMgr newCaptureScopeWithCommandQueue:cmdQueue];
     cmdCaptureScope.label = label.empty() ? @"Maply SceneRenderer" : [NSString stringWithUTF8String:label.c_str()];
