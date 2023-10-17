@@ -44,6 +44,11 @@ using namespace WhirlyKit;
     try
     {
         _viewC = viewC;
+#ifdef TARGET_OS_VISION
+        CGFloat scale = 1.0;
+#else
+        CGFloat scale = [UIScreen mainScreen].scale;
+#endif
         
         if (const auto *renderControl = [viewC getRenderControl])
             if (auto *scene = renderControl->scene)
@@ -52,7 +57,7 @@ using namespace WhirlyKit;
                         if (auto *coordSys = coordAdapter->getCoordSystem())
                         {
                             const auto styleSettings = (settings && settings->impl) ? settings->impl :
-                                std::make_shared<VectorStyleSettingsImpl>([UIScreen mainScreen].scale);
+                                std::make_shared<VectorStyleSettingsImpl>(scale);
                             style = std::make_shared<MapboxVectorStyleSetImpl_iOS>(scene, coordSys, styleSettings);
                             style->viewC = viewC;
                         }

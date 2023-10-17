@@ -22,6 +22,82 @@
 
 using namespace WhirlyKit;
 
+#ifdef TARGET_OS_VISION
+@implementation MTLView
+{
+}
+
++ (Class) layerClass
+{
+    return [CAMetalLayer class];
+}
+
+- (nonnull instancetype)initWithFrame:(CGRect)frameRect device:(nullable id<MTLDevice>)device
+{
+    self = [super initWithFrame:frameRect];
+    self.mtlLayer.device = device;
+    self.mtlLayer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    
+    return self;
+}
+
+- (CAMetalLayer *)mtlLayer
+{
+    return (CAMetalLayer *)self.layer;
+}
+
+- (MTLPixelFormat) colorPixelFormat
+{
+    return self.mtlLayer.pixelFormat;
+}
+
+- (void) setColorPixelFormat:(MTLPixelFormat)colorPixelFormat
+{
+    self.mtlLayer.pixelFormat = colorPixelFormat;
+}
+
+
+//@property (nonatomic) MTLPixelFormat depthStencilPixelFormat;
+//
+//@property (nonatomic) MTLTextureUsage depthStencilAttachmentTextureUsage API_AVAILABLE(macos(10.15), ios(13.0));
+
+- (void) setFramebufferOnly:(BOOL)framebufferOnly
+{
+    self.mtlLayer.framebufferOnly = framebufferOnly;
+}
+
+- (BOOL) framebufferOnly
+{
+    return self.mtlLayer.framebufferOnly;
+}
+
+//@property(nonatomic) NSInteger preferredFramesPerSecond;
+
+- (id<CAMetalDrawable>) currentDrawable
+{
+    return [self.mtlLayer nextDrawable];
+}
+
+- (MTLRenderPassDescriptor *)currentRenderPassDescriptor
+{
+    MTLRenderPassDescriptor *passDescriptor = [MTLRenderPassDescriptor renderPassDescriptor];
+    passDescriptor.colorAttachments[0].texture = [self.mtlLayer nextDrawable].texture;
+    passDescriptor.colorAttachments[0].loadAction = MTLLoadActionClear;
+    passDescriptor.colorAttachments[0].storeAction = MTLStoreActionStore;
+    passDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 1.0);
+    
+    // TODO: What about depth?
+    
+    return passDescriptor;
+}
+
+- (void)draw
+{
+}
+
+@end
+#endif
+
 @interface WhirlyKitMTLView()<SceneRendererMTLDrawableGetter>
 @end
 

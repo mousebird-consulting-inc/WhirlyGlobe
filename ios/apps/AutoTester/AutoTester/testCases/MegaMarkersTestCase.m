@@ -53,7 +53,11 @@
 // Generate a random image for testing
 - (UIImage *)randomImage
 {
+#ifdef TARGET_OS_VISION
+    float scale = 1.0;
+#else
 	float scale = [UIScreen mainScreen].scale;
+#endif
 
 	CGSize size = CGSizeMake(16*scale, 16*scale);
 	UIGraphicsBeginImageContext(size);

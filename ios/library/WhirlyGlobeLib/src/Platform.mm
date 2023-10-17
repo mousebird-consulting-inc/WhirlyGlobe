@@ -31,7 +31,11 @@ TimeInterval TimeGetCurrent()
     
 float DeviceScreenScale()
 {
+#if TARGET_OS_VISION
+    return 1.0;
+#else
     return [UIScreen mainScreen].scale;
+#endif
 }
 
 }

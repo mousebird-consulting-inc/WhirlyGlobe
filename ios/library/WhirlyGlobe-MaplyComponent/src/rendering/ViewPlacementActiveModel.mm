@@ -221,7 +221,11 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
         if (!hidden)
         {
             CGSize size = viewInst.view.frame.size;
+#if TARGET_OS_VISION
+            float scale = 1.0;
+#else
             float scale = [UIScreen mainScreen].scale;
+#endif
             // We can only modify UIViews on the main thread
             if ([NSThread currentThread] != [NSThread mainThread])
             {

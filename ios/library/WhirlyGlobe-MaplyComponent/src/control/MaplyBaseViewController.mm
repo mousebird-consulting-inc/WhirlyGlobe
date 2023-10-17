@@ -1575,8 +1575,10 @@ static const float PerfOutputDelay = 15.0;
         previewTouchDelegate = [Maply3dTouchPreviewDelegate touchDelegate:self
                                                             interactLayer:renderControl->interactLayer
                                                                datasource:previewDataSource];
+#ifndef TARGET_OS_VISION
         previewingContext = [self registerForPreviewingWithDelegate:previewTouchDelegate
                                                          sourceView:self.view];
+#endif
         return YES;
     }
     return NO;
@@ -1585,7 +1587,9 @@ static const float PerfOutputDelay = 15.0;
 - (void)disable3dTouchSelection {
     if(previewingContext)
     {
+#ifndef TARGET_OS_VISION
         [self unregisterForPreviewingWithContext:previewingContext];
+#endif
         previewingContext = nil;
     }
 }

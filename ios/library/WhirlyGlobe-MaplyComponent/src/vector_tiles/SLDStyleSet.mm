@@ -65,9 +65,14 @@
         self.viewC = viewC;
         self.useLayerNames = useLayerNames;
         self.tileStyleSettings = [MaplyVectorStyleSettings new];
-        self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
-        self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
-        self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
+#if TARGET_OS_VISION
+        CGFloat scale = 1.0;
+#else
+        CGFloat scale = [UIScreen mainScreen].scale;
+#endif
+        self.tileStyleSettings.lineScale = scale;
+        self.tileStyleSettings.dashPatternScale =  scale;
+        self.tileStyleSettings.markerScale = scale;
         self.tileStyleSettings.useWideVectors = true;
         symbolizerId = 0;
         _relativeDrawPriority = relativeDrawPriority;

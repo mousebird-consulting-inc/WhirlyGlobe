@@ -74,9 +74,14 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   self = [super init];
   if(self) {
     self.tileStyleSettings = [MaplyVectorStyleSettings new];
-    self.tileStyleSettings.lineScale = [UIScreen mainScreen].scale;
-    self.tileStyleSettings.dashPatternScale =  [UIScreen mainScreen].scale;
-    self.tileStyleSettings.markerScale = [UIScreen mainScreen].scale;
+#ifdef TARGET_OS_VISION
+      CGFloat scale = 1.0;
+#else
+      CGFLoat scale = [UIScreen mainScreen].scale;
+#endif
+    self.tileStyleSettings.lineScale = scale;
+    self.tileStyleSettings.dashPatternScale =  scale;
+    self.tileStyleSettings.markerScale = scale;
     self.tileMaxZoom = 14;
     self.alpha = 1.0;
   }

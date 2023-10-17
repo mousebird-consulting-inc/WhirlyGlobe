@@ -363,7 +363,11 @@ NSTimeInterval const kSMCalloutViewRepositionDelayForUIScrollView = 1.0/3.0;
     self.frameOrigin = calloutOrigin;
     
     // make sure our frame is not on half-pixels or else we may be blurry!
+#if TARGET_OS_VISION
+    CGFloat scale = 1.0;
+#else
     CGFloat scale = [UIScreen mainScreen].scale;
+#endif
     self.frameX = floorf(self.frameX*scale)/scale;
     self.frameY = floorf(self.frameY*scale)/scale;
     
@@ -801,7 +805,11 @@ static UIImage *blackArrowImage = nil, *whiteArrowImage = nil, *grayArrowImage =
 }
 
 + (UIImage *)embeddedImageNamed:(NSString *)name {
+#if TARGET_OS_VISION
+    CGFloat screenScale = 1.0;
+#else
     CGFloat screenScale = [UIScreen mainScreen].scale;
+#endif
     if (screenScale > 1.0) {
         name = [name stringByAppendingString:@"_2x"];
         screenScale = 2.0;

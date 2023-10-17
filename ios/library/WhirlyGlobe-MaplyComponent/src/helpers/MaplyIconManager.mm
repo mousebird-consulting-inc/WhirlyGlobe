@@ -48,7 +48,11 @@
     self = [super init];
     imageCache = [[NSCache alloc] init];
     texCache = [NSMutableDictionary dictionary];
+#ifdef TARGET_OS_VISION
+    _scale = 1.0;
+#else
     _scale = [UIScreen mainScreen].scale;
+#endif
     _smallSize = CGSizeMake(16.0, 16.0);
     _medSize = CGSizeMake(32.0, 32.0);
     _largeSize = CGSizeMake(64.0, 64.0);
@@ -273,7 +277,11 @@
     UIImage *mainImage = [self loadImage:symbol cacheKey:[cacheKey stringByAppendingString:@"_main"]];
     UIImage *backImage = [self loadImage:backSymbol cacheKey:[cacheKey stringByAppendingString:@"_back"]];
     
+#ifdef TARGET_OS_VISION
+    CGFloat renderScale = 1.0;
+#else
     CGFloat renderScale = [UIScreen mainScreen].scale;
+#endif
     CGSize renderSize = CGSizeMake(style.markerSize.width * renderScale, style.markerSize.height * renderScale);
     
     // Draw it into a circle

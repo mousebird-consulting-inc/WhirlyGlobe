@@ -319,11 +319,14 @@
                                                  forEvent:nil];
     }
     
+#ifndef TARGET_OS_VISION
     if (_useHeading)
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationChanged:) name:UIDeviceOrientationDidChangeNotification object:nil];
+#endif
 }
 
 - (void)orientationChanged:(NSNotification *)notification {
+#ifndef TARGET_OS_VISION
     const auto orientation = [[UIApplication sharedApplication] statusBarOrientation];
     switch (orientation) {
         case UIInterfaceOrientationPortrait:
@@ -342,15 +345,17 @@
             _locationManager.headingOrientation = CLDeviceOrientationPortrait;
             break;
     }
-    
+#endif
 }
 
 - (void) teardownLocationManager {
     if (!_locationManager)
         return;
     [_locationManager stopUpdatingLocation];
+#ifndef TARGET_OS_VISION
     if (_useHeading)
         [_locationManager stopUpdatingHeading];
+#endif
     if (_useHeading)
         [[NSNotificationCenter defaultCenter] removeObserver:self];
     _locationManager.delegate = nil;
@@ -585,6 +590,7 @@
     [delegate locationManager:manager didFailWithError:error];
 }
 
+#ifndef TARGET_OS_VISION
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     __strong NSObject<MaplyLocationTrackerDelegate> *delegate = _delegate;
     [delegate locationManager:manager didChangeAuthorizationStatus:status];
@@ -597,21 +603,28 @@
             [self teardownLocationManager];
             break;
         case kCLAuthorizationStatusAuthorizedWhenInUse:
+#ifndef TARGET_OS_VISION
         case kCLAuthorizationStatusAuthorizedAlways:
+#endif
             [_locationManager startUpdatingLocation];
+#ifndef TARGET_OS_VISION
             if (_useHeading)
                 [_locationManager startUpdatingHeading];
+#endif
             break;
     }
 }
+#endif
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations {
     [self updateLocation:[locations lastObject]];
 }
 
+#ifndef TARGET_OS_VISION
 - (void) locationManager:(CLLocationManager *)manager didUpdateHeading:(nonnull CLHeading *)newHeading {
     _latestHeading = (newHeading.headingAccuracy >= 0) ? @(newHeading.trueHeading) : nil;
 }
+#endif
 
 - (void) simUpdateTimeout {
     __strong NSObject<MaplyLocationSimulatorDelegate> *delegate = _simDelegate;

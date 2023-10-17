@@ -56,7 +56,11 @@
         colors = inColors;
         size = markerSize;
         self.clusterNumber = clusterNumber;
+#ifdef TARGET_OS_VISION
+        scale = 1.0;
+#else
         scale = [UIScreen mainScreen].scale;
+#endif
         font = [UIFont boldSystemFontOfSize:markerSize.height*scale/2.0];
         if ([colors count] == 0)
             return nil;

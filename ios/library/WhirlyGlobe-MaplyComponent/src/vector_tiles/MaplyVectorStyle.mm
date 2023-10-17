@@ -31,7 +31,12 @@ using namespace WhirlyKit;
 
 - (instancetype)init
 {
-    return [self initWithScale:[UIScreen mainScreen].scale];
+#ifdef TARGET_OS_VISION
+    CGFloat scale = 1.0;
+#else
+    CGFloat scale = [UIScreen mainScreen].scale;
+#endif
+    return [self initWithScale:scale];
 }
 
 - (instancetype)initWithScale:(CGFloat)scale

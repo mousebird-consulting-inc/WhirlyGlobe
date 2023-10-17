@@ -150,7 +150,11 @@
                 desc:(NSDictionary * _Nullable)extraDesc
             cancelFn:(bool(^__nullable)(void))cancelFn
 {
+#ifdef TARGET_OS_VISION
+    const bool isRetina = false;
+#else
     const bool isRetina = [UIScreen mainScreen].scale > 1.0;
+#endif
 
     // One marker per object
     NSMutableArray *compObjs = [NSMutableArray array];

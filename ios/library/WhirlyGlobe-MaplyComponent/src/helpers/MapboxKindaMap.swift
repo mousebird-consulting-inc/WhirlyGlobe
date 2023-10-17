@@ -504,7 +504,11 @@ public class MapboxKindaMap {
         }
         
         let defMarkerScaleFactor = 1.0 / 3.0
+#if os(visionOS)
+        let defMarkerScale = 1.0 * defMarkerScaleFactor
+#else
         let defMarkerScale = UIScreen.main.scale.native * defMarkerScaleFactor
+#endif
         styleSettings.markerScale = Float(self.markerScale ?? defMarkerScale)
 
         // Image/vector hybrids draw the polygons into a background image
@@ -538,7 +542,12 @@ public class MapboxKindaMap {
                 }
                 offlineRender.clearLights()
                 self.offlineRender = offlineRender
-                let imageStyleSettings = MaplyVectorStyleSettings.init(scale: UIScreen.main.scale)
+#if os(visionOS)
+                let scale = 1.0
+#else
+                let scale = UIScreen.main.scale
+#endif
+                let imageStyleSettings = MaplyVectorStyleSettings.init(scale: scale)
                 imageStyleSettings.baseDrawPriority = styleSettings.baseDrawPriority
                 imageStyleSettings.arealShaderName = kMaplyShaderDefaultTriNoLighting
 
