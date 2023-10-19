@@ -74,10 +74,10 @@ static NSString *FILTERMODE_ATTRIBUTE = @"filter-mode";
   self = [super init];
   if(self) {
     self.tileStyleSettings = [MaplyVectorStyleSettings new];
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
       CGFloat scale = 1.0;
 #else
-      CGFLoat scale = [UIScreen mainScreen].scale;
+      CGFloat scale = [UIScreen mainScreen].scale;
 #endif
     self.tileStyleSettings.lineScale = scale;
     self.tileStyleSettings.dashPatternScale =  scale;

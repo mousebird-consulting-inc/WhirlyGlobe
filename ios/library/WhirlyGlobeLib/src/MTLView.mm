@@ -22,7 +22,7 @@
 
 using namespace WhirlyKit;
 
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
 @implementation MTLView
 {
 }

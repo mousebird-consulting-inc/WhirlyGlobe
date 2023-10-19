@@ -20,7 +20,7 @@
 #import <MetalKit/MetalKit.h>
 #import "ViewWrapper.h"
 
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
 @interface MTLView : UIView <NSCoding,CALayerDelegate>
 - (nonnull instancetype)initWithFrame:(CGRect)frameRect device:(nullable id<MTLDevice>)device NS_DESIGNATED_INITIALIZER;
 
@@ -43,14 +43,16 @@
 @property (nonatomic, readonly, nullable) MTLRenderPassDescriptor *currentRenderPassDescriptor;
 
 @end
-#else
-#define MTLView MTKView
 #endif
 
 /** Base class for implementing a Metal rendering view.
  This is modeled off of the example.  We subclass this for our own purposes.
  */
+#if TARGET_OS_VISION
 @interface WhirlyKitMTLView : MTLView<WhirlyKitViewWrapper>
+#else
+@interface WhirlyKitMTLView : MTKView<WhirlyKitViewWrapper>
+#endif
 
 /// Default init call
 - (id _Nullable )initWithDevice:(_Nonnull id<MTLDevice>)mtlDevice;

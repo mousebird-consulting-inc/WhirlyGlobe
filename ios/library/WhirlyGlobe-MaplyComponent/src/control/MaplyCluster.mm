@@ -56,7 +56,7 @@
         colors = inColors;
         size = markerSize;
         self.clusterNumber = clusterNumber;
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
         scale = 1.0;
 #else
         scale = [UIScreen mainScreen].scale;

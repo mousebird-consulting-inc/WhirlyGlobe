@@ -150,7 +150,7 @@
                 desc:(NSDictionary * _Nullable)extraDesc
             cancelFn:(bool(^__nullable)(void))cancelFn
 {
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
     const bool isRetina = false;
 #else
     const bool isRetina = [UIScreen mainScreen].scale > 1.0;

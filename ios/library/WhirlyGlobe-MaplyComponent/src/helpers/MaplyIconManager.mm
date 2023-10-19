@@ -48,7 +48,7 @@
     self = [super init];
     imageCache = [[NSCache alloc] init];
     texCache = [NSMutableDictionary dictionary];
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
     _scale = 1.0;
 #else
     _scale = [UIScreen mainScreen].scale;
@@ -277,7 +277,7 @@
     UIImage *mainImage = [self loadImage:symbol cacheKey:[cacheKey stringByAppendingString:@"_main"]];
     UIImage *backImage = [self loadImage:backSymbol cacheKey:[cacheKey stringByAppendingString:@"_back"]];
     
-#ifdef TARGET_OS_VISION
+#if TARGET_OS_VISION
     CGFloat renderScale = 1.0;
 #else
     CGFloat renderScale = [UIScreen mainScreen].scale;
