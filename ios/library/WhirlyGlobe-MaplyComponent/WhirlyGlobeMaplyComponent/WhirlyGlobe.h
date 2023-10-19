@@ -58,6 +58,7 @@ FOUNDATION_EXPORT const unsigned char WhirlyGlobeMaplyComponentVersionString[];
 # import <WhirlyGlobe/MaplyGeomBuilder.h>
 # import <WhirlyGlobe/MaplyGeomModel.h>
 # import <WhirlyGlobe/MaplyGlobeRenderController.h>
+# import <WhirlyGlobe/MaplyStandaloneRenderController.h>
 # import <WhirlyGlobe/MaplyIconManager.h>
 #endif //!MAPLY_MINIMAL
 #import <WhirlyGlobe/MaplyImageTile.h>

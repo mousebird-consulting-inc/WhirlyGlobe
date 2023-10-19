@@ -21,3 +21,4 @@
 #import <WhirlyGlobe/WhirlyGlobeViewController.h>
 #import <WhirlyGlobe/MaplyGlobeRenderController.h>
 #import <WhirlyGlobe/MaplyViewController.h>
+#import <WhirlyGlobe/MaplyStandaloneRenderController.h>

@@ -14,6 +14,7 @@
 #import "SLDExpressions.h"
 #import "MaplyTileSourceNew.h"
 #import "MaplyGlobeRenderController.h"
+#import "MaplyStandaloneRenderController.h"
 #import "SLDOperators.h"
 #import "MaplyControllerLayer.h"
 #import "MaplyVectorTileStyle.h"
