@@ -33,7 +33,7 @@ using namespace Maply;
 {
     Maply::FlatViewRef flatView;
     CoordSystemRef coordSys;
-    CoordSystemDisplayAdapterRef coordAdapter;
+    CoordSystemDisplayAdapterRef coordAdapterRef;
 }
 
 - (instancetype __nullable)initWithSize:(CGSize)size
@@ -46,13 +46,15 @@ using namespace Maply;
     coordSys = std::make_shared<PlateCarreeCoordSystem>();
     Point3d scale(1.0,1.0,1.0);
     Point3d center(0.0,0.0,0.0);
-    coordAdapter = std::make_shared<GeneralCoordSystemDisplayAdapter>(coordSys.get(),
+    coordAdapterRef = std::make_shared<GeneralCoordSystemDisplayAdapter>(coordSys.get(),
                                                                       Point3d(ll.x(),ll.y(),0.0),
                                                                       Point3d(ur.x(),ur.y(),0.0),
                                                                       center,
                                                                       scale);
+    coordAdapter = coordAdapterRef.get();
     
-    flatView = std::make_shared<FlatView>(coordAdapter.get());
+    flatView = std::make_shared<FlatView>(coordAdapter);
+    flatView->setWindow(Point2d(size.width,size.height), Point2d(0.0,0.0));
     visualView = flatView;
     
     self = [super initWithSize:size mode:MaplyRenderMetal];
@@ -68,8 +70,8 @@ using namespace Maply;
     MTLRenderPassDescriptor *desc = [[MTLRenderPassDescriptor alloc] init];
     desc.colorAttachments[0].texture = texture;
     desc.colorAttachments[0].loadAction = MTLLoadActionClear;
-    desc.colorAttachments[0].clearColor = MTLClearColorMake(1.0,0.0,0.0,1.0);
     desc.colorAttachments[0].storeAction = MTLStoreActionStore;
+    renderInfo.renderPassDesc = desc;
     
     if (!sceneRenderer)
         return false;
