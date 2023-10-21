@@ -58,7 +58,7 @@ using namespace Maply;
     visualView = flatView;
     
     self = [super initWithSize:size mode:MaplyRenderMetal];
-    [self resetLights];
+    [self clearLights];
 
     return self;
 }
@@ -77,6 +77,9 @@ using namespace Maply;
         return false;
 
     SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+    
+    // Note: Have to do this to trigger some of our callbacks
+    sceneRendererMTL->hasChanges();
     
     sceneRendererMTL->forceDrawNextFrame();
     sceneRendererMTL->render(howLong,&renderInfo);
