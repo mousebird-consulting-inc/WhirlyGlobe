@@ -1,9 +1,8 @@
-/*
- *  RenderTargetGLES.cpp
+/*  RenderTargetGLES.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 5/13/19.
- *  Copyright 2011-2022 mousebird consulting
+ *  Copyright 2011-2023 mousebird consulting
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "RenderTargetGLES.h"
@@ -25,13 +23,14 @@
 
 namespace WhirlyKit
 {
-    
+
 RenderTargetGLES::RenderTargetGLES()
 {
     init();
 }
 
-RenderTargetGLES::RenderTargetGLES(SimpleIdentity newID) : RenderTarget(newID)
+RenderTargetGLES::RenderTargetGLES(SimpleIdentity newID) :
+    RenderTargetSettings(newID)
 {
     init();
 }
@@ -40,7 +39,36 @@ void RenderTargetGLES::init()
 {
     RenderTarget::init();
 }
-    
+
+// Whether to use clear color or value
+// todo: is there a gl*() function for this?
+static bool isColorTargetFormat(TextureType tt)
+{
+    switch (tt)
+    {
+        case TexTypeUnsignedByte:
+        case TexTypeShort565:
+        case TexTypeShort4444:
+        case TexTypeShort5551:      return true;
+        case TexTypeSingleChannel:
+        case TexTypeDoubleChannel:
+        case TexTypeSingleFloat16:
+        case TexTypeSingleFloat32:
+        case TexTypeDoubleFloat16:
+        case TexTypeDoubleFloat32:
+        case TexTypeQuadFloat16:
+        case TexTypeQuadFloat32:
+        case TexTypeDepthFloat32:
+        case TexTypeSingleInt16:
+        case TexTypeSingleUInt16:
+        case TexTypeDoubleUInt16:
+        case TexTypeSingleUInt32:
+        case TexTypeDoubleUInt32:
+        case TexTypeQuadUInt32:     return false;
+        default:                    return true;
+    }
+}
+
 bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentity targetTexID)
 {
     auto *renderer = (SceneRendererGLES *)inRenderer;
@@ -97,19 +125,22 @@ bool RenderTargetGLES::init(SceneRenderer *inRenderer,Scene *scene,SimpleIdentit
     
 bool RenderTargetGLES::setTargetTexture(SceneRenderer *sceneRender,Scene *scene,SimpleIdentity targetTexID)
 {
-    TextureBaseRef tex = scene->getTexture(targetTexID);
-    if (tex)
+    if (TextureBaseRef tex = scene->getTexture(targetTexID))
+    {
         setTargetTexture(tex.get());
-    
-    return tex != nullptr;
+        return true;
+    }
+    return false;
 }
 
 void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
 {
-    TextureBaseGLES *tex = dynamic_cast<TextureBaseGLES *>(inTex);
+    auto *tex = dynamic_cast<TextureBaseGLES *>(inTex);
     if (!tex)
         return;
-    
+
+    texId = tex->getId();
+
     if (framebuffer == 0) {
         glGenFramebuffers(1, &framebuffer);
         colorbuffer = 0;
@@ -120,11 +151,15 @@ void RenderTargetGLES::setTargetTexture(TextureBase *inTex)
     CheckGLError("RenderTarget: glFramebufferTexture2D");
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-    
-void RenderTargetGLES::setClearColor(const RGBAColor &color)
-{
-    color.asUnitFloats(clearColor);
+
+    if (const auto glTex = dynamic_cast<const TextureGLES *>(tex))
+    {
+        isColorTarget = isColorTargetFormat(glTex->getFormat());
+    }
+    else
+    {
+        wkLogLevel(Warn, "TextureBaseGLES is not a TextureGLES");
+    }
 }
 
 RawDataRef RenderTargetGLES::snapshot()
@@ -135,23 +170,23 @@ RawDataRef RenderTargetGLES::snapshot()
     CheckGLError("SceneRendererES2: glViewport");
     
     // Note: We're just assuming this format from the texture.  Should check
-    int len = width * height * sizeof(GLubyte) * 4;
-    GLubyte* pixels = (GLubyte*) malloc(len);
+    uint32_t len = width * height * sizeof(GLubyte) * 4;
+    auto* pixels = (GLubyte*) malloc(len);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     CheckGLError("RenderTargetGLES::snapshot: glReadPixels");
     
-    RawDataWrapper *rawData = new RawDataWrapper(pixels,len,true);
+    auto rawData = RawDataRef(new RawDataWrapper(pixels,len,true));
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-    return RawDataRef(rawData);
+    return rawData;
 }
     
 RawDataRef RenderTargetGLES::snapshot(int startX,int startY,int snapWidth,int snapHeight)
 {
     if (snapWidth == 0 || snapHeight == 0)
-        return RawDataRef();
+        return {};
     
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
     CheckGLError("SceneRendererES2: glBindFramebuffer");
@@ -159,15 +194,14 @@ RawDataRef RenderTargetGLES::snapshot(int startX,int startY,int snapWidth,int sn
     CheckGLError("SceneRendererES2: glViewport");
     
     // Note: We're just assuming this format from the texture.  Should check
-    int len = snapWidth * snapHeight * sizeof(GLubyte) * 4;
-    GLubyte* pixels = (GLubyte*) malloc(len);
+    uint32_t len = snapWidth * snapHeight * sizeof(GLubyte) * 4;
+    auto* pixels = (GLubyte*) malloc(len);
     glReadPixels(startX, startY, snapWidth, snapHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    
-    RawDataWrapper *rawData = new RawDataWrapper(pixels,len,true);
-    
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    return RawDataRef(rawData);
+
+    auto rawData = RawDataRef(new RawDataWrapper(pixels,len,true));
+
+    return rawData;
 }
 
 bool RenderTargetGLES::initFromState(int inWidth,int inHeight)
@@ -214,8 +248,16 @@ void RenderTargetGLES::setActiveFramebuffer(SceneRendererGLES *renderer)
         } else {
             glDisable(GL_BLEND);
         }
-        glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-        
+
+        if (isColorTarget)
+        {
+            glClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+        }
+        else
+        {
+            glClearColor(clearVal, clearVal, clearVal, clearVal);
+        }
+
         CheckGLError("RenderTarget::setActiveFramebuffer: glClearColor");
         isSetup = true;
     }

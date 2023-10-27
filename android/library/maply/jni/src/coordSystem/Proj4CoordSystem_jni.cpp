@@ -23,21 +23,14 @@
 using namespace WhirlyKit;
 
 extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_nativeInit(JNIEnv *env, jclass cls)
-{
-}
-
-extern "C"
-JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_initialise(JNIEnv *env, jobject obj, jstring str)
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Proj4CoordSystem_initialise
+  (JNIEnv *env, jobject obj, jstring str)
 {
     try
     {
         JavaString jstr(env,str);
-        Proj4CoordSystem *coordSystem = new Proj4CoordSystem(jstr.getCString());
-        CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(coordSystem));
+        auto coordSystem = std::make_shared<Proj4CoordSystem>(jstr.getCString());
+        CoordSystemRefClassInfo::getClassInfo()->setHandle(env,obj,new CoordSystemRef(std::move(coordSystem)));
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Proj4CoordSystem::initialise()");
-    }
+    MAPLY_STD_JNI_CATCH()
 }

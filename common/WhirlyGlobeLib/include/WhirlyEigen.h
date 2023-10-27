@@ -27,7 +27,16 @@
 #define EIGEN_NO_IO         // Exclude I/O stuff for Eigen types, we don't need it
 #define EIGEN_MPL2_ONLY     // Exclude LGPL features
 
-#import <Eigen/Eigen>
+#if defined(__EMSCRIPTEN__)
+# pragma clang diagnostic push
+# pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#endif
+
+#import <Eigen/Dense>
+
+#if defined(__EMSCRIPTEN__)
+# pragma clang diagnostic pop
+#endif
 
 namespace WhirlyKit
 {

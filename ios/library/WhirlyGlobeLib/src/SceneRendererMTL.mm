@@ -87,6 +87,7 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
 {
     offscreenBlendEnable = false;
     indirectRender = false;
+    textureArgumentBuffers = true;
 #if !TARGET_OS_MACCATALYST
     if (@available(iOS 13.0, *)) {
         if ([mtlDevice supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4])
@@ -96,6 +97,19 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
 #if TARGET_OS_SIMULATOR
     indirectRender = false;
 #endif
+    
+    if (@available(iOS 13.0, *)) {
+        // We've seen some problems with inline textures on GPU family 4 and 5
+        if (![mtlDevice supportsFamily:MTLGPUFamilyApple6]) {
+            indirectRender = false;
+            textureArgumentBuffers = false;
+        }
+    }
+    setupInfo.textureArgumentBuffers = textureArgumentBuffers;
+
+    // TODO: Make this optional for newer devices
+    textureArgumentBuffers = false;
+    indirectRender = false;
 
     MTLCaptureManager* captureMgr = [MTLCaptureManager sharedCaptureManager];
     cmdCaptureScope = [captureMgr newCaptureScopeWithCommandQueue:cmdQueue];

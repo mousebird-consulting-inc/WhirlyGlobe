@@ -81,13 +81,14 @@ class TextureManager
 
 			// Need to create it
 			Texture texture = new Texture();
-			if (!texture.setBitmap(theBitmap,MaplyImage4Layer8Bit.ordinal()))
+			if (!texture.setBitmap(theBitmap,MaplyImage4Layer8Bit,RenderControllerInterface.TextureSettings.FilterType.FilterLinear)) {
 				return RenderController.EmptyIdentity;
+			}
 			testWrapper.refs = 1;
 			testWrapper.texID = texture.getID();
 
 			// After we call addTexture it's no longer ours to play with
-			changes.addTexture(texture, scene, 1);
+			changes.addTexture(texture, scene);
 			textures.add(testWrapper);
 
 			return testWrapper.texID;

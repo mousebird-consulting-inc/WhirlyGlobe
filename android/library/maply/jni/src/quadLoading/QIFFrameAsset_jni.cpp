@@ -48,46 +48,64 @@ static std::mutex disposeMutex;
 extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_QIFFrameAsset_dispose(JNIEnv *env, jobject obj)
 {
-    try {
+    try
+    {
         QIFFrameAssetClassInfo *info = QIFFrameAssetClassInfo::getClassInfo();
         {
             std::lock_guard<std::mutex> lock(disposeMutex);
-            QIFFrameAsset_Android *frame = info->getObject(env,obj);
-            if (!frame)
-                return;
-            if (frame->frameAssetObj) {
-                env->DeleteGlobalRef(frame->frameAssetObj);
-                frame->frameAssetObj = nullptr;
+            QIFFrameAsset_AndroidRef *frame = info->getObject(env,obj);
+            if (frame && *frame && (*frame)->getFrameAssetObj())
+            {
+                env->DeleteGlobalRef((*frame)->getFrameAssetObj());
+                (*frame)->setFrameAssetObj(nullptr);
             }
-            // These frames are actually reference counted by the TileAsset so we don't delete them here
-//            delete frame;
+
+            // Delete our reference to the asset, which may also be referenced from a tile asset in the loader
+            delete frame;
 
             info->clearHandle(env, obj);
         }
 
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QIFFrameAsset::dispose()");
     }
+    MAPLY_STD_JNI_CATCH()
 }
 
-jobject MakeQIFFrameAsset(JNIEnv *env,QIFFrameAsset_Android *frame)
+jobject MakeQIFFrameAsset(JNIEnv *env, QIFFrameAsset_AndroidRef frame)
 {
     QIFFrameAssetClassInfo *classInfo = QIFFrameAssetClassInfo::getClassInfo(env,"com/mousebird/maply/QIFFrameAsset");
-    jobject obj = classInfo->makeWrapperObject(env,frame);
-    frame->frameAssetObj = env->NewGlobalRef(obj);
-    env->DeleteLocalRef(obj);
-    return frame->frameAssetObj;
+    if (jobject localObj = classInfo->makeWrapperObject(env, new QIFFrameAsset_AndroidRef(frame)))
+    if (jobject globalObj = env->NewGlobalRef(localObj))
+    {
+        frame->setFrameAssetObj(globalObj);
+        env->DeleteLocalRef(localObj);
+        return globalObj;
+    }
+    return nullptr;
+}
+
+void JNICALL DisposeQIFFrameAsset(JNIEnv *env, QIFFrameAsset_Android *frame)
+{
+    if (frame)
+    {
+        std::lock_guard<std::mutex> lock(disposeMutex);
+        if (jobject obj = frame->getFrameAssetObj())
+        {
+            frame->setFrameAssetObj(nullptr);
+            env->DeleteGlobalRef(obj);
+        }
+    }
 }
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_mousebird_maply_QIFFrameAsset_getPriority(JNIEnv *env, jobject obj)
 {
-    try {
-        if (const auto frame = QIFFrameAssetClassInfo::getClassInfo()->getObject(env,obj)) {
-            return frame->getPriority();
+    try
+    {
+        if (const auto frame = QIFFrameAssetClassInfo::get(env,obj))
+        {
+            return (*frame)->getPriority();
         }
-    } catch (...) {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in QIFFrameAsset::getPriority()");
     }
+    MAPLY_STD_JNI_CATCH()
     return 0;
 }

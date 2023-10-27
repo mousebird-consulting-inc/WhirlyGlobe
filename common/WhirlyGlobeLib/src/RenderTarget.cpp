@@ -18,6 +18,7 @@
 
 #import "RenderTarget.h"
 #import "SceneRenderer.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -64,7 +65,7 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view
     renderTarget->setId(renderTargetID);
     renderTarget->width = width;
     renderTarget->height = height;
-    renderTarget->clearEveryFrame = clearEveryFrame;
+    renderTarget->setClearEveryFrame(clearEveryFrame);
     renderTarget->clearColor[0] = clearColor.r / 255.0;
     renderTarget->clearColor[1] = clearColor.g / 255.0;
     renderTarget->clearColor[2] = clearColor.b / 255.0;

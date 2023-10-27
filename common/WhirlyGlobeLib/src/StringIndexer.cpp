@@ -97,6 +97,7 @@ StringIdentity u_TimeNameID;
 StringIdentity u_lifetimeNameID;
 StringIdentity u_pixDispSizeNameID;
 StringIdentity u_frameLenID;
+StringIdentity u_frameCountID;
 StringIdentity a_offsetNameID;
 StringIdentity u_uprightNameID;
 StringIdentity u_activerotNameID;
@@ -173,6 +174,7 @@ static void SetupDrawableStringsOnce()
     u_lifetimeNameID = StringIndexer::getStringID("u_lifetime");
     u_pixDispSizeNameID = StringIndexer::getStringID("u_pixDispSize");
     u_frameLenID = StringIndexer::getStringID("u_frameLen");
+    u_frameCountID = StringIndexer::getStringID("u_frameCount");
     a_offsetNameID = StringIndexer::getStringID("a_offset");
     u_uprightNameID = StringIndexer::getStringID("u_upright");
     u_activerotNameID = StringIndexer::getStringID("u_activerot");

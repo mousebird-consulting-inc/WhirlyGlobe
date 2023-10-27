@@ -24,15 +24,50 @@
 #import "TextureGLES.h"
 #import "WhirlyKitLog.h"
 
+#pragma ide diagnostic ignored "readability-make-member-function-const"
+
 using namespace Eigen;
 
 namespace WhirlyKit
 {
+static constexpr int initCapacityUniforms = 20;
+static constexpr int initCapacityAttributes = 20;
 
 ProgramGLES::ProgramGLES() :
-    uniforms(10),
-    attrs(10)
+    ProgramGLES(std::string())
 {
+}
+
+ProgramGLES::ProgramGLES(const char *inName) :
+    ProgramGLES(inName ? std::string(inName) : std::string())
+{
+}
+
+ProgramGLES::ProgramGLES(std::string name) :
+    Program(std::move(name)),
+    uniforms(initCapacityUniforms),
+    attrs(initCapacityAttributes)
+{
+}
+
+ProgramGLES::ProgramGLES(std::string inName,
+                         const std::string &vShaderString,
+                         const std::string &fShaderString,
+                         const std::vector<std::string> *varying) :
+    ProgramGLES(std::move(inName),
+                vShaderString.c_str(),
+                fShaderString.c_str(),
+                varying)
+{
+}
+
+ProgramGLES::ProgramGLES(std::string inName,
+                         const char *vShaderString,
+                         const char *fShaderString,
+                         const std::vector<std::string> *varying) :
+    ProgramGLES(std::move(inName))
+{
+    init(vShaderString, fShaderString, varying);
 }
 
 ProgramGLES::~ProgramGLES()
@@ -47,17 +82,21 @@ ProgramGLES::~ProgramGLES()
 
 bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 {
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_FLOAT)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
-    
+    }
+
     if (uni->isSet && uni->val.fVals[0] == val)
         return true;
     
-    glUniform1f(uni->index,val);
+    glUniform1f((GLint)uni->index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
@@ -67,15 +106,19 @@ bool ProgramGLES::setUniform(StringIdentity nameID,float val)
 
 bool ProgramGLES::setUniform(StringIdentity nameID,float val,int index)
 {
-    std::string name = StringIndexer::getString(nameID) + "[0]";
-    OpenGLESUniform *uni = findUniform(StringIndexer::getStringID(name));
+    const std::string name = StringIndexer::getString(nameID) + "[0]";
+    OpenGLESUniform *const uni = findUniform(StringIndexer::getStringID(name));
     if (!uni)
+    {
         return false;
-
+    }
     if (uni->type != GL_FLOAT)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
+    }
     
-    glUniform1f(uni->index+index,val);
+    glUniform1f((GLint)uni->index+index,val);
     CheckGLError("ProgramGLES::setUniform() glUniform1f");
     uni->isSet = true;
     uni->val.fVals[0] = val;
@@ -85,24 +128,63 @@ bool ProgramGLES::setUniform(StringIdentity nameID,float val,int index)
 
 bool ProgramGLES::setUniform(StringIdentity nameID,int val)
 {
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
-    if (uni->type != GL_INT && uni->type != GL_SAMPLER_2D && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
-        return false;
-    
+    }
+
     if (uni->isSet && uni->val.iVals[0] == val)
         return true;
-    
-    glUniform1i(uni->index,val);
+
+    switch (uni->type)
+    {
+        case GL_INT:
+        case GL_BOOL:
+        case GL_SAMPLER_2D:
+        case GL_INT_SAMPLER_2D:
+        case GL_UNSIGNED_INT_SAMPLER_2D:
+            glUniform1i((GLint) uni->index, val);
+            break;
+        case GL_UNSIGNED_INT:
+            glUniform1ui((GLint)uni->index,(GLuint)val);
+            break;
+        default:
+            wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
+            return false;
+    }
+
     CheckGLError("ProgramGLES::setUniform() glUniform1i");
     uni->isSet = true;
     uni->val.iVals[0] = val;
     
     return true;
 }
-    
+
+bool ProgramGLES::setUniform(StringIdentity nameID,bool val)
+{
+    OpenGLESUniform *const uni = findUniform(nameID);
+    if (!uni)
+    {
+        return false;
+    }
+    if (uni->type != GL_INT && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
+        return false;
+    }
+
+    if (uni->isSet && uni->val.iVals[0] == val)
+        return true;
+
+    glUniform1i((GLint)uni->index,val);
+    CheckGLError("ProgramGLES::setUniform() glUniform1i");
+    uni->isSet = true;
+    uni->val.iVals[0] = val;
+
+    return true;
+}
+
 bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex,int textureSlot)
 {
     const auto tex = dynamic_cast<TextureBaseGLES *>(inTex);
@@ -110,12 +192,16 @@ bool ProgramGLES::setTexture(StringIdentity nameID,TextureBase *inTex,int textur
         return false;
     
     const GLuint val = tex->getGLId();
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_INT && uni->type != GL_SAMPLER_2D && uni->type != GL_UNSIGNED_INT && uni->type != GL_BOOL)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
+    }
     
     uni->isTexture = true;
     uni->isSet = true;
@@ -132,17 +218,21 @@ void ProgramGLES::clearTexture(SimpleIdentity texID)
 
 bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
 {
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_FLOAT_VEC2)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
+    }
     
     if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y())
         return true;
     
-    glUniform2f(uni->index, vec.x(), vec.y());
+    glUniform2f((GLint)uni->index, vec.x(), vec.y());
     CheckGLError("ProgramGLES::setUniform() glUniform2f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();
@@ -152,16 +242,20 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector2f &vec)
 
 bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
 {
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_FLOAT_VEC3)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
+    }
     if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() && uni->val.fVals[2] == vec.z())
         return true;
     
-    glUniform3f(uni->index, vec.x(), vec.y(), vec.z());
+    glUniform3f((GLint)uni->index, vec.x(), vec.y(), vec.z());
     CheckGLError("ProgramGLES::setUniform() glUniform3f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z();
@@ -172,17 +266,21 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector3f &vec)
 
 bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
 {
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_FLOAT_VEC4)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
+    }
     if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
         uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
         return true;
     
-    glUniform4f(uni->index, vec.x(), vec.y(), vec.z(), vec.w());
+    glUniform4f((GLint)uni->index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
     uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
@@ -192,21 +290,33 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec)
 
 bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index)
 {
-    std::string name = StringIndexer::getString(nameID) + "[0]";
-    OpenGLESUniform *uni = findUniform(StringIndexer::getStringID(name));
+    const std::string name = StringIndexer::getString(nameID) + "[0]";
+    OpenGLESUniform *const uni = findUniform(StringIndexer::getStringID(name));
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_FLOAT_VEC4)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
-    if (uni->isSet && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
+    }
+    if (uni->isSet && index == 0 && uni->val.fVals[0] == vec.x() && uni->val.fVals[1] == vec.y() &&
         uni->val.fVals[2] == vec.z() && uni->val.fVals[3] == vec.w())
+    {
         return true;
+    }
     
-    glUniform4f(uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
+    glUniform4f((GLint)uni->index+index, vec.x(), vec.y(), vec.z(), vec.w());
     CheckGLError("ProgramGLES::setUniform() glUniform4f");
     uni->isSet = true;
-    uni->val.fVals[0] = vec.x();  uni->val.fVals[1] = vec.y();  uni->val.fVals[2] = vec.z(); uni->val.fVals[3] = vec.w();
+    if (index == 0)
+    {
+        uni->val.fVals[0] = vec.x();
+        uni->val.fVals[1] = vec.y();
+        uni->val.fVals[2] = vec.z();
+        uni->val.fVals[3] = vec.w();
+    }
     
     return true;
 }
@@ -215,12 +325,16 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,in
 
 bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
 {
-    OpenGLESUniform *uni = findUniform(nameID);
+    OpenGLESUniform *const uni = findUniform(nameID);
     if (!uni)
+    {
         return false;
-    
+    }
     if (uni->type != GL_FLOAT_MAT4)
+    {
+        wkLogLevel(Warn, "Shader uniform type mismatch: %s", StringIndexer::getString(nameID).c_str());
         return false;
+    }
     
     if (uni->isSet)
     {
@@ -235,7 +349,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
             return true;
     }
     
-    glUniformMatrix4fv(uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
+    glUniformMatrix4fv((GLint)uni->index, 1, GL_FALSE, (GLfloat *)mat.data());
     CheckGLError("ProgramGLES::setUniform() glUniformMatrix4fv");
     uni->isSet = true;
     for (unsigned int ii=0;ii<16;ii++)
@@ -243,7 +357,7 @@ bool ProgramGLES::setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat)
     
     return true;
 }
-    
+
 bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
 {
     bool ret = false;
@@ -275,16 +389,66 @@ bool ProgramGLES::setUniform(const SingleVertexAttribute &attr)
     return ret;
 }
 
-// Helper routine to compile a shader and check return
-bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const std::string &shaderStr)
+static void logError(const char *logStr, const char * sourceCStr)
 {
+    while (logStr && logStr[0] && sourceCStr && sourceCStr[0])
+    {
+        // Find an error label
+        // "ERROR: 0:66:"
+        const char *start = strstr(logStr, "ERROR: ");
+        if (start)
+        {
+            // Skip the filename (missing for dynamic)
+            start = strchr(start + 7, ':');
+        }
+        if (!start || start[0] != ':')
+        {
+            // Nope, keep trying
+            logStr = start;
+            continue;
+        }
+
+        // Found it, look for another number, that's the line number
+        char *end = nullptr;
+        const auto errLine = strtol(start + 1, &end, 10);
+
+        // iterate over lines in the source
+        for (auto line = 1L; sourceCStr && sourceCStr[0]; ++line)
+        {
+            // Find the next newline
+            const auto lineLen = strcspn(sourceCStr, "\r\n");
+            // Print the line, if it's relevant
+            if (errLine - 3 <= line && line <= errLine + 3)
+            {
+                const char c = (line == errLine) ? '>' : ' ';
+                wkLogLevel(Warn, "%3d %c: %.*s", line, c, lineLen, sourceCStr);
+            }
+            // Advance past the line
+            sourceCStr += lineLen;
+            // And the newline(s), if appropriate
+            if (sourceCStr[0])
+            {
+                sourceCStr += (sourceCStr[0] == '\r' && sourceCStr[1] == '\n') ? 2 : 1;
+            }
+        }
+    }
+}
+
+// Helper routine to compile a shader and check return
+bool compileShader(const char *name,const char *shaderTypeStr,GLuint *shaderId,GLenum shaderType,const char *shaderStr)
+{
+    if (!name || !name[0])
+    {
+        return false;
+    }
+
     *shaderId = glCreateShader(shaderType);
     if (*shaderId == 0) {
         wkLogLevel(Error,"Failed to create GL shader (%d)", shaderType);
         return false;
     }
 
-    const GLchar *sourceCStr = shaderStr.c_str();
+    const GLchar *sourceCStr = shaderStr ? shaderStr : "";
     glShaderSource(*shaderId, 1, &sourceCStr, nullptr);
     glCompileShader(*shaderId);
     
@@ -299,7 +463,8 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
         {
             std::vector<char> logStr(len+1);
             glGetShaderInfoLog(*shaderId, len, &len, &logStr[0]);
-            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name.c_str(),&logStr[0]);
+            wkLogLevel(Error,"Compile error for %s shader %s:\n%s",shaderTypeStr,name,&logStr[0]);
+            logError(&logStr[0], sourceCStr);
         }
         
         glDeleteShader(*shaderId);
@@ -312,15 +477,17 @@ bool compileShader(const std::string &name,const char *shaderTypeStr,GLuint *sha
 #define DUMP_UNIFORMS 0
 
 // Construct the program, compile and link
-ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderString,const std::string &fShaderString,const std::vector<std::string> *varying)
-    : ProgramGLES()
+bool ProgramGLES::init(const char *vShaderString,
+                       const char *fShaderString,
+                       const std::vector<std::string> *varying)
 {
-    name = inName;
+    cleanUp();
     program = glCreateProgram();
     if (!CheckGLError("ProgramGLES glCreateProgram"))
     {
-        return;
+        return false;
     }
+
     if (!program)
     {
         // glCreateProgram sometimes produces zero without setting any error.
@@ -330,54 +497,71 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
 #else
         wkLogLevel(Warn, "glCreateProgram Failed (%x)", glGetError());
 #endif
-        return;
+        return false;
     }
     
-    if (!compileShader(name,"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
+    if (!compileShader(name.c_str(),"vertex",&vertShader,GL_VERTEX_SHADER,vShaderString))
     {
         cleanUp();
-        return;
+        return false;
     }
     CheckGLError("ProgramGLES: compileShader() vertex");
-    if (!compileShader(name,"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
+    if (!compileShader(name.c_str(),"fragment",&fragShader,GL_FRAGMENT_SHADER,fShaderString))
     {
         cleanUp();
-        return;
+        return false;
     }
     CheckGLError("ProgramGLES: compileShader() fragment");
 
     glAttachShader(program, vertShader);
-    CheckGLError("ProgramGLES: glAttachShader() vertex");
+    if (!CheckGLError("ProgramGLES: glAttachShader() vertex"))
+    {
+        cleanUp();
+        return false;
+    }
+
     glAttachShader(program, fragShader);
-    CheckGLError("ProgramGLES: glAttachShader() fragment");
+    if (!CheckGLError("ProgramGLES: glAttachShader() fragment"))
+    {
+        cleanUp();
+        return false;
+    }
 
     // Designate the varyings that we want out of the shader
-    if (varying) {
-        auto **names = (GLchar **)malloc(sizeof(GLchar *)*varying->size());
-        if (names) {
-            for (unsigned int ii = 0; ii < varying->size(); ii++) {
-                const std::string &name = (*varying)[ii];
-                names[ii] = (GLchar *) malloc(sizeof(GLchar) * (name.size() + 1));
-                if (names[ii]) {
-                    strcpy(names[ii], name.c_str());
-                }
-            }
-            glTransformFeedbackVaryings(program, varying->size(), names, GL_SEPARATE_ATTRIBS);
+    if (varying && !varying->empty()) {
+        std::vector<GLchar*> names(varying->size());
+        for (unsigned int ii = 0; ii < varying->size(); ii++) {
+            const std::string &name = varying->at(ii);
 
-            CheckGLError("ProgramGLES: Error setting up varyings in");
-
-            for (unsigned int ii = 0; ii < varying->size(); ii++) {
-                if (names[ii]) {
-                    free(names[ii]);
-                }
+            // TODO: Do we really need copies here, when we're just going to free them?
+            names[ii] = (GLchar *) malloc(sizeof(GLchar) * (name.size() + 1));
+            if (names[ii]) {
+                strcpy(names[ii], name.c_str());
             }
-            free(names);
+        }
+
+        glTransformFeedbackVaryings(program, (int)varying->size(), &names[0], GL_SEPARATE_ATTRIBS);
+
+        if (!CheckGLError("ProgramGLES: Error setting up varyings in"))
+        {
+            cleanUp();
+            return false;
+        }
+
+        for (unsigned int ii = 0; ii < varying->size(); ii++) {
+            if (names[ii]) {
+                free(names[ii]);
+            }
         }
     }
     
     // Now link it
     glLinkProgram(program);
-    CheckGLError("ProgramGLES: glLinkProgram");
+    if (!CheckGLError("ProgramGLES: glLinkProgram"))
+    {
+        cleanUp();
+        return false;
+    }
 
     GLint status = 0;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
@@ -392,7 +576,7 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
             wkLogLevel(Error,"Link error for shader program %s:\n%s",name.c_str(),&logStr[0]);
         }
         cleanUp();
-        return;
+        return false;
     }
 
     if (vertShader)
@@ -423,7 +607,11 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
         wkLog("%s Uniform %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numUniform, uni->nameID, uni->index, thingName);
 #endif
     }
-    CheckGLError("ProgramGLES: glGetActiveUniform");
+    if (!CheckGLError("ProgramGLES: glGetActiveUniform"))
+    {
+        cleanUp();
+        return false;
+    }
 
     // Convert the attributes into a more useful form
     GLint numAttr;
@@ -441,7 +629,13 @@ ProgramGLES::ProgramGLES(const std::string &inName,const std::string &vShaderStr
         wkLog("%s Attribute %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numAttr, attr->nameID, attr->index, thingName);
 #endif
     }
-    CheckGLError("ProgramGLES: glGetActiveAttrib");
+    if (!CheckGLError("ProgramGLES: glGetActiveAttrib"))
+    {
+        cleanUp();
+        return false;
+    }
+
+    return true;
 }
     
 void ProgramGLES::teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown)
@@ -527,7 +721,7 @@ bool ProgramGLES::setLights(const std::vector<DirectionalLight> &lights, TimeInt
     }
     OpenGLESUniform *lightAttr = findUniform(u_numLightsNameID);
     if (lightAttr)
-        glUniform1i(lightAttr->index, numLights);
+        glUniform1i((GLint)lightAttr->index, numLights);
     else
         return false;
     
@@ -553,7 +747,7 @@ int ProgramGLES::bindTextures()
         {
             glActiveTexture(GL_TEXTURE0+numTextures);
             glBindTexture(GL_TEXTURE_2D, uni.second->val.iVals[0]);
-            glUniform1i(uni.second->index,numTextures);
+            glUniform1i((GLint)uni.second->index,numTextures);
             numTextures++;
         }
     }

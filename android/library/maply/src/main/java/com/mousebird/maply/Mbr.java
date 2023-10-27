@@ -17,6 +17,8 @@
  */
 package com.mousebird.maply;
 
+import androidx.annotation.Nullable;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -30,7 +32,8 @@ import java.util.Objects;
  * though we do not call that out here.
  *
  */
-public class Mbr 
+@SuppressWarnings({"UnusedReturnValue", "unused"})
+public class Mbr
 {
 	/**
 	 * Lower left corner of the bounding box.
@@ -57,15 +60,10 @@ public class Mbr
 	 * @param inLL Lower left corner of the bounding box.
 	 * @param inUR Upper right corner of the bounding box.
 	 */
-	public Mbr(Point2d inLL,Point2d inUR)
-	{
+	public Mbr(Point2d inLL,Point2d inUR) {
 		// Make copies
-		if (inLL != null) {
-			ll = new Point2d(inLL);
-		}
-		if (inUR != null) {
-			ur = new Point2d(inUR);
-		}
+		ll = (inLL != null) ? new Point2d(inLL) : null;
+		ur = (inUR != null) ? new Point2d(inUR) : null;
 	}
 
 	/**
@@ -76,8 +74,7 @@ public class Mbr
 	 * @param urx X coordinate of the upper-right corner
 	 * @param ury Y coordinate of the upper-right corner
 	 */
-	public Mbr(double llx, double lly, double urx, double ury)
-	{
+	public Mbr(double llx, double lly, double urx, double ury) {
 		ll = new Point2d(llx, lly);
 		ur = new Point2d(urx, ury);
 	}
@@ -85,8 +82,10 @@ public class Mbr
 	/**
 	 * Copy Construct
 	 */
-	public Mbr(Mbr other) {
-		this((other != null) ? other.ll : null, (other != null) ? other.ur : null);
+	@SuppressWarnings("CopyConstructorMissesField")
+	public Mbr(@Nullable Mbr other) {
+		this((other != null) ? other.ll : null,
+		     (other != null) ? other.ur : null);
 	}
 
 	/**
@@ -116,6 +115,26 @@ public class Mbr
 			return Objects.equals(ll, that.ll) && Objects.equals(ur, that.ur);
 		}
 		return false;
+	}
+
+	/**
+	 * Convert from degrees to radians
+	 */
+	public Mbr degToRad() {
+		return isValid() ? new Mbr(ll.getX() * Math.PI / 180,
+		                           ll.getY() * Math.PI / 180,
+		                           ur.getX() * Math.PI / 180,
+		                           ur.getY() * Math.PI / 180) : new Mbr();
+	}
+
+	/**
+	 * Convert from radians to degrees
+	 */
+	public Mbr radToDeg() {
+		return isValid() ? new Mbr(ll.getX() / Math.PI * 180,
+		                           ll.getY() / Math.PI * 180,
+		                           ur.getX() / Math.PI * 180,
+		                           ur.getY() / Math.PI * 180) : new Mbr();
 	}
 
 	/**

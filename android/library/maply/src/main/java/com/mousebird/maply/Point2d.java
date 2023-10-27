@@ -85,6 +85,15 @@ public class Point2d
 	}
 
 	/**
+	 * Extend the point to a third dimension
+	 */
+	public Point3d withZ() { return new Point3d(getX(), getY(), 0.0); }
+	/**
+	 * Extend the point to a third dimension
+	 */
+	public Point3d withZ(double z) { return new Point3d(getX(), getY(), z); }
+
+	/**
 	 * Create a Point2D geo coordinate from degrees.
 	 * @param lon Longitude first in degrees.
 	 * @param lat Then latitude in degrees.

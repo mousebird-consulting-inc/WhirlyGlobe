@@ -92,12 +92,17 @@ struct OpenGLESAttribute
 class ProgramGLES : public Program
 {
 public:
-    ProgramGLES();
     virtual ~ProgramGLES();
 
     /// Initialize with both shader programs
-    ProgramGLES(const std::string &name,const std::string &vShaderString,
-                const std::string &fShaderString,const std::vector<std::string> *varyings=nullptr);
+    ProgramGLES(std::string name,
+                const char *vShaderString,
+                const char *fShaderString,
+                const std::vector<std::string> *varyings = nullptr);
+    ProgramGLES(std::string name,
+                const std::string &vShaderString,
+                const std::string &fShaderString,
+                const std::vector<std::string> *varyings = nullptr);
     
     /// Return true if it was built correctly
     bool isValid() const override;
@@ -115,6 +120,7 @@ public:
     bool setUniform(StringIdentity nameID,const Eigen::Vector4f &vec,int index);
     bool setUniform(StringIdentity nameID,const Eigen::Matrix4f &mat);
     bool setUniform(StringIdentity nameID,int val);
+    bool setUniform(StringIdentity nameID,bool val);
     bool setUniform(const SingleVertexAttribute &attr);
     
     /// Tie a given texture ID to the given name.
@@ -146,7 +152,16 @@ public:
     /// Clean up OpenGL resources, rather than letting the destructor do it (which it will)
     virtual void teardownForRenderer(const RenderSetupInfo *setupInfo,Scene *scene,RenderTeardownInfoRef teardown) override;
     void cleanUp();
-    
+
+protected:
+    ProgramGLES();
+    ProgramGLES(const char *name);
+    ProgramGLES(std::string name);
+
+    bool init(const char *vShaderString,
+              const char *fShaderString,
+              const std::vector<std::string> *varyings);
+
 protected:
     GLuint program = 0;
     GLuint vertShader = 0;

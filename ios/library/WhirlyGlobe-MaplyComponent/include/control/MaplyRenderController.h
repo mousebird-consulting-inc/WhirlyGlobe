@@ -50,30 +50,55 @@ typedef NS_ENUM(NSInteger, MaplyThreadMode) {
 };
 
 /// The various image formats we support.  RGBA is the default, and most expensive.
+// This should match RenderController.java and Renderer_jni.h
 typedef NS_ENUM(NSInteger, MaplyQuadImageFormat) {
     MaplyImageIntRGBA,
+
     MaplyImageUShort565,
     MaplyImageUShort4444,
     MaplyImageUShort5551,
-    MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+
+    MaplyImageUByteRed,
+    MaplyImageUByteGreen,
+    MaplyImageUByteBlue,
+    MaplyImageUByteAlpha,
+
     MaplyImageUByteRG,
     MaplyImageUByteRGB,
-    MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-    MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
-    MaplyImage4Layer8Bit,
-    // Metal only
+
+    MaplyImageInt8,
+    MaplyImageUInt8,
+    MaplyImageDoubleInt8,
+    MaplyImageDoubleUInt8,
+
+    MaplyImageInt16,
+    MaplyImageUInt16,
+    MaplyImageDoubleInt16,
+    MaplyImageDoubleUInt16,
+
+    MaplyImageInt32,
+    MaplyImageUInt32,
+    MaplyImageDoubleInt32,
+    MaplyImageDoubleUInt32,
+    MaplyImageQuadUInt32,
+
     MaplyImageSingleFloat16,
     MaplyImageSingleFloat32,
     MaplyImageDoubleFloat16,
     MaplyImageDoubleFloat32,
     MaplyImageQuadFloat16,
     MaplyImageQuadFloat32,
-    MaplyImageInt16,
-    MaplyImageUInt16,
-    MaplyImageDoubleUInt16,
-    MaplyImageUInt32,
-    MaplyImageDoubleUInt32,
-    MaplyImageQuadUInt32
+
+    MaplyImageETC2RGB8,
+    MaplyImageETC2RGBA8,
+    MaplyImageETC2RGBPA8,
+
+    MaplyImageEACR11,
+    MaplyImageEACR11S,
+    MaplyImageEACRG11,
+    MaplyImageEACRG11S,
+
+    MaplyImage4Layer8Bit,
 };
 
 /// Wrap values for certain types of textures

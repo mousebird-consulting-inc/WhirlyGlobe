@@ -1,6 +1,6 @@
 buildscript {
-    ext {
-        kotlin_version = '1.7.22'
+    if (!ext.has("kotlin_version")) {
+        ext.kotlin_version = '1.7.22'
     }
     repositories {
         google()
@@ -15,21 +15,27 @@ buildscript {
     }
 }
 
+// This is handled by dependencyResolutionManagement at the top level now
+/*
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
 }
+*/
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
+ext.maplyBuildNative = !ext.has("maplyBuildNative") || maplyBuildNative.toBoolean()
+println maplyBuildNative ? "Maply building native cmake" : "Maply skipping native build"
+
 android {
-    compileSdkVersion 29
+    compileSdkVersion 32
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 29
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
 
@@ -39,70 +45,83 @@ android {
             debug {
                 debuggable true
                 jniDebuggable true
-                ndk {
-                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
-                    debuggable true
-                }
-                externalNativeBuild {
-                    cmake {
-                        cppFlags "-g",              // enable debug info
-                            "-DDEBUG=1",            // Debug flags
-                            "-DCMAKE_BUILD_TYPE=Debug",
-                            "-O0",
-                            //"-O1",                  // Minimal optimize. (-Wuninitialized requires -O1)
-                                                    // Change to -O0 if you're having trouble debugging
-                            "-Wall", "-Wextra",     // warnings
-                            "-Wno-unknown-pragmas", // ignore, e.g., clang-tidy annotations
+                if (maplyBuildNative) {
+                    ndk {
+                        abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+                        debuggable true
+                    }
+                    externalNativeBuild {
+                        cmake {
+                            cppFlags "-g",              // enable debug info
+                                    "-DDEBUG=1",            // Debug flags
+                                    "-DCMAKE_BUILD_TYPE=Debug",
+                                    "-O0",
+                                    //"-O1",                  // Minimal optimize. (-Wuninitialized requires -O1)
+                                    // Change to -O0 if you're having trouble debugging
+                                    "-Wall", "-Wextra",     // warnings
+                                    "-Wno-unknown-pragmas", // ignore, e.g., clang-tidy annotations
 
-                            "-Wuninitialized",      // requires -O1 or above, but doesn't seem to work anyway
-                            "-Wmissing-field-initializers",
-                            "-Woverloaded-virtual",
+                                    "-Wuninitialized",      // requires -O1 or above, but doesn't seem to work anyway
+                                    "-Wmissing-field-initializers",
+                                    "-Woverloaded-virtual",
 
-                            "-Wno-unused-parameter",
-                            "-Wno-unused-private-field",
-                            "-Wno-reorder",
-                            "-Wno-sign-compare",
-                            "-Wno-missing-braces",
-                            "-Wno-null-pointer-arithmetic"
+                                    "-Wno-unused-parameter",
+                                    "-Wno-unused-private-field",
+                                    "-Wno-reorder",
+                                    "-Wno-sign-compare",
+                                    "-Wno-missing-braces",
+                                    "-Wno-null-pointer-arithmetic"
+                        }
                     }
                 }
             }
             devRelease {
                 debuggable true
                 jniDebuggable true
-                ndk {
-                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
-                    debuggable true
-                }
-                externalNativeBuild {
-                    cmake {
-                        cppFlags "-O2", "-DNDEBUG=1",
-                                "-DCMAKE_BUILD_TYPE=Release",
-                                "-DWK_MIN_LOG_LEVEL=WKLogLevel::Verbose"
+                if (maplyBuildNative) {
+                    ndk {
+                        abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+                        debuggable true
+                    }
+                    externalNativeBuild {
+                        cmake {
+                            cppFlags "-O2", "-DNDEBUG=1",
+                                    "-DCMAKE_BUILD_TYPE=Release",
+                                    "-DWK_MIN_LOG_LEVEL=WKLogLevel::Verbose"
+                        }
                     }
                 }
             }
             release {
                 debuggable false
                 jniDebuggable false
-                ndk {
-                    abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
-                    debuggable false
-                }
-                externalNativeBuild {
-                    cmake {
-                        cppFlags "-O2", "-DNDEBUG=1", "-DCMAKE_BUILD_TYPE=Release"
+                if (maplyBuildNative) {
+                    ndk {
+                        abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
+                        debuggable false
+                    }
+                    externalNativeBuild {
+                        cmake {
+                            cppFlags "-O2", "-DNDEBUG=1", "-DCMAKE_BUILD_TYPE=Release"
+                        }
                     }
                 }
             }
         }
 
-        externalNativeBuild {
-            cmake {
-                cppFlags "-frtti", "-fexceptions", "-std=gnu++14"
+        if (maplyBuildNative) {
+            externalNativeBuild {
+                cmake {
+                    cppFlags "-frtti", "-fexceptions", "-std=gnu++14",
+                             "-DLODEPNG_NO_COMPILE_ENCODER",     // Match RawPNGImage.cpp
+                             "-DLODEPNG_NO_COMPILE_DISK",
+                             "-DLODEPNG_NO_COMPILE_ANCILLARY_CHUNKS",
+                             "-DLODEPNG_NO_COMPILE_ERROR_TEXT",
+                             "-DLODEPNG_NO_COMPILE_CPP"
+                             // not "-DLODEPNG_NO_COMPILE_ZLIB"
+                }
             }
         }
-
     }
     buildTypes {
         release {
@@ -110,9 +129,11 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    externalNativeBuild {
-        cmake {
-            path "CMakeLists.txt"
+    if (maplyBuildNative) {
+        externalNativeBuild {
+            cmake {
+                path "CMakeLists.txt"
+            }
         }
     }
     compileOptions {
@@ -145,12 +166,12 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.3.1'
-    testImplementation 'junit:junit:4.13.1'
-    androidTestImplementation 'androidx.test:runner:1.4.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.9.1'
-    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test:runner:1.5.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.11'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    api 'com.google.android.gms:play-services-location:18.0.0'
+    api 'com.google.android.gms:play-services-location:21.0.1'
 }

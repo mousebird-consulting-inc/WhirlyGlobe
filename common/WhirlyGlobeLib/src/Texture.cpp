@@ -31,6 +31,30 @@ using namespace Eigen;
 namespace WhirlyKit
 {
 
+// Convert a buffer from 4-bit to 8-bit components
+static RawDataRef Convert4to8(const RawDataRef &inData)
+{
+    const auto len = inData->getLen();
+    auto outData = std::make_shared<MutableRawData>(2u * len);
+
+    auto pIn = (uint8_t*)inData->getRawData();
+    auto pOut = (uint8_t *)outData->getRawData();
+    for (unsigned i = 0; i < len; ++i, ++pOut, pIn += (i & 1))
+    {
+        if (i & 1)
+        {
+            *pOut = ((*pIn) & 0xF0) >> 4;
+        }
+        else
+        {
+            *pOut = ((*pIn) & 0x0F);
+        }
+    }
+
+    return outData;
+}
+
+
 // Convert a buffer in RGBA to 2-byte 565
 // Code courtesy: http://stackoverflow.com/questions/7930148/opengl-es-on-ios-texture-loading-how-do-i-get-from-a-rgba8888-png-file-to-a-r
 RawDataRef ConvertRGBATo565(const RawDataRef &inData)
@@ -233,10 +257,10 @@ Texture::Texture(RawDataRef texData, bool isPVRTC) :
 Texture::Texture(RawDataRef texData, TextureType inFormat, int inWidth, int inHeight, bool isPVRTC) :
     texData    (std::move(texData)),
     isPVRTC    (isPVRTC),
-    format     (inFormat),
-    width      (inWidth),
-    height     (inHeight)
+    format     (inFormat)
 {
+    width = inWidth;
+    height = inHeight;
 }
 
 void Texture::setRawData(RawDataRef rawData, int inWidth, int inHeight, int depth, int channels)
@@ -264,13 +288,21 @@ RawDataRef Texture::processData()
     switch (format)
     {
     default:
-    case TexTypeUnsignedByte: return texData;
+    case TexTypeUnsignedByte:
+        return texData;
     case TexTypeShort565:     return ConvertRGBATo565(texData);
     case TexTypeShort4444:    return ConvertRGBATo4444(texData);
     case TexTypeShort5551:    return ConvertRGBATo5551(texData);
     case TexTypeSingleChannel:
         if (texData->getLen() == width * height)
-            return ConvertAToA(texData, (int)width, (int)height);
+        {
+            return ConvertAToA(texData, (int) width, (int) height);
+        }
+        else if (rawDepth == 4 && texData->getLen() == width * height / 2)
+        {
+            // No 4-bit GL formats
+            return Convert4to8(texData);
+        }
         return ConvertRGBATo8(texData,byteSource);
     case TexTypeDoubleChannel:
         if (texData->getLen()  == width * height * 2)

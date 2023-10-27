@@ -80,7 +80,7 @@ public:
     virtual double maxHeightAboveSurface() const override;
 
     /// Set the location, but we may or may not run updates
-    void setLoc(const WhirlyKit::Point3d &loc,bool runUpdates);
+    virtual void setLoc(const WhirlyKit::Point3d &loc,bool runUpdates);
 
     /// Set the location we're looking from.  Always runs updates
     void setLoc(WhirlyKit::Point3d newLoc);
@@ -109,7 +109,7 @@ public:
     WhirlyKit::Point2f pointOnScreenFromPlane(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
 
     /// Set the rotation angle
-    void setRotAngle(double newRotAngle,bool viewUpdates);
+    virtual void setRotAngle(double newRotAngle,bool viewUpdates);
     
     /// Turn a wrapped coordinate (e.g. may be outside -M_PI,M_PI) back into a real world coordinate
     virtual WhirlyKit::Point2f unwrapCoordinate(const WhirlyKit::Point2f &pt) const override;

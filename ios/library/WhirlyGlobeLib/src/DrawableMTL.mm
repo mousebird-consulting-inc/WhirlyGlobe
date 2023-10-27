@@ -144,7 +144,8 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,RenderSetup
     uint32_t texturesPresent = 0;
     for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
         id<MTLTexture> tex = ii>=texs.size() ? nil : texs[ii];
-        [encode setTexture:tex atIndex:WKSTexBuffTextures+ii];
+        if (setupInfoMTL->textureArgumentBuffers)
+            [encode setTexture:tex atIndex:WKSTexBuffTextures+ii];
         if (tex) {
             // numTextures refers to the base textures, rather than program provide textures
             texturesPresent |= (1<<ii);
@@ -154,6 +155,16 @@ void ArgBuffRegularTexturesMTL::updateBuffer(id<MTLDevice> mtlDevice,RenderSetup
     
     [bltEncode copyFromBuffer:srcBuffer.buffer sourceOffset:srcBuffer.offset toBuffer:buffer.buffer destinationOffset:buffer.offset size:size];
     
+    offsets.clear();
+    scales.clear();
+    
+    // Keep these around if we can't encode them in the argument buffer
+    if (setupInfoMTL->textureArgumentBuffers)
+        texs.clear();
+}
+
+void ArgBuffRegularTexturesMTL::clear()
+{
     offsets.clear();
     scales.clear();
     texs.clear();

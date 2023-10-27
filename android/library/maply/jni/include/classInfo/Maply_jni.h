@@ -19,13 +19,20 @@
 #ifndef Maply_JNI_h_
 #define Maply_JNI_h_
 
-#import <stdlib.h>
-#import <vector>
+#import <WhirlyEigen.h>
+#import <WhirlyKitLog.h>
+#import <Identifiable.h>
+#import <Exceptions_jni.h>
+
 #import <android/log.h>
 #import <jni.h>
-#import <WhirlyGlobeLib.h>
-#import <WhirlyKitLog.h>
-#import <Exceptions_jni.h>
+
+#import <stdlib.h>
+
+#import <set>
+#import <string>
+#import <unordered_set>
+#import <vector>
 
 #if !defined(MAPLY_STD_JNI_CATCH)
 # define MAPLY_STD_JNI_CATCH_IN(name) catch (const std::exception &ex) { \
@@ -74,6 +81,10 @@ public:
 			return nullptr;
 		}
 		jobject obj = env->NewObject(theClass,initMethodID);
+        if (!obj)
+        {
+            return nullptr;
+        }
 		T *oldRef = getObject(env,obj);
 		setHandle(env, obj, cObj);
 		if (oldRef && cObj)

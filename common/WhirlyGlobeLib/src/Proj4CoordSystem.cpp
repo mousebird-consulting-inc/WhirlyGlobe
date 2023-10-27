@@ -89,7 +89,7 @@ Proj4CoordSystem::~Proj4CoordSystem()
     {
         if (pj)
         {
-            pj_free(pj);
+        pj_free(pj);
             pj = nullptr;
         }
         if (pj_ctx)
@@ -100,7 +100,7 @@ Proj4CoordSystem::~Proj4CoordSystem()
 
         if (pj_latlon)
         {
-            pj_free(pj_latlon);
+        pj_free(pj_latlon);
             pj_latlon = nullptr;
         }
         if (pj_latlon_ctx)
@@ -111,7 +111,7 @@ Proj4CoordSystem::~Proj4CoordSystem()
 
         if (pj_geocentric)
         {
-            pj_free(pj_geocentric);
+        pj_free(pj_geocentric);
             pj_geocentric = nullptr;
         }
         if (pj_geocentric_ctx)
@@ -119,13 +119,8 @@ Proj4CoordSystem::~Proj4CoordSystem()
             pj_ctx_free(pj_geocentric_ctx);
             pj_geocentric_ctx = nullptr;
         }
-    }
+	}
     WK_STD_DTOR_CATCH()
-}
-
-bool Proj4CoordSystem::isValid() const
-{
-    return pj && pj_latlon && pj_geocentric;
 }
 
 /// Create a new instance equivalent to this one

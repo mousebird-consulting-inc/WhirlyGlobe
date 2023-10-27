@@ -126,6 +126,9 @@ public:
     // Also clears out contents for next encoding pass
     void updateBuffer(id<MTLDevice> mtlDevice,RenderSetupInfoMTL *setupInfoMTL,id<MTLBlitCommandEncoder> bltEncode);
     
+    // Usually unnecessary, but we cache textures for the indirect/texture Apple bug
+    void clear();
+
     // Size of the texture buffer (fixed)
     size_t encodedLength();
 
@@ -134,7 +137,7 @@ public:
     
     BufferEntryMTL &getBuffer() { return buffer; }
 
-protected:
+public:
     id<MTLArgumentEncoder> encode;
     size_t size;  // Set after encode
     std::vector<Point2f> offsets;

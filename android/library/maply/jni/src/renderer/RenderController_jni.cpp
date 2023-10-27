@@ -28,72 +28,96 @@ template<> SceneRendererInfo *SceneRendererInfo::classInfoObj = nullptr;
 
 namespace WhirlyKit {
 GLenum ImageFormatToGLenum(MaplyImageType format) {
-	GLenum ret = GL_UNSIGNED_BYTE;
-
 	switch (format) {
 		case MaplyImageIntRGBA:
-		case MaplyImage4Layer8Bit:
-			ret = GL_UNSIGNED_BYTE;
-			break;
-		case MaplyImageUShort565:
-			ret = GL_UNSIGNED_SHORT_5_6_5;
-			break;
-		case MaplyImageUShort4444:
-			ret = GL_UNSIGNED_SHORT_4_4_4_4;
-			break;
-		case MaplyImageUShort5551:
-			ret = GL_UNSIGNED_SHORT_5_5_5_1;
-			break;
+		case MaplyImage4Layer8Bit:    return GL_UNSIGNED_BYTE;
+		case MaplyImageUShort565:     return GL_UNSIGNED_SHORT_5_6_5;
+		case MaplyImageUShort4444:    return GL_UNSIGNED_SHORT_4_4_4_4;
+		case MaplyImageUShort5551:    return GL_UNSIGNED_SHORT_5_5_5_1;
 		case MaplyImageUByteRed:
 		case MaplyImageUByteGreen:
 		case MaplyImageUByteBlue:
 		case MaplyImageUByteAlpha:
-		case MaplyImageUByteRGB:
-			ret = GL_ALPHA;
-			break;
-		default:
-			break;
+		case MaplyImageUByteRGB:      return GL_ALPHA;
+		case MaplyImageSingleFloat16: return GL_R16F;
+		case MaplyImageDoubleFloat16: return GL_RG16F;
+		case MaplyImageSingleFloat32: return GL_R32F;
+		case MaplyImageDoubleFloat32: return GL_RG32F;
+		default:                      return GL_UNSIGNED_BYTE;
 			// Note: Not supporting everything
 //				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
 //				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
 	}
-
-	return ret;
 }
 
 TextureType ImageFormatToTexType(MaplyImageType format) {
-	TextureType ret = TexTypeUnsignedByte;
-
 	switch (format) {
 		case MaplyImageIntRGBA:
-		case MaplyImage4Layer8Bit:
-			ret = TexTypeUnsignedByte;
-			break;
-		case MaplyImageUShort565:
-			ret = TexTypeShort565;
-			break;
-		case MaplyImageUShort4444:
-			ret = TexTypeShort4444;
-			break;
-		case MaplyImageUShort5551:
-			ret = TexTypeShort5551;
-			break;
+		case MaplyImage4Layer8Bit:    return TexTypeUnsignedByte;
+		case MaplyImageUShort565:     return TexTypeShort565;
+		case MaplyImageUShort4444:    return TexTypeShort4444;
+		case MaplyImageUShort5551:    return TexTypeShort5551;
 		case MaplyImageUByteRed:
 		case MaplyImageUByteGreen:
 		case MaplyImageUByteBlue:
 		case MaplyImageUByteAlpha:
-		case MaplyImageUByteRGB:
-			ret = TexTypeSingleChannel;
-			break;
-			// Note: Need to add dual channel
-		default:
-			break;
-			// Note: Not supporting everything
-//				MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-//				MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
+		case MaplyImageUByteRGB:      return TexTypeSingleChannel;
+		case MaplyImageSingleFloat16: return TexTypeSingleFloat16;
+		case MaplyImageDoubleFloat16: return TexTypeDoubleFloat16;
+		case MaplyImageSingleFloat32: return TexTypeSingleFloat32;
+		case MaplyImageDoubleFloat32: return TexTypeDoubleFloat32;
+		case MaplyImageDoubleInt8:
+		case MaplyImageDoubleUInt8:
+		case MaplyImageUByteRG: return TexTypeDoubleChannel;
+		//case MaplyImageInt8: return TexTypeSignedByte;
+		case MaplyImageUInt8: return TexTypeUnsignedByte;
+		case MaplyImageInt16: return TexTypeSingleInt16;
+		case MaplyImageUInt16: return TexTypeSingleUInt16;
+		//case MaplyImageDoubleInt16: return TexTypeDoubleInt16;
+		case MaplyImageDoubleUInt16: return TexTypeDoubleUInt16;
+		//case MaplyImageInt32: return TexTypeSingleInt32;
+		case MaplyImageUInt32: return TexTypeSingleUInt32;
+		//case MaplyImageDoubleInt32: return TexTypeDoubleUInt32;
+		case MaplyImageDoubleUInt32: return TexTypeDoubleUInt32;
+		case MaplyImageQuadUInt32: return TexTypeQuadUInt32;
+		case MaplyImageQuadFloat16: return TexTypeQuadFloat16;
+		case MaplyImageQuadFloat32: return TexTypeQuadFloat32;
+		case MaplyImageETC2RGB8:
+		case MaplyImageETC2RGBA8:
+		case MaplyImageETC2RGBPA8:
+		case MaplyImageEACR11:
+		case MaplyImageEACR11S:
+		case MaplyImageEACRG11:
+		case MaplyImageEACRG11S:      wkLogLevel(Warn, "Unsupported image type %d", format);
+		default:                      return TexTypeUnsignedByte;
 	}
+}
 
-	return ret;
+	MaplyImageType TexTypeToImageFormat(TextureType format) {
+	switch (format) {
+		case TexTypeUnsignedByte:  return MaplyImageIntRGBA;
+		case TexTypeShort565:      return MaplyImageUShort565;
+		case TexTypeShort4444:     return MaplyImageUShort4444;
+		case TexTypeShort5551:     return MaplyImageUShort5551;
+		case TexTypeSingleChannel: return MaplyImageUByteRGB;
+		case TexTypeSingleFloat16: return MaplyImageSingleFloat16;
+		case TexTypeDoubleFloat16: return MaplyImageDoubleFloat16;
+		case TexTypeSingleFloat32: return MaplyImageSingleFloat32;
+		case TexTypeDoubleFloat32: return MaplyImageDoubleFloat32;
+		case TexTypeDoubleChannel: return MaplyImageUByteRG;
+		case TexTypeQuadFloat16:   return MaplyImageQuadFloat16;
+		case TexTypeQuadFloat32:   return MaplyImageQuadFloat32;
+		case TexTypeSingleInt16:   return MaplyImageInt16;
+		case TexTypeSingleUInt16:  return MaplyImageUInt16;
+		case TexTypeDoubleUInt16:  return MaplyImageDoubleUInt16;
+		case TexTypeSingleUInt32:  return MaplyImageUInt32;
+		case TexTypeDoubleUInt32:  return MaplyImageDoubleUInt16;
+		case TexTypeQuadUInt32:    return MaplyImageQuadUInt32;
+		case TexTypeDepthFloat32:
+		default:
+			wkLogLevel(Warn, "Unsupported texture type %d", format);
+			return MaplyImageIntRGBA;
+	}
 }
 
 }
@@ -206,9 +230,14 @@ public:
 	{
 		auto localShader = std::make_shared<Shader_Android>();
 		localShader->setupPreBuildProgram(std::move(prog));
-		scene->addProgram(localShader->prog);
-		jobject shaderObj = MakeShader(env,localShader);
-		env->CallVoidMethod(renderControlObj,addShaderID,shaderObj);
+		if (localShader->prog)
+		{
+			scene->addProgram(localShader->prog);
+		}
+		if (jobject shaderObj = MakeShader(env,localShader))
+		{
+			env->CallVoidMethod(renderControlObj, addShaderID, shaderObj);
+		}
 	}
 
 	JNIEnv *env;

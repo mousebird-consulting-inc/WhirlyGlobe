@@ -37,6 +37,7 @@ import androidx.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 
 import static javax.microedition.khronos.egl.EGL10.EGL_DRAW;
+import static javax.microedition.khronos.egl.EGL10.EGL_EXTENSIONS;
 import static javax.microedition.khronos.egl.EGL10.EGL_NO_CONTEXT;
 import static javax.microedition.khronos.egl.EGL10.EGL_READ;
 
@@ -81,14 +82,52 @@ public class RenderController implements RenderControllerInterface
      */
     public enum ImageFormat {
         MaplyImageIntRGBA,
+
         MaplyImageUShort565,
         MaplyImageUShort4444,
         MaplyImageUShort5551,
-        MaplyImageUByteRed,MaplyImageUByteGreen,MaplyImageUByteBlue,MaplyImageUByteAlpha,
+
+        MaplyImageUByteRed,
+        MaplyImageUByteGreen,
+        MaplyImageUByteBlue,
+        MaplyImageUByteAlpha,
+
+        MaplyImageUByteRG,
         MaplyImageUByteRGB,
-        MaplyImageETC2RGB8,MaplyImageETC2RGBA8,MaplyImageETC2RGBPA8,
-        MaplyImageEACR11,MaplyImageEACR11S,MaplyImageEACRG11,MaplyImageEACRG11S,
-        MaplyImage4Layer8Bit
+
+        MaplyImageInt8,
+        MaplyImageUInt8,
+        MaplyImageDoubleInt8,
+        MaplyImageDoubleUInt8,
+
+        MaplyImageInt16,
+        MaplyImageUInt16,
+        MaplyImageDoubleInt16,
+        MaplyImageDoubleUInt16,
+
+        MaplyImageInt32,
+        MaplyImageUInt32,
+        MaplyImageDoubleInt32,
+        MaplyImageDoubleUInt32,
+        MaplyImageQuadUInt32,
+
+        MaplyImageSingleFloat16,
+        MaplyImageSingleFloat32,
+        MaplyImageDoubleFloat16,
+        MaplyImageDoubleFloat32,
+        MaplyImageQuadFloat16,
+        MaplyImageQuadFloat32,
+
+        MaplyImageETC2RGB8,
+        MaplyImageETC2RGBA8,
+        MaplyImageETC2RGBPA8,
+
+        MaplyImageEACR11,
+        MaplyImageEACR11S,
+        MaplyImageEACRG11,
+        MaplyImageEACRG11S,
+
+        MaplyImage4Layer8Bit,
     }
 
     /**
@@ -344,6 +383,11 @@ public class RenderController implements RenderControllerInterface
             display = otherControl.display;
             context = otherControl.context;
             inConfig = otherControl.config;
+        }
+
+        final String extensions = egl.eglQueryString(display, EGL_EXTENSIONS);
+        if (extensions != null && !extensions.isEmpty()) {
+            Log.i("Maply", "Enabled GLES Extensions: " + extensions);
         }
 
         // If we didn't pass in one, we're in offline mode and need to make one
@@ -1513,19 +1557,13 @@ public class RenderController implements RenderControllerInterface
                                    final RenderController.TextureSettings settings,
                                    RenderController.ThreadMode mode)
     {
+        final Texture rawTex = new Texture(image, settings.imageFormat, settings.filterType);
+        rawTex.setSettings(settings.wrapU, settings.wrapV);
+
         final MaplyTexture texture = new MaplyTexture();
-        final Texture rawTex = new Texture();
         texture.texID = rawTex.getID();
 
-        // Possibly do the work somewhere else
-        taskMan.addTask(() -> {
-            ChangeSet changes = new ChangeSet();
-
-            rawTex.setBitmap(image,settings.imageFormat.ordinal());
-            rawTex.setSettings(settings.wrapU,settings.wrapV);
-            changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            processChangeSet(changes);
-        }, mode);
+        addTexture(rawTex, mode);
 
         return texture;
     }
@@ -1541,14 +1579,12 @@ public class RenderController implements RenderControllerInterface
                                    ThreadMode mode)
     {
         final MaplyTexture texture = new MaplyTexture();
+        texture.texID = rawTex.getID();
 
-        // Possibly do the work somewhere else
-        taskMan.addTask(() -> {
-            ChangeSet changes = new ChangeSet();
-            texture.texID = rawTex.getID();
-            changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            processChangeSet(changes);
-        }, mode);
+        rawTex.setFormat(settings.imageFormat);
+        rawTex.setFilterType(settings.filterType);
+
+        addTexture(rawTex, mode);
 
         return texture;
     }
@@ -1564,25 +1600,36 @@ public class RenderController implements RenderControllerInterface
     public MaplyTexture createTexture(final int width,
                                       final int height,
                                       final TextureSettings settings,
-                                      ThreadMode mode)
+                                      final ThreadMode mode)
     {
-        final MaplyTexture texture = new MaplyTexture();
         final Texture rawTex = new Texture();
+        rawTex.setSize(width,height);
+        rawTex.setIsEmpty(true);
+        rawTex.setFormat(settings.imageFormat);
+        rawTex.setFilterType(settings.filterType);
+
+        final MaplyTexture texture = new MaplyTexture();
         texture.texID = rawTex.getID();
         texture.width = width;
         texture.height = height;
 
-        // Possibly do the work somewhere else
-        taskMan.addTask(() -> {
-            ChangeSet changes = new ChangeSet();
-
-            rawTex.setSize(width,height);
-            rawTex.setIsEmpty(true);
-            changes.addTexture(rawTex, scene, settings.filterType.ordinal());
-            processChangeSet(changes);
-        }, mode);
+        addTexture(rawTex, mode);
 
         return texture;
+    }
+
+    protected Texture addTexture(final Texture tex, final ThreadMode mode)
+    {
+        final Scene scene = this.scene;
+        if (scene != null) {
+            taskMan.addTask(() -> {
+                final ChangeSet changes = new ChangeSet();
+                changes.addTexture(tex, scene);
+                processChangeSet(changes);
+            }, mode);
+            return tex;
+        }
+        return null;
     }
 
     /**
@@ -2012,7 +2059,7 @@ public class RenderController implements RenderControllerInterface
     static {
         nativeInit();
     }
-    public void finalize() {
+    protected void finalize() {
         setScene(null);
         dispose();
     }

@@ -32,8 +32,7 @@ class QIFBatchOps
     ArrayList<TileFetchRequest> toStart = new ArrayList<>();
 
     @SuppressWarnings("unused")		// Referenced by JNI
-    QIFBatchOps() {
-    }
+    protected QIFBatchOps() { }
 
     /**
      * Add a fetch request to cancel.

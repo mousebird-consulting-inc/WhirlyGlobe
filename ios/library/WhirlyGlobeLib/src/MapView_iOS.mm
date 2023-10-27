@@ -113,12 +113,18 @@ void MapViewOverlay_iOS::setLoc(WhirlyKit::Point3d newLoc)
 
 void MapViewOverlay_iOS::setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates)
 {
-    return;
+    loc = newLoc;
+    
+    if (runUpdates)
+        runViewUpdates();
 }
 
 void MapViewOverlay_iOS::setRotAngle(double newRotAngle,bool runUpdates)
 {
-    return;
+    rotAngle = newRotAngle;
+    
+    if (runUpdates)
+        runViewUpdates();
 }
 
 }

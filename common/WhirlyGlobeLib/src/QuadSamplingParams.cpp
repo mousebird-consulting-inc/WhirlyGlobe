@@ -28,7 +28,7 @@ void SamplingParams::setCoordSys(CoordSystemRef newSys)
     if (coordSys)
     {
         // Bounds are in projected coordinates
-        coordBounds = MbrD(coordSys->getBoundsLocal());
+        coordBounds = MbrD(coordSys->getBounds());
     }
     else
     {

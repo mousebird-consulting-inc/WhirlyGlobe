@@ -35,7 +35,16 @@ struct TextureBase : virtual public Identifiable
     TextureBase(std::string name) : Identifiable(), name(std::move(name)) { }
 
     virtual ~TextureBase() = default;
-    
+
+    /// Set the texture width
+    void setWidth(unsigned int newWidth) { width = newWidth; }
+    /// Get the texture width
+    int getWidth() const { return width; }
+    /// Set the texture height
+    void setHeight(unsigned int newHeight) { height = newHeight; }
+    /// Get the texture height
+    int getHeight() const { return height; }
+
     /// Render side only.  Don't call this.  Create the openGL version
     virtual bool createInRenderer(const RenderSetupInfo *setupInfo) = 0;
 
@@ -45,6 +54,9 @@ struct TextureBase : virtual public Identifiable
     const std::string& getName() const { return name; }
 
 protected:
+    unsigned int width = 0;
+    unsigned int height = 0;
+
     /// Used for debugging
     std::string name;
 };
@@ -86,7 +98,8 @@ typedef enum TextureType_t {
 /// Interpolation types for upscaling
 typedef enum TextureInterpType_t {
     TexInterpNearest,
-    TexInterpLinear
+    TexInterpLinear,
+    TexInterpCubic
 } TextureInterpType;
 
 /** Your basic Texture representation.
@@ -120,14 +133,6 @@ struct Texture : virtual public TextureBase
     /// Set up from raw PKM (ETC2/EAC) data
     virtual void setPKMData(RawDataRef data);
 
-    /// Set the texture width
-    void setWidth(unsigned int newWidth) { width = newWidth; }
-    /// Get the texture width
-    int getWidth() const { return width; }
-    /// Set the texture height
-    void setHeight(unsigned int newHeight) { height = newHeight; }
-    /// Get the texture height
-    int getHeight() const { return height; }
     /// Set this to have a mipmap generated and used for minification
     void setUsesMipmaps(bool use) { usesMipmaps = use; }
     /// Set this to let the texture wrap in the appropriate directions
@@ -163,9 +168,6 @@ protected:
     /// If not PVRTC, the format we'll use for the texture
     TextureType format = TexTypeUnsignedByte;
     TextureInterpType interpType = TexInterpLinear;
-
-    unsigned int width = 0;
-    unsigned int height = 0;
 };
     
 typedef std::shared_ptr<Texture> TextureRef;

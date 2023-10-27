@@ -642,21 +642,24 @@ Program *Scene::getProgram(SimpleIdentity progId)
     
     return prog;
 }
-    
+
 Program *Scene::findProgramByName(const std::string &name)
+{
+    return findProgramRefByName(name).get();
+}
+
+ProgramRef Scene::findProgramRefByName(const std::string &name)
 {
     std::lock_guard<std::mutex> guardLock(programLock);
     
-    Program *prog = nullptr;
-    for (auto it = programs.rbegin(); it != programs.rend(); ++it) {
+    for (auto it = programs.rbegin(); it != programs.rend(); ++it)
+    {
         if (it->second->getName() == name)
         {
-            prog = it->second.get();
-            break;
+            return it->second;
         }
     }
-    
-    return prog;
+    return ProgramRef();
 }
 
 void Scene::addProgram(ProgramRef prog)
@@ -748,16 +751,34 @@ void Scene::copyZoomSlotsFrom(const Scene *otherScene, float offset)
     }
 }
 
+AddTextureReq::AddTextureReq(TextureBase *tex) :
+    texRef(tex)
+{
+}
+
+AddTextureReq::AddTextureReq(TextureBaseRef inTexRef) :
+    texRef(std::move(inTexRef))
+{
+}
+
 void AddTextureReq::setupForRenderer(const RenderSetupInfo *setupInfo,Scene *scene)
 {
     if (texRef)
+    {
         texRef->createInRenderer(setupInfo);
+    }
 }
-    
-void AddTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *view)
+
+void AddTextureReq::execute(Scene *scene,SceneRenderer *renderer,WhirlyKit::View *)
 {
-    texRef->createInRenderer(renderer->getRenderSetupInfo());
-    scene->addTexture(texRef);
+    if (renderer && texRef)
+    {
+        texRef->createInRenderer(renderer->getRenderSetupInfo());
+        if (scene)
+        {
+            scene->addTexture(texRef);
+        }
+    }
     texRef = nullptr;
 }
 

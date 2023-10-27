@@ -4,7 +4,6 @@ import android.graphics.Bitmap;
 
 import java.io.Closeable;
 import java.util.Collection;
-import java.util.List;
 
 import javax.microedition.khronos.egl.EGLContext;
 import javax.microedition.khronos.egl.EGLDisplay;
@@ -62,6 +61,22 @@ public interface RenderControllerInterface
     ComponentObject addPoints(final Collection<Points> inPoints,final GeometryInfo geomInfo, final ThreadMode mode);
 
     /**
+     * Add an active object that will be called right before the render (on the render thread).
+     */
+    void addActiveObject(ActiveObject activeObject);
+
+    /**
+     * Add an active object to the beginning of the list.
+     * Do this if you want to make sure yours is run first.
+     */
+    void addActiveObjectAtStart(ActiveObject activeObject);
+
+    /**
+     * Remove an active object added earlier.
+     */
+    void removeActiveObject(ActiveObject activeObject);
+
+    /**
      * Texture settings for adding textures to the system.
      */
     class TextureSettings
@@ -70,7 +85,11 @@ public interface RenderControllerInterface
         {
         }
 
-        public enum FilterType {FilterNearest,FilterLinear}
+        // Needs to match native TextureInterpType
+        public enum FilterType {
+            FilterNearest /* = 0*/,
+            FilterLinear /* = 1 */,
+        }
 
         /**
          * Image format to use when creating textures.

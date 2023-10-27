@@ -127,6 +127,7 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getReportedMaxZoo
 	return 0;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setMinZoom
   (JNIEnv *env, jobject obj, jint minZoom)
 {
@@ -398,6 +399,21 @@ JNIEXPORT jint JNICALL Java_com_mousebird_maply_SamplingParams_getTesselationY
 }
 
 extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getForceMinLevel
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			return params->forceMinLevel;
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
 		(JNIEnv *env, jobject obj, jboolean forceMinLevel)
 {
@@ -406,6 +422,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevel
 		if (const auto params = SamplingParamsClassInfo::get(env,obj))
 		{
 			params->forceMinLevel = forceMinLevel;
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jfloat JNICALL Java_com_mousebird_maply_SamplingParams_getForceMinLevelHeight
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			return params->forceMinLevelHeight;
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setForceMinLevelHeight
+		(JNIEnv *env, jobject obj, jfloat height)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			params->forceMinLevelHeight = height;
 		}
 	}
 	MAPLY_STD_JNI_CATCH()
@@ -456,6 +501,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setLevelLoads
 	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
 		(JNIEnv *env, jobject obj, jfloat scale)
 {
@@ -470,6 +516,32 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setBoundsScale
 }
 
 extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getClipBounds
+		(JNIEnv *env, jobject obj, jdoubleArray jcoords)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			const auto &bnd = params->clipBounds;
+			if (bnd.valid())
+			{
+				const double coords[4] = {
+					bnd.ll().x(),
+					bnd.ll().y(),
+					bnd.ur().x(),
+					bnd.ur().y(),
+				};
+				env->SetDoubleArrayRegion(jcoords, 0, 4, coords);
+				return true;
+			}
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}
+
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setClipBounds
   (JNIEnv *env, jobject obj, jdouble llx, jdouble lly, jdouble urx, jdouble ury)
 {
@@ -481,6 +553,35 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setClipBounds
 			mbr.addPoint(Point2d(llx,lly));
 			mbr.addPoint(Point2d(urx,ury));
 			params->clipBounds = mbr;
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_SamplingParams_getUseClipBoundsForImportance
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			return params->useClipBoundsForImportance;
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_SamplingParams_setUseClipBoundsForImportance
+		(JNIEnv *env, jobject obj, jboolean b)
+{
+	try
+	{
+		if (const auto params = SamplingParamsClassInfo::get(env,obj))
+		{
+			params->useClipBoundsForImportance = b;
 		}
 	}
 	MAPLY_STD_JNI_CATCH()

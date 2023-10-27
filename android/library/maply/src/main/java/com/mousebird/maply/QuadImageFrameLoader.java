@@ -4,65 +4,126 @@ package com.mousebird.maply;
 
 import android.os.Handler;
 
+import androidx.annotation.Nullable;
+
+import java.util.Objects;
+
 /**
  * The Maply Quad Image Frame Loader is for paging individual frames of image pyramids.
  * <br>
  * This works much like the Quad Image Loader, but handles more than one frame.  You can animate
  * between the frames with the QuadImageFrameAnimator.
  */
-public class QuadImageFrameLoader extends QuadImageLoaderBase
-{
+@SuppressWarnings("unused")
+public class QuadImageFrameLoader extends QuadImageLoaderBase {
     protected boolean valid = false;
 
-    protected QuadImageFrameLoader() { }
+    protected QuadImageFrameLoader() { }    // for JNI
 
-    public QuadImageFrameLoader(BaseController control)
-    {
+    public QuadImageFrameLoader(BaseController control) {
         super(control);
-
         valid = true;
     }
 
-    public QuadImageFrameLoader(final SamplingParams params,TileInfoNew inTileInfos[],BaseController control)
-    {
+    public QuadImageFrameLoader(final SamplingParams params, TileInfoNew[] inTileInfos, BaseController control) {
+        this(params, inTileInfos, control, FramesLoadMode.All);
+    }
+
+    public QuadImageFrameLoader(final SamplingParams params, TileInfoNew[] inTileInfos,
+                                BaseController control, FramesLoadMode framesLoadMode) {
         super(control, params, inTileInfos.length);
         tileInfos = inTileInfos;
 
-        valid = true;
-        Handler handler = new Handler(control.getActivity().getMainLooper());
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                if (!valid)
-                    return;
+        setLoadFramesMode(framesLoadMode);
 
+        valid = true;
+        final Handler handler = new Handler(Objects.requireNonNull(control.getActivity()).getMainLooper());
+        handler.post(() -> {
+            if (valid) {
                 delayedInit(params);
             }
         });
     }
 
-    public enum FrameLoadMode {Broad,Narrow};
+    public enum FrameLoadMode {Broad,Narrow}
+    private final FrameLoadMode[] frameLoadModes = FrameLoadMode.values();
+
+    // This is confusing because FrameLoadMode should be called have been called LoadMode
+    public enum FramesLoadMode {All,Current}
+    private final FramesLoadMode[] framesLoadModes = FramesLoadMode.values();
 
     /**
-     * How frames are loaded (top down vs broad).  Top down is the default.
+     * How frames are loaded (top down vs broad)
      */
-    public void setLoadFrameMode(FrameLoadMode mode)
-    {
+    @Nullable
+    public FrameLoadMode getLoadFrameMode() {
+        final int mode = getLoadFrameModeNative();
+        return (0 <= mode && mode < frameLoadModes.length) ? frameLoadModes[mode] : null;
+    }
+
+    /**
+     * How frames are loaded (top-down vs broad).  Top-down is the default.
+     */
+    public void setLoadFrameMode(FrameLoadMode mode) {
+        // If we changed the frame mode we may need to refresh the priorities
         if (setLoadFrameModeNative(mode.ordinal()) && samplingLayer != null) {
-            // If we changed the frame mode we may need to refresh the priorities
-            QuadSamplingLayer layer = samplingLayer.get();
-            if (layer == null || layer.layerThread == null)
-                return;
-            layer.layerThread.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    updatePriorities();
-                }
-            });
+            final QuadSamplingLayer layer = getSamplingLayer();
+            if (layer != null && layer.layerThread != null) {
+                layer.layerThread.addTask(this::updatePriorities);
+            }
         }
     }
 
+    /**
+     * Load all frames or only the one(s) current visible
+     */
+    @Nullable
+    public FramesLoadMode getLoadFramesMode() {
+        final int mode = getLoadFramesModeNative();
+        return (0 <= mode && mode < framesLoadModes.length) ? framesLoadModes[mode] : null;
+    }
+
+    /**
+     * Load all frames or only the one(s) current visible
+     */
+    public void setLoadFramesMode(FramesLoadMode mode) {
+        // If we changed the frame mode we may need to refresh the priorities
+        final ChangeSet changes = new ChangeSet();
+        if (setLoadFramesModeNative(mode.ordinal(), changes) && samplingLayer != null) {
+            final QuadSamplingLayer layer = getSamplingLayer();
+            if (layer != null && layer.layerThread != null) {
+                layer.layerThread.addChanges(changes);
+            } else {
+                changes.discard();
+            }
+        } else {
+            changes.discard();
+        }
+    }
+
+    /**
+     * Get the current enable status
+     */
+    public native boolean getEnabled();
+    /**
+     * Enable or disable the loader
+     */
+    public void setEnabled(boolean b) {
+        if (setEnabledNative(b)) {
+            final QuadSamplingLayer layer = getSamplingLayer();
+            if (layer != null && layer.layerThread != null) {
+                final ChangeSet changes = new ChangeSet();
+                changes.addFlush();
+                layer.layerThread.addChanges(changes);
+            }
+        }
+    }
+    private native boolean setEnabledNative(boolean b);
+
+    protected native int getLoadFrameModeNative();
     protected native boolean setLoadFrameModeNative(int mode);
+    protected native int getLoadFramesModeNative();
+    protected native boolean setLoadFramesModeNative(int mode, ChangeSet changes);
     protected native void updatePriorities();
 
     /**
@@ -77,7 +138,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     public native void addFocus();
 
     /**
-     *   Return the number of focii.  Normally it's 1.
+     *   Return the number of foci.  Normally it's 1.
      *
      *   See addFocus for what these are.  You probably don't need to be using them.
      */
@@ -91,8 +152,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      * <br>
      * This value is used once per frame, so feel free to call this as much as you'd like.
      */
-    public void setCurrentImage(double where)
-    {
+    public void setCurrentImage(double where) {
         setCurrentImage(0,where);
     }
 
@@ -103,20 +163,13 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      */
     public void setCurrentImage(int focusID,double where)
     {
-//        double curFrame = std::min(std::max(where,0.0),(double)([loader->frameInfos count]-1));
-        double curFrame = Math.min(Math.max(where,0.0),(double)(tileInfos.length-1));
-
+        final double curFrame = Math.min(Math.max(where, 0.0), tileInfos.length - 1);
         if (setCurrentImageNative(focusID,where) && samplingLayer != null) {
             // setCurrentImage tells us if we changed the actual image
-            QuadSamplingLayer layer = samplingLayer.get();
-            if (layer == null || layer.layerThread == null)
-                return;
-            layer.layerThread.addTask(new Runnable() {
-                @Override
-                public void run() {
-                    updatePriorities();
-                }
-            });
+            final QuadSamplingLayer layer = getSamplingLayer();
+            if (layer != null && layer.layerThread != null) {
+                layer.layerThread.addTask(this::updatePriorities);
+            }
         }
     }
 
@@ -125,8 +178,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     /**
      *   Return the interpolated location within the array of frames.
      */
-    public double getCurrentImage()
-    {
+    public double getCurrentImage() {
         return getCurrentImage(0);
     }
 
@@ -142,6 +194,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      *  to be in memory before it will display a frame at all.  You can turn this off.
      */
     public native void setRequireTopTiles(boolean newVal);
+    public native boolean getRequireTopTiles();
 
     /**
      *  An optional render target for this loader.
@@ -151,8 +204,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      *
      *  This version takes a specific focus.  See addFocus for what that means.
      */
-    public void setRenderTarget(int focusID,RenderTarget renderTarget)
-    {
+    public void setRenderTarget(int focusID,RenderTarget renderTarget) {
         setRenderTargetIDNative(focusID,renderTarget.renderTargetID);
     }
 
@@ -171,8 +223,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      *
      *  Consult addFocus for what this means.
      */
-    public void setShader(int focusID,Shader shader)
-    {
+    public void setShader(int focusID,Shader shader) {
         setShaderIDNative(focusID,(shader != null) ? shader.getID() : 0);
     }
 
@@ -192,6 +243,12 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
         super.changeTileInfo(newTileInfo);
     }
 
+    /**
+     * Set a label to be displayed in debug output for this loader
+     */
+    public native void setLabel(@Nullable String label);
+    @Nullable public native String getLabel();
+
     @Override
     public void shutdown() {
         valid = false;
@@ -202,7 +259,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     /**
      * The Maply Quad Image Frame Loader can generation per-frame stats.  These are them.
      */
-    public class FrameStats
+    public static class FrameStats
     {
         /**
          * Number of tiles this frame is in (loading and loaded)
@@ -218,7 +275,7 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
     /**
      * Stats generated by the Maply Quad Image Frame Loader.
      */
-    public class Stats
+    public static class Stats
     {
         /**
          * Total number of tiles managed by the loader
@@ -236,14 +293,14 @@ public class QuadImageFrameLoader extends QuadImageLoaderBase
      */
     public Stats getStats()
     {
-        int numFrames = getNumFrames();
+        final int numFrames = getNumFrames();
         if (numFrames == 0)
             return null;
 
-        Stats stats = new Stats();
+        final Stats stats = new Stats();
         stats.frameStats = new FrameStats[numFrames];
-        int totalTiles[] = new int[numFrames];
-        int tilesToLoad[] = new int[numFrames];
+        final int[] totalTiles = new int[numFrames];
+        final int[] tilesToLoad = new int[numFrames];
 
         // Fetch the data like this because I'm lazy
         stats.numTiles = getStatsNative(totalTiles, tilesToLoad);

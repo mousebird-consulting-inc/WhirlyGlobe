@@ -27,11 +27,7 @@ static bool ErrorsOn = true;
 static bool ErrorsOn = false;
 #endif
 
-# if !defined(STRINGIFY) && !defined(_STRINGIFY)
-#  define STRINGIFY_(x) #x
-#  define STRINGIFY(x) STRINGIFY_(x)
-# endif
-#define MapCode(X) case X: return STRINGIFY(X);
+#define MapCode(X) case X: return #X;
 static const char *ErrorCodeStr(GLenum code)
 {
 

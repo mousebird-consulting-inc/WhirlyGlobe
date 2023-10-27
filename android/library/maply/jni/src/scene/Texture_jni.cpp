@@ -1,5 +1,4 @@
-/*
- *  Texture_jni.cpp
+/*  Texture_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <android/bitmap.h>
@@ -24,14 +22,16 @@
 
 using namespace WhirlyKit;
 
-template<> TextureClassInfo *TextureClassInfo::classInfoObj = NULL;
+template<> TextureClassInfo *TextureClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	TextureClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_initialise
   (JNIEnv *env, jobject obj)
 {
@@ -40,43 +40,33 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_initialise
 		Texture *tex = new TextureGLES("jni");
 		TextureClassInfo::getClassInfo()->setHandle(env,obj,tex);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::initialise()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_dispose
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
 		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-        {
-            std::lock_guard<std::mutex> lock(disposeMutex);
-            Texture *tex = classInfo->getObject(env,obj);
-            if (!tex)
-                return;
-            delete tex;
-
-            classInfo->clearHandle(env,obj);
-        }
+		std::lock_guard<std::mutex> lock(disposeMutex);
+		Texture *tex = classInfo->getObject(env,obj);
+		delete tex;
+		classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
-JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmapNative
   (JNIEnv *env, jobject obj, jobject bitmapObj, jint format)
 {
 	try
 	{
-		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-		Texture *tex = classInfo->getObject(env,obj);
+		Texture *tex = TextureClassInfo::get(env,obj);
 		if (!tex)
 			return false;
 
@@ -96,7 +86,8 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 			// Make a copy
 			auto rawData = new MutableRawData(bitmapPixels, info.height * info.width * 4);
 			// takes ownership
-			tex->setRawData(rawData, (int)info.width, (int)info.height, 8, 4);
+			tex->setRawData(std::move(rawData), (int)info.width, (int)info.height, 8, 4);
+			tex->setFormat((TextureType)format);
 		}
 		catch (...)
 		{
@@ -108,78 +99,122 @@ JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_Texture_setBitmap
 
 		return true;
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::setBitmap()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 	return false;
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSize
-(JNIEnv *env, jobject obj, jint sizeX, jint sizeY)
+  (JNIEnv *env, jobject obj, jint sizeX, jint sizeY)
 {
     try
     {
-        TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-        Texture *tex = classInfo->getObject(env,obj);
-        if (!tex)
-            return;
-
-        tex->setWidth(sizeX);
-        tex->setHeight(sizeY);
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			tex->setWidth(sizeX);
+			tex->setHeight(sizeY);
+		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::setSize()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setIsEmpty
-(JNIEnv *env, jobject obj, jboolean isEmpty)
+  (JNIEnv *env, jobject obj, jboolean isEmpty)
 {
     try
     {
-        TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-        Texture *tex = classInfo->getObject(env,obj);
-        if (!tex)
-            return;
-
-        tex->setIsEmptyTexture(isEmpty);
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			tex->setIsEmptyTexture(isEmpty);
+		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::setIsEmpty()");
-    }
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setSettings
-(JNIEnv *env, jobject obj, jboolean wrapU, jboolean wrapV)
+  (JNIEnv *env, jobject obj, jboolean wrapU, jboolean wrapV)
 {
-    TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-    Texture *tex = classInfo->getObject(env,obj);
-    if (!tex)
-        return;
-    
-    tex->setWrap(wrapU,wrapV);
+	try
+	{
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			tex->setWrap(wrapU, wrapV);
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
 }
 
+extern "C"
 JNIEXPORT jlong JNICALL Java_com_mousebird_maply_Texture_getID
   (JNIEnv *env, jobject obj)
 {
 	try
 	{
-		TextureClassInfo *classInfo = TextureClassInfo::getClassInfo();
-		Texture *tex = classInfo->getObject(env,obj);
-		if (!tex)
-			return EmptyIdentity;
-
-		return tex->getId();
+		if (Texture *tex = TextureClassInfo::get(env,obj))
+		{
+			return tex->getId();
+		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in Texture::getID()");
-	}
-    
+	MAPLY_STD_JNI_CATCH()
     return EmptyIdentity;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setFormatNative
+  (JNIEnv *env, jobject obj, jint fmt)
+{
+	try
+	{
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			tex->setFormat((TextureType)fmt);
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_Texture_getFormatNative
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			return tex->getFormat();
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return -1;
+}
+
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_Texture_setFilterTypeNative
+		(JNIEnv *env, jobject obj, jint type)
+{
+	try
+	{
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			tex->setInterpType((TextureInterpType)type);
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
+JNIEXPORT jint JNICALL Java_com_mousebird_maply_Texture_getFilterTypeNative
+		(JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (Texture *tex = TextureClassInfo::get(env, obj))
+		{
+			return tex->getInterpType();
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return -1;
 }

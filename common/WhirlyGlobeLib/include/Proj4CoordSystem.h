@@ -26,9 +26,7 @@ namespace WhirlyKit
   */
 struct Proj4CoordSystem : public CoordSystem
 {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    
-    /// Construct with a proj4 string to be passed to proj.4 (duh)
+    /// Construct with a proj4 string to be passsed to proj.4 (duh)
     Proj4CoordSystem(std::string proj4Str);
     Proj4CoordSystem(const Proj4CoordSystem &);
     Proj4CoordSystem(Proj4CoordSystem &&);
@@ -58,9 +56,9 @@ struct Proj4CoordSystem : public CoordSystem
     virtual bool isSameAs(const CoordSystem *coordSys) const override;
     
     /// Check that it actually created the pj structures
-    bool isValid() const override;
-    
-private:
+    virtual bool isValid() const override { return pj && pj_latlon && pj_geocentric; }
+
+protected:
     void init();
 
 protected:
@@ -73,5 +71,5 @@ protected:
     std::string proj4Str;
     mutable std::mutex mutex;
 };
-    
+
 }

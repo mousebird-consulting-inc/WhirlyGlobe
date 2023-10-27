@@ -270,6 +270,10 @@ using namespace WhirlyKit;
             wkLogLevel(Warn, "Failed to read PNG (err %d: %s) for %d:(%d,%d) frame %d",
                        err, errStr.c_str(), loadReturn.tileID.level,
                        loadReturn.tileID.x,loadReturn.tileID.y,loadReturn.frame);
+            if (outData)
+            {
+                free(outData);
+            }
             continue;
         }
 

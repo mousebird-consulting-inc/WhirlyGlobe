@@ -95,14 +95,15 @@ public class MapGestureHandler
 	 * Check that a given position will be within the given bounds.
 	 * This is used by the various gestures for bounds checking.
 	 *
-	 * @param newLocalPos Position we're to check.
+	 * @param newLocalPos [IN/OUT] Position we're to check, modified with corrected position at edges
 	 * @param bounds Bounding box, probably from the maplyControl.
 	 * @return true if the new point is within the valid area.
 	 */
 	public static boolean withinBounds(MapView mapView,Point2d frameSize,Point3d newLocalPos,Point2d[] bounds)
 	{
-		if (bounds == null)
+		if (mapView == null || frameSize == null || newLocalPos == null || bounds == null || bounds.length < 4) {
 			return true;
+		}
 
 		// We make a copy of the map view so we can mess with it
 		final MapView thisMapView = mapView.clone();
@@ -115,29 +116,33 @@ public class MapGestureHandler
 			new Point2d(0.0, frameSize.getY()),
 		};
 
+		// Wrapping map with no east-west bound is signaled with MAXFLOAT for the X coordinates,
+		// but `ClosestPointToPolygon` breaks down and the precision of the intersect point is very
+		// low in that case, leading to large left-right jumps when hitting an edge.
+		// Construct a temporary local bounding box with more reasonable "far off" bounds.
+		final double xLimit = 1000.0; // maybe this should come from the coord system?
+		final Point2d[] localBounds = new Point2d[] {
+			new Point2d(Double.max(-xLimit, Double.min(xLimit, bounds[0].getX())), bounds[0].getY()),
+			new Point2d(Double.max(-xLimit, Double.min(xLimit, bounds[1].getX())), bounds[1].getY()),
+			new Point2d(Double.max(-xLimit, Double.min(xLimit, bounds[2].getX())), bounds[2].getY()),
+			new Point2d(Double.max(-xLimit, Double.min(xLimit, bounds[3].getX())), bounds[3].getY()),
+		};
+
 		Point2d locOffset = new Point2d(0,0);
 		for (int tests=0;tests<4;tests++) {
-			final Point3d testLoc = new Point3d(newLocalPos.getX()+locOffset.getX(),
-			                                    newLocalPos.getY()+locOffset.getY(),
-			                                     newLocalPos.getZ());
-			thisMapView.setLoc(testLoc);
-
+			final Point3d testLoc = newLocalPos.addTo(locOffset.withZ(0.0));
+			thisMapView.setLoc(testLoc,false);
 			final Matrix4d fullMatrix = thisMapView.calcModelViewMatrix();
 
 			boolean checkOkay = true;
+			final Point2d closePt = new Point2d(0, 0);
 			for (int ii = 0; ii < 4; ii++) {
-				final Point3d hit = thisMapView.pointOnPlaneFromScreen(corners[ii], fullMatrix, frameSize, false);
-				final Point2d hit2d = new Point2d(hit.getX(), hit.getY());
-				if (!GeometryUtils.PointInPolygon(hit2d, bounds)) {
-					final Point2d closePt = new Point2d(0, 0);
-					final double dist = GeometryUtils.ClosestPointToPolygon(bounds,hit2d,closePt);
+				final Point2d hit = thisMapView.pointOnPlaneFromScreen(corners[ii], fullMatrix, frameSize, false).xy();
+				if (!GeometryUtils.PointInPolygon(hit, bounds)) {
+					final double dist = GeometryUtils.ClosestPointToPolygon(localBounds,hit,closePt);
 					if (dist != Double.MAX_VALUE) {
-						final Point2d thisOffset = new Point2d(1.01 * (closePt.getX() - hit2d.getX()),
-						                                       1.01 * (closePt.getY() - hit2d.getY()));
-
-						locOffset = locOffset.addTo(thisOffset);
+						locOffset = locOffset.addTo(closePt.subtract(hit).multiplyBy(1.001));
 						checkOkay = false;
-
 						break;
 					}
 				}

@@ -1,5 +1,4 @@
-/*
- *  MaplyVariableTarget.java
+/*  MaplyVariableTarget.java
  *  WhirlyGlobe-MaplyComponent
  *
  *  Created by Steve Gifford on 6/24/18.
@@ -15,27 +14,35 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
+import com.mousebird.maply.RenderControllerInterface.ThreadMode;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+
+import androidx.annotation.ColorInt;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A variable target manages two pass rendering for one type of variable.
  */
+@SuppressWarnings("unused")
 public class VariableTarget
 {
     public boolean valid = true;
     protected boolean setup = false;
 
-    WeakReference<RenderControllerInterface> vc = null;
+    WeakReference<RenderControllerInterface> vc;
 
     /**
      * A plausible draw priority for render targets.
@@ -46,19 +53,14 @@ public class VariableTarget
     /**
      * This version can be set up explicitly later.
      */
-    public VariableTarget(RenderControllerInterface inVc,boolean setupNow) {
-        vc = new WeakReference<RenderControllerInterface>(inVc);
+    public VariableTarget(RenderControllerInterface inVc, boolean setupNow) {
+        vc = new WeakReference<>(inVc);
         renderTarget = new RenderTarget();
 
         if (setupNow) {
-            Handler handler = new Handler(Looper.getMainLooper());
-            handler.post(new Runnable() {
-                @Override
-                public void run() {
-                    if (!valid)
-                        return;
-
-                    delayedSetup();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (valid) {
+                    setup();
                 }
             });
         }
@@ -80,6 +82,7 @@ public class VariableTarget
     /**
      * Color of the rectangle used to draw the render target
      */
+    @ColorInt
     public int color = Color.WHITE;
 
     /**
@@ -87,26 +90,61 @@ public class VariableTarget
      */
     public int drawPriority = VariableTargetDrawPriority;
 
-    public RenderController.ImageFormat imageFormat = RenderController.ImageFormat.MaplyImage4Layer8Bit;
+    /**
+     * Pixel format for the render target texture
+     */
+    public RenderController.ImageFormat imageFormat =
+            RenderController.ImageFormat.MaplyImage4Layer8Bit;
 
-    Shader shader = null;
+    /**
+     * Texture filtering setting for the render target texture
+     */
+    public RenderControllerInterface.TextureSettings.FilterType filterType =
+            RenderControllerInterface.TextureSettings.FilterType.FilterLinear;
+
+    private Shader shader = null;
+
+    public Shader getShader() { return shader; }
 
     /**
      * Set the shader to use on the rectangle we render to.
      */
     public void setShader(Shader inShader) {
-        if (setup)
-            return;
-
-        shader = inShader;
+        if (!setup) {
+            shader = inShader;
+        } else if (inShader != shader) {
+            Log.w("Maply", "VariableTarget shader cannot be changed after setup");
+        }
     }
 
-    /** By default we'll build a rectangle to display the target
+    /**
+     * By default we'll build a rectangle to display the target
      */
     public boolean buildRectangle = true;
 
+    private boolean rectangleEnabled = true;
+
+    public boolean getRectangleEnabled() { return rectangleEnabled; }
+    public void setRectangleEnabled(boolean b) { enableRectangle(b, ThreadMode.ThreadCurrent); }
+
+    /**
+     * Show or hide the rectangle, if it was or will be built
+     */
+    public void enableRectangle(boolean enable, ThreadMode mode) {
+        rectangleEnabled = enable;
+
+        final RenderControllerInterface viewC = vc.get();
+        if (valid && setup && viewC != null && compObj != null) {
+            if (rectangleEnabled) {
+                viewC.enableObjects(Collections.singletonList(compObj), ThreadMode.ThreadCurrent);
+            } else {
+                viewC.disableObjects(Collections.singletonList(compObj), ThreadMode.ThreadCurrent);
+            }
+        }
+    }
+
     // Other variable targets we're hooking up to
-    private ArrayList<VariableTarget> auxTargets = new ArrayList<VariableTarget>();
+    private ArrayList<VariableTarget> auxTargets = new ArrayList<>();
 
     /**
      * Passing in another variable target will let us assign that target to the
@@ -120,7 +158,7 @@ public class VariableTarget
 
 
     protected MaplyTexture renderTex = null;
-    public RenderTarget renderTarget = null;
+    public RenderTarget renderTarget;
     public ComponentObject compObj = null;
 
     /**
@@ -137,26 +175,27 @@ public class VariableTarget
      * Call setup explicitly after setting values.
      */
     public void setup() {
-        if (setup)
-            return;
-        delayedSetup();
+        if (!setup) {
+            delayedSetup();
+        }
     }
 
     // We let the setup go a tick so the caller and set settings
     protected void delayedSetup() {
+        final RenderControllerInterface viewC = vc.get();
+        if (!valid || setup || viewC == null) {
+            return;
+        }
         setup = true;
 
-        if (vc.get() == null)
-            return;
-
         // Set up the texture and render target
-        RenderControllerInterface viewC = vc.get();
-        int[] frameSize = viewC.getFrameBufferSize();
+        final int[] frameSize = viewC.getFrameBufferSize();
         frameSize[0] = (int)((double)frameSize[0] * scale);
         frameSize[1] = (int)((double)frameSize[1] * scale);
 
-        RenderControllerInterface.TextureSettings settings = new RenderControllerInterface.TextureSettings();
+        final RenderControllerInterface.TextureSettings settings = new RenderControllerInterface.TextureSettings();
         settings.imageFormat = imageFormat;
+        settings.filterType = filterType;
         renderTex = viewC.createTexture(frameSize[0], frameSize[1],settings, RenderControllerInterface.ThreadMode.ThreadCurrent);
         renderTarget.texture = renderTex;
         renderTarget.clearEveryFrame = clearEveryFrame;
@@ -170,26 +209,28 @@ public class VariableTarget
 
         if (buildRectangle) {
             // Rectangle that sits over the view and pulls from the render target
-            ShapeRectangle rect = new ShapeRectangle();
+            final ShapeRectangle rect = new ShapeRectangle();
             rect.setPoints(new Point3d(-1.0, -1.0, 0.0), new Point3d(1.0, 1.0, 0.0));
             rect.setClipCoords(true);
             rect.addTexture(renderTex);
             for (VariableTarget target : auxTargets) {
                 // Bit if a cheat, but it should be fine
-                if (target.renderTex == null)
+                if (target.renderTex == null) {
                     target.delayedSetup();
+                }
                 rect.addTexture(target.renderTex);
             }
-            ArrayList<Shape> shapes = new ArrayList<Shape>();
+            final ArrayList<Shape> shapes = new ArrayList<>();
             shapes.add(rect);
 
-            ShapeInfo shapeInfo = new ShapeInfo();
+            final ShapeInfo shapeInfo = new ShapeInfo();
+            shapeInfo.setEnable(rectangleEnabled);
             shapeInfo.setColor(color);
             shapeInfo.setDrawPriority(drawPriority);
             shapeInfo.setShader(shader);
             shapeInfo.setZBufferRead(false);
             shapeInfo.setZBufferWrite(false);
-            compObj = viewC.addShapes(shapes, shapeInfo, RenderControllerInterface.ThreadMode.ThreadCurrent);
+            compObj = viewC.addShapes(shapes, shapeInfo, ThreadMode.ThreadCurrent);
         }
         auxTargets = null;
     }
@@ -200,23 +241,20 @@ public class VariableTarget
     public void shutdown()
     {
         valid = false;
-
-        if (vc.get() == null)
-            return;
-        RenderControllerInterface viewC = vc.get();
-
-        if (compObj != null) {
-            viewC.removeObject(compObj,RenderControllerInterface.ThreadMode.ThreadAny);
-            compObj = null;
+        final RenderControllerInterface viewC = vc.get();
+        if (viewC != null) {
+            if (compObj != null) {
+                viewC.removeObject(compObj, ThreadMode.ThreadAny);
+            }
+            if (renderTarget != null) {
+                viewC.removeRenderTarget(renderTarget);
+            }
+            if (renderTex != null) {
+                viewC.removeTexture(renderTex, ThreadMode.ThreadAny);
+            }
         }
-        if (renderTarget != null) {
-            viewC.removeRenderTarget(renderTarget);
-            renderTarget = null;
-        }
-        if (renderTex != null) {
-            viewC.removeTexture(renderTex,RenderControllerInterface.ThreadMode.ThreadAny);
-            renderTex = null;
-        }
+        compObj = null;
+        renderTarget = null;
+        renderTex = null;
     }
-
 }

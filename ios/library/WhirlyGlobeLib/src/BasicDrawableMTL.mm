@@ -458,6 +458,9 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
         if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
             
+            vertTexInfo->clear();
+            fragTexInfo->clear();
+            
             int numEntries = texInfo.size();
             if (prog && !prog->textures.empty()) {
                 int maxTex = -1;
@@ -713,9 +716,22 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MT
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
     }
+    if (!sceneRender->textureArgumentBuffers) {
+        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+            if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii] )
+                [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+        }
+    }
+    
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
+    }
+    if (!sceneRender->textureArgumentBuffers) {
+        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+            if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii])
+                [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+        }
     }
 
     // Render the primitives themselves

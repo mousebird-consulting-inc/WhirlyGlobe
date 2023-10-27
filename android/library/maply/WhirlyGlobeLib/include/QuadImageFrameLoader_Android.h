@@ -30,61 +30,70 @@ class QuadImageFrameLoader_Android;
 class QIFBatchOps_Android : public QIFBatchOps
 {
 public:
-    QIFBatchOps_Android(PlatformInfo_Android *threadInfo);
+    QIFBatchOps_Android(PlatformInfo_Android *, jobject jobj);
     virtual ~QIFBatchOps_Android();
 
-public:
-    // Pointer to the Java side of things
-    jobject batchOpsObj;
+    // Returns a strong local reference
+    jobject getBatchOpsObj(PlatformInfo_Android *) const;
+    void setBatchOpsObj(PlatformInfo_Android *, jobject obj);
+
+protected:
+    // Weak pointer to the Java side of things
+    jobject batchOpsObj = nullptr;
 };
 
 // Android version of the frame asset
 class QIFFrameAsset_Android : public QIFFrameAsset
 {
 public:
-    QIFFrameAsset_Android(PlatformInfo_Android *threadInfo,QuadFrameInfoRef frameInfo);
+    QIFFrameAsset_Android(PlatformInfo_Android *,QuadFrameInfoRef frameInfo, jobject jobj = nullptr);
     virtual ~QIFFrameAsset_Android();
 
     // Clear out the texture and d
-    virtual void clear(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;
+    virtual void clear(PlatformThreadInfo *,QuadImageFrameLoader *loader,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
     // Update priority for an existing fetch request
-    virtual bool updateFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
+    virtual bool updateFetching(PlatformThreadInfo *,QuadImageFrameLoader *loader,int newPriority,double newImportance) override;
 
     // Cancel an outstanding fetch
-    virtual void cancelFetch(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
+    virtual void cancelFetch(PlatformThreadInfo *,QuadImageFrameLoader *loader,QIFBatchOps *batchOps) override;
 
     // Keep track of the texture ID
-    virtual void loadSuccess(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
+    virtual void loadSuccess(PlatformThreadInfo *,QuadImageFrameLoader *loader,const std::vector<Texture *> &texs) override;
 
     // Clear out state
-    virtual void loadFailed(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader) override;
+    virtual void loadFailed(PlatformThreadInfo *,QuadImageFrameLoader *loader) override;
 
 public:
     // Cancel the fetch (with the tile fetcher) on the Java side
-    void cancelFetchJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+    void cancelFetchJava(PlatformInfo_Android *,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
     // Dispose of the Java side frame asset object and cancel any fetches
-    void clearFrameAssetJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
+    void clearFrameAssetJava(PlatformInfo_Android *,QuadImageFrameLoader_Android *loader,QIFBatchOps_Android *batchOps);
     // Clear the reference to a fetch request
-    void clearRequestJava(PlatformInfo_Android *threadInfo,QuadImageFrameLoader_Android *loader);
+    void clearRequestJava(PlatformInfo_Android *,QuadImageFrameLoader_Android *loader);
 
-    jobject frameAssetObj;
+    jobject getFrameAssetObj() const { return frameAssetObj; }
+    void setFrameAssetObj(jobject obj);
+
+protected:
+    jobject frameAssetObj = nullptr;
 };
+using QIFFrameAsset_AndroidRef = std::shared_ptr<QIFFrameAsset_Android>;
 
 // Android version of the tile asset keeps the platform specific stuff around
 class QIFTileAsset_Android : public QIFTileAsset
 {
 public:
-    QIFTileAsset_Android(PlatformInfo_Android *threadInfo,const QuadTreeNew::ImportantNode &ident);
-    virtual ~QIFTileAsset_Android();
+    QIFTileAsset_Android(PlatformInfo_Android *,const QuadTreeNew::ImportantNode &ident);
+    virtual ~QIFTileAsset_Android() = default;
 
     // Fetch the tile frames.  Just fetch them all for now.
-    virtual void startFetching(PlatformThreadInfo *threadInfo,QuadImageFrameLoader *loader,
+    virtual void startFetching(PlatformThreadInfo *,QuadImageFrameLoader *loader,
                                const QuadFrameInfoRef &frameToLoad,QIFBatchOps *batchOps,ChangeSet &changes) override;
 
 protected:
     // Specialized frame asset
-    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *threadInfo,const QuadFrameInfoRef &frameInfo,QuadImageFrameLoader *) override;
+    virtual QIFFrameAssetRef makeFrameAsset(PlatformThreadInfo *,const QuadFrameInfoRef &frameInfo,QuadImageFrameLoader *) override;
 };
 
 // Android version of the QuadFrameLoader
@@ -100,7 +109,9 @@ public:
     virtual int getNumFrames() const override { return numFrames; }
 
     jobject getFrameLoaderObj() const { return frameLoaderObj; }
-    void setFrameLoaderObj(jobject obj) { frameLoaderObj = obj; }
+    void setFrameLoaderObj(jobject obj) { oldFrameLoaderObj = frameLoaderObj; frameLoaderObj = obj; }
+
+    jobject oldFrameLoaderObj = nullptr;
 
     virtual void teardown(PlatformThreadInfo*) override;
 

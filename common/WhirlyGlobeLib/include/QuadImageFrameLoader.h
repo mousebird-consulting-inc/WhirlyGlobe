@@ -24,6 +24,8 @@ namespace WhirlyKit
 {
 
 class QuadImageFrameLoader;
+struct TileInfo;
+using TileInfoRef = std::shared_ptr<TileInfo>;
 
 // We store cancels and adds to do them all at once
 // The subclass passes its own version of this around
@@ -337,7 +339,7 @@ public:
 
     QuadImageFrameLoader(const SamplingParams &, Mode, FrameLoadMode = FrameLoadMode::All);
     virtual ~QuadImageFrameLoader() = default;
-    
+
     /// Add a focus
     void addFocus();
     
@@ -357,6 +359,7 @@ public:
 
     /// Turn the display on or off.  Loading continues normally
     void setMasterEnable(bool newEnable) { masterEnable = newEnable; }
+    bool getMasterEnable() const { return masterEnable; }
     
     /// Set loading mode to Broad (load lowest level first) and Narrow (load current frame first)
     void setLoadMode(LoadMode newMode);
@@ -389,6 +392,7 @@ public:
 
     /// Set if we need the top tiles to load before we'll display a frame
     virtual void setRequireTopTilesLoaded(bool newVal) { requiringTopTilesLoaded = newVal; }
+    virtual bool getRequireTopTilesLoaded() const { return requiringTopTilesLoaded; }
 
     /// Return the quad display controller this is attached to
     QuadDisplayControllerNew *getController() const { return control; }
@@ -412,14 +416,26 @@ public:
 
     /// In-memory texture type
     void setTexType(TextureType type) { texType = type; }
+    TextureType getTexType() const { return texType; }
+
+    // For "single byte" formats, set which channel is used
     void setTexByteSource(WKSingleByteSource src) { texByteSource = src; }
-    
+    WKSingleByteSource getTexByteSource() const { return texByteSource; }
+
+    /// Texture interpolation type
+    void setTexInterp(TextureInterpType type) { texInterpType = type; }
+    TextureInterpType getTexInterp() const { return texInterpType; }
+
     /// If we're using border pixels, set the individual texture size and border size
     void setTexSize(int texSize,int borderSize);
     
     /// Control draw priority assigned to basic drawable instances
     void setBaseDrawPriority(int newPrior) { baseDrawPriority = newPrior; }
+    int getBaseDrawPriority() const { return baseDrawPriority; }
+
+    /// Control the priority added to each level (keeping more detailed levels on top)
     void setDrawPriorityPerLevel(int newPrior) { drawPriorityPerLevel = newPrior; }
+    int getDrawPriorityPerLevel() const { return drawPriorityPerLevel; }
 
     /// What part of the animation we're displaying.
     /// If the frame loading mode is set to `Current`, you will need to refresh the appropriate frame(s) manually.
@@ -571,6 +587,8 @@ public:
     SimpleIdentity addLoadingDelegate(LoadingDelegate);
     void removeLoadingDelegate(SimpleIdentity);
 
+    virtual void setTileInfos(std::vector<TileInfoRef>) { }
+
 public:
     ComponentManagerRef compManager;
 
@@ -600,6 +618,7 @@ protected:
     virtual void removeTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::Node &ident, QIFBatchOps *batchOps, ChangeSet &changes);
     QIFTileAssetRef addNewTile(PlatformThreadInfo *threadInfo,const QuadTreeNew::ImportantNode &ident,QIFBatchOps *batchOps,ChangeSet &changes);
 
+protected:
     Mode mode;
     LoadMode loadMode = LoadMode::Narrow;
     FrameLoadMode frameLoadMode = FrameLoadMode::All;
@@ -617,6 +636,7 @@ protected:
     
     TextureType texType = TexTypeUnsignedByte;
     WKSingleByteSource texByteSource = WKSingleRGB;
+    TextureInterpType texInterpType = TexInterpLinear;
 
     int texSize = 0;
     int borderSize = 0;

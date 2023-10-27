@@ -36,7 +36,6 @@ struct Material;
 class Program : public Identifiable
 {
 public:
-    Program() = default;
     virtual ~Program() = default;
         
     /// Return true if it was built correctly
@@ -71,7 +70,12 @@ public:
     virtual ReduceMode getReduceMode() const;
 
     static SimpleIdentity NoProgramID;
-    
+
+protected:
+    Program() = default;
+    Program(std::string inName) : name(std::move(inName)) { }
+    Program(const char *inName) : name(inName ? inName : "") { }
+
 public:
     bool texturesChanged = true;
     bool valuesChanged = true;

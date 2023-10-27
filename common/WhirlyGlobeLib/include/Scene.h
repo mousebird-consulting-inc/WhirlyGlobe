@@ -50,8 +50,8 @@ class AddTextureReq : public ChangeRequest
 public:
     /// Construct with a texture.
     /// You are not responsible for deleting the texture after this.
-    AddTextureReq(TextureBase *tex) { texRef = TextureBaseRef(tex); }
-    AddTextureReq(TextureBaseRef texRef) : texRef(std::move(texRef)) { }
+    AddTextureReq(TextureBase *tex);
+    AddTextureReq(TextureBaseRef texRef);
     /// If the texture hasn't been added to the renderer, clean it up.
     virtual ~AddTextureReq() = default;
 
@@ -423,6 +423,7 @@ public:
 
     /// Look for a program by its name (last to first)
     Program *findProgramByName(const std::string &name);
+    ProgramRef findProgramRefByName(const std::string &name);
 
     /// For 2D maps we have an overlap margin based on what drawables may overlap the edges
     double getOverlapMargin() { return overlapMargin; }

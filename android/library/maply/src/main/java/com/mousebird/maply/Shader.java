@@ -20,6 +20,8 @@ package com.mousebird.maply;
 
 import android.util.Log;
 
+import androidx.annotation.Keep;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
@@ -40,7 +42,7 @@ import java.util.concurrent.Callable;
  * All of these are optional, but obviously nothing much will happen if you don't use the vertices.
  * 
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "UnusedReturnValue"})
 public class Shader
 {
 	WeakReference<RenderControllerInterface> control;
@@ -151,7 +153,7 @@ public class Shader
 	/**
 	 * Check if the shader is valid.
      * The shader setup can fail in a number of ways.  Check this after creating the shader
-	 * to see if it succeeded.  If not, look to <ref>getError</ref> to see why.
+	 * to see if it succeeded.
 	 */
 	public native boolean valid();
 
@@ -168,8 +170,7 @@ public class Shader
 	 * @param name Name to be used in the shader.
 	 * @param texture Texture to pass into the shader.
 	 */
-	public void addTexture(String name,MaplyTexture texture)
-	{
+	public void addTexture(String name,MaplyTexture texture) {
 		RenderControllerInterface theControl = control.get();
 		if (theControl != null) {
 			ChangeSet changes = new ChangeSet();
@@ -233,16 +234,14 @@ public class Shader
 	 * @param pt Point to set the uniform to.
      * @return Returns true if there was such a uniform, false otherwise.
 	 */
-	public boolean setUniform(String name,Point4d pt)
-	{
+	public boolean setUniform(String name,Point4d pt) {
 		return contextWrapped(() -> setUniformNative(name, pt.getX(), pt.getY(), pt.getZ(), pt.getW()));
 	}
 
 	/**
 	 * Set the 4 component color value for a uniform with the given index (e.g. it's an array)
 	 */
-	public boolean setUniformColorByIndex(String name,int color,int index)
-	{
+	public boolean setUniformColorByIndex(String name,int color,int index) {
 		return contextWrapped(() -> setUniformColorByIndexNative(name, color, index));
 	}
 
@@ -288,22 +287,26 @@ public class Shader
 		return false;
 	}
 
+	// Note: The caller must ensure that these are executed on the appropriate thread
+	//       and in the desired OpenGL context.  Use `contextWrapped`, above.
+
 	protected native void addTextureNative(ChangeSet changes,String name,long texID);
 	protected native boolean setUniformNative(String name,double uni);
+	protected native boolean setUniformNative(String name,float uni);
 	protected native boolean setUniformByIndexNative(String name,double uni,int index);
+	protected native boolean setUniformByIndexNative(String name,float uni,int index);
 	protected native boolean setUniformNative(String name,int uni);
+	protected native boolean setUniformNative(String name,boolean uni);
 	protected native boolean setUniformNative(String name,double uniX,double uniY);
 	protected native boolean setUniformNative(String name,double uniX,double uniY,double uniZ);
 	protected native boolean setUniformNative(String name,double uniX,double uniY,double uniZ,double uniW);
 	protected native boolean setUniformColorNative(String name,int color);
 	protected native boolean setUniformColorByIndexNative(String name,int color,int index);
 
-	static
-	{
+	static {
 		nativeInit();
 	}
-	public void finalize()
-	{
+	protected void finalize() {
 		dispose();
 	}
 	private static native void nativeInit();
@@ -311,6 +314,8 @@ public class Shader
 	native void initialise();
 	native void delayedSetupNative(String name,String vertexSrc,String fragSrc);
 	native void dispose();
+	@Keep
 	private long nativeHandle;
+	@Keep
 	private long nativeSceneHandle;
 }

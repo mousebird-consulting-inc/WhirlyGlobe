@@ -1,5 +1,4 @@
-/*
- *  CoordSystem.java
+/*  CoordSystem.java
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,32 +14,31 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 package com.mousebird.maply;
 
+import androidx.annotation.Keep;
+import androidx.annotation.Nullable;
+
 /**
- * The coord system is a very simple representation of the coordinate
- * systems supported by WhirlyGlobe-Maply. Very few moving parts are
- * accessible at this level.  In general, you'll want to instantiate
- * one of the subclasses and pass it around to Mapy objects as needed.
- *
+ * The coord system is a very simple representation of the coordinate systems supported by
+ * WhirlyGlobe-Maply. Very few moving parts are accessible at this level.  In general, you'll
+ * want to instantiate one of the subclasses and pass it around to Maply objects as needed.
  */
+@SuppressWarnings("unused")
 public class CoordSystem
 {
 	/**
 	 * Only ever called by the subclass.  Don't use this directly please.
 	 */
-	protected CoordSystem()
-	{
+	protected CoordSystem() {
 	}
 	
-	public void finalize()
-	{
+	protected void finalize() {
 		dispose();
 	}
-		
+
 	/**
 	 * Lower left corner of the bounding box in local coordinates.
 	 */
@@ -51,28 +49,52 @@ public class CoordSystem
 	public Point3d ur = null;
 
 	/**
-	 * Return the valid bounding box for the coordinate system.
+	 * Returns true if the corner points are set and not identical
+	 */
+	public boolean isValid() {
+		return (ll != null && ur != null && ll.getX() < ur.getX() && isValidNative());
+	}
+
+	private native boolean isValidNative();
+
+	/**
+	 * Return the valid bounding box for the coordinate system in local coordinates.
 	 * null means everywhere is valid.
      */
-	public Mbr getBounds()
-	{
+	public Mbr getBounds() {
 		return isValid() ? new Mbr(ll.getX(),ll.getY(), ur.getX(),ur.getY()) : null;
 	}
 
 	/**
-	 * Returns true if the corner points are set and not identical
-	 */
-	public boolean isValid() {
-		return (ll != null && ur != null && ll.getX() < ur.getX());
-	}
-	/**
-	 * Set the bounding box for the coordinate system.
-	 * @param mbr
+	 * Set the bounding box for the coordinate system in local coordinates.
      */
-	public void setBounds(Mbr mbr)
-	{
-		ll = new Point3d(mbr.ll.getX(),mbr.ll.getY(),0.0);
-		ur = new Point3d(mbr.ur.getX(),mbr.ur.getY(),0.0);
+	public void setBounds(Mbr mbr) {
+		if (mbr.isValid()) {
+			ll = mbr.ll.withZ(0);
+			ur = mbr.ur.withZ(0);
+		} else {
+			ll = ur = null;
+		}
+	}
+
+	/**
+	 * Get the bounds in geographic coordinates
+	 */
+	@Nullable
+	public Mbr getBoundsGeo() {
+		return isValid() ? new Mbr(localToGeographic(ll).xy(), localToGeographic(ur).xy()) : null;
+	}
+
+	/**
+	 * Set the bounds in geographic coordinates
+	 */
+	public void setBoundsGeo(@Nullable Mbr bound) {
+		if (bound != null && bound.isValid()) {
+			ll = geographicToLocal(bound.ll.withZ());
+			ur = geographicToLocal(bound.ur.withZ());
+		} else {
+			ll = ur = null;
+		}
 	}
 
 	/**
@@ -108,6 +130,16 @@ public class CoordSystem
 	public native Point3d geocentricToLocal(Point3d pt);
 
 	/**
+	 * Whether the coordinate system can span the anti-meridian
+	 */
+	public native boolean getCanBeWrapped();
+
+	/**
+	 * Set whether the coordinate system can span the anti-meridian
+	 */
+	public native void setCanBeWrapped(boolean b);
+
+	/**
 	 * Convert the coordinate between systems.
 	 * @param inSystem The system the coordinate is in.
 	 * @param outSystem The system the coordinate you want it in.
@@ -115,7 +147,7 @@ public class CoordSystem
      * @return Returns the coordinate in the outSystem.
      */
 	public static native Point3d CoordSystemConvert3d (CoordSystem inSystem, CoordSystem outSystem, Point3d inCoord);
-	
+
 	static
 	{
 		nativeInit();
@@ -123,5 +155,7 @@ public class CoordSystem
 	private static native void nativeInit();
 	native void initialise();
 	native void dispose();
+	@Keep
+	@SuppressWarnings("unused")
 	private long nativeHandle;
 }

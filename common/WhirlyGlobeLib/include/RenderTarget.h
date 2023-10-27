@@ -48,9 +48,6 @@ struct RenderTarget : public Identifiable
     /// Set up the target texture
     virtual bool setTargetTexture(SceneRenderer *renderer,Scene *scene,SimpleIdentity newTargetTexID) = 0;
 
-    /// Set the clear color
-    virtual void setClearColor(const RGBAColor &color) = 0;
-    
     /// If we're generating mipmaps for the render target, this is how
     virtual void setMipmap(RenderTargetMipmapType inMipmapType) { mipmapType = inMipmapType; }
     
@@ -71,7 +68,28 @@ struct RenderTarget : public Identifiable
     
     /// If we've asked for a min/max calculation, this is where we get it
     virtual RawDataRef snapshotMinMax() { return RawDataRef(); }
-    
+
+    virtual SimpleIdentity getTextureId() const { return EmptyIdentity; }
+
+    virtual bool getClearEveryFrame() const { return clearEveryFrame; }
+    virtual void setClearEveryFrame(bool value) { clearEveryFrame = value; }
+
+    virtual bool getEnableBlend() const { return blendEnable; }
+    virtual void setEnableBlend(bool value) { blendEnable = value; }
+
+    /// Get the clear color
+    virtual RGBAColor getClearColor() const { return RGBAColor::FromUnitFloats(&clearColor[0]); }
+
+    /// Set the clear color
+    virtual void setClearColor(const RGBAColor &color) { color.asUnitFloats(&clearColor[0]); }
+
+    virtual float getClearValue() const { return clearVal; }
+    virtual void setClearValue(float value) { clearVal = value; }
+
+    virtual RenderTargetMipmapType getMipmapType() const { return mipmapType; }
+
+    virtual bool getCalculateMinMax() const { return calcMinMax; }
+
     /// Output framebuffer size
     int width = 0;
     int height = 0;

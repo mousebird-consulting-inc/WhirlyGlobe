@@ -41,11 +41,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix4d_initialise
 		auto mat = new Matrix4d(Matrix4d::Identity());
 		Matrix4dClassInfo::getClassInfo()->setHandle(env,obj,mat);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix4d::initialise()");
-	}
-
+	MAPLY_STD_JNI_CATCH()
 }
 
 static std::mutex disposeMutex;
@@ -62,10 +58,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Matrix4d_dispose
 		delete inst;
 		classInfo->clearHandle(env,obj);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix4d::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 extern "C"
@@ -80,10 +73,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_inverse
 			return MakeMatrix4d(env,inst->inverse());
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix4d::inverse()");
-	}
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -98,10 +88,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_transpose
         	return MakeMatrix4d(env,inst->transpose());
 		}
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix4d::transpose()");
-    }
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -113,10 +100,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_translate
     {
         return MakeMatrix4d(env,Affine3d(Eigen::Translation3d(x,y,z)).matrix());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::translate()");
-    }
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -128,10 +112,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_scale
     {
         return MakeMatrix4d(env,Affine3d(Eigen::Scaling(x,y,z)).matrix());
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix3d::scale()");
-    }
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
@@ -150,20 +131,27 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_Matrix4d_multiply
 			return MakePoint4d(env,(*mat) * (*pt));
 		}
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_ERROR, "Maply", "Crash in Matrix4d::multiply()");
-	}
+	MAPLY_STD_JNI_CATCH()
     return nullptr;
 }
 
 jobject MakeMatrix4d(JNIEnv *env,const Eigen::Matrix4d &mat)
 {
-	// Make a Java Matrix4d
-	Matrix4dClassInfo *classInfo = Matrix4dClassInfo::getClassInfo(env,"com/mousebird/maply/Matrix4d");
-	jobject newObj = classInfo->makeWrapperObject(env,nullptr);
-	Eigen::Matrix4d *inst = classInfo->getObject(env,newObj);
-	*inst = mat;
-	return newObj;
+	try
+	{
+		// Make a Java Matrix4d
+		if (auto *classInfo = Matrix4dClassInfo::getClassInfo(env, "com/mousebird/maply/Matrix4d"))
+		if (jobject newObj = classInfo->makeWrapperObject(env, nullptr))
+		if (Eigen::Matrix4d *inst = classInfo->getObject(env, newObj))
+		{
+			*inst = mat;
+			return newObj;
+		}
+        // This seems to have happened because of a stack overflow.
+        // Let the JVM exception propagate back to the caller.
+		//logAndClearJVMException(env);
+	}
+	MAPLY_STD_JNI_CATCH()
+	return nullptr;
 }
 

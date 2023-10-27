@@ -31,8 +31,11 @@ public class ChangeSet
 	}
 	
 	// Add a texture to the list of changes to the scene
-	public native void addTexture(Texture texture,Scene scene,int filterType);
-	
+	public native void addTexture(Texture texture, Scene scene);
+
+	// Add a flush marker
+	public native void addFlush();
+
 	// Remove a texture from the scene by ID
 	public native void removeTexture(long texID);
 

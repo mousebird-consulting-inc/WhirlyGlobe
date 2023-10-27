@@ -1,5 +1,4 @@
-/*
- *  RawPNGImage.h
+/*  RawPNGImage.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 12/3/20.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import <vector>

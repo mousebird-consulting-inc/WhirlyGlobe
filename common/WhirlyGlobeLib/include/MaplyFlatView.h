@@ -52,7 +52,7 @@ public:
     virtual double maxHeightAboveSurface() const override;
     
     /// Set where the middle of the displayed region is.  Currently disabled.
-    void setLoc(const WhirlyKit::Point3d &newLoc);
+    void setLoc(const WhirlyKit::Point3d &loc, bool runUpdates) override;
 
     /// This view tries to display the given extents in display space
     void setExtents(const WhirlyKit::MbrD &inExtents);

@@ -1,5 +1,4 @@
-/*
- *  Renderer_jni.h
+/*  Renderer_jni.h
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 3/8/19.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "Maply_jni.h"
@@ -28,16 +26,55 @@ typedef JavaClassInfo<WhirlyKit::SingleVertexAttribute> SingleVertexAttributeCla
 
 namespace WhirlyKit {
 // Image type enum, corresponds to the same thing on the Java side
+// This should match RenderController.java and MaplyRenderController.h
 typedef enum {
     MaplyImageIntRGBA,
+
     MaplyImageUShort565,
     MaplyImageUShort4444,
     MaplyImageUShort5551,
-    MaplyImageUByteRed, MaplyImageUByteGreen, MaplyImageUByteBlue, MaplyImageUByteAlpha,
+
+    MaplyImageUByteRed,
+    MaplyImageUByteGreen,
+    MaplyImageUByteBlue,
+    MaplyImageUByteAlpha,
+
+    MaplyImageUByteRG,
     MaplyImageUByteRGB,
-    MaplyImageETC2RGB8, MaplyImageETC2RGBA8, MaplyImageETC2RGBPA8,
-    MaplyImageEACR11, MaplyImageEACR11S, MaplyImageEACRG11, MaplyImageEACRG11S,
-    MaplyImage4Layer8Bit
+
+    MaplyImageInt8,
+    MaplyImageUInt8,
+    MaplyImageDoubleInt8,
+    MaplyImageDoubleUInt8,
+
+    MaplyImageInt16,
+    MaplyImageUInt16,
+    MaplyImageDoubleInt16,
+    MaplyImageDoubleUInt16,
+
+    MaplyImageInt32,
+    MaplyImageUInt32,
+    MaplyImageDoubleInt32,
+    MaplyImageDoubleUInt32,
+    MaplyImageQuadUInt32,
+
+    MaplyImageSingleFloat16,
+    MaplyImageSingleFloat32,
+    MaplyImageDoubleFloat16,
+    MaplyImageDoubleFloat32,
+    MaplyImageQuadFloat16,
+    MaplyImageQuadFloat32,
+
+    MaplyImageETC2RGB8,
+    MaplyImageETC2RGBA8,
+    MaplyImageETC2RGBPA8,
+
+    MaplyImageEACR11,
+    MaplyImageEACR11S,
+    MaplyImageEACRG11,
+    MaplyImageEACRG11S,
+
+    MaplyImage4Layer8Bit,
 }
 MaplyImageType;
 
@@ -46,5 +83,7 @@ extern GLenum ImageFormatToGLenum(MaplyImageType format);
 
 // Convert the image type format to the texture type format
 TextureType ImageFormatToTexType(MaplyImageType format);
+MaplyImageType TexTypeToImageFormat(TextureType format);
+
 }
 

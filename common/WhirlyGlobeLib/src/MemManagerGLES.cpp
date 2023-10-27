@@ -22,6 +22,8 @@
 #import "UtilsGLES.h"
 #import "WhirlyKitLog.h"
 
+#import <array>
+
 namespace WhirlyKit
 {
 
@@ -160,20 +162,19 @@ GLuint OpenGLMemManager::getTexID()
     if (texIDs.empty())
     {
         constexpr auto count = WhirlyKitOpenGLMemCacheAllocUnit;
-        GLuint newAlloc[count] = {0};
-        glGenTextures(count, newAlloc);
+        std::array<GLuint, count> newAlloc;
+        glGenTextures(count, &newAlloc[0]);
         if (CheckGLError("OpenGLMemManager::getTexID glGenTextures"))
         {
-            texIDs.insert(&newAlloc[0], &newAlloc[count]);
+            texIDs.insert(newAlloc.begin(), newAlloc.end());
         }
     }
     
     GLuint which = 0;
     if (!texIDs.empty())
     {
-        auto it = texIDs.begin();
-        which = *it;
-        texIDs.erase(it);
+        which = *texIDs.begin();
+        texIDs.erase(texIDs.begin());
     }
     
     return which;

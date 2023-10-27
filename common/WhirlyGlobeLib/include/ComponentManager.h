@@ -132,16 +132,32 @@ public:
                                         bool disposeAfterRemoval = true);
 
     /// Enable/disable the contents of a Component Object
-    virtual void enableComponentObject(SimpleIdentity compID,bool enable,ChangeSet &changes, bool resolveReps = false);
+    virtual void enableComponentObject(SimpleIdentity compID,
+                                       bool enable,
+                                       ChangeSet &,
+                                       bool resolveReps = false);
 
     /// Enable/disable the contents of a Component Object
-    virtual void enableComponentObject(const ComponentObjectRef &compID, bool enable, ChangeSet &changes, bool resolveReps = false);
+    virtual void enableComponentObject(const ComponentObjectRef &,
+                                       bool enable,
+                                       ChangeSet &,
+                                       bool resolveReps = false);
 
     /// Enable/disable the contents of a collection of Component Objects
-    virtual void enableComponentObjects(const std::vector<ComponentObjectRef> &compIDs, bool enable, ChangeSet &changes, bool resolveReps = false);
+    virtual void enableComponentObjects(const std::vector<ComponentObjectRef> &,
+                                        bool enable,
+                                        ChangeSet &,
+                                        bool resolveReps = false);
 
-    /// Enable/disable a whole group of Component Objects
-    virtual void enableComponentObjects(const SimpleIDSet &compIDs,bool enable,ChangeSet &changes, bool resolveReps = false);
+    /// Enable/disable a whole group of Component Objects by ID
+    virtual void enableComponentObjects(const SimpleIDSet &compIDs,
+                                        bool enable,
+                                        ChangeSet &,
+                                        bool resolveReps = false);
+    virtual void enableComponentObjects(const SimpleIDUSet &compIDs,
+                                        bool enable,
+                                        ChangeSet &,
+                                        bool resolveReps = false);
 
     virtual void setRepresentation(const std::string &repName, const std::string &fallback,
                                    const std::vector<std::string> &uuids, ChangeSet &changes);
@@ -204,9 +220,12 @@ public:
     ParticleSystemManagerRef partSysManager;
 #endif //!MAPLY_MINIMAL
 
-protected:
     // Subclass fills this in
     virtual ComponentObjectRef makeComponentObject(const Dictionary *desc = nullptr) = 0;
+
+protected:
+    template<typename T>
+    void enableComponentObjects(T beg, T end, bool enable, ChangeSet &, bool resolveReps = false);
 
     void removeComponentObjects_NoLock(PlatformThreadInfo *threadInfo,
                                        const SimpleIDSet &compIDs,

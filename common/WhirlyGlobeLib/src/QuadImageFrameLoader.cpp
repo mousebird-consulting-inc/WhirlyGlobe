@@ -591,24 +591,24 @@ void QIFRenderState::updateScene(Scene *,
     lastRenderTime = now;
     lastCurFrames = curFrames;
     lastMasterEnable = masterEnable;
-    
+
     // We allow one or more points in the time slices where we're rendering
     // Useful if we're doing multi-stage rendering
     for (unsigned int focusID=0;focusID<curFrames.size();focusID++) {
-        double curFrame = curFrames[focusID];
-      
-//      if (curFrame != curFrame) {
-//        continue;
-//      }
-      
-        int activeFrames[2];
-        activeFrames[0] = floor(curFrame);
-        activeFrames[1] = ceil(curFrame);
+        const double curFrame = curFrames[focusID];
+
+        int activeFrames[2] = {
+            (int)floor(curFrame),
+            (int)ceil(curFrame),
+        };
         
-        // Figure out how many valid frames we've got to look at
+        // Figure out how many valid frames we've got to look at.
+        // GL (ES3?) shaders fail when they reference textures that aren't bound, even if that
+        // reference is not executed based on uniform conditions, so we always bind two or zero,
+        // even if those two are the same thing.
         int numFrames = 2;
         if (activeFrames[0] == activeFrames[1]) {
-            numFrames = 1;
+            //numFrames = 1;
         }
         // Make sure we've got full coverage on those frames
         if (numFrames > 1 && topTilesLoaded[activeFrames[0]] && topTilesLoaded[activeFrames[1]]) {
@@ -616,28 +616,24 @@ void QIFRenderState::updateScene(Scene *,
         } else if (topTilesLoaded[activeFrames[1]]) {
             // Just one valid frame
             activeFrames[0] = activeFrames[1];
-            numFrames = 1;
+            //numFrames = 1;
         } else {
             // Hunt for a good frame
-            numFrames = 1;
+            //numFrames = 1;
             bool foundOne = false;
-            for (int ii=0;ii<tilesLoaded.size();ii++) {
-                const int testFrame[2] = { activeFrames[0] - ii, activeFrames[0]+ii+1 };
-                for (int theFrame : testFrame) {
-                    if (theFrame >= 0 && theFrame < tilesLoaded.size()) {
-                        if (topTilesLoaded[theFrame]) {
-                            activeFrames[0] = theFrame;
-                            foundOne = true;
-                            break;
-                        }
+            for (int ii=0;ii<tilesLoaded.size() && !foundOne;ii++) {
+                for (const int theFrame : { activeFrames[0] - ii, activeFrames[0] + ii + 1 }) {
+                    if (0 <= theFrame && theFrame < tilesLoaded.size() && topTilesLoaded[theFrame]) {
+                        activeFrames[0] = activeFrames[1] = theFrame;
+                        foundOne = true;
+                        break;
                     }
                 }
-                if (foundOne)
-                    break;
             }
-            
             if (!foundOne)
+            {
                 numFrames = 0;
+            }
         }
         
         const bool bigEnable = numFrames > 0 && masterEnable;
@@ -692,12 +688,12 @@ void QIFRenderState::updateScene(Scene *,
                 if (numFrames > 1) {
                     t = curFrame-activeFrames[0];
                 }
-                
+
                 // We set the interpolation value per drawable
                 SingleVertexAttributeSet attrs;
                 attrs.insert(SingleVertexAttribute(u_interpNameID,-1,(float)t));
                 attrs.insert(SingleVertexAttribute(u_colorNameID,-1,color4));
-                
+
                 // Turn it all on
                 for (auto drawID : tile->instanceDrawIDs[focusID]) {
                     changes.push_back(new OnOffChangeRequest(drawID,true));
@@ -722,8 +718,8 @@ static int gen = 1;
 QuadImageFrameLoader::QuadImageFrameLoader(const SamplingParams &params, Mode mode, FrameLoadMode frameMode) :
     mode(mode),
     frameLoadMode(frameMode),
-    params(params),
     label("QIFLoader " + std::to_string(gen++)),
+    params(params),
     lastRunReqFlag(std::make_shared<bool>(true))
 {
     updatePriorityDefaults();
@@ -1101,13 +1097,17 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
     }
     
     std::vector<Texture *> texs;
-    if (!failed) {
+    if (!failed)
+    {
         // Build the texture(s)
-        for (const auto& image : loadReturn->images) {
+        texs.reserve(loadReturn->images.size());
+        for (const auto& image : loadReturn->images)
+        {
             //const auto loadedTile = builder->getLoadedTile(ident);
-            if (image) {
+            if (image)
+            {
 #if DEBUG
-                std::array<char,256> buf;
+                std::array<char,256> buf = {0};
                 snprintf(&buf[0], buf.size()-1, "%s %d:(%d,%d) frame=%d gen=%d", label.c_str(),
                          loadReturn->ident.level, loadReturn->ident.x, loadReturn->ident.y,
                          loadReturn->getFrameIndex(), loadReturn->generation);
@@ -1119,6 +1119,7 @@ void QuadImageFrameLoader::mergeLoadedTile(PlatformThreadInfo *threadInfo,QuadLo
                 if (tex) {
                     tex->setFormat(texType);
                     tex->setSingleByteSource(texByteSource);
+                    tex->setInterpType(texInterpType);
                     texs.push_back(tex);
                 }
             }

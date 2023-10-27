@@ -57,7 +57,23 @@ static inline TimeInterval PerfTime()
 {
     struct timespec tp;
     clock_gettime(CLOCK_MONOTONIC, &tp);
-    return (double)tp.tv_sec + tp.tv_nsec * (double)1e-9;
+    return (double)tp.tv_sec + tp.tv_nsec * 1.0e-9;
+}
+
+static double perfTimePrecision = -1;
+double PerformanceTimer::getTimePrecision()
+{
+    if (perfTimePrecision < 0)
+    {
+        const double t0 = PerfTime();
+        double t1 = PerfTime();
+        for (int i = 0; i < 1000 && t1 == t0; t1 = PerfTime())
+        {
+            // no-op
+        }
+        perfTimePrecision = t1 - t0;
+    }
+    return perfTimePrecision;
 }
 
 void PerformanceTimer::startTiming(const std::string &what)

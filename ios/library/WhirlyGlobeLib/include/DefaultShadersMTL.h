@@ -367,6 +367,17 @@ struct ProjVertexB
     float4 color;
 };
 
+// We stuff the textures info in here when we can't put it
+//  in the texture argument buffer
+typedef struct TextureInfo
+{
+    // A bit per texture that's present
+    uint32_t texPresent                          [[ id(WKSTexBufTexPresent) ]];
+    // Texture indirection (for accessing sub-textures)
+    metal::array<float, 2*WKSTextureMax> offset     [[ id(WKSTexBuffIndirectOffset) ]];
+    metal::array<float, 2*WKSTextureMax> scale      [[ id(WKSTexBuffIndirectScale) ]];
+} TextureInfo;
+
 // Ye olde triangle vertex
 struct VertexTriA
 {

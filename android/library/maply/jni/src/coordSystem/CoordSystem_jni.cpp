@@ -1,5 +1,4 @@
-/*
- *  CoordSystem_jni.cpp
+/*  CoordSystem_jni.cpp
  *  WhirlyGlobeLib
  *
  *  Created by Steve Gifford on 6/2/14.
@@ -15,7 +14,6 @@
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
- *
  */
 
 #import "CoordSystem_jni.h"
@@ -24,22 +22,25 @@
 
 using namespace WhirlyKit;
 
-template<> CoordSystemRefClassInfo *CoordSystemRefClassInfo::classInfoObj = NULL;
+template<> CoordSystemRefClassInfo *CoordSystemRefClassInfo::classInfoObj = nullptr;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_nativeInit
   (JNIEnv *env, jclass cls)
 {
 	CoordSystemRefClassInfo::getClassInfo(env,cls);
 }
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_initialise
-  (JNIEnv *env, jobject obj)
+  (JNIEnv *, jobject)
 {
-	__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "CoordSystem::initialise() called.  This is a base class.  Oops.");
+	__android_log_print(ANDROID_LOG_WARN, "Maply", "CoordSystem::initialise() called.  This is a base class.  Oops.");
 }
 
 static std::mutex disposeMutex;
 
+extern "C"
 JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_dispose
   (JNIEnv *env, jobject obj)
 {
@@ -59,10 +60,7 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_dispose
             classInfo->clearHandle(env,obj);
         }
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::dispose()");
-	}
+	MAPLY_STD_JNI_CATCH()
 }
 
 JNIEXPORT jobject JNICALL MakeCoordSystem(JNIEnv *env,CoordSystemRef coordSys)
@@ -71,6 +69,7 @@ JNIEXPORT jobject JNICALL MakeCoordSystem(JNIEnv *env,CoordSystemRef coordSys)
     return classInfo->makeWrapperObject(env,new CoordSystemRef(coordSys));
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geographicToLocal
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -79,7 +78,7 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geographicToLocal
 		CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,obj);
 		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!coordSys || !pt)
-			return NULL;
+			return nullptr;
 
 		Point3d newPt = (*coordSys)->geographicToLocal3d(GeoCoord(pt->x(),pt->y()));
         
@@ -87,14 +86,11 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geographicToLocal
         
 		return MakePoint3d(env,newPt);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::geographicToLocal()");
-	}
-    
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -103,19 +99,16 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeographic
 		CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,obj);
 		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!coordSys || !pt)
-			return NULL;
+			return nullptr;
 
 		GeoCoord newCoord = (*coordSys)->localToGeographic(*pt);
 		return MakePoint3d(env,Point3d(newCoord.x(),newCoord.y(),0.0));
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::localToGeographic()");
-	}
-    
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeocentric
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -124,19 +117,16 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_localToGeocentric
 		CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,obj);
 		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!coordSys || !pt)
-			return NULL;
+			return nullptr;
 
 		Point3d newCoord = (*coordSys)->localToGeocentric(*pt);
 		return MakePoint3d(env,newCoord);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::localToGeocentric()");
-	}
-
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geocentricToLocal
   (JNIEnv *env, jobject obj, jobject ptObj)
 {
@@ -145,22 +135,47 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_geocentricToLocal
 		CoordSystemRef *coordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,obj);
 		Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,ptObj);
 		if (!coordSys || !pt)
-			return NULL;
+			return nullptr;
 
 		Point3d newCoord = (*coordSys)->geocentricToLocal(*pt);
 		return MakePoint3d(env,newCoord);
 	}
-	catch (...)
-	{
-		__android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::geocentricToLocal()");
-	}
-
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
 }
 
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystem_getCanBeWrapped
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (const auto coordSys = CoordSystemRefClassInfo::get(env, obj))
+		{
+			return (*coordSys)->canBeWrapped();
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
+}
 
+extern "C"
+JNIEXPORT void JNICALL Java_com_mousebird_maply_CoordSystem_setCanBeWrapped
+  (JNIEnv *env, jobject obj, jboolean value)
+{
+	try
+	{
+		if (const auto coordSys = CoordSystemRefClassInfo::get(env, obj))
+		{
+			(*coordSys)->setCanBeWrapped(value);
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+}
+
+extern "C"
 JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_CoordSystemConvert3d
-(JNIEnv *env, jclass cls, jobject inSystemObj, jobject outSystemObj, jobject coordObj)
+  (JNIEnv *env, jclass, jobject inSystemObj, jobject outSystemObj, jobject coordObj)
 {
     try
     {
@@ -168,15 +183,26 @@ JNIEXPORT jobject JNICALL Java_com_mousebird_maply_CoordSystem_CoordSystemConver
 		CoordSystemRef *outCoordSys = CoordSystemRefClassInfo::getClassInfo()->getObject(env,outSystemObj);
         Point3d *pt = Point3dClassInfo::getClassInfo()->getObject(env,coordObj);
         if (!inCoordSys || !outCoordSys || !pt)
-            return NULL;
+            return nullptr;
 
         Point3d outPt = CoordSystemConvert3d(inCoordSys->get(),outCoordSys->get(),*pt);
         return MakePoint3d(env,outPt);
     }
-    catch (...)
-    {
-        __android_log_print(ANDROID_LOG_VERBOSE, "Maply", "Crash in CoordSystem::localToGeographic()");
-    }
-    
-    return NULL;
+	MAPLY_STD_JNI_CATCH()
+    return nullptr;
+}
+
+extern "C"
+JNIEXPORT jboolean JNICALL Java_com_mousebird_maply_CoordSystem_isValidNative
+  (JNIEnv *env, jobject obj)
+{
+	try
+	{
+		if (const auto coordSys = CoordSystemRefClassInfo::get(env, obj))
+		{
+			return (*coordSys)->isValid();
+		}
+	}
+	MAPLY_STD_JNI_CATCH()
+	return false;
 }

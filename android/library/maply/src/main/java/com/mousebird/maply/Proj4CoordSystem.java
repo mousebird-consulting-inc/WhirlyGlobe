@@ -4,7 +4,6 @@ package com.mousebird.maply;
  * A wrapper around the Proj4 general scheme for coordinate systems.
  * You set this up with a string that Proj4 recognizes and it will pass that directly through and
  * use it.
- *
  */
 public class Proj4CoordSystem extends CoordSystem {
 
@@ -16,10 +15,6 @@ public class Proj4CoordSystem extends CoordSystem {
         initialise(str);
     }
 
-    static
-    {
-        nativeInit();
-    }
-    private static native void nativeInit();
+    // other JNI stuff handled by superclass
     native void initialise(String str);
 }

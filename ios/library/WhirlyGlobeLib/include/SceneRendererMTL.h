@@ -208,6 +208,9 @@ public:
 
     // If set, we'll use indirect rendering
     bool indirectRender;
+    // If not set, we don't use indirect buffers to hold our textures
+    // This works around what appears to be an Apple bug on old iPhones
+    bool textureArgumentBuffers;
     // By default offscreen rendering turns on or off blend enable
     bool offscreenBlendEnable;
     // Information about the renderer passed around to various calls

@@ -42,7 +42,10 @@ public:
     
     /// Stop keeping track of texture if you were
     virtual void clearTexture() = 0;
-    
+
+    const std::string &getName() const { return name; }
+    void setName(std::string s) { name = std::move(s); }
+
 public:
     // Optional name.  Not always set.
     std::string name;
