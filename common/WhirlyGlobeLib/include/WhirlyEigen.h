@@ -39,13 +39,13 @@ using Point3d = Eigen::Vector3d;
 using Point2d = Eigen::Vector2d;
 using Point2f = Eigen::Vector2f;
 
-using Point2fVector = std::vector<Point2f,Eigen::aligned_allocator<Point2f>>;
-using Point2dVector = std::vector<Point2d,Eigen::aligned_allocator<Point2d>>;
-using Point3fVector = std::vector<Point3f,Eigen::aligned_allocator<Point3f>>;
-using Point3dVector = std::vector<Point3d,Eigen::aligned_allocator<Point3d>>;
-using Vector4fVector = std::vector<Eigen::Vector4f,Eigen::aligned_allocator<Eigen::Vector4f>>;
-using Vector4dVector = std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d>>;
-using Matrix4fVector = std::vector<Eigen::Matrix4f,Eigen::aligned_allocator<Eigen::Matrix4f>>;
-using Matrix4dVector = std::vector<Eigen::Matrix4d,Eigen::aligned_allocator<Eigen::Matrix4d>>;
+using Point2fVector = std::vector<Point2f,Eigen::aligned_allocator<Point2f> >;
+using Point2dVector = std::vector<Point2d,Eigen::aligned_allocator<Point2d> >;
+using Point3fVector = std::vector<Point3f,Eigen::aligned_allocator<Point3f> >;
+using Point3dVector = std::vector<Point3d,Eigen::aligned_allocator<Point3d> >;
+using Vector4fVector = std::vector<Eigen::Vector4f,Eigen::aligned_allocator<Eigen::Vector4f> >;
+using Vector4dVector = std::vector<Eigen::Vector4d,Eigen::aligned_allocator<Eigen::Vector4d> >;
+using Matrix4fVector = std::vector<Eigen::Matrix4f,Eigen::aligned_allocator<Eigen::Matrix4f> >;
+using Matrix4dVector = std::vector<Eigen::Matrix4d,Eigen::aligned_allocator<Eigen::Matrix4d> >;
 
 }
