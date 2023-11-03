@@ -112,7 +112,7 @@ float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
     int stopA=0,stopB=-1;
     if (zoom <= floatExp.stopInputs[stopA])
         return floatExp.stopOutputs[stopA];
-    for (int which = 1;which < floatExp.numStops;which++) {
+    for (int which = 1;which < floatExp.numStops && which < WKSExpStops;which++) {
         stopB = which;
         if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
             float zoomA = floatExp.stopInputs[stopA];
@@ -157,7 +157,7 @@ float4 ExpCalculateColor(constant ColorExp &floatExp,float zoom,float4 defaultVa
     int stopA=0,stopB=-1;
     if (zoom <= floatExp.stopInputs[stopA])
         return floatExp.stopOutputs[stopA];
-    for (int which = 1;which < floatExp.numStops;which++) {
+    for (int which = 1;which < floatExp.numStops && which < WKSExpStops;which++) {
         stopB = which;
         if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
             float zoomA = floatExp.stopInputs[stopA];
@@ -350,7 +350,6 @@ vertex ProjVertexTriA vertexTri_noLight(
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -372,7 +371,6 @@ vertex ProjVertexTriA vertexTri_noLightExp(
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant VertexTriArgBufferAExp & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -412,7 +410,6 @@ vertex ProjVertexTriA vertexTri_light(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -439,7 +436,6 @@ vertex ProjVertexTriA vertexTri_lightExp(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferC & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -481,9 +477,8 @@ fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
                 constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
                 metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//                constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     if (numTextures > 0) {
@@ -511,7 +506,6 @@ vertex ProjVertexTriB vertexTri_multiTex(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriB outVert;
 
@@ -553,7 +547,6 @@ fragment float4 fragmentTri_multiTex(
         constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
         constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
         metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     
@@ -579,7 +572,6 @@ vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriNightDay outVert;
 
@@ -629,9 +621,8 @@ fragment float4 fragmentTri_multiTex_nightDay(
         ProjVertexTriNightDay vert [[stage_in]],
         constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
         constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-        constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+        constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
         metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
 
@@ -654,9 +645,8 @@ fragment float4 fragmentTri_multiTex_nightDay(
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
                                          constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
                                          constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                                         constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+                                         constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
                                          metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//                                         constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     float index = 0.0;
@@ -692,8 +682,8 @@ struct TriWideArgBufferA {
 vertex ProjVertexTriWideVec vertexTri_wideVec(
             VertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant TriWideArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+            constant TriWideArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     outVert.maskIDs[0] = vert.mask0;
@@ -750,7 +740,6 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
             VertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
             constant TriWideArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
@@ -817,11 +806,10 @@ fragment float4 fragmentTri_wideVec(
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
             constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
             metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ texture(0) ]],
             metal::texture2d<unsigned int, metal::access::sample> maskTex [[texture(WKSTextureEntryLookup)]],
             metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax-WKSTextureEntryLookup> tex2    [[ texture(WKSTextureEntryLookup+1) ]])
-//            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     const int numTextures = TexturesBase(texArgs.texPresent);
 
@@ -944,8 +932,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
           constant TriWideArgBufferC &vertArgs [[buffer(WKSVertexArgBuffer)]],
           uint instanceID [[instance_id]],
-          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]])
-//          constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
+          constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert = {
         .position = discardPt,
@@ -1358,10 +1346,9 @@ fragment float4 fragmentTri_wideVecPerf(
             ProjVertexTriWideVecPerf vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
             metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ texture(0) ]],
             metal::texture2d<unsigned int, metal::access::sample> maskTex [[texture(WKSTextureEntryLookup)]])
-//            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     if (texArgs.texPresent & (1<<WKSTextureEntryLookup) && (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0)) {
         // Pull the maskID from the input texture
@@ -1408,8 +1395,8 @@ struct VertexTriSSArgBufferA {
 vertex ProjVertexTriA vertexTri_screenSpace(
             VertexTriScreenSpace vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant VertexTriSSArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+            constant VertexTriSSArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -1465,8 +1452,8 @@ struct VertexTriSSArgBufferB {
 vertex ProjVertexTriA vertexTri_screenSpaceExp(
             VertexTriScreenSpace vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant VertexTriSSArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+            constant VertexTriSSArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -1537,7 +1524,8 @@ vertex ProjVertexTriB vertexTri_model(
           constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
           constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
           constant VertexTriModelArgBuffer &vertArgs [[buffer(WKSVertexArgBuffer)]],
-          constant VertexTriModelInstance *modelInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]])
+          constant VertexTriModelInstance *modelInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
+          constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -1574,7 +1562,8 @@ vertex ProjVertexTriA vertexTri_billboard(
             VertexTriBillboard vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
             constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-            constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -1658,7 +1647,8 @@ vertex ProjVertexTriAtmos vertexTri_atmos(
         uint vertID [[vertex_id]],
         constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
         constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-        constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+        constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+        constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriAtmos out;
 
@@ -1723,7 +1713,8 @@ fragment float4 fragmentTri_atmos(
         ProjVertexTriAtmos vert [[stage_in]],
         constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
         constant Lighting &lighting [[ buffer(WKSFragLightingArgBuffer) ]],
-        constant FragTriArgBuffer &fragArgs [[ buffer(WKSFragmentArgBuffer) ]])
+        constant FragTriArgBuffer &fragArgs [[ buffer(WKSFragmentArgBuffer) ]],
+        constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     const float3 lightPos = (lighting.numLights > 0) ? lighting.lights[0].direction : float3(1,0,0);
     const float g = fragArgs.varUni.g;
@@ -1740,7 +1731,8 @@ vertex ProjVertexTriA vertexTri_atmosGround(
                 VertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-                constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA out;
     out.maskIDs = uint2(0,0);
@@ -1761,7 +1753,8 @@ vertex ProjVertexTriA vertexTri_atmosGround(
 fragment float4 fragmentTri_atmosGround(
                 ProjVertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-                constant FragTriArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                constant FragTriArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     return vert.color;
 }
@@ -1792,7 +1785,7 @@ vertex VertexOut vertStars(constant VertexIn* vertex_array [[ buffer(0) ]],
 fragment float4 fragmentStars(ProjVertexTriB vert [[stage_in]],
                                      constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
                                      constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                                     constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
+                                     constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]])
 //                                     constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);

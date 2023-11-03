@@ -715,22 +715,24 @@ void BasicDrawableMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int oi,id<MT
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
-    }
-    if (!sceneRender->textureArgumentBuffers) {
-        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-            if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii] )
-                [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+
+        if (!sceneRender->textureArgumentBuffers) {
+            for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+                if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii] )
+                    [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+            }
         }
     }
     
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
-    }
-    if (!sceneRender->textureArgumentBuffers) {
-        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-            if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii])
-                [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+
+        if (!sceneRender->textureArgumentBuffers) {
+            for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+                if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii])
+                    [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+            }
         }
     }
 

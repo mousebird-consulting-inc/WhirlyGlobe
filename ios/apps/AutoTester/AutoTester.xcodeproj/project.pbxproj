@@ -2074,7 +2074,7 @@
 				TargetAttributes = {
 					88E4B8BE1B83B6AB0050D21B = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = BFXSGS6V8N;
+						DevelopmentTeam = 75C92J4KW5;
 						LastSwiftMigration = 0930;
 						ProvisioningStyle = Automatic;
 					};
@@ -2863,7 +2863,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = BFXSGS6V8N;
+				DEVELOPMENT_TEAM = 75C92J4KW5;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
@@ -2898,7 +2898,7 @@
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = BFXSGS6V8N;
+				DEVELOPMENT_TEAM = 75C92J4KW5;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../../../common/local_libs/KissXML\"",
