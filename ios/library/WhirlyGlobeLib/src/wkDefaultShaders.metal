@@ -151,7 +151,7 @@ float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
 // Calculate a color based on the current zoom level
 float4 ExpCalculateColor(constant ColorExp &floatExp,float zoom,float4 defaultVal)
 {
-    if (floatExp.numStops == 0 || floatExp.type == ExpNone)
+//    if (floatExp.numStops == 0 || floatExp.type == ExpNone)
         return defaultVal;
     
     int stopA=0,stopB=-1;
