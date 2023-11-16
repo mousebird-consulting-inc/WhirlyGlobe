@@ -692,7 +692,8 @@ struct TriWideArgBufferA {
 vertex ProjVertexTriWideVec vertexTri_wideVec(
             VertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant TriWideArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant TriWideArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 //            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
@@ -811,7 +812,7 @@ struct TriWideArgBufferFrag {
     bool hasTextures;
 };
 
-// Fragment share that takes the back of the globe into account
+// Fragment shader that takes the back of the globe into account
 fragment float4 fragmentTri_wideVec(
             ProjVertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],

@@ -98,7 +98,7 @@ using namespace Eigen;
     [self loadSetup];
 
     [self loadSetup_scene:[[MaplyBaseInteractionLayer alloc] initWithView:visualView]];
-
+    
     return self;
 }
 

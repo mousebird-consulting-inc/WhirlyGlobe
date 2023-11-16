@@ -44,6 +44,7 @@ using namespace Maply;
     const auto ur = GeoCoordD::CoordFromDegrees(180.0,90.0);
 
     coordSys = std::make_shared<PlateCarreeCoordSystem>();
+    coordSys->setCanBeWrapped(true);
     Point3d scale(1.0,1.0,1.0);
     Point3d center(0.0,0.0,0.0);
     coordAdapterRef = std::make_shared<GeneralCoordSystemDisplayAdapter>(coordSys.get(),
@@ -59,6 +60,12 @@ using namespace Maply;
     
     self = [super initWithSize:size mode:MaplyRenderMetal];
     [self clearLights];
+    
+    auto defaultTarget = dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
+    if (defaultTarget) {
+        defaultTarget->blendEnable = true;
+        defaultTarget->clearEveryFrame = false;
+    }
 
     return self;
 }
@@ -69,8 +76,10 @@ using namespace Maply;
     
     MTLRenderPassDescriptor *desc = [[MTLRenderPassDescriptor alloc] init];
     desc.colorAttachments[0].texture = texture;
-    desc.colorAttachments[0].loadAction = MTLLoadActionClear;
+//    desc.colorAttachments[0].loadAction = MTLLoadActionClear; // Turn this off for particles
+    desc.colorAttachments[0].loadAction = MTLLoadActionLoad;
     desc.colorAttachments[0].storeAction = MTLStoreActionStore;
+    desc.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
     renderInfo.renderPassDesc = desc;
     
     if (!sceneRenderer)

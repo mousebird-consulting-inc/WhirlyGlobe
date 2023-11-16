@@ -120,7 +120,7 @@ Point2d FlatView::screenSizeInDisplayCoords(const Point2f &frameSize)
     if (frameSize.x() == 0.0 || frameSize.y() == 0.0)
         return screenSize;
     
-    screenSize = ur-ll;
+    screenSize = extents.ur()-extents.ll();
     
     return screenSize;
 }

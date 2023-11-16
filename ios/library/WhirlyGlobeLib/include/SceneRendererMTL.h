@@ -196,6 +196,9 @@ public:
     void shutdown();
 
     bool isShuttingDown() const { return *_isShuttingDown; }
+    
+    // Return the default render target (usually the screen)
+    virtual RenderTargetRef getDefaultRenderTarget() override;
 
 protected:
     RendererFrameInfoMTLRef makeFrameInfo();

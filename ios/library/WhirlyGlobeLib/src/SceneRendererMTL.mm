@@ -41,7 +41,7 @@ namespace WhirlyKit
 {
 
 WorkGroupMTL::WorkGroupMTL(GroupType inGroupType) :
-    WorkGroupMTL(inGroupType, std::string())
+WorkGroupMTL(inGroupType, std::string())
 {
 }
 
@@ -65,7 +65,7 @@ WorkGroupMTL::WorkGroupMTL(GroupType inGroupType, std::string inName)
 }
 
 RenderTargetContainerMTL::RenderTargetContainerMTL(RenderTargetRef renderTarget) :
-    RenderTargetContainer(std::move(renderTarget))
+RenderTargetContainer(std::move(renderTarget))
 {
 }
 
@@ -78,12 +78,12 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
                                    id<MTLDevice> mtlDevice,
                                    id<MTLLibrary> mtlLibrary,
                                    float inScale) :
-    setupInfo(mtlDevice,mtlLibrary),
-    cmdQueue([mtlDevice newCommandQueue]),
-    _isShuttingDown(std::make_shared<bool>(false)),
-    lastRenderNo(0),
-    renderEvent(nil),
-    renderControl(renderControl)
+setupInfo(mtlDevice,mtlLibrary),
+cmdQueue([mtlDevice newCommandQueue]),
+_isShuttingDown(std::make_shared<bool>(false)),
+lastRenderNo(0),
+renderEvent(nil),
+renderControl(renderControl)
 {
     offscreenBlendEnable = false;
     indirectRender = false;
@@ -106,11 +106,7 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
         }
     }
     setupInfo.textureArgumentBuffers = textureArgumentBuffers;
-
-    // TODO: Make this optional for newer devices
-    textureArgumentBuffers = false;
-    indirectRender = false;
-
+    
     MTLCaptureManager* captureMgr = [MTLCaptureManager sharedCaptureManager];
     cmdCaptureScope = [captureMgr newCaptureScopeWithCommandQueue:cmdQueue];
     cmdCaptureScope.label = label.empty() ? @"Maply SceneRenderer" : [NSString stringWithUTF8String:label.c_str()];
@@ -118,9 +114,9 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
     {
         captureMgr.defaultCaptureScope = cmdCaptureScope;
     }
-
+    
     init();
-
+    
     // Calculation shaders
     workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::Calculation, "Calc"));
     // Offscreen target render group
@@ -129,7 +125,7 @@ SceneRendererMTL::SceneRendererMTL(MaplyRenderController *renderControl,
     workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::ReduceOps, "Reduce"));
     // Last workgroup is used for on screen rendering
     workGroups.push_back(std::make_shared<WorkGroupMTL>(WorkGroup::ScreenRender, "Screen"));
-
+    
     setScale(inScale);
     setupInfo.mtlDevice = mtlDevice;
     for (unsigned int ii=0;ii<MaxViewWrap;ii++) {
@@ -168,6 +164,15 @@ void SceneRendererMTL::setScene(Scene *newScene)
     slotMap[a_maskNameID] = WhirlyKitShader::WKSVertexMaskAttribute;
     for (unsigned int ii=0;ii<WhirlyKitMaxMasks;ii++)
         slotMap[a_maskNameIDs[ii]] = WhirlyKitShader::WKSVertexMaskAttribute+ii;
+}
+
+RenderTargetRef SceneRendererMTL::getDefaultRenderTarget()
+{
+    if (renderTargets.empty()) {
+        return NULL;
+    }
+    
+    return renderTargets[0];
 }
 
 bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)

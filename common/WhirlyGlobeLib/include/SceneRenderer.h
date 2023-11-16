@@ -366,6 +366,9 @@ public:
 
     void updateZoomSlots();
 
+    // Return the default render target (usually the screen)
+    virtual RenderTargetRef getDefaultRenderTarget() = 0;
+
 protected:
     /// Set the framebuffer size
     /// You probably want resize() instead.
@@ -448,7 +451,7 @@ protected:
         double zoom(double height) const;
     };
     std::unordered_map<int, ZoomSlotInfo> zoomSlotMap;
-
+    
 protected:
     /// The pixel width of the CAEAGLLayer.
     int framebufferWidth = 0;

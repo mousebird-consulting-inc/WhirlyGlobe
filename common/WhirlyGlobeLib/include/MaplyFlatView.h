@@ -73,10 +73,7 @@ protected:
     
     /// Content offset within the overall window
     WhirlyKit::Point2d contentOffset;
-    
-    /// Window into the content
-    WhirlyKit::Point2d ll,ur;
-    
+        
     WhirlyKit::Point3d loc;
 };
 
