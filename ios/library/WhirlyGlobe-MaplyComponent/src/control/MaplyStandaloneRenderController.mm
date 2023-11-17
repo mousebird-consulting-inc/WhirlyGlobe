@@ -34,6 +34,7 @@ using namespace Maply;
     Maply::FlatViewRef flatView;
     CoordSystemRef coordSys;
     CoordSystemDisplayAdapterRef coordAdapterRef;
+    bool _clearToLoad;
 }
 
 - (instancetype __nullable)initWithSize:(CGSize)size
@@ -66,8 +67,24 @@ using namespace Maply;
         defaultTarget->blendEnable = true;
         defaultTarget->clearEveryFrame = false;
     }
+    _clearToLoad = false;
 
     return self;
+}
+
+- (void)setClearToLoad:(bool)clearToLoad
+{
+    _clearToLoad = clearToLoad;
+    auto defaultTarget = dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
+    if (defaultTarget) {
+        if (clearToLoad) {
+            defaultTarget->blendEnable = false;
+            defaultTarget->clearEveryFrame = true;
+        } else {
+            defaultTarget->blendEnable = true;
+            defaultTarget->clearEveryFrame = false;
+        }
+    }
 }
 
 - (BOOL)renderTo:(id<MTLTexture>)texture period:(NSTimeInterval)howLong
@@ -76,7 +93,11 @@ using namespace Maply;
     
     MTLRenderPassDescriptor *desc = [[MTLRenderPassDescriptor alloc] init];
     desc.colorAttachments[0].texture = texture;
-//    desc.colorAttachments[0].loadAction = MTLLoadActionClear; // Turn this off for particles
+    if (_clearToLoad) {
+        desc.colorAttachments[0].loadAction = MTLLoadActionClear;
+    } else {
+        desc.colorAttachments[0].loadAction = MTLLoadActionLoad;
+    }
     desc.colorAttachments[0].loadAction = MTLLoadActionLoad;
     desc.colorAttachments[0].storeAction = MTLStoreActionStore;
     desc.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.0, 0.0, 0.0);
