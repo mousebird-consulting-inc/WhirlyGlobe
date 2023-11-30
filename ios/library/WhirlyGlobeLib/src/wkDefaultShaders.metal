@@ -739,7 +739,8 @@ struct TriWideArgBufferB {
 vertex ProjVertexTriWideVec vertexTri_wideVecExp(
             VertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant TriWideArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant TriWideArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
