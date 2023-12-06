@@ -34,7 +34,7 @@ using namespace Maply;
     Maply::FlatViewRef flatView;
     CoordSystemRef coordSys;
     CoordSystemDisplayAdapterRef coordAdapterRef;
-    bool _clearToLoad;
+    bool _clearToLoad2;
 }
 
 - (instancetype __nullable)initWithSize:(CGSize)size
@@ -62,20 +62,20 @@ using namespace Maply;
     self = [super initWithSize:size mode:MaplyRenderMetal];
     [self clearLights];
     
-    auto defaultTarget = dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
+    auto defaultTarget = std::dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
     if (defaultTarget) {
         defaultTarget->blendEnable = true;
         defaultTarget->clearEveryFrame = false;
     }
-    _clearToLoad = false;
+    _clearToLoad2 = false;
 
     return self;
 }
 
 - (void)setClearToLoad:(bool)clearToLoad
 {
-    _clearToLoad = clearToLoad;
-    auto defaultTarget = dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
+    _clearToLoad2 = clearToLoad;
+    auto defaultTarget = std::dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
     if (defaultTarget) {
         if (clearToLoad) {
             defaultTarget->blendEnable = false;
@@ -93,7 +93,7 @@ using namespace Maply;
     
     MTLRenderPassDescriptor *desc = [[MTLRenderPassDescriptor alloc] init];
     desc.colorAttachments[0].texture = texture;
-    if (_clearToLoad) {
+    if (_clearToLoad2) {
         desc.colorAttachments[0].loadAction = MTLLoadActionClear;
     } else {
         desc.colorAttachments[0].loadAction = MTLLoadActionLoad;

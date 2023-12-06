@@ -98,6 +98,10 @@ renderControl(renderControl)
     indirectRender = false;
 #endif
     
+    // Note: Set these for VisionOS
+    indirectRender = false;
+    textureArgumentBuffers = false;
+    
     if (@available(iOS 13.0, *)) {
         // We've seen some problems with inline textures on GPU family 4 and 5
         if (![mtlDevice supportsFamily:MTLGPUFamilyApple6]) {
