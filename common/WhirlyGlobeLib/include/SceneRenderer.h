@@ -280,7 +280,7 @@ public:
     virtual void updateWorkGroups(RendererFrameInfo *frameInfo,int numViewOffsets);
         
     /// Add a render target to start rendering too
-    virtual void addRenderTarget(RenderTargetRef newTarget);
+    virtual void addRenderTarget(RenderTargetRef newTarget,bool insertEnd=false);
     
     /// Stop rendering to the matching render target
     virtual void removeRenderTarget(SimpleIdentity targetID);

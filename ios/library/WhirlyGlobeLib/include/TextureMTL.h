@@ -37,6 +37,9 @@ struct TextureBaseMTL : virtual public TextureBase
     /// Return the unique ID
     id<MTLTexture> getMTLID() const { return texBuf.tex; }
     TextureEntryMTL getMTLTex() const { return texBuf; }
+    
+    /// Set up an a texture around an
+    void setMTLTex(id<MTLTexture> tex);
 
 protected:
     /// Set to 0 if we haven't loaded yet

@@ -3383,7 +3383,8 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
                                              [renderTarget.clearColor asRGBAColor],
                                              renderTarget.clearVal,
                                              (RenderTargetMipmapType)renderTarget.mipmapType,
-                                             renderTarget.calculateMinMax));
+                                             renderTarget.calculateMinMax,
+                                             renderTarget.insertAtEnd));
     
     [self flushChanges:changes mode:MaplyThreadCurrent];
 }

@@ -26,6 +26,12 @@
 namespace WhirlyKit
 {
 
+void TextureBaseMTL::setMTLTex(id<MTLTexture> tex)
+{
+    texBuf.heap = nil;
+    texBuf.tex = tex;
+}
+
 TextureMTL::TextureMTL() : TextureMTL(std::string())
 {
 }

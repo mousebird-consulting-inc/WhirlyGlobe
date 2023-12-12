@@ -26,14 +26,14 @@
 @interface MaplyStandaloneRenderController : MaplyRenderController
 
 /// Initialize as an offline renderer of a given target size with default renderer (Metal)
-- (instancetype __nullable)initWithSize:(CGSize)size;
+- (instancetype __nullable)initWithSize:(CGSize)size separateAlpha:(bool)separateAlpha;
 
 /// If we're rerendering the whole frame we don't need a clear
 /// The clear seems to also cause problems in some modes
 - (void)setClearToLoad:(bool)clearToLoad;
 
 /// Ask the renderer to render to this texture assumine we're called every period (for animation)
-- (BOOL)renderTo:(id<MTLTexture> __nonnull)texture period:(NSTimeInterval)howLong;
+- (BOOL)renderTo:(id<MTLTexture> __nonnull)colorTexture alphaTex:(id<MTLTexture> __nullable)alphaTexture period:(NSTimeInterval)howLong;
 
 @end
 

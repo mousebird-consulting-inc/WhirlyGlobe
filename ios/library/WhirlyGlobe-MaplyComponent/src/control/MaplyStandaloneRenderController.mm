@@ -23,6 +23,7 @@
 #import "MaplyRenderTarget_private.h"
 #import "MaplyStandaloneRenderController.h"
 #import "SceneRendererMTL.h"
+#import <CoreGraphics/CoreGraphics.h>
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -35,12 +36,14 @@ using namespace Maply;
     CoordSystemRef coordSys;
     CoordSystemDisplayAdapterRef coordAdapterRef;
     bool _clearToLoad2;
+    MaplyShader *swizzleShader;
+    TextureMTLRef srcTex,alphaTex;
+    RenderTargetMTLRef alphaTarget;
 }
 
-- (instancetype __nullable)initWithSize:(CGSize)size
+- (instancetype __nullable)initWithSize:(CGSize)size separateAlpha:(bool)separateAlpha
 {
     // For now we just use Plate Carree and cover the whole extents
-    const auto originLon = 0.0;
     const auto ll = GeoCoordD::CoordFromDegrees(-180.0,-90.0);
     const auto ur = GeoCoordD::CoordFromDegrees(180.0,90.0);
 
@@ -68,7 +71,15 @@ using namespace Maply;
         defaultTarget->clearEveryFrame = false;
     }
     _clearToLoad2 = false;
-
+    
+    // Set up a texture to render to if we're splitting out alpha
+    if (separateAlpha) {
+        srcTex = std::make_shared<TextureMTL>("alpha src");
+        alphaTex = std::make_shared<TextureMTL>("alpha dest");
+        scene->addTexture(srcTex);
+        scene->addTexture(alphaTex);
+    }
+    
     return self;
 }
 
@@ -87,12 +98,22 @@ using namespace Maply;
     }
 }
 
-- (BOOL)renderTo:(id<MTLTexture>)texture period:(NSTimeInterval)howLong
+- (void)textureToImage:(id<MTLTexture>)texture {
+    CIContext *context = [[CIContext alloc] initWithOptions:nil];
+    CIImage *ciImage = [[CIImage alloc] initWithMTLTexture:texture options:nil];
+    CGAffineTransform transform = CGAffineTransformMake(1, 0, 0, -1, 0, ciImage.extent.size.height);
+    ciImage = [ciImage imageByApplyingTransform:transform];
+    CGImageRef cgImage = [context createCGImage:ciImage fromRect:ciImage.extent];
+    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage];
+    NSLog(@"");
+}
+
+- (BOOL)renderTo:(id<MTLTexture>)colorTexture alphaTex:(id<MTLTexture>)alphaTexture period:(NSTimeInterval)howLong
 {
     SceneRendererMTL::RenderInfoMTL renderInfo;
     
     MTLRenderPassDescriptor *desc = [[MTLRenderPassDescriptor alloc] init];
-    desc.colorAttachments[0].texture = texture;
+    desc.colorAttachments[0].texture = colorTexture;
     if (_clearToLoad2) {
         desc.colorAttachments[0].loadAction = MTLLoadActionClear;
     } else {
@@ -108,11 +129,66 @@ using namespace Maply;
 
     SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
     
+    // Set up a separate target for the alpha texture where we swizzle the bits
+    if (alphaTexture && alphaTex) {
+        srcTex->setMTLTex(colorTexture);
+        alphaTex->setMTLTex(alphaTexture);
+
+        // Set up the target once, but we need a texture to do it
+        if (!alphaTarget) {
+            auto defaultTarget = std::dynamic_pointer_cast<RenderTargetMTL>(sceneRenderer->getDefaultRenderTarget());
+
+            // Set up a render target to put the texture around
+            alphaTarget = std::make_shared<RenderTargetMTL>();
+            alphaTarget->clearOnce = false;
+            alphaTarget->clearEveryFrame = true;
+            alphaTarget->init(sceneRenderer.get(),scene,alphaTex->getId());
+            sceneRenderer.get()->addRenderTarget(alphaTarget,true);
+
+            // Set up a rectangle right over the view to render the render target
+            Rectangle *newRect = new Rectangle();
+            newRect->ll = Point3d(-1.0,-1.0,0.0);
+            newRect->ur = Point3d(1.0,1.0,0.0);
+            newRect->clipCoords = true;
+            newRect->texIDs.push_back(srcTex->getId());
+            std::vector<Shape *> shapes;
+            shapes.push_back(newRect);
+
+            id<MTLFunction> vertProg = [[self getMetalLibrary] newFunctionWithName:@"vertexTri_multiTex"];
+            if (!vertProg) {
+                NSLog(@"VariableShader: Couldn't find vertexTri_multiTex in WG Shader lib.");
+                return false;
+            }
+            id<MTLFunction> fragProg = [[self getMetalLibrary]  newFunctionWithName:@"fragmentTri_alphaSwizzle"];
+            if (!fragProg) {
+                NSLog(@"VariableShader: Couldn't find fragmentTri_alphaSwizzle in Carrot shader library.");
+                return false;
+            }
+            swizzleShader = [[MaplyShader alloc] initMetalWithName:@"Alpha Swizzle Shader" vertex:vertProg fragment:fragProg viewC:self];
+
+            ChangeSet changes;
+            ShapeInfo info;
+            info.programID = [swizzleShader getShaderID];
+            info.drawPriority = 10000000;
+            info.drawableName = "MaplyVariableTarget-Rect";
+            info.renderTargetID = alphaTarget->getId();
+            info.zBufferRead = false;
+            info.zBufferWrite = false;
+            info.hasCenter = true;
+            const auto shapeManager = scene->getManager<ShapeManager>(kWKShapeManager);
+            shapeManager->addShapes(shapes, info, changes);
+            scene->addChangeRequests(changes);
+        }
+    }
+    
     // Note: Have to do this to trigger some of our callbacks
     sceneRendererMTL->hasChanges();
     
     sceneRendererMTL->forceDrawNextFrame();
     sceneRendererMTL->render(howLong,&renderInfo);
+    
+//    if (alphaTexture)
+//        [self textureToImage:alphaTexture];
     
     return true;
 }

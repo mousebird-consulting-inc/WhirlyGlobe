@@ -123,7 +123,8 @@ public:
                        const RGBAColor &clearColor,
                        float clearVal,
                        RenderTargetMipmapType mipmapType,
-                       bool calcMinMax);
+                       bool calcMinMax,
+                       bool insertAtEnd);
     
     /// Add the render target to the renderer
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
@@ -138,6 +139,7 @@ protected:
     bool blend;
     RenderTargetMipmapType mipmapType;
     bool calcMinMax;
+    bool insertAtEnd;
 };
 
 // Change details about a rendering target.  In this case, just texture.

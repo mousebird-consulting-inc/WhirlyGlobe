@@ -168,9 +168,10 @@ void SceneRenderer::setUseViewChanged(bool newVal)
 void SceneRenderer::setView(View *newView)
     { theView = newView; }
     
-void SceneRenderer::addRenderTarget(RenderTargetRef newTarget)
+void SceneRenderer::addRenderTarget(RenderTargetRef newTarget,bool insertEnd)
 {
-    const auto &workGroup = workGroups[WorkGroup::Offscreen];
+    WorkGroup::GroupType groupType = insertEnd ? WorkGroup::ScreenRender : WorkGroup::Offscreen;
+    const auto &workGroup = workGroups[groupType];
     workGroup->renderTargetContainers.push_back(workGroup->makeRenderTargetContainer(newTarget));
     renderTargets.insert(renderTargets.begin(),std::move(newTarget));
 }
@@ -234,7 +235,8 @@ void SceneRenderer::updateWorkGroups(RendererFrameInfo *frameInfo,int numViewOff
         }
         // Sort into offscreen or onscreen buckets
         if (draw->getRenderTarget() != EmptyIdentity) {
-            workGroups[WorkGroup::Offscreen]->addDrawable(draw);
+            if (!workGroups[WorkGroup::Offscreen]->addDrawable(draw))
+                workGroups[WorkGroup::ScreenRender]->addDrawable(draw);
         } else {
             workGroups[WorkGroup::ScreenRender]->addDrawable(draw);
         }

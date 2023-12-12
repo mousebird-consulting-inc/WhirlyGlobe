@@ -96,6 +96,12 @@ typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
 @property (nonatomic) bool blend;
 
 /**
+ Normally render targets go at the beginning to be rendered before the screen.
+ But sometimes we want to pull form the screen for our target.
+ */
+@property (nonatomic) bool insertAtEnd;
+
+/**
  Retrieves a single data value out of the render target.  Size is the number of components * size of components.
  It's best to call this in the snapshot callback.  We know the destination isn't being written to at the moment.
   Metal only.

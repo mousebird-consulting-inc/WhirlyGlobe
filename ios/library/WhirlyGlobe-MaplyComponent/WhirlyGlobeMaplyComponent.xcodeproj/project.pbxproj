@@ -42,6 +42,7 @@
 		2B23133821F942D2006AA344 /* Dictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133721F942D1006AA344 /* Dictionary.h */; };
 		2B23133A21F942E2006AA344 /* Dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B23133921F942E1006AA344 /* Dictionary.cpp */; };
 		2B23133C21FA919E006AA344 /* Dictionary_NSDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */; };
+		2B26BA112B23C68D008386A8 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B26BA102B23C68D008386A8 /* CoreImage.framework */; };
 		2B2EA04D23427F88006F2F34 /* DrawableMTL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 2B2EA04C23427F88006F2F34 /* DrawableMTL.mm */; };
 		2B2EA04F23427FB7006F2F34 /* DrawableMTL.h in Headers */ = {isa = PBXBuildFile; fileRef = 2B2EA04E23427FB7006F2F34 /* DrawableMTL.h */; };
 		2B3D7E32228738210065FA18 /* BillboardDrawableBuilder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B446B5D21F7E7DF0078A975 /* BillboardDrawableBuilder.cpp */; };
@@ -1599,6 +1600,7 @@
 		2B23133921F942E1006AA344 /* Dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Dictionary.cpp; path = ../../../../common/WhirlyGlobeLib/src/Dictionary.cpp; sourceTree = "<group>"; };
 		2B23133B21FA919D006AA344 /* Dictionary_NSDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Dictionary_NSDictionary.h; sourceTree = "<group>"; };
 		2B23133D21FA91A4006AA344 /* Dictionary_NSDictionary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Dictionary_NSDictionary.mm; sourceTree = "<group>"; };
+		2B26BA102B23C68D008386A8 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = DEVELOPER_DIR; };
 		2B2EA04C23427F88006F2F34 /* DrawableMTL.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = DrawableMTL.mm; sourceTree = "<group>"; };
 		2B2EA04E23427FB7006F2F34 /* DrawableMTL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DrawableMTL.h; sourceTree = "<group>"; };
 		2B361DE621233CBE0074D06D /* MaplyTwoFingerTapDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MaplyTwoFingerTapDelegate.mm; sourceTree = "<group>"; };
@@ -2564,9 +2566,9 @@
 		31C3A797282C645000E1F042 /* WhirlyEigen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhirlyEigen.h; path = ../../../../common/WhirlyGlobeLib/include/WhirlyEigen.h; sourceTree = "<group>"; };
 		31CAB8DD27920F4A00A5F744 /* GeographicLib.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = GeographicLib.h; path = ../../../../common/WhirlyGlobeLib/include/GeographicLib.h; sourceTree = "<group>"; };
 		31CAB8DE2792126A00A5F744 /* GeographicLib.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = GeographicLib.cpp; path = ../../../../common/WhirlyGlobeLib/src/GeographicLib.cpp; sourceTree = "<group>"; };
+		31CD357D2971C80700F4CC72 /* RGBAColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RGBAColor.h; sourceTree = "<group>"; };
 		31D6C91929A96C6A00DC6282 /* ProfilingLockGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilingLockGuard.h; path = ../../../../common/WhirlyGlobeLib/include/ProfilingLockGuard.h; sourceTree = "<group>"; };
 		31D6C91C29A96C9900DC6282 /* ProfilingLockGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProfilingLockGuard.cpp; path = ../../../../common/WhirlyGlobeLib/src/ProfilingLockGuard.cpp; sourceTree = "<group>"; };
-		31CD357D2971C80700F4CC72 /* RGBAColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RGBAColor.h; sourceTree = "<group>"; };
 		31DDA0A527A4D3B800865ECE /* WhirlyGlobe_iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe_iOS.h; sourceTree = "<group>"; };
 		31DDA4B927A8787D00865ECE /* WhirlyGlobe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WhirlyGlobe.h; sourceTree = "<group>"; };
 		31DDA4CC27AB475F00865ECE /* AtmosphereShadersMTL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AtmosphereShadersMTL.h; sourceTree = "<group>"; };
@@ -2598,6 +2600,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B26BA112B23C68D008386A8 /* CoreImage.framework in Frameworks */,
 				2B526BDC240DE04B00647336 /* MetalPerformanceShaders.framework in Frameworks */,
 				2B1806D822AED08200DD3DB1 /* Accelerate.framework in Frameworks */,
 				2B69987D228DE2EF00C31E3F /* MetalKit.framework in Frameworks */,
@@ -3533,6 +3536,7 @@
 		2B84ED111F83FC5A00B34D73 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				2B26BA102B23C68D008386A8 /* CoreImage.framework */,
 				31AC5BF3286A02F100500A3F /* libz.1.tbd */,
 				31AC5B76286657D400500A3F /* MetalPerformanceShaders.framework */,
 				31AC5B74286657AD00500A3F /* CoreGraphics.framework */,
