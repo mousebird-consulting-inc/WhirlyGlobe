@@ -586,9 +586,7 @@ fragment float4 fragmentTri_alphaSwizzle(
         return vert.color.a;
     } else {
         constexpr sampler sampler2d(coord::normalized, filter::linear);
-//        return (vert.color * tex[0].sample(sampler2d, vert.texCoord0)).a;
-        if ((vert.color * tex[0].sample(sampler2d, vert.texCoord0)).a > 0.0)
-            return float4(1.0,1.0,0.0,1.0);
+        return (vert.color * tex[0].sample(sampler2d, vert.texCoord0)).a;
     }
     
     return 0.0;
