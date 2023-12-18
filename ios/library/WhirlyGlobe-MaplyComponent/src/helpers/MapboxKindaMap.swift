@@ -430,15 +430,17 @@ public class MapboxKindaMap {
                 if var minZoom = source.tileSpec?["minzoom"] as? Int32,
                     var maxZoom = source.tileSpec?["maxzoom"] as? Int32,
                     let tiles = source.tileSpec?["tiles"] as? [String] {
-                    var newTileURLs = [String]()
-                    for tileURL in tiles {
-                        // We need the last bit, but we can't turn it into a valid URL
-                        if let idx = tileURL.firstIndex(of: "{") {
-                            let baseURL = String(tileURL[..<idx])
-                            let newBaseURL = (fileOverride(URL(string: baseURL)!).absoluteString)
-                            newTileURLs.append(newBaseURL + tileURL[idx...])
-                        }
-                    }
+                    let newTileURLs = tiles
+                    // Had to turn this off for some reason
+//                    var newTileURLs = [String]()
+//                    for tileURL in tiles {
+//                        // We need the last bit, but we can't turn it into a valid URL
+//                        if let idx = tileURL.firstIndex(of: "{") {
+//                            let baseURL = String(tileURL[..<idx])
+//                            let newBaseURL = (fileOverride(URL(string: baseURL)!).absoluteString)
+//                            newTileURLs.append(newBaseURL + tileURL[idx...])
+//                        }
+//                    }
                     let tileSource = MaplyRemoteTileInfoNew(baseURL: newTileURLs[0], minZoom: minZoom, maxZoom: maxZoom)
                     if let cacheDir = self.cacheDir {
                         tileSource.cacheDir = cacheDir.appendingPathComponent(newTileURLs[0].replacingOccurrences(of: "/", with: "_").replacingOccurrences(of: ":", with: "_").replacingOccurrences(of: "{", with: "").replacingOccurrences(of: "}", with: "").replacingOccurrences(of: "?", with: "_")).path
