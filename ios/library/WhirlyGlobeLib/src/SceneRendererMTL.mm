@@ -87,7 +87,7 @@ renderControl(renderControl)
 {
     offscreenBlendEnable = false;
     indirectRender = false;
-    textureArgumentBuffers = true;
+    textureArgumentBuffers = false;  // Note: We need to change the shaders for these
 #if !TARGET_OS_MACCATALYST
     if (@available(iOS 13.0, *)) {
         if ([mtlDevice supportsFeatureSet:MTLFeatureSet_iOS_GPUFamily3_v4])
@@ -98,19 +98,28 @@ renderControl(renderControl)
     indirectRender = false;
 #endif
     
-    // Note: Set these for VisionOS
+#if TARGET_OS_VISION
+    // Have to keep it simple for VisionOS for some reason
     indirectRender = false;
     textureArgumentBuffers = false;
-    
+#endif
+
+    expressionBug = false;
     if (@available(iOS 13.0, *)) {
         // We've seen some problems with inline textures on GPU family 4 and 5
         if (![mtlDevice supportsFamily:MTLGPUFamilyApple6]) {
             indirectRender = false;
             textureArgumentBuffers = false;
+//            expressionBug = true;
         }
     }
-    setupInfo.textureArgumentBuffers = textureArgumentBuffers;
     
+    // Note: Separate texture argument buffers seem to be incompatible with indirect renderer
+    //       So we have to turn this off or figure out the bug.  Someday.
+    if (!textureArgumentBuffers)
+        indirectRender = false;
+    
+    setupInfo.textureArgumentBuffers = textureArgumentBuffers;
     MTLCaptureManager* captureMgr = [MTLCaptureManager sharedCaptureManager];
     cmdCaptureScope = [captureMgr newCaptureScopeWithCommandQueue:cmdQueue];
     cmdCaptureScope.label = label.empty() ? @"Maply SceneRenderer" : [NSString stringWithUTF8String:label.c_str()];
@@ -181,6 +190,10 @@ RenderTargetRef SceneRendererMTL::getDefaultRenderTarget()
 
 bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
 {
+    // For some odd reason we see the expression bug more in offscreen rendering
+    if (offscreen)
+        expressionBug = true;
+    
     // Set up a default render target
     RenderTargetMTLRef defaultTarget = RenderTargetMTLRef(new RenderTargetMTL(EmptyIdentity));
     defaultTarget->width = sizeX;
@@ -270,17 +283,28 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
     CopyIntoMtlFloat2(uniforms.frameSize, frameSize);
     uniforms.offsetView = oi;
     uniforms.offsetViews = viewWrap ? frameInfo->offsetMatrices.size() : 0;
-    uniforms.globeMode = !coordAdapter->isFlat();
-    uniforms.isPanning = theView->getIsPanning();
-    uniforms.isZooming = theView->getIsZooming();
-    uniforms.isRotating = theView->getIsRotating();
-    uniforms.isTilting = theView->getIsTilting();
-    uniforms.isAnimating = theView->getIsAnimating();
-    uniforms.userMotion = theView->getUserMotion();
-    uniforms.didMove = theView->getHasMoved();
-    uniforms.didZoom = theView->getHasZoomed();
-    uniforms.didRotate = theView->getHasRotated();
-    uniforms.didTilt = theView->getHasTilted();
+    if (!coordAdapter->isFlat())
+        uniforms.flags |= WK_GLOBEMODE;
+    if (theView->getIsPanning())
+        uniforms.flags |= WK_ISPANNING;
+    if (theView->getIsZooming())
+        uniforms.flags |= WK_ISZOOMING;
+    if (theView->getIsRotating())
+        uniforms.flags |= WK_ISROTATING;
+    if (theView->getIsTilting())
+        uniforms.flags |= WK_ISTILTING;
+    if (theView->getIsAnimating())
+        uniforms.flags |= WK_ISANIMATING;
+    if (theView->getUserMotion())
+        uniforms.flags |= WK_USERMOTION;
+    if (theView->getHasMoved())
+        uniforms.flags |= WK_DIDMOVE;
+    if (theView->getHasZoomed())
+        uniforms.flags |= WK_DIDZOOM;
+    if (theView->getHasRotated())
+        uniforms.flags |= WK_DIDROTATE;
+    if (theView->getHasTilted())
+        uniforms.flags |= WK_DIDTILT;
     uniforms.frameCount = frameCount;
     uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
     frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
@@ -337,7 +361,10 @@ void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawS
 {
     // That was anti-climactic
     bzero(&drawState,sizeof(drawState));
+    
     drawState.zoomSlot = -1;
+    if (expressionBug)
+        drawState.flags |= WK_EXPBUG;
 }
     
 MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneRendererMTL *sceneRender,ProgramMTL *program,RenderTargetMTL *renderTarget)

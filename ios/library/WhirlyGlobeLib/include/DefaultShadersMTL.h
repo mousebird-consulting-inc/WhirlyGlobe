@@ -160,6 +160,18 @@ typedef enum {
     WKSUniformParticleStateEntry = 410
 } WKSArgBufferEntries;
 
+#define WK_GLOBEMODE (1<<0) // globe if true, flat map otherwise
+#define WK_ISPANNING (1<<1) // map is being panned
+#define WK_ISZOOMING (1<<2) // map is being zoomed
+#define WK_ISROTATING (1<<3) // map is being rotated (around z, not y)
+#define WK_ISTILTING (1<<4) // globe is being tilted
+#define WK_ISANIMATING (1<<5) // position/height is being animated
+#define WK_USERMOTION (1<<6) // motion is user-initiated
+#define WK_DIDMOVE (1<<7) // Position set since last frame (not animated/user-initiated)
+#define WK_DIDZOOM (1<<8) // Height set since last frame (not animated/user-initiated)
+#define WK_DIDROTATE (1<<9) // Heading set since last frame (not animated/user-initiated)
+#define WK_DIDTILT (1<<10) // Tilt set since last frame (not animated/user-initiated)
+
 // Uniforms for the basic case.  Nothing fancy.
 struct Uniforms
 {
@@ -184,18 +196,15 @@ struct Uniforms
     float currentTime;          // Current time relative to the start of the renderer
     float height;               // Height above the ground/globe
     float zoomSlots[MaxZoomSlots];  // Zoom levels calculated by the sampling layers
-    bool globeMode;             // globe if true, flat map otherwise
-    bool isPanning;             // map is being panned
-    bool isZooming;             // map is being zoomed
-    bool isRotating;            // map is being rotated (around z, not y)
-    bool isTilting;             // globe is being tilted
-    bool isAnimating;           // position/height is being animated
-    bool userMotion;            // motion is user-initiated
-    bool didMove;               // Position set since last frame (not animated/user-initiated)
-    bool didZoom;               // Height set since last frame (not animated/user-initiated)
-    bool didRotate;             // Heading set since last frame (not animated/user-initiated)
-    bool didTilt;               // Tilt set since last frame (not animated/user-initiated)
+    int flags;
 };
+
+// If set, the geometry coordinates aren't meant to be transformed
+#define WK_CLIPCOORDS (1<<0)
+// Look for a Uniform*VecExp structure for color, opacity, and width
+#define WK_HASEXP (1<<1)
+// If set, we're going to work around a bug in the exp calculation on some devices
+#define WK_EXPBUG (1<<2)
 
 // Things that change per drawable (like fade)
 struct UniformDrawStateA {
@@ -208,8 +217,7 @@ struct UniformDrawStateA {
     float minVisible,maxVisible;  // Visibility by height
     float minVisibleFadeBand,maxVisibleFadeBand;
     int zoomSlot;              // Used to pass continuous zoom info
-    bool clipCoords;           // If set, the geometry coordinates aren't meant to be transformed
-    bool hasExp;               // Look for a UniformWideVecExp structure for color, opacity, and width
+    int flags;
 };
 
 // Uniform expressions optionally passed to basic polygon shaders

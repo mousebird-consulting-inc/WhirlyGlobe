@@ -554,8 +554,10 @@ bool BasicDrawableMTL::preProcess(SceneRendererMTL *sceneRender,id<MTLCommandBuf
             WhirlyKitShader::UniformDrawStateA uni;
             sceneRender->setupDrawStateA(uni);
             uni.zoomSlot = zoomSlot;
-            uni.clipCoords = clipCoords;
-            uni.hasExp = hasExp;
+            if (clipCoords)
+                uni.flags |= WK_CLIPCOORDS;
+            if (hasExp)
+                uni.flags |= WK_HASEXP;
             if (hasMatrix)
                 CopyIntoMtlFloat4x4(uni.singleMat, *getMatrix());
             else {

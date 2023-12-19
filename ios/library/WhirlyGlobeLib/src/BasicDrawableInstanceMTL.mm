@@ -324,8 +324,11 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
         ret = true;
         if ((texturesChanged || prog->texturesChanged) && (vertTexInfo || fragTexInfo)) {
             activeTextures.clear();
-            vertTexInfo->clear();
-            fragTexInfo->clear();
+            
+            if (vertTexInfo)
+                vertTexInfo->clear();
+            if (fragTexInfo)
+                fragTexInfo->clear();
 
             // Sometimes it's just boring geometry and the texture's in the base
             // Sometimes we're doing something clever and it's in the instance
@@ -443,8 +446,10 @@ bool BasicDrawableInstanceMTL::preProcess(SceneRendererMTL *sceneRender,
             WhirlyKitShader::UniformDrawStateA uni;
             sceneRender->setupDrawStateA(uni);
             uni.zoomSlot = zoomSlot;
-            uni.clipCoords = basicDraw->clipCoords;
-            uni.hasExp = hasExp;
+            if (basicDraw->clipCoords)
+                uni.flags |= WK_CLIPCOORDS;
+            if (hasExp)
+                uni.flags |= WK_HASEXP;
             // TODO: Put these in the instance as well
             double baseTime = scene->getBaseTime();
             uni.fadeUp = basicDraw->fadeUp-baseTime;
@@ -617,22 +622,24 @@ void BasicDrawableInstanceMTL::encodeDirect(RendererFrameInfoMTL *frameInfo,int 
     if (vertTexInfo) {
         BufferEntryMTL &buff = vertTexInfo->getBuffer();
         [cmdEncode setVertexBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSVertTextureArgBuffer];
-    }
-    if (!sceneRender->textureArgumentBuffers) {
-        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-            if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii])
-                [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+
+        if (!sceneRender->textureArgumentBuffers) {
+            for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+                if (ii<vertTexInfo->texs.size() && vertTexInfo->texs[ii])
+                    [cmdEncode setVertexTexture:vertTexInfo->texs[ii] atIndex:ii];
+            }
         }
     }
 
     if (fragTexInfo) {
         BufferEntryMTL &buff = fragTexInfo->getBuffer();
         [cmdEncode setFragmentBuffer:buff.buffer offset:buff.offset atIndex:WhirlyKitShader::WKSFragTextureArgBuffer];
-    }
-    if (!sceneRender->textureArgumentBuffers) {
-        for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
-            if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii] )
-                [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+
+        if (!sceneRender->textureArgumentBuffers) {
+            for (unsigned int ii=0;ii<WKSTextureMax;ii++) {
+                if (ii<fragTexInfo->texs.size() && fragTexInfo->texs[ii] )
+                    [cmdEncode setFragmentTexture:fragTexInfo->texs[ii] atIndex:ii];
+            }
         }
     }
 

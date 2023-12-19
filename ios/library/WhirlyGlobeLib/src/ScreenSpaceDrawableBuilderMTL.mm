@@ -71,7 +71,7 @@ BasicDrawableRef ScreenSpaceDrawableBuilderMTL::getDrawable()
     uniSS.activeRot = rotation;
     uniSS.hasMotion = motion;
     uniSS.hasExp = opacityExp || colorExp || scaleExp || includeExp;
-    
+
     BasicDrawable::UniformBlock uniBlock;
     uniBlock.blockData = RawDataRef(new RawNSDataReader([[NSData alloc] initWithBytes:&uniSS length:sizeof(uniSS)]));
     uniBlock.bufferID = WhirlyKitShader::WKSUniformScreenSpaceEntry;

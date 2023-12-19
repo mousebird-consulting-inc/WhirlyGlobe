@@ -98,15 +98,15 @@ using namespace Maply;
     }
 }
 
-- (void)textureToImage:(id<MTLTexture>)texture {
-    CIContext *context = [[CIContext alloc] initWithOptions:nil];
-    CIImage *ciImage = [[CIImage alloc] initWithMTLTexture:texture options:nil];
-    CGAffineTransform transform = CGAffineTransformMake(1, 0, 0, -1, 0, ciImage.extent.size.height);
-    ciImage = [ciImage imageByApplyingTransform:transform];
-    CGImageRef cgImage = [context createCGImage:ciImage fromRect:ciImage.extent];
-    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage];
-    NSLog(@"");
-}
+//- (void)textureToImage:(id<MTLTexture>)texture {
+//    CIContext *context = [[CIContext alloc] initWithOptions:nil];
+//    CIImage *ciImage = [[CIImage alloc] initWithMTLTexture:texture options:nil];
+//    CGAffineTransform transform = CGAffineTransformMake(1, 0, 0, -1, 0, ciImage.extent.size.height);
+//    ciImage = [ciImage imageByApplyingTransform:transform];
+//    CGImageRef cgImage = [context createCGImage:ciImage fromRect:ciImage.extent];
+//    UIImage *image = [[UIImage alloc] initWithCGImage:cgImage];
+//    NSLog(@"");
+//}
 
 - (BOOL)renderTo:(id<MTLTexture>)colorTexture alphaTex:(id<MTLTexture>)alphaTexture period:(NSTimeInterval)howLong
 {

@@ -108,11 +108,10 @@ float ExpCalculateFloat(constant FloatExp &floatExp,float zoom,float defaultVal)
 {
     if (floatExp.numStops == 0 || floatExp.type == ExpNone)
         return defaultVal;
-    
     int stopA=0,stopB=-1;
     if (zoom <= floatExp.stopInputs[stopA])
         return floatExp.stopOutputs[stopA];
-    for (int which = 1;which < floatExp.numStops;which++) {
+    for (int which = 1;which < floatExp.numStops && which < WKSExpStops;which++) {
         stopB = which;
         if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
             float zoomA = floatExp.stopInputs[stopA];
@@ -157,7 +156,7 @@ float4 ExpCalculateColor(constant ColorExp &floatExp,float zoom,float4 defaultVa
     int stopA=0,stopB=-1;
     if (zoom <= floatExp.stopInputs[stopA])
         return floatExp.stopOutputs[stopA];
-    for (int which = 1;which < floatExp.numStops;which++) {
+    for (int which = 1;which < floatExp.numStops && which < WKSExpStops;which++) {
         stopB = which;
         if (floatExp.stopInputs[stopA] <= zoom && zoom < floatExp.stopInputs[stopB]) {
             float zoomA = floatExp.stopInputs[stopA];
@@ -203,7 +202,7 @@ vertex ProjVertexA vertexLineOnly_globe(
     ProjVertexA outVert;
     
     outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
-    if (vertArgs.uniDrawState.clipCoords) {
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS) {
         outVert.dotProd = 1.0;
         outVert.position = uniforms.mvpMatrix * float4(vert.position,1.0);
     } else {
@@ -238,7 +237,7 @@ fragment float4 fragmentLineOnly_globe(
 // Back facing calculation for the globe
 float calcGlobeDotProd(constant Uniforms &uniforms,float3 pos, float3 norm)
 {
-    if (!uniforms.globeMode)
+    if (!(uniforms.flags & WK_GLOBEMODE))
         return 1.0;
     
     // Used to evaluate pixels behind the globe
@@ -260,7 +259,7 @@ vertex ProjVertexB vertexLineOnly_flat(
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
 
     outVert.color = float4(vert.color) * calculateFade(uniforms,vertArgs.uniDrawState);
-    if (vertArgs.uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS)
         outVert.position = float4(vertPos,1.0);
     else
         outVert.position = uniforms.mvpMatrix * float4(vertPos,1.0);
@@ -340,7 +339,7 @@ float4 basicPos(const float3 position,
                 const constant UniformDrawStateA &uniDrawState)
 {
     const float4 vertPos = float4((uniDrawState.singleMat * float4(position, 1.0f)).xyz, 1.0f);
-    return uniDrawState.clipCoords ? vertPos :
+    return uniDrawState.flags & WK_CLIPCOORDS ? vertPos :
         uniforms.pMatrix * (uniforms.mvMatrix * vertPos + uniforms.mvMatrixDiff * vertPos);
 }
 
@@ -350,7 +349,6 @@ vertex ProjVertexTriA vertexTri_noLight(
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant VertexTriArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -372,14 +370,13 @@ vertex ProjVertexTriA vertexTri_noLightExp(
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant VertexTriArgBufferAExp & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs  [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
     
-    if (vertArgs.uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS)
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1.0) + uniforms.mvMatrixDiff * float4(vertPos,1.0));
@@ -388,10 +385,13 @@ vertex ProjVertexTriA vertexTri_noLightExp(
 
     // Sort out expressions for color and opacity
     float4 color = vert.color;
-    if (vertArgs.uniDrawState.hasExp) {
+    if (vertArgs.uniDrawState.flags & WK_HASEXP) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-        color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
+        float opacity = 1.0;
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
         color.a = /*color.a * */opacity;
     }
 
@@ -412,7 +412,6 @@ vertex ProjVertexTriA vertexTri_light(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -439,13 +438,12 @@ vertex ProjVertexTriA vertexTri_lightExp(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferC & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    if (vertArgs.uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS)
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
@@ -455,10 +453,13 @@ vertex ProjVertexTriA vertexTri_lightExp(
     
     // Sort out expressions for color and opacity
     float4 color = vert.color;
-    if (vertArgs.uniDrawState.hasExp) {
+    if (vertArgs.uniDrawState.flags & WK_HASEXP) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-        color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
+        float opacity = 1.0;
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
         color.a = /*color.a * */opacity;
     }
 
@@ -481,9 +482,8 @@ fragment float4 fragmentTri_basic(
                 ProjVertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
                 constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
                 metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//                constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     if (numTextures > 0) {
@@ -511,12 +511,11 @@ vertex ProjVertexTriB vertexTri_multiTex(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriB outVert;
 
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    if (vertArgs.uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS)
         outVert.position = float4(vertPos,1.0);
     else {
         float4 pt = uniforms.pMatrix * (uniforms.mvMatrix * vertArgs.uniDrawState.singleMat * float4(vert.position,1.0) +
@@ -553,7 +552,6 @@ fragment float4 fragmentTri_multiTex(
         constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
         constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
         metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     
@@ -600,12 +598,11 @@ vertex ProjVertexTriNightDay vertexTri_multiTex_nightDay(
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
                 constant VertexTriArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
                 constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//                constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriNightDay outVert;
 
     const float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    if (vertArgs.uniDrawState.clipCoords)
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS)
         outVert.position = float4(vertPos,1.0);
     else {
         const float4 v = vertArgs.uniDrawState.singleMat * float4(vert.position,1.0);
@@ -650,9 +647,8 @@ fragment float4 fragmentTri_multiTex_nightDay(
         ProjVertexTriNightDay vert [[stage_in]],
         constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
         constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-        constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+        constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
         metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//        constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
 
@@ -675,9 +671,8 @@ fragment float4 fragmentTri_multiTex_nightDay(
 fragment float4 fragmentTri_multiTexRamp(ProjVertexTriB vert [[stage_in]],
                                          constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
                                          constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                                         constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+                                         constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
                                          metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax> tex    [[ texture(0) ]])
-//                                         constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);
     float index = 0.0;
@@ -715,7 +710,6 @@ vertex ProjVertexTriWideVec vertexTri_wideVec(
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
             constant TriWideArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
             constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     outVert.maskIDs[0] = vert.mask0;
@@ -771,8 +765,8 @@ struct TriWideArgBufferB {
 vertex ProjVertexTriWideVec vertexTri_wideVecExp(
             VertexTriWideVec vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant TriWideArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+            constant TriWideArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVec outVert;
     
@@ -782,7 +776,8 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
     if (vertArgs.wideVec.hasExp)
-        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
     if (w2 > 0.0) {
         w2 = w2 + vertArgs.wideVec.edge;
     }
@@ -790,14 +785,18 @@ vertex ProjVertexTriWideVec vertexTri_wideVecExp(
     // Pull out the center line offset, or calculate one
     float centerLine = vertArgs.wideVec.offset;
     if (vertArgs.wideVec.hasExp) {
-        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
     }
     centerLine = vert.offset.z * centerLine;
 
     float4 color = vert.color;
     if (vertArgs.wideVec.hasExp) {
-        color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
-        float opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
+        float opacity = 1.0;
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            opacity = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
         color.a = /*color.a * */opacity;
     }
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
@@ -839,11 +838,10 @@ fragment float4 fragmentTri_wideVec(
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
             constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
             metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ texture(0) ]],
             metal::texture2d<unsigned int, metal::access::sample> maskTex [[texture(WKSTextureEntryLookup)]],
             metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureMax-WKSTextureEntryLookup> tex2    [[ texture(WKSTextureEntryLookup+1) ]])
-//            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     const int numTextures = TexturesBase(texArgs.texPresent);
 
@@ -966,8 +964,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
           constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
           constant TriWideArgBufferC &vertArgs [[buffer(WKSVertexArgBuffer)]],
           uint instanceID [[instance_id]],
-          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]])
-//          constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+          constant VertexTriWideVecInstance *wideVecInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
+          constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriWideVecPerf outVert = {
         .position = discardPt,
@@ -992,7 +990,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     // Pull out the width and possibly calculate one
     float w2 = vertArgs.wideVec.w2;
     if (vertArgs.wideVec.hasExp) {
-        w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            w2 = ExpCalculateFloat(vertArgs.wideVecExp.widthExp, zoom, 2.0*w2)/2.0;
     }
 
     // w2 includes edge-blend, strokeWidth does not
@@ -1052,7 +1051,7 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
         centers[ii].screenPos = screenPos(uniforms, centerPos);
         
         // Make sure the object is facing the user (only for the globe)
-        if (uniforms.globeMode && ii == 1) {
+        if ((uniforms.flags & WK_GLOBEMODE) && ii == 1) {
             float4 pt = uniforms.mvMatrix * float4(centerPos,1.0);
             pt /= pt.w;
 
@@ -1091,7 +1090,8 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     // Pull out the center line offset, or calculate one
     float centerLine = vertArgs.wideVec.offset;
     if (vertArgs.wideVec.hasExp) {
-        centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            centerLine = ExpCalculateFloat(vertArgs.wideVecExp.offsetExp, zoom, centerLine);
     }
 
     // Intersect on the left or right depending
@@ -1191,8 +1191,10 @@ vertex ProjVertexTriWideVecPerf vertexTri_wideVecPerf(
     //  So we'll pull the color out of the basic drawable
     float4 color = vert.color;
     if (vertArgs.wideVec.hasExp) {
-        color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
-        color.a = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            color = ExpCalculateColor(vertArgs.wideVecExp.colorExp, zoom, color);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            color.a = ExpCalculateFloat(vertArgs.wideVecExp.opacityExp, zoom, color.a);
     }
 
     outVert.color = color * calculateFade(uniforms,vertArgs.uniDrawState);
@@ -1380,10 +1382,9 @@ fragment float4 fragmentTri_wideVecPerf(
             ProjVertexTriWideVecPerf vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
             constant TriWideArgBufferFrag & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]],
             metal::array<metal::texture2d<float, metal::access::sample>, WKSTextureEntryLookup> tex    [[ texture(0) ]],
             metal::texture2d<unsigned int, metal::access::sample> maskTex [[texture(WKSTextureEntryLookup)]])
-//            constant WideVecTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     if (texArgs.texPresent & (1<<WKSTextureEntryLookup) && (vert.maskIDs[0] > 0 || vert.maskIDs[1] > 0)) {
         // Pull the maskID from the input texture
@@ -1430,8 +1431,8 @@ struct VertexTriSSArgBufferA {
 vertex ProjVertexTriA vertexTri_screenSpace(
             VertexTriScreenSpace vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant VertexTriSSArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+            constant VertexTriSSArgBufferA & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -1449,7 +1450,7 @@ vertex ProjVertexTriA vertexTri_screenSpace(
     
     // Make sure the object is facing the user (only for the globe)
     float dotProd = 1.0;
-    if (uniforms.globeMode) {
+    if (uniforms.flags & WK_GLOBEMODE) {
         float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
         dotProd = dot(-pt.xyz,testNorm.xyz);
     }
@@ -1487,8 +1488,8 @@ struct VertexTriSSArgBufferB {
 vertex ProjVertexTriA vertexTri_screenSpaceExp(
             VertexTriScreenSpace vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
-            constant VertexTriSSArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]])
-//            constant RegularTextures & texArgs [[buffer(WKSVertTextureArgBuffer)]])
+            constant VertexTriSSArgBufferB & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -1496,7 +1497,8 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     float zoomScale = 1.0;
     if (vertArgs.ss.hasExp) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-        zoomScale = ExpCalculateFloat(vertArgs.ssExp.scaleExp, zoom, zoom);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            zoomScale = ExpCalculateFloat(vertArgs.ssExp.scaleExp, zoom, zoom);
     }
     
     float3 pos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
@@ -1505,8 +1507,11 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     
     float4 color = vert.color;
     if (vertArgs.ss.hasExp) {
-        color = ExpCalculateColor(vertArgs.ssExp.colorExp, zoomScale, color);
-        float opacity = ExpCalculateFloat(vertArgs.ssExp.opacityExp, zoomScale, color.a);
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            color = ExpCalculateColor(vertArgs.ssExp.colorExp, zoomScale, color);
+        float opacity = 1.0;
+        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+            opacity = ExpCalculateFloat(vertArgs.ssExp.opacityExp, zoomScale, color.a);
         color.a = /*color.a * */opacity;
     }
 
@@ -1519,7 +1524,7 @@ vertex ProjVertexTriA vertexTri_screenSpaceExp(
     
     // Make sure the object is facing the user (only for the globe)
     float dotProd = 1.0;
-    if (uniforms.globeMode) {
+    if (uniforms.flags & WK_GLOBEMODE) {
         float4 testNorm = uniforms.mvNormalMatrix * float4(vert.normal,0.0);
         dotProd = dot(-pt.xyz,testNorm.xyz);
     }
@@ -1559,7 +1564,8 @@ vertex ProjVertexTriB vertexTri_model(
           constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
           constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
           constant VertexTriModelArgBuffer &vertArgs [[buffer(WKSVertexArgBuffer)]],
-          constant VertexTriModelInstance *modelInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]])
+          constant VertexTriModelInstance *modelInsts   [[ buffer(WKSVertModelInstanceArgBuffer) ]],
+          constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriB outVert;
     
@@ -1596,7 +1602,8 @@ vertex ProjVertexTriA vertexTri_billboard(
             VertexTriBillboard vert [[stage_in]],
             constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
             constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-            constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+            constant VertexTriBillboardArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+            constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA outVert;
     outVert.maskIDs = uint2(0,0);
@@ -1680,7 +1687,8 @@ vertex ProjVertexTriAtmos vertexTri_atmos(
         uint vertID [[vertex_id]],
         constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
         constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-        constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+        constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+        constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriAtmos out;
 
@@ -1688,7 +1696,7 @@ vertex ProjVertexTriAtmos vertexTri_atmos(
     const float3 lightPos = vertArgs.varUni.lightPos;
     const float3 eyePos = uniforms.eyePos;
     const float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    if (vertArgs.uniDrawState.clipCoords) {
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS) {
         out.position = float4(vertPos,1);
     } else {
         out.position = uniforms.pMatrix * (uniforms.mvMatrix * float4(vertPos,1) +
@@ -1745,7 +1753,8 @@ fragment float4 fragmentTri_atmos(
         ProjVertexTriAtmos vert [[stage_in]],
         constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
         constant Lighting &lighting [[ buffer(WKSFragLightingArgBuffer) ]],
-        constant FragTriArgBuffer &fragArgs [[ buffer(WKSFragmentArgBuffer) ]])
+        constant FragTriArgBuffer &fragArgs [[ buffer(WKSFragmentArgBuffer) ]],
+        constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     const float3 lightPos = (lighting.numLights > 0) ? lighting.lights[0].direction : float3(1,0,0);
     const float g = fragArgs.varUni.g;
@@ -1762,13 +1771,14 @@ vertex ProjVertexTriA vertexTri_atmosGround(
                 VertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSVertUniformArgBuffer) ]],
                 constant Lighting &lighting [[ buffer(WKSVertLightingArgBuffer) ]],
-                constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]])
+                constant VertexTriArgBuffer & vertArgs [[buffer(WKSVertexArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
 {
     ProjVertexTriA out;
     out.maskIDs = uint2(0,0);
     
     float3 vertPos = (vertArgs.uniDrawState.singleMat * float4(vert.position,1.0)).xyz;
-    if (vertArgs.uniDrawState.clipCoords) {
+    if (vertArgs.uniDrawState.flags & WK_CLIPCOORDS) {
         out.position = float4(vertPos,1.0);
     } else {
         float4 v = vertArgs.uniDrawState.singleMat * float4(vert.position,1.0);
@@ -1783,7 +1793,8 @@ vertex ProjVertexTriA vertexTri_atmosGround(
 fragment float4 fragmentTri_atmosGround(
                 ProjVertexTriA vert [[stage_in]],
                 constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
-                constant FragTriArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]])
+                constant FragTriArgBuffer & fragArgs [[buffer(WKSFragmentArgBuffer)]],
+                constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     return vert.color;
 }
@@ -1814,7 +1825,7 @@ vertex VertexOut vertStars(constant VertexIn* vertex_array [[ buffer(0) ]],
 fragment float4 fragmentStars(ProjVertexTriB vert [[stage_in]],
                                      constant Uniforms &uniforms [[ buffer(WKSFragUniformArgBuffer) ]],
                                      constant FragTriArgBufferB & fragArgs [[buffer(WKSFragmentArgBuffer)]],
-                                     constant TextureInfo &texArgs [[buffer(WKSVertTextureArgBuffer)]])
+                                     constant TextureInfo &texArgs [[buffer(WKSFragTextureArgBuffer)]])
 //                                     constant RegularTextures & texArgs [[buffer(WKSFragTextureArgBuffer)]])
 {
     int numTextures = TexturesBase(texArgs.texPresent);

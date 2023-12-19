@@ -214,6 +214,9 @@ public:
     // If not set, we don't use indirect buffers to hold our textures
     // This works around what appears to be an Apple bug on old iPhones
     bool textureArgumentBuffers;
+    // If this is set we're trying to work around an encoding problem on
+    //  the XR and XS.  Our exponentional calculation functions crash Metal.
+    bool expressionBug;
     // By default offscreen rendering turns on or off blend enable
     bool offscreenBlendEnable;
     // Information about the renderer passed around to various calls
