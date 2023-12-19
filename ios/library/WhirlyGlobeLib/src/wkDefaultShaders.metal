@@ -455,8 +455,9 @@ vertex ProjVertexTriA vertexTri_lightExp(
     float4 color = vert.color;
     if (vertArgs.uniDrawState.flags & WK_HASEXP) {
         float zoom = ZoomFromSlot(uniforms, vertArgs.uniDrawState.zoomSlot);
-        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
-            color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
+        // Note: Put this back if Apple ever fixes this weird encoding bug
+//        if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
+//            color = ExpCalculateColor(vertArgs.drawStateExp.colorExp, zoom, color);
         float opacity = 1.0;
         if (!(vertArgs.uniDrawState.flags & WK_EXPBUG))
             ExpCalculateFloat(vertArgs.drawStateExp.opacityExp, zoom, color.a);
