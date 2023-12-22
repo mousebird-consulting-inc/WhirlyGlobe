@@ -190,10 +190,6 @@ RenderTargetRef SceneRendererMTL::getDefaultRenderTarget()
 
 bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
 {
-    // For some odd reason we see the expression bug more in offscreen rendering
-//    if (offscreen)
-//        expressionBug = true;
-    
     // Set up a default render target
     RenderTargetMTLRef defaultTarget = RenderTargetMTLRef(new RenderTargetMTL(EmptyIdentity));
     defaultTarget->width = sizeX;

@@ -224,7 +224,7 @@ void ViewPlacementManager::updateLocations(RendererFrameInfo *frameInfo)
 #if TARGET_OS_VISION
             float scale = 1.0;
 #else
-            float scale = [UIScreen mainScreen].scale;
+            float scale = [UIScreen mainScreen].nativeScale;
 #endif
             // We can only modify UIViews on the main thread
             if ([NSThread currentThread] != [NSThread mainThread])
