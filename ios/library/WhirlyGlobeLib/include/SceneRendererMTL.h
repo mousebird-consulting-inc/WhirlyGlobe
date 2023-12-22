@@ -237,6 +237,7 @@ private:
     const std::shared_ptr<bool> _isShuttingDown;
     __weak MaplyRenderController *renderControl;
     bool failed = false;
+    bool offscreenMode = false;
 };
     
 typedef std::shared_ptr<SceneRendererMTL> SceneRendererMTLRef;

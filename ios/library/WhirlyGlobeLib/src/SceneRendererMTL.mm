@@ -190,6 +190,8 @@ RenderTargetRef SceneRendererMTL::getDefaultRenderTarget()
 
 bool SceneRendererMTL::setup(int sizeX,int sizeY,bool offscreen)
 {
+    offscreenMode = offscreen;
+    
     // Set up a default render target
     RenderTargetMTLRef defaultTarget = RenderTargetMTLRef(new RenderTargetMTL(EmptyIdentity));
     defaultTarget->width = sizeX;
@@ -301,6 +303,8 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
         uniforms.flags |= WK_DIDROTATE;
     if (theView->getHasTilted())
         uniforms.flags |= WK_DIDTILT;
+    if (offscreenMode)
+        uniforms.flags |= WK_OFFSCREEN;
     uniforms.frameCount = frameCount;
     uniforms.currentTime = frameInfo->currentTime - scene->getBaseTime();
     frameInfo->scene->copyZoomSlots(uniforms.zoomSlots);
@@ -359,6 +363,7 @@ void SceneRendererMTL::setupDrawStateA(WhirlyKitShader::UniformDrawStateA &drawS
     bzero(&drawState,sizeof(drawState));
     
     drawState.zoomSlot = -1;
+    // Note: Put these in the global Uniforms?
     if (expressionBug)
         drawState.flags |= WK_EXPBUG;
 }

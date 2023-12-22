@@ -171,6 +171,7 @@ typedef enum {
 #define WK_DIDZOOM (1<<8) // Height set since last frame (not animated/user-initiated)
 #define WK_DIDROTATE (1<<9) // Heading set since last frame (not animated/user-initiated)
 #define WK_DIDTILT (1<<10) // Tilt set since last frame (not animated/user-initiated)
+#define WK_OFFSCREEN (1<<11) // If set we're rendering to a memory buffer rather than the screen
 
 // Uniforms for the basic case.  Nothing fancy.
 struct Uniforms
