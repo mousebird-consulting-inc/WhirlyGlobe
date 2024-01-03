@@ -59,6 +59,8 @@ void MapOverlayView::getOffsetMatrices(Matrix4dVector &offsetMatrices, const Whi
 void MapOverlayView::assignMatrix(const Eigen::Matrix4d &mat)
 {
     mvp = mat;
+    
+    runViewUpdates();
 }
 
 void MapOverlayView::setLoc(const WhirlyKit::Point3d &newLoc, bool runUpdates)
