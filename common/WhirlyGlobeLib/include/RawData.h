@@ -20,6 +20,7 @@
 #import <vector>
 #import <string>
 #import <memory>
+#include <functional>
 #import "WhirlyTypes.h"
 
 namespace WhirlyKit
