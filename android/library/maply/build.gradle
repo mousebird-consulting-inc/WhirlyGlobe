@@ -26,6 +26,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'com.mousebirdconsulting.whirlyglobemaply'
     compileSdkVersion 29
     defaultConfig {
         minSdkVersion 21
@@ -35,6 +36,9 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        buildFeatures {
+            buildConfig true
+        }
         buildTypes {
             debug {
                 debuggable true
