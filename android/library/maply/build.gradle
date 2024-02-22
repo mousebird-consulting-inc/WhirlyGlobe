@@ -32,6 +32,7 @@ ext.maplyBuildNative = !ext.has("maplyBuildNative") || maplyBuildNative.toBoolea
 println maplyBuildNative ? "Maply building native cmake" : "Maply skipping native build"
 
 android {
+    namespace 'com.mousebirdconsulting.whirlyglobemaply'
     compileSdkVersion 32
     defaultConfig {
         minSdkVersion 21
