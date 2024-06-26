@@ -198,15 +198,15 @@ RawDataRef RenderTargetGLES::snapshot(int startX,int startY,int snapWidth,int sn
     
     // Note: We're just assuming this format from the texture.  Should check
     uint32_t len = snapWidth * snapHeight * sizeof(GLubyte) * 4;
-    auto* pixels = (GLubyte*) malloc(len*numComponents);
+    auto* pixels = (GLubyte*) malloc(len*4);
     bzero(pixels,len*numComponents);
     if (isColorTarget)
         glReadPixels(startX, startY, snapWidth, snapHeight, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
     else {
         if (numComponents == 1) {
-            glReadPixels(startX, startY, snapWidth, snapHeight, GL_RED, GL_FLOAT, pixels);
+            glReadPixels(startX, startY, snapWidth, snapHeight, GL_RGBA, GL_FLOAT, pixels);
         } else {
-            glReadPixels(startX, startY, snapWidth, snapHeight, GL_RG, GL_FLOAT, pixels);
+            glReadPixels(startX, startY, snapWidth, snapHeight, GL_RGBA, GL_FLOAT, pixels);
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
