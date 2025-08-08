@@ -101,12 +101,12 @@ public:
         the plane.  Returns true if we hit and where.
         Returns false if we didn't, which can only happened if we're turned away.
      */
-    bool pointOnPlaneFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool clip);
+    virtual bool pointOnPlaneFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool clip);
 
     /** From a world location in 3D, figure the projection to the screen.
         Returns a point within the frame.
       */
-    WhirlyKit::Point2f pointOnScreenFromPlane(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
+    virtual WhirlyKit::Point2f pointOnScreenFromPlane(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
 
     /// Set the rotation angle
     virtual void setRotAngle(double newRotAngle,bool viewUpdates);

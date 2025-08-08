@@ -18,6 +18,7 @@
 
 #import "Platform.h"
 #import "MaplyOverlayView.h"
+#import "WhirlyKitLog.h"
 
 using namespace Eigen;
 using namespace WhirlyKit;
@@ -69,6 +70,23 @@ void MapOverlayView::setLoc(const WhirlyKit::Point3d &newLoc, bool runUpdates)
 
 void MapOverlayView::setRotAngle(double newRotAngle, bool runUpdates)
 {
+}
+
+bool MapOverlayView::pointOnPlaneFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool clip)
+{
+    // Model matrix and view matrix
+    Eigen::Matrix4d mvpInv = mvp.inverse();
+
+    Point2d frustPt(2*pt.x()/frameSize.x()-1,2*pt.y()/frameSize.y()-1);
+
+    // Run back through the matrix we're handed by the map toolkit
+    Vector4d modelPt = mvpInv * Vector4d(frustPt.x(),frustPt.y(),1.0,1.0);
+    modelPt /= modelPt.w();
+
+    hit->x() = modelPt.x();
+    hit->y() = modelPt.y();
+    
+    return true;
 }
 
 }

@@ -53,6 +53,17 @@ public:
     /// Set the rotation angle
     void setRotAngle(double newRotAngle,bool viewUpdates) override;
 
+    /** Given a location on the screen and the screen size, figure out where we touched
+        the plane.  Returns true if we hit and where.
+        Returns false if we didn't, which can only happened if we're turned away.
+     */
+    virtual bool pointOnPlaneFromScreen(WhirlyKit::Point2f pt,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize,WhirlyKit::Point3d *hit,bool clip) override;
+
+    /** From a world location in 3D, figure the projection to the screen.
+        Returns a point within the frame.
+      */
+    // virtual WhirlyKit::Point2f pointOnScreenFromPlane(const WhirlyKit::Point3d &worldLoc,const Eigen::Matrix4d *transform,const WhirlyKit::Point2f &frameSize);
+
 protected:
     // Model/view/projection matrix all in one
     // Note: This will only work for 2D mode
