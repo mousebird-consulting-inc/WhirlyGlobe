@@ -65,10 +65,17 @@ public:
 
     // Called to set the matrix, which we'll decompose
     virtual void assignMatrix(const Eigen::Matrix4d &mat);
+    virtual void assignWorldSize(double worldSize);
+
+    // Override the screen size in display coords
+    void assignScreenSizeInDisplayCoords(double size);
+    
+    double overrideSize = 0.0;
     
     // Model/view/projection matrix all in one
     // Note: This will only work for 2D mode
     Eigen::Matrix4d mvp;
+    double worldSize;
     
     /// Used in notifications for identifying a particular view
     id tag;

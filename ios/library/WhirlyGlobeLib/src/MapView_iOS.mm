@@ -101,9 +101,60 @@ void MapViewOverlay_iOS::assignMatrix(const Eigen::Matrix4d &mat)
     mvp = mat;
 }
 
+void MapViewOverlay_iOS::assignWorldSize(double inWorldSize)
+{
+    worldSize = inWorldSize;
+}
+
+
 void MapViewOverlay_iOS::getOffsetMatrices(Matrix4dVector &offsetMatrices,const WhirlyKit::Point2f &frameBufferSize,float bufferSizeX) const
 {
-    offsetMatrices.push_back(Matrix4d::Identity());
+    const Point3d scale = coordAdapter->getScale();
+    
+    Point3f ll,ur;
+    if (wrap && coordAdapter && coordAdapter->getBounds(ll, ur))
+    {
+        // Figure out where we are, first off
+        const GeoCoord geoLL = coordAdapter->getCoordSystem()->localToGeographic(ll);
+        const GeoCoord geoUR = coordAdapter->getCoordSystem()->localToGeographic(ur);
+        const float spanX = geoUR.x()-geoLL.x();
+        const float offX = loc.x()*scale.x()-geoLL.x();
+        const auto num = (int)floor(offX/spanX);
+        const float localSpanX = ur.x()-ll.x();
+//        const float localSpanX = worldSize;
+        const auto llPost = mvp * Vector4d(ll.x(),ll.y(),ll.z(),1.0);
+        const auto urPost = mvp * Vector4d(ur.x(),ur.y(),ur.z(),1.0);
+        const float postSpanX = abs(urPost.x() - llPost.x());
+
+        // See if the framebuffer lands in any of the potential matrices
+        const Matrix4d testMat = mvp;
+        const MbrD screenMbr({ -1.0, -1.0 }, { 1.0, 1.0 });
+
+        for (int thisNum : { num, num - 1, num + 1 })
+        {
+            const Affine3d offsetMat(Translation3d(thisNum*postSpanX,0.0,0.0));
+            const Point3d testPts[4] = {
+                {  thisNum      * localSpanX + ll.x() - bufferSizeX, ll.y(), 0.0 },
+                { (thisNum + 1) * localSpanX + ll.x() + bufferSizeX, ll.y(), 0.0 },
+                { (thisNum + 1) * localSpanX + ll.x() + bufferSizeX, ur.y(), 0.0 },
+                {  thisNum      * localSpanX + ll.x() - bufferSizeX, ur.y(), 0.0 },
+            };
+            MbrD testMbr;
+            for (unsigned int jj=0;jj<4;jj++)
+            {
+                testMbr.addPoint(Slice(Clip(Point4d(testMat * Pad(testPts[jj], 1.0)))));
+            }
+            if (testMbr.overlaps(screenMbr))
+            {
+                offsetMatrices.push_back(offsetMat.matrix());
+            }
+        }
+    }
+
+    if (offsetMatrices.empty())
+    {
+        offsetMatrices.push_back(Matrix4d::Identity());
+    }
 }
 
 void MapViewOverlay_iOS::setLoc(WhirlyKit::Point3d newLoc)
@@ -127,8 +178,17 @@ void MapViewOverlay_iOS::setRotAngle(double newRotAngle,bool runUpdates)
         runViewUpdates();
 }
 
+void MapViewOverlay_iOS::assignScreenSizeInDisplayCoords(double size)
+{
+    overrideSize = size;
+}
+
 Point2d MapViewOverlay_iOS::screenSizeInDisplayCoords(const Point2f &frameSize)
 {
+    if (overrideSize != 0.0) {
+        return Point2d(overrideSize,overrideSize);
+    }
+    
     Point2d screenSize(0,0);
     if (frameSize.x() == 0.0 || frameSize.y() == 0.0)
         return screenSize;
@@ -142,7 +202,7 @@ Point2d MapViewOverlay_iOS::screenSizeInDisplayCoords(const Point2f &frameSize)
     ur = ur/ur.w();
 
     screenSize = 0.5 * (Point2d(ur.x(),ur.y()) - Point2d(ll.x(),ll.y()));
-        
+            
     return screenSize;
 }
 

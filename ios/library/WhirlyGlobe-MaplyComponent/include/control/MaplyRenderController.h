@@ -1110,6 +1110,8 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  */
 @interface MaplyRenderControllerOverlay : MaplyRenderController
 
+- (instancetype)initWithSize:(CGSize)size viewWrap:(bool)wrap;
+
 /**
  If we've set up the map as an overlay, we need to pass in the matrix that's controlling it and the scale.
  This will work for Mapbox

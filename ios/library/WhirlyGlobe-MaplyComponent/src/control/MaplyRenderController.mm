@@ -1445,7 +1445,7 @@ using namespace Eigen;
     std::shared_ptr<SphericalMercatorDisplayAdapter> mercCoordAdapter;
 }
 
-- (instancetype)initWithSize:(CGSize)size
+- (instancetype)initWithSize:(CGSize)size viewWrap:(bool)wrap
 {
     // In this case the view is tied to an outside matrix
     const auto originLon = 0.0;
@@ -1456,7 +1456,7 @@ using namespace Eigen;
     
     auto mapView = std::make_shared<Maply::MapViewOverlay_iOS>(mercCoordAdapter.get());
     mapView->setContinuousZoom(false);
-    mapView->setWrap(false);
+    mapView->setWrap(wrap);
 
     visualView = mapView;
 
@@ -1521,6 +1521,7 @@ using namespace Eigen;
         Eigen::Matrix4d mvp = (inMvp * (scaleTrans * transTrans) ).matrix();
 
         theMapView->assignMatrix(mvp);
+        theMapView->assignWorldSize(worldSize);
         theMapView->assignScreenSizeInDisplayCoords(3.1414/pow(2.0,zoom));
         theMapView->setUserMotion(isMoving);
         theMapView->setHasMoved(hasMoved);
