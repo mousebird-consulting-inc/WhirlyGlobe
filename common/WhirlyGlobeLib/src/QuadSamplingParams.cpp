@@ -38,6 +38,7 @@ void SamplingParams::setCoordSys(CoordSystemRef newSys)
 
 bool SamplingParams::operator == (const SamplingParams &that) const
 {
+    return false;
     if (!coordSys && !that.coordSys)
         return true;
     if ((!coordSys && that.coordSys) ||
