@@ -12,11 +12,17 @@
 
 -(NSURLSession*)createURLSession{
      
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration defaultSessionConfiguration];
     
-    NSURLSession * session = [NSURLSession sessionWithConfiguration:NSURLSessionConfiguration.defaultSessionConfiguration
+    if (@available(iOS 13, tvOS 13, watchOS 6, macOS 10.15, *)) {
+        configuration.TLSMinimumSupportedProtocolVersion = tls_protocol_version_TLSv12;
+    } else {
+        configuration.TLSMinimumSupportedProtocol = kTLSProtocol12;
+    }
+    
+    NSURLSession * session = [NSURLSession sessionWithConfiguration:configuration
                                                            delegate:(id <NSURLSessionDelegate>)self
                                                       delegateQueue:NSOperationQueue.mainQueue];
-    
     
     return session;
 }
