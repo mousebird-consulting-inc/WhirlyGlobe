@@ -1110,13 +1110,13 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
  */
 @interface MaplyRenderControllerOverlay : MaplyRenderController
 
-- (instancetype)initWithSize:(CGSize)size viewWrap:(bool)wrap;
+- (instancetype _Nullable )initWithSize:(CGSize)size viewWrap:(bool)wrap;
 
 /**
  If we've set up the map as an overlay, we need to pass in the matrix that's controlling it and the scale.
  This will work for Mapbox
  */
-- (void)assignViewMatrixFromMapbox:(NSArray<NSNumber *> *)matrixValues
+- (void)assignViewMatrixFromMapbox:(NSArray<NSNumber *> *_Nonnull)matrixValues
                              scale:(double)scale
                           tileSize:(int)tileSize
                           isMoving: (bool)isMoving
@@ -1135,6 +1135,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 
 // Call this to check for scene changes
 - (bool)hasChanges;
+
+// Query for all the vectors that cover a point
+- (NSArray<MaplyVectorObject *> * __nonnull)findVectorsInPointLon:(double)lon lat:(double)lat;
 
 @end
 

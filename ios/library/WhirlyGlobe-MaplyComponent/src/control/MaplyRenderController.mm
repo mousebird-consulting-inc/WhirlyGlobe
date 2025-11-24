@@ -1535,5 +1535,25 @@ using namespace Eigen;
     }
 }
 
+- (NSArray *)findVectorsInPointLon:(double)lon lat:(double)lat
+{
+    NSMutableArray *foundObjs = [NSMutableArray array];
+    
+    Point2f pt = visualView->unwrapCoordinate(Point2f(lon,lat));
+    
+    ViewStateRef viewState = visualView->makeViewState(sceneRenderer.get());
+    
+    ComponentManagerRef compManager = scene->getManager<ComponentManager>(kWKComponentManager);
+    auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,viewState,sceneRenderer->getFramebufferSizeScaled(),true);
+    
+    for (auto foundObj : rets) {
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithRef:foundObj.second];
+        [foundObjs addObject:vecObj];
+    }
+    
+    return foundObjs;
+}
+
+
 @end
 
