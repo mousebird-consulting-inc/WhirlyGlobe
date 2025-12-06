@@ -714,6 +714,57 @@ std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> ComponentManager::fin
     return rets;
 }
 
+std::vector<std::pair<ComponentObjectRef,VectorObjectRef>> ComponentManager::findVectorsArea(
+        const Point2d &ll,const Point2d &ur,const ViewStateRef &viewState,
+        const Point2f &frameSize,int resultLimit)
+{
+    // not locked, we don't care if the size is off, we just want
+    // to typically do the allocations outside the locked region.
+    std::vector<ComponentObjectRef> compRefs;
+    compRefs.reserve(compObjsById.size());
+
+    // Copy out the vectors that might be candidates
+    {
+        std::lock_guard<std::mutex> guardLock(lock);
+        for (const auto &kvp: compObjsById)
+        {
+            const auto &compObj = kvp.second;
+            if (compObj->enable && compObj->isSelectable && !compObj->vecObjs.empty())
+            {
+                compRefs.push_back(compObj);
+            }
+        }
+    }
+
+    std::vector<std::pair<ComponentObjectRef,VectorObjectRef> > rets;
+    rets.reserve((resultLimit > 0) ? resultLimit : compRefs.size());
+
+    // Work through the vector objects
+    for (const auto &compObj: compRefs)
+    {
+        MbrD mbr(ll - compObj->vectorOffset,ur - compObj->vectorOffset);
+
+        for (const auto &vecObj: compObj->vecObjs)
+        {
+            Point2d featLL,featuUR;
+            vecObj->boundingBox(featLL,featuUR);
+            if (mbr.overlaps(MbrD(featLL,featuUR)))
+            {
+                rets.emplace_back(compObj, vecObj);
+            }
+        }
+        
+        if (resultLimit > 0 && rets.size() >= resultLimit)
+        {
+            break;
+        }
+    }
+    
+    return rets;
+
+}
+
+
 #endif //!MAPLY_MINIMAL
 
 }

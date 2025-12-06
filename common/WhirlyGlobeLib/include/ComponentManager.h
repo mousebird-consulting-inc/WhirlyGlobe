@@ -205,6 +205,18 @@ public:
             const Point2d &pt,double maxDist,const ViewStateRef &viewState,
             const Point2f &frameSize,int resultLimit = 0);
 
+    /** Find all the vectors that fall within or near the given point
+     *
+     *  @param pt The point to search in geographic coordinates
+     *  @param maxDist The maximum distance from the point, in device units.
+     *  @param viewState The view state to use for scaling
+     *  @param frameSize The frame size in device coordinates to use for scaling
+     *  @param resultLimit The maximum number of results to return, zero or less for unlimited.
+     */
+    std::vector<CompObjVectorObjPair> findVectorsArea(
+            const Point2d &ll,const Point2d &ur,const ViewStateRef &viewState,
+            const Point2f &frameSize,int resultLimit = 0);
+
     // These are here for convenience
     ShapeManagerRef shapeManager;
 #if !MAPLY_MINIMAL

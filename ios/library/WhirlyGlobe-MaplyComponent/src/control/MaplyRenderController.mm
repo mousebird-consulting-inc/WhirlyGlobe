@@ -1544,7 +1544,28 @@ using namespace Eigen;
     ViewStateRef viewState = visualView->makeViewState(sceneRenderer.get());
     
     ComponentManagerRef compManager = scene->getManager<ComponentManager>(kWKComponentManager);
-    auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,viewState,sceneRenderer->getFramebufferSizeScaled(),true);
+    auto rets = compManager->findVectors(Point2d(pt.x(),pt.y()),20.0,viewState,sceneRenderer->getFramebufferSizeScaled(),0);
+    
+    for (auto foundObj : rets) {
+        MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithRef:foundObj.second];
+        [foundObjs addObject:vecObj];
+    }
+    
+    return foundObjs;
+}
+
+
+- (NSArray *)findVectorsInAreaLlx:(double)llx lly:(double)lly urx:(double)urx ury:(double)ury
+{
+    NSMutableArray *foundObjs = [NSMutableArray array];
+    
+    Point2f ll = visualView->unwrapCoordinate(Point2f(llx,lly));
+    Point2f ur = visualView->unwrapCoordinate(Point2f(urx,ury));
+
+    ViewStateRef viewState = visualView->makeViewState(sceneRenderer.get());
+    
+    ComponentManagerRef compManager = scene->getManager<ComponentManager>(kWKComponentManager);
+    auto rets = compManager->findVectorsArea(Point2d(ll.x(),ll.y()),Point2d(ur.x(),ur.y()),viewState,sceneRenderer->getFramebufferSizeScaled(),0);
     
     for (auto foundObj : rets) {
         MaplyVectorObject *vecObj = [[MaplyVectorObject alloc] initWithRef:foundObj.second];

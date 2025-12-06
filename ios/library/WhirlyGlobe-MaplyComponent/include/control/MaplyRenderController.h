@@ -1139,5 +1139,8 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 // Query for all the vectors that cover a point
 - (NSArray<MaplyVectorObject *> * __nonnull)findVectorsInPointLon:(double)lon lat:(double)lat;
 
+// Query for all the vectors in an area
+- (NSArray<MaplyVectorObject *> * __nonnull)findVectorsInAreaLlx:(double)llx lly:(double)lly urx:(double)urx ury:(double)ury;
+
 @end
 
