@@ -95,6 +95,7 @@ protected:
 
 protected:
     bool isColorTarget = true;
+    int numComponents = 1;
 };
 typedef std::shared_ptr<RenderTargetGLES> RenderTargetGLESRef;
 

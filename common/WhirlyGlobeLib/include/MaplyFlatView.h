@@ -22,7 +22,7 @@ namespace Maply
 {
 
 /** The flat view implements a top down orthogonal projection
-    which is prefect for doing a straight up 2D map.
+    which is perfect for doing a straight up 2D map.
     It thinks more like a window in that it's trying to
     display the full extents (as passed in) within a large window
     (also passed in) but only showing a smaller window within that.
