@@ -32,7 +32,8 @@ namespace WhirlyKit
 struct TextureBaseGLES : virtual public TextureBase
 {
     TextureBaseGLES() = default;
-    TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId) { }
+    explicit TextureBaseGLES(SimpleIdentity thisId) : TextureBase(thisId) {}
+    explicit TextureBaseGLES(GLuint id) : TextureBase(), glId(id) {}
     TextureBaseGLES(std::string name) : TextureBase(std::move(name)) { }
     
     /// Return the unique GL ID.
@@ -59,6 +60,8 @@ struct TextureGLES : virtual public Texture, virtual public TextureBaseGLES
     TextureGLES(std::string name, RawDataRef texData, bool isPVRTC);
 
     TextureGLES(RawDataRef texData, TextureType fmt, int width, int height, bool isPVRTC);
+    TextureGLES(std::string name, GLuint texId, TextureType fmt, int width,
+                int height);
     TextureGLES(std::string name, RawDataRef texData,
                 TextureType fmt, int width, int height, bool isPVRTC);
 

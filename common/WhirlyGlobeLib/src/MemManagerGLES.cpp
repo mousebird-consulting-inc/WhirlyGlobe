@@ -186,15 +186,19 @@ void OpenGLMemManager::removeTexID(GLuint texID)
     {
         // Clear out the texture data first
         glBindTexture(GL_TEXTURE_2D, texID);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-        std::lock_guard<std::mutex> guardLock(idLock);
+        GLint status = 0;
+        glGetTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_IMMUTABLE_FORMAT, &status);
+        if (status != GL_TRUE) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-        // Add this one back to the cache set if we should keep it.
-        if (!shutdown && texIDs.size() < maxCachedTextures)
-        {
-            texIDs.insert(texID);
-            texID = 0;
+            std::lock_guard<std::mutex> guardLock(idLock);
+
+            // Add this one back to the cache set if we should keep it.
+            if (!shutdown && texIDs.size() < maxCachedTextures) {
+                texIDs.insert(texID);
+                texID = 0;
+            }
         }
     }
 
