@@ -295,11 +295,11 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
 
     // See if we're dealing with a globe or map view
     float overlapMarginX = 0.0;
-    if (__unused const auto mapView = dynamic_cast<Maply::MapView *>(theView))
-    {
-        overlapMarginX = (float)scene->getOverlapMargin();
+    if ([[maybe_unused]] const auto mapView =
+            dynamic_cast<Maply::MapView *>(theView)) {
+      overlapMarginX = (float)scene->getOverlapMargin();
     }
-    
+
     // Get the model and view matrices
     const Eigen::Matrix4d modelTrans4d = theView->calcModelMatrix();
     const Eigen::Matrix4f modelTrans = Matrix4dToMatrix4f(modelTrans4d);

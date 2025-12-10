@@ -20,8 +20,6 @@
 #import "Dictionary.h"
 #import "WhirlyKitLog.h"
 #import <array>
-#import <vector>
-#import <regex>
 
 namespace WhirlyKit
 {
@@ -658,10 +656,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             for (const VectorShapeRef &shape : vecObj->shapes)
             {
                 // for each line in the shape set ... (we expect exactly one)
-                if (__unused auto line = dynamic_cast<VectorLinear*>(shape.get()))
-                {
-                    if (!uuidMarkers)
-                    {
+                if ([[maybe_unused]] auto line = dynamic_cast<VectorLinear *>(shape.get())) {
+                    if (!uuidMarkers) {
                         // Find/create the map entry now that we know there's something to put in it
                         std::tie(uuidMarkers, uuidVecObjs, uuidLabels) = Lookup(uuid, markersByUUID);
                     }
@@ -670,14 +666,13 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
                     double rot;
-                    if (!vecObj->linearMiddle(middle, rot, styleSet->coordSys))
-                    {
+                    if (!vecObj->linearMiddle(middle, rot, styleSet->coordSys)) {
 #if DEBUG
                         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute middle of linear shape");
 #endif
                         continue;
                     }
-                    
+
                     const auto pt = Point2f(middle.x(), middle.y());
 
                     bool markerAdded = false;
@@ -740,10 +735,8 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
             for (const auto &shape : vecObj->shapes)
             {
                 // each polygon in the shape set... (we expect exactly one)
-                if (__unused auto areal = dynamic_cast<VectorAreal*>(shape.get()))
-                {
-                    if (!uuidMarkers)
-                    {
+                if ([[maybe_unused]] auto areal = dynamic_cast<VectorAreal *>(shape.get())) {
+                    if (!uuidMarkers) {
                         // Find/create the map entry now that we know there's something to put in it
                         std::tie(uuidMarkers, uuidVecObjs, uuidLabels) = Lookup(uuid, markersByUUID);
                     }
@@ -751,14 +744,13 @@ void MapboxVectorLayerSymbol::buildObjects(PlatformThreadInfo *inst,
                     // Place the marker at the middle of the polygon.
                     // Note that if there are multiple shapes, this will be recalculated unnecessarily.
                     Point2d middle;
-                    if (!vecObj->center(middle))
-                    {
+                    if (!vecObj->center(middle)) {
 #if DEBUG
                         wkLogLevel(Warn, "MapboxVectorLayerSymbol: Failed to compute center of areal shape");
 #endif
                         continue;
                     }
-                    
+
                     const Point2f pt = middle.cast<float>();
 
                     bool markerAdded = false;

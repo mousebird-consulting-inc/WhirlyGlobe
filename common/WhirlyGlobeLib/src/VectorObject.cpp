@@ -863,17 +863,21 @@ VectorObjectType VectorObject::getVectorType() const
     {
         VectorObjectType thisType = VectorNoneType;
         const auto shape = shapeRef.get();
-        if (const auto points = dynamic_cast<VectorPoints*>(shape))
-            thisType = VectorPointType;
+        if ([[maybe_unused]] const auto points =
+                dynamic_cast<VectorPoints *>(shape))
+          thisType = VectorPointType;
         else {
-            if (const auto lin = dynamic_cast<VectorLinear*>(shape))
-                thisType = VectorLinearType;
-            else {
-                if (const auto lin3d = dynamic_cast<VectorLinear3d*>(shape))
-                    thisType = VectorLinear3dType;
-                else if (const auto ar = dynamic_cast<VectorAreal*>(shape))
-                    thisType = VectorArealType;
-            }
+          if ([[maybe_unused]] const auto lin =
+                  dynamic_cast<VectorLinear *>(shape))
+            thisType = VectorLinearType;
+          else {
+            if ([[maybe_unused]] const auto lin3d =
+                    dynamic_cast<VectorLinear3d *>(shape))
+              thisType = VectorLinear3dType;
+            else if ([[maybe_unused]] const auto ar =
+                         dynamic_cast<VectorAreal *>(shape))
+              thisType = VectorArealType;
+          }
         }
 
         if (type == VectorNoneType)

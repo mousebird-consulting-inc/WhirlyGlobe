@@ -16,12 +16,13 @@
  *  limitations under the License.
  */
 
-#import <ctime>
-#import <vector>
-#import <string>
-#import <memory>
-#import <functional>
 #import "WhirlyTypes.h"
+
+#import <ctime>
+#import <functional>
+#import <memory>
+#import <string>
+#import <vector>
 
 namespace WhirlyKit
 {

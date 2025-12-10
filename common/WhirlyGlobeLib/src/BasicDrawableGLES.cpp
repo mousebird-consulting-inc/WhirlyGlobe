@@ -18,7 +18,6 @@
 
 #import "BasicDrawableGLES.h"
 #import "WhirlyKitLog.h"
-#import <cstdint>
 
 using namespace Eigen;
 
@@ -291,7 +290,7 @@ GLuint BasicDrawableGLES::setupVAO(ProgramGLES *prog)
     }
     
     // All the rest of the attributes
-    const OpenGLESAttribute *progAttrs[vertexAttributes.size()];
+    std::vector<const OpenGLESAttribute *> progAttrs(vertexAttributes.size());
     for (unsigned int ii=0;ii<vertexAttributes.size();ii++)
     {
         progAttrs[ii] = nullptr;

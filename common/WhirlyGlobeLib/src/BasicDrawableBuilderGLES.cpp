@@ -27,7 +27,7 @@ namespace WhirlyKit
 void BasicDrawableTweakerGLES::tweakForFrame(Drawable *inDraw,RendererFrameInfo *frameInfo)
 {
     if (colorExp || opacityExp)
-    if (auto program = dynamic_cast<const ProgramGLES*>(frameInfo->program))
+    if ([[maybe_unused]] auto program = dynamic_cast<const ProgramGLES*>(frameInfo->program))
     if (auto draw = dynamic_cast<BasicDrawable*>(inDraw))
     {
         const float zoom = getZoom(*inDraw,*frameInfo->scene,-1.0f);
