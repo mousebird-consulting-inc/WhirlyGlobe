@@ -540,7 +540,7 @@ bool ProgramGLES::init(const char *vShaderString,
             }
         }
 
-        glTransformFeedbackVaryings(program, (int)varying->size(), &names[0], GL_SEPARATE_ATTRIBS);
+        glTransformFeedbackVaryings(program, (int)varying->size(), &names[0], GL_INTERLEAVED_ATTRIBS);
 
         if (!CheckGLError("ProgramGLES: Error setting up varyings in"))
         {

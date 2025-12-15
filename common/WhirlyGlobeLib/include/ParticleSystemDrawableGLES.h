@@ -64,7 +64,7 @@ protected:
     struct VaryBufferPair {
         GLuint buffers[2];
     };
-    std::vector<VaryBufferPair> varyBuffers;
+    VaryBufferPair varyBuffer;
     std::vector<SimpleIdentity> varyNames;
 
     GLuint pointBuffer = 0;
@@ -77,6 +77,14 @@ protected:
     void drawSetupUniforms(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog);
     void drawBindAttrs(RendererFrameInfo *frameInfo,Scene *scene,ProgramGLES *prog,const BufferChunk &chunk,int pointsSoFar,bool useInstancingHere);
     void drawUnbindAttrs(ProgramGLES *prog);
+
+    GLuint getTotalVaryingsSize() const {
+        GLuint totalVarySize = 0;
+        for (const auto &varyAttr : varyAttrs) {
+            totalVarySize += varyAttr.size();
+        }
+        return totalVarySize;
+    }
 };
     
 }

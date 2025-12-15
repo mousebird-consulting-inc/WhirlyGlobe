@@ -509,7 +509,7 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
         if (UNLIKELY(reportStats))
             perfTimer.startTiming("Calculation Shaders");
 
-#if 0   // Not doing any calculation passes in OpenGL anymore.
+#if 1
         // Run any calculation shaders
         // These should be independent of screen space, so we only run them once and ignore offsets.
         bool calcPassDone = false;
