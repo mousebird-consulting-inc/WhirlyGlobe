@@ -604,7 +604,8 @@ bool ProgramGLES::init(const char *vShaderString,
         uni->index = glGetUniformLocation(program, thingName);
         uniforms[uni->nameID] = uni;
 #if DUMP_UNIFORMS
-        wkLog("%s Uniform %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numUniform, uni->nameID, uni->index, thingName);
+        wkLog(
+            "%s Uniform %d/%d, name=%d, idx=%d, %s", name.c_str(), ii, numUniform, uni->nameID, uni->index, thingName);
 #endif
     }
     if (!CheckGLError("ProgramGLES: glGetActiveUniform"))
@@ -626,7 +627,8 @@ bool ProgramGLES::init(const char *vShaderString,
         attr->nameID = StringIndexer::getStringID(thingName);
         attrs[attr->nameID] = attr;
 #if DUMP_UNIFORMS
-        wkLog("%s Attribute %d/%d, name=%d, idx=%d, %s", inName.c_str(), ii, numAttr, attr->nameID, attr->index, thingName);
+        wkLog(
+            "%s Attribute %d/%d, name=%d, idx=%d, %s", name.c_str(), ii, numAttr, attr->nameID, attr->index, thingName);
 #endif
     }
     if (!CheckGLError("ProgramGLES: glGetActiveAttrib"))

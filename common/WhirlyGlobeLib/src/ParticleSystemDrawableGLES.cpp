@@ -20,6 +20,15 @@
 #import "SceneGLES.h"
 #import "WhirlyKitLog.h"
 
+#include <GLES3/gl32.h>
+
+#define DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES 0
+#define DUMP_PARTICLE_VARYING_DATA_WEBGL 0
+#if DUMP_PARTICLE_VARYING_DATA_WEBGL
+#include <webgl/webgl2.h>
+#include <sstream>
+#endif
+
 namespace WhirlyKit
 {
 
@@ -82,11 +91,14 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
         const GLuint totalVaryingsBatchSize = totalVaryingsSize * batchSize;
         for (int i = 0; i < 2; ++i) {
             const auto buffer = setupInfo->memManager->getBufferID(totalVaryingsBatchSize, GL_DYNAMIC_DRAW);
+#if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
             wkLogLevel(Debug,
-                       "ParticleSystemDrawableGLES: Allocated varying buffer %d of size %u bytes for batch of %d",
+                       "ParticleSystemDrawableGLES: Allocated varying buffer[%u]=%u of size %u bytes for batch of %d",
                        i,
+                       buffer,
                        totalVaryingsBatchSize,
                        batchSize);
+#endif
 
             // Zero out the new buffers
             // That's how we signal that they're new
@@ -97,21 +109,6 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
             varyBuffer.buffers[i] = buffer;
         }
     }
-
-    // Zero it out to avoid warnings
-    //    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-    //    void *glMem = NULL;
-    //    EAGLContext *context = [EAGLContext currentContext];
-    //    if (context.API < kEAGLRenderingAPIOpenGLES3)
-    //        glMem = glMapBufferOES(GL_ARRAY_BUFFER, GL_WRITE_ONLY_OES);
-    //    else
-    //        glMem = glMapBufferRange(GL_ARRAY_BUFFER, 0, totalBytes, GL_MAP_WRITE_BIT);
-    //    memset(glMem, 0, totalBytes);
-    //    if (context.API < kEAGLRenderingAPIOpenGLES3)
-    //        glUnmapBufferOES(GL_ARRAY_BUFFER);
-    //    else
-    //        glUnmapBuffer(GL_ARRAY_BUFFER);
-    //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 void ParticleSystemDrawableGLES::teardownForRenderer(const RenderSetupInfo *inSetupInfo,Scene *scene,RenderTeardownInfoRef teardown)
@@ -268,20 +265,20 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
     
     // Bind the various attributes to their offsets
     int attrOffset = 0;
-    for (SingleVertexAttributeInfoGLES &attrInfo : vertAttrs)
-    {
-        int attrSize = attrInfo.size();
-
+    for (SingleVertexAttributeInfoGLES &attrInfo : vertAttrs) {
+        const int attrSize = attrInfo.size();
         if (const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID)) {
+#if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
             wkLogLevel(Info,
-                       "%s: Binding attribute %s at index %d, size %u, vertexOffset %d, buffer offset %d",
+                       "%s: Binding attribute %s at index %d, size %u, vertexOffset %d, buffer offset %d stride %d",
                        prog->getName().c_str(),
                        StringIndexer::getString(attrInfo.nameID).c_str(),
                        thisAttr->index,
                        attrSize,
                        vertexOffset,
-                       attrOffset + chunk.bufferStart);
-
+                       attrOffset + chunk.bufferStart,
+                       vertexSize);
+#endif
             glVertexAttribPointer(thisAttr->index,
                                   attrInfo.glEntryComponents(),
                                   attrInfo.glType(),
@@ -308,21 +305,42 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
         const GLuint varyingsStride = getTotalVaryingsSize();
         GLuint varyingOffset = 0;
 
+#if DUMP_PARTICLE_VARYING_DATA_WEBGL
+        std::vector<float> debugData(varyingsStride * batchSize / sizeof(float));
+        glGetBufferSubData(GL_ARRAY_BUFFER, 0, varyingsStride * batchSize, debugData.data());
+        std::ostringstream debugStr;
+        for (float val : debugData) {
+            debugStr << val << " ";
+        }
+        wkLogLevel(Info,
+                   "%s: Varying buffer %u (stride %u, batch size %u) data: %s",
+                   prog->getName().c_str(),
+                   varyBuffer.buffers[activeVaryBuffer],
+                   varyingsStride,
+                   batchSize,
+                   debugStr.str().c_str());
+#endif
+
         for (std::size_t varyWhich = 0; varyWhich < varyAttrs.size(); ++varyWhich) {
             const auto &varyInfo = varyAttrs[varyWhich];
             if (const OpenGLESAttribute *thisAttr = prog->findAttribute(varyNames[varyWhich])) {
                 const GLuint size = varyInfo.size();
 
+#if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
                 wkLogLevel(Info,
-                           "%s: Binding varying to attribute %s at index %d, size %u, vertexOffset %d, buffer offset "
-                           "%d, buffer %u",
+                           "%s: Binding varying to attribute %s (components=%d) at index %d, size %u, vertexOffset %d, "
+                           "buffer offset "
+                           "%d, buffer %u, stride %u",
                            prog->getName().c_str(),
                            StringIndexer::getString(varyInfo.nameID).c_str(),
+                           varyInfo.glEntryComponents(),
                            thisAttr->index,
                            size,
                            vertexOffset,
                            varyingOffset,
-                           varyBuffer.buffers[activeVaryBuffer]);
+                           varyBuffer.buffers[activeVaryBuffer],
+                           varyingsStride);
+#endif
 
                 glVertexAttribPointer(thisAttr->index,
                                       varyInfo.glEntryComponents(),
@@ -338,26 +356,6 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
                 }
                 glEnableVertexAttribArray(thisAttr->index);
             }
-
-            //        {
-            //            GLint attrSize = varyInfo.size();
-            //            glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyWhich].buffers[activeVaryBuffer]);
-            //            void *glMem = NULL;
-            //            glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize,
-            //            chunk.numVertices*attrSize, GL_MAP_READ_BIT); float *floatData = (float *)glMem; Point3f
-            //            *vecData = (Point3f *)vecData; int numBad = 0; for (int
-            //            ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
-            //                if (isnan(floatData[ix]))
-            //                    numBad++;
-            //            if (numBad > 1)
-            //                NSLog(@"bindAttrs(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d",
-            //                StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
-            //            //            else
-            //            //                NSLog(@"calculate(): Got good data for %s, vertexStart = %d",
-            //            StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
-            //            glUnmapBuffer(GL_ARRAY_BUFFER);
-            //            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            //        }
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
@@ -412,19 +410,25 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scen
         drawBindAttrs(frameInfo,scene,prog,chunk,chunk.vertexStart,false);
 
         // Now bind the varying outputs to their buffer
-        int outputVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
+        const int outputVaryBuffer = (activeVaryBuffer == 0) ? 1 : 0;
         const auto totalVaryingSize = getTotalVaryingsSize();
         glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER,
                           0,
                           varyBuffer.buffers[outputVaryBuffer],
                           0,
                           chunk.numVertices * totalVaryingSize);
+#if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
+        wkLogLevel(Info,
+                   "Binding transform feedback buffer %u for output varyings of size %u bytes",
+                   varyBuffer.buffers[outputVaryBuffer],
+                   chunk.numVertices * totalVaryingSize);
 
         wkLogLevel(Info,
                    "Calculating chunk vertexStart = %d, numVertex = %d to buffer %u",
                    chunk.vertexStart,
                    chunk.numVertices,
                    varyBuffer.buffers[outputVaryBuffer]);
+#endif
 
         glBeginTransformFeedback(GL_POINTS);
         CheckGLError("BasicDrawable::calculate() glBeginTransformFeedback");
@@ -435,30 +439,26 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scen
         glEndTransformFeedback();
         CheckGLError("BasicDrawable::calculate() glEndTransformFeedback");
 
+        glBindBufferRange(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0, 0, 0);
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, 0);
+        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
 
-        // Check the buffer for debugging
-//                varyIdx = 0;
-//                for (SingleVertexAttributeInfo &varyInfo : varyAttrs) {
-//                    GLint attrSize = varyInfo.size();
-//                    glBindBuffer(GL_ARRAY_BUFFER, varyBuffers[varyIdx].buffers[outputVaryBuffer]);
-//                    void *glMem = NULL;
-//                    glMem = glMapBufferRange(GL_ARRAY_BUFFER, chunk.vertexStart*attrSize, chunk.numVertices*attrSize, GL_MAP_READ_BIT);
-//                    float *floatData = (float *)glMem;
-//                    Point3f *vecData = (Point3f *)vecData;
-//                    int numBad = 0;
-//                    for (int ix=0;ix<chunk.numVertices*(attrSize/4);ix++)
-//                        if (isnan(floatData[ix]))
-//                            numBad++;
-//                    if (numBad > 1)
-//                        wkLogLevel(Debug,"calculate(): Got junk data for %s, vertexStart = %d, numVertex = %d, bad = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart,chunk.numVertices,numBad);
-//        //            else
-//        //                NSLog(@"calculate(): Got good data for %s, vertexStart = %d", StringIndexer::getString(varyInfo.nameID).c_str(),chunk.vertexStart);
-//                    glUnmapBuffer(GL_ARRAY_BUFFER);
-//                    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//                    varyIdx++;
-//                }
-        
+#if DUMP_PARTICLE_VARYING_DATA_WEBGL
+        std::vector<float> debugData(totalVaryingSize * batchSize / sizeof(float));
+        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, varyBuffer.buffers[outputVaryBuffer]);
+        glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, totalVaryingSize * batchSize, debugData.data());
+        glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
+
+        std::ostringstream debugStream;
+        debugStream << prog->getName() << ": Output varying data for chunk starting at vertex " << chunk.vertexStart
+                    << ", numVertices " << chunk.numVertices << " to buffer " << varyBuffer.buffers[outputVaryBuffer]
+                    << " (stride " << totalVaryingSize << " batch size " << batchSize << "): ";
+        for (std::size_t i = 0; i < debugData.size(); ++i) {
+            debugStream << debugData[i] << " ";
+        }
+        wkLogLevel(Info, "%s", debugStream.str().c_str());
+#endif
+
         drawUnbindAttrs(prog);
     }
     
@@ -494,10 +494,7 @@ void ParticleSystemDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *sc
     drawSetupUniforms(frameInfo, scene, prog);
     
     // Work through the batches
-    for (const BufferChunk &chunk : chunks)
-    {
-        //        NSLog(@"Drawing chunk vertexStart = %d, numVertex = %d",chunk.vertexStart,chunk.numVertices);
-        
+    for (const BufferChunk &chunk : chunks) {
         // Use the rectangle buffer for instancing
         if (rectBuffer)
         {
@@ -552,7 +549,7 @@ void ParticleSystemDrawableGLES::draw(RendererFrameInfoGLES *frameInfo,Scene *sc
         
         drawUnbindAttrs(prog);
     }
-    
+
     // Tear down any textures we set up
     drawTeardownTextures(frameInfo, scene, prog, hasTexture, progTexBound);
 }
