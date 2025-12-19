@@ -17,13 +17,18 @@
  */
 
 #import "ParticleSystemDrawableGLES.h"
+#include "VertexAttributeGLES.h"
 #import "SceneGLES.h"
 #import "WhirlyKitLog.h"
 
 #include <GLES3/gl32.h>
 
+#ifndef DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
 #define DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES 0
-#define DUMP_PARTICLE_VARYING_DATA_WEBGL 0
+#endif
+#ifndef DUMP_PARTICLE_VARYING_DATA_WEBGL
+#define DUMP_PARTICLE_VARYING_DATA_WEBGL 0 // max number of floats to dump
+#endif
 #if DUMP_PARTICLE_VARYING_DATA_WEBGL
 #include <webgl/webgl2.h>
 #include <sstream>
@@ -49,7 +54,8 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
     const int pointVertexBytes = vertexSize * numTotalPoints;
     pointBuffer = setupInfo->memManager->getBufferID(pointVertexBytes, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, pointVertexBytes, nullptr);
+    std::vector<std::uint8_t> zeroData(pointVertexBytes, 0);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, pointVertexBytes, zeroData.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     // Set up rectangles
@@ -103,7 +109,8 @@ void ParticleSystemDrawableGLES::setupForRenderer(const RenderSetupInfo *inSetup
             // Zero out the new buffers
             // That's how we signal that they're new
             glBindBuffer(GL_ARRAY_BUFFER, buffer);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, totalVaryingsBatchSize, nullptr);
+            std::vector<std::uint8_t> zeroData(totalVaryingsBatchSize, 0);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, totalVaryingsBatchSize, zeroData.data());
             glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             varyBuffer.buffers[i] = buffer;
@@ -268,6 +275,68 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
     for (SingleVertexAttributeInfoGLES &attrInfo : vertAttrs) {
         const int attrSize = attrInfo.size();
         if (const OpenGLESAttribute *thisAttr = prog->findAttribute(attrInfo.nameID)) {
+            const auto hit = std::find_if(inOutVaryings.begin(), inOutVaryings.end(), [&attrInfo](const auto &pair) {
+                return attrInfo.nameID == pair.second;
+            });
+            if (hit != inOutVaryings.end()) {
+                GLuint varyOffset = 0;
+                SingleVertexAttributeInfoGLES *targetVaryAttr = nullptr;
+                for (auto i = varyAttrs.begin(); i != varyAttrs.end(); ++i) {
+                    if (i->nameID == hit->first) {
+                        targetVaryAttr = &*i;
+                        break;
+                    }
+                    varyOffset += i->size();
+                }
+                if (targetVaryAttr) {
+                    // Bind this attribute to the active transform feedback varying buffer instead
+                    // Binding to the "other" buffer results in an error.
+                    const GLuint varyingsStride = getTotalVaryingsSize();
+
+                    glBindBuffer(GL_ARRAY_BUFFER, varyBuffer.buffers[activeVaryBuffer]);
+#if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
+                    std::string dataStr;
+#if DUMP_PARTICLE_VARYING_DATA_WEBGL
+                    std::vector<float> debugData(
+                        std::min(DUMP_PARTICLE_VARYING_DATA_WEBGL, (int)(targetVaryAttr->size() / sizeof(float))));
+                    glGetBufferSubData(GL_ARRAY_BUFFER, varyOffset, debugData.size() * sizeof(float), debugData.data());
+                    std::ostringstream debugStr;
+                    for (float val : debugData) {
+                        debugStr << val << " ";
+                    }
+                    dataStr = ", data: " + debugStr.str();
+#endif
+
+                    wkLogLevel(
+                        Info,
+                        "%s: Binding attribute %s at index %u, size %u to varying %s buffer %u offset %u stride %u%s",
+                        prog->getName().c_str(),
+                        StringIndexer::getString(attrInfo.nameID).c_str(),
+                        thisAttr->index,
+                        attrSize,
+                        StringIndexer::getString(targetVaryAttr->nameID).c_str(),
+                        varyBuffer.buffers[activeVaryBuffer],
+                        varyOffset,
+                        varyingsStride,
+                        dataStr.c_str());
+#endif
+
+                    glVertexAttribPointer(thisAttr->index,
+                                          attrInfo.glEntryComponents(),
+                                          attrInfo.glType(),
+                                          attrInfo.glNormalize(),
+                                          varyingsStride,
+                                          (const GLvoid *)(long)(varyOffset));
+                    if (useInstancingHere) {
+                        const int divisor = useInstancing ? 1 : 0;
+                        glVertexAttribDivisor(thisAttr->index, divisor);
+                    }
+                    glEnableVertexAttribArray(thisAttr->index);
+                    glBindBuffer(GL_ARRAY_BUFFER, pointBuffer);
+                    continue;
+                }
+            }
+
 #if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
             wkLogLevel(Info,
                        "%s: Binding attribute %s at index %d, size %u, vertexOffset %d, buffer offset %d stride %d",
@@ -305,32 +374,14 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
         const GLuint varyingsStride = getTotalVaryingsSize();
         GLuint varyingOffset = 0;
 
-#if DUMP_PARTICLE_VARYING_DATA_WEBGL
-        std::vector<float> debugData(varyingsStride * batchSize / sizeof(float));
-        glGetBufferSubData(GL_ARRAY_BUFFER, 0, varyingsStride * batchSize, debugData.data());
-        std::ostringstream debugStr;
-        for (float val : debugData) {
-            debugStr << val << " ";
-        }
-        wkLogLevel(Info,
-                   "%s: Varying buffer %u (stride %u, batch size %u) data: %s",
-                   prog->getName().c_str(),
-                   varyBuffer.buffers[activeVaryBuffer],
-                   varyingsStride,
-                   batchSize,
-                   debugStr.str().c_str());
-#endif
-
         for (std::size_t varyWhich = 0; varyWhich < varyAttrs.size(); ++varyWhich) {
             const auto &varyInfo = varyAttrs[varyWhich];
+            const GLuint size = varyInfo.size();
             if (const OpenGLESAttribute *thisAttr = prog->findAttribute(varyNames[varyWhich])) {
-                const GLuint size = varyInfo.size();
-
 #if DEBUG_PARTICLE_SYSTEM_DRAWABLE_GLES
                 wkLogLevel(Info,
                            "%s: Binding varying to attribute %s (components=%d) at index %d, size %u, vertexOffset %d, "
-                           "buffer offset "
-                           "%d, buffer %u, stride %u",
+                           "buffer offset %d, buffer %u, stride %u",
                            prog->getName().c_str(),
                            StringIndexer::getString(varyInfo.nameID).c_str(),
                            varyInfo.glEntryComponents(),
@@ -348,7 +399,6 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
                                       varyInfo.glNormalize(),
                                       varyingsStride,
                                       (const GLvoid *)(long)varyingOffset);
-                varyingOffset += size;
 
                 if (useInstancingHere) {
                     const int divisor = useInstancing ? 1 : 0;
@@ -356,6 +406,7 @@ void ParticleSystemDrawableGLES::drawBindAttrs(RendererFrameInfo *,Scene *,Progr
                 }
                 glEnableVertexAttribArray(thisAttr->index);
             }
+            varyingOffset += size;
         }
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
@@ -444,9 +495,10 @@ void ParticleSystemDrawableGLES::calculate(RendererFrameInfoGLES *frameInfo,Scen
         glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
 
 #if DUMP_PARTICLE_VARYING_DATA_WEBGL
-        std::vector<float> debugData(totalVaryingSize * batchSize / sizeof(float));
+        std::vector<float> debugData(
+            std::min(DUMP_PARTICLE_VARYING_DATA_WEBGL, (int)(totalVaryingSize * batchSize / sizeof(float))));
         glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, varyBuffer.buffers[outputVaryBuffer]);
-        glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, totalVaryingSize * batchSize, debugData.data());
+        glGetBufferSubData(GL_TRANSFORM_FEEDBACK_BUFFER, 0, debugData.size() * sizeof(float), debugData.data());
         glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0);
 
         std::ostringstream debugStream;

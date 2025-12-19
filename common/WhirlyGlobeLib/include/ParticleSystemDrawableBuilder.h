@@ -34,6 +34,7 @@ public:
     virtual void setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
                        const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
                        const std::vector<SimpleIdentity> &inVaryNames,
+                       const std::vector<std::pair<SimpleIdentity, SimpleIdentity>> &inOutVaryings,
                        int numTotalPoints,
                        int batchSize,
                        int vertexSize,

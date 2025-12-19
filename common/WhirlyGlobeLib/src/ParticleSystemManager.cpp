@@ -160,6 +160,7 @@ SimpleIdentity ParticleSystemManager::addParticleSystem(const ParticleSystem &ne
         draw->setup(sceneRep->partSys.vertAttrs,
                     sceneRep->partSys.varyingAttrs,
                     sceneRep->partSys.varyNames,
+                    sceneRep->partSys.inOutVaryings,
                     totalParticles,
                     sceneRep->partSys.batchSize,
                     newSystem.vertexSize,

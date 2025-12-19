@@ -60,7 +60,8 @@ struct ParticleSystemDrawableGLES : virtual public ParticleSystemDrawable, virtu
 protected:
     std::vector<SingleVertexAttributeInfoGLES> vertAttrs;
     std::vector<SingleVertexAttributeInfoGLES> varyAttrs;
-    
+    std::vector<std::pair<SimpleIdentity, SimpleIdentity>> inOutVaryings;
+
     struct VaryBufferPair {
         GLuint buffers[2];
     };

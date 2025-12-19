@@ -26,12 +26,17 @@ ParticleSystemDrawableBuilderGLES::ParticleSystemDrawableBuilderGLES(std::string
 {
     draw = new ParticleSystemDrawableGLES(std::move(name));
 }
-    
-void ParticleSystemDrawableBuilderGLES::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
-                   const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-                   const std::vector<SimpleIdentity> &inVaryNames,
-                   int numTotalPoints,int batchSize,int vertexSize,bool useRectangles,bool useInstancing)
-{
+
+void ParticleSystemDrawableBuilderGLES::setup(
+    const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
+    const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+    const std::vector<SimpleIdentity> &inVaryNames,
+    const std::vector<std::pair<SimpleIdentity, SimpleIdentity>> &inOutVaryings,
+    int numTotalPoints,
+    int batchSize,
+    int vertexSize,
+    bool useRectangles,
+    bool useInstancing) {
     if (auto *drawGL = dynamic_cast<ParticleSystemDrawableGLES *>(draw))
     {
         for (auto attr : inVertAttrs)
@@ -44,11 +49,19 @@ void ParticleSystemDrawableBuilderGLES::setup(const std::vector<SingleVertexAttr
             drawGL->varyAttrs.emplace_back(varyAttr);
         }
         drawGL->varyNames = inVaryNames;
-        ParticleSystemDrawableBuilder::setup(inVertAttrs,inVaryAttrs,inVaryNames,numTotalPoints,
-                                             batchSize,drawGL->vertexSize,useRectangles,useInstancing);
+        drawGL->inOutVaryings = inOutVaryings;
+        ParticleSystemDrawableBuilder::setup(inVertAttrs,
+                                             inVaryAttrs,
+                                             inVaryNames,
+                                             inOutVaryings,
+                                             numTotalPoints,
+                                             batchSize,
+                                             drawGL->vertexSize,
+                                             useRectangles,
+                                             useInstancing);
     }
 }
-    
+
 ParticleSystemDrawableBuilderGLES::~ParticleSystemDrawableBuilderGLES()
 {
     if (!drawableGotten && draw)

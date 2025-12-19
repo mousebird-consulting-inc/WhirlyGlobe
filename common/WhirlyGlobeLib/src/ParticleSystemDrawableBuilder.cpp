@@ -27,15 +27,16 @@ ParticleSystemDrawableBuilder::ParticleSystemDrawableBuilder(std::string name, S
 {    
 }
 
-void ParticleSystemDrawableBuilder::setup(const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
-                                           const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
-                                           const std::vector<SimpleIdentity > &inVaryNames,
-                                           int numTotalPoints,
-                                          int batchSize,
-                                          int vertexSize,
-                                          bool useRectangles,
-                                          bool useInstancing)
-{
+void ParticleSystemDrawableBuilder::setup(
+    [[maybe_unused]] const std::vector<SingleVertexAttributeInfo> &inVertAttrs,
+    [[maybe_unused]] const std::vector<SingleVertexAttributeInfo> &inVaryAttrs,
+    [[maybe_unused]] const std::vector<SimpleIdentity> &inVaryNames,
+    [[maybe_unused]] const std::vector<std::pair<SimpleIdentity, SimpleIdentity>> &inOutVaryings,
+    int numTotalPoints,
+    int batchSize,
+    int vertexSize,
+    bool useRectangles,
+    bool useInstancing) {
     draw->enable = true;
     draw->numTotalPoints = numTotalPoints;
     draw->batchSize = batchSize;
@@ -45,5 +46,4 @@ void ParticleSystemDrawableBuilder::setup(const std::vector<SingleVertexAttribut
     
     draw->setupBatches();
 }
-
 }

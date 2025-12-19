@@ -61,6 +61,7 @@ public:
     bool blendPremultipliedAlpha = false;
     std::vector<SingleVertexAttributeInfo> vertAttrs;
     std::vector<SingleVertexAttributeInfo> varyingAttrs;
+    std::vector<std::pair<SimpleIdentity, SimpleIdentity>> inOutVaryings;
     std::vector<SimpleIdentity> varyNames;
     std::vector<SimpleIdentity> texIDs;
     std::vector<RawDataRef> partData;  // Used for Metal particles
