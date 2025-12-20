@@ -86,13 +86,18 @@ void ParticleSystemDrawable::updateChunks()
             if (start < batches.size())
             {
                 for (;end < batches.size() && batches[end].active;end++);
-                if (start != end)
-                {
+
+                // Currently only 1 is supported.
+                constexpr int maxBatchesPerChunk = 1;
+                while (start != end) {
+                    const int batchCount = std::min(maxBatchesPerChunk, end - start);
+
                     BufferChunk chunk;
                     chunk.bufferStart = (start % (int)batches.size()) * batchSize * vertexSize;
                     chunk.vertexStart = (start % (int)batches.size()) * batchSize;
-                    chunk.numVertices = (end-start) * batchSize;
+                    chunk.numVertices = batchCount * batchSize;
                     chunks.push_back(chunk);
+                    start += batchCount;
                 }
             }
             

@@ -523,9 +523,16 @@ void SceneRendererGLES::render(TimeInterval duration, RenderInfo *)
                 }
 
             if (haveCalcShader) {
-                // Have to set an active framebuffer for our empty fragment shaders to write to
-                if (const auto renderTarget = dynamic_cast<RenderTargetGLES *>(renderTargets[0].get())) {
-                    renderTarget->setActiveFramebuffer(this);
+                // Have to set an active framebuffer for our empty fragment shaders to write to.
+                // Use the main framebuffer to ensure that calculate shaders can use the others as input.
+                // Don't restore the previous target, it will be set again before drawing anything.
+                for (const auto &renderTarget : renderTargets) {
+                    if (renderTarget->getId() == EmptyIdentity) {
+                        if (const auto renderTargetGLES = dynamic_cast<RenderTargetGLES *>(renderTarget.get())) {
+                            renderTargetGLES->setActiveFramebuffer(this);
+                            break;
+                        }
+                    }
                 }
 
                 glEnable(GL_RASTERIZER_DISCARD);

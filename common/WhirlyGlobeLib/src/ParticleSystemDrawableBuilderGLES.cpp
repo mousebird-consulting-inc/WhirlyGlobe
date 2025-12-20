@@ -50,13 +50,14 @@ void ParticleSystemDrawableBuilderGLES::setup(
         }
         drawGL->varyNames = inVaryNames;
         drawGL->inOutVaryings = inOutVaryings;
+        drawGL->vertexSize = vertexSize;
         ParticleSystemDrawableBuilder::setup(inVertAttrs,
                                              inVaryAttrs,
                                              inVaryNames,
                                              inOutVaryings,
                                              numTotalPoints,
                                              batchSize,
-                                             drawGL->vertexSize,
+                                             vertexSize,
                                              useRectangles,
                                              useInstancing);
     }
