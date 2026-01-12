@@ -20,8 +20,9 @@
 #include <string>
 #include <cstring>
 #include <utility>
-#import "RawData.h"
-#import "WhirlyKitLog.h"
+#include <functional>
+#include "RawData.h"
+#include "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {

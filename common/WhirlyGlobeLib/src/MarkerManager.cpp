@@ -295,10 +295,10 @@ SimpleIdentity MarkerManager::addMarkers(const std::vector<Marker *> &markers,co
         {
             const Point3f pts[4] =
             {
-                { -width2 + marker->offset.x(), -height2 + marker->offset.y(), 0.0 },
-                {  width2 + marker->offset.x(), -height2 + marker->offset.y(), 0.0 },
-                {  width2 + marker->offset.x(),  height2 + marker->offset.y(), 0.0 },
-                { -width2 + marker->offset.x(),  height2 + marker->offset.y(), 0.0 },
+                { static_cast<float>(-width2 + marker->offset.x()), static_cast<float>(-height2 + marker->offset.y()), 0.0 },
+                {  static_cast<float>(width2 + marker->offset.x()), static_cast<float>(-height2 + marker->offset.y()), 0.0 },
+                {  static_cast<float>(width2 + marker->offset.x()),  static_cast<float>(height2 + marker->offset.y()), 0.0 },
+                { static_cast<float>(-width2 + marker->offset.x()),  static_cast<float>(height2 + marker->offset.y()), 0.0 },
             };
 
             float layoutImport = markerInfo.layoutImportance;
