@@ -128,6 +128,7 @@ public:
     {
         MTLRenderPassDescriptor *renderPassDesc;
         id<SceneRendererMTLDrawableGetter> drawGetter;
+        id<MTLCommandBuffer> cmdBuffer;
     };
 
     /// Draw stuff (the whole point!)

@@ -1820,7 +1820,7 @@ private:
         [other requireGestureRecognizerToFail:recognizer];
 }
 
-- (void)assignViewMatrixFromMaplibre:(double * __nonnull)matrixValues scale:(double)scale tileSize:(int)tileSize
+- (void)assignViewMatrixFromMaplibre:(double *)matrixValues scale:(double)scale tileSize:(int)tileSize
 {
     if (mapType == MaplyMapTypeOverlay) {
         MapViewOverlay_iOSRef theMapView = std::dynamic_pointer_cast<MapViewOverlay_iOS>(mapView);

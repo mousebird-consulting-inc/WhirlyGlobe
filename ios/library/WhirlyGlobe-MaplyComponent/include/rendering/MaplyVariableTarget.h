@@ -42,6 +42,9 @@
 /// Color of the rectangle used to draw the render target
 @property (nonatomic,strong,nonnull) UIColor *color;
 
+/// If set, we'll build a compute stage around this variable target
+@property (nonatomic,assign) bool computeMode;
+
 /// Draw priority of the rectangle we'll use to draw the render target to the screen
 @property (nonatomic,assign) int drawPriority;
 
@@ -54,6 +57,9 @@
 /// Shader used to draw the render target to the screen.
 /// Leave this empty and we'll provide our own
 @property (nonatomic,strong,nullable) MaplyShader *shader;
+
+/// Shader used as a compute kernel if we're in compute mode
+@property (nonatomic,strong,nullable) MaplyShader *computeShader;
 
 /// By default we'll build a rectangle to display the target
 @property (nonatomic,assign) bool buildRectangle;
@@ -75,6 +81,10 @@
 /// rectangle used to render this variable target's data.  This is used if
 /// you need the contents of more than one target in a shader.
 - (void)addVariableTarget:(MaplyVariableTarget * __nonnull)target;
+
+/// Pass in another variable target to be used as a data source when we're
+/// in compute mode.  In other words, for kernel shader input.
+- (void)addComputeSource:(MaplyVariableTarget * __nonnull)target;
 
 // Pass this uniform block to the geometry we create for rendering (if it was created)
 - (void)setUniformBlock:(NSData *__nonnull)uniBlock buffer:(int)bufferID;

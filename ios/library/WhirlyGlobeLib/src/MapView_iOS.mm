@@ -127,4 +127,23 @@ void MapViewOverlay_iOS::setRotAngle(double newRotAngle,bool runUpdates)
         runViewUpdates();
 }
 
+Point2d MapViewOverlay_iOS::screenSizeInDisplayCoords(const Point2f &frameSize)
+{
+    Point2d screenSize(0,0);
+    if (frameSize.x() == 0.0 || frameSize.y() == 0.0)
+        return screenSize;
+    
+    // We need to run the frustrum back through the MVP to get real world coordinates(ish)
+    auto mvpInv = mvp.inverse();
+    
+    Point4d ll = mvpInv * Vector4d(-1.0,-1.0,0.0,1.0);
+    Point4d ur = mvpInv * Vector4d(1.0,1.0,0.0,1.0);
+    ll = ll/ll.w();
+    ur = ur/ur.w();
+
+    screenSize = 0.5 * (Point2d(ur.x(),ur.y()) - Point2d(ll.x(),ll.y()));
+        
+    return screenSize;
+}
+
 }

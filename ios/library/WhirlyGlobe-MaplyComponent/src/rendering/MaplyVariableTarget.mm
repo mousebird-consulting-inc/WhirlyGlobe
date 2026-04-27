@@ -32,6 +32,7 @@
     double scale;
     NSObject<MaplyRenderControllerProtocol> * __weak viewC;
     std::vector<MaplyVariableTarget *> auxTargets;
+    std::vector<MaplyVariableTarget *> computeSources;
     std::map<int,NSData *> uniBlocks;
     UIColor *_color;
 }
@@ -78,6 +79,11 @@
     if (_rectObj) {
         [self setupRectangle];
     }
+}
+
+- (void)addComputeSource:(MaplyVariableTarget * __nonnull)target
+{
+    computeSources.push_back(target);
 }
 
 - (void)setupRectangle
@@ -171,6 +177,13 @@
     _renderTarget.texture = _renderTex;
     _renderTarget.clearEveryFrame = _clearEveryFrame;
     _renderTarget.clearVal = _clearVal;
+    if (_computeMode) {
+        _renderTarget.targetType = MaplyTargetCompute;
+        _renderTarget.computeShader = _computeShader;
+        for (MaplyVariableTarget *cmpSource : computeSources) {
+            [_renderTarget addComputeTexture:cmpSource.renderTex];
+        }
+    }
     [vc addRenderTarget:_renderTarget];
     
     if (_buildRectangle) {

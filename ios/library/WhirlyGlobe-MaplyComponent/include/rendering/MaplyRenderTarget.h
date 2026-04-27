@@ -21,6 +21,8 @@
 #import <UIKit/UIKit.h>
 #import <WhirlyGlobe/MaplyTexture.h>
 
+@class MaplyShader;
+
 typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
     /// Don't generate a mipmap
     MaplyMipmapNone,
@@ -28,6 +30,13 @@ typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
     MaplyMipmapAverage,
     /// Generate a mipmap using Gauss blurring
     MaplyMipmapGauss
+};
+
+typedef NS_ENUM(NSUInteger,MaplyTargetType) {
+    /// A normal render target
+    MaplyTargetRender,
+    /// Target of a compute kernal
+    MaplyTargetCompute
 };
 
 /** 
@@ -63,6 +72,18 @@ typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
         how we do it. The default is none.
  */
 @property (nonatomic) MaplyMipmapType mipmapType;
+
+/**
+    Render targets can be normal Render types, meaning we use a graphics pipeline
+ to render to them.  Or they can be Compute types, meaning we use a compute kernal
+ to write to them.
+ */
+@property (nonatomic) MaplyTargetType targetType;
+
+/**
+ In Compute type mode, this is the shader function we'll run with this as its target.
+ */
+@property (nonatomic) MaplyShader *computeShader;
 
 /**
  If set, we'll caclulate the min/max for this render target every frame.
@@ -121,5 +142,10 @@ typedef NS_ENUM(NSUInteger,MaplyMipmapType) {
  Metal only.
  */
 - (NSData *)getMinMaxValues;
+
+/**
+ Add a texture to be passed to the compute shader, if there is.
+ */
+- (void) addComputeTexture:(MaplyTexture *)tex;
 
 @end

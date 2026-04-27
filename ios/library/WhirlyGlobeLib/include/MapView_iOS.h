@@ -61,7 +61,8 @@ public:
     void setLoc(WhirlyKit::Point3d newLoc);
     void setLoc(const WhirlyKit::Point3d &newLoc,bool runUpdates);
     void setRotAngle(double newRotAngle,bool runUpdates);
-    
+    WhirlyKit::Point2d screenSizeInDisplayCoords(const WhirlyKit::Point2f &frameSize);
+
     // Called to set the matrix, which we'll decompose
     virtual void assignMatrix(const Eigen::Matrix4d &mat);
     

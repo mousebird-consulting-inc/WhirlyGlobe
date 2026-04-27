@@ -108,6 +108,10 @@ struct RenderTarget : public Identifiable
     
     RenderTargetMipmapType mipmapType = RenderTargetMipmapNone;
     bool calcMinMax = false;
+    
+    bool isComputeTarget = false;
+    SimpleIdentity computeShaderID = EmptyIdentity;
+    std::vector<SimpleIdentity> computeTextures;
 };
 typedef std::shared_ptr<RenderTarget> RenderTargetRef;
 
@@ -116,6 +120,9 @@ class AddRenderTargetReq : public ChangeRequest
 {
 public:
     AddRenderTargetReq(SimpleIdentity renderTargetID,
+                       bool computeTarget,
+                       SimpleIdentity computeShaderID,
+                       const std::vector<SimpleIdentity> &computeTextures,
                        int width,int height,
                        SimpleIdentity texID,
                        bool clearEveryFrame,
@@ -130,6 +137,9 @@ public:
     void execute(Scene *scene,SceneRenderer *renderer,View *view);
     
 protected:
+    bool isComputeTarget;
+    SimpleIdentity computeShaderID;
+    std::vector<SimpleIdentity> computeTextures;
     int width,height;
     SimpleIdentity renderTargetID;
     SimpleIdentity texID;

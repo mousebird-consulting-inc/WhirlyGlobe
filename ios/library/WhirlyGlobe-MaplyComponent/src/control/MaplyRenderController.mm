@@ -31,6 +31,8 @@
 #import "WorkRegion_private.h"
 #import "MaplyBaseInteractionLayer_private.h"
 #import "LayerThread.h"
+#import "SceneRendererMTL.h"
+#import "MapView_iOS.h"
 
 using namespace WhirlyKit;
 using namespace Eigen;
@@ -38,6 +40,7 @@ using namespace Eigen;
 
 @implementation MaplyRenderController
 {
+@public
     // This view is used when we're not provided with a real view
     PassThroughCoordSystemRef coordSys;
     GeneralCoordSystemDisplayAdapterRef genCoordAdapter;
@@ -69,10 +72,15 @@ using namespace Eigen;
 
 - (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)inRenderType
 {
+    return [self initWithSize:size mode:MaplyRenderMetal trackingMode:false];
+}
+
+- (instancetype)initWithSize:(CGSize)size mode:(MaplyRenderType)inRenderType trackingMode:(bool)trackingMode
+{
     self = [self init];
 
     mainThread = [NSThread currentThread];
-    offlineMode = true;
+    offlineMode = !trackingMode;
     initialFramebufferSize = size;
     
     renderType = SceneRenderer::RenderMetal;
@@ -98,6 +106,10 @@ using namespace Eigen;
     [self loadSetup];
 
     [self loadSetup_scene:[[MaplyBaseInteractionLayer alloc] initWithView:visualView]];
+    
+    auto sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+    sceneRendererMTL->setup((int)size.width,(int)size.height,false);
+    sceneRendererMTL->resize((int)size.width,(int)size.height);
     
     return self;
 }
@@ -1426,3 +1438,101 @@ using namespace Eigen;
 }
 
 @end
+
+@implementation MaplyRenderControllerOverlay
+{
+@public
+    std::shared_ptr<SphericalMercatorDisplayAdapter> mercCoordAdapter;
+}
+
+- (instancetype)initWithSize:(CGSize)size
+{
+    // In this case the view is tied to an outside matrix
+    const auto originLon = 0.0;
+    const auto ll = GeoCoord::CoordFromDegrees(-180.0,-90.0);
+    const auto ur = GeoCoord::CoordFromDegrees(180.0,90.0);
+    mercCoordAdapter = std::make_shared<SphericalMercatorDisplayAdapter>(originLon, ll, ur);
+    coordAdapter = mercCoordAdapter.get();
+    
+    auto mapView = std::make_shared<Maply::MapViewOverlay_iOS>(mercCoordAdapter.get());
+    mapView->setContinuousZoom(false);
+    mapView->setWrap(false);
+
+    visualView = mapView;
+
+    self = [super initWithSize:size mode:MaplyRenderMetal trackingMode:true];
+    
+    return self;
+}
+
+- (bool)hasChanges
+{
+    SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+
+    return sceneRendererMTL->hasChanges();
+}
+
+- (void)renderToBuffer:(id<MTLCommandBuffer>)cmdBuffer renderPass:(MTLRenderPassDescriptor *)renderPassDesc size:(CGSize)size
+{
+    SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
+
+    // Will be ignored if the size is the same
+    sceneRendererMTL->resize((int)size.width,(int)size.height);
+
+    double now = CFAbsoluteTimeGetCurrent();
+    sceneRendererMTL->updateZoomSlots();
+    sceneRendererMTL->processScene(now);
+
+    WhirlyKit::SceneRendererMTL::RenderInfoMTL renderInfo;
+    renderInfo.drawGetter = nil;
+    renderInfo.renderPassDesc = renderPassDesc;
+    renderInfo.cmdBuffer = cmdBuffer;
+    
+    sceneRendererMTL->forceDrawNextFrame();
+    sceneRendererMTL->render(1.0/60.0,&renderInfo);
+}
+
+- (void)assignViewMatrixFromMapbox:(NSArray<NSNumber *> *)matrixValues
+                             scale:(double)zoom
+                          tileSize:(int)tileSize
+                            isMoving: (bool)isMoving
+                            hasMoved: (bool)hasMoved
+                            isZooming: (bool)isZooming
+                            hasZoomed: (bool)hasZoomed
+                            isPanning: (bool)isPanning
+                            hasPanned: (bool)hasPanned
+                            isRotating: (bool)isRotating
+                            hasRotated: (bool)hasRotated
+                            isTilting: (bool)isTilting
+                            hasTilted: (bool)hasTilted
+{
+    Maply::MapViewOverlay_iOSRef theMapView = std::dynamic_pointer_cast<Maply::MapViewOverlay_iOS>(visualView);
+    if (theMapView) {
+        Eigen::Matrix4d inMvp;
+        
+        for (unsigned int ii=0;ii<16;ii++) {
+            (inMvp.data())[ii] = [matrixValues[ii] doubleValue];
+        }
+
+        // Apply a scale to our data first
+        double worldSize = tileSize / (M_PI) * pow(2.0,zoom) ;
+        const Eigen::Affine3d scaleTrans(Eigen::Scaling(worldSize,-worldSize,1.0));
+        const Eigen::Affine3d transTrans(Eigen::Translation3d(M_PI,-M_PI,0.0));
+        Eigen::Matrix4d mvp = (inMvp * (scaleTrans * transTrans) ).matrix();
+
+        theMapView->assignMatrix(mvp);
+        theMapView->assignScreenSizeInDisplayCoords(3.1414/pow(2.0,zoom));
+        theMapView->setUserMotion(isMoving);
+        theMapView->setHasMoved(hasMoved);
+        theMapView->setIsZooming(isZooming);
+        theMapView->setHasZoomed(hasZoomed);
+        theMapView->setIsPanning(isPanning);
+        theMapView->setIsRotating(isRotating);
+        theMapView->setHasRotated(hasRotated);
+        theMapView->setIsTilting(isTilting);
+        theMapView->setHasTilted(hasTilted);
+    }
+}
+
+@end
+

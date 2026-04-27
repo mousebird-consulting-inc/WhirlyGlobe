@@ -1,3 +1,4 @@
+var newTileURLs = [String]()
 //
 //  MapboxKindaMap.swift
 //  WhirlyGlobeMaplyComponent

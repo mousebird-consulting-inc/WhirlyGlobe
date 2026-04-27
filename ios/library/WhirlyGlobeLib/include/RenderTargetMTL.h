@@ -84,10 +84,16 @@ public:
     /// Get the last render pass descriptor built
     MTLRenderPassDescriptor *getRenderPassDesc(int level=-1);
     
+    /// If this is a compute target, encode the commands we've built around it
+    void encodeCompute(id<MTLDevice> mtlDevice,
+                       Scene *scene,
+                       id<MTLComputeCommandEncoder> cmdEncode,
+                       ProgramMTL *program);
+    
     /// Return the texture reference, if there is one
     id<MTLTexture> getTex();
     
-protected:
+public:
     id<MTLTexture> tex;
     MTLPixelFormat pixelFormat;
     id<MTLTexture> depthTex;

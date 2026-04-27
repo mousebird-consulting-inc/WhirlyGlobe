@@ -48,11 +48,18 @@ void RenderTarget::init()
     mipmapType = RenderTargetMipmapNone;
 }
 
-AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID, int width,int height,
+AddRenderTargetReq::AddRenderTargetReq(SimpleIdentity renderTargetID, 
+                                       bool computeTarget,
+                                       SimpleIdentity computeShaderID,
+                                       const std::vector<SimpleIdentity> &computeTextures,
+                                       int width,int height,
                                        SimpleIdentity texID, bool clearEveryFrame,bool blend,
                                        const RGBAColor &clearColor, float clearVal,
-                                       RenderTargetMipmapType mipmapType, bool calcMinMax, bool insertAtEnd) :
-    width(width), height(height), renderTargetID(renderTargetID),
+                                       RenderTargetMipmapType mipmapType, 
+                                       bool calcMinMax, bool insertAtEnd) :
+    renderTargetID(renderTargetID),
+    isComputeTarget(computeTarget), computeShaderID(computeShaderID), computeTextures(computeTextures),
+    width(width), height(height),
     texID(texID), clearEveryFrame(clearEveryFrame), clearColor(clearColor),
     clearVal(clearVal), blend(blend), mipmapType(mipmapType), calcMinMax(calcMinMax), insertAtEnd(insertAtEnd)
 {
@@ -63,6 +70,9 @@ void AddRenderTargetReq::execute(Scene *scene,SceneRenderer *renderer,View *view
 {
     auto renderTarget = renderer->makeRenderTarget();
     renderTarget->setId(renderTargetID);
+    renderTarget->isComputeTarget = isComputeTarget;
+    renderTarget->computeShaderID = computeShaderID;
+    renderTarget->computeTextures = computeTextures;
     renderTarget->width = width;
     renderTarget->height = height;
     renderTarget->setClearEveryFrame(clearEveryFrame);

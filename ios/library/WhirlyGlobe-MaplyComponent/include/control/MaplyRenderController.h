@@ -1089,6 +1089,9 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 /// Initialize as an offline renderer with a map view
 - (instancetype __nullable)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType mapView:(int)mapView;
 
+/// Initialize as an offline renderer with a map view
+- (instancetype __nullable)initWithSize:(CGSize)size mode:(MaplyRenderType)renderType trackingMode:(bool)trackingMode;
+
 /// Set center and height.  No bounds checking.
 - (void)setPosition:(MaplyCoordinate)newPos height:(float)height;
 
@@ -1099,3 +1102,37 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
 - (NSData * __nullable)renderToImageData;
 
 @end
+
+/**
+ This version of the Render Controller is mean to thread into the render callback
+ of another map system, like Mapbox or Maplibre.  It specifically gets called at
+ a very low level, as opposed to overlaying on top.
+ */
+@interface MaplyRenderControllerOverlay : MaplyRenderController
+
+/**
+ If we've set up the map as an overlay, we need to pass in the matrix that's controlling it and the scale.
+ This will work for Mapbox
+ */
+- (void)assignViewMatrixFromMapbox:(NSArray<NSNumber *> *)matrixValues
+                             scale:(double)scale
+                          tileSize:(int)tileSize
+                          isMoving: (bool)isMoving
+                          hasMoved: (bool)hasMoved
+                          isZooming: (bool)isZooming
+                          hasZoomed: (bool)hasZoomed
+                          isPanning: (bool)isPanning
+                          hasPanned: (bool)hasPanned
+                          isRotating: (bool)isRotating
+                          hasRotated: (bool)hasRotated
+                          isTilting: (bool)isTilting
+                         hasTilted: (bool)hasTilted;
+
+/// Draw our contents into the command buffer given the render pass descriptor
+- (void)renderToBuffer:(id<MTLCommandBuffer> __nonnull)cmdBuffer renderPass:(MTLRenderPassDescriptor * __nonnull)renderPassDesc size:(CGSize)size;
+
+// Call this to check for scene changes
+- (bool)hasChanges;
+
+@end
+

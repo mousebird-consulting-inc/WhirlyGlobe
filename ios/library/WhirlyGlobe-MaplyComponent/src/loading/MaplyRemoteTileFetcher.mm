@@ -140,7 +140,8 @@ using namespace WhirlyKit;
         return true;
 
     // Bounding box for the whole coordinate system
-    MaplyBoundingBox wholeBBox = [_coordSys getBounds];
+    MaplyBoundingBox wholeBBox;
+    [_coordSys getBoundsLL:&wholeBBox.ll ur:&wholeBBox.ur];
     MbrD wholeMbr;
     wholeMbr.addPoint(Point2f(wholeBBox.ll.x,wholeBBox.ll.y));
     wholeMbr.addPoint(Point2f(wholeBBox.ur.x,wholeBBox.ur.y));

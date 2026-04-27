@@ -87,6 +87,53 @@ using namespace WhirlyKit;
     return self;
 }
 
+- (nullable instancetype)initMetalComputeWithName:(NSString *)inName
+                                          compute:(id<MTLFunction> )computeFunc
+                                            viewC:(NSObject<MaplyRenderControllerProtocol> *)baseViewC
+{
+    if (!computeFunc) {
+        NSLog(@"Passed in nil function to MaplyShader::initMetalComputeWithName");
+        return nil;
+    }
+    
+    if ([baseViewC getRenderControl]->sceneRenderer->getType() != SceneRenderer::RenderMetal)
+    {
+        NSLog(@"MaplyShader method only works with Metal");
+        return nil;
+    }
+    
+    if (!(self = [super init]))
+    {
+        return nil;
+    }
+    
+    viewC = baseViewC;
+    
+    std::string name = [inName cStringUsingEncoding:NSASCIIStringEncoding withDefault:""];
+    ProgramMTLRef prog(new ProgramMTL(name,computeFunc,nil));
+    _program = prog;
+    
+    MaplyRenderController *renderControl = [baseViewC getRenderControl];
+    if (!renderControl)
+        return nil;
+    
+    if (!_program->isValid())
+    {
+        buildError = @"Could not compile program.";
+        _program = NULL;
+        return nil;
+    }
+    
+    scene = renderControl->scene;
+    renderer = renderControl->sceneRenderer;
+    
+    if (renderControl->scene)
+        renderControl->scene->addProgram(_program);
+    
+    _name = inName;
+    
+    return self;
+}
 
 - (instancetype _Nullable)initWithProgram:(ProgramRef)program
                                     viewC:(NSObject<MaplyRenderControllerProtocol> * __nonnull)baseViewC

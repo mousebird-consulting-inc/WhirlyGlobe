@@ -27,4 +27,6 @@
 @property (weak) MaplyRenderController *renderControl;
 @property (nonatomic,assign) WhirlyKit::SimpleIdentity renderTargetID;
 
+- (std::vector<MaplyTexture *>)getComputeTextures;
+
 @end

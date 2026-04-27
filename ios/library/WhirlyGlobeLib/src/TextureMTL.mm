@@ -440,7 +440,7 @@ bool TextureMTL::createInRenderer(const RenderSetupInfo *inSetupInfo)
     // If there's no data, then we're using this as a target
     if (!texData)
     {
-        desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead;
+        desc.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
         desc.allowGPUOptimizedContents = false;
 
         // todo: maybe we want private for depth/stencil everywhere?

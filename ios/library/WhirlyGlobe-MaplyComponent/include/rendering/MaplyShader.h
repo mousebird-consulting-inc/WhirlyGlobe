@@ -121,7 +121,20 @@ These are the per vertex attributes provided to each vertex shader.
   */
 - (nullable instancetype)initMetalWithName:(NSString *__nonnull)name vertex:(id<MTLFunction> __nonnull)vertexFunc fragment:(id<MTLFunction> __nullable)fragFunc viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
 
-/** 
+/**
+    Initialize with a Metal shader to run a compute kernal.
+
+    @param name The name of the shader program.  Used for identification and sometimes lookup.
+
+    @param computeFunc The MTLFunction for running the kernal.
+
+    @param baseViewC The view controller where we'll register the new shader.
+
+    @return Returns a shader program if it succeeded.  IT may not work, however, so call valid first.
+ */
+- (nullable instancetype)initMetalComputeWithName:(NSString *__nonnull)name compute:(id<MTLFunction> __nonnull)computeFunc  viewC:(NSObject<MaplyRenderControllerProtocol> *__nonnull)baseViewC;
+
+/**
     Name of the shader program.
     
     This is the name passed in to the init call.  You can search by this name in some circumstances.

@@ -1,3 +1,4 @@
+The master branch is deprecated in favor of [main](https://github.com/mousebird-consulting-inc/WhirlyGlobe/tree/main).
 ![WhirlyGlobe-Maply](/common/images/banner.jpg)
 
 [![Apache v2](https://img.shields.io/badge/License-Apache%202-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)

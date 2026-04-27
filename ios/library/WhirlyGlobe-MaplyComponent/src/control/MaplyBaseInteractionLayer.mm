@@ -38,6 +38,7 @@
 #import "WorkRegion_private.h"
 #import "ComponentManager_iOS.h"
 #import "MaplyComponentObject_private.h"
+#import "MaplyRenderTarget_private.h"
 
 #if !MAPLY_MINIMAL
 # import "visual_objects/MaplyScreenMarker.h"
@@ -3374,7 +3375,18 @@ typedef std::set<GeomModelInstances *,struct GeomModelInstancesCmp> GeomModelIns
         return;
     
     ChangeSet changes;
+    SimpleIdentity computeShaderID = EmptyIdentity;
+    std::vector<SimpleIdentity> computeTextures;
+    if (renderTarget.targetType == MaplyTargetCompute) {
+        if (renderTarget.computeShader)
+            computeShaderID = [renderTarget.computeShader getShaderID];
+        for (auto tex: [renderTarget getComputeTextures])
+            computeTextures.push_back(tex.texID);
+    }
     changes.push_back(new AddRenderTargetReq(renderTarget.renderTargetID,
+                                             renderTarget.targetType == MaplyTargetCompute,
+                                             computeShaderID,
+                                             computeTextures,
                                              renderTarget.texture.width,
                                              renderTarget.texture.height,
                                              renderTarget.texture.texID,

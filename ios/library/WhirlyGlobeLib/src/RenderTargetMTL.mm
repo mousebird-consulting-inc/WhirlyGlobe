@@ -20,6 +20,7 @@
 
 #import "RenderTargetMTL.h"
 #import "RawData_NSData.h"
+#import "WhirlyKitLog.h"
 
 namespace WhirlyKit
 {
@@ -293,6 +294,54 @@ MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)
     if (level < 0)
         level = 0;
     return renderPassDesc[level];
+}
+
+void RenderTargetMTL::encodeCompute(id<MTLDevice> mtlDevice,
+                                    Scene *scene,
+                                    id<MTLComputeCommandEncoder> cmdEncode,
+                                    ProgramMTL *program)
+{
+    // Needs a texture as a target
+    if (!tex)
+        return;
+    
+    // Set up pipeline state
+    NSError *error=nil;
+    id<MTLComputePipelineState> pipeState = [mtlDevice newComputePipelineStateWithFunction:program->vertFunc error:&error];
+    if (error) {
+        wkLogLevel(Error,"Failed to set up Compute Pipeline Descriptor.");
+        return;
+    }
+    [cmdEncode setComputePipelineState:pipeState];
+    
+    // Wire up textures for input
+    [cmdEncode setTexture:tex atIndex:0];
+    unsigned int texIdx = 1;
+    for (auto texId : computeTextures) {
+        auto tex = dynamic_pointer_cast<TextureMTL>(scene->getTexture(texId));
+        if (tex) {
+            [cmdEncode setTexture:tex->getMTLTex().tex atIndex:texIdx];
+        }
+        texIdx++;
+    }
+    for (auto &texEntry : program->textures) {
+        [cmdEncode setTexture:texEntry.texBuf.tex atIndex:texIdx++];
+    }
+    // TODO: Wire up any uniform blocks
+//    for (const BasicDrawable::UniformBlock &uniBlock : program->uniBlocks) {
+//        
+//    }
+
+    // Calculate the maximum threads per threadgroup based on the thread execution width.
+    NSUInteger w = pipeState.threadExecutionWidth;
+    NSUInteger h = pipeState.maxTotalThreadsPerThreadgroup / w;
+    MTLSize threadsPerThreadgroup = MTLSizeMake(w, h, 1);
+    MTLSize threadgroupsPerGrid = MTLSizeMake((tex.width + w - 1) / w,
+                                              (tex.height + h - 1) / h,
+                                              1);
+
+    // Dispatch the compute kernel
+    [cmdEncode dispatchThreadgroups:threadgroupsPerGrid threadsPerThreadgroup:threadsPerThreadgroup];
 }
 
 /// Encodes any post processing commands

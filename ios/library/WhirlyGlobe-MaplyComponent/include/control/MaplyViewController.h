@@ -666,7 +666,7 @@ typedef NS_ENUM(NSInteger, MaplyMapType) {
 
 /**
  If we've set up the map as an overlay, we need to pass in the matrix that's controlling it and the scale.
- This will work for MapLibre & MapboxGL..
+ This will work for MapLibre..
  */
 - (void)assignViewMatrixFromMaplibre:(double * __nonnull)matrixValues scale:(double)scale tileSize:(int)tileSize;
 

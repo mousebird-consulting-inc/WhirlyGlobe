@@ -23,6 +23,9 @@
 using namespace WhirlyKit;
 
 @implementation MaplyRenderTarget
+{
+    std::vector<MaplyTexture *> computeTexs;
+}
 
 - (id)init
 {
@@ -34,6 +37,7 @@ using namespace WhirlyKit;
     _clearVal = 0.0;
     _mipmapType = MaplyMipmapNone;
     _calculateMinMax = false;
+    _targetType = MaplyTargetRender;
     
     return self;
 }
@@ -75,6 +79,16 @@ using namespace WhirlyKit;
         }
     }
     return nil;
+}
+
+- (std::vector<MaplyTexture *>)getComputeTextures
+{
+    return computeTexs;
+}
+
+- (void) addComputeTexture:(MaplyTexture *)tex
+{
+    computeTexs.push_back(tex);
 }
 
 @end
