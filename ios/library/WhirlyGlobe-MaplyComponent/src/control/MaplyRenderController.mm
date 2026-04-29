@@ -108,8 +108,10 @@ using namespace Eigen;
     [self loadSetup_scene:[[MaplyBaseInteractionLayer alloc] initWithView:visualView]];
     
     auto sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
-    sceneRendererMTL->setup((int)size.width,(int)size.height,false);
-    sceneRendererMTL->resize((int)size.width,(int)size.height);
+    if (!offlineMode) {
+        sceneRendererMTL->setup((int)size.width,(int)size.height,false);
+        sceneRendererMTL->resize((int)size.width,(int)size.height);
+    }
     
     return self;
 }
@@ -1521,7 +1523,7 @@ using namespace Eigen;
         Eigen::Matrix4d mvp = (inMvp * (scaleTrans * transTrans) ).matrix();
 
         theMapView->assignMatrix(mvp);
-        theMapView->assignScreenSizeInDisplayCoords(3.1414/pow(2.0,zoom));
+//        theMapView->assignScreenSizeInDisplayCoords(3.1414/pow(2.0,zoom));
         theMapView->setUserMotion(isMoving);
         theMapView->setHasMoved(hasMoved);
         theMapView->setIsZooming(isZooming);
