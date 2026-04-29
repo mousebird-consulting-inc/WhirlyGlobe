@@ -1287,7 +1287,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             lastCmdBuff = cmdBuff;
 
             // This happens for offline rendering and we want to wait until the render finishes to return it
-            if (!drawGetter) {
+            if (!drawGetter && renderInfo) {
                 if (cmdBuff != ((RenderInfoMTL*)renderInfo)->cmdBuffer) {
                     [cmdBuff commit];
                     [cmdBuff waitUntilCompleted];
