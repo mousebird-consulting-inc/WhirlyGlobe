@@ -56,6 +56,8 @@ public:
     /// Remove an existing snapshot delegate
     void removeSnapshotDelegate(Snapshot_AndroidRef snapshotDelegate);
 
+    virtual RenderTargetRef getDefaultRenderTarget() override;
+
 public:
     EGLContext context;
 
