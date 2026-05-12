@@ -1,6 +1,6 @@
 buildscript {
-    if (!ext.has("kotlin_version")) {
-        ext.kotlin_version = '1.7.22'
+    ext {
+        kotlin_version = '1.7.22'
     }
     repositories {
         google()
@@ -16,20 +16,17 @@ buildscript {
 }
 
 // This is handled by dependencyResolutionManagement at the top level now
-/*
+
 allprojects {
     repositories {
         google()
         mavenCentral()
     }
 }
-*/
+
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
-
-ext.maplyBuildNative = !ext.has("maplyBuildNative") || maplyBuildNative.toBoolean()
-println maplyBuildNative ? "Maply building native cmake" : "Maply skipping native build"
 
 android {
     namespace 'com.mousebirdconsulting.whirlyglobemaply'
@@ -49,7 +46,7 @@ android {
             debug {
                 debuggable true
                 jniDebuggable true
-                if (maplyBuildNative) {
+//                if (maplyBuildNative) {
                     ndk {
                         abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
                         debuggable true
@@ -77,12 +74,12 @@ android {
                                     "-Wno-null-pointer-arithmetic"
                         }
                     }
-                }
+//                }
             }
             devRelease {
                 debuggable true
                 jniDebuggable true
-                if (maplyBuildNative) {
+//                if (maplyBuildNative) {
                     ndk {
                         abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
                         debuggable true
@@ -94,12 +91,12 @@ android {
                                     "-DWK_MIN_LOG_LEVEL=WKLogLevel::Verbose"
                         }
                     }
-                }
+//                }
             }
             release {
                 debuggable false
                 jniDebuggable false
-                if (maplyBuildNative) {
+//                if (maplyBuildNative) {
                     ndk {
                         abiFilters 'arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'
                         debuggable false
@@ -109,11 +106,11 @@ android {
                             cppFlags "-O2", "-DNDEBUG=1", "-DCMAKE_BUILD_TYPE=Release"
                         }
                     }
-                }
+//                }
             }
         }
 
-        if (maplyBuildNative) {
+//        if (maplyBuildNative) {
             externalNativeBuild {
                 cmake {
                     cppFlags "-frtti", "-fexceptions", "-std=gnu++14",
@@ -125,7 +122,7 @@ android {
                              // not "-DLODEPNG_NO_COMPILE_ZLIB"
                 }
             }
-        }
+//        }
     }
     buildTypes {
         release {
@@ -133,13 +130,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    if (maplyBuildNative) {
+//    if (maplyBuildNative) {
         externalNativeBuild {
             cmake {
                 path "CMakeLists.txt"
             }
         }
-    }
+//    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
