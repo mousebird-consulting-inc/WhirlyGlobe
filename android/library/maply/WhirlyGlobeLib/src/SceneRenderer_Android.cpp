@@ -82,5 +82,10 @@ void SceneRendererGLES_Android::removeSnapshotDelegate(Snapshot_AndroidRef snaps
     }
 }
 
+    RenderTargetRef SceneRendererGLES_Android::getDefaultRenderTarget()
+    {
+        return RenderTargetRef();
+    }
+
 }
 

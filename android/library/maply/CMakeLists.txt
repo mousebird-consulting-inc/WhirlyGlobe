@@ -64,3 +64,7 @@ else()
     target_link_libraries(${WGTARGET} ${log-lib} android jnigraphics EGL GLESv3 atomic m)
 endif()
 
+set(CMAKE_SHARED_LINKER_FLAGS
+        "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,max-page-size=16384"
+)
+

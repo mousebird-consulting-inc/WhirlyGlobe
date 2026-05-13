@@ -151,8 +151,22 @@ JNIEXPORT void JNICALL Java_com_mousebird_maply_Scene_addRenderTargetNative
             ChangeSet changes;
             const RGBAColor color(r * 255.0, g * 255.0, b * 255.0, a * 255.0);
             changes.push_back(
-                    new AddRenderTargetReq(renderTargetID, width, height, texID, clearEveryFrame,
-                                           blend, color, clearVal, RenderTargetMipmapNone, false));
+                    new AddRenderTargetReq(
+                            renderTargetID,
+                            false,                         // computeTarget
+                            EmptyIdentity,                // computeShaderID
+                            std::vector<SimpleIdentity>(), // computeTextures
+                            width,
+                            height,
+                            texID,
+                            clearEveryFrame,
+                            blend,
+                            color,
+                            clearVal,
+                            RenderTargetMipmapNone,
+                            false,                        // calcMinMax
+                            false                         // insertAtEnd
+                    ));
 
             scene->addChangeRequests(changes);
         }
