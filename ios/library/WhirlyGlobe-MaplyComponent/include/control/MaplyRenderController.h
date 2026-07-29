@@ -1131,7 +1131,7 @@ typedef NS_ENUM(NSInteger, MaplyRenderType) {
                          hasTilted: (bool)hasTilted;
 
 /// Draw our contents into the command buffer given the render pass descriptor
-- (void)renderToBuffer:(id<MTLCommandBuffer> __nonnull)cmdBuffer renderPass:(MTLRenderPassDescriptor * __nonnull)renderPassDesc size:(CGSize)size;
+- (void)renderToBuffer:(id<MTLCommandBuffer> __nonnull)cmdBuffer renderPass:(MTLRenderPassDescriptor * __nullable)renderPassDesc alphaBlendOne:(bool)alphaBlendOne renderStage:(int)renderStage renderEncoder:(id<MTLRenderCommandEncoder> __nullable)renderEncoder  size:(CGSize)size;
 
 // Call this to check for scene changes
 - (bool)hasChanges;

@@ -272,7 +272,7 @@ void SceneRendererMTL::setupUniformBuffer(RendererFrameInfoMTL *frameInfo,int oi
     WhirlyKitShader::Uniforms uniforms;
     bzero(&uniforms,sizeof(uniforms));
     CopyIntoMtlFloat4x4Pair(uniforms.mvpMatrix,uniforms.mvpMatrixDiff,frameInfo->mvpMat4d);
-    CopyIntoMtlFloat4x4(uniforms.mvpInvMatrix,frameInfo->mvpInvMat);
+    CopyIntoMtlFloat4x4Pair(uniforms.mvpInvMatrix,uniforms.mvpInvMatrixDiff,frameInfo->mvpInvMat4d);
     CopyIntoMtlFloat4x4Pair(uniforms.mvMatrix,uniforms.mvMatrixDiff,frameInfo->viewAndModelMat4d);
     CopyIntoMtlFloat4x4(uniforms.mvNormalMatrix,frameInfo->viewModelNormalMat);
     CopyIntoMtlFloat4x4(uniforms.pMatrix,frameInfo->projMat);
@@ -395,7 +395,10 @@ MTLRenderPipelineDescriptor *SceneRendererMTL::defaultRenderPipelineState(SceneR
         renderDesc.colorAttachments[0].sourceRGBBlendFactor = MTLBlendFactorSourceAlpha;
         renderDesc.colorAttachments[0].sourceAlphaBlendFactor = MTLBlendFactorSourceAlpha;
         renderDesc.colorAttachments[0].destinationRGBBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
-        renderDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
+        if (renderTarget->alphaBlendOne)
+            renderDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOne;
+        else
+            renderDesc.colorAttachments[0].destinationAlphaBlendFactor = MTLBlendFactorOneMinusSourceAlpha;
     } else {
         renderDesc.colorAttachments[0].blendingEnabled = false;
     }
@@ -583,7 +586,7 @@ void SceneRendererMTL::updateWorkGroups(RendererFrameInfo *inFrameInfo,int numVi
     }
 }
 
-RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
+RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo(TimeInterval currentTime)
 {
     if (!theView || !scene)
     {
@@ -612,7 +615,7 @@ RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
     const Eigen::Matrix4f modelAndViewNormalMat = Matrix4dToMatrix4f(modelAndViewNormalMat4d);
 
     auto frameInfo = std::make_shared<RendererFrameInfoMTL>();
-
+    
     frameInfo->sceneRenderer = this;
     frameInfo->theView = theView;
     frameInfo->viewTrans = viewTrans;
@@ -621,12 +624,13 @@ RendererFrameInfoMTLRef SceneRendererMTL::makeFrameInfo()
     frameInfo->modelTrans4d = modelTrans4d;
     frameInfo->scene = scene;
     frameInfo->frameLen = 1.0 / 60.0;
-    frameInfo->currentTime = scene->getCurrentTime();
+    frameInfo->currentTime = currentTime;
     frameInfo->projMat = projMat;
     frameInfo->projMat4d = projMat4d;
     frameInfo->mvpMat = mvpMat;
     frameInfo->mvpMat4d = mvpMat4d;
     frameInfo->mvpInvMat = mvpMat.inverse();
+    frameInfo->mvpInvMat4d = mvpMat4d.inverse();
     frameInfo->mvpNormalMat = mvpNormalMat4f;
     frameInfo->viewModelNormalMat = modelAndViewNormalMat;
     frameInfo->viewAndModelMat = modelAndViewMat;
@@ -680,10 +684,13 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
 {
     SceneMTL *sceneMTL = (SceneMTL *)scene;
  
-    auto renderPassDesc = renderInfo ? ((RenderInfoMTL*)renderInfo)->renderPassDesc : nil;
-    const id<SceneRendererMTLDrawableGetter> drawGetter = renderInfo ? ((RenderInfoMTL*)renderInfo)->drawGetter : nil;
-
-    frameCount++;
+    RenderInfoMTL *renderInfoMTL = (RenderInfoMTL*)renderInfo;
+    auto renderPassDesc = renderInfoMTL ? renderInfoMTL->renderPassDesc : nil;
+    const id<SceneRendererMTLDrawableGetter> drawGetter = renderInfoMTL ? renderInfoMTL->drawGetter : nil;
+    
+    // In stage render mode, we only increase the frame count on the first stage
+    if (renderInfoMTL->renderStage < 1)
+        frameCount++;
 
     const TimeInterval now = scene->getCurrentTime();
 
@@ -696,8 +703,10 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
         processScene(now);
         return;
     }
-    
-    lastDraw = now;
+
+    // In stage render mode, we pretend each stage was at the same time
+    if (renderInfoMTL->renderStage < 1)
+        lastDraw = now;
     
     if (perfInterval > 0)
         perfTimer.startTiming("Render Frame");
@@ -738,7 +747,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
 
     RenderTargetMTL *defaultTarget = (RenderTargetMTL *)renderTargets.back().get();
     if (renderPassDesc)
-        defaultTarget->setRenderPassDesc(renderPassDesc);
+        defaultTarget->setRenderPassDesc(renderPassDesc,renderInfoMTL->alphaBlendOne);
     auto clearColor = defaultTarget->clearColor;
     renderPassDesc.colorAttachments[0].clearColor = MTLClearColorMake(clearColor[0],clearColor[1],clearColor[2],clearColor[3]);
 
@@ -777,12 +786,12 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             wkLog("Capturing frame %d", frameCount);
         }
     }
-#endif
+#endif    TimeInterval currentTime = scene->getCurrentTime();
 
-    const auto frameInfoRef = makeFrameInfo();
+    const auto frameInfoRef = makeFrameInfo(lastDraw);
     auto &baseFrameInfo = *frameInfoRef;
     baseFrameInfo.frameLen = duration;
-    baseFrameInfo.currentTime = now;
+    baseFrameInfo.currentTime = lastDraw;
     theView->getOffsetMatrices(baseFrameInfo.offsetMatrices, frameSize, overlapMarginX);
 
     lastFrameInfo = frameInfoRef;
@@ -815,7 +824,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
     teardownInfo = frameTeardownInfo;
     
     // Run the preprocess for the changes.  These modify things the active models need.
-    int numPreProcessChanges = preProcessScene(now);;
+    int numPreProcessChanges = preProcessScene(lastDraw);
     
     if (perfInterval > 0)
         perfTimer.addCount("Preprocess Changes", numPreProcessChanges);
@@ -845,7 +854,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
         perfTimer.startTiming("Scene processing");
     
     // Merge any outstanding changes into the scenegraph
-    processScene(now);
+    processScene(lastDraw);
     
     // Update our work groups accordingly
     updateWorkGroups(&baseFrameInfo,baseFrameInfo.offsetMatrices.size());
@@ -914,6 +923,16 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
                 !(targetContainer && targetContainer->renderTarget))
                 continue;
             RenderTargetContainerMTL *targetContainerMTL = (RenderTargetContainerMTL *)targetContainer.get();
+
+            // In two stage rendering we want to short circuit the rendering for the offscreen targets
+            if (renderInfoMTL->renderStage != -1) {
+                // We don't render the final render target
+                if (renderInfoMTL->renderStage == 1) {
+                    // Render only the final render target
+                    if (workGroup->groupType != WorkGroup::ScreenRender)
+                        continue;
+                }
+            }
             
             RenderTargetMTLRef renderTarget;
             if (!targetContainer->renderTarget) {
@@ -938,7 +957,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             
             // For the final render target we may want to use someone else's
             if (targetContainer->renderTarget && targetContainer->renderTarget->getId() == EmptyIdentity && renderInfo)
-                cmdBuff = ((RenderInfoMTL*)renderInfo)->cmdBuffer;
+                cmdBuff = renderInfoMTL->cmdBuffer;
             if (!cmdBuff)
                 cmdBuff = [cmdQueue commandBuffer];
 
@@ -946,9 +965,13 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             if (lastRenderNo > 0 && drawGetter)
                 [cmdBuff encodeWaitForEvent:renderEvent value:lastRenderNo];
 
-            // Ask all the drawables to set themselves up.  Mostly memory stuff.
-            id<MTLFence> preProcessFence = [mtlDevice newFence];
-            id<MTLBlitCommandEncoder> bltEncode = [cmdBuff blitCommandEncoder];
+            id<MTLFence> preProcessFence = nil;
+            id<MTLBlitCommandEncoder> bltEncode = nil;
+            if (!renderInfoMTL->renderEncoder) {
+                // Ask all the drawables to set themselves up.  Mostly memory stuff.
+                preProcessFence = [mtlDevice newFence];
+                bltEncode = [cmdBuff blitCommandEncoder];
+            }
 
             if (isCapturing)
             {
@@ -960,52 +983,77 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             // Resources used by this container
             ResourceRefsMTL resources;
 
-            if (indirectRender) {
-                // Run pre-process on the draw groups
-                for (const auto &drawGroup : targetContainerMTL->drawGroups) {
-                    if (drawGroup->numCommands > 0) {
-                        bool resourcesChanged = false;
-                        for (auto &draw : drawGroup->drawables) {
-                            DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
-                            if (!drawMTL) {
-                                wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
-                                continue;
-                            }
-                            drawMTL->runTweakers(&baseFrameInfo);
-                            if (drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL))
-                                resourcesChanged = true;
-                        }
-                        // At least one of the drawables is pointing at different resources, so we need to redo this
-                        if (resourcesChanged) {
-                            drawGroup->resources.clear();
+            if (bltEncode) {
+                if (indirectRender) {
+                    // Run pre-process on the draw groups
+                    for (const auto &drawGroup : targetContainerMTL->drawGroups) {
+                        if (drawGroup->numCommands > 0) {
+                            bool resourcesChanged = false;
                             for (auto &draw : drawGroup->drawables) {
-                                if (const auto drawMTL = dynamic_cast<DrawableMTL *>(draw.get())) {
-                                    drawMTL->enumerateResources(&baseFrameInfo, drawGroup->resources);
+                                DrawableMTL *drawMTL = dynamic_cast<DrawableMTL *>(draw.get());
+                                if (!drawMTL) {
+                                    wkLogLevel(Error, "SceneRendererMTL: Invalid drawable.  Skipping.");
+                                    continue;
+                                }
+                                drawMTL->runTweakers(&baseFrameInfo);
+                                if (drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL))
+                                    resourcesChanged = true;
+                            }
+                            // At least one of the drawables is pointing at different resources, so we need to redo this
+                            if (resourcesChanged) {
+                                drawGroup->resources.clear();
+                                for (auto &draw : drawGroup->drawables) {
+                                    if (const auto drawMTL = dynamic_cast<DrawableMTL *>(draw.get())) {
+                                        drawMTL->enumerateResources(&baseFrameInfo, drawGroup->resources);
+                                    }
                                 }
                             }
+                            resources.addResources(drawGroup->resources);
                         }
-                        resources.addResources(drawGroup->resources);
+                    }
+                } else {
+                    // Run pre-process ahead of time
+                    for (const auto &draw : targetContainer->drawables) {
+                        if (const auto drawMTL = dynamic_cast<DrawableMTL *>(draw.get())) {
+                            drawMTL->runTweakers(&baseFrameInfo);
+                            drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL);
+                            drawMTL->enumerateResources(&baseFrameInfo, resources);
+                        }
                     }
                 }
+
+                // TODO: Just set these up once and copy it into position
+                setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
+                for (unsigned oi=0;oi<offFrameInfos.size();oi++) {
+                    setupUniformBuffer(&offFrameInfos[oi],oi,bltEncode,scene->getCoordAdapter());
+                }
+
+                [bltEncode updateFence:preProcessFence];
+                [bltEncode endEncoding];
             } else {
+                // In two stage mode we do need to enumerate the resources for use later
                 // Run pre-process ahead of time
                 for (const auto &draw : targetContainer->drawables) {
                     if (const auto drawMTL = dynamic_cast<DrawableMTL *>(draw.get())) {
-                        drawMTL->runTweakers(&baseFrameInfo);
-                        drawMTL->preProcess(this, cmdBuff, bltEncode, sceneMTL);
                         drawMTL->enumerateResources(&baseFrameInfo, resources);
                     }
                 }
             }
 
-            // TODO: Just set these up once and copy it into position
-            setupLightBuffer(sceneMTL,&baseFrameInfo,bltEncode);
-            for (unsigned oi=0;oi<offFrameInfos.size();oi++) {
-                setupUniformBuffer(&offFrameInfos[oi],oi,bltEncode,scene->getCoordAdapter());
+            // In two stage rendering we want offscreen targets in stage 0 and the final target in stage 1
+            if (renderInfoMTL->renderStage != -1) {
+                // We don't render the final render target
+                if (renderInfoMTL->renderStage == 0) {
+                    // Render all but the final render target
+                    if (workGroup->groupType == WorkGroup::ScreenRender)
+                        continue;
+                } else {
+                    // Render only the final render target
+                    if (workGroup->groupType != WorkGroup::ScreenRender)
+                        continue;
+                }
             }
-            [bltEncode updateFence:preProcessFence];
-            [bltEncode endEncoding];
-            
+
             // If we're forcing a mipmap calculation, then we're just going to use this render target once
             // If not, then we run some program over it multiple times
             // TODO: Make the reduce operation more explicit
@@ -1035,7 +1083,11 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
                     computeCmdEncode = [cmdBuff computeCommandEncoder];
                     cmdEncode = computeCmdEncode;
                 } else {
-                    renderCmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+                    if (renderInfoMTL->renderEncoder) {
+                        renderCmdEncode = renderInfoMTL->renderEncoder;
+                    } else {
+                        renderCmdEncode = [cmdBuff renderCommandEncoderWithDescriptor:baseFrameInfo.renderPassDesc];
+                    }
                     cmdEncode = renderCmdEncode;
                 }
                 if (isCapturing)
@@ -1047,7 +1099,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
                 // Uncomment to draw wireframes for troubleshooting
                 //[cmdEncode setTriangleFillMode:MTLTriangleFillModeLines];
 
-                if (renderCmdEncode)
+                if (renderCmdEncode && preProcessFence)
                     [renderCmdEncode waitForFence:preProcessFence beforeStages:MTLRenderStageVertex];
 
                 resources.use(cmdEncode);
@@ -1223,11 +1275,12 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
                         }
                     }
 
-                    [cmdEncode endEncoding];
+                    if (!renderInfoMTL->renderEncoder)
+                        [cmdEncode endEncoding];
                 }
                 catch (...)
                 {
-                    if (cmdEncode)
+                    if (cmdEncode && !renderInfoMTL->renderEncoder)
                         [cmdEncode endEncoding];
                     throw;
                 }
@@ -1250,44 +1303,46 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             const auto shuttingDown = this->_isShuttingDown;
 
             // This particular target may want a snapshot
-            [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
-                if (*shuttingDown)
-                    return;
-
-                // TODO: Sort these into the render targets
-                dispatch_async(dispatch_get_main_queue(), ^{
+            if (!renderInfoMTL->renderEncoder) {
+                [cmdBuff addCompletedHandler:^(id<MTLCommandBuffer> _Nonnull) {
                     if (*shuttingDown)
                         return;
-
-                    // Look for the snapshot delegate that wants this render target
-                    for (auto snapshotDelegate : snapshotDelegates) {
-                        if (*shuttingDown) {
-                            break;
+                    
+                    // TODO: Sort these into the render targets
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (*shuttingDown)
+                            return;
+                        
+                        // Look for the snapshot delegate that wants this render target
+                        for (auto snapshotDelegate : snapshotDelegates) {
+                            if (*shuttingDown) {
+                                break;
+                            }
+                            
+                            if (![snapshotDelegate needSnapshot:lastDraw])
+                                continue;
+                            
+                            if (renderTarget->getId() != [snapshotDelegate renderTargetID]) {
+                                continue;
+                            }
+                            
+                            [snapshotDelegate snapshotData:nil];
                         }
                         
-                        if (![snapshotDelegate needSnapshot:now])
-                            continue;
+                        //                    targetContainerMTL->lastRenderFence = nil;
                         
-                        if (renderTarget->getId() != [snapshotDelegate renderTargetID]) {
-                            continue;
-                        }
-                        
-                        [snapshotDelegate snapshotData:nil];
-                    }
-                    
-//                    targetContainerMTL->lastRenderFence = nil;
-                    
-                    // We can do the free-ing on a low priority queue
-                    // But it has to be a single queue, otherwise we'll end up deleting things at the same time.  Oops.
-                    dispatch_async(releaseQueue, ^{
-                        frameTeardownInfo->clear();
+                        // We can do the free-ing on a low priority queue
+                        // But it has to be a single queue, otherwise we'll end up deleting things at the same time.  Oops.
+                        dispatch_async(releaseQueue, ^{
+                            frameTeardownInfo->clear();
+                        });
                     });
-                });
-            }];
+                }];
+            }
             lastCmdBuff = cmdBuff;
 
             // This happens for offline rendering and we want to wait until the render finishes to return it
-            if (!drawGetter) {
+            if (!drawGetter && !renderInfoMTL->renderEncoder) {
                 if (cmdBuff != ((RenderInfoMTL*)renderInfo)->cmdBuffer) {
                     [cmdBuff commit];
                     [cmdBuff waitUntilCompleted];

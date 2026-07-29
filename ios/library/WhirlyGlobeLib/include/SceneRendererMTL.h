@@ -126,9 +126,13 @@ public:
 
     struct RenderInfoMTL : public RenderInfo
     {
-        MTLRenderPassDescriptor *renderPassDesc;
-        id<SceneRendererMTLDrawableGetter> drawGetter;
-        id<MTLCommandBuffer> cmdBuffer;
+        MTLRenderPassDescriptor *renderPassDesc = nil;
+        bool alphaBlendOne = false;
+        id<SceneRendererMTLDrawableGetter> drawGetter = nil;
+        id<MTLRenderCommandEncoder> renderEncoder = nil;
+        id<MTLCommandBuffer> cmdBuffer = nil;
+        // If not -1, we'll render in 2 stages (pre-render and actual draw)
+        int renderStage = -1;
     };
 
     /// Draw stuff (the whole point!)
@@ -202,7 +206,7 @@ public:
     virtual RenderTargetRef getDefaultRenderTarget() override;
 
 protected:
-    RendererFrameInfoMTLRef makeFrameInfo();
+    RendererFrameInfoMTLRef makeFrameInfo(TimeInterval currentTime);
 
     void tryRender(TimeInterval duration, RenderInfo *);
 

@@ -66,6 +66,7 @@ void RenderTargetMTL::clear()
     tex = nil;
     renderPassDesc.clear();
     renderPassDescSetFromOutside = false;
+    alphaBlendOne = false;
 }
 
 int RenderTargetMTL::numLevels() const
@@ -279,11 +280,12 @@ MTLPixelFormat RenderTargetMTL::getPixelFormat()
     return pixelFormat;
 }
 
-void RenderTargetMTL::setRenderPassDesc(MTLRenderPassDescriptor *inRenderPassDesc)
+void RenderTargetMTL::setRenderPassDesc(MTLRenderPassDescriptor *inRenderPassDesc, bool inAlphaBlendOne)
 {
     renderPassDesc.clear();
     renderPassDesc.push_back(inRenderPassDesc);
     renderPassDescSetFromOutside = true;
+    alphaBlendOne = inAlphaBlendOne;
 }
     
 MTLRenderPassDescriptor *RenderTargetMTL::getRenderPassDesc(int level)

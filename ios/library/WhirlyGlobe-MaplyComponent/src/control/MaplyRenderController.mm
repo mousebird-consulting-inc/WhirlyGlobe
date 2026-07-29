@@ -1472,12 +1472,15 @@ using namespace Eigen;
     return sceneRendererMTL->hasChanges();
 }
 
-- (void)renderToBuffer:(id<MTLCommandBuffer>)cmdBuffer renderPass:(MTLRenderPassDescriptor *)renderPassDesc size:(CGSize)size
+- (void)renderToBuffer:(id<MTLCommandBuffer>)cmdBuffer renderPass:(MTLRenderPassDescriptor *)renderPassDesc
+         alphaBlendOne:(bool)alphaBlendOne renderStage:(int)renderStage renderEncoder:(id<MTLRenderCommandEncoder>)renderEncoder size:(CGSize)size
 {
     SceneRendererMTLRef sceneRendererMTL = std::dynamic_pointer_cast<SceneRendererMTL>(sceneRenderer);
 
     // Will be ignored if the size is the same
-    sceneRendererMTL->resize((int)size.width,(int)size.height);
+    if (size.width != 0.0 && size.height != 0.0) {
+        sceneRendererMTL->resize((int)size.width,(int)size.height);
+    }
 
     double now = CFAbsoluteTimeGetCurrent();
     sceneRendererMTL->updateZoomSlots();
@@ -1485,7 +1488,10 @@ using namespace Eigen;
 
     WhirlyKit::SceneRendererMTL::RenderInfoMTL renderInfo;
     renderInfo.drawGetter = nil;
+    renderInfo.renderEncoder = renderEncoder;
     renderInfo.renderPassDesc = renderPassDesc;
+    renderInfo.alphaBlendOne = alphaBlendOne;
+    renderInfo.renderStage = renderStage;
     renderInfo.cmdBuffer = cmdBuffer;
     
     sceneRendererMTL->forceDrawNextFrame();

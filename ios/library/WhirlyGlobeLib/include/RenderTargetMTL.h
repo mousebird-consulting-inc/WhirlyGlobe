@@ -79,7 +79,7 @@ public:
     void makeRenderPassDesc();
     
     /// For screen output we get this from the system as we're drawing
-    void setRenderPassDesc(MTLRenderPassDescriptor *renderPassDesc);
+    void setRenderPassDesc(MTLRenderPassDescriptor *renderPassDesc,bool alphaBlendOne);
     
     /// Get the last render pass descriptor built
     MTLRenderPassDescriptor *getRenderPassDesc(int level=-1);
@@ -99,6 +99,8 @@ public:
     id<MTLTexture> depthTex;
     MTLPixelFormat depthPixelFormat;
     bool renderPassDescSetFromOutside;
+    // MapLibre wants an alpha value of 1 for some reason
+    bool alphaBlendOne = false;
     std::vector<MTLRenderPassDescriptor *> renderPassDesc;
     MPSImagePyramid *mipmapKernel;
     id<MTLTexture> minMaxOutTex;

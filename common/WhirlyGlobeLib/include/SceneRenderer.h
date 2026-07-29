@@ -67,6 +67,7 @@ struct RendererFrameInfo
     Eigen::Matrix4d mvpMat4d;
     /// Inverse of the model/view/projection matrix
     Eigen::Matrix4f mvpInvMat;
+    Eigen::Matrix4d mvpInvMat4d;
     /// Normal matrix for MVP
     Eigen::Matrix4f mvpNormalMat;
     /// Model, and view matrix but for normal transformation
