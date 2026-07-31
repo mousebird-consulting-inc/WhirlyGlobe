@@ -956,8 +956,7 @@ void SceneRendererMTL::tryRender(TimeInterval duration, RenderInfo *renderInfo)
             id<MTLCommandBuffer> cmdBuff = nil;
             
             // For the final render target we may want to use someone else's
-            if (targetContainer->renderTarget && targetContainer->renderTarget->getId() == EmptyIdentity && renderInfo)
-                cmdBuff = renderInfoMTL->cmdBuffer;
+            cmdBuff = renderInfoMTL->cmdBuffer;
             if (!cmdBuff)
                 cmdBuff = [cmdQueue commandBuffer];
 
